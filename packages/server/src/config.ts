@@ -87,11 +87,12 @@ if (publicOrigin !== undefined) {
 
 // AGPL-3.0 § 13 "network-use source offer": users interacting over the network
 // must be able to obtain the Corresponding Source of the *running* version.
-// Operators who modify Backspace and self-host MUST point this at their own
-// fork's source so the offer stays accurate. Defaults to the upstream repo for
-// unmodified deployments.
+// This fork carries changes ahead of upstream (Bot API), so the offer defaults
+// to this fork's source. Operators with their own further fork MUST point
+// BACKSPACE_SOURCE_URL at it so the offer stays accurate.
 const UPSTREAM_SOURCE_URL = 'https://github.com/TheZwiss/backspace';
-const sourceCodeUrl = envOptional('BACKSPACE_SOURCE_URL') ?? UPSTREAM_SOURCE_URL;
+const FORK_SOURCE_URL = 'https://github.com/bernardokcosta/backspace';
+const sourceCodeUrl = envOptional('BACKSPACE_SOURCE_URL') ?? FORK_SOURCE_URL;
 if (!/^https?:\/\//i.test(sourceCodeUrl)) {
   throw new Error(
     `BACKSPACE_SOURCE_URL must start with http:// or https:// — got: ${sourceCodeUrl}`
