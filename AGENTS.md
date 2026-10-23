@@ -64,4 +64,4 @@ site/             — landing page + insights dashboard (vendored uPlot, do not 
 
 ## Subsystem specs
 
-One file per subsystem under `docs/systems/` — **read the one you touch before changing it**: `database`, `api`, `websocket`, `federation`, `client-federation`, `permissions`, `voice`, `auth`, `dm-system`, `spaces`, `social`, `sounds`, `admin`, `uploads`, `embeds`, `search`, `desktop`, `desktop-security`, `mobile-ui`, `message-list`, `design-system`, `localization`, `telemetry`, `telemetry-opt-in-rate`, `directory`, `project-hub`, `metrics`, `deployment`, `security-scanning`, `web-security` (all `.md`).
+One file per subsystem under `docs/systems/` — **read the one you touch before changing it**: `database`, `api`, `websocket`, `federation`, `client-federation`, `permissions`, `voice`, `auth`, `bots`, `dm-system`, `spaces`, `social`, `sounds`, `admin`, `uploads`, `embeds`, `search`, `desktop`, `desktop-security`, `mobile-ui`, `message-list`, `design-system`, `localization`, `telemetry`, `telemetry-opt-in-rate`, `directory`, `project-hub`, `metrics`, `deployment`, `security-scanning`, `web-security` (all `.md`).
