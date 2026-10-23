@@ -197,7 +197,7 @@ Registration resolution order: `instance_settings.registrationOpen` (if not null
 
 `federatedRegistrationOpen` is consumed by the Connections UI (client-federation.md) to decide whether to surface the "create federated account on this instance" affordance.
 
-`sourceCodeUrl` / `commit` implement the **AGPL-3.0 § 13 network-use source offer**. `sourceCodeUrl` defaults to the upstream repo and is overridable via `BACKSPACE_SOURCE_URL` — operators running a modified build MUST point it at their fork so network users get the source of the version actually running. `commit` is injected at Docker build time (`deploy.sh` passes `--build-arg BACKSPACE_COMMIT=$(git rev-parse --short HEAD)` → Dockerfile `ARG`/`ENV` → `config.commit`); it is `null` in local dev. These are not admin-editable settings — they are deployment/config values, deliberately exposed on this unauthenticated endpoint for transparency to anonymous users and federated peers.
+`sourceCodeUrl` / `commit` implement the **AGPL-3.0 § 13 network-use source offer**. `sourceCodeUrl` defaults to this fork (`https://github.com/bernardokcosta/backspace`) and is overridable via `BACKSPACE_SOURCE_URL` — operators with their own further fork MUST point it at their fork so network users get the source of the version actually running. `commit` is injected at Docker build time (`deploy.sh` passes `--build-arg BACKSPACE_COMMIT=$(git rev-parse --short HEAD)` → Dockerfile `ARG`/`ENV` → `config.commit`); it is `null` in local dev. These are not admin-editable settings — they are deployment/config values, deliberately exposed on this unauthenticated endpoint for transparency to anonymous users and federated peers.
 
 ### General Instance Settings
 

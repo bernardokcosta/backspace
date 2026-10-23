@@ -97,7 +97,7 @@ The server is run through `tsx` (no separate transpile step); TypeScript is exec
 - **`install.sh`** (the public first-time path) reads the commit from the checkout the operator cloned and passes it explicitly as `docker compose build --build-arg BACKSPACE_COMMIT=<sha>`. `--build-arg` is used instead of an exported env var because it survives the sudo/non-sudo `$COMPOSE` split (an exported var would be stripped by `sudo`). A tarball install (no `.git`) yields an empty arg → `null`.
 - **`deploy.sh`** captures the commit locally (the remote has no `.git` after rsync) and exports it inline before the remote `docker compose up -d --build`.
 
-Empty/unset → `config.commit` is `null` (local dev, tarball install, or git unavailable). The source URL itself is `config.sourceCodeUrl` (env `BACKSPACE_SOURCE_URL`, default upstream) — operators running a modified build MUST set it to their fork.
+Empty/unset → `config.commit` is `null` (local dev, tarball install, or git unavailable). The source URL itself is `config.sourceCodeUrl` (env `BACKSPACE_SOURCE_URL`, default this fork) — operators with their own further fork MUST set it to their fork.
 
 ### Web bundle and the precache limit
 
