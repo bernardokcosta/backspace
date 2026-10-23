@@ -23,7 +23,7 @@ function status(over: Partial<InstanceUpdateStatus> = {}): InstanceUpdateStatus 
 const AVAILABLE = status({
   latest: {
     version: '1.0.4',
-    url: 'https://github.com/TheZwiss/backspace/releases/tag/v1.0.4',
+    url: 'https://github.com/bernardokcosta/backspace/releases/tag/v1.0.4',
     publishedAt: '2026-09-03T11:00:00Z',
   },
   state: 'update-available',
@@ -73,7 +73,7 @@ describe('UpdatesPanel, an update exists', () => {
     render(<UpdatesPanel />);
     expect(await screen.findByText('Backspace 1.0.4 is available')).toBeInTheDocument();
     const link = screen.getByRole('link', { name: 'Release notes' });
-    expect(link).toHaveAttribute('href', 'https://github.com/TheZwiss/backspace/releases/tag/v1.0.4');
+    expect(link).toHaveAttribute('href', 'https://github.com/bernardokcosta/backspace/releases/tag/v1.0.4');
     expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'));
   });
 

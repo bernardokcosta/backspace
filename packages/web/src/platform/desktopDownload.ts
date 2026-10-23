@@ -54,7 +54,7 @@ export interface NavigatorLike {
 }
 
 /** The release listing, not `releases/latest`: filenames carry the version, so there is no fixed-name asset. */
-export const RELEASES_URL = 'https://github.com/TheZwiss/backspace/releases';
+export const RELEASES_URL = 'https://github.com/bernardokcosta/backspace/releases';
 
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
 
@@ -216,7 +216,7 @@ function primaryBuild(detected: DetectedPlatform): BuildSpec | null {
 }
 
 function toDownload(build: BuildSpec, version: string, versionIsReleasable: boolean): DesktopDownload {
-  const filename = `Backspace-${version}${build.fileSuffix}.${build.ext}`;
+  const filename = `Backspace Fork-${version}${build.fileSuffix}.${build.ext}`;
   return {
     os: build.os,
     arch: build.arch,

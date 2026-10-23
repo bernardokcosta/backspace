@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Extracts the store-facing "What's New" text for a release from its GitHub
-// release notes. The notes open with "# Backspace X.Y.Z", a blank line, and a
+// release notes. The notes open with "# Backspace Fork X.Y.Z", a blank line, and a
 // one-paragraph summary; that paragraph becomes the AppStream release
 // description shown by GNOME Software, KDE Discover and Flathub.
 //
@@ -43,7 +43,7 @@ export function releaseSummary(body, version) {
   if (!/^\d+\.\d+\.\d+$/.test(version ?? '')) {
     throw new Error(`Expected a version such as 1.5.2, got ${version ?? '<missing>'}`);
   }
-  const title = `# Backspace ${version}`;
+  const title = `# Backspace Fork ${version}`;
   const lines = String(body ?? '').replace(/\r\n?/g, '\n').split('\n');
 
   let index = lines.findIndex(line => line.trim() !== '');

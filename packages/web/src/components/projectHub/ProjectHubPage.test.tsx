@@ -183,7 +183,7 @@ describe('ProjectHubPage: What\'s new', () => {
     await waitFor(() => expect(card("What's new")).toHaveTextContent("You're on 1.5.1"));
     const link = within(card("What's new")).getByRole('link', { name: /Read the release notes/ });
     expect(link).toHaveAttribute('href', releaseNotesUrl('1.5.1'));
-    expect(link.getAttribute('href')).toBe('https://github.com/TheZwiss/backspace/releases/tag/v1.5.1');
+    expect(link.getAttribute('href')).toBe('https://github.com/bernardokcosta/backspace/releases/tag/v1.5.1');
   });
 
   it('with failed info says noVersion, links to the release list and marks nothing', async () => {

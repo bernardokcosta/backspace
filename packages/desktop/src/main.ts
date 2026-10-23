@@ -93,14 +93,14 @@ let pendingDeepLink: string | null = null;
 const knownInstanceOrigins = new Set<string>();
 
 // ─── AGPL-3.0 § 13 source offer ─────────────────────────────────────────────
-// Upstream fallback for the "Source code" menu items and the About panel.
+// Fork fallback for the "Source code" menu items and the About panel.
 // Used when the connected instance can't be reached or advertises no source URL.
-const UPSTREAM_SOURCE_URL = 'https://github.com/TheZwiss/backspace';
+const FORK_SOURCE_URL = 'https://github.com/bernardokcosta/backspace';
 
 /**
  * Resolve the Corresponding Source URL for the instance the desktop app is
  * pointed at, honouring an operator's modified fork via GET /api/instance/info.
- * Falls back to the upstream repo when no instance is loaded or the probe fails.
+ * Falls back to this fork's repo when no instance is loaded or the probe fails.
  */
 async function resolveSourceUrl(): Promise<string> {
   let base: string | null = process.env.BACKSPACE_URL ?? loadInstanceUrl();
@@ -108,12 +108,12 @@ async function resolveSourceUrl(): Promise<string> {
     const current = mainWindow.webContents.getURL();
     if (current.startsWith('http://') || current.startsWith('https://')) base = current;
   }
-  if (!base) return UPSTREAM_SOURCE_URL;
+  if (!base) return FORK_SOURCE_URL;
 
   try {
     const origin = new URL(base).origin;
     const res = await fetch(`${origin}/api/instance/info`, { signal: AbortSignal.timeout(5000) });
-    if (!res.ok) return UPSTREAM_SOURCE_URL;
+    if (!res.ok) return FORK_SOURCE_URL;
     const info = (await res.json()) as { sourceCodeUrl?: unknown };
     if (typeof info.sourceCodeUrl === 'string' && /^https?:\/\//i.test(info.sourceCodeUrl)) {
       return info.sourceCodeUrl;
@@ -121,14 +121,14 @@ async function resolveSourceUrl(): Promise<string> {
   } catch {
     // Unreachable / malformed — fall back to upstream.
   }
-  return UPSTREAM_SOURCE_URL;
+  return FORK_SOURCE_URL;
 }
 
-/** Open the resolved source URL externally; upstream fallback on any failure. */
+/** Open the resolved source URL externally; fork fallback on any failure. */
 function openSourceCode(): void {
   resolveSourceUrl()
     .then((url) => shell.openExternal(url))
-    .catch(() => { void shell.openExternal(UPSTREAM_SOURCE_URL); });
+    .catch(() => { void shell.openExternal(FORK_SOURCE_URL); });
 }
 
 // ─── Window State Persistence ───────────────────────────────────────────────
@@ -1026,7 +1026,7 @@ function notifyAboutUpdate(
 
   if (snapshot.status.phase === 'ready' && snapshot.capability === 'auto') {
     showNotification(
-      'Backspace update ready',
+      'Backspace Fork update ready',
       `Click to restart and install version ${version}.`,
       () => updater.quitAndInstall(),
     );
@@ -1034,7 +1034,7 @@ function notifyAboutUpdate(
   }
 
   showNotification(
-    `Backspace ${version} is available`,
+    `Backspace Fork ${version} is available`,
     'Click to open the download page.',
     () => { void shell.openExternal(RELEASES_URL); },
   );
@@ -1226,7 +1226,7 @@ if (process.platform === 'linux') {
 // Windows: AppUserModelId so toast notifications attribute correctly to Backspace
 // (without this, recovery / update notifications appear under "electron.exe").
 if (process.platform === 'win32') {
-  app.setAppUserModelId('com.backspace.desktop');
+  app.setAppUserModelId('io.github.bernardokcosta.backspacefork');
 }
 
 /**
@@ -1421,10 +1421,10 @@ if (!gotTheLock) {
 
     // AGPL-3.0 § 13: native About panel advertises the version + source repo.
     app.setAboutPanelOptions({
-      applicationName: 'Backspace',
+      applicationName: 'Backspace Fork',
       applicationVersion: app.getVersion(),
-      copyright: `AGPL-3.0-only · Source: ${UPSTREAM_SOURCE_URL}`,
-      website: UPSTREAM_SOURCE_URL,
+      copyright: `AGPL-3.0-only · Source: ${FORK_SOURCE_URL}`,
+      website: FORK_SOURCE_URL,
     });
 
     // Tray + macOS app-menu actions. Defined once so the subscriber and the

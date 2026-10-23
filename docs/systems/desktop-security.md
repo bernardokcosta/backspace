@@ -153,7 +153,7 @@ designated => identifier "com.example.app" and anchor apple generic and
   certificate leaf[subject.OU] = "TEAMID"
 ```
 
-`~/Library/Caches/com.backspace.desktop.ShipIt` exists but is empty on affected machines: Squirrel created its state directory, failed validation, and wrote nothing.
+`~/Library/Caches/io.github.bernardokcosta.backspacefork.ShipIt` exists but is empty on affected machines: Squirrel created its state directory, failed validation, and wrote nothing.
 
 **The app now measures this at runtime** rather than hardcoding "macOS cannot update". `packages/desktop/src/updateCapability.ts` runs the `codesign -d -r-` probe, classifies the requirement, and reports `manual` for a bare cdhash and `auto` for anything certificate-anchored. Consequences: `autoDownload` is off in manual mode (the ad-hoc build was otherwise pulling the full release archive on every check and storing it twice, 228 MB measured, for a file it could never apply), no Restart button is offered, and the copy says plainly that the build cannot update itself. **When a Developer ID lands in CI, that probe flips to `auto` on its own with no code change.** See [desktop.md](desktop.md) for the full update flow.
 

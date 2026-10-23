@@ -432,11 +432,11 @@ suppressed when the window is focused (the in-app toast covers that) and when
 | Capability | Title | Body | Click |
 |---|---|---|---|
 | `auto` | Backspace update ready | Click to restart and install version X. | `quitAndInstall()` |
-| `manual` | Backspace X is available | Click to open the download page. | `shell.openExternal(RELEASES_URL)` |
+| `manual` | Backspace Fork X is available | Click to open the download page. | `shell.openExternal(RELEASES_URL)` |
 | `external` | — | No in-app notification; the package manager notifies the user. | — |
 
-Win32 only: `app.setAppUserModelId('com.backspace.desktop')` is set early in
-startup so notifications attribute to "Backspace" in Windows Action Center.
+Win32 only: `app.setAppUserModelId('io.github.bernardokcosta.backspacefork')` is set early in
+startup so notifications attribute to "Backspace Fork" in Windows Action Center.
 
 ### Recovery integration
 
@@ -776,7 +776,7 @@ Do Not Disturb and the badge: see sounds.md ("Do Not Disturb").
 
 Badge count: `set-badge-count` IPC calls `app.setBadgeCount()` (macOS dock badge, Windows taskbar overlay).
 
-**Win32 attribution:** `app.setAppUserModelId('com.backspace.desktop')` set early in startup so notifications attribute to "Backspace" in Windows Action Center.
+**Win32 attribution:** `app.setAppUserModelId('io.github.bernardokcosta.backspacefork')` set early in startup so notifications attribute to "Backspace Fork" in Windows Action Center.
 
 ---
 
@@ -1349,8 +1349,8 @@ Toggle actions only fire on `pressed: true`. Push-to-talk fires on both press (u
 ### electron-builder Configuration (`electron-builder.yml`)
 
 ```yaml
-appId: com.backspace.desktop
-productName: Backspace
+appId: io.github.bernardokcosta.backspacefork
+productName: Backspace Fork
 artifactName: "${productName}-${version}-${os}-${arch}.${ext}"
 output: dist-electron
 ```

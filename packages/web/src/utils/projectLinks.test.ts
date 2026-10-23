@@ -8,7 +8,7 @@ import {
   type ProjectLinks,
 } from './projectLinks';
 
-const REPO = 'https://github.com/TheZwiss/backspace';
+const REPO = 'https://github.com/bernardokcosta/backspace';
 
 /** A well-formed set with both optional targets filled, for the validator's sample cases. */
 function filled(over: Partial<ProjectLinks> = {}): ProjectLinks {
@@ -21,7 +21,7 @@ function filled(over: Partial<ProjectLinks> = {}): ProjectLinks {
 }
 
 describe('PROJECT_LINKS', () => {
-  it('holds the upstream repository and the paths derived from it', () => {
+  it('holds the fork repository and the paths derived from it', () => {
     expect(PROJECT_LINKS).toEqual({
       repository: REPO,
       insights: 'https://backspacechat.com/insights/',
@@ -30,7 +30,7 @@ describe('PROJECT_LINKS', () => {
       license: `${REPO}/blob/main/LICENSE`,
       security: `${REPO}/blob/main/SECURITY.md`,
       contributors: `${REPO}/graphs/contributors`,
-      funding: 'https://ko-fi.com/backspacechat',
+      funding: null,
       community: null,
     });
   });

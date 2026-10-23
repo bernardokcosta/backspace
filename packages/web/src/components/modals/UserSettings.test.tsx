@@ -34,7 +34,7 @@ const mocks = vi.hoisted(() => {
     registrationOpen: true,
     federatedRegistrationOpen: true,
     instanceId: 'instance-1',
-    sourceCodeUrl: 'https://github.com/TheZwiss/backspace',
+    sourceCodeUrl: 'https://github.com/bernardokcosta/backspace',
     commit: 'abc1234',
   };
 

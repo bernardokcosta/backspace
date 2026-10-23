@@ -30,7 +30,7 @@ import { config } from '../config.js';
  * the SSRF policy in docs/systems/embeds.md does not apply here.
  */
 
-const RELEASES_API = 'https://api.github.com/repos/TheZwiss/backspace/releases/latest';
+const RELEASES_API = 'https://api.github.com/repos/bernardokcosta/backspace/releases/latest';
 const REQUEST_TIMEOUT_MS = 5_000;
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 /** Enough for a release payload; anything larger is not a release payload. */
@@ -82,7 +82,7 @@ export function parseLatestRelease(payload: unknown): LatestRelease | null {
     version,
     url: typeof raw.html_url === 'string' && raw.html_url.startsWith('https://github.com/')
       ? raw.html_url
-      : `https://github.com/TheZwiss/backspace/releases/tag/${tag}`,
+      : `https://github.com/bernardokcosta/backspace/releases/tag/${tag}`,
     publishedAt: typeof raw.published_at === 'string' ? raw.published_at : '',
   };
 }
@@ -181,7 +181,7 @@ async function performLookup(): Promise<ReleaseCheckResult> {
         Accept: 'application/vnd.github+json',
         // GitHub rejects requests with no User-Agent. This one says what the
         // software is and nothing about which instance is asking.
-        'User-Agent': 'Backspace',
+        'User-Agent': 'Backspace-Fork',
       },
     });
 

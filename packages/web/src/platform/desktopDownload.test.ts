@@ -186,14 +186,14 @@ describe('buildDesktopDownloads', () => {
     expect(links.primary).toBeNull();
     expect(names(links.others).slice().sort()).toEqual(
       [
-        'Backspace-1.2.1-win-x64.exe',
-        'Backspace-1.2.1-win-arm64.exe',
-        'Backspace-1.2.1-mac-arm64.dmg',
-        'Backspace-1.2.1-mac-x64.dmg',
-        'Backspace-1.2.1-linux-x86_64.AppImage',
-        'Backspace-1.2.1-linux-arm64.AppImage',
-        'Backspace-1.2.1-linux-amd64.deb',
-        'Backspace-1.2.1-linux-arm64.deb',
+        'Backspace Fork-1.2.1-win-x64.exe',
+        'Backspace Fork-1.2.1-win-arm64.exe',
+        'Backspace Fork-1.2.1-mac-arm64.dmg',
+        'Backspace Fork-1.2.1-mac-x64.dmg',
+        'Backspace Fork-1.2.1-linux-x86_64.AppImage',
+        'Backspace Fork-1.2.1-linux-arm64.AppImage',
+        'Backspace Fork-1.2.1-linux-amd64.deb',
+        'Backspace Fork-1.2.1-linux-arm64.deb',
       ].sort(),
     );
     for (const download of links.others) {
@@ -205,14 +205,14 @@ describe('buildDesktopDownloads', () => {
   it('runs windows, linux, mac on an unsupported platform', () => {
     const links = buildDesktopDownloads(VERSION, platform('other', null));
     expect(names(links.others)).toEqual([
-      'Backspace-1.2.1-win-x64.exe',
-      'Backspace-1.2.1-win-arm64.exe',
-      'Backspace-1.2.1-linux-x86_64.AppImage',
-      'Backspace-1.2.1-linux-amd64.deb',
-      'Backspace-1.2.1-linux-arm64.AppImage',
-      'Backspace-1.2.1-linux-arm64.deb',
-      'Backspace-1.2.1-mac-arm64.dmg',
-      'Backspace-1.2.1-mac-x64.dmg',
+      'Backspace Fork-1.2.1-win-x64.exe',
+      'Backspace Fork-1.2.1-win-arm64.exe',
+      'Backspace Fork-1.2.1-linux-x86_64.AppImage',
+      'Backspace Fork-1.2.1-linux-amd64.deb',
+      'Backspace Fork-1.2.1-linux-arm64.AppImage',
+      'Backspace Fork-1.2.1-linux-arm64.deb',
+      'Backspace Fork-1.2.1-mac-arm64.dmg',
+      'Backspace Fork-1.2.1-mac-x64.dmg',
     ]);
   });
 
@@ -222,61 +222,61 @@ describe('buildDesktopDownloads', () => {
       os: 'windows',
       arch: 'x64',
       kind: 'exe',
-      filename: 'Backspace-1.2.1-win-x64.exe',
-      url: `${BASE}Backspace-1.2.1-win-x64.exe`,
+      filename: 'Backspace Fork-1.2.1-win-x64.exe',
+      url: `${BASE}Backspace Fork-1.2.1-win-x64.exe`,
     });
     expect(names(links.others)).toEqual([
-      'Backspace-1.2.1-win-arm64.exe',
-      'Backspace-1.2.1-linux-x86_64.AppImage',
-      'Backspace-1.2.1-linux-amd64.deb',
-      'Backspace-1.2.1-linux-arm64.AppImage',
-      'Backspace-1.2.1-linux-arm64.deb',
-      'Backspace-1.2.1-mac-x64.dmg',
-      'Backspace-1.2.1-mac-arm64.dmg',
+      'Backspace Fork-1.2.1-win-arm64.exe',
+      'Backspace Fork-1.2.1-linux-x86_64.AppImage',
+      'Backspace Fork-1.2.1-linux-amd64.deb',
+      'Backspace Fork-1.2.1-linux-arm64.AppImage',
+      'Backspace Fork-1.2.1-linux-arm64.deb',
+      'Backspace Fork-1.2.1-mac-x64.dmg',
+      'Backspace Fork-1.2.1-mac-arm64.dmg',
     ]);
   });
 
   it('offers the arm64 installer on arm64 windows', () => {
     const links = buildDesktopDownloads(VERSION, platform('windows', 'arm64'));
-    expect(links.primary?.filename).toBe('Backspace-1.2.1-win-arm64.exe');
+    expect(links.primary?.filename).toBe('Backspace Fork-1.2.1-win-arm64.exe');
     expect(names(links.others)).toEqual([
-      'Backspace-1.2.1-win-x64.exe',
-      'Backspace-1.2.1-linux-arm64.AppImage',
-      'Backspace-1.2.1-linux-arm64.deb',
-      'Backspace-1.2.1-linux-x86_64.AppImage',
-      'Backspace-1.2.1-linux-amd64.deb',
-      'Backspace-1.2.1-mac-arm64.dmg',
-      'Backspace-1.2.1-mac-x64.dmg',
+      'Backspace Fork-1.2.1-win-x64.exe',
+      'Backspace Fork-1.2.1-linux-arm64.AppImage',
+      'Backspace Fork-1.2.1-linux-arm64.deb',
+      'Backspace Fork-1.2.1-linux-x86_64.AppImage',
+      'Backspace Fork-1.2.1-linux-amd64.deb',
+      'Backspace Fork-1.2.1-mac-arm64.dmg',
+      'Backspace Fork-1.2.1-mac-x64.dmg',
     ]);
   });
 
   it('offers the arm dmg on an Apple Silicon mac', () => {
     const links = buildDesktopDownloads(VERSION, platform('mac', 'arm64'));
-    expect(links.primary?.filename).toBe('Backspace-1.2.1-mac-arm64.dmg');
+    expect(links.primary?.filename).toBe('Backspace Fork-1.2.1-mac-arm64.dmg');
     expect(links.primary?.kind).toBe('dmg');
     // The visitor's own platform is exhausted first, then windows, linux, mac.
     expect(names(links.others)).toEqual([
-      'Backspace-1.2.1-mac-x64.dmg',
-      'Backspace-1.2.1-win-arm64.exe',
-      'Backspace-1.2.1-win-x64.exe',
-      'Backspace-1.2.1-linux-arm64.AppImage',
-      'Backspace-1.2.1-linux-arm64.deb',
-      'Backspace-1.2.1-linux-x86_64.AppImage',
-      'Backspace-1.2.1-linux-amd64.deb',
+      'Backspace Fork-1.2.1-mac-x64.dmg',
+      'Backspace Fork-1.2.1-win-arm64.exe',
+      'Backspace Fork-1.2.1-win-x64.exe',
+      'Backspace Fork-1.2.1-linux-arm64.AppImage',
+      'Backspace Fork-1.2.1-linux-arm64.deb',
+      'Backspace Fork-1.2.1-linux-x86_64.AppImage',
+      'Backspace Fork-1.2.1-linux-amd64.deb',
     ]);
   });
 
   it('offers the intel dmg on an intel mac', () => {
     const links = buildDesktopDownloads(VERSION, platform('mac', 'x64'));
-    expect(links.primary?.filename).toBe('Backspace-1.2.1-mac-x64.dmg');
+    expect(links.primary?.filename).toBe('Backspace Fork-1.2.1-mac-x64.dmg');
     expect(names(links.others)).toEqual([
-      'Backspace-1.2.1-mac-arm64.dmg',
-      'Backspace-1.2.1-win-x64.exe',
-      'Backspace-1.2.1-win-arm64.exe',
-      'Backspace-1.2.1-linux-x86_64.AppImage',
-      'Backspace-1.2.1-linux-amd64.deb',
-      'Backspace-1.2.1-linux-arm64.AppImage',
-      'Backspace-1.2.1-linux-arm64.deb',
+      'Backspace Fork-1.2.1-mac-arm64.dmg',
+      'Backspace Fork-1.2.1-win-x64.exe',
+      'Backspace Fork-1.2.1-win-arm64.exe',
+      'Backspace Fork-1.2.1-linux-x86_64.AppImage',
+      'Backspace Fork-1.2.1-linux-amd64.deb',
+      'Backspace Fork-1.2.1-linux-arm64.AppImage',
+      'Backspace Fork-1.2.1-linux-arm64.deb',
     ]);
   });
 
@@ -286,31 +286,31 @@ describe('buildDesktopDownloads', () => {
       os: 'linux',
       arch: 'x64',
       kind: 'appimage',
-      filename: 'Backspace-1.2.1-linux-x86_64.AppImage',
-      url: `${BASE}Backspace-1.2.1-linux-x86_64.AppImage`,
+      filename: 'Backspace Fork-1.2.1-linux-x86_64.AppImage',
+      url: `${BASE}Backspace Fork-1.2.1-linux-x86_64.AppImage`,
     });
     expect(names(links.others)).toEqual([
-      'Backspace-1.2.1-linux-amd64.deb',
-      'Backspace-1.2.1-linux-arm64.AppImage',
-      'Backspace-1.2.1-linux-arm64.deb',
-      'Backspace-1.2.1-win-x64.exe',
-      'Backspace-1.2.1-win-arm64.exe',
-      'Backspace-1.2.1-mac-x64.dmg',
-      'Backspace-1.2.1-mac-arm64.dmg',
+      'Backspace Fork-1.2.1-linux-amd64.deb',
+      'Backspace Fork-1.2.1-linux-arm64.AppImage',
+      'Backspace Fork-1.2.1-linux-arm64.deb',
+      'Backspace Fork-1.2.1-win-x64.exe',
+      'Backspace Fork-1.2.1-win-arm64.exe',
+      'Backspace Fork-1.2.1-mac-x64.dmg',
+      'Backspace Fork-1.2.1-mac-arm64.dmg',
     ]);
   });
 
   it('offers the arm AppImage on arm linux', () => {
     const links = buildDesktopDownloads(VERSION, platform('linux', 'arm64'));
-    expect(links.primary?.filename).toBe('Backspace-1.2.1-linux-arm64.AppImage');
+    expect(links.primary?.filename).toBe('Backspace Fork-1.2.1-linux-arm64.AppImage');
     expect(names(links.others)).toEqual([
-      'Backspace-1.2.1-linux-arm64.deb',
-      'Backspace-1.2.1-linux-x86_64.AppImage',
-      'Backspace-1.2.1-linux-amd64.deb',
-      'Backspace-1.2.1-win-arm64.exe',
-      'Backspace-1.2.1-win-x64.exe',
-      'Backspace-1.2.1-mac-arm64.dmg',
-      'Backspace-1.2.1-mac-x64.dmg',
+      'Backspace Fork-1.2.1-linux-arm64.deb',
+      'Backspace Fork-1.2.1-linux-x86_64.AppImage',
+      'Backspace Fork-1.2.1-linux-amd64.deb',
+      'Backspace Fork-1.2.1-win-arm64.exe',
+      'Backspace Fork-1.2.1-win-x64.exe',
+      'Backspace Fork-1.2.1-mac-arm64.dmg',
+      'Backspace Fork-1.2.1-mac-x64.dmg',
     ]);
   });
 

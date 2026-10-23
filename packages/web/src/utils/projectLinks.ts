@@ -3,10 +3,10 @@
  * derive URLs from them.
  *
  * Only the web client reads these, so they live here and not in `shared`,
- * which holds contracts between packages. Links always point upstream: the
- * Backspace page is about the project. The instance's own source offer (a
- * fork's `BACKSPACE_SOURCE_URL`) comes from `GET /api/instance/info`, never
- * from here.
+ * which holds contracts between packages. Links point at this fork: the
+ * Backspace page is about the project as shipped here. The instance's own
+ * source offer (a further fork's `BACKSPACE_SOURCE_URL`) comes from
+ * `GET /api/instance/info`, never from here.
  *
  * `community` ships as null. A null `funding` or `community` hides its card,
  * so no card ever renders a dead link; filling one in is a one-line change
@@ -37,7 +37,7 @@ export interface ProjectLinks {
   community: CommunityTarget | null;
 }
 
-const REPOSITORY = 'https://github.com/TheZwiss/backspace';
+const REPOSITORY = 'https://github.com/bernardokcosta/backspace';
 
 export const PROJECT_LINKS: ProjectLinks = {
   repository: REPOSITORY,
@@ -47,7 +47,9 @@ export const PROJECT_LINKS: ProjectLinks = {
   license: `${REPOSITORY}/blob/main/LICENSE`,
   security: `${REPOSITORY}/blob/main/SECURITY.md`,
   contributors: `${REPOSITORY}/graphs/contributors`,
-  funding: 'https://ko-fi.com/backspacechat',
+  // No fork funding page: null hides the Support card instead of soliciting
+  // donations for the upstream author from this fork's users.
+  funding: null,
   community: null,
 };
 

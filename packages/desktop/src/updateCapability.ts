@@ -51,7 +51,7 @@ export function isSandboxed(): boolean {
  * A Developer ID signed bundle instead reports something anchored to the
  * certificate, which every later build from the same team satisfies:
  *
- *   # designated => identifier "com.backspace.desktop" and anchor apple generic
+ *   # designated => identifier "io.github.bernardokcosta.backspacefork" and anchor apple generic
  *     and certificate leaf[subject.OU] = "TEAMID"
  *
  * Universal binaries report one cdhash term per slice, joined by `or`, so the
@@ -97,8 +97,8 @@ export function classifyDesignatedRequirement(codesignOutput: string): Signature
 /**
  * Resolves the .app bundle root from the main executable path.
  *
- * `/Applications/Backspace.app/Contents/MacOS/Backspace`
- *   -> `/Applications/Backspace.app`
+ * `/Applications/Backspace Fork.app/Contents/MacOS/Backspace Fork`
+ *   -> `/Applications/Backspace Fork.app`
  *
  * Exported for tests; the shape is fixed by the macOS bundle layout.
  */

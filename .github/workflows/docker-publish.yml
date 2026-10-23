@@ -81,7 +81,7 @@ jobs:
             type=sha
             type=raw,value=${{ github.event.inputs.tag }},enable=${{ github.event.inputs.tag != '' }}
           labels: |
-            org.opencontainers.image.title=Backspace
+            org.opencontainers.image.title=Backspace Fork
             org.opencontainers.image.description=Self-hosted Discord alternative — text, voice, video, and federation.
             org.opencontainers.image.source=https://github.com/TheZwiss/backspace
             org.opencontainers.image.licenses=AGPL-3.0-only

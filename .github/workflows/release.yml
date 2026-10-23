@@ -51,11 +51,11 @@ jobs:
         # exactly as before while this job reported success. Look first, create
         # only on a confirmed absence, and let anything else fail the job.
         #
-        # The title matches every release shipped so far ("Backspace 1.0.3").
+        # The title matches every release shipped so far ("Backspace Fork 1.11.1").
         # electron-builder would name the draft after the bare version instead,
         # because `releaseInfo.releaseName` is not set in electron-builder.yml.
         #
-        # The body starts as a "# Backspace X.Y.Z" heading followed by a
+        # The body starts as a "# Backspace Fork X.Y.Z" heading followed by a
         # Downloads table. GitHub sorts the asset list by name and offers no
         # other order, which puts Linux first and Windows last; the table is
         # what a visitor reads instead, in Windows, Linux, macOS order with
@@ -94,20 +94,20 @@ jobs:
           asset() { printf '[%s](%s/%s)' "$1" "$base" "$1"; }
           notes="$(mktemp)"
           {
-            echo "# Backspace $version"
+            echo "# Backspace Fork $version"
             echo
             echo "## Downloads"
             echo
             echo "| Platform | Download |"
             echo "|---|---|"
-            echo "| Windows x64 | $(asset "Backspace-$version-win-x64.exe") |"
-            echo "| Windows arm64 | $(asset "Backspace-$version-win-arm64.exe") |"
-            echo "| Linux AppImage x86_64 | $(asset "Backspace-$version-linux-x86_64.AppImage") |"
-            echo "| Linux AppImage arm64 | $(asset "Backspace-$version-linux-arm64.AppImage") |"
-            echo "| Linux deb amd64 | $(asset "Backspace-$version-linux-amd64.deb") |"
-            echo "| Linux deb arm64 | $(asset "Backspace-$version-linux-arm64.deb") |"
-            echo "| macOS Apple Silicon | $(asset "Backspace-$version-mac-arm64.dmg") |"
-            echo "| macOS Intel | $(asset "Backspace-$version-mac-x64.dmg") |"
+            echo "| Windows x64 | $(asset "Backspace Fork-$version-win-x64.exe") |"
+            echo "| Windows arm64 | $(asset "Backspace Fork-$version-win-arm64.exe") |"
+            echo "| Linux AppImage x86_64 | $(asset "Backspace Fork-$version-linux-x86_64.AppImage") |"
+            echo "| Linux AppImage arm64 | $(asset "Backspace Fork-$version-linux-arm64.AppImage") |"
+            echo "| Linux deb amd64 | $(asset "Backspace Fork-$version-linux-amd64.deb") |"
+            echo "| Linux deb arm64 | $(asset "Backspace Fork-$version-linux-arm64.deb") |"
+            echo "| macOS Apple Silicon | $(asset "Backspace Fork-$version-mac-arm64.dmg") |"
+            echo "| macOS Intel | $(asset "Backspace Fork-$version-mac-x64.dmg") |"
             echo
             echo "The \`.blockmap\` and \`latest*.yml\` files are read by the auto-updater and are not meant to be downloaded by hand."
           } > "$notes"
@@ -115,7 +115,7 @@ jobs:
           echo "No release carries $TAG yet — creating the draft."
           gh release create "$TAG" \
             --draft \
-            --title "Backspace $version" \
+            --title "Backspace Fork $version" \
             --notes-file "$notes"
 
   build:
@@ -256,14 +256,14 @@ jobs:
           case "$RUNNER_OS" in
             macOS)
               artifacts=(
-                "dist-electron/mac/Backspace.app"
-                "dist-electron/mac-arm64/Backspace.app"
+                "dist-electron/mac/Backspace Fork.app"
+                "dist-electron/mac-arm64/Backspace Fork.app"
               )
               ;;
             Windows)
               artifacts=(
-                "dist-electron/win-unpacked/Backspace.exe"
-                "dist-electron/win-arm64-unpacked/Backspace.exe"
+                "dist-electron/win-unpacked/Backspace Fork.exe"
+                "dist-electron/win-arm64-unpacked/Backspace Fork.exe"
               )
               ;;
             Linux)
@@ -274,9 +274,9 @@ jobs:
               # linux.executableName explicitly. Keep this path in step with
               # packages/desktop/electron-builder.yml; nothing else couples them.
               if [ "$RUNNER_ARCH" = "ARM64" ]; then
-                artifacts=("dist-electron/linux-arm64-unpacked/Backspace")
+                artifacts=("dist-electron/linux-arm64-unpacked/Backspace Fork")
               else
-                artifacts=("dist-electron/linux-unpacked/Backspace")
+                artifacts=("dist-electron/linux-unpacked/Backspace Fork")
               fi
               ;;
             *)
@@ -341,7 +341,7 @@ jobs:
         if: runner.os == 'macOS'
         working-directory: packages/desktop
         # Backstop for the ad-hoc signing done in scripts/macSign.js. A bundle
-        # whose signature does not validate is reported by macOS as "Backspace
+        # whose signature does not validate is reported by macOS as "Backspace Fork
         # is damaged and can't be opened", which no user can work around from
         # the UI — so a broken seal must fail the release loudly rather than
         # ship. macSign.js already verifies before packaging; this re-checks the

@@ -30,7 +30,7 @@ describe('classifyDesignatedRequirement', () => {
   it('classifies a bare cdhash requirement as ad-hoc', () => {
     // Verbatim output from the ad-hoc signed 1.0.3 build that could not update.
     const output = [
-      'Executable=/Applications/Backspace.app/Contents/MacOS/Backspace',
+      'Executable=/Applications/Backspace Fork.app/Contents/MacOS/Backspace Fork',
       '# designated => cdhash H"4a9e49fe20f82802702a4e9d752748e990909659"',
       '',
     ].join('\n');
@@ -39,7 +39,7 @@ describe('classifyDesignatedRequirement', () => {
 
   it('classifies a universal binary with one cdhash per slice as ad-hoc', () => {
     const output = [
-      'Executable=/Applications/Backspace.app/Contents/MacOS/Backspace',
+      'Executable=/Applications/Backspace Fork.app/Contents/MacOS/Backspace Fork',
       '# designated => cdhash H"aaaa1111" or cdhash H"bbbb2222"',
     ].join('\n');
     expect(classifyDesignatedRequirement(output)).toBe('adhoc');
@@ -47,17 +47,17 @@ describe('classifyDesignatedRequirement', () => {
 
   it('classifies a Developer ID requirement as identified', () => {
     const output = [
-      'Executable=/Applications/Backspace.app/Contents/MacOS/Backspace',
-      'Identifier=com.backspace.desktop',
-      '# designated => identifier "com.backspace.desktop" and anchor apple generic and certificate leaf[subject.OU] = "AB12CD34EF"',
+      'Executable=/Applications/Backspace Fork.app/Contents/MacOS/Backspace Fork',
+      'Identifier=io.github.bernardokcosta.backspacefork',
+      '# designated => identifier "io.github.bernardokcosta.backspacefork" and anchor apple generic and certificate leaf[subject.OU] = "AB12CD34EF"',
     ].join('\n');
     expect(classifyDesignatedRequirement(output)).toBe('identified');
   });
 
   it('classifies a requirement wrapped across lines as identified', () => {
     const output = [
-      'Executable=/Applications/Backspace.app/Contents/MacOS/Backspace',
-      '# designated => identifier "com.backspace.desktop" and anchor apple',
+      'Executable=/Applications/Backspace Fork.app/Contents/MacOS/Backspace Fork',
+      '# designated => identifier "io.github.bernardokcosta.backspacefork" and anchor apple',
       '  generic and certificate leaf[subject.OU] = "AB12CD34EF"',
       '',
     ].join('\n');
@@ -93,13 +93,13 @@ describe('classifyDesignatedRequirement', () => {
     // readDesignatedRequirement concatenates stdout then stderr, so the
     // Executable= field lands *after* the requirement and must terminate it.
     const stdout = '# designated => cdhash H"4a9e49fe20f82802702a4e9d752748e990909659"\n';
-    const stderr = 'Executable=/Applications/Backspace.app/Contents/MacOS/Backspace\n';
+    const stderr = 'Executable=/Applications/Backspace Fork.app/Contents/MacOS/Backspace Fork\n';
     expect(classifyDesignatedRequirement(`${stdout}\n${stderr}`)).toBe('adhoc');
   });
 
   it('classifies an unsigned bundle as unknown', () => {
     // codesign prints this to stderr and never emits a designated requirement.
-    const output = '/Applications/Backspace.app: code object is not signed at all\n';
+    const output = '/Applications/Backspace Fork.app: code object is not signed at all\n';
     expect(classifyDesignatedRequirement(output)).toBe('unknown');
   });
 
@@ -118,13 +118,13 @@ describe('classifyDesignatedRequirement', () => {
 
 describe('macAppBundlePath', () => {
   it('resolves the bundle root from the main executable', () => {
-    expect(macAppBundlePath('/Applications/Backspace.app/Contents/MacOS/Backspace'))
-      .toBe('/Applications/Backspace.app');
+    expect(macAppBundlePath('/Applications/Backspace Fork.app/Contents/MacOS/Backspace Fork'))
+      .toBe('/Applications/Backspace Fork.app');
   });
 
   it('handles a bundle in a path containing spaces', () => {
-    expect(macAppBundlePath('/Users/x/My Apps/Backspace.app/Contents/MacOS/Backspace'))
-      .toBe('/Users/x/My Apps/Backspace.app');
+    expect(macAppBundlePath('/Users/x/My Apps/Backspace Fork.app/Contents/MacOS/Backspace Fork'))
+      .toBe('/Users/x/My Apps/Backspace Fork.app');
   });
 });
 
@@ -136,7 +136,7 @@ describe('getUpdateCapability', () => {
   });
 
   it('is external inside Flatpak', () => {
-    vi.stubEnv('FLATPAK_ID', 'io.github.TheZwiss.backspace');
+    vi.stubEnv('FLATPAK_ID', 'io.github.bernardokcosta.backspacefork');
     withPlatform('linux', () => {
       expect(getUpdateCapability()).toBe('external');
     });
@@ -176,7 +176,7 @@ describe('isSandboxed', () => {
   });
 
   it('detects a Flatpak environment independently of update capability', () => {
-    vi.stubEnv('FLATPAK_ID', 'io.github.TheZwiss.backspace');
+    vi.stubEnv('FLATPAK_ID', 'io.github.bernardokcosta.backspacefork');
     expect(isSandboxed()).toBe(true);
   });
 
