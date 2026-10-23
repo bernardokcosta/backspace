@@ -64,7 +64,8 @@
       "http-cache-semantics@^4": "^4.3.0",
       "source-map-js@^1": "^1.2.2",
       "lodash@^4": "^4.18.0",
-      "typescript@7.0.2": "5.9.3"
+      "typescript@7.0.2": "5.9.3",
+      "@cloudflare/vitest-pool-workers>zod": "4.6.7"
     },
     "onlyBuiltDependencies": [
       "esbuild",
