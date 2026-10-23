@@ -410,8 +410,16 @@ function createWindow(): void {
 
   mainWindow.once('ready-to-show', () => {
     // Hidden-launch detection. We pass `args: ['--hidden']` on all three platforms
-    // (see applyLoginItemSettings), so the argv check is the signal.
-    const launchedHidden = process.argv.includes('--hidden');
+    // (see applyLoginItemSettings), so the argv check is the primary signal. On
+    // macOS Electron ignores `args` for login items, so an automatic launch
+    // never carries the flag: there the persisted `startMinimized` preference
+    // decides, but only when the OS confirms this launch came from login
+    // (`wasOpenedAtLogin`), so a manual launch still shows the window.
+    const launchedHidden =
+      process.argv.includes('--hidden') ||
+      (process.platform === 'darwin' &&
+        app.getLoginItemSettings().wasOpenedAtLogin &&
+        loadAutoLaunchSettings().startMinimized);
 
     if (!launchedHidden) {
       mainWindow?.show();
