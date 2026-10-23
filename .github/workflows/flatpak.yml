@@ -10,7 +10,7 @@ on:
       - 'packages/desktop/**'
       - 'pnpm-lock.yaml'
   push:
-    branches: [main]
+    branches: [main, master]
     paths:
       - '.github/workflows/flatpak.yml'
       - '.github/workflows/flatpak-release-metadata.yml'

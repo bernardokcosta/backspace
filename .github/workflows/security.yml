@@ -13,7 +13,7 @@ name: Security
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, master]
   schedule:
     - cron: '32 5 * * 1' # weekly Monday 05:32 UTC
 

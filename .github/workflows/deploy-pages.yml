@@ -2,7 +2,7 @@ name: Deploy landing page
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
     paths:
       - 'site/**'
       - 'scripts/metrics/**' # a bundler change must redeploy, or the site silently serves stale data

@@ -23,7 +23,7 @@ name: Directory hub
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
     paths:
       - 'scripts/directory-hub/**'
       - '.github/workflows/directory-hub.yml'

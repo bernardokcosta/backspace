@@ -23,7 +23,7 @@ name: Telemetry receiver
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
     paths:
       - 'scripts/telemetry-receiver/**'
       - '.github/workflows/telemetry-receiver.yml'

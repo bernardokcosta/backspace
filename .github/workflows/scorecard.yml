@@ -10,7 +10,7 @@ on:
   schedule:
     - cron: '18 4 * * 2' # weekly Tuesday 04:18 UTC
   push:
-    branches: [main]
+    branches: [main, master]
 
 permissions: read-all
 
