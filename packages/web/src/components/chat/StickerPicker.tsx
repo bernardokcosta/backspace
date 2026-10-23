@@ -54,16 +54,21 @@ export function StickerPicker({ onSelect, mobile = false }: { onSelect: (token: 
   useEffect(() => {
     const targets = focusAfterForm.current;
     if (renaming || uploading || !targets) return;
-    focusAfterForm.current = null;
+    // Only consume the pending targets once one of them actually receives
+    // focus: the grid may re-render (rename completing) before the reloaded
+    // items arrive, and consuming on a miss would drop focus entirely — a
+    // race that fails intermittently under load. `items` in the deps retries
+    // the focus when the list lands.
     const root = rootRef.current;
     for (const selector of targets) {
       const target = root?.querySelector<HTMLElement>(`${selector}:not(:disabled)`);
       if (target) {
+        focusAfterForm.current = null;
         target.focus();
         return;
       }
     }
-  }, [renaming, uploading]);
+  }, [renaming, uploading, items]);
 
   const remove = async (id: string) => {
     setRemoving(id);
