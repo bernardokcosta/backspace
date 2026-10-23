@@ -28,9 +28,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 22 is the support floor (`engines.node` in package.json), 24 is what
-        # `.nvmrc` selects and what the Docker image runs.
-        node-version: [22, 24]
+        # Node 24 only: the current active LTS, what `.nvmrc` selects and what
+        # the Docker image runs. (`engines.node` still admits >=22.12, so
+        # Node 22 installs keep working; CI just validates the LTS we ship.)
+        node-version: [24]
 
     steps:
       - name: Harden the runner
