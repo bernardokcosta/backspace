@@ -123,7 +123,7 @@ function stubInstanceInfo(scene: Scene): void {
     registrationOpen: true,
     federatedRegistrationOpen: settings?.federatedRegistrationOpen ?? true,
     instanceId: '123e4567-e89b-12d3-a456-426614174000',
-    sourceCodeUrl: 'https://github.com/TheZwiss/backspace',
+    sourceCodeUrl: 'https://github.com/bernardokcosta/backspace',
     commit: null,
     // The operator's endpoint, on its own.
     directoryConfigured: !NO_ENDPOINT_SCENES.has(scene),

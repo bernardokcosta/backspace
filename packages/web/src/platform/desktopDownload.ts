@@ -216,7 +216,7 @@ function primaryBuild(detected: DetectedPlatform): BuildSpec | null {
 }
 
 function toDownload(build: BuildSpec, version: string, versionIsReleasable: boolean): DesktopDownload {
-  const filename = `Backspace Fork-${version}${build.fileSuffix}.${build.ext}`;
+  const filename = `Backspace-Fork-${version}${build.fileSuffix}.${build.ext}`;
   return {
     os: build.os,
     arch: build.arch,

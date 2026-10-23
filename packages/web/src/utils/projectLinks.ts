@@ -44,8 +44,8 @@ export const PROJECT_LINKS: ProjectLinks = {
   insights: 'https://backspacechat.com/insights/',
   installGuide: `${REPOSITORY}#installation`,
   releases: `${REPOSITORY}/releases`,
-  license: `${REPOSITORY}/blob/main/LICENSE`,
-  security: `${REPOSITORY}/blob/main/SECURITY.md`,
+  license: `${REPOSITORY}/blob/master/LICENSE`,
+  security: `${REPOSITORY}/blob/master/SECURITY.md`,
   contributors: `${REPOSITORY}/graphs/contributors`,
   // No fork funding page: null hides the Support card instead of soliciting
   // donations for the upstream author from this fork's users.

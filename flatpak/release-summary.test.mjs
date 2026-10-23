@@ -27,7 +27,7 @@ const notes152 = [
   '',
   '| Platform | Download |',
   '|---|---|',
-  '| Windows x64 | [Backspace Fork-1.5.2-win-x64.exe](https://github.com/bernardokcosta/backspace/releases/download/v1.5.2/Backspace Fork-1.5.2-win-x64.exe) |',
+  '| Windows x64 | [Backspace-Fork-1.5.2-win-x64.exe](https://github.com/bernardokcosta/backspace/releases/download/v1.5.2/Backspace-Fork-1.5.2-win-x64.exe) |',
 ].join('\n');
 
 test('takes the first paragraph of the 1.5.2 release notes', () => {

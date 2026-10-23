@@ -2,15 +2,18 @@ appId: io.github.bernardokcosta.backspacefork
 productName: Backspace Fork
 # Every release asset names its platform, so the GitHub asset list (which is
 # sorted by name and nothing else) groups by platform and reads on its own:
-# Backspace Fork-1.4.0-win-x64.exe, -mac-arm64.dmg, -linux-x86_64.AppImage. The
+# Backspace-Fork-1.4.0-win-x64.exe, -mac-arm64.dmg, -linux-x86_64.AppImage. The
 # architecture keeps electron-builder's per-format spelling: builder-util maps
 # x64 to `x86_64` for AppImage and `amd64` for deb, which are what those
-# formats' users expect, and leaves it `x64` elsewhere. Three other places
-# spell these names out by hand and have to move with this pattern: the
-# Downloads table that .github/workflows/release.yml writes into the release
-# notes, the build list in packages/web/src/platform/desktopDownload.ts, and
-# the download table in README.md.
-artifactName: "${productName}-${version}-${os}-${arch}.${ext}"
+# formats' users expect, and leaves it `x64` elsewhere. The display name keeps
+# its space ("Backspace Fork"); only asset file names use hyphens, because raw
+# spaces break Markdown link destinations and are needless risk in updater
+# feed URLs. Three other places spell these names out by hand and have to move
+# with this pattern: the Downloads table that .github/workflows/release.yml
+# writes into the release notes, the build list in
+# packages/web/src/platform/desktopDownload.ts, and the download table in
+# README.md.
+artifactName: "Backspace-Fork-${version}-${os}-${arch}.${ext}"
 directories:
   output: dist-electron
 files:

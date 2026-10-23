@@ -158,7 +158,7 @@ describe('MobileSettingsScreen Desktop entry', () => {
     // The version reaches the panel, so the links name release assets.
     expect(await screen.findByRole('link', { name: 'Download for Windows' })).toHaveAttribute(
       'href',
-      'https://github.com/bernardokcosta/backspace/releases/download/v1.2.1/Backspace Fork-1.2.1-win-x64.exe',
+      'https://github.com/bernardokcosta/backspace/releases/download/v1.2.1/Backspace-Fork-1.2.1-win-x64.exe',
     );
     // The Electron-only panel stays out of the browser.
     expect(screen.queryByRole('button', { name: 'Change Instance' })).not.toBeInTheDocument();

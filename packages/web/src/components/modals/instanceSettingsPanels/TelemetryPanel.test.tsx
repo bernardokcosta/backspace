@@ -132,7 +132,7 @@ describe('TelemetryPanel', () => {
     vi.spyOn(api.admin.telemetry, 'get').mockResolvedValue(off);
     render(<TelemetryPanel />);
     const link = await screen.findByRole('link', { name: 'What is sent and why' });
-    expect(link).toHaveAttribute('href', 'https://github.com/bernardokcosta/backspace/blob/main/docs/systems/telemetry.md');
+    expect(link).toHaveAttribute('href', 'https://github.com/bernardokcosta/backspace/blob/master/docs/systems/telemetry.md');
     expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'));
   });
 });

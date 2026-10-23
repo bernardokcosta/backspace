@@ -46,7 +46,7 @@ describe('DesktopDownloadPanel', () => {
     expect(within(hero).getByRole('radio', { name: 'x64' })).toHaveAttribute('aria-checked', 'true');
     expect(within(hero).getByRole('link', { name: 'Download for Windows' })).toHaveAttribute(
       'href',
-      asset('Backspace-1.2.3-win-x64.exe'),
+      asset('Backspace-Fork-1.2.3-win-x64.exe'),
     );
     expect(within(hero).getByText('Version 1.2.3')).toBeInTheDocument();
     expect(screen.queryByText(/preselected/)).not.toBeInTheDocument();
@@ -54,7 +54,7 @@ describe('DesktopDownloadPanel', () => {
     await user.click(within(hero).getByRole('radio', { name: 'arm64' }));
     expect(within(hero).getByRole('link', { name: 'Download for Windows' })).toHaveAttribute(
       'href',
-      asset('Backspace-1.2.3-win-arm64.exe'),
+      asset('Backspace-Fork-1.2.3-win-arm64.exe'),
     );
 
     // Windows is the hero, so it must not also appear as a quiet tile, and the
@@ -91,7 +91,7 @@ describe('DesktopDownloadPanel', () => {
     ).toBeInTheDocument();
 
     const download = within(hero).getByRole('link', { name: 'Download for macOS' });
-    expect(download).toHaveAttribute('href', asset('Backspace-1.2.3-mac-arm64.dmg'));
+    expect(download).toHaveAttribute('href', asset('Backspace-Fork-1.2.3-mac-arm64.dmg'));
 
     await user.click(within(hero).getByRole('radio', { name: 'Intel' }));
 
@@ -102,7 +102,7 @@ describe('DesktopDownloadPanel', () => {
     );
     expect(within(hero).getByRole('link', { name: 'Download for macOS' })).toHaveAttribute(
       'href',
-      asset('Backspace-1.2.3-mac-x64.dmg'),
+      asset('Backspace-Fork-1.2.3-mac-x64.dmg'),
     );
     // The rest of the hero is untouched by the choice.
     expect(within(hero).getByText('This Mac')).toBeInTheDocument();
@@ -126,19 +126,19 @@ describe('DesktopDownloadPanel', () => {
     expect(within(hero).getAllByRole('radiogroup')).toHaveLength(2);
     expect(within(hero).getByRole('link', { name: 'Download for Linux' })).toHaveAttribute(
       'href',
-      asset('Backspace-1.2.3-linux-x86_64.AppImage'),
+      asset('Backspace-Fork-1.2.3-linux-x86_64.AppImage'),
     );
 
     await user.click(within(hero).getByRole('radio', { name: 'deb' }));
     expect(within(hero).getByRole('link', { name: 'Download for Linux' })).toHaveAttribute(
       'href',
-      asset('Backspace-1.2.3-linux-amd64.deb'),
+      asset('Backspace-Fork-1.2.3-linux-amd64.deb'),
     );
 
     await user.click(within(hero).getByRole('radio', { name: 'arm64' }));
     expect(within(hero).getByRole('link', { name: 'Download for Linux' })).toHaveAttribute(
       'href',
-      asset('Backspace-1.2.3-linux-arm64.deb'),
+      asset('Backspace-Fork-1.2.3-linux-arm64.deb'),
     );
   });
 
@@ -157,7 +157,7 @@ describe('DesktopDownloadPanel', () => {
     expect(intel).toHaveFocus();
     expect(within(hero).getByRole('link', { name: 'Download for macOS' })).toHaveAttribute(
       'href',
-      asset('Backspace-1.2.3-mac-x64.dmg'),
+      asset('Backspace-Fork-1.2.3-mac-x64.dmg'),
     );
 
     // The group wraps, so the same key brings the first segment back.
@@ -187,15 +187,15 @@ describe('DesktopDownloadPanel', () => {
 
     expect(within(tile('Windows')).getByRole('link', { name: 'Download for Windows' })).toHaveAttribute(
       'href',
-      asset('Backspace-1.2.3-win-x64.exe'),
+      asset('Backspace-Fork-1.2.3-win-x64.exe'),
     );
     expect(within(tile('macOS')).getByRole('link', { name: 'Download for macOS' })).toHaveAttribute(
       'href',
-      asset('Backspace-1.2.3-mac-arm64.dmg'),
+      asset('Backspace-Fork-1.2.3-mac-arm64.dmg'),
     );
     expect(within(tile('Linux')).getByRole('link', { name: 'Download for Linux' })).toHaveAttribute(
       'href',
-      asset('Backspace-1.2.3-linux-x86_64.AppImage'),
+      asset('Backspace-Fork-1.2.3-linux-x86_64.AppImage'),
     );
     // Three downloads plus the releases listing.
     expect(screen.getAllByRole('link')).toHaveLength(4);

@@ -209,7 +209,7 @@ export const useUpdateStore = create<UpdateStoreState>((set, get) => ({
     }
     // Older host with no dedicated channel. The renderer's window.open is
     // intercepted by setWindowOpenHandler and routed to the default browser.
-    window.open('https://github.com/TheZwiss/backspace/releases/latest', '_blank', 'noopener');
+    window.open('https://github.com/bernardokcosta/backspace/releases/latest', '_blank', 'noopener');
   },
 
   checkNow: () => {

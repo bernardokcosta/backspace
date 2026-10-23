@@ -292,7 +292,7 @@ async function main(): Promise<void> {
       registrationOpen: false,
       federatedRegistrationOpen: true,
       instanceId: 'instance-1',
-      sourceCodeUrl: 'https://github.com/TheZwiss/backspace',
+      sourceCodeUrl: 'https://github.com/bernardokcosta/backspace',
       commit: null,
       directoryConfigured: false,
       directoryAvailable: false,

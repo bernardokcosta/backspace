@@ -10,7 +10,7 @@ import { HiButton } from '../../telemetry/answers/HiButton';
 import { HelloScene, type SceneMood } from '../../telemetry/scene/HelloScene';
 
 /** What the ping contains and why, in the repository the instance runs. */
-const DOC_URL = 'https://github.com/bernardokcosta/backspace/blob/main/docs/systems/telemetry.md';
+const DOC_URL = 'https://github.com/bernardokcosta/backspace/blob/master/docs/systems/telemetry.md';
 
 /**
  * Renders a bare `YYYY-MM-DD` UTC day as a date in the reader's language.

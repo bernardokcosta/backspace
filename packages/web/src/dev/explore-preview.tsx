@@ -283,7 +283,7 @@ const INSTANCE_INFO: InstanceInfoResponse = {
   registrationOpen: true,
   federatedRegistrationOpen: true,
   instanceId: 'workbench',
-  sourceCodeUrl: 'https://github.com/TheZwiss/backspace',
+  sourceCodeUrl: 'https://github.com/bernardokcosta/backspace',
   commit: null,
   directoryConfigured: true,
   directoryAvailable: true,

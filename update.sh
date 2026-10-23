@@ -41,7 +41,7 @@ step()    { echo ""; echo -e "${BOLD}${CYAN}─── $* ───${NC}"; echo "
 SERVICE="backspace"
 CONTAINER="backspace"
 HEALTH_TIMEOUT=180
-RELEASES_API="https://api.github.com/repos/TheZwiss/backspace/releases/latest"
+RELEASES_API="https://api.github.com/repos/bernardokcosta/backspace/releases/latest"
 
 MODE="update"
 ASSUME_YES=false
@@ -251,8 +251,8 @@ if [[ "$MODE" == "check" ]]; then
     success "You are on the latest release ($CURRENT_VERSION)."
   else
     echo ""
-    echo -e "  ${BOLD}Backspace $latest is available.${NC} You are on $CURRENT_VERSION."
-    echo -e "  Release notes: https://github.com/TheZwiss/backspace/releases/tag/v${latest}"
+    echo -e "  ${BOLD}Backspace Fork $latest is available.${NC} You are on $CURRENT_VERSION."
+    echo -e "  Release notes: https://github.com/bernardokcosta/backspace/releases/tag/v${latest}"
     echo ""
     echo -e "  Update with: ${BOLD}./update.sh${NC}"
   fi
