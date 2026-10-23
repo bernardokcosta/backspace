@@ -18,7 +18,7 @@ interface StickerUploadPreviewProps {
   items: UploadItem[];
   busy: boolean;
   dragging: boolean;
-  chooseRef: RefObject<HTMLButtonElement>;
+  chooseRef: RefObject<HTMLButtonElement | null>;
   openPicker: (mode: 'replace' | 'append') => void;
   choose: (files: File[], mode: 'replace' | 'append') => void;
   setDragging: (dragging: boolean) => void;

@@ -96,6 +96,13 @@ function mimetypeFromFilename(originalName: string): string {
   return EXT_MIMETYPES[ext] ?? 'application/octet-stream';
 }
 
+// ─── Request-scoped userId for tus hooks ────────────────────────────────────
+// @tus/server 2.x hands hooks a Web `Request` (srvx), and the same object
+// flows through onIncomingRequest → onUploadCreate → onUploadFinish within
+// one HTTP request. The authenticated userId travels in this WeakMap rather
+// than as an expando on the foreign Request object.
+const requestUserIds = new WeakMap<object, string>();
+
 export async function filesRoutes(app: FastifyInstance): Promise<void> {
   // Ensure tus staging directory exists
   fs.mkdirSync(config.tusUploadDir, { recursive: true });
@@ -118,8 +125,8 @@ export async function filesRoutes(app: FastifyInstance): Promise<void> {
     disableTerminationForFinishedUploads: true,
 
     // ── Auth: verify JWT on every incoming request ─────────────────────────
-    async onIncomingRequest(req, _res, uploadId) {
-      const token = tokenFromAuthHeader(req.headers.authorization);
+    async onIncomingRequest(req, uploadId) {
+      const token = tokenFromAuthHeader(req.headers.get('authorization') ?? undefined);
       if (token === null) {
         throw { status_code: 401, body: 'Missing or invalid authorization header' };
       }
@@ -134,8 +141,9 @@ export async function filesRoutes(app: FastifyInstance): Promise<void> {
       }
       const userId = identity.userId;
 
-      // Attach userId to the raw request so downstream hooks can read it.
-      (req as NodeJS.Dict<unknown> & typeof req).userId = userId;
+      // Attach userId for downstream hooks (same Request object flows through
+      // onUploadCreate / onUploadFinish within one HTTP request).
+      requestUserIds.set(req, userId);
 
       // Ownership guard for any method that targets a specific upload by id.
       // PATCH/HEAD/DELETE/GET all leak or modify state otherwise:
@@ -171,8 +179,11 @@ export async function filesRoutes(app: FastifyInstance): Promise<void> {
     },
 
     // ── Upload create: assign snowflake + validate size + store userId ─────
-    async onUploadCreate(req, res, upload) {
-      const userId: string = (req as NodeJS.Dict<unknown> & typeof req).userId as string;
+    async onUploadCreate(req, upload) {
+      const userId = requestUserIds.get(req);
+      if (!userId) {
+        throw { status_code: 401, body: 'Missing or invalid authorization header' };
+      }
 
       // Per-user create rate limit
       if (!checkCreateRateLimit(userId)) {
@@ -193,7 +204,7 @@ export async function filesRoutes(app: FastifyInstance): Promise<void> {
       }
 
       // Extract originalName from existing metadata (decoded by tus already)
-      const rawMetaHeader = req.headers['upload-metadata'] as string | undefined;
+      const rawMetaHeader = req.headers.get('upload-metadata') ?? undefined;
       const parsedMeta = parseUploadMetadata(rawMetaHeader ?? null);
       const originalName = parsedMeta.originalName ?? parsedMeta.filename;
       if (!originalName || !originalName.trim()) {
@@ -216,7 +227,7 @@ export async function filesRoutes(app: FastifyInstance): Promise<void> {
         if (v !== undefined) mergedMetadata[k] = v;
       }
 
-      return { res, metadata: mergedMetadata };
+      return { metadata: mergedMetadata };
     },
 
     // ── Upload finish: media-process FIRST, then rename as commit point,
@@ -225,8 +236,8 @@ export async function filesRoutes(app: FastifyInstance): Promise<void> {
     //    sweep + cleanupStorage will eventually reap it. If INSERT throws
     //    after rename, we best-effort delete the renamed file (and the
     //    unlinked-attachment janitor would catch any survivors).
-    async onUploadFinish(req, res, upload) {
-      const requestUserId: string = (req as NodeJS.Dict<unknown> & typeof req).userId as string;
+    async onUploadFinish(req, upload) {
+      const requestUserId = requestUserIds.get(req);
       const meta = upload.metadata ?? {};
 
       const snowflakeId = meta.snowflakeId ?? null;
@@ -234,7 +245,7 @@ export async function filesRoutes(app: FastifyInstance): Promise<void> {
       const originalName = meta.originalName ?? 'upload';
 
       // Defense in depth: re-verify ownership
-      if (!snowflakeId || !storedUserId || storedUserId !== requestUserId) {
+      if (!requestUserId || !snowflakeId || !storedUserId || storedUserId !== requestUserId) {
         throw { status_code: 403, body: 'Forbidden: ownership mismatch' };
       }
 
@@ -379,7 +390,6 @@ export async function filesRoutes(app: FastifyInstance): Promise<void> {
       };
 
       return {
-        res,
         status_code: 200,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(attachment),

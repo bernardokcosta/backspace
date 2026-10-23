@@ -64,7 +64,7 @@ interface KeybindRowProps {
   recordingDisplay: string;
   onStartRecording: () => void;
   onDelete: () => void;
-  rowRef: React.RefObject<HTMLDivElement>;
+  rowRef: React.RefObject<HTMLDivElement | null>;
 }
 
 function KeybindRow({ actionId, label, keybind, isRecording, recordingDisplay, onStartRecording, onDelete, rowRef }: KeybindRowProps) {
@@ -154,7 +154,7 @@ export function KeybindsPanel() {
   const mouseButtonRef = useRef<number | null>(null);
   const mouseDisplayRef = useRef<string | null>(null);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const rowRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
+  const rowRefs = useRef<Record<string, React.RefObject<HTMLDivElement | null>>>({});
 
   for (const action of BINDABLE_ACTIONS) {
     if (!rowRefs.current[action.id]) {

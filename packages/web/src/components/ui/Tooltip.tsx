@@ -18,7 +18,7 @@ export function Tooltip({ content, children, position = 'right', delay = 200 }: 
   const [isVisible, setIsVisible] = useState(false);
   // A show is scheduled but its delay has not run out yet.
   const [isPending, setIsPending] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const anchorRef = useRef<HTMLDivElement>(null);
   const floatingRef = useRef<HTMLDivElement>(null);
   const portalContainer = usePortalContainer();

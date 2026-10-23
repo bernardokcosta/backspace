@@ -157,7 +157,7 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
   // row; on mobile it is a bottom sheet whatever opened it.
   const [reactionPicker, setReactionPicker] = useState<'button' | 'row' | null>(null);
   const showReactionPicker = reactionPicker !== null;
-  const confirmDeleteTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const confirmDeleteTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const editTextareaRef = useRef<HTMLTextAreaElement>(null);
   const reactionPickerBtnRef = useRef<HTMLButtonElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);

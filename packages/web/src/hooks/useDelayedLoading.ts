@@ -13,8 +13,8 @@ export function useDelayedLoading(
   const minDisplay = options?.minDisplay ?? 300;
 
   const [show, setShow] = useState(false);
-  const thresholdRef = useRef<ReturnType<typeof setTimeout>>();
-  const minDisplayRef = useRef<ReturnType<typeof setTimeout>>();
+  const thresholdRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const minDisplayRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const displayStartRef = useRef(0);
 
   useEffect(() => {

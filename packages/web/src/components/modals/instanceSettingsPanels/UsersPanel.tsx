@@ -59,7 +59,7 @@ export function UsersPanel() {
   // Temp password display
   const [tempPassword, setTempPassword] = useState<{ userId: string; password: string } | null>(null);
 
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     api.admin.listInstances().then(({ instances: inst }) => setInstances(inst)).catch(() => {});

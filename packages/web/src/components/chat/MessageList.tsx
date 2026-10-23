@@ -268,7 +268,7 @@ export function MessageList({ channelId, jumpToMessageId, onJumpHandled }: Messa
   // before the user's eye can register the slot as empty.
   const showPaginationSkeleton = useDelayedLoading(isLoadingMore, { threshold: 50 });
   const prevChannelIdRef = useRef<string>(channelId);
-  const ackTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const ackTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   // Live mirror of the current `channelId` prop. Updated synchronously each render so
   // that async callbacks (the `loadMoreMessages` await in `handleScroll`, the jump and
   // restore loads) can compare a captured channel against the current channel and bail

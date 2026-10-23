@@ -1,6 +1,6 @@
 {
   "name": "@backspace/directory-hub",
-  "version": "1.11.2",
+  "version": "1.12.0",
   "private": true,
   "license": "AGPL-3.0-only",
   "author": "Jannis Braun",
@@ -12,10 +12,10 @@
     "deploy": "wrangler deploy"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.22.0",
-    "@cloudflare/workers-types": "^5.20260925.2",
-    "typescript": "^5.8.0",
-    "vitest": "^4.1.11",
-    "wrangler": "^4.141.0"
+    "@cloudflare/vitest-pool-workers": "^0.23.0",
+    "@cloudflare/workers-types": "^5.20261023.1",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.5",
+    "wrangler": "^4.152.0"
   }
 }

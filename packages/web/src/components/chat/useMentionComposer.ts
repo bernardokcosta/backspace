@@ -21,7 +21,7 @@ interface MentionState {
 interface Options {
   channelId: string;
   draftText: string;
-  textareaRef: RefObject<HTMLTextAreaElement>;
+  textareaRef: RefObject<HTMLTextAreaElement | null>;
 }
 
 /**

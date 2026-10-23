@@ -17,7 +17,7 @@ function MentionMemberRow({
 }: {
   candidate: ChannelUser;
   isSelected: boolean;
-  selectedRef: React.RefObject<HTMLDivElement>;
+  selectedRef: React.RefObject<HTMLDivElement | null>;
   onSelect: (candidate: ChannelUser) => void;
   mobile: boolean;
 }) {
@@ -85,7 +85,7 @@ interface MentionPopoverProps {
 interface ResolvedListProps {
   candidates: ChannelUser[];
   selectedIndex: number;
-  selectedRef: React.RefObject<HTMLDivElement>;
+  selectedRef: React.RefObject<HTMLDivElement | null>;
   onSelect: (candidate: ChannelUser) => void;
   mobile: boolean;
 }

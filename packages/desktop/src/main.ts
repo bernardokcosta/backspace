@@ -63,9 +63,10 @@ import {
 import { getDesktopLanguage, isDesktopLanguage, saveStoredLanguage, translateDesktop } from './l10n';
 
 // Override Electron's package.json-derived app name so userData lives at
-// "<appData>/Backspace" instead of leaking the monorepo's "@backspace/desktop"
-// package name. Must run before any app.getPath('userData') consumer.
-app.setName('Backspace');
+// "<appData>/Backspace Fork" instead of leaking the monorepo's "@backspace/desktop"
+// package name — and instead of colliding with the official Backspace app's
+// profile. Must run before any app.getPath('userData') consumer.
+app.setName('Backspace Fork');
 
 // One-time migration from the historical scoped path. After the move the old
 // folder is gone, so subsequent launches hit the old-missing no-op branch.
@@ -74,7 +75,7 @@ app.setName('Backspace');
   const oldParent = path.join(appDataDir, '@backspace');
   const result = migrateUserData({
     oldDir: path.join(oldParent, 'desktop'),
-    newDir: path.join(appDataDir, 'Backspace'),
+    newDir: path.join(appDataDir, 'Backspace Fork'),
     oldParent,
   });
   if (result.kind === 'migrated') {
@@ -242,13 +243,11 @@ function saveAutoLaunchSettings(settings: AutoLaunchSettings): void {
 
 function applyLoginItemSettings(openAtLogin: boolean, startMinimized: boolean): void {
   if (process.platform === 'darwin') {
-    // macOS: pass `args` in addition to `openAsHidden` so the renderer/main can
-    // detect a hidden launch via `process.argv.includes('--hidden')` on macOS 13+
-    // where the new ServiceManagement-backed implementation may not honour
-    // `wasOpenedAsHidden`. Both detection paths now work (defence in depth).
+    // macOS (Electron 45, ServiceManagement): there is no `openAsHidden`
+    // anymore, so a hidden launch is detected solely via the `--hidden` argv
+    // flag the renderer/main looks for. `args` below is what carries it.
     app.setLoginItemSettings({
       openAtLogin,
-      openAsHidden: startMinimized,
       args: startMinimized ? ['--hidden'] : [],
     });
   } else if (process.platform === 'win32') {
@@ -264,19 +263,20 @@ function applyLoginItemSettings(openAtLogin: boolean, startMinimized: boolean): 
       enabled: openAtLogin,
       path: process.execPath,
       args: startMinimized ? ['--hidden'] : [],
-      name: 'Backspace',
+      name: 'Backspace Fork',
     });
   } else {
     // Linux: setLoginItemSettings creates ~/.config/autostart/<name>.desktop.
-    // - We pass an explicit `name: 'backspace'` so the filename is deterministic
-    //   across deb/AppImage installs and Electron versions.
+    // - We pass an explicit `name: 'backspace-fork'` so the filename is deterministic
+    //   across deb/AppImage installs and Electron versions — and so it does not
+    //   fight the official Backspace app over one autostart entry.
     // - For AppImage, $APPIMAGE points to the (possibly newly-updated) AppImage
     //   path; pass it as `path` so the autostart entry tracks updates.
     //   Electron's TypeScript types don't list `path`/`args`/`name` on Linux,
     //   but the runtime accepts them.
     const opts: Record<string, unknown> = {
       openAtLogin,
-      name: 'backspace',
+      name: 'backspace-fork',
     };
     if (process.env.APPIMAGE) {
       opts.path = process.env.APPIMAGE;
@@ -364,7 +364,7 @@ function createWindow(): void {
       : {}),
     minWidth: 940,
     minHeight: 500,
-    title: 'Backspace',
+    title: 'Backspace Fork',
     icon: path.join(__dirname, '..', 'build', 'icon.png'),
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'hidden',
     ...(process.platform !== 'darwin' ? {
@@ -410,12 +410,8 @@ function createWindow(): void {
 
   mainWindow.once('ready-to-show', () => {
     // Hidden-launch detection. We pass `args: ['--hidden']` on all three platforms
-    // (see applyLoginItemSettings), so the argv check is the primary signal. On
-    // macOS we also honour `wasOpenedAsHidden` as a fallback for the legacy
-    // openAsHidden path on macOS < 13.
-    const launchedHidden =
-      process.argv.includes('--hidden') ||
-      (process.platform === 'darwin' && app.getLoginItemSettings().wasOpenedAsHidden);
+    // (see applyLoginItemSettings), so the argv check is the signal.
+    const launchedHidden = process.argv.includes('--hidden');
 
     if (!launchedHidden) {
       mainWindow?.show();

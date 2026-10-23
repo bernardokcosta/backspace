@@ -5,6 +5,7 @@ import rateLimit from '@fastify/rate-limit';
 import websocket from '@fastify/websocket';
 import fastifyStatic from '@fastify/static';
 import { config } from './config.js';
+import { trustProxyFn } from './utils/trustProxy.js';
 import { getDb, getRawDb, closeDatabase } from './db/index.js';
 import { checkFfmpeg } from './utils/thumbnail.js';
 import { authRoutes } from './routes/auth.js';
@@ -59,7 +60,11 @@ async function main(): Promise<void> {
     // `X-Forwarded-For`, so a client cannot pick the address its rate limits
     // are counted under. `TRUSTED_PROXY_HOPS` in config.ts carries what the
     // number means and when an operator changes it.
-    trustProxy: config.trustedProxyHops,
+    //
+    // Fastify 5 no longer accepts the count directly (a number now trusts
+    // nothing), so it is expressed as a function with identical hop semantics
+    // — see utils/trustProxy.ts.
+    trustProxy: trustProxyFn(config.trustedProxyHops),
     logger: {
       level: 'info',
     },

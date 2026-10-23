@@ -28,7 +28,7 @@ interface UseAudioTrackPlayerOptions {
  */
 export function useAudioTrackPlayer(
   opts: UseAudioTrackPlayerOptions,
-): React.RefObject<HTMLAudioElement> {
+): React.RefObject<HTMLAudioElement | null> {
   const { track, volume, muted } = opts;
 
   const audioRef = useRef<HTMLAudioElement | null>(null);

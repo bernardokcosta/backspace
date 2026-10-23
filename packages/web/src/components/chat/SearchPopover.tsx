@@ -113,7 +113,7 @@ export function SearchPopover({ open, onClose, anchorRef, channelId, isDm, onJum
   const [totalCount, setTotalCount] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
   const [offset, setOffset] = useState(0);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Reset state when channel changes or popover opens
   useEffect(() => {

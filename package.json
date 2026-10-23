@@ -1,8 +1,8 @@
 {
   "name": "backspace",
-  "version": "1.11.2",
+  "version": "1.12.0",
   "private": true,
-  "description": "Open, self-hosted communication platform \u2014 text, voice, video, and federation",
+  "description": "Open, self-hosted communication platform — text, voice, video, and federation",
   "license": "AGPL-3.0-only",
   "author": "Jannis Braun",
   "homepage": "https://github.com/TheZwiss/backspace",
@@ -31,12 +31,12 @@
     "bump": "node scripts/bump-version.mjs"
   },
   "devDependencies": {
-    "eslint": "^10.11.0",
+    "eslint": "^10.13.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "png-to-ico": "^3.0.2",
     "png2icons": "^2.0.1",
     "sharp": "^0.35.5",
-    "typescript-eslint": "^8.70.1"
+    "typescript-eslint": "^8.72.0"
   },
   "pnpm": {
     "overrides": {
@@ -63,7 +63,8 @@
       "proxy-addr@^2": "^2.0.8",
       "http-cache-semantics@^4": "^4.3.0",
       "source-map-js@^1": "^1.2.2",
-      "lodash@^4": "^4.18.0"
+      "lodash@^4": "^4.18.0",
+      "typescript@7.0.2": "5.9.3"
     },
     "onlyBuiltDependencies": [
       "esbuild",

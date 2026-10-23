@@ -139,7 +139,7 @@ export function MessageInput({ channelId, channelName, placeholder }: MessageInp
   const addToast = useUIStore((s) => s.addToast);
   const appendBubble = usePendingMessageStore((s) => s.append);
 
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Feature flags
   const gifEnabled = useSettingsStore((s) => s.gifEnabled);

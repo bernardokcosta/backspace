@@ -167,7 +167,7 @@ export function DmSearchBar() {
   const floatingRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const selectedRef = useRef<HTMLDivElement>(null);
-  const searchTimer = useRef<ReturnType<typeof setTimeout>>();
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const { style } = useFloatingPosition(anchorRef, floatingRef, {
     placement: 'bottom',

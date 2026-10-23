@@ -57,7 +57,7 @@ export function ReactionPill({ emoji, reactions, origin, onToggle }: ReactionPil
   const [open, setOpen] = useState(false);
   // A show is scheduled but its delay has not run out yet.
   const [pending, setPending] = useState(false);
-  const showTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const showTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const anchorRef = useRef<HTMLButtonElement>(null);
   const floatingRef = useRef<HTMLDivElement>(null);
   const portalContainer = usePortalContainer();

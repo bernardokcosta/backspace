@@ -4,8 +4,8 @@ import type { ArgumentFrame } from '../../utils/commandArgs';
 
 interface Props extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   model: ComposerMentions;
-  textareaRef: RefObject<HTMLTextAreaElement>;
-  mentionAnchorRef: RefObject<HTMLSpanElement>;
+  textareaRef: RefObject<HTMLTextAreaElement | null>;
+  mentionAnchorRef: RefObject<HTMLSpanElement | null>;
   mentionStart?: number;
   /** The arguments of a slash command draft, in shown offsets: each is drawn as a box. */
   frames?: readonly ArgumentFrame[];

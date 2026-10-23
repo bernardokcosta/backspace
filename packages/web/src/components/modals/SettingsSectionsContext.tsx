@@ -21,7 +21,7 @@ interface SettingsSectionsContextValue {
   sections: SettingsSection[];
   activeSection: string;
   scrollToSection: (id: string) => void;
-  scrollContainerRef: React.RefObject<HTMLDivElement>;
+  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
   setSections: (sections: SettingsSection[]) => void;
   setActiveSection: (id: string) => void;
   setScrollToSection: (fn: (id: string) => void) => void;

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
+import { trustProxyFn } from './utils/trustProxy.js';
 
 /**
  * Two things are under test here, and they are two halves of one value.
@@ -22,7 +23,10 @@ async function loadHops(): Promise<number> {
 }
 
 async function clientAddress(headers: Record<string, string>, hops: number): Promise<string> {
-  const app: FastifyInstance = Fastify({ trustProxy: hops });
+  // Same construction as index.ts (via the shared trustProxyFn helper): the
+  // count is expressed as a function because Fastify 5 fails a numeric
+  // trustProxy closed.
+  const app: FastifyInstance = Fastify({ trustProxy: trustProxyFn(hops) });
   app.get('/whoami', async (request) => ({ ip: request.ip }));
   try {
     const response = await app.inject({ method: 'GET', url: '/whoami', headers });

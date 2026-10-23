@@ -30,7 +30,7 @@ export function insertComposerMention(channelId: string, userId: string): void {
  * phone opens its keyboard. The caret is placed on the next frame, once the
  * textarea shows the new draft (`@name`, shorter than the stored token).
  */
-export function useComposerMention(channelId: string, textareaRef: RefObject<HTMLTextAreaElement>): void {
+export function useComposerMention(channelId: string, textareaRef: RefObject<HTMLTextAreaElement | null>): void {
   useEffect(() => {
     let frame = 0;
     const onRequest = (event: Event) => {

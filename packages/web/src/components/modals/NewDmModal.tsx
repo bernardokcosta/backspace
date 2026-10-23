@@ -47,7 +47,7 @@ export function NewDmModal() {
   const closeModal = useUIStore((s) => s.closeModal);
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
-  const searchTimer = useRef<ReturnType<typeof setTimeout>>();
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const isOpen = activeModal === 'newDm';
 

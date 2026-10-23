@@ -21,7 +21,7 @@ export function GifPicker({ onGifSelect, mobile = false }: GifPickerProps) {
   const [nextPos, setNextPos] = useState('');
   const [loadingMore, setLoadingMore] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Debounce search query
   useEffect(() => {

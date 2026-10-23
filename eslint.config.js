@@ -99,6 +99,10 @@ module.exports = tseslint.config(
       // Local scratch: agent worktrees are full second checkouts of this repo,
       // and the harness directories hold generated fixtures.
       '.claude/**',
+      // Vendored third-party agent skills (superpowers, etc.): not project
+      // source, maintained upstream of this repo. Same category as the
+      // vendored uPlot bundle ignored below.
+      '.agents/**',
       '.worktrees/**',
       '.metrics-data/**',
       '.metrics-init/**',

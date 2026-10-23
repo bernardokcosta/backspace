@@ -1,6 +1,6 @@
 {
   "name": "@backspace/desktop",
-  "version": "1.11.2",
+  "version": "1.12.0",
   "private": true,
   "license": "AGPL-3.0-only",
   "description": "Backspace",
@@ -31,10 +31,10 @@
   },
   "devDependencies": {
     "@electron/fuses": "^2.1.3",
-    "@electron/rebuild": "^4.2.0",
-    "electron": "^43.7.5",
+    "@electron/rebuild": "^4.2.1",
+    "electron": "^45.0.0",
     "electron-builder": "^26.15.3",
-    "typescript": "^5.7.2",
-    "vitest": "^4.1.11"
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.5"
   }
 }

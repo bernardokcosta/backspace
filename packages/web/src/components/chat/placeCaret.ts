@@ -9,7 +9,7 @@ import type { RefObject } from 'react';
  * keys land in the middle of the text and the command lists, which follow the
  * caret at the end, stay shut.
  */
-export function placeCaret(textareaRef: RefObject<HTMLTextAreaElement>, position: number, focus = false): void {
+export function placeCaret(textareaRef: RefObject<HTMLTextAreaElement | null>, position: number, focus = false): void {
   queueMicrotask(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
