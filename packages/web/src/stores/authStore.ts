@@ -1,5 +1,6 @@
 import { useChannelPokeStore } from './channelPokeStore';
 import { useEphemeralReplyStore } from './ephemeralReplyStore';
+import { useSoundboardStore } from './soundboardStore';
 import { useUnreadCountStore } from './unreadCountStore';
 import { useMemo } from 'react';
 import { create } from 'zustand';
@@ -82,6 +83,7 @@ function resetUserStores() {
   useSpaceStore.getState().reset();
   useChannelPokeStore.getState().reset();
   useEphemeralReplyStore.getState().reset();
+  useSoundboardStore.getState().reset();
   useUnreadCountStore.getState().reset();
   useSocialStore.getState().reset();
   useVoiceStore.getState().resetSession();
