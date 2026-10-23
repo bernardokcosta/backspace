@@ -1,3 +1,5 @@
+> **Community fork** — this repository is a fork of the official **[Backspace](https://github.com/TheZwiss/backspace)** by TheZwiss, carrying changes ahead of upstream (Bot API). ➡️ **Official version: [github.com/TheZwiss/backspace](https://github.com/TheZwiss/backspace)**
+
 <div align="center">
 
 <img src="packages/web/public/icons/logo.png" alt="Backspace" width="160" />
