@@ -167,14 +167,7 @@ those platforms apply their own icon framing. See `macIconPng` in
 | `mark-tray.svg` | The macOS menu-bar template tray icon: a 16px silhouette on an 18x22 canvas (36x44 @2x), centred by alpha centroid so it sits and spaces like the system's own menu-bar glyphs |
 | `mark-mono-dark.svg` | Mono silhouette master; no pipeline output today |
 
-Regenerate icons with `pnpm gen-icons`; regenerate the social preview with
-`pnpm gen-social-preview`. Icon generation reads only from `assets/brand/`.
-The social preview also reads `scripts/social-preview.html` and the two
-webfonts in `site/assets/` (`fabio-xm-variable.ttf`, `dm-sans.woff2`)
-alongside the mark; its output is stable per Chrome build and font
-rasteriser, not per lockfile, so a Chrome or font upgrade can shift it
-even with no dependency change. See `scripts/gen-icons.README.md` and
-`docs/systems/desktop.md` for the full matrix.
+Regenerate icons with `pnpm gen-icons`; it reads only from `assets/brand/`.
 
 The brand primary is `#7c6cf6`. It is a web/app/desktop primary, not a
 pastel accent, and is exposed as `--accent-primary` (see Color Palette
