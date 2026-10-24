@@ -1182,6 +1182,7 @@ export interface InstanceAdminSettings {
   gifApiKey?: string;
   gifEnabled?: boolean;
   maxUploadSizeMb: number;
+  maxStickerSizeMb: number;
   federationRelayEnabled: boolean;
   federationRelayTtlDays: number;
   defaultAutoRotateIntervalDays: number;
@@ -1277,6 +1278,10 @@ export interface InstanceInfoResponse {
   // page. It only hides that card in the web client and changes nothing the
   // server does.
   supportCardEnabled: boolean;
+  /**
+   * Maximum custom sticker / emoji upload size in megabytes.
+   */
+  maxStickerSizeMb?: number;
 }
 
 /**
