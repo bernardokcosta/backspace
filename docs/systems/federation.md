@@ -1468,6 +1468,10 @@ When a group DM is created or modified locally, the origin instance queues feder
 
 Personal stickers are not replicated. A sticker crosses instances as a token in a message's `content` or a reaction's `emoji`, through the relays below like any other text, and viewers load the image from the origin named in the token. The size checks here do not apply to it; the consequences, and what older versions show, are in [uploads.md](uploads.md#14-personal-stickers), "Across instances".
 
+### Sticker pack sync
+
+Sticker *packs* (unlike personal stickers) do replicate, whole, on admin demand — never automatically. An admin syncs a pack from an active approved peer (`syncRemotePack` in `utils/stickerSync.ts`): the peer must pass the per-peer policy (`sticker_peer_policies`, `block` refuses), hold an `active` peering row, and clear the origin allowlist. The local instance fetches pack metadata over S2S (`POST /api/federation/stickers/packs/list|get`, approved `source` packs only, metadata alone), then downloads each asset from the public asset route and SHA-256-verifies it against the content-addressed asset id before storing it atomically. The replica row (`origin_type: 'replica'`) mirrors name/description/version/items under the same local bounds as created packs (≤ 100 items, capped names, integer versions/sort orders); assets over the local sticker size limit are refused by a stream byte budget. The serving side exposes only approved source packs and authenticates the peer (`authenticateS2SPeer`). Full endpoint list: [api.md](api.md), "Sticker packs / store".
+
 ### Outbound (origin instance)
 
 When `queueDmRelay` constructs the relay payload, each attachment gets a `sourceUrl`:

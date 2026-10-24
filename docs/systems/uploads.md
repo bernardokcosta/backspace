@@ -18,12 +18,14 @@ Source files:
 - `packages/web/src/components/layout/TransferIndicator.tsx` -- Channel-header transfer indicator + global tray panel
 - `packages/web/src/components/chat/ImagePreview.tsx` -- Full-screen image preview modal with save/copy toolbar
 - `packages/server/src/routes/stickers.ts` -- Personal sticker collection, upload (base64 JSON, not tus) and asset serving
+- `packages/server/src/routes/stickerStore.ts` -- Sticker packs: storefront, user installs, pack creation/versioning/review flow (admin moderation in `stickerStoreAdmin.ts`)
+- `packages/server/src/utils/stickerSync.ts` -- Federated pack sync: policy/active-peer checks, metadata fetch, content-hash-verified asset downloads with a stream byte budget, local-bounds validation before storing the replica
 - `packages/server/src/utils/stickerAssets.ts` -- Sticker asset paths, the reference scan and the unused-asset cleanup
 - `packages/shared/src/stickers.ts` -- Sticker token grammar (`stickerUrl`, `stickerIdOf`) and limits
 - `packages/web/src/components/chat/StickerPicker.tsx`, `StickerUploadForm.tsx`, `StickerUploadPreview.tsx`, `StickerMessage.tsx` -- Picker, batch upload form, sticker message row
 - `packages/web/src/utils/stickerMessages.ts` -- What a sticker message is and what a one-line surface shows for it
 
-DB tables: `attachments`, `instance_settings` (maxUploadSizeBytes), `sticker_assets`, `personal_stickers`. See `docs/systems/database.md` for full schemas.
+DB tables: `attachments`, `instance_settings` (maxUploadSizeBytes, maxStickerSizeBytes), `sticker_assets`, `personal_stickers`, `sticker_packs`, `sticker_pack_versions`, `sticker_pack_items`, `user_installed_packs`, `sticker_peer_policies`. See `docs/systems/database.md` for full schemas.
 
 **Out of scope:** Federation file replication/download queue (see `docs/systems/federation.md`), admin storage stats UI, admin user management.
 

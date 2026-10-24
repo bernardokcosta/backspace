@@ -170,6 +170,30 @@ Migration `0031_personal_stickers` adds only these two tables; message and react
 
 The composite primary key (user_id, sticker_id) makes collection idempotent; one user holds at most 200 rows (`MAX_PERSONAL_STICKERS`, checked by the routes). Removing an entry or deleting its user removes only the association. An asset stays while any collection entry, message or reaction on this instance names it; after that, and once past its grace period, the storage cleanup deletes the row and its file (`cleanupUnusedStickerAssets`). Files live under `UPLOAD_DIR/stickers`, outside the attachment phases and the storage stats.
 
+### sticker_packs, sticker_pack_versions, sticker_pack_items, user_installed_packs, sticker_peer_policies
+
+Migration `0045_flawless_mister_sinister`. Curated reviewable packs (`routes/stickerStore.ts`) plus the federation replica store; see [api.md](api.md), "Sticker packs / store".
+
+| Table | Column | Type | Notes |
+|-------|--------|------|-------|
+| sticker_packs | id | text PK | Snowflake (local) or UUID (replica) |
+| sticker_packs | name / description | text | Capped at 100 / 500 chars on write |
+| sticker_packs | creator_id | text | FK → users.id SET NULL; null on replicas |
+| sticker_packs | origin_type | text NOT NULL, default `'source'` | `source` (created here) or `replica` (synced) |
+| sticker_packs | source_instance / source_pack_id | text | The peer origin + pack id a replica mirrors; indexed together |
+| sticker_packs | current_version | integer NOT NULL, default 1 | The served version number |
+| sticker_packs | status | text NOT NULL, default `'draft'` | `draft`/`pending_review`/`approved`/`rejected`/`deleted` (+ `active`/`disabled`/`blocked` on replicas); indexed |
+| sticker_packs | reviewed_by / reviewed_at / review_notes | | Admin moderation trail; user FKs SET NULL |
+| sticker_packs | synced_at | integer | Last successful peer sync (replicas) |
+| sticker_pack_versions | id / pack_id / version | | `pack_id` FK → sticker_packs.id CASCADE; (pack_id, version) unique |
+| sticker_pack_items | asset_id | text NOT NULL | FK → sticker_assets.id RESTRICT: an item holds its asset |
+| sticker_pack_items | sort_order | integer NOT NULL, default 0 | Display order inside the version |
+| user_installed_packs | (user_id, pack_id) | composite PK | Both FKs CASCADE |
+| sticker_peer_policies | peer_origin | text NOT NULL UNIQUE | One row per peer |
+| sticker_peer_policies | policy / auto_sync | default `allow` / 0 | `block` refuses syncs from that peer |
+
+Deleting a pack cascades its versions and items; deleting a user cascades their installs and nulls their created packs' creator. Item assets are RESTRICTed, so an asset in a pack is never swept by the unused-asset cleanup.
+
 ### embeds
 | Column | Type | Notes |
 |--------|------|-------|
@@ -474,6 +498,7 @@ The user INSERT, `usedCount` increment, and redemption row INSERT all run in a s
 | bitrateMatrixOverrides | text | | JSON sparse overrides |
 | allowCustomBitrate | integer NOT NULL | 1 | |
 | maxUploadSizeBytes | integer | | null = use env |
+| maxStickerSizeBytes | integer | | Sticker upload/item byte cap. null = use env (`MAX_STICKER_SIZE`, default 5 MiB). Set by admins in Storage settings; served as `maxStickerSizeMb` on instance info. Migration `0045_flawless_mister_sinister`. |
 | federationRelayEnabled | integer NOT NULL | 1 | |
 | federationRelayTtlDays | integer NOT NULL | 30 | |
 | autoAcceptPeering | integer NOT NULL | 1 | When 0, `peer/accept` rejects unsolicited requests with 403 |
