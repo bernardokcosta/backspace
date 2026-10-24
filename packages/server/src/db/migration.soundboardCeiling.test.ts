@@ -36,7 +36,8 @@ describe(`migration ${CEILING_MIGRATION}`, () => {
     db.prepare(
       "INSERT INTO soundboard_settings (space_id, enabled, allow_member_uploads, max_duration_seconds, max_sounds) VALUES ('s-old', 1, 1, 86400, 100)",
     ).run();
-    db.exec('PRAGMA foreign_keys=ON');
+    // FK stays off through apply: the legacy rows dangle (no spaces rows),
+    // and the migration itself must not toggle enforcement (see 0042 header).
 
     apply(db, CEILING_MIGRATION);
 
