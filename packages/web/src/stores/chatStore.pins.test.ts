@@ -16,14 +16,16 @@ vi.mock('../audio/AudioManager', () => ({
 }));
 
 const pinsApi = vi.hoisted(() => ({ pins: vi.fn() }));
+const deleteApi = vi.hoisted(() => ({ delete: vi.fn() }));
 vi.mock('../utils/crossStoreResolvers', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../utils/crossStoreResolvers')>()),
-  getApiForOrigin: () => ({ channels: { pins: pinsApi.pins } }),
+  getApiForOrigin: () => ({ channels: { pins: pinsApi.pins }, messages: { delete: deleteApi.delete } }),
 }));
 
 import { useChatStore } from './chatStore';
 import { useSpaceStore } from './spaceStore';
 import { useAuthStore } from './authStore';
+import { HttpError } from '../api/client';
 
 const CH = 'chat-1';
 const me = { id: 'u-1', username: 'jannis', displayName: 'Jannis', avatar: null, homeInstance: null, homeUserId: null, createdAt: 1 } as unknown as User;
@@ -95,6 +97,19 @@ describe('pin board follows edits and deletes', () => {
   it('removeMessage drops the pin even when the timeline forgot the message', () => {
     useChatStore.setState({ messages: new Map() });
     useChatStore.getState().removeMessage('m-1', CH);
+    expect(board()).toHaveLength(0);
+  });
+
+  it('a refused delete rolls the pin back into place', async () => {
+    deleteApi.delete.mockRejectedValueOnce(new HttpError(500, 'nope', undefined, 'internal_error'));
+    await useChatStore.getState().deleteMessage('m-1', CH);
+    expect(useChatStore.getState().messages.get(CH)).toHaveLength(1);
+    expect(board().map((p) => p.messageId)).toEqual(['m-1']);
+  });
+
+  it('a 404 delete keeps the pin dropped: the server cascaded it', async () => {
+    deleteApi.delete.mockRejectedValueOnce(new HttpError(404, 'gone', undefined, 'message_not_found'));
+    await useChatStore.getState().deleteMessage('m-1', CH);
     expect(board()).toHaveLength(0);
   });
 });

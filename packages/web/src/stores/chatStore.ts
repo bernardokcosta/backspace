@@ -855,6 +855,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
     // Optimistic: remove locally first
     const messages = get().messages.get(channelId);
     const savedMessage = messages?.find(m => m.id === messageId);
+    const savedPins = get().pinnedByChannel.get(channelId);
+    const savedPinIndex = savedPins?.findIndex(p => p.messageId === messageId) ?? -1;
+    const savedPin = savedPinIndex >= 0 ? savedPins![savedPinIndex] : undefined;
     get().removeMessage(messageId, channelId);
     try {
       if (isDm) {
@@ -866,11 +869,24 @@ export const useChatStore = create<ChatState>((set, get) => ({
     } catch (error) {
       // A 404 says the message is already gone on the server: deleted from
       // another tab or device, or by a moderator, before this request got
-      // there. The local removal stands and there is nothing to report.
+      // there. The pin cascaded away with it, so the local removal stands
+      // and there is nothing to report.
       if (error instanceof HttpError && error.status === 404) return;
       // Rollback: re-add the message, and say why the delete was refused.
       if (savedMessage) {
         get().addMessage(channelId, savedMessage);
+      }
+      // ...and the pin entry removeMessage dropped with it, back in place.
+      if (savedPin) {
+        set((state) => {
+          const current = state.pinnedByChannel.get(channelId) ?? [];
+          if (current.some(p => p.messageId === messageId)) return state;
+          const restored = [...current];
+          restored.splice(Math.min(savedPinIndex, restored.length), 0, savedPin);
+          const next = new Map(state.pinnedByChannel);
+          next.set(channelId, restored);
+          return { pinnedByChannel: next };
+        });
       }
       useUIStore.getState().addToast(describeError(error), 'warning');
     }
