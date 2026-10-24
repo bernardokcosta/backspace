@@ -20,6 +20,8 @@ const native = mode === 'baseline' ? null : require(process.env.BACKSPACE_SDR_NA
 stage(native ? 'native module loaded' : 'Electron baseline without native module');
 const sessionId = '8dfd1bcd-7b0d-4a1c-9031-40d830256b67';
 let window;
+let sourceWindow;
+let captureId;
 let server;
 let finished = false;
 let timer;
@@ -29,6 +31,8 @@ function finish(result) {
   if (finished) return;
   finished = true;
   clearTimeout(timer);
+  if (captureId) native.stopCapture(captureId);
+  if (sourceWindow && !sourceWindow.isDestroyed()) sourceWindow.destroy();
   if (window && !window.isDestroyed()) window.destroy();
   server?.close();
   fs.writeFileSync(path.join(evidence, 'result.json'), JSON.stringify(result, null, 2));
@@ -47,6 +51,22 @@ ipcMain.handle('sdr-smoke-ready', async (event) => {
   stage('renderer ready');
   assert.equal(event.sender, window.webContents);
   assert.equal(event.senderFrame, window.webContents.mainFrame);
+  if (mode === 'capture') {
+    assert.equal(native.isCaptureSupported(), true, 'Windows Graphics Capture is unsupported on this host');
+    const source = { kind: 'window', id: `window:${sourceWindow.getNativeWindowHandle().readBigUInt64LE()}:0` };
+    let resized = false;
+    captureId = native.startCapture(source, { width: 60, height: 30, frameRate: 30 }, (frame) => {
+      if (finished) { native.releaseFrame(frame.frameId); return; }
+      transport.sendSdrFrame(window.webContents.mainFrame, sessionId, frame).then(() => {
+        if (!resized && !finished && captureId) {
+          resized = true;
+          sourceWindow.setContentSize(400, 200);
+          native.configureCapture(captureId, { width: 90, height: 45, frameRate: 30 });
+        }
+      }).catch((error) => finish({ status: 'failed', error: error.message }));
+    }, (reason) => finish({ status: 'failed', error: `Native WGC: ${reason}` }));
+    return { sessionId, mode };
+  }
   setImmediate(async () => {
     try {
       const width = 60;
@@ -74,8 +94,42 @@ ipcMain.handle('sdr-smoke-ready', async (event) => {
       finish({ status: 'failed', error: error.message });
     }
   });
-  return { sessionId };
+  return { sessionId, mode };
 });
+
+async function captureLifecycleChecks() {
+  const source = { kind: 'window', id: `window:${sourceWindow.getNativeWindowHandle().readBigUInt64LE()}:0` };
+  for (let attempt = 0; attempt < 100; attempt++) {
+    const id = native.startCapture(source, { width: 60, height: 30, frameRate: 30 }, (frame) => native.releaseFrame(frame.frameId), () => {});
+    native.stopCapture(id);
+    native.stopCapture(id);
+  }
+  stage('100 immediate cancel/repeated-stop checks completed');
+  async function expectEnd(reason, callback, action) {
+    let timeout;
+    try {
+      await new Promise((resolve, reject) => {
+        timeout = setTimeout(() => reject(new Error(`Native ${reason} test timed out`)), 8000);
+        native.startCapture(source, { width: 60, height: 30, frameRate: 30 }, callback, (actual) => {
+          stage(`lifecycle ended ${actual}; retained ${native.retainedFrameCount()}`);
+          try { assert.equal(actual, reason); resolve(); } catch (error) { reject(error); }
+        });
+        action?.();
+      });
+    } finally { clearTimeout(timeout); }
+  }
+  await expectEnd('callback-failed', (frame) => {
+    stage('intentional frame callback failure');
+    native.releaseFrame(frame.frameId);
+    throw new Error('Intentional controlled callback failure');
+  });
+  await expectEnd('source-closed', (frame) => {
+    stage('closing controlled source after captured frame');
+    native.releaseFrame(frame.frameId);
+    if (!sourceWindow.isDestroyed()) sourceWindow.destroy();
+  });
+  return { immediateCancelRestarts: 100, repeatedStop: true, callbackExceptionStopped: true, sourceClosureStopped: true };
+}
 
 ipcMain.handle('sdr-smoke-report', async (event, result) => {
   if (event.sender !== window?.webContents || event.senderFrame !== window.webContents.mainFrame) return;
@@ -83,16 +137,21 @@ ipcMain.handle('sdr-smoke-report', async (event, result) => {
   // A very fast synthetic frame can finish before loadURL resolves. Closing
   // the window first would abort that navigation and mask a passing result.
   await navigationComplete;
+  if (captureId) { native.stopCapture(captureId); captureId = null; }
   const preferences = window.webContents.getLastWebPreferences();
   assert.equal(preferences.sandbox, true);
   assert.equal(preferences.contextIsolation, true);
   assert.equal(preferences.nodeIntegration, false);
   window.destroy();
   const deadline = Date.now() + 5000;
-  const wait = () => {
+  const wait = async () => {
     const retainedFrames = native.retainedFrameCount();
     if (retainedFrames === 0) {
-      finish({ ...result, status: 'passed', retainedFrames, arch: process.arch, electron: process.versions.electron, gpu: app.getGPUFeatureStatus() });
+      try {
+        const lifecycle = mode === 'capture' ? await captureLifecycleChecks() : undefined;
+        assert.equal(native.retainedFrameCount(), 0);
+        finish({ ...result, status: 'passed', mode, lifecycle, retainedFrames, arch: process.arch, electron: process.versions.electron, gpu: app.getGPUFeatureStatus() });
+      } catch (error) { finish({ status: 'failed', error: error.message }); }
     } else if (Date.now() >= deadline) {
       finish({ status: 'failed', error: `Native frames retained after renderer close: ${retainedFrames}` });
     } else setTimeout(wait, 25);
@@ -110,24 +169,40 @@ app.whenReady().then(async () => {
     assert.equal(native.retainedFrameCount(), 0);
     assert.throws(() => native.createTestFrame(new Float32Array(4), 0, 1, 80, 80), /dimensions/);
     native.releaseFrame('already-released');
+    assert.equal(typeof native.startCapture, 'function');
+    assert.equal(typeof native.configureCapture, 'function');
+    assert.equal(typeof native.stopCapture, 'function');
+    assert.throws(() => native.startCapture({ kind: 'window', id: 'window:0:0' }, { width: 0, height: 0, frameRate: 60 }, () => {}, () => {}), /source/);
+    native.stopCapture('already-stopped');
+    assert.equal(native.retainedFrameCount(), 0);
     finish({ status: 'passed', mode: 'module-load-only', nativeLoaded: true, arch: process.arch, electron: process.versions.electron, gpuTransport: 'not-tested' });
     return;
   }
   const files = new Map([
     ['/', { file: 'renderer.html', type: 'text/html' }],
     ['/renderer.js', { file: 'renderer.js', type: 'text/javascript' }],
+    ['/source.html', { file: 'source.html', type: 'text/html' }],
+    ['/source.css', { file: 'source.css', type: 'text/css' }],
+    ['/source.js', { file: 'source.js', type: 'text/javascript' }],
   ]);
   server = http.createServer((request, response) => {
     const asset = files.get(request.url);
     if (!asset) { response.writeHead(404); response.end(); return; }
     response.writeHead(200, {
       'Content-Type': asset.type,
-      'Content-Security-Policy': "default-src 'none'; script-src 'self'; media-src blob:; connect-src 'none'",
+      'Content-Security-Policy': "default-src 'none'; script-src 'self'; style-src 'self'; media-src blob:; connect-src 'none'",
       'Cache-Control': 'no-store',
     });
     response.end(fs.readFileSync(path.join(__dirname, asset.file)));
   });
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
+  if (mode === 'capture') {
+    sourceWindow = new BrowserWindow({ width: 320, height: 160, useContentSize: true, frame: false, hasShadow: false, show: false, skipTaskbar: true,
+      webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false, backgroundThrottling: false } });
+    await sourceWindow.loadURL(`http://127.0.0.1:${server.address().port}/source.html`);
+    sourceWindow.showInactive();
+    stage('controlled source window created; no other source may be captured');
+  }
   window = new BrowserWindow({
     show: false,
     webPreferences: {

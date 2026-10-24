@@ -15,6 +15,9 @@ struct SdrTexture {
   HANDLE handle = nullptr;
   uint32_t width = 0;
   uint32_t height = 0;
+  // Keeps allocation capacity reserved through the final worker/callback ref,
+  // even if the owning frame id has already been released on the JS thread.
+  std::shared_ptr<void> pool_capacity;
   ~SdrTexture();
 };
 

@@ -8,6 +8,8 @@
 #include <vector>
 
 void sourceColorPolicyTests();
+void framePoolTests();
+void captureSessionPolicyTests();
 
 namespace {
 void require(bool condition, const char* message) {
@@ -24,6 +26,8 @@ std::vector<float> gray(const std::vector<float>& levels) {
 int main() {
   try {
     sourceColorPolicyTests();
+    framePoolTests();
+    captureSessionPolicyTests();
     backspace::SdrTextureConverter converter;
     auto sdr = converter.create(gray({0.0f, 0.18f, 1.0f}), 3, 1, 80.0f, 80.0f);
     auto pixels = converter.readback(sdr);

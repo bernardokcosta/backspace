@@ -52,7 +52,6 @@ struct SourceColorReader::State {
     ComPtr<IDXGIOutput6> output;
     std::wstring device_name;
     LUID adapter{};
-    std::optional<UINT32> target_id;
   };
   ComPtr<IDXGIFactory1> factory;
   std::unordered_map<HMONITOR, Entry> entries;
@@ -72,6 +71,10 @@ CaptureColor SourceColorReader::monitor(HMONITOR monitor_handle) {
   MONITORINFOEXW info{};
   info.cbSize = sizeof(info);
   require(monitor_handle && GetMonitorInfoW(monitor_handle, reinterpret_cast<MONITORINFO*>(&info)), "Capture display is unavailable");
+  if (state_->factory && !state_->factory->IsCurrent()) {
+    state_->entries.clear();
+    state_->factory.Reset();
+  }
   auto found = state_->entries.find(monitor_handle);
   if (found != state_->entries.end() && found->second.device_name != info.szDevice) {
     state_->entries.erase(found);
@@ -114,45 +117,42 @@ CaptureColor SourceColorReader::monitor(HMONITOR monitor_handle) {
         || description.ColorSpace == DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P2020, "Unsupported desktop color space");
     return {false, 80.0f};
   }
-  if (!entry.target_id) {
-    std::vector<DISPLAYCONFIG_PATH_INFO> paths;
-    bool queried = false;
-    for (int attempt = 0; attempt < 3; ++attempt) {
-      UINT32 path_count = 0, mode_count = 0;
-      require(GetDisplayConfigBufferSizes(QDC_ONLY_ACTIVE_PATHS, &path_count, &mode_count) == ERROR_SUCCESS
-          && path_count > 0 && path_count <= 128 && mode_count <= 1024, "Display topology is unavailable");
-      paths.resize(path_count);
-      std::vector<DISPLAYCONFIG_MODE_INFO> modes(mode_count);
-      const LONG status = QueryDisplayConfig(QDC_ONLY_ACTIVE_PATHS, &path_count, paths.data(), &mode_count, modes.data(), nullptr);
-      if (status == ERROR_INSUFFICIENT_BUFFER) continue;
-      require(status == ERROR_SUCCESS, "Reading active display topology failed");
-      paths.resize(path_count);
-      queried = true;
-      break;
-    }
-    require(queried, "Display topology kept changing");
-    std::optional<UINT32> target_id;
-    for (const auto& path : paths) {
-      if (!same_adapter(entry.adapter, path.targetInfo.adapterId)) continue;
-      DISPLAYCONFIG_SOURCE_DEVICE_NAME name{};
-      name.header.type = DISPLAYCONFIG_DEVICE_INFO_GET_SOURCE_NAME;
-      name.header.size = sizeof(name);
-      name.header.adapterId = path.sourceInfo.adapterId;
-      name.header.id = path.sourceInfo.id;
-      if (DisplayConfigGetDeviceInfo(&name.header) != ERROR_SUCCESS || _wcsicmp(name.viewGdiDeviceName, entry.device_name.c_str()) != 0) continue;
-      require(!target_id, "Mirrored HDR outputs have ambiguous source white levels");
-      target_id = path.targetInfo.id;
-    }
-    require(target_id.has_value(), "HDR display white-level identity is unavailable");
-    // Publish only a fully resolved identity. An ambiguous first attempt must
-    // not leave a cached target which bypasses rejection on the next frame.
-    entry.target_id = target_id;
+  // Do not cache a successful topology forever: a later mirror/reattachment
+  // can retain the same HMONITOR and GDI name but change the target identities.
+  std::vector<DISPLAYCONFIG_PATH_INFO> paths;
+  bool queried = false;
+  for (int attempt = 0; attempt < 3; ++attempt) {
+    UINT32 path_count = 0, mode_count = 0;
+    require(GetDisplayConfigBufferSizes(QDC_ONLY_ACTIVE_PATHS, &path_count, &mode_count) == ERROR_SUCCESS
+        && path_count > 0 && path_count <= 128 && mode_count <= 1024, "Display topology is unavailable");
+    paths.resize(path_count);
+    std::vector<DISPLAYCONFIG_MODE_INFO> modes(mode_count);
+    const LONG status = QueryDisplayConfig(QDC_ONLY_ACTIVE_PATHS, &path_count, paths.data(), &mode_count, modes.data(), nullptr);
+    if (status == ERROR_INSUFFICIENT_BUFFER) continue;
+    require(status == ERROR_SUCCESS, "Reading active display topology failed");
+    paths.resize(path_count);
+    queried = true;
+    break;
   }
+  require(queried, "Display topology kept changing");
+  std::optional<UINT32> target_id;
+  for (const auto& path : paths) {
+    if (!same_adapter(entry.adapter, path.targetInfo.adapterId)) continue;
+    DISPLAYCONFIG_SOURCE_DEVICE_NAME name{};
+    name.header.type = DISPLAYCONFIG_DEVICE_INFO_GET_SOURCE_NAME;
+    name.header.size = sizeof(name);
+    name.header.adapterId = path.sourceInfo.adapterId;
+    name.header.id = path.sourceInfo.id;
+    if (DisplayConfigGetDeviceInfo(&name.header) != ERROR_SUCCESS || _wcsicmp(name.viewGdiDeviceName, entry.device_name.c_str()) != 0) continue;
+    require(!target_id, "Mirrored HDR outputs have ambiguous source white levels");
+    target_id = path.targetInfo.id;
+  }
+  require(target_id.has_value(), "HDR display white-level identity is unavailable");
   DISPLAYCONFIG_SDR_WHITE_LEVEL white{};
   white.header.type = DISPLAYCONFIG_DEVICE_INFO_GET_SDR_WHITE_LEVEL;
   white.header.size = sizeof(white);
   white.header.adapterId = entry.adapter;
-  white.header.id = *entry.target_id;
+  white.header.id = *target_id;
   require(DisplayConfigGetDeviceInfo(&white.header) == ERROR_SUCCESS, "HDR display white level is unavailable");
   const float nits = float(white.SDRWhiteLevel) / 1000.0f * 80.0f;
   require(std::isfinite(nits) && nits > 0 && nits <= 10000, "HDR display white level is invalid");

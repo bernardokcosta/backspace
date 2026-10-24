@@ -34,12 +34,23 @@ is retained until every renderer/GPU reference is released, with a three-frame
 capacity. Raw handles stay in privileged code. The existing application does
 not yet load or expose this module: current capture behavior is unchanged.
 
+The experimental `capture_session` worker now captures an explicitly mapped
+window/display with free-threaded FP16 WGC buffers, GPU-side source-peak
+reduction, per-source white-level metadata, bounded output reservations and
+monotonic frame timestamps. Its Node-API delivery queue holds at most one
+pending frame plus one terminal error; stopping joins the worker before
+retiring queued references. Output capacity follows the last texture reference
+across stopped sessions. It does not acquire microphone/audio tracks.
+
 Build with `node packages/desktop/scripts/build-sdr-capture.mjs --arch x64 --test`
 from the repository root (or matching ARM64 host). The isolated synthetic
 fixture uses its own temporary profile and a sandboxed, context-isolated
 renderer. `--mode module` in `run-sdr-capture-smoke.mjs` verifies native loading
 inside matching Electron only; `--mode synthetic` verifies GPU texture-to-video
 transport. Neither substitutes for a real HDR display/received-stream test.
+`--mode capture` tests only a fixture-owned window, including resize,
+cancel/restart, callback-error, source-close and cleanup paths. It briefly
+shows that controlled test window and does not capture unrelated content.
 
 The `Native SDR foundation` workflow compiles and loads x64/ARM64 on matching
 Windows runners without publishing installers. Hardware capture, integration

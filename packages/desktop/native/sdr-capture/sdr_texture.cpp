@@ -98,6 +98,8 @@ struct SdrTextureConverter::State {
 
 SdrTexture::~SdrTexture() {
   if (handle) CloseHandle(handle);
+  texture.Reset();
+  pool_capacity.reset();
 }
 
 SdrTextureConverter::SdrTextureConverter() : state_(std::make_unique<State>()) {

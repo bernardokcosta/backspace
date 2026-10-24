@@ -157,6 +157,23 @@ designated => identifier "com.example.app" and anchor apple generic and
 
 **The app now measures this at runtime** rather than hardcoding "macOS cannot update". `packages/desktop/src/updateCapability.ts` runs the `codesign -d -r-` probe, classifies the requirement, and reports `manual` for a bare cdhash and `auto` for anything certificate-anchored. Consequences: `autoDownload` is off in manual mode (the ad-hoc build was otherwise pulling the full release archive on every check and storing it twice, 228 MB measured, for a file it could never apply), no Restart button is offered, and the copy says plainly that the build cannot update itself. **When a Developer ID lands in CI, that probe flips to `auto` on its own with no code change.** See [desktop.md](desktop.md) for the full update flow.
 
+## Experimental native SDR capture
+
+The opt-in SDR work under `native/sdr-capture` remains disconnected from
+production IPC/preload. Only privileged code can load the addon or supply a
+native source. Its isolated `--mode capture` fixture supplies the handle of a
+test window it created; it does not grant a remote page arbitrary capture.
+Native handles stay in main/preload and the sandbox receives only transferable
+VideoFrames. No sandbox, context-isolation or fuse setting is weakened.
+
+The worker reserves at most three output textures across active/retired
+sessions; callback/GPU references retain those permits until the physical
+texture is released. A bounded TSFN queue drops superseded frames. Stop,
+environment cleanup and terminal errors stop/join the worker; source closure
+is checked even when a provider omits WGC's Closed event. Main-frame grants,
+production navigation/renderer teardown wiring and real HDR/ARM64 capture
+acceptance remain pending, so the fixture is not production authorization proof.
+
 ## Not verified
 
 What follows is what has and has not actually been checked, so the sections above are not read as broader assurance than they are.
