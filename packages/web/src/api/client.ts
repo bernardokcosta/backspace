@@ -516,6 +516,7 @@ export class BackspaceApiClient {
     createPack: (data: { name: string; description?: string; coverAssetId?: string }) => Promise<StickerPackSummary>;
     listCreated: () => Promise<StickerPackSummary[]>;
     getCreated: (id: string) => Promise<StickerPackDetail>;
+    updatePack: (id: string, data: { name: string; description: string }) => Promise<{ success: boolean }>;
     addItem: (packId: string, data: { name: string; image: string }) => Promise<StickerPackItem>;
     removeItem: (packId: string, itemId: string) => Promise<{ success: boolean }>;
     reorderItems: (packId: string, itemIds: string[]) => Promise<{ success: boolean }>;
@@ -635,6 +636,7 @@ export class BackspaceApiClient {
       createPack: (data) => request<StickerPackSummary>('POST', '/sticker-packs', data),
       listCreated: () => request<StickerPackSummary[]>('GET', '/sticker-packs/created'),
       getCreated: (id) => request<StickerPackDetail>('GET', `/sticker-packs/${encodeURIComponent(id)}`),
+      updatePack: (id, data) => request<{ success: boolean }>('PATCH', `/sticker-packs/${encodeURIComponent(id)}`, data),
       addItem: (packId, data) => request<StickerPackItem>('POST', `/sticker-packs/${encodeURIComponent(packId)}/items`, data),
       removeItem: (packId, itemId) => request<{ success: boolean }>('DELETE', `/sticker-packs/${encodeURIComponent(packId)}/items/${encodeURIComponent(itemId)}`),
       reorderItems: (packId, itemIds) => request<{ success: boolean }>('PUT', `/sticker-packs/${encodeURIComponent(packId)}/items/order`, { itemIds }),

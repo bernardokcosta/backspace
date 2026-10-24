@@ -103,33 +103,52 @@ export function backfillOneOnOneDmMembership(db: Database.Database): void {
   if (restored > 0) console.log(`[backfill] restored ${restored} deleted-partner DM membership row(s)`);
 }
 
-/**
- * If an earlier boot attempt ran with a build that added max_sticker_size_bytes to
- * instance_settings before migrate() crashed with a duplicate column error, the
- * column is already present but __drizzle_migrations lacks the migration entry.
- * Record it so Drizzle migrator does not attempt to execute 0045_flawless_mister_sinister.sql again.
- */
+/** Reconcile a size column left by an unreleased build. 0045 also creates pack
+ * tables: never skip it merely because that column exists. Missing objects and
+ * the actual generated journal entry are applied in one rollback-safe step. */
 export function healSkippedStickerSizeMigration(db: Database.Database, migrationsFolder: string): void {
   const settingsTable = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'instance_settings'").get();
   if (!settingsTable) return;
 
-  const cols = db.prepare("PRAGMA table_info('instance_settings')").all() as Array<{ name: string }>;
+  const cols = db.prepare("PRAGMA table_info('instance_settings')").all() as Array<{ name: string; type: string; notnull: number; dflt_value: unknown }>;
   if (!cols.some((c) => c.name === 'max_sticker_size_bytes')) return;
 
   const migrationsTableExists = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = '__drizzle_migrations'").get();
   if (!migrationsTableExists) return;
 
-  const STICKER_SIZE_TIMESTAMP = 1792100000000;
-  const alreadyRecorded = db.prepare('SELECT 1 FROM __drizzle_migrations WHERE created_at = ? LIMIT 1').get(STICKER_SIZE_TIMESTAMP);
-  if (alreadyRecorded) return;
-
-  const migrationPath = path.join(migrationsFolder, '0045_flawless_mister_sinister.sql');
-  if (!fs.existsSync(migrationPath)) return;
-
-  const sql = fs.readFileSync(migrationPath, 'utf8');
-  const hash = crypto.createHash('sha256').update(sql).digest('hex');
-
-  db.prepare('INSERT INTO __drizzle_migrations ("hash", "created_at") VALUES (?, ?)').run(hash, STICKER_SIZE_TIMESTAMP);
-  console.log('[migrate] Detected pre-existing max_sticker_size_bytes. Backfilled migration 0045_flawless_mister_sinister record.');
+  const tag = '0045_flawless_mister_sinister';
+  const journal = JSON.parse(fs.readFileSync(path.join(migrationsFolder, 'meta/_journal.json'), 'utf8')) as {
+    entries: Array<{ tag: string; when: number }>;
+  };
+  const entry = journal.entries.find(e => e.tag === tag);
+  if (!entry) return;
+  const recorded = db.prepare('SELECT 1 FROM __drizzle_migrations WHERE created_at = ?');
+  if (recorded.get(entry.when)) return;
+  // Refuse to jump over any older pending migration.
+  if (journal.entries.some(e => e.when < entry.when && !recorded.get(e.when))) {
+    throw new Error('Cannot recover sticker migration before earlier migrations are applied');
+  }
+  const column = cols.find(c => c.name === 'max_sticker_size_bytes')!;
+  if (column.type.toLowerCase() !== 'integer' || column.notnull !== 0 || column.dflt_value !== null) {
+    throw new Error('Cannot recover divergent max_sticker_size_bytes column');
+  }
+  const sql = fs.readFileSync(path.join(migrationsFolder, `${tag}.sql`), 'utf8');
+  const canonical = (sql: string) => sql.trim().replace(/;$/, '').replace(/\s+/g, ' ').toLowerCase();
+  db.transaction(() => {
+    for (const part of sql.split(/-->\s*statement-breakpoint/)) {
+      const statement = part.trim();
+      if (!statement) continue;
+      if (/^ALTER TABLE `instance_settings` ADD `max_sticker_size_bytes` integer;?$/i.test(statement)) continue;
+      const created = /^CREATE (TABLE|(?:UNIQUE )?INDEX) `([^`]+)`/i.exec(statement);
+      if (!created) throw new Error(`Unsupported sticker recovery statement: ${statement.slice(0, 80)}`);
+      const existing = db.prepare('SELECT sql FROM sqlite_master WHERE name = ?').get(created[2]) as { sql: string } | undefined;
+      if (existing) {
+        if (canonical(existing.sql) !== canonical(statement)) throw new Error(`Cannot recover divergent sticker object: ${created[2]}`);
+      } else db.exec(statement);
+    }
+    db.prepare('INSERT INTO __drizzle_migrations ("hash", "created_at") VALUES (?, ?)')
+      .run(crypto.createHash('sha256').update(sql).digest('hex'), entry.when);
+  }).immediate();
+  console.log(`[migrate] Reconciled ${tag} and its generated journal entry`);
 }
 

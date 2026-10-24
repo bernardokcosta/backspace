@@ -174,9 +174,17 @@ The composite primary key (user_id, sticker_id) makes collection idempotent; one
 
 Migration `0045_flawless_mister_sinister`. Curated reviewable packs (`routes/stickerStore.ts`) plus the federation replica store; see [api.md](api.md), "Sticker packs / store".
 
+Published metadata/status is kept on the pack; the candidate's metadata and
+review status belong to its version. Submitting or rejecting v2 does not change
+v1's published state. Approval switches metadata and currentVersion atomically.
+Recovery of a preexisting `max_sticker_size_bytes` column executes all missing
+generated 0045 objects and records the journal's actual timestamp/hash in one
+transaction, refusing divergent objects or unapplied older migrations. The
+column's presence alone never marks the whole migration applied.
+
 | Table | Column | Type | Notes |
 |-------|--------|------|-------|
-| sticker_packs | id | text PK | Snowflake (local) or UUID (replica) |
+| sticker_packs | id | text PK | UUID (local and replica) |
 | sticker_packs | name / description | text | Capped at 100 / 500 chars on write |
 | sticker_packs | creator_id | text | FK → users.id SET NULL; null on replicas |
 | sticker_packs | origin_type | text NOT NULL, default `'source'` | `source` (created here) or `replica` (synced) |

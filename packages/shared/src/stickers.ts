@@ -90,6 +90,9 @@ export interface StickerPackSummary {
   sourceInstance: string | null;
   sourcePackId: string | null;
   currentVersion: number;
+  /** Creator/admin views only: the unpublished candidate, when one exists. */
+  editingVersion?: number;
+  editingStatus?: StickerPackStatus;
   status: StickerPackStatus;
   itemCount: number;
   isInstalled?: boolean;

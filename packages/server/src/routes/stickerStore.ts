@@ -5,15 +5,18 @@ import {
   MAX_STICKER_PACK_DESC_LENGTH,
   MAX_STICKER_PACK_NAME_LENGTH,
   MAX_STICKERS_PER_PACK,
+  MAX_STICKER_NAME_LENGTH,
+  normalizeStickerName,
   STICKER_ID_PATTERN,
   type StickerPackDetail,
   type StickerPackStatus,
   type StickerPackSummary,
 } from '@backspace/shared/src/stickers.js';
 import { getDb, schema } from '../db/index.js';
-import { authenticate, verifyAccessToken } from '../utils/auth.js';
+import { authenticate, tokenFromAuthHeader, verifyAccessToken } from '../utils/auth.js';
 import { getOurOrigin } from '../utils/federationAuth.js';
 import { sendError } from '../utils/httpErrors.js';
+import { MAX_STICKER_JSON_BYTES, stickerUploadBodyLimit } from '../utils/stickerUpload.js';
 import { encodeSticker, getMaxStickerSizeBytes, saveStickerAsset, StickerImageError, StickerPixelLimitError, tokenFor } from './stickers.js';
 
 import { stickerStoreAdminRoutes } from './stickerStoreAdmin.js';
@@ -24,13 +27,13 @@ export function formatCoverUrl(coverAssetId: string | null): string | null {
 }
 
 async function tryResolveUserId(request: FastifyRequest): Promise<string | null> {
-  const authHeader = request.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+  const token = tokenFromAuthHeader(request.headers.authorization);
+  if (!token) return null;
   try {
     // Fork adaptation: upstream calls verifyJwtAndUser here, which this fork
     // does not have — verifyAccessToken is its superset (JWT + bsb_ bot
     // tokens, deleted/revoked checks) with the same { userId } shape.
-    const identity = await verifyAccessToken(authHeader.slice(7));
+    const identity = await verifyAccessToken(token);
     return identity.userId;
   } catch {
     return null;
@@ -318,14 +321,19 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
       },
     },
   }, async (request, reply) => {
-    const trimmedName = request.body.name.trim();
-    if (!trimmedName) return sendError(reply, 400, 'validation_failed');
+    const trimmedName = normalizeStickerName(request.body.name);
+    if (!trimmedName) return sendError(reply, 400, 'sticker_name_invalid', { max: MAX_STICKER_PACK_NAME_LENGTH });
+    if ((request.body.description?.trim().length ?? 0) > MAX_STICKER_PACK_DESC_LENGTH) return sendError(reply, 400, 'validation_failed');
 
     const packId = randomUUID();
     const versionId = randomUUID();
     const now = Date.now();
     const db = getDb();
+    if (request.body.coverAssetId && !db.select().from(schema.stickerAssets).where(eq(schema.stickerAssets.id, request.body.coverAssetId)).get()) {
+      return sendError(reply, 404, 'sticker_not_found');
+    }
 
+    db.transaction(() => {
     db.insert(schema.stickerPacks).values({
       id: packId,
       name: trimmedName,
@@ -352,6 +360,7 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
       status: 'draft',
       createdAt: now,
     }).run();
+    });
 
     return { id: packId, name: trimmedName, status: 'draft', currentVersion: 1 };
   });
@@ -373,19 +382,23 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
       const version = db.select().from(schema.stickerPackVersions)
         .where(and(
           eq(schema.stickerPackVersions.packId, pack.id),
-          eq(schema.stickerPackVersions.version, pack.currentVersion),
-        )).get();
+          inArray(schema.stickerPackVersions.status, ['draft', 'pending_review', 'rejected']),
+        )).orderBy(desc(schema.stickerPackVersions.version)).get();
 
-      const items = version ? db.select().from(schema.stickerPackItems)
+      const displayedVersion = version ?? db.select().from(schema.stickerPackVersions).where(and(
+        eq(schema.stickerPackVersions.packId, pack.id), eq(schema.stickerPackVersions.version, pack.currentVersion),
+      )).get();
+
+      const items = displayedVersion ? db.select().from(schema.stickerPackItems)
         .where(and(
-          eq(schema.stickerPackItems.versionId, version.id),
+          eq(schema.stickerPackItems.versionId, displayedVersion.id),
           eq(schema.stickerPackItems.status, 'active'),
         )).all() : [];
 
       return {
         id: pack.id,
-        name: pack.name,
-        description: pack.description,
+        name: displayedVersion?.name ?? pack.name,
+        description: displayedVersion ? displayedVersion.description : pack.description,
         creatorId: pack.creatorId,
         creatorName: pack.creatorName,
         coverAssetId: pack.coverAssetId,
@@ -394,9 +407,11 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
         sourceInstance: pack.sourceInstance,
         sourcePackId: pack.sourcePackId,
         currentVersion: pack.currentVersion,
+        editingVersion: version?.version,
+        editingStatus: version?.status as StickerPackStatus | undefined,
         status: pack.status as StickerPackStatus,
         itemCount: items.length,
-        reviewNotes: pack.reviewNotes,
+        reviewNotes: displayedVersion?.reviewNotes ?? pack.reviewNotes,
         reviewedBy: pack.reviewedBy,
         reviewedAt: pack.reviewedAt,
         createdAt: pack.createdAt,
@@ -448,18 +463,23 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
 
     return {
       id: pack.id,
-      name: pack.name,
-      description: pack.description,
+      name: editingVersion?.name ?? pack.name,
+      description: editingVersion ? editingVersion.description : pack.description,
       creatorId: pack.creatorId,
       creatorName: pack.creatorName,
-      coverAssetId: pack.coverAssetId,
-      coverUrl: formatCoverUrl(pack.coverAssetId),
+      coverAssetId: editingVersion?.coverAssetId ?? pack.coverAssetId,
+      coverUrl: formatCoverUrl(editingVersion?.coverAssetId ?? pack.coverAssetId),
       originType: pack.originType,
+      sourceInstance: pack.sourceInstance,
+      sourcePackId: pack.sourcePackId,
+      itemCount: items.length,
+      reviewedBy: editingVersion?.reviewedBy ?? pack.reviewedBy,
+      reviewedAt: editingVersion?.reviewedAt ?? pack.reviewedAt,
       currentVersion: pack.currentVersion,
       editingVersion: editingVersion?.version ?? pack.currentVersion,
       editingStatus: editingVersion?.status ?? pack.status,
       status: pack.status,
-      reviewNotes: pack.reviewNotes,
+      reviewNotes: editingVersion?.reviewNotes ?? pack.reviewNotes,
       items: items.map(i => ({
         id: i.id,
         packId: i.packId,
@@ -476,21 +496,42 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
     };
   });
 
+  // Candidate metadata is saved independently from the published version.
+  app.patch<{ Params: { id: string }; Body: { name: string; description?: string } }>('/api/sticker-packs/:id', {
+    preHandler: authenticate,
+    schema: { body: { type: 'object', required: ['name'], additionalProperties: false, properties: {
+      name: { type: 'string', minLength: 1, maxLength: MAX_STICKER_PACK_NAME_LENGTH },
+      description: { type: 'string', maxLength: MAX_STICKER_PACK_DESC_LENGTH },
+    } } },
+  }, async (request, reply) => {
+    const name = normalizeStickerName(request.body.name);
+    if (!name) return sendError(reply, 400, 'sticker_name_invalid', { max: MAX_STICKER_PACK_NAME_LENGTH });
+    const db = getDb();
+    const pack = db.select().from(schema.stickerPacks).where(eq(schema.stickerPacks.id, request.params.id)).get();
+    if (!pack || pack.creatorId !== request.userId) return sendError(reply, 403, 'forbidden');
+    if (pack.originType !== 'source' || !['draft', 'rejected', 'approved'].includes(pack.status)) return sendError(reply, 400, 'sticker_pack_invalid_state');
+    const version = db.select().from(schema.stickerPackVersions).where(and(
+      eq(schema.stickerPackVersions.packId, pack.id), inArray(schema.stickerPackVersions.status, ['draft', 'rejected']),
+    )).orderBy(desc(schema.stickerPackVersions.version)).get();
+    if (!version) return sendError(reply, 400, 'sticker_pack_invalid_state');
+    const description = request.body.description === undefined ? version.description : request.body.description.trim() || null;
+    if ((description?.length ?? 0) > MAX_STICKER_PACK_DESC_LENGTH) return sendError(reply, 400, 'validation_failed');
+    db.transaction(() => {
+      db.update(schema.stickerPackVersions).set({ name, description }).where(eq(schema.stickerPackVersions.id, version.id)).run();
+      db.update(schema.stickerPacks).set({
+        ...(pack.status !== 'approved' ? { name, description } : {}), updatedAt: Date.now(),
+      }).where(eq(schema.stickerPacks.id, pack.id)).run();
+    });
+    return { success: true };
+  });
+
   /**
    * Upload and add a sticker item to a pack's draft version.
    */
   app.post<{ Params: { id: string }; Body: { name: string; image: string } }>('/api/sticker-packs/:id/items', {
-    preHandler: authenticate,
-    bodyLimit: 500 * 1024 * 1024,
-    preParsing: async (request, reply, payload) => {
-      const maxBytes = getMaxStickerSizeBytes();
-      const maxBodyLimit = Math.ceil(maxBytes / 3) * 4 + 4096;
-      const contentLength = Number(request.headers['content-length']);
-      if (contentLength && contentLength > maxBodyLimit) {
-        return reply.code(413).send({ statusCode: 413, error: 'Payload Too Large', message: 'Request body is too large' });
-      }
-      return payload;
-    },
+    onRequest: authenticate,
+    bodyLimit: MAX_STICKER_JSON_BYTES,
+    preParsing: stickerUploadBodyLimit(getMaxStickerSizeBytes),
     schema: {
       body: {
         type: 'object',
@@ -536,8 +577,8 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
       return sendError(reply, 400, 'sticker_pack_limit_exceeded');
     }
 
-    const trimmedName = request.body.name.trim();
-    if (!trimmedName) return sendError(reply, 400, 'validation_failed');
+    const trimmedName = normalizeStickerName(request.body.name);
+    if (!trimmedName) return sendError(reply, 400, 'sticker_name_invalid', { max: MAX_STICKER_NAME_LENGTH });
 
     if (!/^[A-Za-z0-9+/]*={0,2}$/.test(request.body.image)) return sendError(reply, 400, 'validation_failed');
     const bytes = Buffer.from(request.body.image, 'base64');
@@ -566,24 +607,35 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
     const itemId = randomUUID();
     const now = Date.now();
 
-    db.insert(schema.stickerPackItems).values({
-      id: itemId,
-      packId: pack.id,
-      versionId: draftVersion.id,
-      assetId,
-      name: trimmedName,
-      sortOrder: existingItems.length,
-      status: 'active',
-      createdAt: now,
-    }).run();
-
-    // If pack has no cover yet, default to first sticker
-    if (!pack.coverAssetId) {
-      db.update(schema.stickerPacks).set({ coverAssetId: assetId, updatedAt: now })
-        .where(eq(schema.stickerPacks.id, pack.id)).run();
-      db.update(schema.stickerPackVersions).set({ coverAssetId: assetId })
-        .where(eq(schema.stickerPackVersions.id, draftVersion.id)).run();
-    }
+    // Encoding and filesystem I/O yield: the pack may have been submitted,
+    // deleted, or filled meanwhile. All final checks and writes are atomic.
+    const inserted = db.transaction(() => {
+      const freshPack = db.select().from(schema.stickerPacks).where(eq(schema.stickerPacks.id, pack.id)).get();
+      const freshVersion = db.select().from(schema.stickerPackVersions).where(eq(schema.stickerPackVersions.id, draftVersion.id)).get();
+      if (!freshPack || freshPack.creatorId !== request.userId || freshPack.originType !== 'source'
+        || !['draft', 'rejected', 'approved'].includes(freshPack.status)
+        || !freshVersion || !['draft', 'rejected'].includes(freshVersion.status)) {
+        return { error: 'sticker_pack_invalid_state' as const };
+      }
+      const items = db.select().from(schema.stickerPackItems).where(and(
+        eq(schema.stickerPackItems.versionId, freshVersion.id), eq(schema.stickerPackItems.status, 'active'),
+      )).all();
+      if (items.length >= MAX_STICKERS_PER_PACK) return { error: 'sticker_pack_limit_exceeded' as const };
+      const sortOrder = Math.max(-1, ...items.map(item => item.sortOrder)) + 1;
+      db.insert(schema.stickerPackItems).values({
+        id: itemId, packId: pack.id, versionId: freshVersion.id, assetId,
+        name: trimmedName, sortOrder, status: 'active', createdAt: now,
+      }).run();
+      if (!freshVersion.coverAssetId) {
+        db.update(schema.stickerPackVersions).set({ coverAssetId: assetId }).where(eq(schema.stickerPackVersions.id, freshVersion.id)).run();
+        if (freshPack.status !== 'approved') {
+          db.update(schema.stickerPacks).set({ coverAssetId: assetId }).where(eq(schema.stickerPacks.id, pack.id)).run();
+        }
+      }
+      db.update(schema.stickerPacks).set({ updatedAt: now }).where(eq(schema.stickerPacks.id, pack.id)).run();
+      return { sortOrder };
+    }, { behavior: 'immediate' });
+    if (inserted.error) return sendError(reply, 400, inserted.error);
 
     return {
       id: itemId,
@@ -592,7 +644,7 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
       assetId,
       name: trimmedName,
       token: tokenFor(assetId),
-      sortOrder: existingItems.length,
+      sortOrder: inserted.sortOrder,
       status: 'active',
       createdAt: now,
     };
@@ -606,7 +658,7 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
   }, async (request, reply) => {
     const db = getDb();
     const pack = db.select().from(schema.stickerPacks).where(eq(schema.stickerPacks.id, request.params.id)).get();
-    if (!pack || pack.creatorId !== request.userId) return sendError(reply, 403, 'forbidden');
+    if (!pack || pack.creatorId !== request.userId || pack.status === 'deleted') return sendError(reply, 403, 'forbidden');
 
     const item = db.select().from(schema.stickerPackItems).where(eq(schema.stickerPackItems.id, request.params.itemId)).get();
     if (!item || item.packId !== pack.id) return sendError(reply, 404, 'sticker_not_found');
@@ -632,12 +684,22 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
     if (!pack || pack.creatorId !== request.userId) return sendError(reply, 403, 'forbidden');
 
     const { itemIds } = request.body;
-    if (!Array.isArray(itemIds)) return sendError(reply, 400, 'validation_failed');
-
-    itemIds.forEach((id, index) => {
-      db.update(schema.stickerPackItems).set({ sortOrder: index })
-        .where(and(eq(schema.stickerPackItems.id, id), eq(schema.stickerPackItems.packId, pack.id))).run();
-    });
+    if (!Array.isArray(itemIds) || itemIds.some(id => typeof id !== 'string') || new Set(itemIds).size !== itemIds.length) return sendError(reply, 400, 'validation_failed');
+    if (pack.originType !== 'source' || !['draft', 'rejected', 'approved'].includes(pack.status)) return sendError(reply, 400, 'sticker_pack_invalid_state');
+    const version = db.select().from(schema.stickerPackVersions).where(and(
+      eq(schema.stickerPackVersions.packId, pack.id), inArray(schema.stickerPackVersions.status, ['draft', 'rejected']),
+    )).orderBy(desc(schema.stickerPackVersions.version)).get();
+    if (!version) return sendError(reply, 400, 'sticker_pack_invalid_state');
+    const items = db.select().from(schema.stickerPackItems).where(and(
+      eq(schema.stickerPackItems.versionId, version.id), eq(schema.stickerPackItems.status, 'active'),
+    )).all();
+    const allowedIds = new Set(items.map(item => item.id));
+    if (itemIds.length !== items.length || itemIds.some(id => !allowedIds.has(id))) return sendError(reply, 400, 'validation_failed');
+    db.transaction(() => itemIds.forEach((id, index) => {
+      db.update(schema.stickerPackItems).set({ sortOrder: index }).where(and(
+        eq(schema.stickerPackItems.id, id), eq(schema.stickerPackItems.versionId, version.id),
+      )).run();
+    }));
 
     return { success: true };
   });
@@ -654,6 +716,8 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
     if (!pack || pack.creatorId !== request.userId) {
       return sendError(reply, 403, 'forbidden');
     }
+
+    if (pack.originType !== 'source' || !['draft', 'rejected', 'approved'].includes(pack.status)) return sendError(reply, 400, 'sticker_pack_invalid_state');
 
     const draftVersion = db.select().from(schema.stickerPackVersions)
       .where(and(
@@ -678,14 +742,15 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
     }
 
     const now = Date.now();
-    db.update(schema.stickerPackVersions).set({ status: 'pending_review' })
-      .where(eq(schema.stickerPackVersions.id, draftVersion.id)).run();
+    db.transaction(() => {
+      db.update(schema.stickerPackVersions).set({ status: 'pending_review', reviewNotes: null, reviewedBy: null, reviewedAt: null })
+        .where(eq(schema.stickerPackVersions.id, draftVersion.id)).run();
 
-    db.update(schema.stickerPacks).set({
-      status: 'pending_review',
-      reviewNotes: null,
-      updatedAt: now,
-    }).where(eq(schema.stickerPacks.id, pack.id)).run();
+      db.update(schema.stickerPacks).set({
+        ...(pack.status !== 'approved' ? { status: 'pending_review', reviewNotes: null } : {}),
+        updatedAt: now,
+      }).where(eq(schema.stickerPacks.id, pack.id)).run();
+    });
 
     return { success: true, status: 'pending_review' };
   });
@@ -710,7 +775,7 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
     const existingDraft = db.select().from(schema.stickerPackVersions)
       .where(and(
         eq(schema.stickerPackVersions.packId, pack.id),
-        or(eq(schema.stickerPackVersions.status, 'draft'), eq(schema.stickerPackVersions.status, 'pending_review')),
+        inArray(schema.stickerPackVersions.status, ['draft', 'pending_review', 'rejected']),
       )).get();
 
     if (existingDraft) {
@@ -730,6 +795,7 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
     const newVersionId = randomUUID();
     const now = Date.now();
 
+    db.transaction(() => {
     db.insert(schema.stickerPackVersions).values({
       id: newVersionId,
       packId: pack.id,
@@ -759,6 +825,7 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
         createdAt: now,
       }).run();
     }
+    });
 
     return {
       id: pack.id,

@@ -5,6 +5,7 @@ import {
   MAX_STICKER_PACK_DESC_LENGTH,
   MAX_STICKER_PACK_NAME_LENGTH,
   MAX_STICKERS_PER_PACK,
+  normalizeStickerName,
   stickerUrl,
   stickerPreviewUrl,
   type StickerPackDetail,
@@ -23,48 +24,62 @@ interface StickerPackManageModalProps {
 }
 
 export function StickerPackManageModal({ packId, onClose, onSaved }: StickerPackManageModalProps) {
-  const { t } = useTranslation(['chat', 'common']);
+  const { t } = useTranslation(['chat', 'common', 'errors']);
   const homeInfo = useHomeInstanceInfo();
   const maxMb = homeInfo?.maxStickerSizeMb ?? 5;
   const maxBytes = maxMb * 1024 * 1024;
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadInFlight = useRef(false);
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [items, setItems] = useState<StickerPackItem[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!!packId);
+  const [editingStatus, setEditingStatus] = useState<string>(packId ? 'loading' : 'draft');
   const [submitting, setSubmitting] = useState(false);
   const [uploadingItem, setUploadingItem] = useState(false);
   const [error, setError] = useState('');
   const [currentPackId, setCurrentPackId] = useState<string | null>(packId ?? null);
+  const readOnly = !['draft', 'rejected'].includes(editingStatus);
+  const busy = loading || submitting || uploadingItem;
 
   useEffect(() => {
     if (!packId) return;
+    let cancelled = false;
     setLoading(true);
     api.stickerStore.getCreated(packId)
       .then((pack: StickerPackDetail) => {
+        if (cancelled) return;
         setName(pack.name);
         setDescription(pack.description || '');
         setItems(pack.items || []);
         setCurrentPackId(pack.id);
+        setEditingStatus(pack.editingStatus ?? pack.status);
       })
       .catch((err) => {
+        if (cancelled) return;
         setError(describeError(err));
       })
       .finally(() => {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       });
+    return () => { cancelled = true; };
   }, [packId]);
 
   const handleFileUpload = async (files: FileList | File[]) => {
+    if (busy || readOnly || uploadInFlight.current) return;
+    const selectedFiles = Array.from(files);
+    uploadInFlight.current = true;
+    setUploadingItem(true);
+    try {
     setError('');
     let activeId = currentPackId;
 
     // If pack doesn't exist yet, create draft pack first
     if (!activeId) {
-      const trimmed = name.trim();
+      const trimmed = normalizeStickerName(name);
       if (!trimmed) {
-        setError(t('stickers.packName') + ' is required');
+        setError(t('errors:sticker_name_invalid', { max: MAX_STICKER_PACK_NAME_LENGTH }));
         return;
       }
       try {
@@ -90,8 +105,7 @@ export function StickerPackManageModal({ packId, onClose, onSaved }: StickerPack
       return;
     }
 
-    const filesToUpload = Array.from(files).slice(0, availableSlots);
-    setUploadingItem(true);
+    const filesToUpload = selectedFiles.slice(0, availableSlots);
 
     for (const file of filesToUpload) {
       if (file.size > maxBytes) {
@@ -124,11 +138,14 @@ export function StickerPackManageModal({ packId, onClose, onSaved }: StickerPack
       }
     }
 
-    setUploadingItem(false);
+    } finally {
+      uploadInFlight.current = false;
+      setUploadingItem(false);
+    }
   };
 
   const handleRemoveItem = async (itemId: string) => {
-    if (!currentPackId) return;
+    if (!currentPackId || busy || readOnly) return;
     try {
       await api.stickerStore.removeItem(currentPackId, itemId);
       setItems((prev) => prev.filter((i) => i.id !== itemId));
@@ -138,10 +155,16 @@ export function StickerPackManageModal({ packId, onClose, onSaved }: StickerPack
   };
 
   const handleSubmitForReview = async () => {
+    if (busy || readOnly) return;
+    const normalizedName = normalizeStickerName(name);
+    if (!normalizedName) {
+      setError(t('errors:sticker_name_invalid', { max: MAX_STICKER_PACK_NAME_LENGTH }));
+      return;
+    }
     if (!currentPackId) {
       const trimmed = name.trim();
       if (!trimmed) {
-        setError(t('stickers.packName') + ' is required');
+        setError(t('errors:sticker_name_invalid', { max: MAX_STICKER_PACK_NAME_LENGTH }));
         return;
       }
       try {
@@ -169,6 +192,7 @@ export function StickerPackManageModal({ packId, onClose, onSaved }: StickerPack
     setSubmitting(true);
     setError('');
     try {
+      await api.stickerStore.updatePack(currentPackId, { name: normalizedName, description: description.trim() });
       await api.stickerStore.submitReview(currentPackId);
       onSaved();
       onClose();
@@ -182,25 +206,27 @@ export function StickerPackManageModal({ packId, onClose, onSaved }: StickerPack
   const portalContainer = usePortalContainer();
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape' && !submitting) {
+    if (e.key === 'Escape' && !e.isComposing) {
+      e.preventDefault();
       e.stopPropagation();
-      onClose();
+      if (!busy) onClose();
     }
-  }, [onClose, submitting]);
+  }, [onClose, busy]);
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => document.removeEventListener('keydown', handleKeyDown, true);
   }, [handleKeyDown]);
 
   return createPortal(
     <div
       role="dialog"
       aria-modal="true"
+      aria-label={packId ? t('stickers.editPack') : t('stickers.createPack')}
       className="fixed inset-0 z-[520] flex items-center justify-center animate-fade-in"
       onMouseDown={e => e.stopPropagation()}
     >
-      <div className="absolute inset-0 bg-black/50" onClick={() => { if (!submitting) onClose(); }} />
+      <div className="absolute inset-0 bg-black/50" onClick={() => { if (!busy) onClose(); }} />
       <div className="relative w-full max-w-lg mx-4 glass-modal rounded-xl shadow-2xl flex flex-col max-h-[calc(90*var(--app-vh))] overflow-hidden animate-slide-up">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border-soft">
@@ -210,6 +236,7 @@ export function StickerPackManageModal({ packId, onClose, onSaved }: StickerPack
           <button
             type="button"
             onClick={onClose}
+            disabled={busy}
             className="p-1.5 rounded-lg text-txt-tertiary hover:text-txt-primary hover:bg-interactive-hover transition-colors"
             aria-label={t('common:actions.close')}
           >
@@ -238,7 +265,7 @@ export function StickerPackManageModal({ packId, onClose, onSaved }: StickerPack
               maxLength={MAX_STICKER_PACK_NAME_LENGTH}
               placeholder={t('stickers.packName')}
               className="input-standard w-full text-sm"
-              disabled={submitting}
+              disabled={busy || readOnly}
             />
           </div>
 
@@ -253,7 +280,7 @@ export function StickerPackManageModal({ packId, onClose, onSaved }: StickerPack
               rows={2}
               placeholder={t('stickers.packDesc')}
               className="input-standard w-full text-sm py-2 resize-none"
-              disabled={submitting}
+              disabled={busy || readOnly}
             />
           </div>
 
@@ -267,7 +294,7 @@ export function StickerPackManageModal({ packId, onClose, onSaved }: StickerPack
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingItem || items.length >= MAX_STICKERS_PER_PACK}
+                  disabled={busy || readOnly || items.length >= MAX_STICKERS_PER_PACK}
                   className="sticker-secondary-button text-xs"
                 >
                   + {t('stickers.addMore')}
@@ -290,6 +317,7 @@ export function StickerPackManageModal({ packId, onClose, onSaved }: StickerPack
                     <button
                       type="button"
                       onClick={() => handleRemoveItem(item.id)}
+                      disabled={busy || readOnly}
                       className="sticker-remove-button opacity-0 group-hover:opacity-100 transition-opacity"
                       aria-label={t('stickers.remove')}
                     >
@@ -328,6 +356,7 @@ export function StickerPackManageModal({ packId, onClose, onSaved }: StickerPack
               type="file"
               accept="image/png,image/jpeg,image/webp,image/gif"
               multiple
+              disabled={busy || readOnly}
               className="hidden"
               onChange={(e) => {
                 if (e.target.files) handleFileUpload(e.target.files);
@@ -350,7 +379,7 @@ export function StickerPackManageModal({ packId, onClose, onSaved }: StickerPack
           <button
             type="button"
             onClick={handleSubmitForReview}
-            disabled={loading || submitting || uploadingItem || items.length === 0}
+            disabled={busy || readOnly || items.length === 0}
             className="sticker-primary-button"
           >
             {submitting ? <span className="sticker-spinner" /> : t('stickers.submitReview')}

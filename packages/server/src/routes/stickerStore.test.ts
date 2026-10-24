@@ -7,17 +7,23 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import sharp from 'sharp';
+import * as stickerEncoding from './stickers.js';
+import { request as httpRequest } from 'node:http';
 import { eq } from 'drizzle-orm';
 import * as schema from '../db/index.js';
 import { stickerRoutes } from './stickers.js';
 import { stickerStoreRoutes } from './stickerStore.js';
 import { registerStickerFederationRoutes } from './federation/handlers/stickerSync.js';
 import { syncRemotePack } from '../utils/stickerSync.js';
+import { cleanupUnusedStickerAssets, STICKER_ASSET_GRACE_MS } from '../utils/stickerAssets.js';
+import { access } from 'node:fs/promises';
+import { stickerAssetPath } from '../utils/stickerAssets.js';
 
 const settings = vi.hoisted(() => ({ uploadDir: '' }));
 let db: ReturnType<typeof drizzle<typeof schema.schema>>;
 let sqlite: Database.Database;
 let app: FastifyInstance;
+const parsedPackUpload = vi.fn();
 
 vi.mock('../db/index.js', async () => {
   const actualSchema = await vi.importActual('../db/schema.js');
@@ -39,6 +45,7 @@ vi.mock('../utils/federationAuth.js', () => ({
 }));
 
 vi.mock('../utils/auth.js', () => ({
+  tokenFromAuthHeader: (header?: string) => header?.startsWith('Bearer ') ? header.slice(7) : header?.startsWith('Bot ') ? header.slice(4) : null,
   authenticate: async (request: { userId?: string; username?: string; headers: Record<string, string> }, reply: { code: (code: number) => { send: (body?: unknown) => void } }) => {
     const auth = request.headers.authorization;
     if (!auth) return reply.code(401).send({ error: 'unauthorized' });
@@ -80,6 +87,8 @@ beforeEach(async () => {
   }
 
   app = Fastify();
+  parsedPackUpload.mockClear();
+  app.addHook('preValidation', async request => { if (request.url.endsWith('/items') && request.method === 'POST') parsedPackUpload(); });
   await app.register(stickerRoutes);
   await app.register(stickerStoreRoutes);
   registerStickerFederationRoutes(app);
@@ -251,6 +260,109 @@ describe('Federated Sticker Store', () => {
     expect(storeRes.statusCode).toBe(200);
     expect(storeRes.json().currentVersion).toBe(1);
     expect(storeRes.json().items.length).toBe(1);
+  });
+
+  async function draft() {
+    const res = await app.inject({ method: 'POST', url: '/api/sticker-packs', headers: { authorization: 'alice' }, payload: { name: 'Published', description: 'Original' } });
+    expect(res.statusCode).toBe(200);
+    const pack = res.json<{ id: string }>();
+    await app.inject({ method: 'POST', url: `/api/sticker-packs/${pack.id}/items`, headers: { authorization: 'alice' }, payload: { name: 'First', image: await makeTestImage() } });
+    return pack;
+  }
+  const action = (id: string, suffix: string, admin = false) => app.inject({ method: 'POST', url: admin ? `/api/admin/sticker-packs/${id}/${suffix}` : `/api/sticker-packs/${id}/${suffix}`, headers: { authorization: admin ? 'admin' : 'alice' } });
+
+  it('keeps the published version available through candidate submit, rejection and approval', async () => {
+    const { id } = await draft();
+    await action(id, 'submit'); await action(id, 'approve', true);
+    await app.inject({ method: 'POST', url: `/api/sticker-store/packs/${id}/install`, headers: { authorization: 'bob' } });
+    await action(id, 'new-version');
+    const edit = await app.inject({ method: 'PATCH', url: `/api/sticker-packs/${id}`, headers: { authorization: 'alice' }, payload: { name: 'Candidate', description: 'Updated' } });
+    expect(edit.statusCode).toBe(200);
+    expect((await action(id, 'submit')).statusCode).toBe(200);
+    const assertPublished = async () => {
+      const publicRes = await app.inject({ url: `/api/sticker-store/packs/${id}` });
+      expect(publicRes.statusCode).toBe(200);
+      expect(publicRes.json()).toMatchObject({ name: 'Published', description: 'Original', currentVersion: 1 });
+      const installed = await app.inject({ url: '/api/sticker-store/my-packs', headers: { authorization: 'bob' } });
+      expect(installed.json()).toHaveLength(1);
+      const list = await app.inject({ url: '/api/sticker-store/packs' });
+      expect(list.json()[0]).toMatchObject({ name: 'Published', currentVersion: 1, itemCount: 1 });
+    };
+    await assertPublished();
+    const reviews = await app.inject({ url: '/api/admin/sticker-packs/reviews', headers: { authorization: 'admin' } });
+    expect(reviews.json()).toEqual([expect.objectContaining({ id, name: 'Candidate', editingVersion: 2 })]);
+    await action(id, 'reject', true);
+    await assertPublished();
+    const created = await app.inject({ url: '/api/sticker-packs/created', headers: { authorization: 'alice' } });
+    expect(created.json()[0]).toMatchObject({ editingVersion: 2, editingStatus: 'rejected' });
+    expect((await action(id, 'new-version')).statusCode).toBe(409);
+    await action(id, 'submit'); await action(id, 'approve', true);
+    const publishedV2 = await app.inject({ url: `/api/sticker-store/packs/${id}` });
+    expect(publishedV2.json()).toMatchObject({ name: 'Candidate', description: 'Updated', currentVersion: 2 });
+  });
+
+  it('limits concurrent uploads at the final write to 100 items', async () => {
+    const { id } = await draft();
+    const version = db.select().from(schema.schema.stickerPackVersions).get()!;
+    const item = db.select().from(schema.schema.stickerPackItems).get()!;
+    for (let i = 1; i < 99; i++) db.insert(schema.schema.stickerPackItems).values({ ...item, id: `seed-${i}`, sortOrder: i }).run();
+    const image = await makeTestImage();
+    const results = await Promise.all([1, 2].map(i => app.inject({ method: 'POST', url: `/api/sticker-packs/${id}/items`, headers: { authorization: 'alice' }, payload: { name: `Concurrent ${i}`, image } })));
+    expect(results.map(r => r.statusCode).sort()).toEqual([200, 400]);
+    expect(db.select().from(schema.schema.stickerPackItems).where(eq(schema.schema.stickerPackItems.versionId, version.id)).all()).toHaveLength(100);
+  });
+
+  it('rejects an upload whose version is submitted while encoding is pending', async () => {
+    const { id } = await draft();
+    const realEncode = stickerEncoding.encodeSticker;
+    let release!: () => void;
+    let started!: () => void;
+    const entered = new Promise<void>(resolve => { started = resolve; });
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    const spy = vi.spyOn(stickerEncoding, 'encodeSticker').mockImplementationOnce(async (...args) => { started(); await gate; return realEncode(...args); });
+    try {
+      const uploading = app.inject({ method: 'POST', url: `/api/sticker-packs/${id}/items`, headers: { authorization: 'alice' }, payload: { name: 'Never reviewed', image: await makeTestImage('red') } }).then(r => r);
+      await entered;
+      await action(id, 'submit'); await action(id, 'approve', true);
+      release();
+      expect((await uploading).statusCode).toBe(400);
+      const published = await app.inject({ url: `/api/sticker-store/packs/${id}` });
+      expect(published.json().items.map((i: { name: string }) => i.name)).toEqual(['First']);
+    } finally { release(); spy.mockRestore(); }
+  });
+
+  it('refuses reorder of reviewed items and validates candidate IDs without partial writes', async () => {
+    const { id } = await draft();
+    const item = db.select().from(schema.schema.stickerPackItems).get()!;
+    const reorder = (ids: unknown[]) => app.inject({ method: 'PUT', url: `/api/sticker-packs/${id}/items/order`, headers: { authorization: 'alice' }, payload: { itemIds: ids } });
+    expect((await reorder([item.id, 'foreign'])).statusCode).toBe(400);
+    await action(id, 'submit'); await action(id, 'approve', true);
+    expect((await reorder([item.id])).statusCode).toBe(400);
+    await action(id, 'new-version');
+    expect((await reorder([item.id])).statusCode).toBe(400);
+    expect(db.select().from(schema.schema.stickerPackItems).where(eq(schema.schema.stickerPackItems.id, item.id)).get()?.sortOrder).toBe(0);
+  });
+
+  it('optional auth accepts Bot as well as Bearer without exposing drafts anonymously', async () => {
+    const { id } = await draft();
+    for (const scheme of ['Bearer', 'Bot']) {
+      expect((await app.inject({ url: `/api/sticker-store/packs/${id}`, headers: { authorization: `${scheme} alice` } })).statusCode).toBe(200);
+    }
+    expect((await app.inject({ url: `/api/sticker-store/packs/${id}` })).statusCode).toBe(404);
+  });
+
+  it('enforces the pack upload stream budget before parsing, including unauthenticated requests', async () => {
+    db.insert(schema.schema.instanceSettings).values({ id: 1, maxStickerSizeBytes: 1024, updatedAt: 1 }).run();
+    const origin = await app.listen({ host: '127.0.0.1', port: 0 });
+    const chunked = (authorized: boolean) => new Promise<number>((resolve, reject) => {
+      const req = httpRequest(`${origin}/api/sticker-packs/unknown/items`, { method: 'POST', headers: {
+        'content-type': 'application/json', 'transfer-encoding': 'chunked', ...(authorized ? { authorization: 'alice' } : {}),
+      } }, res => { res.resume(); res.on('end', () => resolve(res.statusCode!)); });
+      req.on('error', reject); req.write('{"name":"x","image":"'); req.write('A'.repeat(12_000)); req.end('"}');
+    });
+    expect(await chunked(true)).toBe(413);
+    expect(await chunked(false)).toBe(401);
+    expect(parsedPackUpload).not.toHaveBeenCalled();
   });
 
   it('implements soft delete lifecycle without deleting physical assets', async () => {
@@ -543,6 +655,69 @@ describe('Federated Sticker Store', () => {
         globalThis.fetch = originalFetch;
       }
     }
+  });
+
+  it('keeps a valid replica intact on malformed metadata, oversize JSON and write failure', async () => {
+    const peerOrigin = 'https://peer.test';
+    db.insert(schema.schema.federationPeers).values({ id: 'peer-safe', origin: peerOrigin, hmacSecret: 'secret', status: 'active', createdAt: 1 }).run();
+    const buffer = await sharp({ create: { width: 8, height: 8, channels: 4, background: 'blue' } }).webp().toBuffer();
+    const { createHash } = await import('node:crypto');
+    const assetId = createHash('sha256').update(buffer).digest('hex');
+    const base = { id: 'remote-safe', name: 'Original', description: null, creatorName: null, coverAssetId: null, currentVersion: 1, items: [{ assetId, name: 'Original item', sortOrder: 0 }] };
+    let metadata: unknown = base;
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn(async (url: string | URL | Request) => String(url).includes('/packs/get')
+      ? new Response(JSON.stringify(metadata)) : new Response(buffer));
+    try {
+      const result = await syncRemotePack({ peerOrigin, packId: base.id });
+      const assertIntact = () => {
+        expect(db.select().from(schema.schema.stickerPacks).where(eq(schema.schema.stickerPacks.id, result.replicaId)).get()?.name).toBe('Original');
+        expect(db.select().from(schema.schema.stickerPackItems).all().map(i => i.name)).toEqual(['Original item']);
+      };
+      for (const name of [null, undefined, '\u200b', 'a\nb']) {
+        metadata = { ...base, name: 'Changed', items: [{ assetId, name, sortOrder: 0 }] };
+        await expect(syncRemotePack({ peerOrigin, packId: base.id })).rejects.toThrow();
+        assertIntact();
+      }
+      metadata = { ...base, ignored: 'x'.repeat(256 * 1024) };
+      await expect(syncRemotePack({ peerOrigin, packId: base.id })).rejects.toThrow(/limit/);
+      assertIntact();
+      metadata = { ...base, name: 'Changed', items: [{ assetId, name: 'explode', sortOrder: 0 }] };
+      sqlite.exec("CREATE TRIGGER fail_sync BEFORE INSERT ON sticker_pack_items WHEN NEW.name = 'explode' BEGIN SELECT RAISE(ABORT, 'injected failure'); END");
+      await expect(syncRemotePack({ peerOrigin, packId: base.id })).rejects.toThrow(/injected failure/);
+      assertIntact();
+    } finally { globalThis.fetch = originalFetch; }
+  });
+
+  it.each(['cached', 'missing-file'] as const)('protects an old %s asset from cleanup during another asset download', async state => {
+    const peerOrigin = 'https://peer.test';
+    db.insert(schema.schema.federationPeers).values({ id: 'peer-cleanup', origin: peerOrigin, hmacSecret: 'secret', status: 'active', createdAt: 1 }).run();
+    const a = await sharp({ create: { width: 8, height: 8, channels: 4, background: 'blue' } }).webp().toBuffer();
+    const b = await sharp({ create: { width: 8, height: 8, channels: 4, background: 'red' } }).webp().toBuffer();
+    const { createHash } = await import('node:crypto');
+    const aId = await stickerEncoding.saveStickerAsset(a);
+    const bId = createHash('sha256').update(b).digest('hex');
+    db.update(schema.schema.stickerAssets).set({ createdAt: Date.now() - STICKER_ASSET_GRACE_MS - 1000 }).where(eq(schema.schema.stickerAssets.id, aId)).run();
+    if (state === 'missing-file') await rm(stickerAssetPath(aId));
+    const originalFetch = globalThis.fetch;
+    let cleanupRuns = 0;
+    globalThis.fetch = vi.fn(async (url: string | URL | Request) => {
+      const path = String(url);
+      if (path.includes('/packs/get')) return new Response(JSON.stringify({
+        id: 'cleanup-pack', name: 'Cleanup pack', description: null, creatorName: null, coverAssetId: null, currentVersion: 1,
+        items: [{ assetId: aId, name: 'A', sortOrder: 0 }, { assetId: bId, name: 'B', sortOrder: 1 }],
+      }));
+      cleanupRuns++;
+      cleanupUnusedStickerAssets(false);
+      expect(db.select().from(schema.schema.stickerAssets).where(eq(schema.schema.stickerAssets.id, aId)).get()).toBeDefined();
+      return new Response(path.includes(aId) ? a : b);
+    });
+    try {
+      await expect(syncRemotePack({ peerOrigin, packId: 'cleanup-pack' })).resolves.toMatchObject({ itemCount: 2 });
+      expect(cleanupRuns).toBeGreaterThan(0);
+      await expect(access(stickerAssetPath(aId))).resolves.toBeUndefined();
+      expect(db.select().from(schema.schema.stickerPackItems).all()).toHaveLength(2);
+    } finally { globalThis.fetch = originalFetch; }
   });
 });
 

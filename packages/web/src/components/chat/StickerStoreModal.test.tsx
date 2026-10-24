@@ -22,6 +22,8 @@ vi.mock('../../api/client', async (importOriginal) => {
         submitReview: vi.fn(),
         newVersion: vi.fn(),
         deletePack: vi.fn(),
+        getCreated: vi.fn(),
+        updatePack: vi.fn(),
       },
       admin: {
         stickerPacks: {
@@ -41,6 +43,7 @@ vi.mock('../../stores/authStore', () => ({
 vi.mock('../../stores/settingsStore', () => ({
   useSettingsStore: (selector: (s: unknown) => unknown) => selector({ isAdmin: mockIsAdmin }),
 }));
+vi.mock('../../hooks/useHomeInstanceInfo', () => ({ useHomeInstanceInfo: () => ({ maxStickerSizeMb: 5 }) }));
 
 const mockSummary: StickerPackSummary = {
   id: 'pack-1',
@@ -90,6 +93,9 @@ describe('StickerStoreModal', () => {
     vi.mocked(api.stickerStore.install).mockResolvedValue({ success: true });
     vi.mocked(api.stickerStore.uninstall).mockResolvedValue({ success: true });
     vi.mocked(api.stickerStore.listCreated).mockResolvedValue([mockDetail]);
+    vi.mocked(api.stickerStore.getCreated).mockResolvedValue({ ...mockDetail, editingStatus: 'draft', editingVersion: 2 });
+    vi.mocked(api.stickerStore.updatePack).mockResolvedValue({ success: true });
+    vi.mocked(api.stickerStore.submitReview).mockResolvedValue({ success: true, status: 'pending_review' });
     vi.mocked(api.admin.stickerPacks.listReviews).mockResolvedValue([]);
     vi.mocked(api.admin.stickerPacks.approve).mockResolvedValue({ success: true });
     vi.mocked(api.admin.stickerPacks.reject).mockResolvedValue({ success: true });
@@ -277,5 +283,41 @@ describe('StickerStoreModal', () => {
       expect(screen.getByText('Eve Artist')).toBeInTheDocument();
       expect(screen.getByText('art.matrix.social')).toBeInTheDocument();
     });
+  });
+
+  it('resumes an existing draft and Escape closes only the editor', async () => {
+    vi.mocked(api.stickerStore.listCreated).mockResolvedValue([{ ...mockSummary, editingStatus: 'draft', editingVersion: 2 }]);
+    const onClose = vi.fn();
+    render(<StickerStoreModal onClose={onClose} />);
+    fireEvent.click(screen.getByRole('button', { name: /Created by Me/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /Edit Pack/i }));
+    const input = await screen.findByPlaceholderText(/Pack name/i);
+    await waitFor(() => expect(input).toHaveValue('Pepe The Frog'));
+    expect(api.stickerStore.newVersion).not.toHaveBeenCalled();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).not.toHaveBeenCalled();
+    expect(screen.queryByPlaceholderText(/Pack name/i)).not.toBeInTheDocument();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it('saves edited metadata before review and keeps the editor open on save failure', async () => {
+    vi.mocked(api.stickerStore.listCreated).mockResolvedValue([{ ...mockSummary, status: 'draft' }]);
+    render(<StickerStoreModal onClose={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /Created by Me/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /Edit Pack/i }));
+    const name = await screen.findByPlaceholderText(/Pack name/i);
+    await waitFor(() => expect(name).toHaveValue('Pepe The Frog'));
+    fireEvent.change(name, { target: { value: 'Changed name' } });
+    fireEvent.change(screen.getByPlaceholderText(/Description/i), { target: { value: 'Changed description' } });
+    vi.mocked(api.stickerStore.updatePack).mockRejectedValueOnce(new Error('save failed'));
+    fireEvent.click(screen.getByRole('button', { name: /Submit for Review/i }));
+    await waitFor(() => expect(api.stickerStore.updatePack).toHaveBeenCalled());
+    expect(api.stickerStore.submitReview).not.toHaveBeenCalled();
+    expect(name).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Submit for Review/i }));
+    await waitFor(() => expect(api.stickerStore.submitReview).toHaveBeenCalledWith('pack-1'));
+    expect(api.stickerStore.updatePack).toHaveBeenLastCalledWith('pack-1', { name: 'Changed name', description: 'Changed description' });
+    expect(vi.mocked(api.stickerStore.updatePack).mock.invocationCallOrder.at(-1)!).toBeLessThan(vi.mocked(api.stickerStore.submitReview).mock.invocationCallOrder[0]);
   });
 });

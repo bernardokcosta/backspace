@@ -1470,6 +1470,18 @@ Personal stickers are not replicated. A sticker crosses instances as a token in 
 
 ### Sticker pack sync
 
+The metadata response is limited **before JSON parsing** to 256 KiB per pack;
+the admin peer listing is limited to 1 MiB. Both those responses and asset
+streams cancel their readers on overflow or early refusal (including oversized
+Content-Length). All metadata is normalized from `unknown` before any download.
+Pack, version and item replacement is a single transaction; a failed download,
+invalid item name or insert error leaves the previous replica intact. Peer policy
+is rechecked at commit, stale responses cannot downgrade a replica, and local
+disabled/blocked/deleted moderation survives a resync.
+Each asset reserves the cleanup grace period before the first asynchronous
+operation, including cache hits and missing-file repairs. A still-unreferenced
+asset therefore cannot be swept while the remaining pack downloads finish.
+
 Sticker *packs* (unlike personal stickers) do replicate, whole, on admin demand — never automatically. An admin syncs a pack from an active approved peer (`syncRemotePack` in `utils/stickerSync.ts`): the peer must pass the per-peer policy (`sticker_peer_policies`, `block` refuses), hold an `active` peering row, and clear the origin allowlist. The local instance fetches pack metadata over S2S (`POST /api/federation/stickers/packs/list|get`, approved `source` packs only, metadata alone), then downloads each asset from the public asset route and SHA-256-verifies it against the content-addressed asset id before storing it atomically. The replica row (`origin_type: 'replica'`) mirrors name/description/version/items under the same local bounds as created packs (≤ 100 items, capped names, integer versions/sort orders); assets over the local sticker size limit are refused by a stream byte budget. The serving side exposes only approved source packs and authenticates the peer (`authenticateS2SPeer`). Full endpoint list: [api.md](api.md), "Sticker packs / store".
 
 ### Outbound (origin instance)

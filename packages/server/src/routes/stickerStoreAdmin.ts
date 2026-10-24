@@ -1,12 +1,13 @@
 import type { FastifyInstance } from 'fastify';
 import { randomUUID } from 'node:crypto';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
 import { authenticate, requireAdmin } from '../utils/auth.js';
 import { sendError } from '../utils/httpErrors.js';
 import { buildFederationHeaders, getOurOrigin } from '../utils/federationAuth.js';
 import { federationFetch } from '../utils/federationFetch.js';
 import { syncRemotePack } from '../utils/stickerSync.js';
+import { readBoundedResponse } from '../utils/boundedResponse.js';
 import type { StickerPackStatus } from '@backspace/shared/src/stickers.js';
 import { formatCoverUrl } from './stickerStore.js';
 
@@ -20,8 +21,11 @@ export async function stickerStoreAdminRoutes(app: FastifyInstance): Promise<voi
     preHandler: [authenticate, requireAdmin],
   }, async () => {
     const db = getDb();
+    const pendingPackIds = db.select({ packId: schema.stickerPackVersions.packId }).from(schema.stickerPackVersions)
+      .where(eq(schema.stickerPackVersions.status, 'pending_review')).all().map(v => v.packId);
+    if (!pendingPackIds.length) return [];
     const packs = db.select().from(schema.stickerPacks)
-      .where(eq(schema.stickerPacks.status, 'pending_review'))
+      .where(and(inArray(schema.stickerPacks.id, pendingPackIds), inArray(schema.stickerPacks.status, ['pending_review', 'approved'])))
       .orderBy(desc(schema.stickerPacks.updatedAt))
       .all();
 
@@ -40,17 +44,19 @@ export async function stickerStoreAdminRoutes(app: FastifyInstance): Promise<voi
 
       return {
         id: pack.id,
-        name: pack.name,
-        description: pack.description,
+        name: version?.name ?? pack.name,
+        description: version ? version.description : pack.description,
         creatorId: pack.creatorId,
         creatorName: pack.creatorName,
-        coverAssetId: pack.coverAssetId,
-        coverUrl: formatCoverUrl(pack.coverAssetId),
+        coverAssetId: version?.coverAssetId ?? null,
+        coverUrl: formatCoverUrl(version?.coverAssetId ?? null),
         originType: pack.originType as 'source' | 'replica',
         sourceInstance: pack.sourceInstance,
         sourcePackId: pack.sourcePackId,
         currentVersion: pack.currentVersion,
-        status: pack.status as StickerPackStatus,
+        editingVersion: version?.version,
+        editingStatus: 'pending_review',
+        status: 'pending_review' as const,
         itemCount: items.length,
         createdAt: pack.createdAt,
         updatedAt: pack.updatedAt,
@@ -67,7 +73,7 @@ export async function stickerStoreAdminRoutes(app: FastifyInstance): Promise<voi
     const db = getDb();
     const pack = db.select().from(schema.stickerPacks).where(eq(schema.stickerPacks.id, request.params.id)).get();
 
-    if (!pack) {
+    if (!pack || pack.originType !== 'source' || !['pending_review', 'approved'].includes(pack.status)) {
       return sendError(reply, 404, 'sticker_pack_not_found');
     }
 
@@ -78,10 +84,10 @@ export async function stickerStoreAdminRoutes(app: FastifyInstance): Promise<voi
       )).get();
 
     const now = Date.now();
-
-    if (pendingVersion) {
+    if (!pendingVersion) return sendError(reply, 400, 'sticker_pack_invalid_state');
+    db.transaction(() => {
       db.update(schema.stickerPackVersions).set({
-        status: 'approved',
+        status: 'approved', reviewNotes: null, reviewedBy: request.userId, reviewedAt: now,
       }).where(eq(schema.stickerPackVersions.id, pendingVersion.id)).run();
 
       db.update(schema.stickerPacks).set({
@@ -95,14 +101,7 @@ export async function stickerStoreAdminRoutes(app: FastifyInstance): Promise<voi
         reviewedAt: now,
         updatedAt: now,
       }).where(eq(schema.stickerPacks.id, pack.id)).run();
-    } else {
-      db.update(schema.stickerPacks).set({
-        status: 'approved',
-        reviewedBy: request.userId,
-        reviewedAt: now,
-        updatedAt: now,
-      }).where(eq(schema.stickerPacks.id, pack.id)).run();
-    }
+    });
 
     return { success: true, status: 'approved' };
   });
@@ -116,7 +115,7 @@ export async function stickerStoreAdminRoutes(app: FastifyInstance): Promise<voi
     const db = getDb();
     const pack = db.select().from(schema.stickerPacks).where(eq(schema.stickerPacks.id, request.params.id)).get();
 
-    if (!pack) {
+    if (!pack || pack.originType !== 'source' || !['pending_review', 'approved'].includes(pack.status)) {
       return sendError(reply, 404, 'sticker_pack_not_found');
     }
 
@@ -129,21 +128,19 @@ export async function stickerStoreAdminRoutes(app: FastifyInstance): Promise<voi
         eq(schema.stickerPackVersions.status, 'pending_review'),
       )).get();
 
-    if (pendingVersion) {
+    if (!pendingVersion) return sendError(reply, 400, 'sticker_pack_invalid_state');
+    const nextStatus = pack.status === 'approved' ? 'approved' : 'rejected';
+    db.transaction(() => {
       db.update(schema.stickerPackVersions).set({
-        status: 'rejected',
+        status: 'rejected', reviewNotes: notes, reviewedBy: request.userId, reviewedAt: now,
       }).where(eq(schema.stickerPackVersions.id, pendingVersion.id)).run();
-    }
-
-    const nextStatus = pack.currentVersion > 0 && pack.status === 'approved' ? 'approved' : 'rejected';
 
     db.update(schema.stickerPacks).set({
       status: nextStatus,
-      reviewNotes: notes,
-      reviewedBy: request.userId,
-      reviewedAt: now,
+      ...(nextStatus === 'rejected' ? { reviewNotes: notes, reviewedBy: request.userId, reviewedAt: now } : {}),
       updatedAt: now,
     }).where(eq(schema.stickerPacks.id, pack.id)).run();
+    });
 
     return { success: true, status: nextStatus };
   });
@@ -335,10 +332,12 @@ export async function stickerStoreAdminRoutes(app: FastifyInstance): Promise<voi
       );
 
       if (!response.ok) {
+        await response.body?.cancel();
         return reply.code(response.status).send({ error: 'Failed to fetch remote sticker packs', statusCode: response.status });
       }
 
-      const data = await response.json();
+      const bytes = await readBoundedResponse(response, 1024 * 1024);
+      const data: unknown = JSON.parse(bytes.toString('utf8'));
       return data;
     } catch (err) {
       return reply.code(502).send({ error: `Could not reach peer: ${(err as Error).message}`, statusCode: 502 });

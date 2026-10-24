@@ -7,6 +7,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import sharp from 'sharp';
+import { request as httpRequest } from 'node:http';
 import * as schema from '../db/schema.js';
 import { stickerUrl, MAX_STICKER_BYTES, MAX_PERSONAL_STICKERS, STICKER_UPLOADS_PER_MINUTE } from '@backspace/shared/src/stickers.js';
 
@@ -14,6 +15,7 @@ const settings = vi.hoisted(() => ({ uploadDir: '' }));
 let db: ReturnType<typeof drizzle<typeof schema>>;
 let sqlite: Database.Database;
 let app: FastifyInstance;
+const parsedUpload = vi.fn();
 vi.mock('../db/index.js', () => ({ getDb: () => db, schema }));
 vi.mock('../config.js', () => ({ config: settings }));
 vi.mock('../utils/federationAuth.js', () => ({ getOurOrigin: () => 'https://chat.test' }));
@@ -36,6 +38,8 @@ beforeEach(async () => {
     db.insert(schema.users).values({ id, username: id, passwordHash: 'test', createdAt: 1 }).run();
   }
   app = Fastify();
+  parsedUpload.mockClear();
+  app.addHook('preValidation', async request => { if (request.url === '/api/stickers') parsedUpload(); });
   await app.register(stickerRoutes);
 });
 afterEach(async () => {
@@ -96,7 +100,7 @@ describe('personal stickers', () => {
     expect(invalid.statusCode).toBe(400);
     expect(invalid.json()).toMatchObject({ code: 'validation_failed' });
     const blank = await app.inject({ method: 'POST', url: '/api/stickers', headers: { authorization: 'alice' }, payload: { name: '   ', image: 'eA==' } });
-    expect(blank.json()).toMatchObject({ code: 'validation_failed' });
+    expect(blank.json()).toMatchObject({ code: 'sticker_name_invalid' });
     await expect(encodeSticker(Buffer.alloc(MAX_STICKER_BYTES + 1))).rejects.toThrow();
     const tooLarge = await app.inject({ method: 'POST', url: '/api/stickers', headers: { authorization: 'alice' },
       payload: { name: 'large', image: Buffer.alloc(MAX_STICKER_BYTES + 4096).toString('base64') } });
@@ -225,7 +229,41 @@ describe('personal stickers', () => {
       payload: { name: '   ' },
     });
     expect(blank.statusCode).toBe(400);
-    expect(blank.json()).toMatchObject({ code: 'validation_failed' });
+    expect(blank.json()).toMatchObject({ code: 'sticker_name_invalid' });
+  });
+
+  it('rejects multiline, bidi and invisible names on upload, collect and rename', async () => {
+    const sticker = (await upload()).json();
+    for (const name of ['line\nbreak', 'a\u202Eb', '\u200B', 'a\u0000b']) {
+      for (const [method, url, extra] of [
+        ['POST', '/api/stickers', { image: 'eA==' }],
+        ['POST', `/api/stickers/${sticker.id}/collect`, { token: sticker.token }],
+        ['PATCH', `/api/stickers/${sticker.id}`, {}],
+      ] as const) {
+        const res = await app.inject({ method, url, headers: { authorization: 'alice' }, payload: { name, ...extra } });
+        expect(res.statusCode).toBe(400);
+        expect(res.json().code).toBe('sticker_name_invalid');
+      }
+    }
+  });
+
+  it('bounds chunked JSON before parsing and authenticates before reading uploads', async () => {
+    db.insert(schema.instanceSettings).values({ id: 1, maxStickerSizeBytes: 1024, updatedAt: 1 }).run();
+    const origin = await app.listen({ host: '127.0.0.1', port: 0 });
+    const sendChunked = (authorized: boolean) => new Promise<number>((resolve, reject) => {
+      const req = httpRequest(`${origin}/api/stickers`, { method: 'POST', headers: {
+        'content-type': 'application/json', 'transfer-encoding': 'chunked',
+        ...(authorized ? { authorization: 'alice' } : {}),
+      } }, res => { res.resume(); res.on('end', () => resolve(res.statusCode!)); });
+      req.on('error', reject);
+      req.write('{"name":"large","image":"');
+      req.write('A'.repeat(12_000));
+      req.end('"}');
+    });
+    // The configured base64 JSON envelope is ~5.5 KiB, not the old 500 MiB.
+    expect(await sendChunked(true)).toBe(413);
+    expect(await sendChunked(false)).toBe(401);
+    expect(parsedUpload).not.toHaveBeenCalled();
   });
 
   it('respects instance_settings max_sticker_size_bytes limit', async () => {

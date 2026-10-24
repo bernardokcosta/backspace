@@ -123,10 +123,10 @@ export function StickerStoreModal({ onClose, onPacksChanged }: StickerStoreModal
     }
   };
 
-  const handleOpenPreview = async (packId: string) => {
+  const handleOpenPreview = async (packId: string, candidate = false) => {
     try {
-      const detail = await api.stickerStore.getPack(packId);
-      setPreviewPack(detail);
+      const detail = await (candidate ? api.stickerStore.getCreated(packId) : api.stickerStore.getPack(packId));
+      setPreviewPack(candidate ? { ...detail, status: detail.editingStatus ?? detail.status } : detail);
     } catch (err) {
       setError(describeError(err));
     }
@@ -201,7 +201,11 @@ export function StickerStoreModal({ onClose, onPacksChanged }: StickerStoreModal
   const portalContainer = usePortalContainer();
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
+    // The editor owns its own Escape listener while mounted. A single event
+    // must never close both portals, regardless of listener registration order.
+    if (editingPackId !== undefined) return;
+    if (e.key === 'Escape' && !e.isComposing) {
+      e.preventDefault();
       e.stopPropagation();
       if (rejectingPack) {
         setRejectingPack(null);
@@ -211,7 +215,7 @@ export function StickerStoreModal({ onClose, onPacksChanged }: StickerStoreModal
         onClose();
       }
     }
-  }, [onClose, previewPack, rejectingPack]);
+  }, [onClose, previewPack, rejectingPack, editingPackId]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -438,20 +442,20 @@ export function StickerStoreModal({ onClose, onPacksChanged }: StickerStoreModal
                             <div className="flex items-center gap-2">
                               <h4 className="text-sm font-semibold text-txt-primary truncate">{pack.name}</h4>
                               <span className={`px-2 py-0.5 text-[10px] font-medium rounded-full ${
-                                pack.status === 'approved' || pack.status === 'active' ? 'bg-accent-mint/10 text-accent-mint border border-accent-mint/20' :
-                                pack.status === 'pending_review' ? 'bg-accent-amber/10 text-accent-amber border border-accent-amber/20' :
-                                pack.status === 'rejected' ? 'bg-accent-rose/10 text-accent-rose border border-accent-rose/20' :
+                                (pack.editingStatus ?? pack.status) === 'approved' || pack.status === 'active' ? 'bg-accent-mint/10 text-accent-mint border border-accent-mint/20' :
+                                (pack.editingStatus ?? pack.status) === 'pending_review' ? 'bg-accent-amber/10 text-accent-amber border border-accent-amber/20' :
+                                (pack.editingStatus ?? pack.status) === 'rejected' ? 'bg-accent-rose/10 text-accent-rose border border-accent-rose/20' :
                                 'bg-surface-input text-txt-tertiary'
                               }`}>
-                                {pack.status === 'approved' || pack.status === 'active' ? t('stickers.approved') :
-                                 pack.status === 'pending_review' ? t('stickers.pendingReview') :
-                                 pack.status === 'rejected' ? t('stickers.rejected') :
+                                {(pack.editingStatus ?? pack.status) === 'approved' || pack.status === 'active' ? t('stickers.approved') :
+                                 (pack.editingStatus ?? pack.status) === 'pending_review' ? t('stickers.pendingReview') :
+                                 (pack.editingStatus ?? pack.status) === 'rejected' ? t('stickers.rejected') :
                                  t('stickers.draft')}
                               </span>
                             </div>
                             <p className="text-xs text-txt-tertiary truncate">
                               {/* i18n-check: allow-literal */}
-                              v{pack.currentVersion} · {t('stickers.stickersCount', { count: pack.itemCount })}
+                              v{pack.editingVersion ?? pack.currentVersion} · {t('stickers.stickersCount', { count: pack.itemCount })}
                             </p>
                           </div>
                         </div>
@@ -459,12 +463,12 @@ export function StickerStoreModal({ onClose, onPacksChanged }: StickerStoreModal
                         <div className="flex items-center gap-2 shrink-0">
                           <button
                             type="button"
-                            onClick={() => handleOpenPreview(pack.id)}
+                            onClick={() => handleOpenPreview(pack.id, true)}
                             className="sticker-secondary-button text-xs"
                           >
                             {t('stickers.viewStickers')}
                           </button>
-                          {pack.status === 'approved' ? (
+                          {pack.status === 'approved' && !pack.editingStatus ? (
                             <button
                               type="button"
                               onClick={() => handleNewVersion(pack.id)}
@@ -472,7 +476,7 @@ export function StickerStoreModal({ onClose, onPacksChanged }: StickerStoreModal
                             >
                               {t('stickers.newVersion')}
                             </button>
-                          ) : (
+                          ) : pack.editingStatus !== 'pending_review' && pack.status !== 'pending_review' ? (
                             <button
                               type="button"
                               onClick={() => setEditingPackId(pack.id)}
@@ -480,7 +484,7 @@ export function StickerStoreModal({ onClose, onPacksChanged }: StickerStoreModal
                             >
                               {t('stickers.editPack')}
                             </button>
-                          )}
+                          ) : null}
                           <button
                             type="button"
                             onClick={() => handleDeletePack(pack.id)}
@@ -494,14 +498,14 @@ export function StickerStoreModal({ onClose, onPacksChanged }: StickerStoreModal
                         </div>
                       </div>
 
-                      {pack.status === 'pending_review' && (
+                      {(pack.editingStatus ?? pack.status) === 'pending_review' && (
                         <div className="text-[11px] text-accent-amber/90 flex items-center gap-1.5 pl-1">
                           <span>⏳</span>
                           <span>{t('stickers.pendingReviewHint')}</span>
                         </div>
                       )}
 
-                      {pack.status === 'rejected' && pack.reviewNotes && (
+                      {(pack.editingStatus ?? pack.status) === 'rejected' && pack.reviewNotes && (
                         <div className="p-2.5 rounded-lg bg-accent-rose/10 border border-accent-rose/20 text-xs text-txt-danger">
                           <span className="font-semibold">{t('stickers.reviewNotes')}: </span>
                           <span>{pack.reviewNotes}</span>
@@ -564,7 +568,7 @@ export function StickerStoreModal({ onClose, onPacksChanged }: StickerStoreModal
                       <div className="flex items-center gap-2 shrink-0 self-end">
                         <button
                           type="button"
-                          onClick={() => handleOpenPreview(pack.id)}
+                          onClick={() => handleOpenPreview(pack.id, true)}
                           className="sticker-secondary-button text-xs"
                         >
                           {t('stickers.viewStickers')}
@@ -744,7 +748,7 @@ export function StickerStoreModal({ onClose, onPacksChanged }: StickerStoreModal
       {editingPackId !== undefined && (
         <StickerPackManageModal
           packId={editingPackId}
-          onClose={() => setEditingPackId(undefined)}
+          onClose={() => { setEditingPackId(undefined); void fetchMyCreatedPacks(); }}
           onSaved={() => {
             fetchMyCreatedPacks();
             onPacksChanged?.();

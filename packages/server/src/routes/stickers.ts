@@ -6,7 +6,7 @@ import { mkdir, readFile, writeFile, rename } from 'node:fs/promises';
 import path from 'node:path';
 import {
   MAX_PERSONAL_STICKERS, MAX_STICKER_BYTES, MAX_STICKER_NAME_LENGTH, STICKER_ID_PATTERN, STICKER_PREFIX,
-  STICKER_UPLOADS_PER_MINUTE, type PersonalSticker,
+  STICKER_UPLOADS_PER_MINUTE, normalizeStickerName, type PersonalSticker,
 } from '@backspace/shared/src/stickers.js';
 import { config } from '../config.js';
 import { getDb, schema } from '../db/index.js';
@@ -15,6 +15,7 @@ import { getOurOrigin } from '../utils/federationAuth.js';
 import { stickerAssetPath as assetPath, stickerPreviewPath } from '../utils/stickerAssets.js';
 import { sendError } from '../utils/httpErrors.js';
 import { createFixedWindowLimit } from '../utils/fixedWindowLimit.js';
+import { MAX_STICKER_JSON_BYTES, stickerUploadBodyLimit } from '../utils/stickerUpload.js';
 
 export const tokenFor = (id: string) => `${STICKER_PREFIX}${getOurOrigin()}/api/stickers/assets/${id}.webp`;
 
@@ -170,22 +171,15 @@ export async function stickerRoutes(app: FastifyInstance): Promise<void> {
 
   // JSON uses the existing authenticated API client; the body limit accounts for base64 expansion.
   app.post<{ Body: { name: string; image: string } }>('/api/stickers', {
-    preHandler: authenticate,
-    bodyLimit: 500 * 1024 * 1024,
-    preParsing: async (request, reply, payload) => {
-      const maxBytes = getMaxStickerSizeBytes();
-      const maxBodyLimit = Math.ceil(maxBytes / 3) * 4 + 4096;
-      const contentLength = Number(request.headers['content-length']);
-      if (contentLength && contentLength > maxBodyLimit) {
-        return reply.code(413).send({ statusCode: 413, error: 'Payload Too Large', message: 'Request body is too large' });
-      }
-      return payload;
-    },
+    onRequest: authenticate,
+    bodyLimit: MAX_STICKER_JSON_BYTES,
+    preParsing: stickerUploadBodyLimit(getMaxStickerSizeBytes),
     schema: { body: { type: 'object', required: ['name', 'image'], additionalProperties: false,
       properties: { name: { type: 'string', minLength: 1, maxLength: MAX_STICKER_NAME_LENGTH }, image: { type: 'string', minLength: 4 } } } },
   }, async (request, reply) => {
-    const { name, image } = request.body;
-    if (!name.trim()) return sendError(reply, 400, 'validation_failed');
+    const { image } = request.body;
+    const name = normalizeStickerName(request.body.name);
+    if (name === undefined) return sendError(reply, 400, 'sticker_name_invalid', { max: MAX_STICKER_NAME_LENGTH });
     if (!uploadLimit.consume(request.userId)) return sendError(reply, 429, 'rate_limited');
     // Refused before the decode; collectSticker checks again where the row is written.
     if (collectionSize(request.userId) >= MAX_PERSONAL_STICKERS) {
@@ -210,7 +204,7 @@ export async function stickerRoutes(app: FastifyInstance): Promise<void> {
       throw error;
     }
     const id = await saveStickerAsset(encoded);
-    const sticker = collectSticker({ userId: request.userId, id, name: name.trim() });
+    const sticker = collectSticker({ userId: request.userId, id, name });
     if (!sticker) return sendError(reply, 409, 'sticker_collection_full', { max: MAX_PERSONAL_STICKERS });
     return sticker;
   });
@@ -228,8 +222,8 @@ export async function stickerRoutes(app: FastifyInstance): Promise<void> {
     if (request.body.token !== tokenFor(request.params.id)) return sendError(reply, 400, 'sticker_not_local');
     const asset = getDb().select().from(schema.stickerAssets).where(eq(schema.stickerAssets.id, request.params.id)).get();
     if (!asset) return sendError(reply, 404, 'sticker_not_found');
-    const name = request.body.name.trim();
-    if (!name) return sendError(reply, 400, 'validation_failed');
+    const name = normalizeStickerName(request.body.name);
+    if (name === undefined) return sendError(reply, 400, 'sticker_name_invalid', { max: MAX_STICKER_NAME_LENGTH });
     const sticker = collectSticker({ userId: request.userId, id: asset.id, name });
     if (!sticker) return sendError(reply, 409, 'sticker_collection_full', { max: MAX_PERSONAL_STICKERS });
     return sticker;
@@ -258,8 +252,8 @@ export async function stickerRoutes(app: FastifyInstance): Promise<void> {
       },
     },
   }, async (request, reply) => {
-    const trimmed = request.body.name.trim();
-    if (!trimmed) return sendError(reply, 400, 'validation_failed');
+    const trimmed = normalizeStickerName(request.body.name);
+    if (trimmed === undefined) return sendError(reply, 400, 'sticker_name_invalid', { max: MAX_STICKER_NAME_LENGTH });
     const result = getDb().update(schema.personalStickers)
       .set({ name: trimmed })
       .where(and(

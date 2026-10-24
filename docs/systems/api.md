@@ -370,6 +370,7 @@ Packs are curated, reviewable sticker sets: `draft` → `pending_review` → `ap
 GET    /api/sticker-store/packs              → approved local packs + active replicas (optional auth: installs flagged)
 GET    /api/sticker-store/packs/:id          → pack detail with active items
 POST   /api/sticker-packs                    { name, description? } → draft pack
+PATCH  /api/sticker-packs/:id                { name, description? } → save candidate metadata (creator only)
 POST   /api/sticker-packs/:id/items          { name, image } → append (409 sticker_pack_limit_exceeded past 100)
 POST   /api/sticker-packs/:id/submit         → draft → pending_review
 POST   /api/sticker-store/packs/:id/install  → install for the caller (idempotent)
@@ -378,6 +379,21 @@ GET    /api/sticker-store/my-packs           → caller's installed packs, hydra
 GET    /api/sticker-packs/created            → caller's own packs (any status)
 ```
 Admin (`requireAdmin`): `GET /api/admin/sticker-packs/reviews`, approve/reject, `PUT /api/admin/federation/stickers/peers/:origin/policy` (`allow`/`block` + autoSync), and sync-from-peer (downloads + hash-verifies every asset into the content-addressed store, then stores a `replica` row; see below). Store reads never emit WebSocket events. Federation: approved `source` packs are listed/fetched by active peers over S2S (`POST /api/federation/stickers/packs/list|get`, metadata only; assets come from the public asset route and are SHA-256-verified against the asset id). A sync refuses blocked peers, unknown/inactive peers, packs over 100 items, overlong names, non-integer versions/sort orders, and any asset over the local sticker size limit (stream budget, not just Content-Length). See [federation.md](federation.md), "Sticker pack sync".
+
+Publication and candidate review are independent: `sticker_packs.currentVersion`
+and its metadata continue serving the approved version while the next version
+is draft, pending or rejected. Only approval switches the publication. Creator
+summaries include optional `editingVersion`/`editingStatus`; creator detail
+returns candidate metadata/items. Admin review lists/previews use that candidate,
+not the public store. PATCH and item reorder accept only draft/rejected versions;
+reorder must name every active candidate item exactly once. Uploads recheck
+ownership, state and capacity in their final transaction after encoding.
+Optional store authentication accepts both `Bearer` and `Bot` schemes.
+
+Sticker upload authentication runs at `onRequest`, before JSON parsing. Both
+personal and pack uploads enforce the configured base64 byte envelope on the
+received stream (also for chunked bodies), capped at 500 MiB JSON, with HTTP 413
+before validation on excess. Unauthenticated uploads receive 401 before parsing.
 
 ## GIF (`routes/gif.ts`) — auth required
 ```

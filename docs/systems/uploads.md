@@ -31,6 +31,14 @@ DB tables: `attachments`, `instance_settings` (maxUploadSizeBytes, maxStickerSiz
 
 **Personal stickers** have their own small upload path, storage directory and cleanup phase; see [section 14](#14-personal-stickers). The tus pipeline and the attachment lifecycle do not handle them.
 
+Personal/pack image uploads authenticate in `onRequest` and enforce the dynamic
+JSON envelope (`ceil(configuredStickerBytes / 3) * 4 + 4096`, at most 500 MiB)
+on the stream before parsing, including chunked transfers. Source bytes and
+decoded pixels are checked again before encoding. Collection names retain
+`normalizeStickerName` validation (visible single line, no bidi/control chars).
+Pack uploads recheck owner, draft state and the 100-item capacity after all async
+encoding/writes and insert atomically; moderation cannot race a late upload.
+
 ### Capability Matrix
 
 | Browser | Picker (`showOpenFilePicker`) | Drag-drop FS handle | Save destination handle | Reload survival |
