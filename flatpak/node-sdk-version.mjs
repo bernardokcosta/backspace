@@ -16,7 +16,6 @@ import { pathToFileURL } from 'node:url';
 
 /** Files that reference the Node SDK extension. `generator` marks the ones that must pass --node-sdk-extension. */
 export const REFERENCING_FILES = [
-  { path: '.github/workflows/flatpak.yml', generator: true },
   { path: '.github/workflows/flatpak-release-metadata.yml', generator: true },
   { path: 'flatpak/README.md', generator: false },
   { path: 'flatpak/prepare-ci-manifest.mjs', generator: false },

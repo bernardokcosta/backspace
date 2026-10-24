@@ -32,13 +32,15 @@ Source files:
 ## Links
 
 Every URL the page opens lives in `PROJECT_LINKS` in `projectLinks.ts`. Read
-it there; this document does not copy them. Links always point upstream. The
-instance's own source offer (a fork's `BACKSPACE_SOURCE_URL`) comes from the
+it there; this document does not copy them. Links point at this fork, except
+`insights`, which is upstream's public data page. The
+instance's own source offer (a further fork's `BACKSPACE_SOURCE_URL`) comes from the
 instance info and is shown only in "This instance".
 
-`funding` holds the project's Ko-fi page; `community` ships as `null`. A null
-value hides its card, so no card renders a dead link. `.github/FUNDING.yml`
-names the same Ko-fi page for the repository's Sponsor button.
+`funding` is `null` in this fork, so the Support card stays hidden (there is
+no fork funding page, and soliciting for the upstream author from here would
+be wrong). `community` ships as `null`. A null
+value hides its card, so no card renders a dead link.
 `projectLinks.test.ts` runs `projectLinksProblems` over the real constant:
 every URL must parse and be `https:`, and `community.origin` must be a bare
 origin with a non-empty `spaceId`.

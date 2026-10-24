@@ -49,30 +49,6 @@ const commonjsGlobals = {
   __filename: 'readonly',
 };
 
-const browserGlobals = {
-  window: 'readonly',
-  document: 'readonly',
-  navigator: 'readonly',
-  location: 'readonly',
-  console: 'readonly',
-  fetch: 'readonly',
-  URL: 'readonly',
-  URLSearchParams: 'readonly',
-  setTimeout: 'readonly',
-  clearTimeout: 'readonly',
-  setInterval: 'readonly',
-  clearInterval: 'readonly',
-  requestAnimationFrame: 'readonly',
-  cancelAnimationFrame: 'readonly',
-  matchMedia: 'readonly',
-  IntersectionObserver: 'readonly',
-  MutationObserver: 'readonly',
-  ResizeObserver: 'readonly',
-  getComputedStyle: 'readonly',
-  CustomEvent: 'readonly',
-  Image: 'readonly',
-};
-
 module.exports = tseslint.config(
   {
     ignores: [
@@ -89,11 +65,6 @@ module.exports = tseslint.config(
       '**/coverage/**',
       // Runtime data, not source: the SQLite database, uploads and backups.
       'data/**',
-      // Vendored third-party bundle (uPlot) and the dashboard payloads the
-      // metrics bundler writes at deploy time. See docs/systems/metrics.md.
-      'site/insights/vendor/**',
-      'site/insights/data/**',
-      'site/insights/data.json',
       // Vite PWA output.
       'packages/web/dev-dist/**',
       // Local scratch: agent worktrees are full second checkouts of this repo,
@@ -128,7 +99,6 @@ module.exports = tseslint.config(
     // and the two web config files. CommonJS by design, so the ES-module import
     // rule does not apply to them.
     files: ['**/*.js', '**/*.cjs'],
-    ignores: ['site/assets/**'],
     languageOptions: {
       sourceType: 'commonjs',
       globals: commonjsGlobals,
@@ -140,24 +110,12 @@ module.exports = tseslint.config(
   },
 
   {
-    // ES-module Node scripts: version bump, icon generation, the i18n check,
-    // the Flatpak manifest tooling and the insights fixtures.
+    // ES-module Node scripts: version bump, icon generation, the i18n check
+    // and the Flatpak manifest tooling.
     files: ['**/*.mjs'],
     languageOptions: {
       sourceType: 'module',
       globals: nodeGlobals,
-    },
-    rules: {
-      'no-undef': 'error',
-    },
-  },
-
-  {
-    // The landing page's only script. Runs in the browser, no bundler.
-    files: ['site/assets/**/*.js'],
-    languageOptions: {
-      sourceType: 'script',
-      globals: browserGlobals,
     },
     rules: {
       'no-undef': 'error',

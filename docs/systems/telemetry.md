@@ -13,9 +13,8 @@ Source files:
 - `packages/server/src/telemetry/reporter.ts` - `slotMinute`, `reporterTick`, `startTelemetryReporter`, `stopTelemetryReporter`
 - `packages/server/src/routes/adminTelemetry.ts` - the three admin routes
 - `packages/server/src/ws/handler.ts` - the auth and pong paths that write activity
-- `scripts/telemetry-receiver/` - the Cloudflare Worker at `hello.backspacechat.com`
-- `.github/workflows/telemetry-receiver.yml` - the receiver's test job and its dispatch-only deploy
-- `scripts/metrics/src/telemetry.ts` - the collector step that turns pings into the public archive
+- the telemetry receiver (upstream-only Cloudflare Worker at `hello.backspacechat.com`; not part of this fork) and its workflow were removed — instances of this fork report to the existing receiver, they do not run one
+- `scripts/metrics/src/telemetry.ts` (upstream repo-traffic collector; removed with `scripts/metrics`)
 - Design spec: `docs/superpowers/specs/2026-09-06-instance-telemetry-design.md`
 
 ---
@@ -406,21 +405,14 @@ accepts `2026-02-30` and rolls it into March, which measured the 31-day span
 from a day that does not exist and could widen the window by up to three days.
 
 **The collector refuses a truncated export rather than publishing it.**
-`createTelemetryFetcher` in `scripts/metrics/src/telemetry.ts` reads
-`x-export-truncated` before it reads the body and throws when the header is
-present at all, on any value, rather than only on `1`. This is the one receiver
-answer whose body cannot betray it: a truncated export keeps the NDJSON shape
-exactly, so every line parses and every row is well formed, and the short window
-is indistinguishable from a genuinely smaller fleet. Aggregating it would
-publish an instance count, a user total and a version split covering only the
-instances that fit under the cap, which is a wrong number that looks like a
-measured one. The throw puts the day on the collector's existing telemetry-skip
-path: the partial rows are discarded unparsed, nothing under `telemetry/` is
-written, and the reason with the requested range reaches the run log. In
-`metrics.yml` the run still finishes green, because the traffic series it also
-collects are the irreplaceable ones and the next day's run refetches the same
-31-day window; in `backfill.yml`, which catches nothing, the dispatch exits
-non-zero. See docs/systems/metrics.md §3 for the collector side.
+Upstream's collector reads `x-export-truncated` before it reads the body and
+throws when the header is present at all, on any value, rather than only on
+`1`. This is the one receiver answer whose body cannot betray it: a truncated
+export keeps the NDJSON shape exactly, so every line parses and every row is
+well formed, and the short window is indistinguishable from a genuinely smaller
+fleet. Aggregating it would publish an instance count, a user total and a
+version split covering only the instances that fit under the cap, which is a
+wrong number that looks like a measured one.
 
 A rate-limit binding keyed on the source address (10 requests per 10 seconds) is
 declared in `wrangler.toml`, so the limit is versioned with the code rather than
@@ -436,14 +428,10 @@ lifetime profile accumulates against an id.
 
 ### Deploying it
 
-`.github/workflows/telemetry-receiver.yml` has two jobs. `test` runs the
-typecheck and the Workers test suite on every push to `main` and every pull
-request that touches `scripts/telemetry-receiver/**` or the workflow file, and
-holds no secrets. `deploy` runs only when Jannis dispatches the workflow by hand
-from `main`. It applies the migration files committed under
-`scripts/telemetry-receiver/migrations` to the live database and only then
-publishes the Worker, so the schema is never behind the code that reads it, and
-it provisions nothing of its own. A merge never deploys the receiver.
+Not applicable to this fork: the receiver is an upstream-operated Cloudflare
+Worker (`hello.backspacechat.com`). The setup below describes Jannis's
+deployment and is kept for reference; instances of this fork only ever *send*
+the hello, they never deploy the receiver.
 
 The deploy job creates nothing. Four things are set up once, by hand, and then
 stay put:
@@ -485,12 +473,11 @@ fleet stops on its own within a day.
 
 ## 9. How the numbers become public
 
-The collector in `scripts/metrics` pulls the export once a day and writes
-aggregates to the `metrics-data` branch under `telemetry/`. Per-instance rows
-never leave the receiver. See [metrics.md](metrics.md) for the schemas, the
-snapshot rule, the two-days-in-thirty eligibility test and the small-N folding
-that replaces any dimension value held by fewer than three instances with
-`other`.
+Upstream only: the metrics collector (removed from this fork with
+`scripts/metrics`) pulls the export daily and publishes aggregates; see the
+upstream `docs/systems/metrics.md` for the schemas and rules. This fork
+collects and publishes nothing — the paragraphs below describe what the
+upstream numbers mean, for operators reading them.
 
 **Every published figure is self-reported by instances that opted in**, so it is
 a lower bound twice over: nothing is counted from an instance that never
@@ -500,14 +487,6 @@ in the weak sense that nothing beyond the per-value cap and that eligibility
 rule filters what an instance claims about itself. These are the numbers the
 fleet volunteered, not a measurement of how many people run Backspace, and no
 page should present them as one.
-
-Everything collected is published from the first day it is collected, as static
-tables under `/insights/data/`. The charted section on the insights page reads
-the same aggregates and stays hidden until the latest 7-day instance count
-reaches 10, because a chart of three instances says more about those three
-instances than about the project. Below that mark the section prints the count
-and the threshold rather than nothing, so a reader can see how far off it is.
-See [metrics.md](metrics.md) section 10.8 for the gate and its three wordings.
 
 ---
 

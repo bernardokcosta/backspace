@@ -11,12 +11,10 @@
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-3da639.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6.svg)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/node-24_LTS-339933.svg)](https://nodejs.org/)
-[![Release](https://img.shields.io/github/v/release/TheZwiss/backspace?color=16a34a&label=release)](https://github.com/TheZwiss/backspace/releases)
-[![CodeQL](https://github.com/TheZwiss/backspace/actions/workflows/codeql.yml/badge.svg)](https://github.com/TheZwiss/backspace/actions/workflows/codeql.yml)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/TheZwiss/backspace/badge)](https://scorecard.dev/viewer/?uri=github.com/TheZwiss/backspace)
+[![Release](https://img.shields.io/github/v/release/bernardokcosta/backspace?color=16a34a&label=release)](https://github.com/bernardokcosta/backspace/releases)
+[![CodeQL](https://github.com/bernardokcosta/backspace/actions/workflows/codeql.yml/badge.svg)](https://github.com/bernardokcosta/backspace/actions/workflows/codeql.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/bernardokcosta/backspace/badge)](https://scorecard.dev/viewer/?uri=github.com/bernardokcosta/backspace)
 [![Security policy](https://img.shields.io/badge/security-policy-blue.svg)](SECURITY.md)
-
-**English** · [Русский](README.ru.md)
 
 </div>
 
@@ -28,8 +26,7 @@ screen sharing, direct messages, friends, file sharing, and message search. On t
 of that, **server-to-server federation** lets independent Backspace instances talk
 to each other while each stays under its own control.
 
-It is **free and open source** under the **GNU AGPL-3.0**, and dual-licensed: a
-commercial license is available if the AGPL doesn't fit your use. See
+It is **free and open source** under the **GNU AGPL-3.0**. See
 [License](#license) for the details.
 
 > **Project status** <a name="project-status"></a>
@@ -196,7 +193,7 @@ source automatically if the image can't be pulled.
 ### 1. Run the installer
 
 ```bash
-git clone https://github.com/TheZwiss/backspace.git
+git clone https://github.com/bernardokcosta/backspace.git
 cd backspace
 ./install.sh
 ```
@@ -257,7 +254,7 @@ by hand, you can skip it and drive Docker Compose directly, but then DNS,
 responsibility:
 
 ```bash
-git clone https://github.com/TheZwiss/backspace.git
+git clone https://github.com/bernardokcosta/backspace.git
 cd backspace
 
 cp .env.example .env
@@ -704,8 +701,7 @@ Yes. The installer pulls a prebuilt multi-architecture image (amd64 and arm64), 
 low-power and ARM boxes skip the heavy local build.
 
 **Is it really open source?**
-Yes, under the GNU AGPL-3.0. A separate commercial license is available for cases
-the AGPL does not fit. Every released version stays available under the AGPL.
+Yes, under the GNU AGPL-3.0. Every released version stays available under the AGPL.
 
 **Does it work on mobile?**
 Yes, as an installable PWA with a dedicated touch layout. Native iOS and Android
@@ -718,14 +714,7 @@ independently owned. Requests between servers are HMAC-authenticated.
 
 ## Contributing
 
-Contributions are welcome. Please read [`CONTRIBUTING.md`](CONTRIBUTING.md)
-first. Backspace is a single-owner project, so all contributors sign a
-[Contributor License Agreement](CLA.md), a one-time comment on your pull
-request, handled automatically by a bot. **You keep the copyright to your
-contribution** and grant the maintainer (Jannis Braun) an exclusive license to
-it, which is what lets Backspace be offered under both the AGPL and a commercial
-license. You also receive a perpetual license to reuse the specific code you
-wrote in your own other projects.
+This is a private fork and is not accepting external contributions.
 
 ## Privacy
 
@@ -790,26 +779,12 @@ In plain terms:
   at what you actually run.
 - Note: preserve the copyright and license notices.
 
-**Commercial license.** If the AGPL doesn't fit (embedding Backspace in a
-closed-source product, offering it as a managed service without publishing your
-modifications, or an organization that can't use AGPL software), a separate
-commercial license is available on request. See
-[`LICENSE-COMMERCIAL.md`](LICENSE-COMMERCIAL.md).
+**Commercial license.** The upstream project offers a separate commercial
+license, but this fork is AGPL-3.0-only: there is no commercial licensing
+option here, and only the AGPL terms below apply to this code.
 
-> **Our open-source commitment.** Every released version of Backspace is, and
-> will remain, available under the AGPL-3.0. The Contributor License Agreement
-> exists to enable a commercial license and optional enterprise add-ons, **not**
-> to take the open-source edition private. If this project is ever abandoned, or
-> the open-source edition is relicensed under non-free terms, the community stays
-> free to fork the last AGPL release.
-
-Copyright © 2026 Jannis Braun. Contributions are made under the
-[Contributor License Agreement](CLA.md): you keep your copyright and grant the
-maintainer an exclusive license, which is what lets Backspace be offered under
-both the AGPL and a commercial license.
-
-"Backspace", the Backspace logo, and app icons are trademarks of Jannis Braun and
-are not licensed under either the AGPL or the commercial license. Bundled
+Copyright © 2026 Jannis Braun. "Backspace", the Backspace logo, and app icons are trademarks of Jannis Braun and
+are not licensed under the AGPL. Bundled
 third-party components retain their own licenses; see [`NOTICE`](NOTICE).
 
 ## Acknowledgements

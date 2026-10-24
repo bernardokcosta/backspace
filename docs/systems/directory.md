@@ -19,8 +19,7 @@ Source files:
 - `packages/server/drizzle/0015_real_tomas.sql` - the five columns; `0016_whole_loki.sql` - `directory_browse_enabled`
 - `packages/shared/src/types.ts` - `DirectoryPingError`, `DirectoryDocument`, `DirectoryDocumentSpace`, `DirectoryEntry`, `DirectoryFeed`
 - `packages/shared/src/errors.ts` - the four `directory_*` error codes
-- `scripts/directory-hub/` - the Cloudflare Worker at `explore.backspacechat.com` (`src/index.ts` routes, `src/validate.ts`, `src/store.ts`, `src/hash.ts`, `migrations/0001_directory.sql`)
-- `.github/workflows/directory-hub.yml` - the hub's test job and its dispatch-only deploy
+- `scripts/directory-hub/` (upstream-only Cloudflare Worker at `explore.backspacechat.com`; not part of this fork) and its workflow were removed — this fork talks to the existing hub, it does not run one
 - `packages/web/src/stores/directoryStore.ts` - the feed, the page dedupe by `(origin, id)`, `connectAndJoin` and `loginAndJoin` (the origin dedupe runs at render in `OuterSpaceSection`)
 - `packages/web/src/utils/directory.ts` - `innerOrigins`, `dedupeAgainstConnected`, `isDirectoryEntry`
 - `packages/web/src/stores/instanceStore.ts` - `connectToInstance`, the shared connect path
@@ -1314,14 +1313,10 @@ database.
 
 ## 12. Deploying the hub
 
-`.github/workflows/directory-hub.yml` has two jobs. `test` runs the typecheck
-and the Workers test suite on every push to `main` and every pull request that
-touches `scripts/directory-hub/**` or the workflow file, and holds no
-secrets. `deploy` runs only when Jannis dispatches the workflow by hand from
-`main`, never on a fork. It applies the migration files under
-`scripts/directory-hub/migrations` to the live database and only then
-publishes the Worker, so the schema is never behind the code that reads it,
-and it provisions nothing of its own. A merge never deploys the hub.
+Not applicable to this fork: the hub is an upstream-operated Cloudflare
+Worker (`explore.backspacechat.com`). The rollout checklist and WAF/receiver
+setup below describe Jannis's deployment and are kept for reference; instances
+of this fork only ever *ping* the hub, they never deploy it.
 
 **Rollout checklist.** Set up once, by hand, in this order; the deploy job
 creates none of it. The hub ships before the server release that pings it,

@@ -68,11 +68,12 @@ export function releaseNotesUrl(version: string | null): string {
 }
 
 /**
- * A new bug report on the upstream issue form, prefilled.
+ * A new bug report on the issue tracker, prefilled.
  *
  * `version` and `environment` are the ids of two `input` fields in
- * `.github/ISSUE_TEMPLATE/bug_report.yml`; GitHub issue forms prefill `input`
- * and `textarea` fields from query parameters named after the field id.
+ * `.github/ISSUE_TEMPLATE/bug_report.yml` upstream; this fork keeps no issue
+ * templates, so GitHub shows the blank form and the prefill is ignored — the
+ * version/environment context is still carried in the URL for whoever triages.
  * Renaming either id there silently stops the prefill here.
  */
 export function bugReportUrl(fields: { version: string | null; environment: string }): string {

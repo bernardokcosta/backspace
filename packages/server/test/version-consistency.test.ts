@@ -20,10 +20,12 @@ describe('release version consistency', () => {
     // Discovery rather than a hand-written list is the point: adding a package
     // must not require anyone to remember this file exists. If this count ever
     // changes, a package was added or removed and that is worth noticing.
+    // (Five: root + shared/server/web/desktop. The upstream-only Cloudflare
+    // worker packages are not part of this fork.)
     expect(manifests).toContain('package.json');
     expect(manifests).toContain('packages/server/package.json');
     expect(manifests).toContain('packages/desktop/package.json');
-    expect(manifests.length).toBeGreaterThanOrEqual(6);
+    expect(manifests.length).toBeGreaterThanOrEqual(5);
   });
 
   it('holds the same version in every manifest', () => {

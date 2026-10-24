@@ -43,25 +43,23 @@ CI (`ci.yml`) gates PRs on: build+test matrix (22/24), lint job, and an amd64 co
 
 ```
 packages/shared/  — types, permissions, constants, activities, errors (compiled first)
-packages/server/  — Fastify 4 API + WS; entry src/index.ts, env src/config.ts,
+packages/server/  — Fastify 5 API + WS; entry src/index.ts, env src/config.ts,
                     schema src/db/schema.ts, migrations drizzle/, routes src/routes/, realtime src/ws/
-packages/web/     — React 18 + Vite + Tailwind 3 + Zustand 5 SPA (served by server in prod)
-packages/desktop/ — Electron 43 wrapper (main, preload, keybinds); packaged by release.yml (electron-builder matrix, all OSes)
-scripts/metrics, scripts/telemetry-receiver, scripts/pr-triage, scripts/directory-hub
-                    — separate workspace packages, NOT covered by root pnpm build
-site/             — landing page + insights dashboard (vendored uPlot, do not lint)
+packages/web/     — React 19 + Vite + Tailwind 3 + Zustand 5 SPA (served by server in prod)
+packages/desktop/ — Electron 45 wrapper (main, preload, keybinds); packaged by release.yml (electron-builder matrix, all OSes)
+scripts/          — one-off Node tooling (bump-version, check-i18n, gen-icons); NOT workspace packages
 ```
 
 ## Rules
 
 - **Federation-aware, always.** Never assume a single global user ID. Resolve the per-instance identity (`homeUserId`+`homeInstance`, `resolveLocalUser`/`resolveOrCreateReplicatedUser`) for ID comparisons, permission checks, and remote calls. Client side: route via origin (`getChannelOrigin`/`getApiForOrigin`), never hardcode one API base. See `federation.md` + `client-federation.md`.
 - **TypeScript strict, no `any`. Complete implementations only** — no placeholders, TODO stubs, or partial components. Match surrounding patterns; don't introduce new ones.
-- **No new dependencies without justification.** Must be permissive (MIT/ISC/Apache-2.0/BSD) or weak-copyleft only at arm's length. Never strong copyleft (GPL/AGPL) or SSPL/BUSL/non-commercial — they can't ship in the commercial edition.
-- **Architectural changes need an approved design first** (issue with "Design proposal" template, wait for "approved to implement"): new global mechanisms, framework deps/platforms, DB schema, REST/WS contracts, federation protocol, permission model, preload bridge, or anything spanning >2 subsystems. See `CONTRIBUTING.md`.
+- **No new dependencies without justification.** Must be permissive (MIT/ISC/Apache-2.0/BSD) or weak-copyleft only at arm's length. Never strong copyleft (GPL/AGPL) or SSPL/BUSL/non-commercial — incompatible with `AGPL-3.0-only`.
+- **Architectural changes need a design note first** (a short issue laying out problem, approach, and alternatives): new global mechanisms, framework deps/platforms, DB schema, REST/WS contracts, federation protocol, permission model, preload bridge, or anything spanning >2 subsystems.
 - **Update `docs/systems/*.md` in the same PR when you change** schema, API routes, WS events, federation, permissions, voice, design system, or localization. Never for plain UI/logic fixes.
 - **Design system "Aether Drift"** (`docs/systems/design-system.md`): floating elements use glass (`.glass*`), never `bg-surface-elevated`; form inputs use `.input-standard` / `.input-search` / `.input-embedded` / `.input-danger` (no resting borders); brand primary `#7c6cf6`.
 - **PR-ready means**: `pnpm build` + both dev servers start clean + affected tests pass + `pnpm lint` exits 0 + spec updated + you ran the thing (screenshot/recording for packaging or UI changes).
 
 ## Subsystem specs
 
-One file per subsystem under `docs/systems/` — **read the one you touch before changing it**: `database`, `api`, `websocket`, `federation`, `client-federation`, `permissions`, `voice`, `auth`, `bots`, `dm-system`, `spaces`, `social`, `sounds`, `soundboard`, `admin`, `uploads`, `embeds`, `search`, `desktop`, `desktop-security`, `mobile-ui`, `message-list`, `design-system`, `localization`, `telemetry`, `telemetry-opt-in-rate`, `directory`, `project-hub`, `metrics`, `deployment`, `security-scanning`, `web-security` (all `.md`).
+One file per subsystem under `docs/systems/` — **read the one you touch before changing it**: `database`, `api`, `websocket`, `federation`, `client-federation`, `permissions`, `voice`, `auth`, `bots`, `dm-system`, `spaces`, `social`, `sounds`, `soundboard`, `admin`, `uploads`, `embeds`, `search`, `desktop`, `desktop-security`, `mobile-ui`, `message-list`, `design-system`, `localization`, `telemetry`, `directory`, `project-hub`, `deployment`, `security-scanning`, `web-security` (all `.md`).
