@@ -24,6 +24,7 @@
   "current_password_incorrect": "The current password is wrong.",
   "password_unchanged": "The new password must be different from the current one.",
   "display_name_too_long": "Display names can be at most {{max}} characters.",
+  "display_name_empty": "Display name cannot be empty.",
   "bio_too_long": "Bios can be at most {{max}} characters.",
   "custom_status_too_long": "Custom statuses can be at most {{max}} characters.",
   "profile_managed_by_home": "Your profile is managed by your home instance. Change it there.",

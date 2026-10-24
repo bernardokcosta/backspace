@@ -7,7 +7,7 @@ import { tombstoneUser, collectProfileBroadcastTargetIds } from '../utils/userDe
 import { deleteUploadFile, deleteAttachmentByFilename } from '../utils/fileCleanup.js';
 import { connectionManager } from '../ws/handler.js';
 import { generateSnowflake } from '../utils/snowflake.js';
-import { BOT_NAME_MAX_LENGTH, BOT_NAME_MIN_LENGTH, BOT_NAME_SUFFIX, MAX_BOTS_PER_USER, PROFILE_BIO_MAX_LENGTH } from '@backspace/shared/src/constants.js';
+import { BOT_NAME_MAX_LENGTH, BOT_NAME_MIN_LENGTH, MAX_BOTS_PER_USER, PROFILE_BIO_MAX_LENGTH } from '@backspace/shared/src/constants.js';
 import { collectBotFederationOrigins } from '../utils/botFederation.js';
 import { revokeBotWithRetry } from '../utils/botRevocationQueue.js';
 import {
@@ -211,9 +211,8 @@ export async function botRoutes(app: FastifyInstance): Promise<void> {
   }, async (request, reply) => {
     const db = getDb();
     const raw = typeof request.body?.name === 'string' ? request.body.name.trim() : '';
-    const lowered = raw.toLowerCase();
-    // The suffix is added for the caller; a name that already carries it is kept.
-    const username = lowered.endsWith(BOT_NAME_SUFFIX) ? lowered : `${lowered}${BOT_NAME_SUFFIX}`;
+    // Bot names carry no required suffix: the BOT badge marks bots everywhere.
+    const username = raw.toLowerCase();
     if (username.length < BOT_NAME_MIN_LENGTH || username.length > BOT_NAME_MAX_LENGTH || !BOT_NAME_RE.test(username)) {
       return sendError(reply, 400, 'bot_name_invalid', { min: BOT_NAME_MIN_LENGTH, max: BOT_NAME_MAX_LENGTH });
     }
@@ -275,10 +274,8 @@ export async function botRoutes(app: FastifyInstance): Promise<void> {
     // identity peers and host accounts (`name@home`) are keyed on.
     if (displayName !== undefined) {
       const trimmed = typeof displayName === 'string' ? displayName.trim() : '';
-      // The suffix marks a bot everywhere its name is shown: it must stay last,
-      // with something in front of it.
-      if (!trimmed.endsWith(BOT_NAME_SUFFIX) || trimmed.slice(0, -BOT_NAME_SUFFIX.length).trim().length === 0) {
-        return sendError(reply, 400, 'bot_name_suffix_required', { suffix: BOT_NAME_SUFFIX });
+      if (trimmed.length === 0) {
+        return sendError(reply, 400, 'display_name_empty');
       }
       if (trimmed.length > BOT_NAME_MAX_LENGTH) {
         return sendError(reply, 400, 'display_name_too_long', { max: BOT_NAME_MAX_LENGTH });

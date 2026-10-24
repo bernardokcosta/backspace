@@ -36,6 +36,7 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   current_password_incorrect: 'Current password is incorrect',
   password_unchanged: 'New password must differ from the current password',
   display_name_too_long: 'Display name can be at most {{max}} characters',
+  display_name_empty: 'Display name cannot be empty',
   bio_too_long: 'Bio can be at most {{max}} characters',
   custom_status_too_long: 'Custom status can be at most {{max}} characters',
   profile_managed_by_home: 'Profile fields are managed by your home instance',
@@ -259,7 +260,6 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   directory_requires_discovery: 'Turn on space discovery before enabling the directory',
   // bots
   bot_name_invalid: 'Bot name must be {{min}}-{{max}} characters: lowercase letters, numbers and underscores',
-  bot_name_suffix_required: 'Bot name must end with "_bot"',
   bot_account_required: 'Only a bot account can do this',
   command_not_found: 'This bot has no such command',
   bot_unavailable: 'The bot is not connected right now',

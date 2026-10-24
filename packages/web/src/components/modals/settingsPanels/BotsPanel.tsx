@@ -4,7 +4,7 @@ import type { BotActivity, BotActivityType, BotSpaceOption, BotSummary, BotToken
 import {
   BOT_ACTIVITY_TYPES,
   BOT_NAME_MAX_LENGTH,
-  BOT_NAME_SUFFIX,
+  BOT_NAME_MIN_LENGTH,
   BOT_TOKEN_NAME_MAX_LENGTH,
   MAX_BOT_TOKENS_PER_BOT,
   MAX_BOTS_PER_USER,
@@ -54,12 +54,6 @@ const STATUS_DISPLAY_KEYS = {
 function statusFromEditor(type: StatusChoice, text: string): BotActivity | null {
   const name = text.trim();
   return type === 'none' || name.length === 0 ? null : { type, name };
-}
-
-/** The editable part of a bot name: everything before the fixed `_bot` suffix. */
-function stemOf(value: string): string {
-  const trimmed = value.trim();
-  return trimmed.endsWith(BOT_NAME_SUFFIX) ? trimmed.slice(0, -BOT_NAME_SUFFIX.length).trim() : trimmed;
 }
 
 export function BotsPanel() {
@@ -112,7 +106,7 @@ export function BotsPanel() {
     setBusy(true);
     setError(null);
     try {
-      const res = await api.bots.create({ name: stemOf(name) + BOT_NAME_SUFFIX });
+      const res = await api.bots.create({ name: name.trim().toLowerCase() });
       setBots((prev) => [...prev, res.bot]);
       setRevealed({ username: res.bot.username, token: res.token });
       setCopied(false);
@@ -155,11 +149,11 @@ export function BotsPanel() {
   };
 
   // A chosen status type needs its text; saving it empty would clear the status unasked.
-  const editValid = stemOf(editName).length > 0 && (editStatusType === 'none' || editStatusText.trim().length > 0);
+  const editValid = editName.trim().length > 0 && (editStatusType === 'none' || editStatusText.trim().length > 0);
 
   const startEdit = (bot: BotSummary) => {
     setEditingId(bot.id);
-    setEditName(stemOf(bot.displayName || bot.username));
+    setEditName(bot.displayName || bot.username);
     setEditBio(bot.bio ?? '');
     setEditStatusType(bot.activity?.type ?? 'none');
     setEditStatusText(bot.activity?.name ?? '');
@@ -174,7 +168,7 @@ export function BotsPanel() {
     try {
       const bio = editBio.trim();
       const res = await api.bots.update(bot.id, {
-        displayName: stemOf(editName) + BOT_NAME_SUFFIX,
+        displayName: editName.trim(),
         bio: bio.length > 0 ? bio : null,
         activity: statusFromEditor(editStatusType, editStatusText),
         requestedPermissions: editRequested,
@@ -406,19 +400,18 @@ export function BotsPanel() {
                 id="bot-name"
                 className="input-standard flex-1 min-w-0"
                 value={name}
-                maxLength={BOT_NAME_MAX_LENGTH - BOT_NAME_SUFFIX.length}
+                maxLength={BOT_NAME_MAX_LENGTH}
                 autoComplete="off"
                 onChange={(e) => setName(e.target.value.toLowerCase())}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && stemOf(name).length > 0 && !busy) void handleCreate();
+                  if (e.key === 'Enter' && name.trim().length > 0 && !busy) void handleCreate();
                 }}
               />
-              <span className="shrink-0 text-sm text-txt-tertiary select-none">{BOT_NAME_SUFFIX}</span>
             </div>
             <button
               type="button"
               className={buttonClass}
-              disabled={busy || stemOf(name).length === 0}
+              disabled={busy || name.trim().length === 0}
               onClick={() => void handleCreate()}
             >
               {t('settings:bots.create.submit')}
@@ -426,8 +419,8 @@ export function BotsPanel() {
           </div>
           <div className="text-xs text-txt-tertiary">
             {t('settings:bots.create.hint', {
-              min: 1,
-              max: BOT_NAME_MAX_LENGTH - BOT_NAME_SUFFIX.length,
+              min: BOT_NAME_MIN_LENGTH,
+              max: BOT_NAME_MAX_LENGTH,
               limit: MAX_BOTS_PER_USER,
             })}
           </div>
@@ -472,7 +465,7 @@ export function BotsPanel() {
                             id={`bot-edit-${bot.id}`}
                             className="input-standard flex-1 min-w-0"
                             value={editName}
-                            maxLength={BOT_NAME_MAX_LENGTH - BOT_NAME_SUFFIX.length}
+                            maxLength={BOT_NAME_MAX_LENGTH}
                             autoComplete="off"
                             onChange={(e) => setEditName(e.target.value)}
                             onKeyDown={(e) => {
@@ -480,10 +473,9 @@ export function BotsPanel() {
                               if (e.key === 'Escape') setEditingId(null);
                             }}
                           />
-                          <span className="shrink-0 text-sm text-txt-tertiary select-none">{BOT_NAME_SUFFIX}</span>
                         </div>
                         <div className="text-xs text-txt-tertiary">
-                          {t('settings:bots.edit.hint', { username: bot.username, max: BOT_NAME_MAX_LENGTH - BOT_NAME_SUFFIX.length })}
+                          {t('settings:bots.edit.hint', { username: bot.username, max: BOT_NAME_MAX_LENGTH })}
                         </div>
                       </div>
                     ) : (

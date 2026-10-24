@@ -714,8 +714,8 @@ Full reference in [bots.md](bots.md). Owner endpoints need the JWT of a native h
 
 ```
 GET /bots → { bots: BotSummary[] }
-POST /bots { name } → 201 { bot, token } [5 per 15 min; the _bot suffix is appended when missing; max 10 per owner]
-PATCH /bots/:id { displayName?, avatar?, bio?, activity?, requestedPermissions? } → { bot } [owner; displayName must end with _bot; bio ≤ 190 (400 bio_too_long); activity { type: custom|playing|listening|watching, name 1-128 } or null (400 bot_activity_invalid); requestedPermissions: canonical decimal mask (400 bot_permissions_invalid); a new displayName renames the bot's managed roles; bots.md 3, 4]
+POST /bots { name } → 201 { bot, token } [5 per 15 min; max 10 per owner]
+PATCH /bots/:id { displayName?, avatar?, bio?, activity?, requestedPermissions? } → { bot } [owner; displayName any non-empty name (400 display_name_empty); bio ≤ 190 (400 bio_too_long); activity { type: custom|playing|listening|watching, name 1-128 } or null (400 bot_activity_invalid); requestedPermissions: canonical decimal mask (400 bot_permissions_invalid); a new displayName renames the bot's managed roles; bots.md 3, 4]
 POST /bots/:id/token → { token, federation } [5 per 15 min; revokes earlier tokens, cuts the bot off on other instances; per origin `federation` says success, a failure that is still `pending` (retried in the background) or a final refusal; see bots.md, "Revocation retries"]
 GET /bots/:id/tokens → { tokens: BotTokenSummary[], legacy } [owner; no secrets; 30 per 15 min]
 POST /bots/:id/tokens { name? } → 201 { id, name, createdAt, lastUsedAt, token } [owner; 5 per 15 min; max 5 per bot; the secret is shown once]

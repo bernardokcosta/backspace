@@ -4,6 +4,7 @@ import type { BotSummary } from '@backspace/shared';
 
 const mocks = vi.hoisted(() => ({
   list: vi.fn(),
+  create: vi.fn(),
   listTokens: vi.fn(),
   createToken: vi.fn(),
   revokeToken: vi.fn(),
@@ -18,6 +19,7 @@ vi.mock('../../../api/client', () => ({
   api: {
     bots: {
       list: mocks.list,
+      create: mocks.create,
       listTokens: mocks.listTokens,
       createToken: mocks.createToken,
       revokeToken: mocks.revokeToken,
@@ -129,6 +131,14 @@ describe('BotsPanel layout', () => {
     mocks.list.mockResolvedValue({ bots: [bot, other] });
   });
   afterEach(() => cleanup());
+
+  it('creates a bot with the typed name, no suffix added', async () => {
+    mocks.create.mockResolvedValue({ bot, token: 'bsb_secret' });
+    render(<BotsPanel />);
+    fireEvent.change(screen.getByLabelText('settings:bots.create.nameLabel'), { target: { value: 'mybot' } });
+    fireEvent.click(screen.getByText('settings:bots.create.submit'));
+    await waitFor(() => expect(mocks.create).toHaveBeenCalledWith({ name: 'mybot' }));
+  });
 
   it('gives every bot its own card holding all of its actions', async () => {
     render(<BotsPanel />);

@@ -31,7 +31,6 @@ export const ERROR_CODES = [
 
   // Bots
   'bot_name_invalid',
-  'bot_name_suffix_required',
   'bot_account_required',
   'command_not_found',
   'bot_unavailable',
@@ -74,6 +73,7 @@ export const ERROR_CODES = [
   'current_password_incorrect',
   'password_unchanged',
   'display_name_too_long',
+  'display_name_empty',
   'bio_too_long',
   'custom_status_too_long',
   'profile_managed_by_home',

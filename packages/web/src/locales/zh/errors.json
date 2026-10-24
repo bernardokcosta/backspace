@@ -24,6 +24,7 @@
   "current_password_incorrect": "当前密码不正确。",
   "password_unchanged": "新密码不能与当前密码相同。",
   "display_name_too_long": "显示名称最多包含 {{max}} 个字符。",
+  "display_name_empty": "显示名称不能为空。",
   "bio_too_long": "个人简介最多包含 {{max}} 个字符。",
   "custom_status_too_long": "自定义状态最多包含 {{max}} 个字符。",
   "profile_managed_by_home": "您的个人资料由主实例管理，请在主实例进行更改。",

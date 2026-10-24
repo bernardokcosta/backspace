@@ -358,14 +358,18 @@ describe('editing a bot on its home', () => {
 
     const empty = await api<ErrBody>(A, 'PATCH', `/api/bots/${bot.id}`, owner.token, { displayName: '   ' });
     expect(empty.status).toBe(400);
+    expect(empty.body.code).toBe('display_name_empty');
     const tooLong = await api<ErrBody>(A, 'PATCH', `/api/bots/${bot.id}`, owner.token, { displayName: 'x'.repeat(29) + '_bot' });
     expect(tooLong.status).toBe(400);
     expect(tooLong.body.code).toBe('display_name_too_long');
     for (const bad of ['Echo Prime', '_bot', '   _bot', 'bot_x', 'echo_bot_x']) {
       const r = await api<ErrBody>(A, 'PATCH', `/api/bots/${bot.id}`, owner.token, { displayName: bad });
-      expect(r.status).toBe(400);
-      expect(r.body.code).toBe('bot_name_suffix_required');
+      expect(r.status).toBe(200);
     }
+    const renamed = await api<{ bot: { username: string; displayName: string | null } }>(
+      A, 'PATCH', `/api/bots/${bot.id}`, owner.token, { displayName: 'Echo Prime' },
+    );
+    expect(renamed.body.bot.displayName).toBe('Echo Prime');
     const selfRename = await api<ErrBody>(A, 'PATCH', '/api/users/@me', bot.token, { displayName: 'renamed' });
     expect(selfRename.status).toBe(403);
     expect(selfRename.body.code).toBe('bot_profile_owner_only');
@@ -389,15 +393,19 @@ describe('editing a bot on its home', () => {
     expect(reached).toBe(true);
   });
 
-  it('the _bot suffix is added on creation when missing', async () => {
+  it('creation keeps the name as given, with no required suffix', async () => {
     const plain = await api<BotCreated>(A, 'POST', '/api/bots', owner.token, { name: 'plainname' });
     expect(plain.status).toBe(201);
-    expect(plain.body.bot.username).toBe('plainname_bot');
+    expect(plain.body.bot.username).toBe('plainname');
     const already = await api<BotCreated>(A, 'POST', '/api/bots', owner.token, { name: 'Has_Bot' });
     expect(already.body.bot.username).toBe('has_bot');
-    const noStem = await api<ErrBody>(A, 'POST', '/api/bots', owner.token, { name: '_bot' });
-    expect(noStem.status).toBe(400);
-    expect(noStem.body.code).toBe('bot_name_invalid');
+    const noStemOwner = await registerLocal(A, 'nostemowner');
+    const noStem = await api<BotCreated>(A, 'POST', '/api/bots', noStemOwner.token, { name: '_bot' });
+    expect(noStem.status).toBe(201);
+    expect(noStem.body.bot.username).toBe('_bot');
+    const tooShort = await api<ErrBody>(A, 'POST', '/api/bots', noStemOwner.token, { name: 'ab' });
+    expect(tooShort.status).toBe(400);
+    expect(tooShort.body.code).toBe('bot_name_invalid');
   });
 });
 
@@ -593,12 +601,11 @@ describe('the bot search for invitations', () => {
     const seeker = await registerLocal(A, 'searchseeker');
     const res = await api<{ bots: Array<{ id: string; username: string }> }>(A, 'GET', '/api/bots/search?q=xyloph', seeker.token);
     expect(res.status).toBe(200);
-    expect(res.body.bots.some(b => b.username === 'xylophone_bot')).toBe(true);
-    expect(res.body.bots.every(b => b.username.endsWith('_bot'))).toBe(true);
+    expect(res.body.bots.some(b => b.username === 'xylophone')).toBe(true);
 
     // The owner's own bots are listed too: a directory, not a policy.
     const own = await api<{ bots: Array<{ id: string; username: string }> }>(A, 'GET', '/api/bots/search?q=xyloph', other.token);
-    expect(own.body.bots.some(b => b.username === 'xylophone_bot')).toBe(true);
+    expect(own.body.bots.some(b => b.username === 'xylophone')).toBe(true);
 
     const none = await api<{ bots: unknown[] }>(A, 'GET', `/api/bots/search?q=${seeker.username}`, seeker.token);
     expect(none.status).toBe(200);
@@ -608,12 +615,12 @@ describe('the bot search for invitations', () => {
   it('% and _ in the query are literal characters, and out-of-range lengths find nothing', async () => {
     const wildOwner = await registerLocal(A, 'wildowner');
     const wild = await createBot('wildcard', wildOwner);
-    expect(wild.username).toBe('wildcard_bot');
+    expect(wild.username).toBe('wildcard');
     const seeker = await registerLocal(A, 'wildseeker');
     const find = async (q: string) => (await api<{ bots: Array<{ username: string }> }>(
       A, 'GET', `/api/bots/search?q=${encodeURIComponent(q)}`, seeker.token,
     )).body.bots;
-    expect((await find('wildc')).some(b => b.username === 'wildcard_bot')).toBe(true);
+    expect((await find('wildc')).some(b => b.username === 'wildcard')).toBe(true);
     expect(await find('%%')).toHaveLength(0);
     expect(await find('w_ldcard')).toHaveLength(0);
     expect(await find('w')).toHaveLength(0);

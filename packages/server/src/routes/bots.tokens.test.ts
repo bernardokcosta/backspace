@@ -70,7 +70,7 @@ beforeEach(async () => {
 
 describe('POST /api/bots', () => {
   it('hands out a bsb_ token that authenticates the new bot', async () => {
-    const res = await app.inject({ method: 'POST', url: '/api/bots', headers: owner(), payload: { name: 'echo' } });
+    const res = await app.inject({ method: 'POST', url: '/api/bots', headers: owner(), payload: { name: 'echoes' } });
     expect(res.statusCode).toBe(201);
     const { token, bot } = res.json() as { token: string; bot: { id: string } };
     expect(token.startsWith('bsb_')).toBe(true);

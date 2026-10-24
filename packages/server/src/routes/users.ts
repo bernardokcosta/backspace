@@ -245,7 +245,7 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
     }
 
     // A bot's profile belongs to its owner (PATCH /api/bots/:id). Its own token
-    // must not rename it around the `_bot` suffix rule.
+    // must not rename it: profile fields are owner-only.
     if (preUpdateUser.isBot === 1) {
       const touchesProfile = DURABLE_PROFILE_FIELDS.some(f => (request.body as Record<string, unknown>)[f] !== undefined);
       if (touchesProfile) {

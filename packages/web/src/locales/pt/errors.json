@@ -24,6 +24,7 @@
   "current_password_incorrect": "A senha atual está incorreta.",
   "password_unchanged": "A nova senha deve ser diferente da atual.",
   "display_name_too_long": "Nomes de exibição podem ter no máximo {{max}} caracteres.",
+  "display_name_empty": "O nome de exibição não pode estar vazio.",
   "bio_too_long": "As bios podem ter no máximo {{max}} caracteres.",
   "custom_status_too_long": "Status personalizados podem ter no máximo {{max}} caracteres.",
   "profile_managed_by_home": "Seu perfil é gerenciado pela sua instância de origem. Altere-o lá.",
