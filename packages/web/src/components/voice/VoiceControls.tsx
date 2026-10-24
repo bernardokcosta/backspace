@@ -210,8 +210,9 @@ export function VoiceControls() {
           </button>
         )}
 
+        {/* Soundboard */}
+        <SoundboardButton className="flex-1 h-[34px] flex items-center justify-center rounded-[4px] transition-colors bg-surface-base text-txt-tertiary hover:bg-surface-channel hover:text-txt-secondary" />
         {/* AI Noise Suppression (RNNoise) */}
-        <SoundboardButton />
         <button
           onClick={() => setRnnoiseEnabled(!rnnoiseEnabled)}
           className={`${btnBase} ${
