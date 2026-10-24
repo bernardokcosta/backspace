@@ -143,6 +143,28 @@ async function main(): Promise<void> {
     xFrameOptions: { action: 'deny' },
   });
 
+  // Fastify 5 runs the content-type parser whenever the header is present,
+  // even for a request that carries no body bytes; Fastify 4 skipped parsing
+  // for GET/HEAD/DELETE/OPTIONS without length/encoding headers. Bots and
+  // test doubles (axios/fetch defaults, the e2e `call` helpers) routinely
+  // send `Content-Type: application/json` on bodyless requests, which v5
+  // answers with 400 FST_ERR_CTP_EMPTY_JSON_BODY. Drop a JSON content-type
+  // that advertises no bytes before parsing to restore the v4 tolerance.
+  // POST/PUT/PATCH are deliberately excluded: an empty body there stays a
+  // 400, exactly as before.
+  app.addHook('preParsing', async (request, _reply, payload) => {
+    const method = request.method;
+    if (
+      (method === 'GET' || method === 'HEAD' || method === 'DELETE' || method === 'OPTIONS') &&
+      request.headers['content-type'] !== undefined &&
+      request.headers['transfer-encoding'] === undefined &&
+      (request.headers['content-length'] === undefined || request.headers['content-length'] === '0')
+    ) {
+      delete request.headers['content-type'];
+    }
+    return payload;
+  });
+
   // The policy is built once at boot because its only input is config, which
   // does not change while the process runs.
   const cspHeaderValue = buildCspHeaderValue({ livekitUrl: config.livekit.url });

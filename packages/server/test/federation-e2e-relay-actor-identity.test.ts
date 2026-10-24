@@ -843,9 +843,15 @@ describe('federation e2e: a relayed actor is resolved by homeUserId + homeInstan
  */
 describe('client routes: a homeUserId + homeInstance pair reaches the user it names', () => {
   async function call(method: string, pathname: string, token: string, body?: unknown): Promise<Response> {
+    // Like the real web client (api/client.ts), no Content-Type goes out
+    // without a body: Fastify answers a bare JSON content-type on a bodyless
+    // request with 400, and no real caller sends one.
     return fetch(`${B.origin}${pathname}`, {
       method,
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      headers: {
+        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
+        Authorization: `Bearer ${token}`,
+      },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
   }
