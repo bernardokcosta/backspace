@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { SoundboardDocument } from '@backspace/shared/src/soundboard';
+import { DEFAULT_SOUNDBOARD_SETTINGS, MAX_SOUNDBOARD_SECONDS, type SoundboardDocument } from '@backspace/shared/src/soundboard';
 import { getApiForOrigin } from '../utils/crossStoreResolvers';
 import { useAuthStore } from './authStore';
 
@@ -27,7 +27,19 @@ export const useSoundboardStore = create<SoundboardState>((set) => ({
     try {
       const document = await getApiForOrigin(origin).soundboard.list(spaceId);
       if (runs.get(key) !== run) return;
-      set(s => ({ entries: { ...s.entries, [key]: { document, loading: false } } }));
+      // Older instances may still report a null cap or one above the product
+      // ceiling. Clamp once at the store boundary so every reader below sees
+      // the invariant this client was built against: always a number, at most
+      // MAX_SOUNDBOARD_SECONDS.
+      const rawCap = (document.settings as { maxDurationSeconds?: unknown } | undefined)?.maxDurationSeconds;
+      const maxDurationSeconds = typeof rawCap === 'number' && Number.isFinite(rawCap)
+        ? Math.min(rawCap, MAX_SOUNDBOARD_SECONDS)
+        : MAX_SOUNDBOARD_SECONDS;
+      const normalized: SoundboardDocument = {
+        ...document,
+        settings: { ...DEFAULT_SOUNDBOARD_SETTINGS, ...document.settings, maxDurationSeconds },
+      };
+      set(s => ({ entries: { ...s.entries, [key]: { document: normalized, loading: false } } }));
     } catch (error) {
       if (runs.get(key) !== run) return;
       // Never keep an actionable stale catalog after membership/permission loss.

@@ -9,9 +9,9 @@ IDs: Snowflake text, permissions: bigint decimal strings
 
 ## Core Tables
 
-Soundboard tables added by `0032_soundboard`: `soundboard_settings` (spaceId PK/FK
+Soundboard tables added by `0032_soundboard`, tightened by `0042`: `soundboard_settings` (spaceId PK/FK
 with cascade; enabled boolean default true, allowMemberUploads boolean default
-true, maxDurationSeconds nullable real default 10, maxSounds integer default 50)
+true, maxDurationSeconds real NOT NULL default 30, maxSounds integer default 100)
 and `soundboard_sounds` (id PK, spaceId FK cascade/index, uploaderId FK cascade,
 name, emoji, filename, durationSeconds real, createdAt). See [soundboard.md](soundboard.md).
 

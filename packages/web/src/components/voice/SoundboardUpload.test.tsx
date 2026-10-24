@@ -93,6 +93,16 @@ describe('soundboard drag selection and limits UX', () => {
     expect(screen.getByRole('button', { name: 'Add sound' })).toBeDisabled();
   });
 
+  it('keeps reset visible for an over-long drag, so the invalid selection is escapable', async () => {
+    await pickFile(5);
+    const wave = waveAt();
+    fireEvent.pointerDown(wave, { clientX: 0, pointerId: 1 });
+    fireEvent.pointerMove(wave, { clientX: 200, pointerId: 1 });
+    fireEvent.pointerUp(wave, { pointerId: 1 });
+    expect(screen.getByText(/Exceeds the current duration limit/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Use full audio' })).toBeInTheDocument();
+  });
+
   it('labels the selection bounds against the total', async () => {
     await pickFile();
     expect(screen.getByText('00:00')).toBeInTheDocument();

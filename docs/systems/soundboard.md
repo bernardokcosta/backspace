@@ -28,7 +28,9 @@ can further restrict the encoded file. No new dependencies or ffmpeg required.
 The server accepts only the exact canonical 44-byte PCM header, checks every
 field, rejects trailing/truncated data, derives duration from the sample count,
 and applies the current space cap. Metadata/MIME/client durations are not trusted.
-Unlimited duration removes the time policy, not the byte/storage limits.
+There is no unlimited duration: the product ceiling is 30 seconds, and file
+size limits apply on top. Legacy rows above the ceiling are clamped to 30 on
+read (migration `0042` also backfilled null caps and tightened the defaults).
 Clips must be at least 0.1 seconds. Files use fresh snowflake `.wav` filenames
 in `UPLOAD_DIR`; stored references protect them from `cleanupStorage`. Deleted
 clips and space/account cascades leave orphan files for the existing janitor.

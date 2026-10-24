@@ -42,4 +42,18 @@ describe('origin/account-scoped soundboard catalog', () => {
     const entry = useSoundboardStore.getState().entries[soundboardKey('', 'space')];
     expect(entry?.document).toBeUndefined(); expect(entry?.error).toBeInstanceOf(Error);
   });
+  it.each([
+    ['a legacy null cap', null],
+    ['an above-ceiling cap', 86400],
+  ])('clamps %s from an older instance to the 30s ceiling', async (_label, cap) => {
+    const legacy = { settings: { ...DEFAULT_SOUNDBOARD_SETTINGS, maxDurationSeconds: cap }, sounds: [] };
+    api.list.mockResolvedValueOnce(legacy);
+    await useSoundboardStore.getState().load('', 'space');
+    expect(useSoundboardStore.getState().entries[soundboardKey('', 'space')]?.document?.settings.maxDurationSeconds).toBe(30);
+  });
+  it('keeps a within-ceiling cap from an older instance untouched', async () => {
+    api.list.mockResolvedValueOnce({ settings: { ...DEFAULT_SOUNDBOARD_SETTINGS, maxDurationSeconds: 12 }, sounds: [] });
+    await useSoundboardStore.getState().load('', 'space');
+    expect(useSoundboardStore.getState().entries[soundboardKey('', 'space')]?.document?.settings.maxDurationSeconds).toBe(12);
+  });
 });

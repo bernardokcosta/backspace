@@ -84,7 +84,12 @@ export function SoundboardUpload({ origin, spaceId, maxDuration, onDone, onCance
     if (!buffer || busy) return;
     stop(); setStart(0); setEnd(Math.min(buffer.duration, maxDuration));
   };
-  const isFullSelection = buffer !== null && start <= 0 && end >= Math.min(buffer.duration, maxDuration);
+  const fullEnd = buffer === null ? 0 : Math.min(buffer.duration, maxDuration);
+  // Full only when the selection IS the default window: start at zero, end at
+  // the capped length, and within the cap. An over-long drag contains the
+  // window but is not it — reset must stay visible so the invalid selection
+  // is escapable without typing numbers.
+  const isFullSelection = buffer !== null && start <= 0 && end >= fullEnd - 1e-9 && duration <= maxDuration + 1e-9;
   const timeAt = (clientX: number, el: HTMLDivElement): number => {
     if (!buffer) return 0;
     const rect = el.getBoundingClientRect();
