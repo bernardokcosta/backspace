@@ -2206,7 +2206,7 @@ export interface BotSearchResult extends BotSummary {
 }
 
 export interface UpdateBotRequest {
-  /** 1–32 characters after trim. The login (username, ends with `_bot`) is immutable. */
+  /** 1–32 characters after trim. The login (username) is immutable. */
   displayName?: string;
   /** Bare filename from an upload, or null to clear. */
   avatar?: string | null;

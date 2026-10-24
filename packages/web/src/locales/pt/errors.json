@@ -230,7 +230,6 @@
   "space_owner_title_invalid": "O título do dono pode ter de 1 a {{max}} caracteres em uma linha, com pelo menos um caractere visível e sem caracteres de controle.",
   "member_nickname_invalid": "Apelidos podem ter no máximo {{max}} caracteres em uma linha, com pelo menos um caractere visível e sem caracteres de controle.",
   "bot_name_invalid": "Nomes de bot devem ter de {{min}} a {{max}} caracteres: letras minúsculas, números e sublinhados.",
-  "bot_name_suffix_required": "O nome do bot deve terminar com \"_bot\"",
   "bot_limit_reached": "Você pode ter no máximo {{max}} bots.",
   "bot_not_found": "Não foi possível encontrar esse bot.",
   "bots_native_only": "Bots só podem ser gerenciados a partir de uma conta criada nesta instância.",
