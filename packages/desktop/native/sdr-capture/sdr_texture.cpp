@@ -4,9 +4,11 @@
 #include <d2d1effects.h>
 #include <d2d1effects_2.h>
 #include <dxgi1_2.h>
+#include <d3dcompiler.h>
 #include <DirectXPackedVector.h>
 
 #include <chrono>
+#include <bit>
 #include <cmath>
 #include <cstring>
 #include <iomanip>
@@ -42,6 +44,37 @@ TextureLock::TextureLock(ID3D11Texture2D* texture) {
     throw std::runtime_error("Acquire SDR texture ownership timed out or failed");
   }
 }
+
+void wait_for_gpu(ID3D11Device* device, ID3D11DeviceContext* context) {
+  D3D11_QUERY_DESC description{D3D11_QUERY_EVENT, 0};
+  ComPtr<ID3D11Query> completed;
+  check(device->CreateQuery(&description, &completed), "Create GPU completion query");
+  context->End(completed.Get());
+  context->Flush();
+  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+  for (;;) {
+    const HRESULT status = context->GetData(completed.Get(), nullptr, 0, 0);
+    if (status == S_OK) return;
+    check(status, "Wait for SDR GPU processing");
+    if (std::chrono::steady_clock::now() >= deadline) throw std::runtime_error("SDR GPU processing timed out");
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  }
+}
+
+void validate_source(ID3D11Texture2D* source, ID3D11Device* device, uint32_t width, uint32_t height) {
+  if (!source || !width || !height || width > 16384 || height > 16384 || uint64_t(width) * height > 33554432) {
+    throw std::invalid_argument("Invalid GPU source content dimensions");
+  }
+  D3D11_TEXTURE2D_DESC description{};
+  source->GetDesc(&description);
+  if (description.Format != DXGI_FORMAT_R16G16B16A16_FLOAT || description.SampleDesc.Count != 1
+      || description.ArraySize != 1 || description.MipLevels != 1 || width > description.Width || height > description.Height) {
+    throw std::invalid_argument("GPU source is not a bounded FP16 capture surface");
+  }
+  ComPtr<ID3D11Device> source_device;
+  source->GetDevice(&source_device);
+  if (source_device.Get() != device) throw std::invalid_argument("GPU capture source belongs to another device");
+}
 }
 
 struct SdrTextureConverter::State {
@@ -52,6 +85,15 @@ struct SdrTextureConverter::State {
   ComPtr<ID2D1DeviceContext> context;
   ComPtr<ID2D1ColorContext> linear;
   ComPtr<ID2D1ColorContext> srgb;
+  ComPtr<ID3D11ComputeShader> peak_shader;
+  ComPtr<ID3D11Buffer> peak_dimensions;
+  ComPtr<ID3D11Buffer> peak_result;
+  ComPtr<ID3D11Buffer> peak_readback;
+  ComPtr<ID3D11UnorderedAccessView> peak_view;
+  ComPtr<ID3D11Texture2D> peak_source;
+  ComPtr<ID3D11ShaderResourceView> peak_source_view;
+  uint32_t peak_width = 0;
+  uint32_t peak_height = 0;
 };
 
 SdrTexture::~SdrTexture() {
@@ -79,6 +121,140 @@ SdrTextureConverter::SdrTextureConverter() : state_(std::make_unique<State>()) {
 
 SdrTextureConverter::~SdrTextureConverter() = default;
 
+ID3D11Device* SdrTextureConverter::device() const noexcept { return state_->device.Get(); }
+
+float SdrTextureConverter::measurePeakNits(ID3D11Texture2D* source, uint32_t width, uint32_t height) {
+  validate_source(source, state_->device.Get(), width, height);
+  if (!state_->peak_shader) {
+    // A monitor's advertised peak is not the captured image's MaxCLL. Reduce
+    // the actual FP16 RGB samples on the GPU; only two uints return to the CPU.
+    constexpr char shader[] = R"hlsl(
+Texture2D<uint4> source : register(t0);
+RWByteAddressBuffer result : register(u0);
+cbuffer Dimensions : register(b0) { uint2 size; uint2 padding; };
+groupshared uint peak;
+groupshared uint invalid;
+[numthreads(16, 16, 1)]
+void main(uint3 position : SV_DispatchThreadID, uint index : SV_GroupIndex) {
+  if (index == 0) { peak = 0; invalid = 0; }
+  GroupMemoryBarrierWithGroupSync();
+  uint value = 0;
+  if (all(position.xy < size)) {
+    uint4 raw = source.Load(int3(position.xy, 0));
+    // Inspect the original half-float exponent before typed float sampling
+    // or compiler/GPU NaN handling can canonicalize an invalid producer.
+    if (any((raw & 0x7c00) == 0x7c00)) InterlockedOr(invalid, 1);
+    else {
+      float3 rgb = f16tof32(raw.rgb);
+      float maximum = max(rgb.r, max(rgb.g, rgb.b));
+      if (maximum > 0.0) value = asuint(maximum);
+    }
+  }
+  InterlockedMax(peak, value);
+  GroupMemoryBarrierWithGroupSync();
+  if (index == 0) { result.InterlockedMax(0, peak); result.InterlockedOr(4, invalid); }
+}
+)hlsl";
+    ComPtr<ID3DBlob> compiled;
+    ComPtr<ID3DBlob> errors;
+    check(D3DCompile(shader, sizeof(shader) - 1, "backspace-sdr-peak", nullptr, nullptr, "main", "cs_5_0",
+        D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_IEEE_STRICTNESS | D3DCOMPILE_OPTIMIZATION_LEVEL3,
+        0, &compiled, &errors), "Compile HDR peak reduction");
+    ComPtr<ID3D11ComputeShader> peak_shader;
+    check(state_->device->CreateComputeShader(compiled->GetBufferPointer(), compiled->GetBufferSize(), nullptr, &peak_shader), "Create HDR peak reduction");
+    D3D11_BUFFER_DESC dimensions{};
+    dimensions.ByteWidth = 16;
+    dimensions.Usage = D3D11_USAGE_DEFAULT;
+    dimensions.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    check(state_->device->CreateBuffer(&dimensions, nullptr, &state_->peak_dimensions), "Create HDR dimension buffer");
+    D3D11_BUFFER_DESC result{};
+    result.ByteWidth = 8;
+    result.Usage = D3D11_USAGE_DEFAULT;
+    result.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+    result.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
+    check(state_->device->CreateBuffer(&result, nullptr, &state_->peak_result), "Create HDR peak result");
+    D3D11_UNORDERED_ACCESS_VIEW_DESC view{};
+    view.Format = DXGI_FORMAT_R32_TYPELESS;
+    view.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+    view.Buffer.NumElements = 2;
+    view.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_RAW;
+    check(state_->device->CreateUnorderedAccessView(state_->peak_result.Get(), &view, &state_->peak_view), "Create HDR peak view");
+    result.Usage = D3D11_USAGE_STAGING;
+    result.BindFlags = 0;
+    result.MiscFlags = 0;
+    result.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+    check(state_->device->CreateBuffer(&result, nullptr, &state_->peak_readback), "Create HDR peak readback");
+    state_->peak_shader = std::move(peak_shader);
+  }
+  if (!state_->peak_source || !state_->peak_source_view || state_->peak_width != width || state_->peak_height != height) {
+    state_->peak_source_view.Reset();
+    state_->peak_source.Reset();
+    D3D11_TEXTURE2D_DESC description{};
+    description.Width = width; description.Height = height;
+    description.ArraySize = 1; description.MipLevels = 1;
+    description.Format = DXGI_FORMAT_R16G16B16A16_TYPELESS;
+    description.SampleDesc.Count = 1;
+    description.Usage = D3D11_USAGE_DEFAULT;
+    description.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+    check(state_->device->CreateTexture2D(&description, nullptr, &state_->peak_source), "Create raw FP16 peak input");
+    D3D11_SHADER_RESOURCE_VIEW_DESC view{};
+    view.Format = DXGI_FORMAT_R16G16B16A16_UINT;
+    view.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    view.Texture2D.MipLevels = 1;
+    check(state_->device->CreateShaderResourceView(state_->peak_source.Get(), &view, &state_->peak_source_view), "Create raw FP16 peak view");
+    state_->peak_width = width; state_->peak_height = height;
+  }
+  auto& context = state_->immediate;
+  const D3D11_BOX content{0, 0, 0, width, height, 1};
+  context->CopySubresourceRegion(state_->peak_source.Get(), 0, 0, 0, 0, source, 0, &content);
+  const uint32_t dimensions[] = {width, height, 0, 0};
+  const UINT zeros[] = {0, 0, 0, 0};
+  context->UpdateSubresource(state_->peak_dimensions.Get(), 0, nullptr, dimensions, 0, 0);
+  context->ClearUnorderedAccessViewUint(state_->peak_view.Get(), zeros);
+  ID3D11ShaderResourceView* sources[] = {state_->peak_source_view.Get()};
+  ID3D11UnorderedAccessView* results[] = {state_->peak_view.Get()};
+  ID3D11Buffer* constants[] = {state_->peak_dimensions.Get()};
+  context->CSSetShader(state_->peak_shader.Get(), nullptr, 0);
+  context->CSSetShaderResources(0, 1, sources);
+  context->CSSetUnorderedAccessViews(0, 1, results, nullptr);
+  context->CSSetConstantBuffers(0, 1, constants);
+  context->Dispatch((width + 15) / 16, (height + 15) / 16, 1);
+  sources[0] = nullptr; results[0] = nullptr; constants[0] = nullptr;
+  context->CSSetShaderResources(0, 1, sources);
+  context->CSSetUnorderedAccessViews(0, 1, results, nullptr);
+  context->CSSetConstantBuffers(0, 1, constants);
+  context->CSSetShader(nullptr, nullptr, 0);
+  context->CopyResource(state_->peak_readback.Get(), state_->peak_result.Get());
+  wait_for_gpu(state_->device.Get(), context.Get());
+  D3D11_MAPPED_SUBRESOURCE mapped{};
+  check(context->Map(state_->peak_readback.Get(), 0, D3D11_MAP_READ, 0, &mapped), "Read reduced HDR peak");
+  uint32_t values[2];
+  std::memcpy(values, mapped.pData, sizeof(values));
+  context->Unmap(state_->peak_readback.Get(), 0);
+  if (values[1] != 0) throw std::invalid_argument("Non-finite HDR capture samples");
+  return std::bit_cast<float>(values[0]) * 80.0f;
+}
+
+std::shared_ptr<SdrTexture> SdrTextureConverter::convertTexture(ID3D11Texture2D* source,
+    uint32_t content_width, uint32_t content_height, uint32_t output_width,
+    uint32_t output_height, float white_nits, float max_nits) {
+  if (!source || !content_width || !content_height || !output_width || !output_height
+      || content_width > 16384 || content_height > 16384 || output_width > 16384 || output_height > 16384
+      || uint64_t(content_width) * content_height > 33554432 || uint64_t(output_width) * output_height > 33554432
+      || !std::isfinite(white_nits) || !std::isfinite(max_nits) || white_nits <= 0
+      || white_nits > 10000 || max_nits < white_nits || max_nits > 10000) {
+    throw std::invalid_argument("Invalid GPU capture dimensions or luminance metadata");
+  }
+  validate_source(source, state_->device.Get(), content_width, content_height);
+  ComPtr<IDXGISurface> surface;
+  check(source->QueryInterface(IID_PPV_ARGS(&surface)), "Get FP16 capture surface");
+  ComPtr<ID2D1Bitmap1> input;
+  const auto properties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_NONE,
+      D2D1::PixelFormat(DXGI_FORMAT_R16G16B16A16_FLOAT, D2D1_ALPHA_MODE_IGNORE), 96, 96, state_->linear.Get());
+  check(state_->context->CreateBitmapFromDxgiSurface(surface.Get(), &properties, &input), "Import FP16 capture without CPU readback");
+  return render(input.Get(), content_width, content_height, output_width, output_height, white_nits, max_nits);
+}
+
 std::shared_ptr<SdrTexture> SdrTextureConverter::create(const std::vector<float>& pixels,
     uint32_t width, uint32_t height, float white_nits, float max_nits) {
   const uint64_t count = uint64_t(width) * height;
@@ -93,12 +269,18 @@ std::shared_ptr<SdrTexture> SdrTextureConverter::create(const std::vector<float>
     half[i] = DirectX::PackedVector::XMConvertFloatToHalf(pixels[i]);
   }
 
-  auto& context = state_->context;
   ComPtr<ID2D1Bitmap1> input;
   const auto source_properties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_NONE,
       D2D1::PixelFormat(DXGI_FORMAT_R16G16B16A16_FLOAT, D2D1_ALPHA_MODE_IGNORE), 96, 96, state_->linear.Get());
-  check(context->CreateBitmap(D2D1::SizeU(width, height), half.data(), width * 8,
+  check(state_->context->CreateBitmap(D2D1::SizeU(width, height), half.data(), width * 8,
       source_properties, &input), "Create FP16 source");
+  return render(input.Get(), width, height, width, height, white_nits, max_nits);
+}
+
+std::shared_ptr<SdrTexture> SdrTextureConverter::render(ID2D1Bitmap1* input,
+    uint32_t content_width, uint32_t content_height, uint32_t width, uint32_t height,
+    float white_nits, float max_nits) {
+  auto& context = state_->context;
   ComPtr<ID2D1Image> image = input;
   ComPtr<ID2D1Effect> tone;
   if (max_nits > white_nits) {
@@ -143,26 +325,17 @@ std::shared_ptr<SdrTexture> SdrTextureConverter::create(const std::vector<float>
       D2D1::PixelFormat(description.Format, D2D1_ALPHA_MODE_PREMULTIPLIED), 96, 96, state_->srgb.Get());
   check(context->CreateBitmapFromDxgiSurface(surface.Get(), &target_properties, &target), "Create SDR bitmap target");
   context->SetTarget(target.Get());
+  context->SetTransform(D2D1::Matrix3x2F::Scale(float(width) / content_width, float(height) / content_height));
   context->BeginDraw();
   context->Clear(D2D1::ColorF(D2D1::ColorF::Black));
-  context->DrawImage(color.Get(), D2D1::Point2F(0, 0), D2D1_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
+  const auto content = D2D1::RectF(0, 0, float(content_width), float(content_height));
+  context->DrawImage(color.Get(), D2D1::Point2F(0, 0), content, D2D1_INTERPOLATION_MODE_LINEAR);
   const HRESULT draw_result = context->EndDraw();
   context->SetTarget(nullptr);
+  context->SetTransform(D2D1::Matrix3x2F::Identity());
   check(draw_result, "Render SDR conversion");
 
-  D3D11_QUERY_DESC query_description{D3D11_QUERY_EVENT, 0};
-  ComPtr<ID3D11Query> completed;
-  check(state_->device->CreateQuery(&query_description, &completed), "Create GPU completion query");
-  state_->immediate->End(completed.Get());
-  state_->immediate->Flush();
-  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
-  for (;;) {
-    const HRESULT status = state_->immediate->GetData(completed.Get(), nullptr, 0, 0);
-    if (status == S_OK) break;
-    check(status, "Wait for SDR GPU conversion");
-    if (std::chrono::steady_clock::now() >= deadline) throw std::runtime_error("SDR GPU conversion timed out");
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-  }
+  wait_for_gpu(state_->device.Get(), state_->immediate.Get());
   ComPtr<IDXGIResource1> shared;
   check(result->texture.As(&shared), "Get shared SDR resource");
   check(shared->CreateSharedHandle(nullptr, DXGI_SHARED_RESOURCE_READ | DXGI_SHARED_RESOURCE_WRITE,

@@ -30,17 +30,20 @@
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;UNICODE;_UNICODE;NAPI_VERSION=8;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(NodeSdkRoot)\include\node;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
-    <Link><AdditionalDependencies>d3d11.lib;d2d1.lib;dxgi.lib;dxguid.lib;ole32.lib;%(AdditionalDependencies)</AdditionalDependencies></Link>
+    <Link><AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d2d1.lib;dxgi.lib;dxguid.lib;ole32.lib;user32.lib;dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies></Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <Link><AdditionalDependencies>$(NodeSdkRoot)\$(TargetArch)\node.lib;delayimp.lib;%(AdditionalDependencies)</AdditionalDependencies><DelayLoadDLLs>node.exe;%(DelayLoadDLLs)</DelayLoadDLLs></Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="sdr_texture.cpp" />
+    <ClCompile Include="source_color.cpp" />
     <ClCompile Include="sdr_texture_test.cpp"><ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="source_color_test.cpp"><ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild></ClCompile>
     <ClCompile Include="addon.cpp"><ExcludedFromBuild Condition="'$(Configuration)'=='Tests'">true</ExcludedFromBuild></ClCompile>
     <ClCompile Include="delay_load_hook.cpp"><ExcludedFromBuild Condition="'$(Configuration)'=='Tests'">true</ExcludedFromBuild></ClCompile>
     <ClInclude Include="sdr_texture.h" />
+    <ClInclude Include="source_color.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
