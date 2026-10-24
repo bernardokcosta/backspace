@@ -2,16 +2,18 @@
 export const SOUNDBOARD_SAMPLE_RATE = 48_000;
 export const MAX_SOUNDBOARD_BYTES = 20 * 1024 * 1024;
 export const MAX_SOUNDBOARD_SOUNDS = 100;
+/** Product ceiling: no space may allow clips longer than 30 seconds. */
+export const MAX_SOUNDBOARD_SECONDS = 30;
 
 export interface SoundboardSettings {
   enabled: boolean;
   allowMemberUploads: boolean;
-  maxDurationSeconds: number | null;
+  maxDurationSeconds: number;
   maxSounds: number;
 }
 
 export const DEFAULT_SOUNDBOARD_SETTINGS: SoundboardSettings = {
-  enabled: true, allowMemberUploads: true, maxDurationSeconds: 10, maxSounds: 50,
+  enabled: true, allowMemberUploads: true, maxDurationSeconds: MAX_SOUNDBOARD_SECONDS, maxSounds: MAX_SOUNDBOARD_SOUNDS,
 };
 
 export interface SoundboardSound {

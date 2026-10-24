@@ -22,7 +22,7 @@ function SoundboardPanelContent({ origin, spaceId }: { origin: string; spaceId: 
   if (!draft) return <div className="text-txt-tertiary">{loadError ? <><p role="alert">{describeError(loadError)}</p><button onClick={() => void reload()}>{t('common:actions.retry')}</button></> : t('common:states.loading')}</div>;
   const change = (patch: Partial<SoundboardSettings>) => { setDraft({ ...draft, ...patch }); setDirty(true); };
   const valid = Number.isInteger(draft.maxSounds) && draft.maxSounds >= 1 && draft.maxSounds <= 100
-    && (draft.maxDurationSeconds === null || (Number.isFinite(draft.maxDurationSeconds) && draft.maxDurationSeconds >= 0.1 && draft.maxDurationSeconds <= 86400));
+    && Number.isFinite(draft.maxDurationSeconds) && draft.maxDurationSeconds >= 0.1 && draft.maxDurationSeconds <= 30;
   const save = async () => {
     if (saving || !valid) return;
     setSaving(true); setError('');
@@ -35,7 +35,7 @@ function SoundboardPanelContent({ origin, spaceId }: { origin: string; spaceId: 
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3 text-sm text-txt-secondary"><span>{t('voice:soundboard.enabled')}</span><Toggle ariaLabel={t('voice:soundboard.enabled')} enabled={draft.enabled} onChange={enabled => change({ enabled })} disabled={saving} /></div>
       <div className="flex items-center justify-between gap-3 text-sm text-txt-secondary"><span>{t('voice:soundboard.memberUploads')}</span><Toggle ariaLabel={t('voice:soundboard.memberUploads')} enabled={draft.allowMemberUploads} onChange={allowMemberUploads => change({ allowMemberUploads })} disabled={saving} /></div>
-      <div className="text-sm text-txt-secondary"><label htmlFor="soundboard-duration">{t('voice:soundboard.maxDuration')}</label><div className="flex items-center gap-3 mt-2"><input id="soundboard-duration" type="number" min={0.1} max={86400} step="0.1" disabled={saving || draft.maxDurationSeconds === null} value={draft.maxDurationSeconds ?? ''} onChange={e => change({ maxDurationSeconds: Number(e.target.value) })} className="input-standard w-28" /><label className="flex gap-2 items-center"><input type="checkbox" checked={draft.maxDurationSeconds === null} disabled={saving} onChange={e => change({ maxDurationSeconds: e.target.checked ? null : 10 })} className="accent-accent-primary" />{t('voice:soundboard.unlimited')}</label></div></div>
+      <div className="text-sm text-txt-secondary"><label htmlFor="soundboard-duration">{t('voice:soundboard.maxDuration')}</label><div className="flex items-center gap-3 mt-2"><input id="soundboard-duration" type="number" min={0.1} max={30} step="0.1" disabled={saving} value={Number.isFinite(draft.maxDurationSeconds) ? draft.maxDurationSeconds : ''} onChange={e => change({ maxDurationSeconds: Number(e.target.value) })} className="input-standard w-28" /><span className="text-txt-tertiary">{t('voice:soundboard.maxDurationHint')}</span></div></div>
       <label className="block text-sm text-txt-secondary">{t('voice:soundboard.maxSounds')}<input type="number" min={1} max={100} step={1} value={draft.maxSounds} disabled={saving} onChange={e => change({ maxSounds: Number(e.target.value) })} className="input-standard w-28 block mt-2" /></label>
       <p className="text-xs text-txt-tertiary">{t('voice:soundboard.policyHint')}</p>
       {error && <p role="alert" className="text-sm text-accent-rose">{error}</p>}

@@ -64,7 +64,7 @@ export function SoundboardController() {
         const binding = prefs.shortcuts[`${key}:${s.id}`];
         return binding !== undefined && sameShortcut(binding, shortcut);
       });
-      if (!sound || (document.settings.maxDurationSeconds !== null && sound.durationSeconds > document.settings.maxDurationSeconds)) return;
+      if (!sound || sound.durationSeconds > document.settings.maxDurationSeconds) return;
       event.preventDefault();
       void getApiForOrigin(targetOrigin).soundboard.play(space, sound.id, channel).catch(cause => useUIStore.getState().addToast(describeError(cause), 'warning'));
     };

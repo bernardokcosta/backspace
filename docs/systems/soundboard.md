@@ -8,10 +8,14 @@ relay is needed: space voice users already connect directly to their host.
 
 Migration `0032_soundboard` creates `soundboard_settings` (one row per space;
 absent rows read the shared defaults) and `soundboard_sounds` (indexed by space).
-Settings: enabled, member uploads, duration cap in seconds (`null` = unlimited),
-and collection capacity. Defaults: enabled, members may upload, 10 seconds,
-50 sounds. Capacity is configurable from 1 to 100. Space deletion cascades both
-tables; hard account deletion cascades its clips.
+Settings: enabled, member uploads, duration cap in seconds, and collection
+capacity. Defaults: enabled, members may upload, 30 seconds, 100 sounds.
+Capacity is configurable from 1 to 100; the duration cap accepts 0.1–30 seconds
+with no unlimited option (product ceiling `MAX_SOUNDBOARD_SECONDS`). Migration
+`0042` tightened the column defaults and backfilled legacy null caps to 30;
+older rows above the ceiling keep their values but are clamped to 30 on read,
+and clips above the current cap keep their rows while playback refuses them.
+Space deletion cascades both tables; hard account deletion cascades its clips.
 
 The browser decodes a picked audio file locally, shows a waveform, and allows
 numeric/range start and end selection with a private preview. Confirmation
@@ -49,7 +53,7 @@ including instance administrators. Paths under `/api/spaces/:spaceId/soundboard`
 Non-managers upload only with ATTACH_FILES at space scope and member uploads
 enabled. Disabled panels refuse uploads and playback, but retain their catalog
 and allow management/deletion. Per-account uploads: 10 per minute. Capacity is
-checked at insertion. Settings accept 0.1–86400 seconds or null; lowering a cap
+checked at insertion. Settings accept 0.1–30 seconds; lowering a cap
 retains existing clips but disables playback above it. Settings changes do not
 truncate or stop an already-running clip.
 

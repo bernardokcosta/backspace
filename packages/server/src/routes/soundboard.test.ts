@@ -89,10 +89,12 @@ describe('soundboard routes and validated media', () => {
     expect((await app.inject({ method: 'POST', url: root, headers: headers(), payload: { name: ' ', emoji: 'x', audio: wav().toString('base64') } })).statusCode).toBe(400);
     expect(db.select().from(schema.soundboardSounds).all()).toHaveLength(0);
   });
-  it('enforces duration, supports null, and does not delete clips when the cap drops', async () => {
+  it('enforces duration, rejects above-ceiling caps, and does not delete clips when the cap drops', async () => {
     expect((await policy({ maxDurationSeconds: 0.5 })).statusCode).toBe(200);
     expect((await upload()).json().code).toBe('soundboard_duration_limit');
-    expect((await policy({ maxDurationSeconds: null })).statusCode).toBe(200);
+    expect((await policy({ maxDurationSeconds: null })).statusCode).toBe(400);
+    expect((await policy({ maxDurationSeconds: 30 })).statusCode).toBe(200);
+    expect((await policy({ maxDurationSeconds: 31 })).statusCode).toBe(400);
     const sound = (await upload()).json();
     await policy({ maxDurationSeconds: 0.5 });
     expect((await play(sound.id)).json().code).toBe('soundboard_duration_limit');

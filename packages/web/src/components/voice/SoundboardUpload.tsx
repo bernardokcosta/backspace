@@ -7,12 +7,14 @@ import { getApiForOrigin } from '../../utils/crossStoreResolvers';
 import { describeError } from '../../i18n/errors';
 import { useFormatters } from '../../i18n/formatters';
 
+const MIN_SELECTION = 0.1;
+
 export function SoundboardUpload({ origin, spaceId, maxDuration, onDone, onCancel }: {
-  origin: string; spaceId: string; maxDuration: number | null; onDone: () => void; onCancel: () => void;
+  origin: string; spaceId: string; maxDuration: number; onDone: () => void; onCancel: () => void;
 }) {
   const { t } = useTranslation(['voice', 'common']);
   const selectionId = useId();
-  const { formatNumber, formatBytes } = useFormatters();
+  const { formatNumber, formatBytes, formatDuration } = useFormatters();
   const [buffer, setBuffer] = useState<AudioBuffer | null>(null);
   const [name, setName] = useState(''); const [emoji, setEmoji] = useState('🔊');
   const [start, setStart] = useState(0); const [end, setEnd] = useState(0);
@@ -20,6 +22,8 @@ export function SoundboardUpload({ origin, spaceId, maxDuration, onDone, onCance
   const [previewing, setPreviewing] = useState(false);
   const source = useRef<AudioBufferSourceNode | null>(null);
   const generation = useRef(0);
+  // Drag-to-select anchor in seconds; null when not dragging.
+  const dragAnchor = useRef<number | null>(null);
   const stop = () => { try { source.current?.stop(); } catch { /* Already ended. */ } source.current?.disconnect(); source.current = null; setPreviewing(false); };
   useEffect(() => () => { generation.current++; try { source.current?.stop(); } catch { /* Already ended. */ } source.current?.disconnect(); }, []);
   const peaks = useMemo(() => {
@@ -35,7 +39,8 @@ export function SoundboardUpload({ origin, spaceId, maxDuration, onDone, onCance
   }, [buffer]);
   const samples = buffer ? soundboardSelectionSamples(buffer.duration, start, end) : null;
   const duration = samples === null ? end - start : samples / SOUNDBOARD_SAMPLE_RATE;
-  const valid = samples !== null && (maxDuration === null || duration <= maxDuration)
+  const overCap = samples !== null && duration > maxDuration;
+  const valid = samples !== null && !overCap
     && samples * 2 + 44 <= MAX_SOUNDBOARD_BYTES;
 
   const pick = async (file?: File) => {
@@ -48,7 +53,7 @@ export function SoundboardUpload({ origin, spaceId, maxDuration, onDone, onCance
       if (run !== generation.current) return;
       if (!Number.isFinite(decoded.duration) || decoded.duration < 0.1 || decoded.length * decoded.numberOfChannels > 50_000_000) throw new Error('Audio too large');
       setBuffer(decoded); setName(file.name.replace(/\.[^.]+$/, '').slice(0, 48)); setStart(0);
-      setEnd(Math.min(decoded.duration, maxDuration ?? (MAX_SOUNDBOARD_BYTES - 44) / 96000));
+      setEnd(Math.min(decoded.duration, maxDuration));
     } catch { if (run === generation.current) setError(t('voice:soundboard.decodeFailed')); }
     finally { if (run === generation.current) setBusy(false); }
   };
@@ -75,6 +80,38 @@ export function SoundboardUpload({ origin, spaceId, maxDuration, onDone, onCance
     } catch (cause) { setError(describeError(cause)); }
     finally { setBusy(false); }
   };
+  const resetSelection = () => {
+    if (!buffer || busy) return;
+    stop(); setStart(0); setEnd(Math.min(buffer.duration, maxDuration));
+  };
+  const isFullSelection = buffer !== null && start <= 0 && end >= Math.min(buffer.duration, maxDuration);
+  const timeAt = (clientX: number, el: HTMLDivElement): number => {
+    if (!buffer) return 0;
+    const rect = el.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / Math.max(1, rect.width)));
+    return ratio * buffer.duration;
+  };
+  const applyDrag = (anchor: number, t: number) => {
+    if (!buffer) return;
+    const total = buffer.duration;
+    const s = Math.min(Math.max(0, Math.min(anchor, t)), total);
+    const e = Math.min(Math.max(0, Math.max(anchor, t)), total);
+    if (e - s < MIN_SELECTION) return;
+    stop();
+    setStart(s);
+    setEnd(e);
+  };
+  const onWavePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!buffer || busy) return;
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    stop();
+    dragAnchor.current = timeAt(e.clientX, e.currentTarget);
+  };
+  const onWavePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!buffer || busy || dragAnchor.current === null) return;
+    applyDrag(dragAnchor.current, timeAt(e.clientX, e.currentTarget));
+  };
+  const onWavePointerUp = () => { dragAnchor.current = null; };
   return <section className="rounded-xl bg-surface-channel p-4 space-y-4">
     <h3 className="font-semibold text-txt-primary">{t('voice:soundboard.add')}</h3>
     <label className="block text-sm text-txt-secondary">{t('voice:soundboard.chooseFile')}
@@ -86,10 +123,20 @@ export function SoundboardUpload({ origin, spaceId, maxDuration, onDone, onCance
         <label className="text-sm text-txt-secondary w-20">{t('voice:soundboard.emoji')}<input value={emoji} onChange={e => setEmoji(e.target.value)} maxLength={16} disabled={busy} className="input-standard w-full mt-1 text-center" /></label>
         <label className="text-sm text-txt-secondary flex-1 min-w-0">{t('voice:soundboard.name')}<input value={name} onChange={e => setName(e.target.value)} maxLength={48} disabled={busy} className="input-standard w-full mt-1" /></label>
       </div>
-      <div className="h-20 flex items-center gap-0.5 rounded-lg bg-surface-input px-2 overflow-hidden" aria-hidden="true">
-        {peaks.map((peak, i) => <div key={i} className={`flex-1 rounded-full ${i / 80 * buffer.duration >= start && i / 80 * buffer.duration <= end ? 'bg-accent-primary' : 'bg-white/10'}`} style={{ height: `${Math.max(4, peak * 100)}%` }} />)}
+      <div
+        className="h-20 flex items-center gap-0.5 rounded-lg bg-surface-input px-2 overflow-hidden cursor-ew-resize touch-none select-none"
+        role="group" aria-label={t('voice:soundboard.dragHint')}
+        title={t('voice:soundboard.dragHint')}
+        onPointerDown={onWavePointerDown} onPointerMove={onWavePointerMove} onPointerUp={onWavePointerUp} onPointerCancel={onWavePointerUp}
+      >
+        {peaks.map((peak, i) => <div key={i} className={`flex-1 rounded-full pointer-events-none ${i / 80 * buffer.duration >= start && i / 80 * buffer.duration <= end ? 'bg-accent-primary' : 'bg-white/10'}`} style={{ height: `${Math.max(4, peak * 100)}%` }} />)}
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="flex items-center justify-between text-xs text-txt-tertiary">
+        <span>{formatDuration(start)}</span>
+        <span>{t('voice:soundboard.dragHint')}</span>
+        <span>{formatDuration(buffer.duration)}</span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="text-sm text-txt-secondary"><label htmlFor={`${selectionId}-start`}>{t('voice:soundboard.start')}</label><input id={`${selectionId}-start`} type="number" step="0.01" min={0} max={end - 0.1} value={start} disabled={busy} onChange={e => { stop(); setStart(Number(e.target.value)); }} className="input-standard w-full mt-1" />
           <input type="range" min={0} max={buffer.duration} step="0.01" value={start} disabled={busy} onChange={e => { stop(); setStart(Math.min(Number(e.target.value), end - 0.1)); }} aria-label={t('voice:soundboard.start')} className="w-full mt-2 accent-accent-primary" />
         </div>
@@ -97,7 +144,9 @@ export function SoundboardUpload({ origin, spaceId, maxDuration, onDone, onCance
           <input type="range" min={0} max={buffer.duration} step="0.01" value={end} disabled={busy} onChange={e => { stop(); setEnd(Math.max(Number(e.target.value), start + 0.1)); }} aria-label={t('voice:soundboard.end')} className="w-full mt-2 accent-accent-primary" />
         </div>
       </div>
-      <p className={`text-sm ${valid ? 'text-txt-tertiary' : 'text-accent-rose'}`}>{t('voice:soundboard.selection', { duration: formatNumber(Math.round(duration * 100) / 100) })}{maxDuration !== null && ` · ${t('voice:soundboard.limit', { max: formatNumber(maxDuration) })}`}</p>
+      <p className={`text-sm ${valid ? 'text-txt-tertiary' : 'text-accent-rose'}`}>{t('voice:soundboard.selection', { duration: formatNumber(Math.round(duration * 100) / 100) })}{` · ${t('voice:soundboard.limit', { max: formatNumber(maxDuration) })}`}{overCap ? ` · ${t('voice:soundboard.overLimit')}` : ''}{!isFullSelection && !busy && (
+        <button type="button" onClick={resetSelection} className="ml-2 underline underline-offset-2 hover:text-txt-secondary">{t('voice:soundboard.resetSelection')}</button>
+      )}</p>
     </>}
     {error && <p role="alert" className="text-sm text-accent-rose">{error}</p>}
     <div className="flex flex-wrap justify-end gap-2">

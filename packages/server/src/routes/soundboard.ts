@@ -3,7 +3,7 @@ import { and, count, desc, eq } from 'drizzle-orm';
 import { mkdirSync, writeFileSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 import { PermissionBits } from '@backspace/shared/src/permissions.js';
-import { DEFAULT_SOUNDBOARD_SETTINGS, MAX_SOUNDBOARD_BYTES, MAX_SOUNDBOARD_SOUNDS, soundboardWavDuration, type SoundboardSettings } from '@backspace/shared/src/soundboard.js';
+import { DEFAULT_SOUNDBOARD_SETTINGS, MAX_SOUNDBOARD_BYTES, MAX_SOUNDBOARD_SECONDS, MAX_SOUNDBOARD_SOUNDS, soundboardWavDuration, type SoundboardSettings } from '@backspace/shared/src/soundboard.js';
 import { getDb, schema } from '../db/index.js';
 import { config } from '../config.js';
 import { authenticate } from '../utils/auth.js';
@@ -19,8 +19,11 @@ export function _resetSoundboardLimits(): void { uploads.reset(); plays.reset();
 type Params = { spaceId: string; soundId: string };
 
 function settingsFor(spaceId: string): SoundboardSettings {
-  return getDb().select().from(schema.soundboardSettings).where(eq(schema.soundboardSettings.spaceId, spaceId)).get()
+  const row = getDb().select().from(schema.soundboardSettings).where(eq(schema.soundboardSettings.spaceId, spaceId)).get()
     ?? { ...DEFAULT_SOUNDBOARD_SETTINGS };
+  // Clamp legacy rows (pre-ceiling nulls or above-30 caps) to the product
+  // ceiling instead of refusing to serve the space.
+  return { ...row, maxDurationSeconds: Math.min(row.maxDurationSeconds ?? MAX_SOUNDBOARD_SECONDS, MAX_SOUNDBOARD_SECONDS) };
 }
 
 function memberGate(userId: string, spaceId: string, reply: FastifyReply): boolean {
@@ -43,7 +46,7 @@ export async function soundboardRoutes(app: FastifyInstance): Promise<void> {
     schema: { body: { type: 'object', additionalProperties: false,
       required: ['enabled', 'allowMemberUploads', 'maxDurationSeconds', 'maxSounds'], properties: {
         enabled: { type: 'boolean' }, allowMemberUploads: { type: 'boolean' },
-        maxDurationSeconds: { type: ['number', 'null'], minimum: 0.1, maximum: 86400 },
+        maxDurationSeconds: { type: 'number', minimum: 0.1, maximum: MAX_SOUNDBOARD_SECONDS },
         maxSounds: { type: 'integer', minimum: 1, maximum: MAX_SOUNDBOARD_SOUNDS },
       } } },
   }, async (request, reply) => {
@@ -82,7 +85,7 @@ export async function soundboardRoutes(app: FastifyInstance): Promise<void> {
     if (bytes.length > sizeLimit || bytes.toString('base64') !== audio || durationSeconds === null || durationSeconds < 0.1) {
       return sendError(reply, 400, 'soundboard_invalid_audio');
     }
-    if (settings.maxDurationSeconds !== null && durationSeconds > settings.maxDurationSeconds + 1 / 48000) {
+    if (durationSeconds > settings.maxDurationSeconds + 1 / 48000) {
       return sendError(reply, 400, 'soundboard_duration_limit', { max: settings.maxDurationSeconds });
     }
     const total = getDb().select({ total: count() }).from(schema.soundboardSounds).where(eq(schema.soundboardSounds.spaceId, spaceId)).get()!.total;
@@ -140,7 +143,7 @@ export async function soundboardRoutes(app: FastifyInstance): Promise<void> {
     if (!settings.enabled) return sendError(reply, 403, 'soundboard_disabled');
     const sound = getDb().select().from(schema.soundboardSounds).where(and(eq(schema.soundboardSounds.id, soundId), eq(schema.soundboardSounds.spaceId, spaceId))).get();
     if (!sound) return sendError(reply, 404, 'soundboard_not_found');
-    if (settings.maxDurationSeconds !== null && sound.durationSeconds > settings.maxDurationSeconds) return sendError(reply, 400, 'soundboard_duration_limit', { max: settings.maxDurationSeconds });
+    if (sound.durationSeconds > settings.maxDurationSeconds) return sendError(reply, 400, 'soundboard_duration_limit', { max: settings.maxDurationSeconds });
     if (!plays.consume(`user:${request.userId}`)) return sendError(reply, 429, 'rate_limited');
     if (!plays.consume(`room:${channelId}`)) return sendError(reply, 429, 'rate_limited');
     const payload = JSON.stringify({ type: 'soundboard_play', channelId, spaceId, sound });

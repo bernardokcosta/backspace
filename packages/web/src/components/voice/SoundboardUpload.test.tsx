@@ -46,3 +46,56 @@ describe('soundboard crop boundary UX', () => {
     expect(soundboardWavDuration(bytes)).toBe(duration);
   });
 });
+
+describe('soundboard drag selection and limits UX', () => {
+  const pickFile = async (maxDuration = 30) => {
+    render(<SoundboardUpload origin="https://remote.test" spaceId="space" maxDuration={maxDuration} onDone={vi.fn()} onCancel={vi.fn()} />);
+    const file = new File(['source'], 'Victory.wav', { type: 'audio/wav' });
+    Object.defineProperty(file, 'arrayBuffer', { value: async () => new ArrayBuffer(0) });
+    fireEvent.change(screen.getByLabelText('Choose audio'), { target: { files: [file] } });
+    await screen.findByRole('spinbutton', { name: 'Start (seconds)' });
+  };
+
+  const waveAt = () => {
+    const wave = screen.getByRole('group', { name: 'Drag across the waveform to select' });
+    wave.getBoundingClientRect = () => ({ left: 0, width: 200, top: 0, height: 80, right: 200, bottom: 80, x: 0, y: 0, toJSON: () => ({}) });
+    return wave;
+  };
+
+  it('drags on the waveform to set the selection', async () => {
+    await pickFile();
+    const wave = waveAt();
+    fireEvent.pointerDown(wave, { clientX: 20, pointerId: 1 });
+    fireEvent.pointerMove(wave, { clientX: 100, pointerId: 1 });
+    fireEvent.pointerUp(wave, { pointerId: 1 });
+    // 20s fixture over 200px: 20px -> 2s, 100px -> 10s
+    expect(screen.getByRole('spinbutton', { name: 'Start (seconds)' })).toHaveValue(2);
+    expect(screen.getByRole('spinbutton', { name: 'End (seconds)' })).toHaveValue(10);
+  });
+
+  it('offers reset back to the full selection once narrowed', async () => {
+    await pickFile();
+    expect(screen.queryByRole('button', { name: 'Use full audio' })).not.toBeInTheDocument();
+    const wave = waveAt();
+    fireEvent.pointerDown(wave, { clientX: 20, pointerId: 1 });
+    fireEvent.pointerMove(wave, { clientX: 100, pointerId: 1 });
+    fireEvent.pointerUp(wave, { pointerId: 1 });
+    fireEvent.click(screen.getByRole('button', { name: 'Use full audio' }));
+    expect(screen.getByRole('spinbutton', { name: 'Start (seconds)' })).toHaveValue(0);
+    expect(screen.getByRole('spinbutton', { name: 'End (seconds)' })).toHaveValue(20);
+  });
+
+  it('names the over-limit state and blocks adding', async () => {
+    await pickFile(5);
+    // Pick clamps to the 5s cap; widening past it names the violation.
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'End (seconds)' }), { target: { value: '15' } });
+    expect(screen.getByText(/Exceeds the current duration limit/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add sound' })).toBeDisabled();
+  });
+
+  it('labels the selection bounds against the total', async () => {
+    await pickFile();
+    expect(screen.getByText('00:00')).toBeInTheDocument();
+    expect(screen.getByText('00:20')).toBeInTheDocument();
+  });
+});

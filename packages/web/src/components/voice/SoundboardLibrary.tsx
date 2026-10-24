@@ -63,12 +63,12 @@ export function SoundboardLibrary({ origin, spaceId, channelId }: { origin: stri
       <input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder={t('voice:soundboard.search')} aria-label={t('voice:soundboard.search')} className="input-search flex-1 min-w-0" />
       {canUpload && <button disabled={sounds.length >= settings.maxSounds || adding} onClick={() => setAdding(true)} className="bg-accent-primary/15 text-accent-primary px-3 py-2 rounded-lg text-sm disabled:opacity-40">{t('voice:soundboard.add')}</button>}
     </div>
-    <div className="flex justify-between gap-3 text-xs text-txt-tertiary"><span>{formatNumber(sounds.length)} / {formatNumber(settings.maxSounds)}</span><span>{settings.maxDurationSeconds === null ? t('voice:soundboard.unlimited') : t('voice:soundboard.limit', { max: formatNumber(settings.maxDurationSeconds) })}</span></div>
+    <div className="flex justify-between gap-3 text-xs text-txt-tertiary"><span>{formatNumber(sounds.length)} / {formatNumber(settings.maxSounds)}</span><span>{t('voice:soundboard.limit', { max: formatNumber(settings.maxDurationSeconds) })}</span></div>
     {adding && <SoundboardUpload origin={origin} spaceId={spaceId} maxDuration={settings.maxDurationSeconds} onCancel={() => setAdding(false)} onDone={() => { setAdding(false); void reload(); }} />}
     {error && <p role="alert" className="text-sm text-accent-rose">{error}</p>}
     <div className="grid grid-cols-2 desktop:grid-cols-3 gap-3" aria-busy={loading}>
       {filtered.map(sound => {
-        const overLimit = settings.maxDurationSeconds !== null && sound.durationSeconds > settings.maxDurationSeconds;
+        const overLimit = sound.durationSeconds > settings.maxDurationSeconds;
         const binding = shortcuts[prefix + sound.id];
         return <div key={sound.id} className="rounded-xl bg-surface-channel p-3 min-w-0 space-y-2">
           <button disabled={!channelId || !canPlay || !settings.enabled || overLimit || !!pending} onClick={() => void play(sound.id)}

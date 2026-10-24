@@ -105,8 +105,8 @@ export const soundboardSettings = sqliteTable('soundboard_settings', {
   spaceId: text('space_id').primaryKey().references(() => spaces.id, { onDelete: 'cascade' }),
   enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true),
   allowMemberUploads: integer('allow_member_uploads', { mode: 'boolean' }).notNull().default(true),
-  maxDurationSeconds: real('max_duration_seconds').default(10),
-  maxSounds: integer('max_sounds').notNull().default(50),
+  maxDurationSeconds: real('max_duration_seconds').notNull().default(30),
+  maxSounds: integer('max_sounds').notNull().default(100),
 });
 
 export const soundboardSounds = sqliteTable('soundboard_sounds', {
