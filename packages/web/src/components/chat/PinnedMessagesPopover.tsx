@@ -108,7 +108,7 @@ export function PinnedMessagesPopover({ open, onClose, anchorRef, channelId, can
 
   if (!open) return null;
   return createPortal(
-    <div ref={floatingRef} style={style} role="dialog" aria-label={t('chat:pins.title')} className="glass z-50 w-[380px] max-w-[90vw] max-h-[60vh] overflow-y-auto rounded-xl py-1.5">
+    <div ref={floatingRef} style={style} role="dialog" aria-label={t('chat:pins.title')} className="glass z-50 w-[380px] max-w-full max-h-[500px] overflow-y-auto rounded-xl py-1.5">
       <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-txt-tertiary">
         {t('chat:pins.title')} · {pins.length}
       </div>
