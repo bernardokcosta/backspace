@@ -15,8 +15,9 @@ const profile = path.join(evidence, 'profile');
 fs.mkdirSync(profile, { recursive: true });
 app.setPath('userData', profile);
 stage('isolated profile configured');
-const native = require(process.env.BACKSPACE_SDR_NATIVE);
-stage('native module loaded');
+const mode = process.env.BACKSPACE_SDR_SMOKE_MODE;
+const native = mode === 'baseline' ? null : require(process.env.BACKSPACE_SDR_NATIVE);
+stage(native ? 'native module loaded' : 'Electron baseline without native module');
 const sessionId = '8dfd1bcd-7b0d-4a1c-9031-40d830256b67';
 let window;
 let server;
@@ -31,7 +32,9 @@ function finish(result) {
   if (window && !window.isDestroyed()) window.destroy();
   server?.close();
   fs.writeFileSync(path.join(evidence, 'result.json'), JSON.stringify(result, null, 2));
-  app.exit(result.status === 'passed' ? 0 : 1);
+  // Quit through Electron's lifecycle instead of terminating from inside its
+  // ready/IPC callback while native and browser initialization is unwinding.
+  setImmediate(() => app.quit());
 }
 
 const transport = createSdrCaptureTransport({
@@ -99,7 +102,11 @@ ipcMain.handle('sdr-smoke-report', async (event, result) => {
 
 app.whenReady().then(async () => {
   stage('app ready');
-  if (process.env.BACKSPACE_SDR_SMOKE_MODE === 'module') {
+  if (mode === 'baseline') {
+    finish({ status: 'passed', mode: 'electron-baseline', nativeLoaded: false, arch: process.arch, electron: process.versions.electron, gpuTransport: 'not-tested' });
+    return;
+  }
+  if (mode === 'module') {
     assert.equal(native.retainedFrameCount(), 0);
     assert.throws(() => native.createTestFrame(new Float32Array(4), 0, 1, 80, 80), /dimensions/);
     native.releaseFrame('already-released');
@@ -137,3 +144,6 @@ app.whenReady().then(async () => {
 }).catch((error) => finish({ status: 'failed', error: error.message }));
 
 app.on('window-all-closed', () => {});
+app.on('before-quit', () => stage('before-quit'));
+app.on('will-quit', () => stage('will-quit'));
+process.on('exit', (code) => stage(`Node exit ${code}`));
