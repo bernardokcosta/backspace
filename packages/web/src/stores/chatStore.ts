@@ -3,7 +3,7 @@ import type { MessageWithUser, PinWithMessage, Reaction, ReadState, User } from 
 import { wsSend } from '../hooks/useWebSocket';
 import { HttpError } from '../api/client';
 import { isDmChannel, getChannelOrigin, getApiForOrigin, useSpaceStore } from './spaceStore';
-import { isMe, myRowForOrigin } from './authStore';
+import { isMe, myRowForOrigin, useAuthStore } from './authStore';
 import { normalizeMessageAssets } from '../utils/assetUrls';
 import { updateIsAboutRowId, withUserUpdate, type IdentityFields } from '../utils/identity';
 import { usePendingMessageStore } from './pendingMessageStore';
@@ -557,6 +557,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
     currentChannelId: null,
     replyTargets: new Map(),
     editingMessageId: null,
+    // Pin previews carry other accounts' message bodies: never let them
+    // survive a session change (logout/login), where the next account may
+    // not even hold READ_MESSAGE_HISTORY for the channel.
+    pinnedByChannel: new Map(),
   }),
 
   loadMessages: async (channelId: string, force?: boolean) => {
@@ -876,8 +880,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
     if (isDmChannel(channelId)) return;
     const origin = getChannelOrigin(channelId);
     const client = getApiForOrigin(origin);
+    // A logout/login while the GET is in flight must not repopulate the
+    // board the session change just cleared (clearAllMessages above).
+    const sessionUid = useAuthStore.getState().user?.id ?? null;
     try {
       const { pins } = await client.channels.pins(channelId);
+      if (useAuthStore.getState().user?.id !== sessionUid) return;
       set((state) => {
         const next = new Map(state.pinnedByChannel);
         next.set(channelId, pins);
@@ -1034,13 +1042,27 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set((state) => {
       const detachedChannels = mapHeldMessage(state.detachedChannels, normalizedMessage.id, () => normalizedMessage);
       const current = state.messages.get(channelKey);
-      if (!current) return detachedChannels === state.detachedChannels ? state : { detachedChannels };
+      // The pin board hydrates its own copies: an edit applies there even
+      // when the timeline no longer holds the message.
+      let pinnedByChannel = state.pinnedByChannel;
+      const pins = pinnedByChannel.get(channelKey);
+      if (pins?.some((p) => p.messageId === normalizedMessage.id && p.message !== null)) {
+        const next = new Map(pinnedByChannel);
+        next.set(channelKey, pins.map((p) => (p.messageId === normalizedMessage.id && p.message !== null
+          ? { ...p, message: normalizedMessage }
+          : p)));
+        pinnedByChannel = next;
+      }
+      if (!current) {
+        if (detachedChannels === state.detachedChannels && pinnedByChannel === state.pinnedByChannel) return state;
+        return { detachedChannels, pinnedByChannel };
+      }
       const newMessages = new Map(state.messages);
       newMessages.set(
         channelKey,
         current.map(m => m.id === normalizedMessage.id ? normalizedMessage : m),
       );
-      return { messages: newMessages, detachedChannels };
+      return { messages: newMessages, detachedChannels, pinnedByChannel };
     });
   },
 
@@ -1051,11 +1073,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const replyTargets = state.replyTargets.get(channelId)?.id === messageId
         ? withReplyTarget(state.replyTargets, channelId, null)
         : state.replyTargets;
+      // The server cascades the pin row but broadcasts only message_deleted:
+      // drop the board entry here so no deleted body, count or jump lingers.
+      let pinnedByChannel = state.pinnedByChannel;
+      const pins = pinnedByChannel.get(channelId);
+      if (pins?.some((p) => p.messageId === messageId)) {
+        const next = new Map(pinnedByChannel);
+        next.set(channelId, pins.filter((p) => p.messageId !== messageId));
+        pinnedByChannel = next;
+      }
       const current = state.messages.get(channelId);
       if (!current) {
-        return detachedChannels === state.detachedChannels && replyTargets === state.replyTargets
+        return detachedChannels === state.detachedChannels && replyTargets === state.replyTargets && pinnedByChannel === state.pinnedByChannel
           ? state
-          : { detachedChannels, replyTargets };
+          : { detachedChannels, replyTargets, pinnedByChannel };
       }
       const newMessages = new Map(state.messages);
       newMessages.set(channelId, current.filter(m => m.id !== messageId));
@@ -1064,6 +1095,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         detachedChannels,
         replyTargets,
         editingMessageId: state.editingMessageId === messageId ? null : state.editingMessageId,
+        pinnedByChannel,
       };
     });
   },

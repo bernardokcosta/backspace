@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { Space, Channel, ChannelCategory, MemberWithUser, SpaceWithChannelsAndMembers, Role, SpaceFolder, SpaceLayoutItem, DmChannel, DmMessageWithUser, User, UpdateSpaceRequest, CreateSpaceRequest, UpdateChannelRequest } from '@backspace/shared';
+import { DEFAULT_AFK_TIMEOUT_SECONDS } from '@backspace/shared/src/constants';
 import { api, BackspaceApiClient, HttpError } from '../api/client';
 import { JoinRequestRequiredError } from '../utils/joinErrors';
 import { resolveAssetUrl, normalizeUserAssets } from '../utils/assetUrls';
@@ -1234,6 +1235,8 @@ export const useSpaceStore = create<SpaceState>((set, get) => ({
       visibility: s.visibility ?? 'private' as const,
       directoryListed: s.directoryListed ?? false,
       description: s.description ?? null,
+      afkChannelId: s.afkChannelId ?? null,
+      afkTimeoutSeconds: typeof s.afkTimeoutSeconds === 'number' ? s.afkTimeoutSeconds : DEFAULT_AFK_TIMEOUT_SECONDS,
       createdAt: s.createdAt,
       _instanceOrigin: origin,
       // Cache our membership for every space, not only the currently open roster.

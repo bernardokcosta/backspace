@@ -4,9 +4,14 @@ import { createPortal } from 'react-dom';
 import { useFloatingPosition } from '../../hooks/useFloatingPosition';
 import { useChatStore } from '../../stores/chatStore';
 import { useAuthStore } from '../../stores/authStore';
+import { getChannelOrigin } from '../../stores/spaceStore';
 import { Avatar } from '../ui/Avatar';
 import { formatters } from '../../i18n/formatters';
 import type { PinWithMessage } from '@backspace/shared';
+
+/** Shared empty board: a `?? []` inside the selector below returns a new array
+ * on every store change and re-renders (then loops) forever. */
+const EMPTY_PINS: PinWithMessage[] = [];
 
 interface PinnedMessagesPopoverProps {
   open: boolean;
@@ -67,10 +72,15 @@ function PinRow({ pin, canUnpin, onJump, onUnpin }: {
 export function PinnedMessagesPopover({ open, onClose, anchorRef, channelId, canManageMessages, onJumpToMessage }: PinnedMessagesPopoverProps) {
   const { t } = useTranslation(['chat']);
   const floatingRef = useRef<HTMLDivElement>(null);
-  const pins = useChatStore((s) => s.pinnedByChannel.get(channelId) ?? []);
+  const pins = useChatStore((s) => s.pinnedByChannel.get(channelId)) ?? EMPTY_PINS;
   const loadPins = useChatStore((s) => s.loadPins);
   const unpinMessage = useChatStore((s) => s.unpinMessage);
-  const myId = useAuthStore((s) => s.user?.id);
+  // `pinnedById` is the channel's instance row id: compare with the user's
+  // row on that origin, not the local session id (they differ over federation).
+  const origin = getChannelOrigin(channelId);
+  const homeId = useAuthStore((s) => s.user?.id);
+  const rowIds = useAuthStore((s) => s.myRowIds);
+  const myId = origin ? (rowIds.get(origin) ?? homeId) : homeId;
 
   const { style } = useFloatingPosition(anchorRef, floatingRef, { placement: 'bottom', offset: 8, enabled: open });
 
