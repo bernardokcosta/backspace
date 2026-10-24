@@ -1,0 +1,67 @@
+name: Native SDR foundation
+
+on:
+  push:
+    paths:
+      - '.github/workflows/native-sdr-capture.yml'
+      - 'packages/desktop/native/sdr-capture/**'
+      - 'packages/desktop/scripts/*sdr-capture*'
+      - 'packages/desktop/src/sdrCapture*'
+      - 'packages/desktop/test/sdr-capture/**'
+      - 'packages/desktop/package.json'
+      - 'pnpm-lock.yaml'
+  pull_request:
+    paths:
+      - '.github/workflows/native-sdr-capture.yml'
+      - 'packages/desktop/native/sdr-capture/**'
+      - 'packages/desktop/scripts/*sdr-capture*'
+      - 'packages/desktop/src/sdrCapture*'
+      - 'packages/desktop/test/sdr-capture/**'
+      - 'packages/desktop/package.json'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-sdr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-build-and-load:
+    name: Native build and Electron load (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            arch: x64
+          - os: windows-11-arm
+            arch: arm64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 10.34.3
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          architecture: ${{ matrix.arch }}
+          cache: pnpm
+      - name: Install desktop toolchain without unrelated native rebuilds
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Test native build configuration and frame ownership
+        run: |
+          node --test packages/desktop/scripts/sdr-capture-build-config.test.mjs
+          pnpm --filter @backspace/desktop exec vitest run src/sdrCaptureTransport.test.ts
+      - name: Compile desktop transport
+        run: pnpm --filter @backspace/desktop build:ts
+      - name: Build the actual target architecture and verify its PE header
+        run: node packages/desktop/scripts/build-sdr-capture.mjs --arch ${{ matrix.arch }}
+      # Hosted build machines do not prove HDR-display or GPU capture behavior.
+      # This tests the module inside matching-architecture Electron, not merely Node.
+      - name: Load native module inside matching Electron
+        run: node packages/desktop/scripts/run-sdr-capture-smoke.mjs --arch ${{ matrix.arch }} --mode module

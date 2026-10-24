@@ -25,6 +25,27 @@ Source files:
 
 ## Architecture Overview
 
+### Windows SDR conversion foundation (not yet wired into screen sharing)
+
+`native/sdr-capture/` contains a Windows SDK/Node-API conversion module under
+development for opt-in HDR-to-SDR sharing. `sdrCaptureTransport.ts` imports its
+SDR textures through managed Electron sharedTexture references; native storage
+is retained until every renderer/GPU reference is released, with a three-frame
+capacity. Raw handles stay in privileged code. The existing application does
+not yet load or expose this module: current capture behavior is unchanged.
+
+Build with `node packages/desktop/scripts/build-sdr-capture.mjs --arch x64 --test`
+from the repository root (or matching ARM64 host). The isolated synthetic
+fixture uses its own temporary profile and a sandboxed, context-isolated
+renderer. `--mode module` in `run-sdr-capture-smoke.mjs` verifies native loading
+inside matching Electron only; `--mode synthetic` verifies GPU texture-to-video
+transport. Neither substitutes for a real HDR display/received-stream test.
+
+The `Native SDR foundation` workflow compiles and loads x64/ARM64 on matching
+Windows runners without publishing installers. Hardware capture, integration
+and the release/minimum-version gates remain tracked in the approved 1.15.1
+specifications and validation ledger.
+
 The desktop app wraps the Backspace web client in Electron with:
 - **Main process** (`main.ts`): Window lifecycle, tray icon, IPC handler registry, auto-update, deep linking, activity detection, keybind manager
 - **Preload bridge** (`preload.ts`): Exposes `window.backspace` API via `contextBridge` with full sandbox isolation (`contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`)

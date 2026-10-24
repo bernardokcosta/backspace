@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64"><Configuration>Release</Configuration><Platform>x64</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64"><Configuration>Release</Configuration><Platform>ARM64</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="Tests|x64"><Configuration>Tests</Configuration><Platform>x64</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="Tests|ARM64"><Configuration>Tests</Configuration><Platform>ARM64</Platform></ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals"><ProjectGuid>{A94EDDAE-C4C6-44E0-B21F-7EC66841108F}</ProjectGuid><Keyword>Win32Proj</Keyword></PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType Condition="'$(Configuration)'=='Release'">DynamicLibrary</ConfigurationType>
+    <ConfigurationType Condition="'$(Configuration)'=='Tests'">Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <OutDir>$(MSBuildThisFileDirectory)build\win32-$(TargetArch)\</OutDir>
+    <IntDir>$(OutDir)obj\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)'=='Release'">sdr_capture</TargetName>
+    <TargetExt Condition="'$(Configuration)'=='Release'">.node</TargetExt>
+    <TargetName Condition="'$(Configuration)'=='Tests'">sdr_texture_test</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel><TreatWarningAsError>true</TreatWarningAsError>
+      <LanguageStandard>stdcpp20</LanguageStandard><ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;UNICODE;_UNICODE;NAPI_VERSION=8;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(NodeSdkRoot)\include\node;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link><AdditionalDependencies>d3d11.lib;d2d1.lib;dxgi.lib;dxguid.lib;ole32.lib;%(AdditionalDependencies)</AdditionalDependencies></Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <Link><AdditionalDependencies>$(NodeSdkRoot)\$(TargetArch)\node.lib;delayimp.lib;%(AdditionalDependencies)</AdditionalDependencies><DelayLoadDLLs>node.exe;%(DelayLoadDLLs)</DelayLoadDLLs></Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="sdr_texture.cpp" />
+    <ClCompile Include="sdr_texture_test.cpp"><ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="addon.cpp"><ExcludedFromBuild Condition="'$(Configuration)'=='Tests'">true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="delay_load_hook.cpp"><ExcludedFromBuild Condition="'$(Configuration)'=='Tests'">true</ExcludedFromBuild></ClCompile>
+    <ClInclude Include="sdr_texture.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>
