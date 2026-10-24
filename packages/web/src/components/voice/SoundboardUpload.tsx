@@ -141,7 +141,7 @@ export function SoundboardUpload({ origin, spaceId, maxDuration, onDone, onCance
         <span>{t('voice:soundboard.dragHint')}</span>
         <span>{formatDuration(buffer.duration)}</span>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <div className="text-sm text-txt-secondary"><label htmlFor={`${selectionId}-start`}>{t('voice:soundboard.start')}</label><input id={`${selectionId}-start`} type="number" step="0.01" min={0} max={end - 0.1} value={start} disabled={busy} onChange={e => { stop(); setStart(Number(e.target.value)); }} className="input-standard w-full mt-1" />
           <input type="range" min={0} max={buffer.duration} step="0.01" value={start} disabled={busy} onChange={e => { stop(); setStart(Math.min(Number(e.target.value), end - 0.1)); }} aria-label={t('voice:soundboard.start')} className="w-full mt-2 accent-accent-primary" />
         </div>
