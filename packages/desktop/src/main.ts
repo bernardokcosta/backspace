@@ -17,7 +17,7 @@ import os from 'os';
 import { pathToFileURL } from 'url';
 import { startActivityDetection, stopActivityDetection, getCurrentActivity } from './activityDetector';
 import { KeybindManager } from './keybindManager';
-import { deriveStartMinimizedFromArgs, parseExecPathFromDesktopFile, shouldReapplyAppImage } from './autoLaunch';
+import { parseExecPathFromDesktopFile, shouldReapplyAppImage } from './autoLaunch';
 import {
   loadInstanceUrl,
   saveInstanceUrl,
@@ -388,8 +388,28 @@ function createWindow(): void {
   attachRecoveryHandlers(mainWindow);
   keybindManager.setWindow(mainWindow);
 
+  // Hidden-launch detection. We pass `args: ['--hidden']` on all three platforms
+  // (see applyLoginItemSettings), so the argv check is the primary signal. On
+  // macOS Electron ignores `args` for login items, so an automatic launch
+  // never carries the flag: there the persisted `startMinimized` preference
+  // decides, but only when the OS confirms this launch came from login
+  // (`wasOpenedAtLogin`), so a manual launch still shows the window.
+  // Computed here (not in ready-to-show) because the maximized-state restore
+  // above needs it: see the hide() there.
+  const launchedHidden =
+    process.argv.includes('--hidden') ||
+    (process.platform === 'darwin' &&
+      app.getLoginItemSettings().wasOpenedAtLogin &&
+      loadAutoLaunchSettings().startMinimized);
+
   if (savedState.isMaximized) {
     mainWindow.maximize();
+    // On Windows maximize() reveals a show:false window (verified on
+    // Electron 45): a hidden login launch would pop a maximized window and
+    // defeat the ready-to-show guard below. Hiding synchronously — before
+    // anything paints — keeps the launch in the tray, and the maximized
+    // state survives for the first user-initiated show.
+    if (launchedHidden) mainWindow.hide();
   }
 
   // URL resolution priority:
@@ -409,18 +429,8 @@ function createWindow(): void {
   }
 
   mainWindow.once('ready-to-show', () => {
-    // Hidden-launch detection. We pass `args: ['--hidden']` on all three platforms
-    // (see applyLoginItemSettings), so the argv check is the primary signal. On
-    // macOS Electron ignores `args` for login items, so an automatic launch
-    // never carries the flag: there the persisted `startMinimized` preference
-    // decides, but only when the OS confirms this launch came from login
-    // (`wasOpenedAtLogin`), so a manual launch still shows the window.
-    const launchedHidden =
-      process.argv.includes('--hidden') ||
-      (process.platform === 'darwin' &&
-        app.getLoginItemSettings().wasOpenedAtLogin &&
-        loadAutoLaunchSettings().startMinimized);
-
+    // `launchedHidden` is computed above (the maximized-state restore needs
+    // it too): a hidden login launch never shows the window here.
     if (!launchedHidden) {
       mainWindow?.show();
     }
@@ -864,24 +874,16 @@ function registerIpcHandlers(): void {
     }
 
     if (process.platform === 'win32') {
-      // Pass path/args so getLoginItemSettings can find the matching launchItems[] entry.
-      // We can't know in advance whether the user's saved choice was minimized or not,
-      // so we query without args and inspect launchItems[] directly. Use
-      // executableWillLaunchAtLogin to honour Task Manager's StartupApproved state.
+      // Pass path so getLoginItemSettings can scope `executableWillLaunchAtLogin`
+      // to our entry (and honour Task Manager's StartupApproved state).
+      // `startMinimized` is disk-cached, not read from the OS entry: Electron
+      // never parses `args` back into launchItems[] on Windows (always []),
+      // so the entry's `--hidden` is write-only. Every SET below persists the
+      // disk cache, so the two never diverge through our own UI.
       const osState = app.getLoginItemSettings({ path: process.execPath });
-      const ownEntry = osState.launchItems?.find(
-        (item) => item.name === 'Backspace' || item.path?.toLowerCase() === process.execPath.toLowerCase(),
-      );
-      // When the Run entry exists, its args are the source of truth for startMinimized.
-      // When the entry is absent (autostart is off), there is no OS state to read, so we
-      // fall back to the disk cache — this preserves the user's preference across an
-      // off/on cycle so re-enabling restores their previous startMinimized choice.
-      const startMinimized = ownEntry
-        ? deriveStartMinimizedFromArgs(ownEntry.args)
-        : loadAutoLaunchSettings().startMinimized;
       return {
         openAtLogin: osState.executableWillLaunchAtLogin ?? false,
-        startMinimized,
+        startMinimized: loadAutoLaunchSettings().startMinimized,
       };
     }
     // macOS and Linux: getLoginItemSettings doesn't expose args, so startMinimized
@@ -908,16 +910,11 @@ function registerIpcHandlers(): void {
 
     if (process.platform === 'win32') {
       const osState = app.getLoginItemSettings({ path: process.execPath });
-      const ownEntry = osState.launchItems?.find(
-        (item) => item.name === 'Backspace' || item.path?.toLowerCase() === process.execPath.toLowerCase(),
-      );
       currentOpenAtLogin = osState.executableWillLaunchAtLogin ?? false;
-      // See `get-auto-launch-settings`: when the entry is absent, fall back to disk
-      // cache so a partial update that re-enables openAtLogin restores the user's
-      // previously-saved startMinimized choice rather than resetting to false.
-      currentStartMinimized = ownEntry
-        ? deriveStartMinimizedFromArgs(ownEntry.args)
-        : loadAutoLaunchSettings().startMinimized;
+      // See `get-auto-launch-settings`: the OS entry's args are write-only on
+      // Windows, so the disk cache is the source of truth for a partial
+      // update that only flips openAtLogin.
+      currentStartMinimized = loadAutoLaunchSettings().startMinimized;
     } else {
       const osState = app.getLoginItemSettings();
       const saved = loadAutoLaunchSettings();

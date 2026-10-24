@@ -143,14 +143,14 @@ Settings stored in `{userData}/auto-launch.json`:
 ```typescript
 interface AutoLaunchSettings {
   openAtLogin: boolean;   // default: false; disk cache, NOT source of truth
-  startMinimized: boolean; // default: true; disk cache; OS-authoritative on Windows
+  startMinimized: boolean; // default: true; disk cache on all platforms
 }
 ```
 
 ### Source of Truth
 
 The OS is the source of truth for `openAtLogin` on all platforms. Disk is used only to recover values Electron does not expose:
-- **Windows:** OS-authoritative for `openAtLogin` (via `executableWillLaunchAtLogin`, which honours Task Manager's `StartupApproved\Run` disable). For `startMinimized`: derived from `launchItems[].args` when an entry exists; falls back to the disk cache when no entry exists, so the user's preference survives an off/on cycle.
+- **Windows:** OS-authoritative for `openAtLogin` (via `executableWillLaunchAtLogin`, which honours Task Manager's `StartupApproved\Run` disable). `startMinimized` is disk-cached: Electron writes `args: ['--hidden']` into the Run entry but never parses `args` back into `launchItems[]` (verified on Electron 45: always `[]`), so the entry's flag is write-only and reading it back always said "not minimized".
 - **macOS:** OS-authoritative for `openAtLogin`. Disk-cached for `startMinimized` (no introspection available).
 - **Linux:** OS-authoritative for `openAtLogin`. Disk-cached for `startMinimized` (we deliberately do not parse `Exec=` lines from `.desktop` files; out-of-band edits are rare and parsing shell-quoted strings is fragile).
 
@@ -166,7 +166,7 @@ capabilities even though `FLATPAK_ID` currently affects both.
 | Platform | Method | Key parameters | Rationale |
 |----------|--------|----------------|-----------|
 | macOS    | `app.setLoginItemSettings({ openAtLogin, openAsHidden, args })` | `openAsHidden: startMinimized`; `args: ['--hidden']` when `startMinimized` | Both detection paths covered (legacy `wasOpenedAsHidden` for macOS < 13 and `--hidden` argv for macOS 13+) |
-| Windows  | `app.setLoginItemSettings({ openAtLogin, enabled, path, args, name })` | `enabled: openAtLogin`; `path: process.execPath`; `args: ['--hidden']` when `startMinimized`; `name: 'Backspace'` | `enabled` is required to clear Task Manager's `StartupApproved\Run` disable when re-enabling. `path`/`args` enable correct matching in subsequent `getLoginItemSettings`. |
+| Windows  | `app.setLoginItemSettings({ openAtLogin, enabled, path, args, name })` | `enabled: openAtLogin`; `path: process.execPath`; `args: ['--hidden']` when `startMinimized`; `name: 'Backspace Fork'` | `enabled` is required to clear Task Manager's `StartupApproved\Run` disable when re-enabling. `path` scopes `executableWillLaunchAtLogin` to our entry. |
 | Linux    | `app.setLoginItemSettings({ openAtLogin, name, path?, args? })` | `name: 'backspace'` (deterministic `.desktop` filename); `path: $APPIMAGE` when running as AppImage; `args: ['--hidden']` when `startMinimized` | `name` ensures stable `~/.config/autostart/backspace.desktop` path. AppImage path tracks updates. |
 
 ### Startup Re-Apply
@@ -185,16 +185,16 @@ This keeps AppImage updates working (the AppImage moved to a new path → autost
 
 ### Hidden-Launch Detection
 
-At `ready-to-show`:
+Computed in `createWindow` (before the maximized-state restore, which needs it):
 - `process.argv.includes('--hidden')` — primary signal on all platforms (we pass `args: ['--hidden']` everywhere when `startMinimized`).
 - `app.getLoginItemSettings().wasOpenedAsHidden` — macOS-only fallback for the legacy `openAsHidden` path (macOS < 13).
 
-If either is true, the window is created but not shown (stays in tray).
+If either is true, the window is created but not shown (stays in tray). On Windows `maximize()` reveals a `show: false` window (verified on Electron 45), so a hidden launch with a maximized saved state re-hides synchronously right after the restore — before anything paints — and the maximized state survives for the first user-initiated show.
 
 ### Pure Helpers
 
 Pure logic lives in `packages/desktop/src/autoLaunch.ts` with vitest coverage in `autoLaunch.test.ts`:
-- `deriveStartMinimizedFromArgs(args)` — used by both IPC handlers on Windows.
+- `deriveStartMinimizedFromArgs(args)` — the one definition of the `--hidden` spelling; no longer read back from the OS (Windows never reports `args`).
 - `parseExecPathFromDesktopFile(content)` — used by the Linux/AppImage path-refresh.
 - `shouldReapplyAppImage(currentAppImagePath, recordedExecPath)` — used by the Linux/AppImage path-refresh.
 

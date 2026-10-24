@@ -1,3 +1,12 @@
+/**
+ * Whether a login-item arg list asks for a hidden launch (`--hidden`).
+ *
+ * Note: this is write-path only now. main.ts used to read it back from
+ * `launchItems[].args` on Windows, but Electron never parses `args` back
+ * there (verified on Electron 45: always `[]`), so the registry entry's
+ * `--hidden` is write-only and the disk cache is the source of truth.
+ * Kept (and tested) as the one definition of the flag's spelling.
+ */
 export function deriveStartMinimizedFromArgs(args: string[] | undefined): boolean {
   if (!args) return false;
   return args.includes('--hidden');
