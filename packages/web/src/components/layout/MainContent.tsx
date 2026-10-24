@@ -28,6 +28,8 @@ import type { User } from '@backspace/shared';
 import { Tooltip } from '../ui/Tooltip';
 import { joinVoiceChannel } from '../../utils/voice';
 import { SearchPopover } from '../chat/SearchPopover';
+import { PinnedMessagesPopover } from '../chat/PinnedMessagesPopover';
+import { hasPermissionBit, PermissionBits } from '../../utils/permissions';
 import { ChannelNotificationButton } from '../notifications/ChannelNotificationButton';
 import { ChannelHeaderTopic } from './ChannelHeaderTopic';
 import { isDmChannel } from '../../stores/spaceStore';
@@ -60,7 +62,7 @@ function voiceHeaderClassName(fullscreen: boolean, revealed: boolean): string {
 
 export function MainContent() {
   // 1. ALL HOOKS AT THE TOP
-  const { t } = useTranslation(['spaces', 'common']);
+  const { t } = useTranslation(['spaces', 'common', 'chat']);
   const channels = useSpaceStore((s) => s.channels);
   const currentChannelId = useChatStore((s) => s.currentChannelId);
   const currentSpaceId = useSpaceStore((s) => s.currentSpaceId);
@@ -91,6 +93,19 @@ export function MainContent() {
   const chromeRevealed = usePointerReveal(voiceContainerRef, voiceFullscreen);
   const searchButtonRef = useRef<HTMLButtonElement>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const pinsButtonRef = useRef<HTMLButtonElement>(null);
+  const [pinsOpen, setPinsOpen] = useState(false);
+  const pinCount = useChatStore((s) => s.pinnedByChannel.get(currentChannelId ?? '')?.length ?? 0);
+  const loadPins = useChatStore((s) => s.loadPins);
+  // Preload pins so the header badge counts without opening the popover.
+  // loadPins no-ops for DM channels (pins are space-channels only in v1).
+  useEffect(() => {
+    if (currentChannelId) void loadPins(currentChannelId);
+  }, [currentChannelId, loadPins]);
+  const canManageChannelMessages = useSpaceStore((s) => {
+    if (!currentChannelId) return false;
+    return hasPermissionBit(s.channelPermissions.get(currentChannelId), PermissionBits.MANAGE_MESSAGES);
+  });
   const [jumpToMessageId, setJumpToMessageId] = useState<string | null>(null);
   const clearJumpRequest = useCallback(() => setJumpToMessageId(null), []);
 
@@ -550,6 +565,21 @@ export function MainContent() {
         <div className="flex items-center gap-1 flex-shrink-0">
           <ChannelNotificationButton channelId={currentChannelId} channelName={channel.name} />
           <button
+            ref={pinsButtonRef}
+            onClick={() => setPinsOpen(!pinsOpen)}
+            className={`relative w-8 h-8 flex items-center justify-center transition-colors rounded-[6px] ${pinsOpen ? 'text-txt-primary bg-interactive-active' : 'text-txt-tertiary hover:text-txt-primary hover:bg-interactive-hover'}`}
+            title={t('chat:pins.title')}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z" />
+            </svg>
+            {pinCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-0.5 rounded-full bg-accent-primary text-white text-[10px] font-semibold flex items-center justify-center">
+                {pinCount > 99 ? '99+' : pinCount}
+              </span>
+            )}
+          </button>
+          <button
             ref={searchButtonRef}
             onClick={() => setSearchOpen(!searchOpen)}
             className={`w-8 h-8 flex items-center justify-center transition-colors rounded-[6px] ${searchOpen ? 'text-txt-primary bg-interactive-active' : 'text-txt-tertiary hover:text-txt-primary hover:bg-interactive-hover'}`}
@@ -573,6 +603,14 @@ export function MainContent() {
         channelId={currentChannelId}
         isDm={false}
         onJumpToMessage={(id) => { setJumpToMessageId(id); setSearchOpen(false); }}
+      />
+      <PinnedMessagesPopover
+        open={pinsOpen}
+        onClose={() => setPinsOpen(false)}
+        anchorRef={pinsButtonRef}
+        channelId={currentChannelId}
+        canManageMessages={canManageChannelMessages}
+        onJumpToMessage={(id) => { setJumpToMessageId(id); setPinsOpen(false); }}
       />
     </div>
   );

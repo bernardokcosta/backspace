@@ -242,6 +242,10 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
     return dm ? isDeletedPartnerDm(dm, { self, origin: messageOrigin }) : false;
   })();
   const canManageMessages = hasPermissionBit(myChPerms, PermissionBits.MANAGE_MESSAGES);
+  const pinMessage = useChatStore((s) => s.pinMessage);
+  const unpinMessage = useChatStore((s) => s.unpinMessage);
+  const isPinned = useChatStore((s) => s.pinnedByChannel.get(channelKey)?.some((p) => p.messageId === message.id) ?? false);
+  const canPin = canManageMessages && !isDmMessage;
   const canSendMessages = isDmMessage || hasPermissionBit(myChPerms, PermissionBits.SEND_MESSAGES);
   const canDelete = isAuthor || canManageMessages;
   const canAddReactions = (isDmMessage || hasPermissionBit(myChPerms, PermissionBits.ADD_REACTIONS)) && !isDeadDmThread;
@@ -383,6 +387,12 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
       onReply: startReply,
       onEdit: startEditing,
       onDelete: () => deleteMessage(message.id, channelKey),
+      onTogglePin: () => {
+        if (isPinned) void unpinMessage(message.id, channelKey);
+        else void pinMessage(message.id, channelKey);
+      },
+      isPinned,
+      canPin,
       onReaction: (emoji: string) => toggleReaction(emoji),
       onOpenEmojiPicker: () => {
         // Close the context menu, then show the reaction picker at the row

@@ -111,6 +111,8 @@ All four also need the actor to outrank the target (permissions.md, "Role hierar
 | `message_created` | message: MessageWithUser | channel (VIEW_CHANNEL). The message carries `mentionEveryone` and `mentionRoleIds`, the mass mentions the space allowed (permissions.md, "Mass mentions"); clients alert on mass mentions from these alone |
 | `message_updated` | message: MessageWithUser | channel (VIEW_CHANNEL) |
 | `message_deleted` | messageId, channelId | channel (VIEW_CHANNEL) |
+| `message_pinned` | channelId, messageId, pinnedById (null for legacy rows) | channel (VIEW_CHANNEL); the event carries no body, clients refresh `GET /channels/:id/pins` for the preview |
+| `message_unpinned` | channelId, messageId | channel (VIEW_CHANNEL) |
 | `typing` | channelId, userId, username | channel (VIEW_CHANNEL, excludes sender) |
 | `reaction_added` | messageId, reaction (includes user) | channel (VIEW_CHANNEL) |
 | `reaction_removed` | messageId, userId, emoji | channel (VIEW_CHANNEL) |

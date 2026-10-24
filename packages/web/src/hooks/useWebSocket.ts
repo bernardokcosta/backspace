@@ -260,7 +260,7 @@ function handleEvent(origin: string, event: ServerEvent, readyAlreadyDelivered =
   const isHome = origin === HOME_ORIGIN;
   const { setUser } = useAuthStore.getState();
   const { populateFromReady, loadSpaceDetail, currentSpaceId, updateMemberPresence, addMember, removeMember, removeDmChannel, upsertUserView } = useSpaceStore.getState();
-  const { addMessage, addRealtimeMessage, updateMessage, removeMessage, setTyping, clearTyping, onReactionAdded, onReactionRemoved } = useChatStore.getState();
+  const { addMessage, addRealtimeMessage, updateMessage, removeMessage, applyPinEvent, applyUnpinEvent, setTyping, clearTyping, onReactionAdded, onReactionRemoved } = useChatStore.getState();
   const { addVoiceUser, removeVoiceUser, clearVoiceUsersForOrigin, setVoiceUsers, setVoiceChannelElapsedSeconds, setVoiceUserStatus, clearVoiceUserStatus } = useVoiceStore.getState();
 
   switch (event.type) {
@@ -700,6 +700,16 @@ function handleEvent(origin: string, event: ServerEvent, readyAlreadyDelivered =
 
     case 'message_deleted':
       removeMessage(event.messageId, event.channelId);
+      break;
+
+    case 'message_pinned':
+      applyPinEvent({ id: `${event.channelId}:${event.messageId}`, channelId: event.channelId, messageId: event.messageId, pinnedById: event.pinnedById, createdAt: Date.now(), message: null });
+      // The event carries no body: refresh for the hydrated preview row.
+      void useChatStore.getState().loadPins(event.channelId);
+      break;
+
+    case 'message_unpinned':
+      applyUnpinEvent(event.channelId, event.messageId);
       break;
 
     case 'typing': {

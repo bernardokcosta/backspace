@@ -87,7 +87,9 @@ Each space hosts its own shared catalog and settings.
 **Endpoint:** `PATCH /api/spaces/:id`
 **Permission:** `MANAGE_SPACE`; `ownerTitle` the owner only
 
-**Updatable fields:** name (1-100 chars), icon, banner, avatarColor (validated against AVATAR_COLORS), visibility (public/request/private), description (max 200 chars), directoryListed (boolean), ownerTitle (see "Owner title" below).
+**Updatable fields:** name (1-100 chars), icon, banner, avatarColor (validated against AVATAR_COLORS), visibility (public/request/private), description (max 200 chars), directoryListed (boolean), ownerTitle (see "Owner title" below), afkChannelId (a same-space voice channel id, or `null` to switch the feature off) and afkTimeoutSeconds (one of 60/300/900/1800/3600; api.md, "Spaces").
+
+Every field is checked before anything is written. A body with `ownerTitle` from anyone but the owner is refused with `403 space_owner_only` as a whole, so a member with `MANAGE_SPACE` cannot rename the space in the same request either. An `afkChannelId` naming an unknown id, a text channel or another space's channel is `400 space_afk_invalid_channel`; any other `afkTimeoutSeconds` is `400 space_afk_invalid_timeout`.
 
 Every field is checked before anything is written. A body with `ownerTitle` from anyone but the owner is refused with `403 space_owner_only` as a whole, so a member with `MANAGE_SPACE` cannot rename the space in the same request either.
 

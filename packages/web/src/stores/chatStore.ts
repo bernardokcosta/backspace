@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { MessageWithUser, Reaction, ReadState, User } from '@backspace/shared';
+import type { MessageWithUser, PinWithMessage, Reaction, ReadState, User } from '@backspace/shared';
 import { wsSend } from '../hooks/useWebSocket';
 import { HttpError } from '../api/client';
 import { isDmChannel, getChannelOrigin, getApiForOrigin, useSpaceStore } from './spaceStore';
@@ -286,6 +286,12 @@ interface ChatState {
   sendMessage: (channelId: string, content: string, attachmentIds?: string[]) => Promise<void>;
   editMessage: (messageId: string, content: string, channelId: string) => Promise<void>;
   deleteMessage: (messageId: string, channelId: string) => Promise<void>;
+  pinnedByChannel: Map<string, PinWithMessage[]>;
+  loadPins: (channelId: string) => Promise<void>;
+  pinMessage: (messageId: string, channelId: string) => Promise<void>;
+  unpinMessage: (messageId: string, channelId: string) => Promise<void>;
+  applyPinEvent: (pin: PinWithMessage) => void;
+  applyUnpinEvent: (channelId: string, messageId: string) => void;
   addMessage: (channelId: string, message: MessageWithUser) => void;
   addRealtimeMessage: (channelId: string, message: MessageWithUser) => void;
   updateMessage: (message: MessageWithUser) => void;
@@ -472,6 +478,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   detachedChannels: new Map(),
   presentReturns: new Map(),
   reactionAddsInFlight: new Map(),
+  pinnedByChannel: new Map(),
 
   saveScrollPosition: (channelId, anchor) => {
     set((state) => {
@@ -863,6 +870,71 @@ export const useChatStore = create<ChatState>((set, get) => ({
       }
       useUIStore.getState().addToast(describeError(error), 'warning');
     }
+  },
+
+  loadPins: async (channelId: string) => {
+    if (isDmChannel(channelId)) return;
+    const origin = getChannelOrigin(channelId);
+    const client = getApiForOrigin(origin);
+    try {
+      const { pins } = await client.channels.pins(channelId);
+      set((state) => {
+        const next = new Map(state.pinnedByChannel);
+        next.set(channelId, pins);
+        return { pinnedByChannel: next };
+      });
+    } catch {
+      // Pins are decoration: a failed load leaves the previous list (or none)
+      // rather than blocking the channel.
+    }
+  },
+
+  pinMessage: async (messageId: string, channelId: string) => {
+    if (isDmChannel(channelId)) return;
+    const origin = getChannelOrigin(channelId);
+    const client = getApiForOrigin(origin);
+    try {
+      const { pin } = await client.channels.pinMessage(channelId, messageId);
+      // POST returns the bare pin (no body): insert, then refresh for the
+      // hydrated preview row. The WS echo will merge as a no-op.
+      get().applyPinEvent({ ...pin, message: null });
+      await get().loadPins(channelId);
+    } catch (error) {
+      useUIStore.getState().addToast(describeError(error), 'warning');
+    }
+  },
+
+  unpinMessage: async (messageId: string, channelId: string) => {
+    if (isDmChannel(channelId)) return;
+    const origin = getChannelOrigin(channelId);
+    const client = getApiForOrigin(origin);
+    try {
+      await client.channels.unpinMessage(channelId, messageId);
+      get().applyUnpinEvent(channelId, messageId);
+    } catch (error) {
+      useUIStore.getState().addToast(describeError(error), 'warning');
+    }
+  },
+
+  applyPinEvent: (pin: PinWithMessage) => {
+    set((state) => {
+      const next = new Map(state.pinnedByChannel);
+      const current = next.get(pin.channelId) ?? [];
+      if (!current.some((p) => p.messageId === pin.messageId)) {
+        next.set(pin.channelId, [...current, pin]);
+      }
+      return { pinnedByChannel: next };
+    });
+  },
+
+  applyUnpinEvent: (channelId: string, messageId: string) => {
+    set((state) => {
+      const current = state.pinnedByChannel.get(channelId);
+      if (!current) return state;
+      const next = new Map(state.pinnedByChannel);
+      next.set(channelId, current.filter((p) => p.messageId !== messageId));
+      return { pinnedByChannel: next };
+    });
   },
 
   addMessage: (channelId: string, message: MessageWithUser) => {

@@ -388,6 +388,14 @@
         "permissionsNone": "Nada marcado: o bot entra sem cargo.",
         "back": "Voltar"
       }
+    },
+    "afk": {
+      "title": "Canal AFK",
+      "channelLabel": "Mover membros ociosos para",
+      "disabled": "Desativado",
+      "timeoutLabel": "Após ficar ocioso por",
+      "minutes": "min.",
+      "hint": "Membros sem atividade de voz pelo tempo escolhido são movidos automaticamente para este canal de voz."
     }
   },
   "bans": {

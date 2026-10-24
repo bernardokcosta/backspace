@@ -105,7 +105,9 @@
     "editMessage": "编辑消息",
     "deleteMessage": "删除消息",
     "linkCopied": "已复制链接",
-    "linkCopyFailed": "复制链接失败"
+    "linkCopyFailed": "复制链接失败",
+    "pinMessage": "置顶消息",
+    "unpinMessage": "取消置顶"
   },
   "attachment": {
     "progress": {
@@ -230,5 +232,13 @@
     "action": "戳一戳",
     "received": "{{actor}} 戳了戳 {{target}}",
     "disconnected": "连接已断开，戳一戳未发送"
+  },
+  "pins": {
+    "title": "置顶消息",
+    "empty": "暂无置顶消息。",
+    "jump": "跳转到消息",
+    "unpin": "取消置顶",
+    "deletedMessage": "消息已删除",
+    "attachmentOnly": "附件"
   }
 }

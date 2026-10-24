@@ -108,7 +108,9 @@
     "editMessage": "Nachricht bearbeiten",
     "deleteMessage": "Nachricht löschen",
     "linkCopied": "Link kopiert",
-    "linkCopyFailed": "Link konnte nicht kopiert werden"
+    "linkCopyFailed": "Link konnte nicht kopiert werden",
+    "pinMessage": "Nachricht anheften",
+    "unpinMessage": "Nachricht lösen"
   },
   "attachment": {
     "progress": {
@@ -238,5 +240,13 @@
     "action": "Anstupsen",
     "received": "{{actor}} hat {{target}} angestupst",
     "disconnected": "Verbindung getrennt. Anstupsen wurde nicht gesendet."
+  },
+  "pins": {
+    "title": "Angeheftete Nachrichten",
+    "empty": "Noch keine angehefteten Nachrichten.",
+    "jump": "Zur Nachricht springen",
+    "unpin": "Lösen",
+    "deletedMessage": "Nachricht gelöscht",
+    "attachmentOnly": "Anhang"
   }
 }

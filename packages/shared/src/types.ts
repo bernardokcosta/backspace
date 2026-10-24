@@ -3,6 +3,8 @@ import type { ErrorCode, ErrorDetails } from './errors.js';
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 export const MAX_MESSAGE_LENGTH = 4000;
+/** How many messages one text channel may hold pinned at once. */
+export const MAX_PINS_PER_CHANNEL = 50;
 
 // ─── User Types ─────────────────────────────────────────────────────────────
 
@@ -144,6 +146,14 @@ export interface Space {
   visibility: SpaceVisibility;
   directoryListed: boolean;
   description: string | null;
+  /**
+   * Voice channel members idle longer than `afkTimeoutSeconds` are moved to,
+   * or null/undefined when no AFK channel is configured (feature off).
+   * Undefined on instances up to 1.13.x, which do not keep it.
+   */
+  afkChannelId?: string | null;
+  /** Seconds of voice inactivity before the AFK move. Default 300. */
+  afkTimeoutSeconds?: number;
   createdAt: number;
 }
 
@@ -506,6 +516,19 @@ export interface MessageWithUser extends Message {
   replyTo?: MessageWithUser | null;
 }
 
+export interface PinnedMessage {
+  id: string;
+  channelId: string;
+  messageId: string;
+  pinnedById: string | null;
+  createdAt: number;
+}
+
+export interface PinWithMessage extends PinnedMessage {
+  /** Null when the message row is gone but the pin lingers (deletedMessages sweep it next). */
+  message: MessageWithUser | null;
+}
+
 // ─── Reaction Types ────────────────────────────────────────────────────────
 
 export interface Reaction {
@@ -755,6 +778,8 @@ export type ServerEvent =
   | { type: 'interaction_ephemeral'; reply: EphemeralReply }
   | { type: 'message_updated'; message: MessageWithUser }
   | { type: 'message_deleted'; messageId: string; channelId: string }
+  | { type: 'message_pinned'; channelId: string; messageId: string; pinnedById: string | null }
+  | { type: 'message_unpinned'; channelId: string; messageId: string }
   | { type: 'typing'; channelId: string; userId: string; username: string }
   | ({ type: 'presence_update'; userId: string; status: string; activities?: Activity[] } & Partial<PresenceIdentity>)
   | { type: 'voice_state_update'; channelId: string; userId: string; action: 'join' | 'leave'; channelElapsedSeconds?: number }
@@ -911,6 +936,10 @@ export interface UpdateSpaceRequest {
   visibility?: SpaceVisibility;
   directoryListed?: boolean;
   description?: string;
+  /** Voice channel id for idle moves, or null to disable. Must be a voice channel of this space. */
+  afkChannelId?: string | null;
+  /** One of AFK_TIMEOUT_OPTIONS. Ignored unless afkChannelId is set. */
+  afkTimeoutSeconds?: number;
 }
 
 export interface UpdateUserRequest {

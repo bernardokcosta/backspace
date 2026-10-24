@@ -111,7 +111,9 @@
     "editMessage": "Editar mensagem",
     "deleteMessage": "Excluir mensagem",
     "linkCopied": "Link copiado",
-    "linkCopyFailed": "Falha ao copiar o link"
+    "linkCopyFailed": "Falha ao copiar o link",
+    "pinMessage": "Fixar mensagem",
+    "unpinMessage": "Desafixar mensagem"
   },
   "attachment": {
     "progress": {
@@ -246,5 +248,13 @@
     "group": "grupo",
     "chooseSubcommand": "Escolha um subcomando: {{names}}",
     "subcommandRefused": "O bot não oferece este subcomando. Escolha um da lista"
+  },
+  "pins": {
+    "title": "Mensagens fixadas",
+    "empty": "Nenhuma mensagem fixada ainda.",
+    "jump": "Ir para a mensagem",
+    "unpin": "Desafixar",
+    "deletedMessage": "Mensagem apagada",
+    "attachmentOnly": "Anexo"
   }
 }

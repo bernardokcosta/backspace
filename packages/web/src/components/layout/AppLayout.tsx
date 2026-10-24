@@ -37,6 +37,7 @@ import { ContextMenuRenderer } from '../ui/ContextMenuRenderer';
 import { useAuth } from '../../hooks/useAuth';
 import { useDelayedLoading } from '../../hooks/useDelayedLoading';
 import { useWebSocket } from '../../hooks/useWebSocket';
+import { useAfkVoiceMove } from '../../hooks/useAfkVoiceMove';
 import { useFederationToasts } from '../../hooks/useFederationToasts';
 import { useLiveKit } from '../../hooks/useLiveKit';
 import { useKeybinds } from '../../hooks/useKeybinds';
@@ -263,6 +264,9 @@ export function AppLayout() {
 
   // Initialize WebSocket
   useWebSocket();
+
+  // AFK voice moves: watches local voice activity and moves idle members.
+  useAfkVoiceMove();
 
   // Federation toast notifications for remote instance connection state changes
   useFederationToasts();

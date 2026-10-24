@@ -1,4 +1,4 @@
-import { MAX_OWNER_TITLE_LENGTH, normalizeOwnerTitle } from '@backspace/shared/src/constants.js';
+import { MAX_OWNER_TITLE_LENGTH, normalizeOwnerTitle, AFK_TIMEOUT_OPTIONS, DEFAULT_AFK_TIMEOUT_SECONDS } from '@backspace/shared/src/constants.js';
 import { updateSpaceMemberRoutes, roleGrantRefusal } from './spaceMemberUpdate.js';
 import path from 'path';
 import type { FastifyInstance } from 'fastify';
@@ -51,6 +51,8 @@ function rowToSpace(row: typeof schema.spaces.$inferSelect): Space {
     visibility: (row.visibility ?? 'private') as Space['visibility'],
     directoryListed: row.directoryListed === 1,
     description: row.description ?? null,
+    afkChannelId: row.afkChannelId ?? null,
+    afkTimeoutSeconds: row.afkTimeoutSeconds ?? DEFAULT_AFK_TIMEOUT_SECONDS,
     createdAt: row.createdAt,
   };
 }
@@ -524,7 +526,7 @@ export async function spaceRoutes(app: FastifyInstance): Promise<void> {
     preHandler: authenticate,
   }, async (request, reply) => {
     const { id } = request.params;
-    const { name, icon, banner, avatarColor, visibility, description, directoryListed, ownerTitle } = request.body;
+    const { name, icon, banner, avatarColor, visibility, description, directoryListed, ownerTitle, afkChannelId, afkTimeoutSeconds } = request.body;
     const db = getDb();
 
     const server = db.select().from(schema.spaces).where(eq(schema.spaces.id, id)).get();
@@ -592,6 +594,28 @@ export async function spaceRoutes(app: FastifyInstance): Promise<void> {
     if (description !== undefined) {
       const trimmed = description.trim().slice(0, 200);
       updates.description = trimmed || null;
+    }
+
+    if (afkChannelId !== undefined) {
+      if (afkChannelId === null) {
+        updates.afkChannelId = null;
+      } else if (typeof afkChannelId !== 'string') {
+        return sendError(reply, 400, 'space_afk_invalid_channel');
+      } else {
+        const channel = db.select().from(schema.channels)
+          .where(and(eq(schema.channels.id, afkChannelId), eq(schema.channels.spaceId, id))).get();
+        if (!channel || channel.type !== 'voice') {
+          return sendError(reply, 400, 'space_afk_invalid_channel');
+        }
+        updates.afkChannelId = afkChannelId;
+      }
+    }
+
+    if (afkTimeoutSeconds !== undefined) {
+      if (typeof afkTimeoutSeconds !== 'number' || !(AFK_TIMEOUT_OPTIONS as readonly number[]).includes(afkTimeoutSeconds)) {
+        return sendError(reply, 400, 'space_afk_invalid_timeout');
+      }
+      updates.afkTimeoutSeconds = afkTimeoutSeconds;
     }
 
     // Directory listing follows the same MANAGE_SPACE rule as visibility. A

@@ -72,6 +72,8 @@ Adds `detached_home_instance`, `detached_home_user_id` and their index. The data
 | visibility | text | `'private'` | public/request/private |
 | description | text | | |
 | directoryListed | integer NOT NULL | 0 | The owner asked for this space to be listed in the space directory. Refused on a private space (`400 directory_private_space`) and cleared in the same write when a listed space goes private. Served on `GET /api/directory/spaces` only while `instance_settings.directoryEnabled` and `discoveryEnabled` are both 1. See [directory.md](directory.md). |
+| afkChannelId | text | | A voice channel of this space that idle members are moved to, null when the feature is off (migration `0043_space_afk`). Validated on write, never by FK: a deleted or converted channel simply disables the move. |
+| afkTimeoutSeconds | integer NOT NULL | 300 | Seconds of voice inactivity before the move; one of `AFK_TIMEOUT_OPTIONS` (60/300/900/1800/3600). Stored even while no channel is set. |
 | createdAt | integer NOT NULL | | |
 
 ### space_members
@@ -119,6 +121,17 @@ PK: (spaceId, userId)
 A system row's `userId` is the member who acted (the poker). `userWrittenMessages()` in `db/userWrittenMessages.ts` is the one condition for "a message a member wrote": the unread counts, the last message id in `ready`, channel search and the reply target check all take it, so a system row is never unread, never found by a search and never replied to.
 
 Indexes: `idx_messages_channel_id` (channelId); `idx_messages_user_id` (userId); `idx_messages_channel_unread` (channelId, `CAST(id AS INTEGER)`, userId, type), created by migration `0027_unread_count_indexes` and given `type` by `0029_persistent_channel_pokes`. The last one serves the unread counts (websocket.md, "Unread counts"): the messages members wrote in a channel after a read cursor, compared as numbers, without reading the table. SQLite uses an expression index only when the query spells the expression the same way, type name case included, so the count writes `CAST(... AS INTEGER)`; the index names the column unqualified because SQLite refuses a qualified one there.
+
+### pinned_messages
+| Column | Type | Notes |
+|--------|------|-------|
+| id | text PK | Snowflake |
+| channelId | text NOT NULL | FK → channels.id CASCADE |
+| messageId | text NOT NULL | FK → messages.id CASCADE; unique (`idx_pinned_messages_message`): a message pins once |
+| pinnedById | text | Who pinned; null for rows predating the column's writers. Not an FK, so a deleted user leaves the pin standing |
+| createdAt | integer NOT NULL | Pin order: the list sorts by `createdAt`, the id breaking ties |
+
+Migration `0044_channel_pins`. At most `MAX_PINS_PER_CHANNEL` (50) rows per channel, enforced on POST. Deleting the message or the channel cascades the pin away.
 
 ### attachments
 | Column | Type | Default | Notes |

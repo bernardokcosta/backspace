@@ -67,6 +67,7 @@ export const MembersPanel = lazyPanel(() => import('./spaceSettingsPanels/Member
 export const RolesPanel = lazyPanel(() => import('./spaceSettingsPanels/RolesPanel'), (m) => m.RolesPanel);
 export const BansPanel = lazyPanel(() => import('./spaceSettingsPanels/BansPanel'), (m) => m.BansPanel);
 export const SoundboardPanel = lazyPanel(() => import('./spaceSettingsPanels/SoundboardPanel'), (m) => m.SoundboardPanel);
+export const AfkPanel = lazyPanel(() => import('./spaceSettingsPanels/AfkPanel'), (m) => m.AfkPanel);
 
 /**
  * Holds the panel's place while its chunk loads. The block has a fixed height

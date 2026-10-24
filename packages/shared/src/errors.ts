@@ -225,6 +225,8 @@ export const ERROR_CODES = [
   'space_create_failed',
   'not_space_member',
   'space_visibility_invalid',
+  'space_afk_invalid_channel',
+  'space_afk_invalid_timeout',
   'space_update_failed',
   'space_owner_only',
   // Sent up to 1.9.0 by POST /api/spaces/:id/invite for a request space. A
@@ -259,6 +261,8 @@ export const ERROR_CODES = [
   'channel_not_found',
   'category_not_found',
   'message_not_found',
+  'pin_not_found',
+  'pin_limit_reached',
   'channel_name_required',
   'channel_name_length',
   'channel_topic_invalid',

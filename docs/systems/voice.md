@@ -355,6 +355,11 @@ Three independent muting mechanisms:
 - `voice_disconnect`: Requires DISCONNECT_MEMBERS. Full teardown.
 - Space mute/deafen, move and disconnect of another member also require outranking them in the role hierarchy (permissions.md, "Role hierarchy"); a refusal is a WS `error` with `code: 'role_hierarchy'`.
 
+### AFK moves
+- Config lives on the space (`afkChannelId`, `afkTimeoutSeconds`; api.md, "Spaces"), set by MANAGE_SPACE; the client enforces it on itself (`hooks/useAfkVoiceMove.ts`, pure rules in `utils/afkMove.ts`).
+- The server cannot see voice activity — audio stays inside LiveKit — so each connected client watches itself: while live in a space voice channel, silence longer than the timeout moves it to the configured channel through the ordinary join flow. Speaking, (un)muting, (un)deafening and joining all count as activity; the check runs every 10 s.
+- No channel set, a deleted or converted channel, the AFK channel itself, a DM call and a disconnected client never move. The move needs no permission: it is the member moving themself.
+
 ---
 
 ## Screen Sharing

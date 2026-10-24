@@ -108,7 +108,9 @@
     "editMessage": "Edit Message",
     "deleteMessage": "Delete Message",
     "linkCopied": "Copied link",
-    "linkCopyFailed": "Failed to copy link"
+    "linkCopyFailed": "Failed to copy link",
+    "pinMessage": "Pin Message",
+    "unpinMessage": "Unpin Message"
   },
   "attachment": {
     "progress": {
@@ -238,5 +240,13 @@
     "action": "Poke",
     "received": "{{actor}} poked {{target}}",
     "disconnected": "Disconnected. Poke was not sent."
+  },
+  "pins": {
+    "title": "Pinned Messages",
+    "empty": "No pinned messages yet.",
+    "jump": "Jump to message",
+    "unpin": "Unpin",
+    "deletedMessage": "Message deleted",
+    "attachmentOnly": "Attachment"
   }
 }

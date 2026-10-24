@@ -100,10 +100,11 @@ The 5000px user-intent threshold matches the `nearBottom` band: distances larger
 
 ## Jump to message
 
-Every jump goes through one function, `jumpToMessage(messageId)` in `MessageList.tsx`, with an id on the channel's origin. Two entry points feed it:
+Every jump goes through one function, `jumpToMessage(messageId)` in `MessageList.tsx`, with an id on the channel's origin. Three entry points feed it:
 
 - **Search results**: `MainContent` passes `jumpToMessageId`; an effect takes each request once (`handledJumpRequestRef`, so a parent that re-renders before clearing it, or passes a new `onJumpHandled` each render, does not start the load again), calls `onJumpHandled` and jumps.
 - **Reply previews**: `MessageList` provides `MessageJumpContext`; `Message.tsx` renders the preview as a `<button>` that calls it with `message.replyTo.id`. Outside a list (no context) the preview is inert. The preview holds no interactive content of its own: mentions in it render through `InlineMessageText` as `MentionBadge` with `interactive={false}` (same look, plain text, no profile click), so a click anywhere on the preview jumps.
+- **Pinned messages**: the header pin button opens `PinnedMessagesPopover` (text channels only; the board preloads on channel open for the count badge), whose rows jump the same way through `MainContent`'s `jumpToMessageId`. Pinning itself needs `MANAGE_MESSAGES` and is offered in the message context menu; the popover's unpin buttons take the pinner or `MANAGE_MESSAGES`. See api.md, "Pins".
 
 Order of work:
 

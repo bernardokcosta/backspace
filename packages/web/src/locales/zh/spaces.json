@@ -382,6 +382,14 @@
         "permissionsNone": "未勾选任何权限：机器人将不带角色加入。",
         "back": "返回"
       }
+    },
+    "afk": {
+      "title": "AFK 频道",
+      "channelLabel": "将空闲成员移至",
+      "disabled": "已禁用",
+      "timeoutLabel": "空闲达到以下时间后",
+      "minutes": "分钟",
+      "hint": "在所选时间内没有语音活动的成员将自动移至此语音频道。"
     }
   },
   "bans": {

@@ -100,6 +100,13 @@ export const BOT_TOKEN_IN_USE_CLOSE_CODE = 4409;
 export const BOT_NAME_MIN_LENGTH = 3;
 export const BOT_NAME_MAX_LENGTH = 32;
 /**
+ * AFK voice moves: the inactivity timeouts a space may choose from, in
+ * seconds (1/5/15/30/60 minutes). The feature is off while no AFK channel
+ * is set, whatever the timeout says.
+ */
+export const AFK_TIMEOUT_OPTIONS = [60, 300, 900, 1800, 3600] as const;
+export const DEFAULT_AFK_TIMEOUT_SECONDS = 300;
+/**
  * The kinds of status an owner can set for a bot in Settings > Bots. A subset of
  * `ActivityType`: `streaming` needs a live URL, which a stored status has not.
  */

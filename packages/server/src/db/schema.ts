@@ -98,6 +98,8 @@ export const spaces = sqliteTable('spaces', {
   visibility: text('visibility').default('private'),
   directoryListed: integer('directory_listed').notNull().default(0),
   description: text('description'),
+  afkChannelId: text('afk_channel_id'),
+  afkTimeoutSeconds: integer('afk_timeout_seconds').notNull().default(300),
   createdAt: integer('created_at').notNull(),
 });
 
@@ -176,6 +178,17 @@ export const messages = sqliteTable('messages', {
   // qualified column in an index expression, and the query must spell it
   // `CAST(... AS INTEGER)` in this case for the planner to match it.
   unreadIdx: index('idx_messages_channel_unread').on(table.channelId, sql`CAST(id AS INTEGER)`, table.userId, table.type),
+}));
+
+export const pinnedMessages = sqliteTable('pinned_messages', {
+  id: text('id').primaryKey(),
+  channelId: text('channel_id').notNull().references(() => channels.id, { onDelete: 'cascade' }),
+  messageId: text('message_id').notNull().references(() => messages.id, { onDelete: 'cascade' }),
+  pinnedById: text('pinned_by_id'),
+  createdAt: integer('created_at').notNull(),
+}, (table) => ({
+  channelIdx: index('idx_pinned_messages_channel').on(table.channelId),
+  messageUnique: uniqueIndex('idx_pinned_messages_message').on(table.messageId),
 }));
 
 export const attachments = sqliteTable('attachments', {

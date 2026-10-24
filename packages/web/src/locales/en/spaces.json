@@ -385,6 +385,14 @@
         "permissionsNone": "Nothing ticked: the bot joins without a role.",
         "back": "Back"
       }
+    },
+    "afk": {
+      "title": "AFK channel",
+      "channelLabel": "Move idle members to",
+      "disabled": "Disabled",
+      "timeoutLabel": "After being idle for",
+      "minutes": "min",
+      "hint": "Members with no voice activity for the chosen time are moved to this voice channel automatically."
     }
   },
   "bans": {

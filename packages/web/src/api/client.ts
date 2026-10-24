@@ -16,6 +16,8 @@ import type {
   Channel,
   ChannelCategory,
   MessageWithUser,
+  PinnedMessage,
+  PinWithMessage,
   MemberWithUser,
   DmChannel,
   DmMessageWithUser,
@@ -294,6 +296,9 @@ export class BackspaceApiClient {
     messagesAround: (id: string, messageId: string, limit?: number) => Promise<MessageWithUser[]>;
     messagesAfter: (id: string, after: string, limit?: number) => Promise<HistoryPageAfter<MessageWithUser>>;
     sendMessage: (channelId: string, data: CreateMessageRequest) => Promise<MessageWithUser>;
+    pins: (id: string) => Promise<{ pins: PinWithMessage[] }>;
+    pinMessage: (id: string, messageId: string) => Promise<{ pin: PinnedMessage }>;
+    unpinMessage: (id: string, messageId: string) => Promise<{ success: boolean }>;
     getOverrides: (channelId: string) => Promise<{ channelId: string; targetType: string; targetId: string; allow: string; deny: string; version?: string }[]>;
     putOverride: (channelId: string, data: OverrideWriteBody) => Promise<{ success: boolean; version?: string }>;
     deleteOverride: (channelId: string, targetType: string, targetId: string, version?: string) => Promise<{ success: boolean }>;
@@ -700,6 +705,11 @@ export class BackspaceApiClient {
       },
       sendMessage: (channelId: string, data: CreateMessageRequest) =>
         request<MessageWithUser>('POST', `/channels/${channelId}/messages`, data),
+      pins: (id: string) => request<{ pins: PinWithMessage[] }>('GET', `/channels/${id}/pins`),
+      pinMessage: (id: string, messageId: string) =>
+        request<{ pin: PinnedMessage }>('POST', `/channels/${id}/pins`, { messageId }),
+      unpinMessage: (id: string, messageId: string) =>
+        request<{ success: boolean }>('DELETE', `/channels/${id}/pins/${messageId}`),
       getOverrides: (channelId: string) =>
         request<{ channelId: string; targetType: string; targetId: string; allow: string; deny: string; version?: string }[]>(
           'GET', `/channels/${channelId}/overrides`

@@ -385,6 +385,14 @@
         "permissionsNone": "Nichts angehakt: Der Bot tritt ohne Rolle bei.",
         "back": "Zurück"
       }
+    },
+    "afk": {
+      "title": "AFK-Kanal",
+      "channelLabel": "Untätige Mitglieder verschieben nach",
+      "disabled": "Deaktiviert",
+      "timeoutLabel": "Nach Untätigkeit für",
+      "minutes": "Min.",
+      "hint": "Mitglieder ohne Sprachaktivität für die gewählte Zeit werden automatisch in diesen Sprachkanal verschoben."
     }
   },
   "bans": {
