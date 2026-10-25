@@ -18,6 +18,7 @@ import {
 } from '../../utils/screenShare';
 import { StreamQualityControls, StreamSummary, StreamHostSubtitle } from './StreamQualityControls';
 import { pickAutoStageSource, type ScreenSourceTab } from '../../utils/screenShareSources';
+import { getSdrCaptureCapability, isSdrScreenCapture, SdrCaptureError } from '../../utils/sdrScreenCapture';
 
 /**
  * ScreenShareSetup — the one screen every screen share starts from.
@@ -63,9 +64,10 @@ type Tab = ScreenSourceTab;
  * "Ready to go live" and let the preview speak.
  */
 type CapturedSurfaceKind = 'monitor' | 'window';
-type SetupError = 'cancelled' | 'unsupported' | 'captureFailed' | 'startFailed' | null;
+type SetupError = 'cancelled' | 'unsupported' | 'captureFailed' | 'startFailed' | 'sdrFailed' | null;
 
 function errorKey(err: unknown): SetupError {
+  if (err instanceof SdrCaptureError) return 'sdrFailed';
   if (isCaptureCancellation(err)) return 'cancelled';
   if (err instanceof Error && err.name === 'NotSupportedError') return 'unsupported';
   return 'captureFailed';
@@ -102,10 +104,13 @@ export function ScreenShareSetup() {
   // Staged capture (all platforms)
   const [staged, setStaged] = useState<MediaStream | null>(null);
   const [stagedShareAudio, setStagedShareAudio] = useState<boolean>(config.shareAudio);
+  const [stagedSdrPreference, setStagedSdrPreference] = useState(config.forceSdr === true);
   const [staging, setStaging] = useState(false);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<SetupError>(null);
   const stagedRef = useRef<MediaStream | null>(null);
+  const captureAbortRef = useRef<AbortController | null>(null);
+  const ownsCaptureRef = useRef(false);
   const previewRef = useRef<HTMLVideoElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -160,15 +165,21 @@ export function ScreenShareSetup() {
    * `claimed` reuses a generation already taken by stageSource; a direct call
    * (the "Choose screen" button) takes a fresh one.
    */
-  const stage = useCallback(async (claimed?: number) => {
+  const stage = useCallback(async (claimed?: number, forceSdr?: boolean) => {
     const generation = claimed ?? ++stageGenerationRef.current;
+    captureAbortRef.current?.abort();
+    const abort = new AbortController();
+    captureAbortRef.current = abort;
+    ownsCaptureRef.current = true;
+    replaceStaged(null);
     setError(null);
     setStaging(true);
     const shareAudioAtStage = useVoiceStore.getState().screenShareConfig.shareAudio;
+    const sdrPreferenceAtStage = useVoiceStore.getState().screenShareConfig.forceSdr === true;
     // System picker: no tile carries the audio preference, so send it ahead of the request
     api?.setScreenShareAudioPreference?.(shareAudioAtStage);
     try {
-      const stream = await stageScreenCapture();
+      const stream = await stageScreenCapture({ forceSdr, signal: abort.signal });
       if (generation !== stageGenerationRef.current) {
         // Superseded while the picker was open: never adopt it, and never
         // leave the OS capturing for a stream nothing will publish.
@@ -177,9 +188,11 @@ export function ScreenShareSetup() {
       }
       replaceStaged(stream);
       setStagedShareAudio(shareAudioAtStage);
+      setStagedSdrPreference(sdrPreferenceAtStage);
     } catch (err) {
       if (generation !== stageGenerationRef.current) return;
       replaceStaged(null);
+      api?.selectScreenSource(null);
       setSelectedId(null);
       setError(errorKey(err));
     } finally {
@@ -212,6 +225,13 @@ export function ScreenShareSetup() {
     }
     setSelectedId(sourceId);
     const generation = ++stageGenerationRef.current;
+    if (ownsCaptureRef.current) api.selectScreenSource(null);
+    ownsCaptureRef.current = true;
+    captureAbortRef.current?.abort();
+    captureAbortRef.current = null;
+    replaceStaged(null);
+    const forceSdr = useVoiceStore.getState().screenShareConfig.forceSdr === true && (await getSdrCaptureCapability()).supported;
+    if (generation !== stageGenerationRef.current) return;
     if (api.preselectScreenSource) {
       // Awaited: the preselection and getDisplayMedia() travel different IPC
       // pipes with no ordering guarantee between them. If the display-media
@@ -219,9 +239,13 @@ export function ScreenShareSetup() {
       // prompted flow, and the preselection then sits armed for its whole TTL
       // ready to hijack the next share. The round trip is free next to a dialog.
       try {
-        await api.preselectScreenSource(sourceId, shareAudio);
+        await api.preselectScreenSource(sourceId, shareAudio, { forceSdr });
       } catch (err) {
         console.error('[ScreenShareSetup] preselectScreenSource failed:', err);
+        if (forceSdr) {
+          if (generation === stageGenerationRef.current) { setError('sdrFailed'); setStaging(false); api.selectScreenSource(null); }
+          return;
+        }
       }
       // A newer tile was clicked while the preselection was in flight
       if (generation !== stageGenerationRef.current) return;
@@ -229,8 +253,8 @@ export function ScreenShareSetup() {
       // Older desktop: the main process will push sources; answer with this id when it does.
       pendingPromptIdRef.current = sourceId;
     }
-    void stage(generation);
-  }, [api, stage]);
+    void stage(generation, forceSdr);
+  }, [api, stage, replaceStaged]);
 
   // Ask the desktop who picks, once per open
   useEffect(() => {
@@ -277,7 +301,15 @@ export function ScreenShareSetup() {
 
   // Reset per open
   useEffect(() => {
-    if (!isOpen) return;
+    captureAbortRef.current?.abort();
+    captureAbortRef.current = null;
+    if (ownsCaptureRef.current) api?.selectScreenSource(null);
+    ownsCaptureRef.current = false;
+    if (!isOpen) {
+      stageGenerationRef.current++;
+      replaceStaged(null);
+      return;
+    }
     setActiveTab('screens');
     setSearch('');
     setSelectedId(null);
@@ -292,10 +324,11 @@ export function ScreenShareSetup() {
     autoStagedRef.current = false;
     replaceStaged(null);
     setStagedShareAudio(useVoiceStore.getState().screenShareConfig.shareAudio);
+    setStagedSdrPreference(useVoiceStore.getState().screenShareConfig.forceSdr === true);
     setStaging(false);
     markPromptInFlight(false);
     pendingPromptIdRef.current = null;
-  }, [isOpen, replaceStaged, markPromptInFlight]);
+  }, [isOpen, replaceStaged, markPromptInFlight, api]);
 
   // Stage the remembered source (or a lone screen) so the common case needs a
   // single click on Start
@@ -323,7 +356,8 @@ export function ScreenShareSetup() {
   useEffect(() => {
     const track = staged?.getVideoTracks()[0];
     if (!track) return;
-    const onEnded = () => { replaceStaged(null); setSelectedId(null); };
+    const wasSdr = isSdrScreenCapture(staged);
+    const onEnded = () => { replaceStaged(null); setSelectedId(null); if (wasSdr) setError('sdrFailed'); };
     track.addEventListener('ended', onEnded);
     return () => track.removeEventListener('ended', onEnded);
   }, [staged, replaceStaged]);
@@ -331,8 +365,17 @@ export function ScreenShareSetup() {
   // Quality changes reach the staged track immediately (local only, no renegotiation)
   useEffect(() => {
     if (!staged) return;
-    void applyStagedCaptureConfig(staged);
-  }, [staged, config.height, config.fps, config.mode]);
+    void applyStagedCaptureConfig(staged).catch((error: unknown) => {
+      if (stagedRef.current === staged) { replaceStaged(null); setSelectedId(null); setError(errorKey(error)); }
+    });
+  }, [staged, config.height, config.fps, config.mode, replaceStaged]);
+
+  // A preview is not a published share: changing the saved mode takes a fresh
+  // authorized capture of that same explicit tile, never relabels old pixels.
+  useEffect(() => {
+    if (!isOpen || !staged || staging || starting || !canListSources || !selectedId) return;
+    if ((config.forceSdr === true) !== stagedSdrPreference) void stageSource(selectedId);
+  }, [isOpen, staged, staging, starting, canListSources, selectedId, config.forceSdr, stagedSdrPreference, stageSource]);
 
   // The closed drawer is off-canvas but still in the DOM, so its buttons,
   // sliders and toggle would stay in the tab order: tabbing through the setup
@@ -354,10 +397,13 @@ export function ScreenShareSetup() {
     // Abandon any capture still being picked. Without this the promise resolves
     // onto a closed screen and the OS keeps capturing forever.
     stageGenerationRef.current++;
+    captureAbortRef.current?.abort();
+    captureAbortRef.current = null;
     setStaging(false);
-    if (promptInFlightRef.current && api) {
+    if ((promptInFlightRef.current || ownsCaptureRef.current) && api) {
       api.selectScreenSource(null);
     }
+    ownsCaptureRef.current = false;
     markPromptInFlight(false);
     pendingPromptIdRef.current = null;
     replaceStaged(null);
@@ -380,7 +426,12 @@ export function ScreenShareSetup() {
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [isOpen, settingsOpen, handleClose]);
-  useEffect(() => () => stopStagedCapture(stagedRef.current), []);
+  useEffect(() => () => {
+    stageGenerationRef.current++;
+    captureAbortRef.current?.abort();
+    if (ownsCaptureRef.current) api?.selectScreenSource(null);
+    stopStagedCapture(stagedRef.current);
+  }, [api]);
 
   const handleStart = useCallback(async () => {
     const stream = stagedRef.current;
@@ -388,7 +439,11 @@ export function ScreenShareSetup() {
     if (!stream || !room) { setError('startFailed'); return; }
     setStarting(true);
     setError(null);
+    const generation = stageGenerationRef.current;
     const ok = await publishScreenShare(room, stream, { sourceId: selectedId, pickerMode });
+    // Close/reopen or another pick during negotiation owns a different setup.
+    // The old capture is already aborted; do not clear the new preview/error.
+    if (generation !== stageGenerationRef.current || stagedRef.current !== stream) return;
     if (!ok) {
       // publishScreenShare stopped the tracks on failure
       stagedRef.current = null;
@@ -405,6 +460,8 @@ export function ScreenShareSetup() {
     // has none, and stores null so a stale one cannot outlive it.
     useVoiceStore.getState().setLastScreenShareSourceId(selectedId);
     // Ownership moved to LiveKit: do not stop the tracks on close
+    captureAbortRef.current = null;
+    ownsCaptureRef.current = false;
     stagedRef.current = null;
     setStaged(null);
     setStarting(false);
@@ -429,7 +486,8 @@ export function ScreenShareSetup() {
   // audio to the running share; elsewhere audio comes only with a new pick.
   const audioNeedsRepick = !!staged && config.shareAudio && !stagedShareAudio
     && !canAddScreenShareAudioLater(selectedId, pickerMode);
-  const canStart = !!staged && !staging && !starting;
+  const sdrNeedsRestage = !!staged && canListSources && (config.forceSdr === true) !== stagedSdrPreference;
+  const canStart = !!staged && !staging && !starting && !sdrNeedsRestage;
   const chooseHint = !electron
     ? t('voice:screenPicker.chooseHint')
     : systemPicker
@@ -685,7 +743,7 @@ export function ScreenShareSetup() {
               </button>
             </div>
             <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin px-5 py-4">
-              <StreamQualityControls />
+              <StreamQualityControls capturePending={staging || starting} />
             </div>
           </div>
         </div>
@@ -702,7 +760,7 @@ export function ScreenShareSetup() {
             </button>
             {error && (
               <span className="text-[12px] text-txt-danger truncate" role="alert">
-                {t(`voice:screenPicker.${error}`)}
+                {error === 'sdrFailed' ? t('voice:streamSettings.forceSdrFailed') : t(`voice:screenPicker.${error}`)}
               </span>
             )}
           </div>

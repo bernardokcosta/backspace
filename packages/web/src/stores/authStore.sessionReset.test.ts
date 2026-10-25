@@ -17,6 +17,8 @@ vi.mock('../hooks/useWebSocket', () => ({
 import { useAuthStore } from './authStore';
 import { useExploreStore } from './exploreStore';
 import { useDirectoryStore } from './directoryStore';
+import { api, HttpError } from '../api/client';
+import { setDesktopSessionAllowed } from '../utils/desktopSessionAccess';
 
 const user: User = {
   id: 'u1',
@@ -97,6 +99,26 @@ beforeEach(() => {
 });
 
 describe('the session reset fan-out', () => {
+  it('preserves the token and draft-bearing stores on a desktop policy refusal', async () => {
+    populate(); localStorage.setItem('backspace_token', 'tok');
+    const me = vi.spyOn(api.users, 'me').mockRejectedValueOnce(new HttpError(426, 'Update', undefined, 'desktop_update_required'));
+    try {
+      await useAuthStore.getState().loadUser();
+      expect(useAuthStore.getState().token).toBe('tok'); expect(localStorage.getItem('backspace_token')).toBe('tok');
+      expect(isEmpty()).toBe(false);
+    } finally { me.mockRestore(); }
+  });
+  it('ignores a late user lookup failure across compatibility teardown/reallow', async () => {
+    let reject: (error: Error) => void = () => {};
+    const me = vi.spyOn(api.users, 'me').mockImplementationOnce(() => new Promise((_resolve, no) => { reject = no; }));
+    localStorage.setItem('backspace_token', 'tok');
+    try {
+      const lookup = useAuthStore.getState().loadUser();
+      setDesktopSessionAllowed(false); setDesktopSessionAllowed(true);
+      reject(new Error('late network result')); await lookup;
+      expect(useAuthStore.getState().token).toBe('tok'); expect(localStorage.getItem('backspace_token')).toBe('tok');
+    } finally { setDesktopSessionAllowed(true); me.mockRestore(); }
+  });
   it('clears the Explore stores on sign-out', () => {
     populate();
     expect(isEmpty()).toBe(false);

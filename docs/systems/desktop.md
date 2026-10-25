@@ -25,6 +25,129 @@ Source files:
 
 ## Architecture Overview
 
+### Windows SDR capture (integration in progress)
+
+`native/sdr-capture/` contains a Windows SDK/Node-API conversion module under
+development for opt-in HDR-to-SDR sharing. `sdrCaptureTransport.ts` imports its
+SDR textures through managed Electron sharedTexture references; native storage
+is retained until every renderer/GPU reference is released, with a three-frame
+capacity. Raw handles stay in privileged code. Main/preload expose capability,
+start/configure/stop and bounded ended messages. Acquisition needs a one-use
+30-second grant from an accepted Force SDR preselection for the focused main
+frame. Native code is loaded lazily from the host-owned architecture path;
+missing packaged modules do not fall back to development paths. The web
+quality controls now save opt-in Force SDR, recreate a staged preview when it
+changes and lock the actual mode during a published share. Its track adapter
+preserves audio, handles cancellation/direct stop and routes quality changes
+to native capture. Ordinary capture remains unchanged on unsupported hosts.
+Windows packaging copies only `native/sdr-capture/build/win32-${arch}/sdr_capture.node`
+to `resources/sdr-capture/sdr_capture.node`; afterPack fails before fuse checks
+if the payload is absent, contains extra files or has the wrong PE architecture.
+`verify-sdr-capture-package.mjs --resources <path> --arch x64|arm64` independently
+checks that payload without claiming it ran. CI calls the native workflow from
+the required aggregate gate for both matching Windows hosts, builds/loads each
+addon and packages/verifies each unpacked app without publishing. Actual
+packaged boot/load, HDR and ARM64 GPU capture acceptance remain separate gates.
+
+The experimental `capture_session` worker now captures an explicitly mapped
+window/display with free-threaded FP16 WGC buffers, GPU-side source-peak
+reduction, per-source white-level metadata, bounded output reservations and
+monotonic frame timestamps. Its Node-API delivery queue holds at most one
+pending frame plus one terminal error; stopping joins the worker before
+retiring queued references. Output capacity follows the last texture reference
+across stopped sessions. It does not acquire microphone/audio tracks.
+
+Build with `node packages/desktop/scripts/build-sdr-capture.mjs --arch x64 --test`
+from the repository root (or matching ARM64 host). The isolated synthetic
+fixture uses its own temporary profile and a sandboxed, context-isolated
+renderer. `--mode module` in `run-sdr-capture-smoke.mjs` verifies native loading
+inside matching Electron only; `--mode synthetic` verifies GPU texture-to-video
+transport. Neither substitutes for a real HDR display/received-stream test.
+`--mode capture` tests only a fixture-owned window, including resize,
+cancel/restart, callback-error, source-close and cleanup paths. It briefly
+shows that controlled test window and does not capture unrelated content.
+Capture mode uses the actual web track adapter/platform helper (type erasure
+only), compiled production preload plus a reporting-only test bridge, the
+production host controller and its narrow IPC registration. It
+also exercises cross-document navigation and destruction after a real native
+frame, with zero retained output references afterward. This does not replace
+the real getDisplayMedia selection/audio/publication acceptance tests.
+
+The `Native SDR foundation` workflow compiles and loads x64/ARM64 on matching
+Windows runners without publishing installers. Hardware capture, integration
+and the release/minimum-version gates remain tracked in the approved 1.15.1
+specifications and validation ledger.
+
+### Disposable compatibility probe
+
+`node scripts/probe-desktop-compatibility.mjs --listen 127.0.0.1 --port 3088
+--output <absolute-new-temp-file>` serves an isolated, account-free diagnostic
+page. In a disposable OS account/VM only, point a verified historical installer
+at that local origin. It records bounded UA, known bridge-method presence,
+getVersion/platform and update mode; it never logs authorization/cookies,
+queries, arbitrary payloads or WebSocket auth/data frames. It does not invoke
+updater checks/installs or acquire media. The app itself may check for updates
+or register protocols at boot, so a new userData directory alone is not sufficient
+isolation. See `scripts/fixtures/desktop-compatibility/README.md`.
+
+Real 1.14.2/1.15.0 samples, active legacy-call/service-worker transition and
+updater relaunch evidence are still absent. The diagnostic is not enforcement,
+device attestation or proof that an already-valid media session is revoked.
+The optional minimum-version policy is implemented below; no production
+activation or real historical-host acceptance is implied by the probe.
+
+### Serving-instance desktop compatibility
+
+`BACKSPACE_MIN_DESKTOP_VERSION` defaults off; `/api/instance/info` advertises
+its stable SemVer or null. `desktopCompatibilityStore` queries only that public
+serving-origin endpoint (8-second bound, one 60-second poll, focus/refusal retry)
+and the existing installed `getVersion` bridge. Browser access skips both.
+Missing/null policy allows older hosts even without the bridge; malformed or
+unavailable policy blocks until a successful recheck. Known required floors
+survive failures; a fresh disabled policy can recover. Generation/abort guards
+discard late lookup/IPC results. An allowed poll keeps the app mounted until
+its result actually revokes compatibility, avoiding periodic call disconnects.
+
+`DesktopCompatibilityGate` replaces every ordinary route/controller with the
+localized `RequiredDesktopUpdate` screen before any session startup, rather
+than displaying a dismissible modal above a running app. Renderer-ready and
+the native titlebar stay outside. Updater subscriptions stay alive outside the
+protected subtree. The mandatory screen ignores dismissal; install requires
+an actual ready auto-update whose version satisfies the floor, rechecked at
+click time. Manual/package-manager ownership, progress and failure remain
+truthful. Recovery uses the existing trusted fork release-page action and
+`window.open(servingOrigin)` (the existing main-process HTTP(S) handler opens
+it in the OS browser), never an unimplemented preload method or peer URL.
+Initial updater IPC snapshots cannot overwrite newer events or disposed work.
+
+Pending-message orchestration starts only in the allowed subtree and has
+reference-counted idempotent teardown. It removes subscriptions/online
+listeners and suppresses late dispatch/retries without erasing queued contents.
+A send already handed off while allowed still settles a confirmed success to
+avoid duplicate delivery on recovery. A synchronous, store-free
+`desktopSessionAccess` revision/abort seam guards API dispatch/replies, WebSocket
+connections/auth/sends/heartbeats/reconnects and transfer awaits, before React
+unmount completes. Revocation permanently invalidates work from the old
+lifecycle even after a subsequent re-allow. API failures caused by this pause
+or `desktop_update_required` do not clear the saved account token.
+
+Remote suspension records only eligible origins for the current user and moves
+their live status to disconnected without changing registry intent or tokens.
+Re-allow reconnects those origins; user-disconnected/expired sessions are not
+automatically resumed. Old cleanup cannot close sockets from the new epoch.
+Deferred message sends use a narrow receipt-only API path: confirmed HTTP
+success settles delivery without parsing/applying old response data. Ordinary
+API calls still reject stale responses. This prevents a blocked JSON-body read
+from turning an acknowledged send back into a queued message.
+
+On teardown, remote sockets, call/setup state and the existing LiveKit room/
+mic/camera/native capture lifecycle stop. Uploads/downloads pause (tus abort
+without server deletion), retaining Files, handles, URLs and pending messages;
+rehydration auto-resume waits for allow. Remote refusals remain origin-scoped
+and cannot supply the global floor. This does not prove targeted revocation of
+independently valid media grants held by old cached bundles across a server
+restart; that historical active-call test remains unverified.
+
 The desktop app wraps the Backspace web client in Electron with:
 - **Main process** (`main.ts`): Window lifecycle, tray icon, IPC handler registry, auto-update, deep linking, activity detection, keybind manager
 - **Preload bridge** (`preload.ts`): Exposes `window.backspace` API via `contextBridge` with full sandbox isolation (`contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`)

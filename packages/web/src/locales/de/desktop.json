@@ -1,4 +1,24 @@
 {
+  "compatibility": {
+    "title": "Backspace Fork aktualisieren, um fortzufahren",
+    "checkingTitle": "Desktop-Kompatibilität wird geprüft",
+    "failedTitle": "Desktop-Kompatibilität konnte nicht geprüft werden",
+    "body": "Diese Instanz erfordert eine kompatible Desktop-App. Aktualisiere hier oder nutze deinen Browser.",
+    "installed": "Installierte Desktop-App", "minimum": "Erforderliche Version", "unknown": "Nicht verfügbar",
+    "checking": "Die Richtlinie dieser Instanz und deine installierte App werden geprüft…",
+    "checkFailed": "Die Kompatibilitätsprüfung ist fehlgeschlagen. Prüfe die aktuelle Richtlinie erneut.",
+    "versionUnavailable": "Die installierte Version konnte nicht gelesen werden. Aktualisiere die App oder versuche es erneut.",
+    "bridgeUnavailable": "Der Aktualisierungsstatus ist nicht verfügbar. Du kannst weiterhin ein Installationsprogramm herunterladen.",
+    "manual": "Lade ein Installationsprogramm herunter und aktualisiere diese App manuell.",
+    "external": "Deine Paketverwaltung verwaltet Updates. Aktualisiere dort und starte die App neu.",
+    "updateChecking": "Nach einem Update wird gesucht…",
+    "updateFailed": "Das Update konnte nicht abgeschlossen werden. Versuche es erneut oder lade ein Installationsprogramm herunter.",
+    "insufficient": "Noch kein kompatibles Update ist installationsbereit. Prüfe erneut oder lade die erforderliche Version herunter.",
+    "ready": "Ein kompatibles Update wurde heruntergeladen und kann installiert werden.",
+    "downloading": "Update wird heruntergeladen: {{percent}}", "progress": "Download-Fortschritt des Updates",
+    "install": "Neustarten und installieren", "download": "Installationsprogramm herunterladen", "retry": "Erneut prüfen", "browser": "Im Browser öffnen",
+    "preserved": "Dein Konto, deine Zugangsdaten und Entwürfe bleiben erhalten. Die normale App-Aktivität pausiert, bis die Kompatibilität bestätigt ist."
+  },
   "update": {
     "laterHint": "Du kannst das Update später in den Einstellungen unter Desktop installieren",
     "dismiss": "Dieses Update ausblenden",

@@ -6,6 +6,7 @@ import { getDb, schema } from '../db/index.js';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import type { ErrorCode } from '@backspace/shared/src/errors';
 import { isBotTokenString, isRetiredLegacyBotJwt, verifyBotToken } from './botTokens.js';
+import { guardDesktopAccess } from './desktopAccess.js';
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, config.passwordHashCost);
@@ -63,12 +64,13 @@ export async function verifyAccessToken(token: string): Promise<{
   userId: string;
   username: string;
   homeInstance: string | null;
+  isBot: boolean;
 }> {
   if (isBotTokenString(token)) {
     const resolved = verifyBotToken(token);
     if (resolved === 'deleted') throw new AuthError('This account has been deleted', 401, 'account_deleted');
     if (resolved === 'invalid') throw new AuthError('Invalid or expired token', 401);
-    return resolved;
+    return { ...resolved, isBot: true };
   }
   let payload: JwtPayload;
   try {
@@ -106,6 +108,7 @@ export async function verifyAccessToken(token: string): Promise<{
     userId: payload.userId,
     username: payload.username,
     homeInstance: user.homeInstance ?? null,
+    isBot: user.isBot === 1,
   };
 }
 
@@ -129,6 +132,7 @@ export async function authenticate(
   }
   try {
     const identity = await verifyAccessToken(token);
+    if (!guardDesktopAccess(request, reply, identity)) return;
     (request as FastifyRequest & { userId: string; username: string }).userId = identity.userId;
     (request as FastifyRequest & { userId: string; username: string }).username = identity.username;
     (request as FastifyRequest & { userId: string; username: string }).homeInstance = identity.homeInstance;

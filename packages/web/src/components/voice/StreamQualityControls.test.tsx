@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { InstanceStreamingLimits } from '@backspace/shared';
 import { StreamQualityControls, StreamHostSubtitle } from './StreamQualityControls';
 import { useVoiceStore } from '../../stores/voiceStore';
@@ -96,6 +96,47 @@ describe('StreamHostSubtitle', () => {
     useVoiceStore.setState({ livekitHostOrigin: '' });
     const { container } = render(<StreamHostSubtitle />);
     expect(container).toBeEmptyDOMElement();
+  });
+});
+
+describe('Force SDR quality control', () => {
+  function desktop() {
+    const api: Partial<BackspaceElectronAPI> = {
+      platform: 'win32', getSdrCaptureCapability: vi.fn(async () => ({ supported: true })),
+      startSdrCapture: vi.fn(), stopSdrCapture: vi.fn(), configureSdrCapture: vi.fn(), onSdrCaptureEnded: vi.fn(),
+    };
+    window.backspace = api as BackspaceElectronAPI;
+    vi.stubGlobal('VideoFrame', class {});
+    vi.stubGlobal('MediaStreamTrackGenerator', class {});
+  }
+  afterEach(() => { delete window.backspace; vi.unstubAllGlobals(); });
+
+  it('offers a saved, initially-off preference on a capable Windows host', async () => {
+    desktop();
+    render(<StreamQualityControls />);
+    const toggle = await screen.findByRole('switch', { name: 'Force SDR' });
+    await waitFor(() => expect(toggle).toBeEnabled());
+    expect(toggle).toHaveAttribute('aria-checked', 'false');
+    fireEvent.click(toggle);
+    expect(useVoiceStore.getState().screenShareConfig.forceSdr).toBe(true);
+  });
+
+  it('shows effective off/unavailable in browsers while preserving a saved Windows preference', async () => {
+    delete window.backspace;
+    useVoiceStore.setState({ screenShareConfig: { ...useVoiceStore.getState().screenShareConfig, forceSdr: true } });
+    render(<StreamQualityControls />);
+    const toggle = await screen.findByRole('switch', { name: 'Force SDR' });
+    expect(toggle).toBeDisabled(); expect(toggle).toHaveAttribute('aria-checked', 'false');
+    expect(useVoiceStore.getState().screenShareConfig.forceSdr).toBe(true);
+  });
+
+  it('keeps a live capture fixed and displays its actual SDR mode rather than a changed preference', async () => {
+    desktop();
+    useVoiceStore.setState({ isScreenSharing: true, screenShareSdr: true, screenShareConfig: { ...useVoiceStore.getState().screenShareConfig, forceSdr: false } });
+    render(<StreamQualityControls />);
+    const toggle = await screen.findByRole('switch', { name: 'Force SDR' });
+    expect(toggle).toBeDisabled(); expect(toggle).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByText(/Stop sharing and start again/)).toBeInTheDocument();
   });
 });
 

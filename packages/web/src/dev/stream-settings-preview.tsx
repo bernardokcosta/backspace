@@ -3,7 +3,7 @@
 // `StreamQualityControls` inside the two surfaces that ship it (the live
 // settings popover and the setup screen's drawer) with seeded stores, one scene
 // per `?scene=` so every state can be screenshotted without a voice call.
-// `?lang=en|de|ru|zh` picks the interface language (initI18n's dev preview).
+// `?lang=en|de|ru|pt|zh` picks the interface language (initI18n's dev preview).
 import { createRoot } from 'react-dom/client';
 import type { InstanceStreamingLimits } from '@backspace/shared';
 import { StreamQualityControls, StreamSummary, StreamHostSubtitle } from '../components/voice/StreamQualityControls';
@@ -52,9 +52,25 @@ interface Scene {
   ownAudio?: OwnAudioInSystemAudio;
   /** System Audio preference before a share starts (the setup screen); default on. */
   preference?: boolean;
+  /** Presentation-only capability; these scenes never acquire screen pixels. */
+  nativeSdr?: boolean;
+  forceSdr?: boolean;
 }
 
 const SCENES: Record<string, Scene> = {
+  'sdr-ready': {
+    caption: 'Windows Force SDR: saved off, capable host; changing recreates only the staged preview',
+    origin: '', hostLimits: HOME_LIMITS, desktopPlatform: 'win32', ownAudio: 'excluded', nativeSdr: true, forceSdr: false,
+  },
+  'sdr-live': {
+    caption: 'Live SDR capture: actual mode on, saved next-capture preference off; stop/restart required',
+    origin: '', hostLimits: HOME_LIMITS, desktopPlatform: 'win32', ownAudio: 'excluded', nativeSdr: true, forceSdr: false,
+    live: { audio: 'published', preference: true },
+  },
+  'sdr-unavailable': {
+    caption: 'Browser with saved Windows preference: effective off/unavailable, saved choice preserved',
+    origin: '', hostLimits: HOME_LIMITS, forceSdr: true,
+  },
   home: {
     caption: 'Home voice channel: home limits, no host line',
     origin: '',
@@ -177,6 +193,13 @@ function seed(scene: Scene): void {
     (window as { backspace?: unknown }).backspace = {
       platform: scene.desktopPlatform,
       ...(ownAudio ? { getSystemAudioCapability: () => Promise.resolve(ownAudio) } : {}),
+      ...(scene.nativeSdr ? {
+        getSdrCaptureCapability: async () => ({ supported: true }),
+        startSdrCapture: async () => { throw new Error('Visual fixture does not acquire captures'); },
+        configureSdrCapture: async () => { throw new Error('Visual fixture does not configure captures'); },
+        stopSdrCapture: async () => {},
+        onSdrCaptureEnded: () => () => {},
+      } : {}),
     };
   }
   useSettingsStore.setState({
@@ -187,9 +210,10 @@ function seed(scene: Scene): void {
     livekitHostOrigin: scene.origin,
     isScreenSharing: scene.live !== undefined,
     screenShareAudio: scene.live?.audio ?? null,
+    screenShareSdr: !!scene.live && scene.nativeSdr === true,
     screenShareConfig: {
       height: 1080, fps: 60, mode: 'gaming', customBitrateKbps: null,
-      shareAudio: scene.live?.preference ?? scene.preference ?? true, codec: 'vp9',
+      shareAudio: scene.live?.preference ?? scene.preference ?? true, forceSdr: scene.forceSdr === true, codec: 'vp9',
     },
   });
 }

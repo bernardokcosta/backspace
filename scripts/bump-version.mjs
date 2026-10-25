@@ -37,7 +37,9 @@ export function findVersionedManifests(root = REPO_ROOT) {
 
     for (const entry of readdirSync(parentDir, { withFileTypes: true })) {
       if (!entry.isDirectory() || entry.name === 'node_modules') continue;
-      const relative = path.join(parent, entry.name, 'package.json');
+      // Return repository-relative paths with one spelling on every host.
+      // path.join(root, relative) below still resolves these on Windows.
+      const relative = path.posix.join(parent, entry.name, 'package.json');
       if (existsSync(path.join(root, relative))) found.push(relative);
     }
   }

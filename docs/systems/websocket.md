@@ -1,5 +1,17 @@
 # WebSocket Protocol Reference
 
+## Desktop minimum compatibility
+
+When the optional serving-instance minimum is enabled, an identifiable old or
+unknown desktop receives the standard `error` event with code
+`desktop_update_required` and `{ minimumVersion, currentVersion? }`, then close
+4406. This occurs after token/account validation but before presence, telemetry,
+bot-session claim or connection registration. Verified bots are exempt; client
+metadata cannot claim that exemption. Only that socket is refused, not another
+valid browser/bot session. Updated clients stop reconnecting on this code or
+close 4406 and notify only the refusing origin; peer policy cannot replace the
+serving instance's floor or updater feed. Explicit recovery/disconnect may retry.
+
 Endpoint: `GET /ws` (upgrade to WebSocket)
 Transport: JSON messages over WebSocket
 Source: `packages/server/src/ws/handler.ts`, `packages/server/src/ws/events.ts`

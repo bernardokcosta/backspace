@@ -157,6 +157,53 @@ designated => identifier "com.example.app" and anchor apple generic and
 
 **The app now measures this at runtime** rather than hardcoding "macOS cannot update". `packages/desktop/src/updateCapability.ts` runs the `codesign -d -r-` probe, classifies the requirement, and reports `manual` for a bare cdhash and `auto` for anything certificate-anchored. Consequences: `autoDownload` is off in manual mode (the ad-hoc build was otherwise pulling the full release archive on every check and storing it twice, 228 MB measured, for a file it could never apply), no Restart button is offered, and the copy says plainly that the build cannot update itself. **When a Developer ID lands in CI, that probe flips to `auto` on its own with no code change.** See [desktop.md](desktop.md) for the full update flow.
 
+## Experimental native SDR capture
+
+The opt-in SDR work under `native/sdr-capture` now has a narrow main/preload
+bridge and web track integration. Windows packaging verifies its target-only
+native resource before fuse checks; this is not a runtime capture test. Only
+privileged code loads the addon and resolves a native source from the trusted
+desktop enumeration/display origin. The renderer cannot pass an HWND,
+HMONITOR, module path or raw texture handle to the native-start IPC.
+
+Main accepts native acquisition only after an accepted Force SDR preselection
+for its focused main frame; its grant expires after 30 seconds, is consumed
+once and is revoked on navigation. IPC checks both sender and senderFrame,
+normalizes geometry/rate and binds configure/stop to the owning session. A
+legitimate active share survives alt-tab. Navigation, renderer loss, close and
+quit stop native capture. Existing clients never requesting Force SDR do not
+start this path.
+
+The existing `selectScreenSource(null)` cancel event also invalidates pending
+preselection/generation/grants, including an async source lookup that resolves
+after setup closes. Foreign/subframe display-media requests are denied before
+they can consume the app's selected source. Client AbortSignals dispose a
+pending native start even when its session reply arrives late; publication
+relinquishes setup abort ownership rather than stopping its transferred track.
+
+Force SDR preselection refreshes source identity without thumbnails/icons, so a
+later tile click does not depend on retaining another window's old pixels.
+Focus/main-frame/generation are checked before and after resolution; stale
+async completions cannot arm a later request. Source ids are matched exactly
+against that trusted result. The HWND is the first window-id field; the final
+bounded numeric bookkeeping suffix is preserved, not assumed to be zero.
+
+The isolated `--mode capture` fixture supplies the handle of a test window it
+created, then uses the production controller/IPC/preload. No sandbox,
+context-isolation or fuse setting is weakened. Only transferable VideoFrames
+reach the page. Preload keeps at most one early frame in its isolated world
+until the start reply proves the session id, and closes stale-session frames;
+a new document cannot receive a prior session's in-flight texture.
+
+The worker reserves at most three output textures across active/retired
+sessions; callback/GPU references retain those permits until the physical
+texture is released. A bounded TSFN queue drops superseded frames. Stop,
+environment cleanup and terminal errors stop/join the worker; source closure
+is checked even when a provider omits WGC's Closed event. Controlled-source
+navigation/destruction tests pass on x64. The full getDisplayMedia selection
+flow, received HDR comparison and real ARM64 capture acceptance remain pending;
+the fixture is not proof of the whole application flow.
+
 ## Not verified
 
 What follows is what has and has not actually been checked, so the sections above are not read as broader assurance than they are.

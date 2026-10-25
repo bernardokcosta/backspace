@@ -1,0 +1,113 @@
+name: Native SDR foundation
+
+on:
+  push:
+    paths:
+      - '.github/workflows/native-sdr-capture.yml'
+      - 'packages/desktop/native/sdr-capture/**'
+      - 'packages/desktop/scripts/*sdr-capture*'
+      - 'packages/desktop/scripts/afterPack.js'
+      - 'packages/desktop/electron-builder.yml'
+      - 'packages/desktop/src/sdrCapture*'
+      - 'packages/desktop/src/main.ts'
+      - 'packages/desktop/src/preload.ts'
+      - 'packages/desktop/src/screenSharePolicy*'
+      - 'packages/desktop/test/sdr-capture/**'
+      - 'packages/desktop/package.json'
+      - 'pnpm-lock.yaml'
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-sdr-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  workflow-validation:
+    name: Validate native workflow
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check GitHub Actions syntax and expression contexts
+        shell: bash
+        run: |
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/actionlint.tar.gz" https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  $RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" -oneline .github/workflows/native-sdr-capture.yml .github/workflows/ci.yml .github/workflows/release.yml
+
+  native-build-and-load:
+    name: Native build and Electron load (${{ matrix.arch }})
+    needs: workflow-validation
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            arch: x64
+          - os: windows-11-arm
+            arch: arm64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 10.34.3
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          architecture: ${{ matrix.arch }}
+          cache: pnpm
+      - name: Install desktop toolchain without unrelated native rebuilds
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Test native build configuration and frame ownership
+        run: |
+          node --test packages/desktop/scripts/sdr-capture-build-config.test.mjs
+          node --test packages/desktop/scripts/verify-sdr-capture-package.test.mjs
+          pnpm --filter @backspace/desktop test
+      - name: Compile desktop transport
+        run: pnpm --filter @backspace/desktop build:ts
+      - name: Build the actual target architecture and verify its PE header
+        id: native-build
+        run: node packages/desktop/scripts/build-sdr-capture.mjs --arch ${{ matrix.arch }}
+      - name: Verify the runner's Electron baseline independently of the addon
+        env:
+          BACKSPACE_SDR_SMOKE_ROOT: ${{ runner.temp }}/sdr-capture
+        run: node packages/desktop/scripts/run-sdr-capture-smoke.mjs --arch ${{ matrix.arch }} --mode baseline
+      # Hosted build machines do not prove HDR-display or GPU capture behavior.
+      # This tests the module inside matching-architecture Electron, not merely Node.
+      - name: Load native module inside matching Electron
+        if: ${{ !cancelled() && steps.native-build.outcome == 'success' }}
+        env:
+          BACKSPACE_SDR_SMOKE_ROOT: ${{ runner.temp }}/sdr-capture
+        run: node packages/desktop/scripts/run-sdr-capture-smoke.mjs --arch ${{ matrix.arch }} --mode module
+      - name: Package the matching Windows resources without publishing
+        working-directory: packages/desktop
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: pnpm exec electron-builder --win --${{ matrix.arch }} --dir --publish never
+      - name: Verify packaged native payload independently of afterPack
+        shell: bash
+        run: |
+          if [ "${{ matrix.arch }}" = "x64" ]; then
+            resources="packages/desktop/dist-electron/win-unpacked/resources"
+          else
+            resources="packages/desktop/dist-electron/win-arm64-unpacked/resources"
+          fi
+          node packages/desktop/scripts/verify-sdr-capture-package.mjs --resources "$resources" --arch "${{ matrix.arch }}"
+      - name: Retain synthetic test diagnostics without copying profiles
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: native-sdr-diagnostics-${{ matrix.arch }}
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/sdr-capture/**/result.json
+            ${{ runner.temp }}/sdr-capture/**/stages.log
+            ${{ runner.temp }}/sdr-capture/**/electron.log
+            ${{ runner.temp }}/sdr-capture/**/chromium.log

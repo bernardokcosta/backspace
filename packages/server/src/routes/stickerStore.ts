@@ -1,4 +1,4 @@
-import type { FastifyInstance, FastifyRequest } from 'fastify';
+import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { and, desc, eq, inArray, or } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import {
@@ -14,6 +14,7 @@ import {
 } from '@backspace/shared/src/stickers.js';
 import { getDb, schema } from '../db/index.js';
 import { authenticate, tokenFromAuthHeader, verifyAccessToken } from '../utils/auth.js';
+import { guardDesktopAccess } from '../utils/desktopAccess.js';
 import { getOurOrigin } from '../utils/federationAuth.js';
 import { sendError } from '../utils/httpErrors.js';
 import { MAX_STICKER_JSON_BYTES, stickerUploadBodyLimit } from '../utils/stickerUpload.js';
@@ -26,7 +27,7 @@ export function formatCoverUrl(coverAssetId: string | null): string | null {
   return `${getOurOrigin()}/api/stickers/assets/${coverAssetId}.webp`;
 }
 
-async function tryResolveUserId(request: FastifyRequest): Promise<string | null> {
+async function tryResolveUserId(request: FastifyRequest, reply: FastifyReply): Promise<string | null> {
   const token = tokenFromAuthHeader(request.headers.authorization);
   if (!token) return null;
   try {
@@ -34,6 +35,7 @@ async function tryResolveUserId(request: FastifyRequest): Promise<string | null>
     // does not have — verifyAccessToken is its superset (JWT + bsb_ bot
     // tokens, deleted/revoked checks) with the same { userId } shape.
     const identity = await verifyAccessToken(token);
+    if (!guardDesktopAccess(request, reply, identity)) return null;
     return identity.userId;
   } catch {
     return null;
@@ -48,9 +50,10 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
   /**
    * Browse available sticker packs in the store (approved local packs & active federated replicas).
    */
-  app.get<{ Querystring: { q?: string } }>('/api/sticker-store/packs', async (request) => {
+  app.get<{ Querystring: { q?: string } }>('/api/sticker-store/packs', async (request, reply) => {
     const db = getDb();
-    const userId = await tryResolveUserId(request);
+    const userId = await tryResolveUserId(request, reply);
+    if (reply.sent) return;
     const search = request.query.q?.trim().toLowerCase();
 
     const allowedStatuses = ['approved', 'active'];
@@ -112,7 +115,8 @@ export async function stickerStoreRoutes(app: FastifyInstance): Promise<void> {
    */
   app.get<{ Params: { id: string } }>('/api/sticker-store/packs/:id', async (request, reply) => {
     const db = getDb();
-    const userId = await tryResolveUserId(request);
+    const userId = await tryResolveUserId(request, reply);
+    if (reply.sent) return;
     const pack = db.select().from(schema.stickerPacks).where(eq(schema.stickerPacks.id, request.params.id)).get();
 
     if (!pack || pack.status === 'deleted') {

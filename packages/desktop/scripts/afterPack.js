@@ -1,23 +1,24 @@
 // afterPack hook for electron-builder
 //
-// Three jobs run here, in this order (electron-builder allows only ONE
-// afterPack hook, so all three live in this file):
+// Four jobs run here, in this order (electron-builder allows only ONE
+// afterPack hook, so all four live in this file):
 //
 //   1. Native module cleanup — removes host-compiled uiohook-napi artifacts so
 //      cross-platform builds use the correct prebuilt binaries from the
 //      `prebuilds/` directory.
-//   2. Electron security fuses — flips RunAsNode/EnableNodeCliInspectArguments/
+//   2. Validate the matching Windows SDR native resource, before fuse checks.
+//   3. Electron security fuses — flips RunAsNode/EnableNodeCliInspectArguments/
 //      OnlyLoadAppFromAsar on the packaged Electron binary. This runs via
 //      `@electron/fuses` directly, not electron-builder's `electronFuses:`
 //      config key. electron-builder 26 supports that key, but it flips the
 //      fuses after this hook returns, which is after macSign.js has sealed
 //      the bundle below. See docs/systems/desktop-security.md.
-//   3. On macOS, ad-hoc sign the bundle (see macSign.js).
+//   4. On macOS, ad-hoc sign the bundle (see macSign.js).
 //
 // Order matters, and it is load-bearing in both directions:
 //   - Signing seals the bundle's contents, so it must run after every file
 //     mutation — both the cleanup's deletions (job 1) and the fuse flip's
-//     rewrite of the Electron binary (job 2). Flipping fuses after signing
+//     rewrite of the Electron binary (job 3). Flipping fuses after signing
 //     would invalidate the signature and leave a "damaged" bundle.
 //   - Because signing now happens *after* the flip, `@electron/fuses`'
 //     `resetAdHocDarwinSignature` option is deliberately NOT used: macSign.js
@@ -156,6 +157,11 @@ exports.default = async function afterPack(context) {
   );
 
   cleanNativeModules(appDir, platform);
+
+  if (platform === 'win32') {
+    const { verifySdrCapturePackage, builderSdrArchitecture } = await import('./verify-sdr-capture-package.mjs');
+    verifySdrCapturePackage(appDir, builderSdrArchitecture(context.arch));
+  }
 
   await flipElectronFuses(context, platform);
 

@@ -36,6 +36,8 @@ concurrency:
 
 jobs:
   resolve:
+    # This automation updates upstream's main/Flathub metadata, not fork releases.
+    if: github.repository == 'TheZwiss/backspace'
     name: Resolve the release
     runs-on: ubuntu-latest
     permissions:

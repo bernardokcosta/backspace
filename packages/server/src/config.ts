@@ -2,6 +2,7 @@ import { config as dotenvConfig } from 'dotenv';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { parseMinimumDesktopVersion } from '@backspace/shared/src/desktopCompatibility';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -250,6 +251,7 @@ export const config = {
   domain: envOptional('DOMAIN'),
   publicOrigin,
   version,
+  minimumDesktopVersion: parseMinimumDesktopVersion(process.env.BACKSPACE_MIN_DESKTOP_VERSION?.trim() || null),
   sourceCodeUrl,
   commit,
 

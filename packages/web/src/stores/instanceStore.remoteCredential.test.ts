@@ -83,6 +83,7 @@ vi.mock('./authStore', async () => {
 });
 
 import { useInstanceStore, ensureRemoteCredential, RemoteLoginRequiredError } from './instanceStore';
+import { setDesktopSessionAllowed } from '../utils/desktopSessionAccess';
 import type { ConnectedInstance } from './instanceStore';
 
 const REMOTE = 'https://orbit.example';
@@ -115,6 +116,7 @@ function authResponse(overrides: Partial<User> = {}) {
 }
 
 beforeEach(() => {
+  setDesktopSessionAllowed(true);
   verifyPassword.mockClear();
   federationCredential.mockClear();
   ensurePeered.mockClear();
@@ -132,6 +134,17 @@ beforeEach(() => {
     value: new URL('https://nova.example/'),
     writable: true,
   });
+});
+
+it('does not issue a remote credential or register after an old verification resumes across blocking', async () => {
+  let reply: (value: { valid: boolean }) => void = () => {};
+  verifyPassword.mockImplementationOnce(() => new Promise((resolve) => { reply = resolve; }));
+  const attempt = useInstanceStore.getState().connectToRemote(REMOTE, HOME_PASSWORD);
+  const refused = expect(attempt).rejects.toMatchObject({ name: 'AbortError' });
+  setDesktopSessionAllowed(false); setDesktopSessionAllowed(true); reply({ valid: true });
+  await refused;
+  expect(federationCredential).not.toHaveBeenCalled(); expect(remoteRegister).not.toHaveBeenCalled();
+  expect(useInstanceStore.getState().instances).toEqual([]);
 });
 
 describe('connectToRemote never hands the home password to a remote instance', () => {

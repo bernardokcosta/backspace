@@ -13,6 +13,7 @@ export interface ScreenShareConfig {
   mode: 'gaming' | 'text';
   customBitrateKbps: number | null;
   shareAudio: boolean;
+  forceSdr: boolean;
   codec: 'vp9' | 'h264';
 }
 
@@ -106,6 +107,8 @@ export interface VoiceState {
   livekitHostOrigin: string | null;
   /** System audio of the live share; null while not sharing. Not persisted. */
   screenShareAudio: ScreenShareAudioState | null;
+  /** Actual local video mode, separate from the saved next-capture preference. */
+  screenShareSdr: boolean;
   participants: ParticipantInfo[];
   speakingParticipantIds: Set<string>;
   speakingUserIds: Set<string>;
@@ -296,6 +299,7 @@ export const useVoiceStore = create<VoiceState>()(
       isCameraOn: false,
       isScreenSharing: false,
       screenShareAudio: null,
+      screenShareSdr: false,
       livekitHostOrigin: '',
       micPermissionDenied: false,
       participants: [],
@@ -312,7 +316,7 @@ export const useVoiceStore = create<VoiceState>()(
       outputDeviceId: 'default',
       cameraDeviceId: null,
       focusedParticipantId: null,
-      screenShareConfig: { height: 720, fps: 60, mode: 'gaming', customBitrateKbps: null, shareAudio: !isElectron(), codec: 'vp9' },
+      screenShareConfig: { height: 720, fps: 60, mode: 'gaming', customBitrateKbps: null, shareAudio: !isElectron(), forceSdr: false, codec: 'vp9' },
       lastScreenShareSourceId: null,
       participantVolumes: new Map(),
       setParticipantVolume: (userId, volume) => {
@@ -604,7 +608,7 @@ export const useVoiceStore = create<VoiceState>()(
         return { isMuted: true, isDeafened: true };
       }),
       toggleCamera: () => set((state) => ({ isCameraOn: !state.isCameraOn })),
-      toggleScreenShare: () => set((state) => ({ isScreenSharing: !state.isScreenSharing })),
+      toggleScreenShare: () => set((state) => ({ isScreenSharing: !state.isScreenSharing, screenShareSdr: state.isScreenSharing ? false : state.screenShareSdr })),
 
       setFocusedParticipant: (id) => set({ focusedParticipantId: id }),
       setLastScreenShareSourceId: (sourceId) => set({ lastScreenShareSourceId: sourceId }),
@@ -703,6 +707,7 @@ export const useVoiceStore = create<VoiceState>()(
         // Per-session media state
         isCameraOn: false,
         isScreenSharing: false,
+        screenShareSdr: false,
         deafenedUserIds: new Set(),
         streamVolumes: new Map(),
         streamMutes: new Map(),
@@ -755,6 +760,7 @@ export const useVoiceStore = create<VoiceState>()(
             currentVoiceChannelId: null,
             isCameraOn: false,
             isScreenSharing: false,
+            screenShareSdr: false,
             participants: [],
             speakingParticipantIds: new Set(),
             speakingUserIds: new Set(),
@@ -800,6 +806,7 @@ export const useVoiceStore = create<VoiceState>()(
           currentVoiceChannelId: null,
           isCameraOn: false,
           isScreenSharing: false,
+          screenShareSdr: false,
           participants: [],
           speakingParticipantIds: new Set(),
           speakingUserIds: new Set(),
@@ -830,6 +837,7 @@ export const useVoiceStore = create<VoiceState>()(
         isDeafened: false,
         isCameraOn: false,
         isScreenSharing: false,
+        screenShareSdr: false,
         participants: [],
         speakingParticipantIds: new Set(),
         speakingUserIds: new Set(),
@@ -864,7 +872,7 @@ export const useVoiceStore = create<VoiceState>()(
     }),
     {
       name: 'backspace-voice-settings',
-      version: 14,
+      version: 15,
       migrate: (persistedState: any, version: number) => {
         if (version === 0) {
           persistedState.streamAttenuationEnabled = false;
@@ -932,6 +940,9 @@ export const useVoiceStore = create<VoiceState>()(
           if (persistedState.screenShareConfig) {
             persistedState.screenShareConfig.codec = 'vp9';
           }
+        }
+        if (version < 15 && persistedState.screenShareConfig) {
+          persistedState.screenShareConfig.forceSdr = persistedState.screenShareConfig.forceSdr === true;
         }
         return persistedState;
       },

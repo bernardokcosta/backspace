@@ -1,5 +1,7 @@
 // ─── Streaming Constants ─────────────────────────────────────────────────────
 
+export const DESKTOP_UPDATE_REQUIRED_CLOSE_CODE = 4406;
+
 export const STANDARD_RESOLUTIONS = [540, 720, 1080, 1440, 2160] as const;
 export type StandardResolution = (typeof STANDARD_RESOLUTIONS)[number];
 export type Resolution = StandardResolution | 'native';

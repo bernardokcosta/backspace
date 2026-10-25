@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { isElectron } from '../platform/platform';
+import { compareDesktopVersions } from '@backspace/shared/src/desktopCompatibility';
 
 /**
  * Desktop update state for the renderer.
@@ -153,6 +154,13 @@ export function canRestartToInstall(snapshot: DesktopUpdateSnapshot | null): boo
   return snapshot?.capability === 'auto' && snapshot.status.phase === 'ready';
 }
 
+/** Mandatory compatibility recovery ignores dismissal, never readiness/version. */
+export function canInstallRequiredUpdate(snapshot: DesktopUpdateSnapshot | null, minimumVersion: string): boolean {
+  if (snapshot?.capability !== 'auto' || snapshot.status.phase !== 'ready') return false;
+  const order = compareDesktopVersions(snapshot.status.version, minimumVersion);
+  return order !== null && order >= 0;
+}
+
 // Refcounted so the toast and the settings panel can both subscribe, and so
 // React StrictMode's double-invoked effects do not double-register listeners.
 let subscriberCount = 0;
@@ -167,10 +175,14 @@ export const useUpdateStore = create<UpdateStoreState>((set, get) => ({
     subscriberCount += 1;
 
     if (subscriberCount === 1) {
+      set({ snapshot: null, legacyBridge: false });
       teardown = startBridge(set);
     }
 
+    let disposed = false;
     return () => {
+      if (disposed) return;
+      disposed = true;
       subscriberCount -= 1;
       if (subscriberCount === 0 && teardown) {
         teardown();
@@ -232,28 +244,32 @@ type SetState = (
 function startBridge(set: SetState): () => void {
   if (!isElectron() || !window.backspace) return () => {};
   const api = window.backspace;
+  let disposed = false;
+  const update: SetState = (state) => { if (!disposed) set(state); };
 
-  api.getVersion()
-    .then((version) => set({ currentVersion: version }))
+  Promise.resolve().then(() => api.getVersion?.())
+    .then((version) => { if (typeof version === 'string') update({ currentVersion: version }); })
     .catch(() => { /* version is decoration; its absence changes no behaviour */ });
 
   if (api.getUpdateStatus && api.onUpdateStatusChanged) {
+    let eventRevision = 0;
     const unsubscribe = api.onUpdateStatusChanged((raw) => {
       const snapshot = coerceSnapshot(raw);
-      if (snapshot !== null) set({ snapshot });
+      if (snapshot !== null) { eventRevision++; update({ snapshot }); }
     });
 
     api.getUpdateStatus()
       .then((raw) => {
         const snapshot = coerceSnapshot(raw);
-        if (snapshot !== null) set({ snapshot });
+        if (eventRevision === 0 && snapshot !== null) update({ snapshot });
       })
       .catch(() => { /* a live snapshot will arrive on the next updater event */ });
 
-    return unsubscribe;
+    return () => { disposed = true; unsubscribe(); };
   }
 
-  return startLegacyBridge(set, api);
+  const stop = startLegacyBridge(update, api);
+  return () => { disposed = true; stop(); };
 }
 
 /**
@@ -273,7 +289,7 @@ function startLegacyBridge(set: SetState, api: BackspaceElectronAPI): () => void
   let disposed = false;
   set({ legacyBridge: true });
 
-  api.onUpdateDownloaded((info) => {
+  api.onUpdateDownloaded?.((info) => {
     if (disposed) return;
     set({
       snapshot: {
@@ -284,7 +300,7 @@ function startLegacyBridge(set: SetState, api: BackspaceElectronAPI): () => void
     });
   });
 
-  api.onUpdateError((error) => {
+  api.onUpdateError?.((error) => {
     if (disposed) return;
     set((prev) => ({
       snapshot: {

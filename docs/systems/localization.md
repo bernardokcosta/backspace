@@ -1,5 +1,13 @@
 # Localization
 
+Desktop compatibility refusals use `desktop_update_required` with the stable
+`minimumVersion` interpolation in all five errors catalogs. Unknown installed
+versions are omitted on the wire, not serialized as a fake current version.
+The mandatory root screen uses `desktop:compatibility.*` in all five catalogs,
+including policy lookup failures, unknown host version, actual update progress,
+ready-only install and manual/package-manager ownership. It does not render
+raw updater error strings or trust peer-provided recovery URLs.
+
 How Backspace is translated, and the rules every string, count, date and
 error message follows so that the translations stay correct as the product
 moves. This spec is the contract; the foundation PR implements it and each
@@ -37,6 +45,9 @@ Source files:
 - Error mapping: `packages/web/src/i18n/errors.ts` (`describeError`)
 - Language picker: `packages/web/src/components/modals/settingsPanels/LanguageSection.tsx`
 - Catalogs: `packages/web/src/locales/<lng>/<namespace>.json`
+- Screen-share Force SDR controls/failures use `voice:streamSettings.forceSdr*`
+  in all five catalogs; capability/unavailable and restart-share copy describe
+  effective behavior without changing the saved device preference.
 - Shared error codes: `packages/shared/src/errors.ts` (`ERROR_CODES`,
   `ErrorCode`, `ApiErrorBody`, `isErrorCode`)
 - Server error helper: `packages/server/src/utils/httpErrors.ts` (`sendError`,

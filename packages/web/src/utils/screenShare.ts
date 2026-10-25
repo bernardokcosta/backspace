@@ -11,6 +11,7 @@ import { openScreenShareSetup } from '../stores/screenShareSetupStore';
 import i18n from '../i18n';
 import { isElectron, getElectronAPI } from '../platform/platform';
 import { acquireAppExcludedSystemAudio } from './systemAudioSource';
+import { acquireSdrScreenCapture, configureSdrScreenCapture, disposeSdrScreenCapture, getSdrCaptureCapability, isSdrScreenCapture, SdrCaptureError } from './sdrScreenCapture';
 import type { InstanceStreamingLimits } from '@backspace/shared';
 import {
   STANDARD_RESOLUTIONS, STANDARD_FRAMERATES, WIDTH_MAP,
@@ -342,18 +343,25 @@ export function isCaptureCancellation(err: unknown): boolean {
 }
 
 /** Must run inside a user gesture in browsers (getDisplayMedia requires transient activation). */
-export async function stageScreenCapture(): Promise<MediaStream> {
+export interface StageScreenCaptureOptions {
+  forceSdr?: boolean;
+  signal?: AbortSignal;
+}
+
+export async function stageScreenCapture(options: StageScreenCaptureOptions = {}): Promise<MediaStream> {
   const config = useVoiceStore.getState().screenShareConfig;
   const opts = buildScreenShareOptions(config);
   if (!isScreenCaptureSupported()) {
     throw new DOMException('getDisplayMedia is not available', 'NotSupportedError');
   }
+  let stream: MediaStream | null = null;
   try {
+    if (options.signal?.aborted) throw new DOMException('Capture cancelled', 'AbortError');
     // Where the desktop app can build the system audio without Backspace's own
     // playback, that track stands in for the loopback one.
     const ownFree = config.shareAudio ? await acquireAppExcludedSystemAudio() : null;
-    let stream: MediaStream;
     try {
+      if (options.signal?.aborted) throw new DOMException('Capture cancelled', 'AbortError');
       stream = await navigator.mediaDevices.getDisplayMedia(
         buildCaptureConstraints(ownFree ? { ...config, shareAudio: false } : config, opts),
       );
@@ -362,14 +370,26 @@ export async function stageScreenCapture(): Promise<MediaStream> {
       throw err;
     }
     if (ownFree) stream.addTrack(ownFree);
+    if (options.signal?.aborted) throw new DOMException('Capture cancelled', 'AbortError');
+    const forceSdr = options.forceSdr ?? (config.forceSdr === true && (await getSdrCaptureCapability()).supported);
+    if (forceSdr) {
+      stream = await acquireSdrScreenCapture(stream, opts.capture, options.signal);
+      if (stream.getVideoTracks()[0]?.readyState !== 'live') throw new SdrCaptureError('source-ended');
+      stream.getVideoTracks()[0]?.addEventListener('ended', () => {
+        useUIStore.getState().addToast(i18n.t('voice:streamSettings.forceSdrFailed'), 'warning', 8000);
+      }, { once: true });
+    }
     const video = stream.getVideoTracks()[0];
     if (video) video.contentHint = opts.contentHint;
     return stream;
   } catch (err) {
+    if (stream) stopStagedCapture(stream);
     // Loopback unsupported (Linux without pulse, macOS without Catap) makes
     // the whole getDisplayMedia call reject. No auto-retry: the picker
     // selection was consumed, retrying would re-prompt it.
-    if (config.shareAudio && !isCaptureCancellation(err)) {
+    if (err instanceof SdrCaptureError) {
+      useUIStore.getState().addToast(i18n.t('voice:streamSettings.forceSdrFailed'), 'warning', 8000);
+    } else if (config.shareAudio && !isCaptureCancellation(err)) {
       useUIStore.getState().addToast(
         i18n.t('voice:screenPicker.audioCaptureFailed'),
         'warning',
@@ -390,6 +410,9 @@ export async function applyStagedCaptureConfig(stream: MediaStream): Promise<voi
   if (!track || track.readyState !== 'live') return;
   const config = useVoiceStore.getState().screenShareConfig;
   const opts = buildScreenShareOptions(config);
+  try {
+    if (await configureSdrScreenCapture(stream, opts.capture)) { track.contentHint = opts.contentHint; return; }
+  } catch (error) { stopStagedCapture(stream); throw error; }
   const constraints = buildCaptureConstraints(config, opts).video;
   try {
     if (typeof constraints === 'object') await track.applyConstraints(constraints);
@@ -400,7 +423,8 @@ export async function applyStagedCaptureConfig(stream: MediaStream): Promise<voi
 }
 
 export function stopStagedCapture(stream: MediaStream | null | undefined): void {
-  stream?.getTracks().forEach((t) => t.stop());
+  disposeSdrScreenCapture(stream);
+  stream?.getTracks().forEach((t) => { if (t.readyState !== 'ended') t.stop(); });
 }
 
 // ---------------------------------------------------------------------------
@@ -432,6 +456,15 @@ let _republishing = false;
  * `settleScreenShareAfterReconnect`.
  */
 let _reconnectingRoom: Room | null = null;
+/** A publication can disappear before its underlying native capture is stopped. */
+let _activeSdrCapture: { room: Room; stream: MediaStream } | null = null;
+
+export function disposeActiveScreenShareCapture(room: Room): void {
+  if (_activeSdrCapture?.room !== room) return;
+  const capture = _activeSdrCapture;
+  _activeSdrCapture = null;
+  disposeSdrScreenCapture(capture.stream);
+}
 
 function isReconnecting(room: Room): boolean {
   return room.state === ConnectionState.Reconnecting;
@@ -465,7 +498,18 @@ export async function publishScreenShare(
   const opts = buildScreenShareOptions(config);
   const needsH264SdpPatch = config.codec === 'h264';
   const videoTrack = stream.getVideoTracks()[0];
-  if (!videoTrack || videoTrack.readyState !== 'live') return false;
+  if (!videoTrack || videoTrack.readyState !== 'live') { stopStagedCapture(stream); return false; }
+  const sendsSdr = isSdrScreenCapture(stream);
+  const nativeCapture = sendsSdr ? { room, stream } : null;
+  // Register before negotiation: room teardown must also retire a capture
+  // whose first publication has not resolved yet.
+  if (nativeCapture) _activeSdrCapture = nativeCapture;
+  function ensureCaptureLive(): void {
+    if (videoTrack!.readyState !== 'live' || room.state === ConnectionState.Disconnected
+        || (nativeCapture && _activeSdrCapture !== nativeCapture)) {
+      throw new DOMException('Capture ended during publication', 'AbortError');
+    }
+  }
   const capturedAudio = stream.getAudioTracks().find((t) => t.readyState === 'live') ?? null;
   // The toggle as it stands now, not as it stood at capture: audio captured
   // before the user turned System Audio off is not sent.
@@ -478,6 +522,7 @@ export async function publishScreenShare(
   if (needsH264SdpPatch) activateHwOverdrive();
 
   let videoPublished = false;
+  let audioPublished = false;
   try {
     videoTrack.contentHint = opts.contentHint;
     await room.localParticipant.publishTrack(videoTrack, {
@@ -494,7 +539,9 @@ export async function publishScreenShare(
       } : {}),
     });
     videoPublished = true;
-    if (audioToPublish) await publishScreenShareAudioTrack(room, audioToPublish);
+    ensureCaptureLive();
+    if (audioToPublish) { await publishScreenShareAudioTrack(room, audioToPublish); audioPublished = true; }
+    ensureCaptureLive();
 
     _requestedPublishedScreenShareCodec = opts.publish.videoCodec;
     _publishedScreenShareCodec = null;
@@ -504,6 +551,7 @@ export async function publishScreenShare(
     if (capturedAudio && !audioToPublish) setAsideScreenShareAudio(capturedAudio);
     useVoiceStore.setState({
       isScreenSharing: true,
+      screenShareSdr: sendsSdr,
       screenShareAudio: audioToPublish ? 'published' : idleScreenShareAudioState(),
     });
     scheduleScreenShareOverdrive(room);
@@ -520,7 +568,12 @@ export async function publishScreenShare(
         console.error('[ScreenShare] Failed to roll back the video publication:', unpublishErr);
       }
     }
-    if (audioToPublish && err instanceof Error && err.name !== 'NotAllowedError') {
+    if (audioPublished && audioToPublish) {
+      try { await room.localParticipant.unpublishTrack(audioToPublish, false); }
+      catch (error) { console.error('[ScreenShare] Failed to roll back audio publication:', error); }
+    }
+    if (nativeCapture && _activeSdrCapture === nativeCapture) _activeSdrCapture = null;
+    if (audioToPublish && err instanceof Error && !isCaptureCancellation(err)) {
       useUIStore.getState().addToast(
         i18n.t('voice:streamSettings.systemAudioStartFailed'),
         'warning',
@@ -577,7 +630,8 @@ export async function republishScreenShare(room: Room): Promise<void> {
   if (!ok) {
     deactivateHwOverdrive();
     endScreenShareAudio(room);
-    useVoiceStore.setState({ isScreenSharing: false });
+    disposeActiveScreenShareCapture(room);
+    useVoiceStore.setState({ isScreenSharing: false, screenShareSdr: false });
     announceShare(room, 'stream_stop');
     // The swap suppressed handleScreenShareUnpublished, and a video publish
     // that never landed emits no rollback unpublish either, so nothing else
@@ -899,7 +953,9 @@ export function scheduleScreenShareOverdrive(room: Room): void {
       if (!captureConfigured) {
         captureConfigured = true;
         try {
-          if (freshOpts.capture.width > 0 && freshOpts.capture.height > 0) {
+          if (await configureSdrScreenCapture(mediaTrack, freshOpts.capture)) {
+            mediaTrack.contentHint = freshOpts.contentHint;
+          } else if (freshOpts.capture.width > 0 && freshOpts.capture.height > 0) {
             // Standard mode: apply resolution + frameRate together
             await mediaTrack.applyConstraints({
               width: { ideal: freshOpts.capture.width },
@@ -1066,6 +1122,7 @@ export async function stopScreenShare(room: Room): Promise<void> {
   announceShare(room, 'stream_stop');
   _stopping = true;
   try {
+    disposeActiveScreenShareCapture(room);
     for (const source of [Track.Source.ScreenShare, Track.Source.ScreenShareAudio]) {
       // Per publication, not per loop: a throw on the video track used to abort
       // the loop, leaving the screen-share audio published with nothing left in
@@ -1085,7 +1142,7 @@ export async function stopScreenShare(room: Room): Promise<void> {
   endScreenShareAudio(room);
   _publishedScreenShareCodec = null;
   _requestedPublishedScreenShareCodec = null;
-  useVoiceStore.setState({ isScreenSharing: false });
+  useVoiceStore.setState({ isScreenSharing: false, screenShareSdr: false });
   // `voice_status` is what carries isScreenSharing to people who are not in the
   // LiveKit room (channel lists, join sheets). Every stop path funnels through
   // here or through handleScreenShareUnpublished, so both must broadcast.
@@ -1174,13 +1231,14 @@ function announceShare(room: Room, signal: ShareSignal): void {
 
 /** The share is over without stopScreenShare: the OS stop bar, a source that ended, a reconnect that lost it. */
 function endLocalShare(room: Room): void {
+  disposeActiveScreenShareCapture(room);
   _reconnectingRoom = null;
   announceShare(room, 'stream_stop');
   deactivateHwOverdrive();
   endScreenShareAudio(room);
   _publishedScreenShareCodec = null;
   _requestedPublishedScreenShareCodec = null;
-  useVoiceStore.setState({ isScreenSharing: false });
+  useVoiceStore.setState({ isScreenSharing: false, screenShareSdr: false });
   // `voice_status` is what carries isScreenSharing to people who are not in the
   // LiveKit room (channel lists, join sheets). Every stop path funnels through
   // here or through handleScreenShareUnpublished, so both must broadcast.

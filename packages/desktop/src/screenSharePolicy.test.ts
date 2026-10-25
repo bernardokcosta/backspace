@@ -41,6 +41,12 @@ describe('isPendingSelectionFresh', () => {
   it('rejects a selection past the TTL, so it cannot hijack a later share', () => {
     expect(isPendingSelectionFresh(pending, 1_000 + PENDING_SCREEN_SELECTION_TTL_MS + 1)).toBe(false);
   });
+
+  it('rejects a clock rollback or non-finite timestamps', () => {
+    expect(isPendingSelectionFresh(pending, 999)).toBe(false);
+    expect(isPendingSelectionFresh(pending, Number.NaN)).toBe(false);
+    expect(isPendingSelectionFresh({ ...pending, at: Number.POSITIVE_INFINITY }, 1000)).toBe(false);
+  });
 });
 
 describe('screenEnumerationDecision', () => {

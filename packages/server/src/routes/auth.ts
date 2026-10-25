@@ -4,6 +4,7 @@ import { and, eq, or, lt } from 'drizzle-orm';
 import { randomBytes } from 'node:crypto';
 import { getDb, schema } from '../db/index.js';
 import { hashPassword, verifyPassword, signJwt, authenticate } from '../utils/auth.js';
+import { guardDesktopAccess } from '../utils/desktopAccess.js';
 import { generateSnowflake } from '../utils/snowflake.js';
 import { config } from '../config.js';
 import type { RegisterRequest, LoginRequest, AuthResponse } from '@backspace/shared';
@@ -209,6 +210,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     }
 
 
+    if (!guardDesktopAccess(request, reply, { isBot: botIdentity !== null })) return;
     const passwordHash = await hashPassword(password);
 
     // --- Registration always creates a NEW row ---
@@ -417,6 +419,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       return sendError(reply, 401, 'account_deleted');
     }
 
+    if (!guardDesktopAccess(request, reply, { isBot: user.isBot === 1 })) return;
     const validPassword = await verifyPassword(password, user.passwordHash);
     if (!validPassword) {
       // For federated users, try verifying against the home instance.

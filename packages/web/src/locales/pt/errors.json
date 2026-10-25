@@ -1,4 +1,5 @@
 {
+  "desktop_update_required": "É necessário o aplicativo desktop {{minimumVersion}} ou mais recente. Atualize o aplicativo ou use um navegador.",
   "soundboard_disabled": "O painel de áudios está desativado neste espaço.",
   "soundboard_invalid_audio": "O áudio é inválido ou excede o limite de tamanho do arquivo.",
   "soundboard_duration_limit": "O áudio deve ter no máximo {{max}} segundos.",

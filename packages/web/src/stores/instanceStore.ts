@@ -18,6 +18,7 @@ import {
 import { useSpaceStore } from './spaceStore';
 import { useSocialStore } from './socialStore';
 import { connectInstance, disconnectInstance as disconnectWs, disconnectAllRemote } from '../hooks/useWebSocket';
+import { captureDesktopSessionWork, onDesktopSessionAccessChanged } from '../utils/desktopSessionAccess';
 // dmOriginFailover lazily reads useInstanceStore/useSpaceStore/useChatStore at call time,
 // so a static import here does not create an import-time cycle.
 import { useUIStore } from './uiStore';
@@ -712,6 +713,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
   },
 
   connectToRemote: async (origin: string, password: string, displayName?: string) => {
+    const work = captureDesktopSessionWork(); work.assertCurrent();
     const currentUser = useAuthStore.getState().user;
     if (!currentUser) throw new Error('Not logged in');
 
@@ -761,11 +763,13 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
         }
 
         const { valid } = await homeApi.users.verifyPassword(password);
+        work.assertCurrent();
         if (!valid) {
           throw new Error('Incorrect password');
         }
 
         const credential = await homeApi.users.federationCredential({ origin });
+        work.assertCurrent();
         credentialOrigin = credential.origin;
         finalUsername = `${bareUsername}@${trueHomeHost}`;
 
@@ -780,6 +784,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
             homeUserId: trueHomeUserId,
           });
         } catch (err) {
+          work.assertCurrent();
           // Already registered, or registration closed: fall through to login,
           // remembering which, because only the first says an account exists.
           refusal = registrationRefusal(err);
@@ -808,16 +813,20 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
         throw new Error('Failed to authenticate with remote instance');
       }
 
+      work.assertCurrent();
+
       // The remote account now authenticates with the issued secret — record it
       // so no later launch tries to migrate an already-migrated account.
       if (homeApi && credentialOrigin) {
         await homeApi.users
           .federationCredential({ origin: credentialOrigin, markProvisioned: true })
           .catch((err) => console.warn('[federation] Could not record credential state:', err));
+        work.assertCurrent();
       }
 
       // Step 3: Complete connection
       const info = await tempClient.instance.info();
+      work.assertCurrent();
       const authenticatedClient = createApiClient(origin, () => response.token);
 
       // Replace by origin, never append: a re-authentication runs this over
@@ -850,6 +859,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
       maybeAutoReattach(instance).catch(() => {});
 
       await peerHomeWithRemote(origin, instance.label);
+      work.assertCurrent();
 
       // Sync instance list to all instances (fire-and-forget)
       get().syncInstanceList().catch(() => {});
@@ -861,14 +871,17 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
   },
 
   loginToRemote: async (origin: string, username: string, password: string) => {
+    const work = captureDesktopSessionWork(); work.assertCurrent();
     set({ isLoading: true, error: null });
 
     try {
       const tempClient = createApiClient(origin, () => null);
       const response = await tempClient.auth.login({ username, password });
+      work.assertCurrent();
 
       // Fetch instance info for the label
       const info = await tempClient.instance.info();
+      work.assertCurrent();
 
       const authenticatedClient = createApiClient(origin, () => response.token);
 
@@ -908,6 +921,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
       );
 
       await peerHomeWithRemote(origin, instance.label);
+      work.assertCurrent();
 
       // Sync instance list to all instances (fire-and-forget)
       get().syncInstanceList().catch(() => {});
@@ -953,6 +967,8 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
   },
 
   reconnectInstance: async (origin: string) => {
+    const work = captureDesktopSessionWork();
+    if (!work.isCurrent()) return;
     let inst = get().instances.find(i => i.origin === origin);
 
     // A live session, or an attempt already in flight, needs no second one.
@@ -996,6 +1012,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
 
     try {
       const user = await inst.api.users.me();
+      if (!work.isCurrent()) return;
 
       // Refresh the instance label (non-critical — a failure here must not
       // block a successful token reconnect).
@@ -1005,6 +1022,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
       } catch {
         // Keep whatever label the instance already had.
       }
+      if (!work.isCurrent()) return;
 
       writeConnectionState(origin, 'connected', {
         live: { user, ...(info ? { label: info.name } : {}) },
@@ -1025,6 +1043,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
 
       void peerHomeWithRemote(origin, null);
     } catch (err) {
+      if (!work.isCurrent()) return;
       if (isNetworkError(err)) {
         writeConnectionState(origin, 'unreachable');
         // The socket's own backoff is what recovers this one.
@@ -1198,6 +1217,8 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
   },
 
   autoConnectAll: async () => {
+    const work = captureDesktopSessionWork();
+    if (!work.isCurrent()) return;
     const currentUser = useAuthStore.getState().user;
     if (!currentUser) {
       set({ _autoConnectDone: true });
@@ -1218,6 +1239,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
     } catch (err) {
       console.warn('Failed to fetch federation registry from home:', err);
     }
+    if (!work.isCurrent()) return;
 
     // Initialize registry from server data
     const registry = new Map<string, FederationRegistryEntry>();
@@ -1394,6 +1416,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
     if (withToken.length > 0) {
       const results = await Promise.allSettled(
         withToken.map(async ({ origin, ri, entry: cachedEntry }) => {
+          if (!work.isCurrent()) return;
           // Create client with cached token
           const client = createApiClient(origin, () => cachedEntry.token);
 
@@ -1412,6 +1435,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
           try {
             // Verify the token is still valid
             const user = await client.users.me();
+            if (!work.isCurrent()) return;
 
             // Fetch instance info for a fresh label
             let label = cachedEntry.label || new URL(origin).host;
@@ -1422,6 +1446,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
             } catch {
               // Non-critical — keep cached label
             }
+            if (!work.isCurrent()) return;
 
             // Backfill homeUserId if missing (existing federated users before this field existed)
             if (user.homeInstance && !user.homeUserId) {
@@ -1456,6 +1481,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
 
             void peerHomeWithRemote(origin, null);
           } catch (err) {
+            if (!work.isCurrent()) return;
             if (isNetworkError(err)) {
               // Instance unreachable (NAT hairpinning, DNS, server down) — token may still be valid
               writeConnectionState(origin, 'unreachable');
@@ -1479,6 +1505,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
     }
 
     // Save final state to localStorage — persist ALL instances regardless of status
+    if (!work.isCurrent()) return;
     // so tokens are preserved for instant reconnect (registry controls auto-connect behavior)
     saveCachedTokens(get().instances, currentUser.id);
 
@@ -1515,6 +1542,31 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
     // Token cache preserved — scoped per user, survives logout for seamless reconnect
   },
 }));
+
+// A compatibility pause is transport liveness, never a voluntary disconnect
+// or invalid credential. Keep its eligible origins scoped to the current user.
+const desktopSuspendedOrigins = new Map<string, string>();
+const stopDesktopAccess = onDesktopSessionAccessChanged((allowed) => {
+  const state = useInstanceStore.getState();
+  const userId = useAuthStore.getState().user?.id;
+  if (!allowed) {
+    for (const instance of state.instances) {
+      const registryStatus = state.registry.get(instance.origin)?.status;
+      if (!userId || !instance.token || registryStatus === 'disconnected' || registryStatus === 'auth_expired') continue;
+      if (instance.status !== 'connected' && instance.status !== 'connecting' && registryStatus !== 'unreachable') continue;
+      desktopSuspendedOrigins.set(instance.origin, userId);
+      writeConnectionState(instance.origin, 'live-disconnected');
+    }
+    return;
+  }
+  const suspended = [...desktopSuspendedOrigins]; desktopSuspendedOrigins.clear();
+  for (const [origin, owner] of suspended) {
+    const instance = state.instances.find((entry) => entry.origin === origin);
+    if (owner !== userId || !instance?.token || state.registry.get(origin)?.status === 'disconnected') continue;
+    void state.reconnectInstance(origin).catch(() => {});
+  }
+});
+if (import.meta.hot) import.meta.hot.dispose(stopDesktopAccess);
 
 // ─── Shared connect path ─────────────────────────────────────────────────────
 

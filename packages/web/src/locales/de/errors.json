@@ -1,4 +1,5 @@
 {
+  "desktop_update_required": "Desktop-Version {{minimumVersion}} oder neuer erforderlich. Aktualisiere die App oder nutze einen Browser.",
   "soundboard_disabled": "Die Klangtafel ist in diesem Raum deaktiviert.",
   "soundboard_invalid_audio": "Das Audio ist ungültig oder überschreitet die Dateigrößenbegrenzung.",
   "soundboard_duration_limit": "Das Audio darf höchstens {{max}} Sekunden lang sein.",

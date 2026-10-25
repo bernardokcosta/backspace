@@ -1,4 +1,24 @@
 {
+  "compatibility": {
+    "title": "Update Backspace Fork to continue",
+    "checkingTitle": "Checking desktop compatibility",
+    "failedTitle": "Desktop compatibility could not be checked",
+    "body": "This instance requires a compatible desktop app. You can update here or continue in your browser.",
+    "installed": "Installed desktop", "minimum": "Required version", "unknown": "Unavailable",
+    "checking": "Checking this instance’s policy and your installed app…",
+    "checkFailed": "The compatibility check failed. Retry to check the current policy.",
+    "versionUnavailable": "The installed app version could not be read. Update the app or retry.",
+    "bridgeUnavailable": "Update status is unavailable. You can still download an installer.",
+    "manual": "Download an installer and update this app manually.",
+    "external": "Updates are managed by your package manager. Update there, then restart the app.",
+    "updateChecking": "Checking for an update…",
+    "updateFailed": "The update could not be completed. Retry or download an installer.",
+    "insufficient": "No compatible update is ready to install yet. Check again or download the required version.",
+    "ready": "A compatible update is downloaded and ready to install.",
+    "downloading": "Downloading update: {{percent}}", "progress": "Update download progress",
+    "install": "Restart and install", "download": "Download installer", "retry": "Check again", "browser": "Open in browser",
+    "preserved": "Your account, credentials and drafts are kept. Ordinary app activity is paused until compatibility is confirmed."
+  },
   "update": {
     "laterHint": "You can install this later from Settings, Desktop",
     "dismiss": "Dismiss this update",

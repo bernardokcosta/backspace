@@ -102,6 +102,8 @@ import type {
   BotSpacesResponse,
 } from '@backspace/shared';
 import { MESSAGE_PAGING_AFTER, MESSAGE_PAGING_HEADER } from '@backspace/shared';
+import { noteDesktopPolicyRefused } from '../utils/desktopPolicyEvents';
+import { captureDesktopSessionWork } from '../utils/desktopSessionAccess';
 
 export type { FederationPeer, FederationOrphanedAccount, FederationResetEvent, FederationResetEventsResponse, ApprovalRequest, PeeringSubscription, PeeringNotification };
 
@@ -296,6 +298,8 @@ export class BackspaceApiClient {
     messagesAround: (id: string, messageId: string, limit?: number) => Promise<MessageWithUser[]>;
     messagesAfter: (id: string, after: string, limit?: number) => Promise<HistoryPageAfter<MessageWithUser>>;
     sendMessage: (channelId: string, data: CreateMessageRequest) => Promise<MessageWithUser>;
+    /** Delivery acknowledgment only; never applies stale response data to UI. */
+    sendMessageReceipt: (channelId: string, data: CreateMessageRequest) => Promise<void>;
     pins: (id: string) => Promise<{ pins: PinWithMessage[] }>;
     pinMessage: (id: string, messageId: string) => Promise<{ pin: PinnedMessage }>;
     unpinMessage: (id: string, messageId: string) => Promise<{ success: boolean }>;
@@ -332,6 +336,7 @@ export class BackspaceApiClient {
     messagesAround: (id: string, messageId: string, limit?: number) => Promise<DmMessageWithUser[]>;
     messagesAfter: (id: string, after: string, limit?: number) => Promise<HistoryPageAfter<DmMessageWithUser>>;
     sendMessage: (id: string, data: CreateDmMessageRequest) => Promise<DmMessageWithUser>;
+    sendMessageReceipt: (id: string, data: CreateDmMessageRequest) => Promise<void>;
     updateMessage: (id: string, data: UpdateMessageRequest) => Promise<DmMessageWithUser>;
     deleteMessage: (id: string) => Promise<{ success: boolean }>;
     addMember: (dmChannelId: string, data: AddDmMemberRequest) => Promise<DmChannel>;
@@ -532,7 +537,10 @@ export class BackspaceApiClient {
       path: string,
       body?: unknown,
       requireAuth = true,
+      deliveryReceipt = false,
     ): Promise<Response> {
+      const work = captureDesktopSessionWork();
+      work.assertCurrent();
       const headers: Record<string, string> = {};
 
       if (body) {
@@ -547,6 +555,8 @@ export class BackspaceApiClient {
       }
 
       const controller = new AbortController();
+      const cancel = () => controller.abort();
+      work.signal.addEventListener('abort', cancel, { once: true });
       const timeoutId = setTimeout(() => controller.abort(), 30000);
 
       let response: Response;
@@ -558,13 +568,20 @@ export class BackspaceApiClient {
           signal: controller.signal,
         });
       } catch (err) {
-        clearTimeout(timeoutId);
+        work.assertCurrent();
         if (err instanceof DOMException && err.name === 'AbortError') {
           throw new Error('Request timed out');
         }
         throw err;
+      } finally {
+        clearTimeout(timeoutId);
+        work.signal.removeEventListener('abort', cancel);
       }
-      clearTimeout(timeoutId);
+      // A pending POST's confirmed HTTP success is a delivery receipt, not
+      // session/UI state. It must settle even if compatibility changed while
+      // awaiting headers. All ordinary requests still reject stale results.
+      if (deliveryReceipt && response.ok) return response;
+      work.assertCurrent();
 
       if (!response.ok) {
         if (response.status === 401 && requireAuth && onUnauthorized) {
@@ -576,7 +593,11 @@ export class BackspaceApiClient {
             ?? (parseInt(response.headers.get('retry-after') || '', 10) || 60);
           throw new RateLimitError(retryAfter, body);
         }
-        throw HttpError.fromBody(response.status, await response.json().catch(() => null));
+        const error = HttpError.fromBody(response.status, await response.json().catch(() => null));
+        if (error.status === 426 && error.code === 'desktop_update_required') {
+          noteDesktopPolicyRefused(new URL(baseUrl || '/', window.location.href).origin);
+        }
+        throw error;
       }
 
       return response;
@@ -588,8 +609,18 @@ export class BackspaceApiClient {
       body?: unknown,
       requireAuth = true,
     ): Promise<T> {
+      const work = captureDesktopSessionWork();
       const response = await send(method, path, body, requireAuth);
-      return response.json() as Promise<T>;
+      const value = await response.json() as T;
+      work.assertCurrent();
+      return value;
+    }
+
+    async function messageReceipt(path: string, data: CreateMessageRequest | CreateDmMessageRequest): Promise<void> {
+      const response = await send('POST', path, data, true, true);
+      // These endpoints commit before sending success. Deferred messages are
+      // reconciled by WS/history; parsing a body here only delays settlement.
+      void response.body?.cancel().catch(() => {});
     }
 
     /**
@@ -599,12 +630,14 @@ export class BackspaceApiClient {
      * "Message history paging").
      */
     async function historyAfter<T>(path: string, after: string, limit: number): Promise<HistoryPageAfter<T>> {
+      const work = captureDesktopSessionWork();
       const params = new URLSearchParams();
       params.set('after', after);
       params.set('limit', String(limit));
       const response = await send('GET', `${path}?${params}`);
       const forward = response.headers.get(MESSAGE_PAGING_HEADER) === MESSAGE_PAGING_AFTER;
       const messages = await response.json() as T[];
+      work.assertCurrent();
       return { messages, forward };
     }
     this.soundboard = {
@@ -756,6 +789,8 @@ export class BackspaceApiClient {
       },
       sendMessage: (channelId: string, data: CreateMessageRequest) =>
         request<MessageWithUser>('POST', `/channels/${channelId}/messages`, data),
+      sendMessageReceipt: (channelId: string, data: CreateMessageRequest) =>
+        messageReceipt(`/channels/${channelId}/messages`, data),
       pins: (id: string) => request<{ pins: PinWithMessage[] }>('GET', `/channels/${id}/pins`),
       pinMessage: (id: string, messageId: string) =>
         request<{ pin: PinnedMessage }>('POST', `/channels/${id}/pins`, { messageId }),
@@ -820,6 +855,8 @@ export class BackspaceApiClient {
       },
       sendMessage: (id: string, data: CreateDmMessageRequest) =>
         request<DmMessageWithUser>('POST', `/dm/${id}/messages`, data),
+      sendMessageReceipt: (id: string, data: CreateDmMessageRequest) =>
+        messageReceipt(`/dm/${id}/messages`, data),
       updateMessage: (id: string, data: UpdateMessageRequest) =>
         request<DmMessageWithUser>('PATCH', `/dm/messages/${id}`, data),
       deleteMessage: (id: string) =>

@@ -1,6 +1,14 @@
 name: Release Desktop
 
 on:
+  pull_request:
+    paths:
+      - '.github/workflows/release.yml'
+      - '.github/release-notes/**'
+      - 'scripts/*desktop*release*'
+      - 'scripts/verify-desktop-build.mjs'
+      - 'packages/desktop/**'
+  workflow_dispatch:
   push:
     tags:
       - 'v*'
@@ -8,125 +16,19 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: desktop-release-${{ github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
-  # Create the draft release once, before the build matrix fans out.
-  #
-  # electron-builder's GitHub publisher lists the repository's releases, looks
-  # for one carrying this tag, and creates a draft when it finds none
-  # (electron-publish, gitHubPublisher.js, getOrCreateRelease). The four matrix
-  # jobs run that lookup concurrently, so all four can see "no release for this
-  # tag" before any of them has finished creating one. On v1.0.3 two of them
-  # went on to create a draft: the tag ended up with two releases and the 22
-  # assets split 12/10 between them, which is easy to miss because a release
-  # listing shows one entry per tag. Consolidating them was manual.
-  #
-  # With the draft already in place, every matrix job takes the "found an
-  # existing draft" branch of that lookup and only uploads. That branch returns
-  # the release untouched — the publisher never rewrites the name or the body of
-  # a release it did not create — so the title set below is the one the release
-  # keeps.
-  create-release:
-    runs-on: ubuntu-latest
-    # Scoped to this job: it is the only one that needs to create a release.
-    permissions:
-      contents: write
-    steps:
-      - name: Harden the runner
-        uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
-        with:
-          egress-policy: audit
-
-      - name: Create the draft release for this tag
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-          TAG: ${{ github.ref_name }}
-        # Listing releases rather than asking for one by tag: the "get a release
-        # by tag name" endpoint does not return drafts, and the release this job
-        # creates is a draft, so a re-run would not find its own work and would
-        # try to create a second one. The list endpoint includes drafts.
-        #
-        # Deliberately not `gh release create ... || true`. That form also
-        # swallows auth and network failures, and the matrix would then race
-        # exactly as before while this job reported success. Look first, create
-        # only on a confirmed absence, and let anything else fail the job.
-        #
-        # The title matches every release shipped so far ("Backspace Fork 1.11.1").
-        # electron-builder would name the draft after the bare version instead,
-        # because `releaseInfo.releaseName` is not set in electron-builder.yml.
-        #
-        # The body starts as a "# Backspace Fork X.Y.Z" heading followed by a
-        # Downloads table. GitHub sorts the asset list by name and offers no
-        # other order, which puts Linux first and Windows last; the table is
-        # what a visitor reads instead, in Windows, Linux, macOS order with
-        # plain labels. It is written before any asset exists (the draft is not
-        # visible until published) from the names electron-builder will
-        # produce, so it has to move with `artifactName` in
-        # packages/desktop/electron-builder.yml.
-        #
-        # The heading is the one flatpak/release-summary.mjs requires. The
-        # human step before publishing is to write the summary paragraph
-        # directly under it, and the "What's new" sections below that. That
-        # paragraph is the Flatpak "What's New" text: publishing the release
-        # starts flatpak-release-metadata.yml, which copies it into the
-        # AppStream release entry, and fails if the heading is followed by the
-        # `## Downloads` heading instead of a paragraph.
-        run: |
-          set -euo pipefail
-
-          existing="$(gh api --paginate "repos/$GH_REPO/releases" \
-            --jq '.[] | select(.tag_name == env.TAG) | .id')"
-          count="$(printf '%s' "$existing" | grep -c . || true)"
-
-          if [ "$count" -gt 1 ]; then
-            ids="$(printf '%s' "$existing" | tr '\n' ' ')"
-            echo "::error::$count releases already carry the tag $TAG (ids: $ids) — this is the duplicate-release state this job exists to prevent. Consolidate them by hand before re-running."
-            exit 1
-          fi
-
-          if [ "$count" -eq 1 ]; then
-            echo "A release already carries $TAG (id $existing) — leaving it untouched."
-            exit 0
-          fi
-
-          version="${TAG#v}"
-          base="https://github.com/$GH_REPO/releases/download/$TAG"
-          asset() { printf '[%s](%s/%s)' "$1" "$base" "$1"; }
-          notes="$(mktemp)"
-          {
-            echo "# Backspace Fork $version"
-            echo
-            echo "## Downloads"
-            echo
-            echo "| Platform | Download |"
-            echo "|---|---|"
-            echo "| Windows x64 | $(asset "Backspace-Fork-$version-win-x64.exe") |"
-            echo "| Windows arm64 | $(asset "Backspace-Fork-$version-win-arm64.exe") |"
-            echo "| Linux AppImage x86_64 | $(asset "Backspace-Fork-$version-linux-x86_64.AppImage") |"
-            echo "| Linux AppImage arm64 | $(asset "Backspace-Fork-$version-linux-arm64.AppImage") |"
-            echo "| Linux deb amd64 | $(asset "Backspace-Fork-$version-linux-amd64.deb") |"
-            echo "| Linux deb arm64 | $(asset "Backspace-Fork-$version-linux-arm64.deb") |"
-            echo "| macOS Apple Silicon | $(asset "Backspace-Fork-$version-mac-arm64.dmg") |"
-            echo "| macOS Intel | $(asset "Backspace-Fork-$version-mac-x64.dmg") |"
-            echo
-            echo "The \`.blockmap\` and \`latest*.yml\` files are read by the auto-updater and are not meant to be downloaded by hand."
-          } > "$notes"
-
-          echo "No release carries $TAG yet — creating the draft."
-          gh release create "$TAG" \
-            --draft \
-            --title "Backspace Fork $version" \
-            --notes-file "$notes"
+  native-sdr:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    uses: ./.github/workflows/native-sdr-capture.yml
 
   build:
-    # Every matrix job publishes into the draft that `create-release` has
-    # already made. Without this dependency they race to create it themselves.
-    needs: create-release
-    # `contents: write` is scoped to this job: electron-builder runs with
-    # `--publish always`, which uploads the installers and the updater feed
-    # files to the release for the tag.
+    # Build-only matrix: no release writer, no GH_TOKEN, immutable artifacts.
     permissions:
-      contents: write
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -134,6 +36,11 @@ jobs:
           # macOS — universal build (arm64 + x64) on Apple Silicon runner
           - os: macos-latest
             args: --mac --arm64 --x64
+            artifact: release-mac
+            files: |
+              packages/desktop/dist-electron/*-mac-*.dmg
+              packages/desktop/dist-electron/*-mac-*.dmg.blockmap
+              packages/desktop/dist-electron/latest-mac.yml
           # Windows — x64 + arm64 on x64 runner.
           # Pinned to windows-2022 (VS 2022 / v17): the windows-latest image
           # ships VS "18", which the node-gyp bundled with electron-rebuild
@@ -141,12 +48,27 @@ jobs:
           # uiohook-napi in postinstall.
           - os: windows-2022
             args: --win --x64 --arm64
+            artifact: release-windows
+            files: |
+              packages/desktop/dist-electron/*-win-*.exe
+              packages/desktop/dist-electron/*-win-*.exe.blockmap
+              packages/desktop/dist-electron/latest.yml
           # Linux — x64 on x64 runner
           - os: ubuntu-latest
             args: --linux --x64
+            artifact: release-linux-x64
+            files: |
+              packages/desktop/dist-electron/*-linux-x86_64.AppImage
+              packages/desktop/dist-electron/*-linux-amd64.deb
+              packages/desktop/dist-electron/latest-linux.yml
           # Linux — arm64 on arm64 runner
           - os: ubuntu-24.04-arm
             args: --linux --arm64
+            artifact: release-linux-arm64
+            files: |
+              packages/desktop/dist-electron/*-linux-arm64.AppImage
+              packages/desktop/dist-electron/*-linux-arm64.deb
+              packages/desktop/dist-electron/latest-linux-arm64.yml
 
     runs-on: ${{ matrix.os }}
 
@@ -159,6 +81,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Linux build dependencies
         if: runner.os == 'Linux'
@@ -214,11 +138,18 @@ jobs:
         working-directory: packages/desktop
         run: pnpm exec tsc
 
-      - name: Build and publish desktop app
+      # afterPack fails closed if either installer lacks its matching addon.
+      # R1 also replaces publication with a single validated release writer.
+      - name: Build both Windows native capture architectures
+        if: runner.os == 'Windows'
+        run: |
+          node packages/desktop/scripts/build-sdr-capture.mjs --arch x64
+          node packages/desktop/scripts/build-sdr-capture.mjs --arch arm64
+
+      - name: Build desktop app without publication
         working-directory: packages/desktop
-        run: pnpm exec electron-builder ${{ matrix.args }} --publish always
+        run: pnpm exec electron-builder ${{ matrix.args }} --publish never
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
           # Use the host-native fpm installed above instead of electron-builder's
           # bundled x86_64 fpm (which can't run on the arm64 runner). No-op on
@@ -340,12 +271,7 @@ jobs:
       - name: Verify macOS code signature
         if: runner.os == 'macOS'
         working-directory: packages/desktop
-        # Backstop for the ad-hoc signing done in scripts/macSign.js. A bundle
-        # whose signature does not validate is reported by macOS as "Backspace Fork
-        # is damaged and can't be opened", which no user can work around from
-        # the UI — so a broken seal must fail the release loudly rather than
-        # ship. macSign.js already verifies before packaging; this re-checks the
-        # final bundle, and also covers the case where that hook no-ops.
+        shell: bash
         run: |
           shopt -s nullglob
           apps=(dist-electron/mac*/*.app)
@@ -354,6 +280,127 @@ jobs:
             exit 1
           fi
           for app in "${apps[@]}"; do
-            echo "==> $app"
             codesign --verify --deep --strict --verbose=2 "$app"
           done
+
+      - name: Verify packaged updater publisher and Windows native resources
+        env:
+          ARTIFACT_GROUP: ${{ matrix.artifact }}
+        run: node scripts/verify-desktop-build.mjs --group "$ARTIFACT_GROUP" --directory packages/desktop/dist-electron
+        shell: bash
+
+      - name: Upload immutable release candidate
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.files }}
+          if-no-files-found: error
+          compression-level: 0
+
+  validate:
+    name: Verify complete release candidate without publishing
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 10.34.3
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: release-*
+          path: release-artifacts
+          merge-multiple: false
+      - name: Assemble and verify all platform outputs before any tag or release writer
+        run: |
+          version="$(node -p 'require("./packages/desktop/package.json").version')"
+          node scripts/desktop-release-assets.mjs --directory release-artifacts --version "$version" --assemble release-assets --output release-inventory.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verified-desktop-assets
+          path: release-assets/*
+          if-no-files-found: error
+          compression-level: 0
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verified-desktop-inventory
+          path: release-inventory.json
+          if-no-files-found: error
+
+  publish:
+    name: Validate and publish one release
+    # PR and manual runs exercise all real builds/aggregation but NEVER write
+    # a release. Only the reviewed immutable tag push can reach this job.
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    needs: [build, native-sdr, validate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 10.34.3
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Require successful main-branch CI for the exact tagged commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 90); do
+            result="$(gh api "repos/$REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$COMMIT&event=push&per_page=100" --jq '.workflow_runs | map(select(.head_sha == env.COMMIT and (.head_branch == "master" or .head_branch == "main"))) | sort_by(.run_number) | last | [.status, .conclusion] | @tsv')"
+            if [ "$result" = $'completed\tsuccess' ]; then exit 0; fi
+            if [[ "$result" == completed* ]]; then echo "::error::Required exact-commit CI did not succeed"; exit 1; fi
+            sleep 20
+          done
+          echo "::error::No successful exact-commit main-branch CI within the deadline"
+          exit 1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: verified-desktop-assets
+          path: release-assets
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: verified-desktop-inventory
+          path: .
+      - name: Select or create the unique draft and retain its id
+        id: bootstrap
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          node scripts/publish-desktop-release.mjs --repository "$REPOSITORY" --tag "$TAG" --commit "$COMMIT" --notes ".github/release-notes/$TAG.md" --prepare --output-id release-id.json
+          node --input-type=module -e 'import fs from "node:fs"; const {releaseId}=JSON.parse(fs.readFileSync("release-id.json","utf8")); fs.appendFileSync(process.env.GITHUB_OUTPUT,`release-id=${releaseId}\n`);'
+      - name: Upload, verify and publish only that release id
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+          COMMIT: ${{ github.sha }}
+          RELEASE_ID: ${{ steps.bootstrap.outputs.release-id }}
+        run: node scripts/publish-desktop-release.mjs --repository "$REPOSITORY" --tag "$TAG" --commit "$COMMIT" --release-id "$RELEASE_ID" --directory release-assets --inventory release-inventory.json --notes ".github/release-notes/$TAG.md" --publish

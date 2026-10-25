@@ -17,7 +17,7 @@
       "count": 3
     },
     "@typescript-eslint/no-unused-vars": {
-      "count": 3
+      "count": 1
     }
   },
   "packages/desktop/src/recovery.ts": {
@@ -590,43 +590,7 @@
       "count": 1
     }
   },
-  "scripts/directory-hub/src/env.ts": {
-    "@typescript-eslint/no-empty-object-type": {
-      "count": 1
-    },
-    "@typescript-eslint/no-namespace": {
-      "count": 1
-    }
-  },
-  "scripts/directory-hub/src/index.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
   "scripts/gen-icons.mjs": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "scripts/metrics/src/collect.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "scripts/telemetry-receiver/src/env.ts": {
-    "@typescript-eslint/no-empty-object-type": {
-      "count": 1
-    },
-    "@typescript-eslint/no-namespace": {
-      "count": 1
-    }
-  },
-  "scripts/telemetry-receiver/src/index.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    }
-  },
-  "scripts/telemetry-receiver/src/validate.test.ts": {
     "@typescript-eslint/no-unused-vars": {
       "count": 1
     }
