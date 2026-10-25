@@ -60,6 +60,10 @@ mac:
     - dmg
 win:
   icon: ./build/icon.ico
+  extraResources:
+    # Only the target architecture; afterPack rejects missing/foreign payloads.
+    - from: native/sdr-capture/build/win32-${arch}/sdr_capture.node
+      to: sdr-capture/sdr_capture.node
   target:
     - nsis
 linux:

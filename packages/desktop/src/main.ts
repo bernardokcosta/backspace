@@ -865,9 +865,14 @@ function registerIpcHandlers(): void {
   ipcMain.handle('get-app-version', () => app.getVersion());
 
   // Screen share picker coordination (used by setDisplayMediaRequestHandler)
-  ipcMain.on('screen-share-selected', (_event, _sourceId: string | null, _shareAudio?: boolean) => {
-    // Handled via ipcMain.once in the display media handler — this is just
-    // a safety net to prevent unhandled-message warnings
+  ipcMain.on('screen-share-selected', (event, sourceId: string | null, _shareAudio?: boolean) => {
+    if (!mainWindow || mainWindow.isDestroyed() || event.sender !== mainWindow.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) return;
+    if (sourceId === null) {
+      pendingScreenSelection = null;
+      screenSelectionGeneration++;
+      sdrCapture.revokeGrant();
+    }
+    // An in-flight legacy prompt also consumes this event in its request handler.
   });
   // Setup-screen flow: the renderer lists sources up front, and preselects one
   // right before it calls getDisplayMedia(); the handler answers from that.
@@ -893,7 +898,7 @@ function registerIpcHandlers(): void {
     if (event.sender !== mainWindow?.webContents) return 'app';
     return currentPickerMode();
   });
-  registerSdrCaptureIpc(ipcMain, sdrCapture, (event) => event.sender === mainWindow?.webContents
+  registerSdrCaptureIpc(ipcMain, sdrCapture, (event) => !!mainWindow && !mainWindow.isDestroyed() && event.sender === mainWindow.webContents
     && !!event.senderFrame && isSdrTargetAllowed(event.senderFrame));
   // Whether System Audio on this OS build carries Backspace's own playback
   // (the call) to viewers; the stream settings say so before it is turned on.
@@ -921,7 +926,7 @@ function registerIpcHandlers(): void {
   // runs. Fire-and-forget left the two unordered — the handler could win, fall
   // back to the prompted flow, and leave this armed to hijack the next share.
   ipcMain.handle('screen-share-preselect', async (event, sourceId: unknown, shareAudio?: boolean, videoOptions?: unknown) => {
-    if (event.sender !== mainWindow?.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) return;
+    if (!mainWindow || mainWindow.isDestroyed() || event.sender !== mainWindow.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) return;
     pendingScreenSelection = null;
     const generation = ++screenSelectionGeneration;
     sdrCapture.revokeGrant();
@@ -1399,6 +1404,11 @@ if (!gotTheLock) {
     session.defaultSession.setDisplayMediaRequestHandler(async (request, callback) => {
       console.log('[Main:ScreenShare] Handler invoked');
       try {
+        if (!request.frame || !isSdrTargetAllowed(request.frame)) {
+          // @ts-expect-error — Electron requires no argument to deny requested video
+          callback();
+          return;
+        }
         const pending = takePendingScreenSelection();
         sdrCapture.revokeGrant();
         if (pending) {

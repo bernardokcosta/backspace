@@ -35,9 +35,19 @@ capacity. Raw handles stay in privileged code. Main/preload expose capability,
 start/configure/stop and bounded ended messages. Acquisition needs a one-use
 30-second grant from an accepted Force SDR preselection for the focused main
 frame. Native code is loaded lazily from the host-owned architecture path;
-missing packaged modules do not fall back to development paths. The saved
-Force SDR setting/track adapter and packaging are not yet implemented, so
-existing web clients and ordinary capture continue using their existing path.
+missing packaged modules do not fall back to development paths. The web
+quality controls now save opt-in Force SDR, recreate a staged preview when it
+changes and lock the actual mode during a published share. Its track adapter
+preserves audio, handles cancellation/direct stop and routes quality changes
+to native capture. Ordinary capture remains unchanged on unsupported hosts.
+Windows packaging copies only `native/sdr-capture/build/win32-${arch}/sdr_capture.node`
+to `resources/sdr-capture/sdr_capture.node`; afterPack fails before fuse checks
+if the payload is absent, contains extra files or has the wrong PE architecture.
+`verify-sdr-capture-package.mjs --resources <path> --arch x64|arm64` independently
+checks that payload without claiming it ran. CI calls the native workflow from
+the required aggregate gate for both matching Windows hosts, builds/loads each
+addon and packages/verifies each unpacked app without publishing. Actual
+packaged boot/load, HDR and ARM64 GPU capture acceptance remain separate gates.
 
 The experimental `capture_session` worker now captures an explicitly mapped
 window/display with free-threaded FP16 WGC buffers, GPU-side source-peak
@@ -56,8 +66,9 @@ transport. Neither substitutes for a real HDR display/received-stream test.
 `--mode capture` tests only a fixture-owned window, including resize,
 cancel/restart, callback-error, source-close and cleanup paths. It briefly
 shows that controlled test window and does not capture unrelated content.
-Capture mode uses the compiled production preload plus a reporting-only test
-bridge, the production host controller and its narrow IPC registration. It
+Capture mode uses the actual web track adapter/platform helper (type erasure
+only), compiled production preload plus a reporting-only test bridge, the
+production host controller and its narrow IPC registration. It
 also exercises cross-document navigation and destruction after a real native
 frame, with zero retained output references afterward. This does not replace
 the real getDisplayMedia selection/audio/publication acceptance tests.

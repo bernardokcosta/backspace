@@ -214,6 +214,14 @@ jobs:
         working-directory: packages/desktop
         run: pnpm exec tsc
 
+      # afterPack fails closed if either installer lacks its matching addon.
+      # R1 also replaces publication with a single validated release writer.
+      - name: Build both Windows native capture architectures
+        if: runner.os == 'Windows'
+        run: |
+          node packages/desktop/scripts/build-sdr-capture.mjs --arch x64
+          node packages/desktop/scripts/build-sdr-capture.mjs --arch arm64
+
       - name: Build and publish desktop app
         working-directory: packages/desktop
         run: pnpm exec electron-builder ${{ matrix.args }} --publish always

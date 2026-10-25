@@ -21,6 +21,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  native-sdr:
+    name: Windows native capture
+    uses: ./.github/workflows/native-sdr-capture.yml
+
   build-and-test:
     name: Build & test (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
@@ -181,7 +185,7 @@ jobs:
   build-and-test-required:
     name: Build & test
     if: always()
-    needs: [build-and-test, build-image, lint]
+    needs: [build-and-test, build-image, lint, native-sdr]
     runs-on: ubuntu-latest
     steps:
       - name: Verify matrix result
@@ -198,4 +202,8 @@ jobs:
             echo "Lint did not succeed: ${{ needs.lint.result }}"
             exit 1
           fi
-          echo "All matrix legs passed, lint is clean and the image builds."
+          if [ "${{ needs.native-sdr.result }}" != "success" ]; then
+            echo "Windows native build/load/package checks did not succeed: ${{ needs.native-sdr.result }}"
+            exit 1
+          fi
+          echo "All matrix legs passed, lint is clean, the image builds and Windows native packages verify."

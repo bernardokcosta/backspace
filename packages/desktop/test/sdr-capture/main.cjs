@@ -29,6 +29,7 @@ let timer;
 let navigationComplete;
 const forwardedSessions = new Set();
 const endedSessions = [];
+const lastGeometry = new Map();
 
 function finish(result) {
   if (finished) return;
@@ -49,7 +50,6 @@ const transport = createSdrCaptureTransport({
   isTargetAllowed: (frame) => window && !window.isDestroyed() && frame === window.webContents.mainFrame,
   releaseFrame: (id) => native.releaseFrame(id),
 });
-let resized = false;
 const controller = createSdrCaptureController({
   platform: process.platform, systemVersion: process.getSystemVersion(), transportAvailable: true,
   loadModule: () => native,
@@ -59,13 +59,11 @@ const controller = createSdrCaptureController({
   sendFrame: async (owner, id, frame) => {
     await transport.sendSdrFrame(owner, id, frame);
     if (!forwardedSessions.has(id)) stage(`first production frame: ${frame.width}x${frame.height}`);
-    forwardedSessions.add(id);
-    if (!resized && !finished && captureId) {
-      stage('requesting source resize and native configure');
-      resized = true;
-      sourceWindow.setContentSize(400, 200);
-      controller.configure(owner, id, { width: 90, height: 45, frameRate: 30 });
+    if (lastGeometry.get(id) !== `${frame.width}x${frame.height}`) {
+      lastGeometry.set(id, `${frame.width}x${frame.height}`);
+      stage(`production geometry: ${frame.width}x${frame.height}`);
     }
+    forwardedSessions.add(id);
   },
   onEnded: (owner, ended) => {
     endedSessions.push(ended);
@@ -76,11 +74,16 @@ const controller = createSdrCaptureController({
     }
   },
 });
-registerSdrCaptureIpc(ipcMain, controller, (event) => event.sender === window?.webContents && event.senderFrame === window.webContents.mainFrame);
+registerSdrCaptureIpc(ipcMain, controller, (event) => !!window && !window.isDestroyed() && event.sender === window.webContents && event.senderFrame === window.webContents.mainFrame);
 // Capture id is recorded only to drive the test's configured-size transition.
 ipcMain.handle('sdr-smoke-session', (event, id) => {
   assert.equal(event.senderFrame, window.webContents.mainFrame);
   captureId = id;
+});
+ipcMain.handle('sdr-smoke-resize', (event) => {
+  assert.equal(event.senderFrame, window.webContents.mainFrame);
+  sourceWindow.setContentSize(400, 200);
+  stage('controlled source resized');
 });
 
 ipcMain.handle('sdr-smoke-ready', async (event) => {
@@ -101,6 +104,12 @@ ipcMain.handle('sdr-smoke-ready', async (event) => {
     assert.equal(controller.grant(event.senderFrame, source), true);
     return { sessionId, mode };
   }
+  return { sessionId, mode };
+});
+
+ipcMain.handle('sdr-smoke-begin-synthetic', (event) => {
+  assert.equal(event.sender, window.webContents);
+  assert.equal(event.senderFrame, window.webContents.mainFrame);
   setImmediate(async () => {
     try {
       const width = 60;
@@ -232,6 +241,8 @@ app.whenReady().then(async () => {
     ['/source.html', { file: 'source.html', type: 'text/html' }],
     ['/source.css', { file: 'source.css', type: 'text/css' }],
     ['/source.js', { file: 'source.js', type: 'text/javascript' }],
+    ['/utils/sdrScreenCapture.js', { file: path.join(evidence, 'adapter.js'), type: 'text/javascript' }],
+    ['/platform/platform', { file: path.join(evidence, 'platform.js'), type: 'text/javascript' }],
   ]);
   server = http.createServer((request, response) => {
     const asset = files.get(request.url);
@@ -241,7 +252,7 @@ app.whenReady().then(async () => {
       'Content-Security-Policy': "default-src 'none'; script-src 'self'; style-src 'self'; media-src blob:; connect-src 'none'",
       'Cache-Control': 'no-store',
     });
-    response.end(fs.readFileSync(path.join(__dirname, asset.file)));
+    response.end(fs.readFileSync(path.isAbsolute(asset.file) ? asset.file : path.join(__dirname, asset.file)));
   });
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
   if (mode === 'capture') {
@@ -266,7 +277,7 @@ app.whenReady().then(async () => {
   if (mode === 'capture') window.focus();
   window.webContents.on('console-message', (details) => stage(`renderer console: ${details.message}`));
   window.webContents.on('render-process-gone', (_event, details) => finish({ status: 'failed', error: `Renderer lost: ${details.reason}` }));
-  timer = setTimeout(() => finish({ status: 'failed', error: 'No renderer frame result within 30 seconds' }), 30000);
+  timer = setTimeout(() => finish({ status: 'failed', error: `No renderer frame result within 30 seconds; retained ${native.retainedFrameCount()}` }), 30000);
   navigationComplete = window.loadURL(`http://127.0.0.1:${server.address().port}/`);
   await navigationComplete;
 }).catch((error) => finish({ status: 'failed', error: error.message }));

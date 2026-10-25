@@ -15,6 +15,7 @@ sharedTexture.setSharedTextureReceiver(async ({ importedSharedTexture }, metadat
 
 contextBridge.exposeInMainWorld('sdrSmoke', {
   ready: () => ipcRenderer.invoke('sdr-smoke-ready'),
+  beginSynthetic: () => ipcRenderer.invoke('sdr-smoke-begin-synthetic'),
   report: (result) => ipcRenderer.invoke('sdr-smoke-report', result),
   security: { sandboxed: process.sandboxed, contextIsolated: process.contextIsolated },
 });

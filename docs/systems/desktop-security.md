@@ -160,7 +160,8 @@ designated => identifier "com.example.app" and anchor apple generic and
 ## Experimental native SDR capture
 
 The opt-in SDR work under `native/sdr-capture` now has a narrow main/preload
-bridge, while UI/track integration and packaging remain pending. Only
+bridge and web track integration. Windows packaging verifies its target-only
+native resource before fuse checks; this is not a runtime capture test. Only
 privileged code loads the addon and resolves a native source from the trusted
 desktop enumeration/display origin. The renderer cannot pass an HWND,
 HMONITOR, module path or raw texture handle to the native-start IPC.
@@ -172,6 +173,13 @@ normalizes geometry/rate and binds configure/stop to the owning session. A
 legitimate active share survives alt-tab. Navigation, renderer loss, close and
 quit stop native capture. Existing clients never requesting Force SDR do not
 start this path.
+
+The existing `selectScreenSource(null)` cancel event also invalidates pending
+preselection/generation/grants, including an async source lookup that resolves
+after setup closes. Foreign/subframe display-media requests are denied before
+they can consume the app's selected source. Client AbortSignals dispose a
+pending native start even when its session reply arrives late; publication
+relinquishes setup abort ownership rather than stopping its transferred track.
 
 Force SDR preselection refreshes source identity without thumbnails/icons, so a
 later tile click does not depend on retaining another window's old pixels.

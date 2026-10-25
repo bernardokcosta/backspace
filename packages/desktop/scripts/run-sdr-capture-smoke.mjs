@@ -28,6 +28,16 @@ if (mode === 'capture') {
   fs.writeFileSync(preload, fs.readFileSync(path.resolve(directory, '../dist/preload.js'), 'utf8')
     + '\n' + fs.readFileSync(path.resolve(directory, '../test/sdr-capture/bridge-preload.cjs'), 'utf8'), { flag: 'wx' });
   env.BACKSPACE_SDR_PRELOAD = preload;
+  // Execute the actual web adapter, not another hand-written generator. This
+  // only erases types; its imported platform helper is served unchanged too.
+  const ts = require('typescript');
+  const web = path.resolve(directory, '../../web/src');
+  for (const [name, source] of [['adapter.js', 'utils/sdrScreenCapture.ts'], ['platform.js', 'platform/platform.ts']]) {
+    const result = ts.transpileModule(fs.readFileSync(path.join(web, source), 'utf8'), {
+      compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext }, fileName: source,
+    });
+    fs.writeFileSync(path.join(evidence, name), result.outputText, { flag: 'wx' });
+  }
 }
 delete env.ELECTRON_RUN_AS_NODE;
 const child = spawn(electron, [path.resolve(directory, '../test/sdr-capture/main.cjs'), '--enable-logging=file', `--log-file=${path.join(evidence, 'chromium.log')}`], { env, stdio: ['ignore', log, log], windowsHide: true });

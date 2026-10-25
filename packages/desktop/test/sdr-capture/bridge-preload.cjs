@@ -6,6 +6,7 @@
     ready: () => ipcRenderer.invoke('sdr-smoke-ready'),
     report: (result) => ipcRenderer.invoke('sdr-smoke-report', result),
     sessionStarted: (id) => ipcRenderer.invoke('sdr-smoke-session', id),
+    resizeSource: () => ipcRenderer.invoke('sdr-smoke-resize'),
     security: { sandboxed: process.sandboxed, contextIsolated: process.contextIsolated },
   });
 }

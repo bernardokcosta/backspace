@@ -138,8 +138,11 @@ beforeEach(() => {
   mocks.audio.resumeContext.mockResolvedValue(undefined);
   mocks.audio.setRnnoiseEnabled.mockResolvedValue(undefined);
   mocks.audio.setInputDevice.mockResolvedValue(null);
-  mocks.connect.mockResolvedValue(undefined);
+  mocks.connect.mockImplementation(async function (this: Room) {
+    this.state = ConnectionState.Connected;
+  });
   mocks.disconnect.mockImplementation(async function (this: Room) {
+    this.state = ConnectionState.Disconnected;
     this.emit(RoomEvent.Disconnected, DisconnectReason.CLIENT_INITIATED);
   });
   mocks.space.dmChannels = [];

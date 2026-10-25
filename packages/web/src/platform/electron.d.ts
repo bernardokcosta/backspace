@@ -78,6 +78,21 @@ interface DesktopUpdateSnapshot {
   status: DesktopUpdateStatus;
 }
 
+type DesktopSdrCaptureCapability =
+  | { supported: true }
+  | { supported: false; reason: 'platform' | 'system' | 'module' | 'transport' | 'bridge' };
+
+interface DesktopSdrCaptureConstraints {
+  width: number;
+  height: number;
+  frameRate: number;
+}
+
+interface DesktopSdrCaptureEnded {
+  sessionId: string;
+  reason: string;
+}
+
 interface BackspaceElectronAPI {
   // Platform info
   platform: NodeJS.Platform;
@@ -132,7 +147,13 @@ interface BackspaceElectronAPI {
    * (getDisplayMedia → onScreenShareSources → selectScreenSource).
    */
   getScreenSources?: () => Promise<ElectronScreenSource[]>;
-  preselectScreenSource?: (sourceId: string, shareAudio?: boolean) => Promise<void>;
+  preselectScreenSource?: (sourceId: string, shareAudio?: boolean, videoOptions?: { forceSdr: boolean }) => Promise<void>;
+  /** Optional: old shells retain ordinary capture and must not claim SDR conversion. */
+  getSdrCaptureCapability?: () => Promise<DesktopSdrCaptureCapability>;
+  startSdrCapture?: (constraints: DesktopSdrCaptureConstraints) => Promise<{ sessionId: string }>;
+  configureSdrCapture?: (sessionId: string, constraints: DesktopSdrCaptureConstraints) => Promise<void>;
+  stopSdrCapture?: (sessionId: string) => Promise<void>;
+  onSdrCaptureEnded?: (callback: (ended: DesktopSdrCaptureEnded) => void) => (() => void);
   /**
    * 'system' when the OS picks the source (Wayland screencast portal): the
    * renderer shows a "choose" card that triggers the portal on click instead

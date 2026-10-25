@@ -389,6 +389,7 @@ ScreenShareConfig {
   mode: 'gaming' | 'text',         // Content hint and degradation priority
   customBitrateKbps: number | null, // Admin override (if allowed)
   shareAudio: boolean,              // System audio loopback (see Platform Support below)
+  forceSdr: boolean,                // Opt-in Windows HDR → SDR video conversion; default false
   codec: 'vp9' | 'h264'             // Persisted codec preference
 }
 ```
@@ -405,6 +406,51 @@ ScreenShareConfig {
 - Captures at display's full resolution
 - Snaps to nearest known tier for bitrate lookup
 - Scales proportionally: `baseKbps * (capturedPixels / knownPixels) * (fps / knownFps)`
+
+### Windows Force SDR
+
+`forceSdr` is a device-local next-capture preference (voice settings schema 15),
+default off and migrated to false when absent. The quality controls ask the
+desktop capability rather than guessing from the OS name. Unsupported/older
+hosts show an unavailable, effectively-off switch without overwriting a saved
+Windows preference. The monitor's HDR setting is never changed.
+
+For a supported attempt, main accepts the selected source with
+`preselectScreenSource(id, shareAudio, { forceSdr: true })` and grants one
+focused main-frame native start. `stageScreenCapture({ forceSdr, signal })`
+keeps the ordinary display-media/audio acquisition, then
+`sdrScreenCapture.acquireSdrScreenCapture` replaces video only after a corrected
+native first frame. Preview and publication use that same generated track;
+original audio tracks retain their identity and no microphone is acquired by
+the adapter. Failure stops every owned resource and reports an error, never
+returns raw HDR video as a successful SDR capture.
+
+Changing this preference while staging aborts/disposes the old preview and
+takes a fresh authorized capture of its explicit tile. During publication the
+switch is disabled with stop/restart-share copy; `screenShareSdr` records the
+actual mode separately from the saved preference. No application restart is
+needed. Setup close/cancel aborts pending first-frame/start replies and disarms
+preselection; successful publication first relinquishes setup's abort ownership.
+
+Staged/live quality changes reach the owning native session, not browser
+constraints on the generated track. Its `getSettings()` reports the last
+actually written dimensions (needed by source-native bitrate calculation) and
+configured frame-rate ceiling, not measured capture FPS. Pending frames and
+writer work are bounded, with VideoFrames closed after use. Explicit disposal,
+direct local track.stop(), source/device errors, unpublish/reconnect ending and
+room destruction all retire the native session; a temporary codec republish or
+successful reconnect keeps it.
+
+Native ownership is registered before publication negotiation, not only after
+success. Room teardown can retire a pending share; after each publish await,
+track liveness, room state and ownership are checked before adopting the share.
+Cancellation rolls back any video/audio publication and never revives an ended
+track. Setup generation checks keep a late result from erasing a reopened
+preview, and unmount disarms in-flight source selection as well as its capture.
+
+The native bridge, controlled-window proof and remaining HDR/ARM64/package
+acceptance gates are documented in [desktop.md](desktop.md),
+[desktop-security.md](desktop-security.md) and the 1.15.1 validation ledger.
 
 ### Codec and sender parameters
 - H.264 uses an SDP profile override only during its publish negotiation; the
@@ -462,7 +508,7 @@ The quality panel is a **drawer** that slides in over the stage from the right w
 
 Source picking differs by platform, the rest of the screen is identical (drawer, summary + Cancel/Start in the footer):
 
-- **Electron, current desktop:** the renderer lists sources up front via `getScreenSources()` (IPC `get-screen-sources`). Clicking a tile sends `preselectScreenSource(id, shareAudio)` (IPC `screen-share-preselect`) and then calls `getDisplayMedia()`; the main process's display-media handler answers from the preselection without prompting. Double-click on the staged tile starts.
+- **Electron, current desktop:** the renderer lists sources up front via `getScreenSources()` (IPC `get-screen-sources`). Clicking a tile sends `preselectScreenSource(id, shareAudio, { forceSdr })` (IPC `screen-share-preselect`; old hosts ignore the optional argument) and then calls `getDisplayMedia()`; the main process's display-media handler answers from the preselection without prompting. Double-click on the staged tile starts.
 
   One source is staged on open without being asked, chosen by `pickAutoStageSource()` (`utils/screenShareSources.ts`): the source shared last time if it is still in the list, otherwise the machine's only screen, otherwise nothing. `voiceStore.lastScreenShareSourceId` is persisted and written on a successful **Start**, not on a pick, so a capture the user backed out of is not what comes up next time; a browser or portal capture has no id of ours and stores `null`. Screen ids (`screen:0:0`) survive a restart, window ids (`window:12345:0`) are session handles and stop matching, which is the fallback rather than a failure. A remembered window switches the grid to the Windows tab so the highlight sits where the preview does. Staging publishes nothing, so this costs the user only the preview being ready.
 - **Electron, older desktop (no `getScreenSources`):** the "Choose" card calls `getDisplayMedia()`; the main process pushes its source list (`onScreenShareSources`) and the grid appears inline; a tile click answers the in-flight request with `selectScreenSource(id)`. Kept because the desktop app loads whatever web client its instance serves, so version skew in both directions is real.

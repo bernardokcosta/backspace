@@ -12,6 +12,7 @@ import { RESOLUTION_LABELS } from '@backspace/shared/src/constants';
 import i18n from '../../i18n';
 import { formatters } from '../../i18n/formatters';
 import { SYSTEM_AUDIO_NOTE_I18N_KEYS, systemAudioNote, useOwnAudioInSystemAudio } from '../../utils/systemAudioNote';
+import { getSdrCaptureCapability } from '../../utils/sdrScreenCapture';
 
 /**
  * The stream quality controls (resolution, frame rate, content mode, codec,
@@ -119,13 +120,20 @@ const pillBase = 'px-2.5 py-1.5 rounded-full text-[13px] font-medium transition-
 const pillSelected = 'bg-accent-primary text-white';
 const pillUnselected = 'bg-surface-elevated text-txt-secondary hover:bg-interactive-hover';
 
-export function StreamQualityControls() {
+export function StreamQualityControls({ capturePending = false }: { capturePending?: boolean } = {}) {
   const { t } = useTranslation(['voice', 'common']);
   const config = useVoiceStore((s) => s.screenShareConfig);
   const setConfig = useVoiceStore((s) => s.setScreenShareConfig);
   const { origin: hostOrigin, limits } = useStreamHostLimits();
   const electronPlatform = isElectron() ? window.backspace?.platform : null;
   const isScreenSharing = useVoiceStore((s) => s.isScreenSharing);
+  const liveSdr = useVoiceStore((s) => s.screenShareSdr);
+  const [sdrCapability, setSdrCapability] = React.useState<DesktopSdrCaptureCapability | null>(null);
+  React.useEffect(() => {
+    let active = true;
+    void getSdrCaptureCapability().then((answer) => { if (active) setSdrCapability(answer); });
+    return () => { active = false; };
+  }, []);
   const liveAudio = useVoiceStore((s) => s.screenShareAudio);
   const audioSwitch = systemAudioSwitch(isScreenSharing, liveAudio, config.shareAudio);
   const ownAudio = useOwnAudioInSystemAudio();
@@ -290,6 +298,26 @@ export function StreamQualityControls() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Force SDR is capture-scoped, not a display/HDR setting. */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1 pt-1">
+          <div className="text-[11px] text-txt-tertiary font-semibold uppercase tracking-wider">
+            {t('voice:streamSettings.forceSdr')}
+          </div>
+          <div className="text-[10px] text-txt-tertiary mt-0.5">
+            {isScreenSharing ? t('voice:streamSettings.forceSdrRestart')
+              : sdrCapability === null ? t('common:states.loading')
+                : sdrCapability.supported ? t('voice:streamSettings.forceSdrNote') : t('voice:streamSettings.forceSdrUnavailable')}
+          </div>
+        </div>
+        <Toggle
+          enabled={isScreenSharing ? liveSdr : sdrCapability?.supported === true && config.forceSdr === true}
+          disabled={isScreenSharing || capturePending || sdrCapability?.supported !== true}
+          onChange={(forceSdr) => setConfig({ forceSdr })}
+          ariaLabel={t('voice:streamSettings.forceSdr')}
+        />
       </div>
 
       {/* System Audio */}

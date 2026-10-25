@@ -39,7 +39,9 @@ import {
   settleScreenShareAfterReconnect,
   resolveNativeOverdrive,
   syncScreenShareAudio,
+  disposeActiveScreenShareCapture,
 } from '../utils/screenShare';
+import { configureSdrScreenCapture } from '../utils/sdrScreenCapture';
 import { encodeStreamWatch, parseShareSignal, parseStreamWatch, streamWatchFor, streamWatchKey } from '../utils/streamWatchProtocol';
 import { StreamRepublishTracker } from '../utils/streamRepublish';
 import { StreamResumeMemory, type RememberedStream } from '../utils/streamResume';
@@ -255,6 +257,7 @@ let _connectGeneration = 0;
 /** Null-safe Room.disconnect() wrapper — lets the SDK tear down its own internals cleanly. */
 function destroyRoom(room: Room | null): Promise<void> | void {
   if (!room) return;
+  disposeActiveScreenShareCapture(room);
   return room.disconnect();
 }
 
@@ -751,7 +754,7 @@ export function useLiveKit() {
     useVoiceStore.getState().setSpeakingParticipants(new Set());
     // Camera and screen share belong to the room being left: nothing of either
     // is published in the next one until the user starts it there.
-    useVoiceStore.setState({ isCameraOn: false, isScreenSharing: false });
+    useVoiceStore.setState({ isCameraOn: false, isScreenSharing: false, screenShareSdr: false });
     setIsConnected(false);
     setIsConnecting(true);
     setConnectionState(ConnectionState.Connecting);
@@ -1216,7 +1219,9 @@ export function useLiveKit() {
         if (screenPub?.videoTrack) {
           const mediaTrack = getMediaStreamTrack(screenPub.videoTrack);
           if (mediaTrack) {
-            if (opts.capture.width > 0 && opts.capture.height > 0) {
+            if (await configureSdrScreenCapture(mediaTrack, opts.capture)) {
+              mediaTrack.contentHint = opts.contentHint;
+            } else if (opts.capture.width > 0 && opts.capture.height > 0) {
               // Standard mode: apply resolution + frameRate together
               await mediaTrack.applyConstraints({ width: { ideal: opts.capture.width }, height: { ideal: opts.capture.height }, frameRate: { ideal: opts.capture.frameRate, min: 15 } });
             } else {
