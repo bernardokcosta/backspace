@@ -4,6 +4,7 @@ const path = require('node:path');
 const http = require('node:http');
 const assert = require('node:assert/strict');
 const { createSdrCaptureTransport } = require('../../dist/sdrCaptureTransport.js');
+const { createSdrCaptureController, registerSdrCaptureIpc, resolveNativeSdrSource } = require('../../dist/sdrCapture.js');
 
 const evidence = process.env.BACKSPACE_SDR_SMOKE_DIR;
 if (!evidence || !process.env.BACKSPACE_SDR_NATIVE) throw new Error('Use the isolated SDR smoke runner');
@@ -26,12 +27,14 @@ let server;
 let finished = false;
 let timer;
 let navigationComplete;
+const forwardedSessions = new Set();
+const endedSessions = [];
 
 function finish(result) {
   if (finished) return;
   finished = true;
   clearTimeout(timer);
-  if (captureId) native.stopCapture(captureId);
+  controller.invalidate('shutdown');
   if (sourceWindow && !sourceWindow.isDestroyed()) sourceWindow.destroy();
   if (window && !window.isDestroyed()) window.destroy();
   server?.close();
@@ -46,6 +49,39 @@ const transport = createSdrCaptureTransport({
   isTargetAllowed: (frame) => window && !window.isDestroyed() && frame === window.webContents.mainFrame,
   releaseFrame: (id) => native.releaseFrame(id),
 });
+let resized = false;
+const controller = createSdrCaptureController({
+  platform: process.platform, systemVersion: process.getSystemVersion(), transportAvailable: true,
+  loadModule: () => native,
+  isTargetAllowed: (frame) => window && !window.isDestroyed() && frame === window.webContents.mainFrame,
+  isFocused: () => window?.isFocused() ?? false,
+  now: () => Date.now(),
+  sendFrame: async (owner, id, frame) => {
+    await transport.sendSdrFrame(owner, id, frame);
+    if (!forwardedSessions.has(id)) stage(`first production frame: ${frame.width}x${frame.height}`);
+    forwardedSessions.add(id);
+    if (!resized && !finished && captureId) {
+      stage('requesting source resize and native configure');
+      resized = true;
+      sourceWindow.setContentSize(400, 200);
+      controller.configure(owner, id, { width: 90, height: 45, frameRate: 30 });
+    }
+  },
+  onEnded: (owner, ended) => {
+    endedSessions.push(ended);
+    stage(`production capture ended: ${ended.reason}`);
+    if (!owner.isDestroyed()) owner.send('sdr-capture-ended', ended);
+    if (!finished && !['stopped', 'navigation', 'shutdown', 'renderer-gone'].includes(ended.reason)) {
+      finish({ status: 'failed', error: `Production controller: ${ended.reason}` });
+    }
+  },
+});
+registerSdrCaptureIpc(ipcMain, controller, (event) => event.sender === window?.webContents && event.senderFrame === window.webContents.mainFrame);
+// Capture id is recorded only to drive the test's configured-size transition.
+ipcMain.handle('sdr-smoke-session', (event, id) => {
+  assert.equal(event.senderFrame, window.webContents.mainFrame);
+  captureId = id;
+});
 
 ipcMain.handle('sdr-smoke-ready', async (event) => {
   stage('renderer ready');
@@ -53,18 +89,9 @@ ipcMain.handle('sdr-smoke-ready', async (event) => {
   assert.equal(event.senderFrame, window.webContents.mainFrame);
   if (mode === 'capture') {
     assert.equal(native.isCaptureSupported(), true, 'Windows Graphics Capture is unsupported on this host');
-    const source = { kind: 'window', id: `window:${sourceWindow.getNativeWindowHandle().readBigUInt64LE()}:0` };
-    let resized = false;
-    captureId = native.startCapture(source, { width: 60, height: 30, frameRate: 30 }, (frame) => {
-      if (finished) { native.releaseFrame(frame.frameId); return; }
-      transport.sendSdrFrame(window.webContents.mainFrame, sessionId, frame).then(() => {
-        if (!resized && !finished && captureId) {
-          resized = true;
-          sourceWindow.setContentSize(400, 200);
-          native.configureCapture(captureId, { width: 90, height: 45, frameRate: 30 });
-        }
-      }).catch((error) => finish({ status: 'failed', error: error.message }));
-    }, (reason) => finish({ status: 'failed', error: `Native WGC: ${reason}` }));
+    const source = resolveNativeSdrSource({ id: `window:${sourceWindow.getNativeWindowHandle().readBigUInt64LE()}:0`, display_id: '' }, []);
+    assert.ok(source);
+    assert.equal(controller.grant(event.senderFrame, source), true);
     return { sessionId, mode };
   }
   setImmediate(async () => {
@@ -131,32 +158,46 @@ async function captureLifecycleChecks() {
   return { immediateCancelRestarts: 100, repeatedStop: true, callbackExceptionStopped: true, sourceClosureStopped: true };
 }
 
+async function waitFor(check, description, duration = 5000) {
+  const deadline = Date.now() + duration;
+  while (!check()) {
+    if (Date.now() >= deadline) throw new Error(`Timed out waiting for ${description}`);
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+}
+
 ipcMain.handle('sdr-smoke-report', async (event, result) => {
-  if (event.sender !== window?.webContents || event.senderFrame !== window.webContents.mainFrame) return;
-  if (result.status !== 'passed') { finish(result); return; }
-  // A very fast synthetic frame can finish before loadURL resolves. Closing
-  // the window first would abort that navigation and mask a passing result.
-  await navigationComplete;
-  if (captureId) { native.stopCapture(captureId); captureId = null; }
-  const preferences = window.webContents.getLastWebPreferences();
-  assert.equal(preferences.sandbox, true);
-  assert.equal(preferences.contextIsolation, true);
-  assert.equal(preferences.nodeIntegration, false);
-  window.destroy();
-  const deadline = Date.now() + 5000;
-  const wait = async () => {
-    const retainedFrames = native.retainedFrameCount();
-    if (retainedFrames === 0) {
-      try {
-        const lifecycle = mode === 'capture' ? await captureLifecycleChecks() : undefined;
-        assert.equal(native.retainedFrameCount(), 0);
-        finish({ ...result, status: 'passed', mode, lifecycle, retainedFrames, arch: process.arch, electron: process.versions.electron, gpu: app.getGPUFeatureStatus() });
-      } catch (error) { finish({ status: 'failed', error: error.message }); }
-    } else if (Date.now() >= deadline) {
-      finish({ status: 'failed', error: `Native frames retained after renderer close: ${retainedFrames}` });
-    } else setTimeout(wait, 25);
-  };
-  setTimeout(wait, 25);
+  try {
+    if (event.sender !== window?.webContents || event.senderFrame !== window.webContents.mainFrame) return;
+    if (result.status !== 'passed') { finish(result); return; }
+    // A very fast synthetic frame can finish before loadURL resolves. Closing
+    // the window first would abort that navigation and mask a passing result.
+    await navigationComplete;
+    const preferences = window.webContents.getLastWebPreferences();
+    assert.equal(preferences.sandbox, true);
+    assert.equal(preferences.contextIsolation, true);
+    assert.equal(preferences.nodeIntegration, false);
+    let hostLifecycle;
+    if (mode === 'capture') {
+      const initialId = captureId;
+      await window.loadURL('about:blank');
+      assert.ok(endedSessions.some((ended) => ended.sessionId === initialId && ended.reason === 'navigation'));
+      await waitFor(() => native.retainedFrameCount() === 0, 'navigation GPU cleanup');
+      const source = resolveNativeSdrSource({ id: `window:${sourceWindow.getNativeWindowHandle().readBigUInt64LE()}:0`, display_id: '' }, []);
+      assert.equal(controller.grant(window.webContents.mainFrame, source), true);
+      const second = controller.start(window.webContents.mainFrame, { width: 60, height: 30, frameRate: 30 });
+      captureId = second.sessionId;
+      await waitFor(() => forwardedSessions.has(second.sessionId), 'a real frame before renderer destruction');
+      window.destroy();
+      await waitFor(() => endedSessions.some((ended) => ended.sessionId === second.sessionId && ended.reason === 'renderer-gone'), 'renderer destruction teardown');
+      captureId = null;
+      hostLifecycle = { navigationStopped: true, activeRendererDestructionStopped: true, productionPreload: true };
+    } else window.destroy();
+    await waitFor(() => native.retainedFrameCount() === 0, 'renderer GPU cleanup');
+    const lifecycle = mode === 'capture' ? await captureLifecycleChecks() : undefined;
+    assert.equal(native.retainedFrameCount(), 0);
+    finish({ ...result, status: 'passed', mode, hostLifecycle, lifecycle, retainedFrames: 0, arch: process.arch, electron: process.versions.electron, gpu: app.getGPUFeatureStatus() });
+  } catch (error) { finish({ status: 'failed', error: error.message }); }
 });
 
 app.whenReady().then(async () => {
@@ -204,13 +245,18 @@ app.whenReady().then(async () => {
     stage('controlled source window created; no other source may be captured');
   }
   window = new BrowserWindow({
-    show: false,
+    show: mode === 'capture',
     webPreferences: {
       sandbox: true, contextIsolation: true, nodeIntegration: false,
-      backgroundThrottling: false, preload: path.join(__dirname, 'preload.cjs'),
+      backgroundThrottling: false, preload: mode === 'capture' ? process.env.BACKSPACE_SDR_PRELOAD : path.join(__dirname, 'preload.cjs'),
     },
   });
   stage('sandboxed window created');
+  window.webContents.on('did-start-navigation', (details) => {
+    if (details.isMainFrame && !details.isSameDocument) controller.invalidate('navigation');
+  });
+  window.webContents.on('destroyed', () => controller.invalidate('renderer-gone'));
+  if (mode === 'capture') window.focus();
   window.webContents.on('console-message', (details) => stage(`renderer console: ${details.message}`));
   window.webContents.on('render-process-gone', (_event, details) => finish({ status: 'failed', error: `Renderer lost: ${details.reason}` }));
   timer = setTimeout(() => finish({ status: 'failed', error: 'No renderer frame result within 30 seconds' }), 30000);

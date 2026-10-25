@@ -10,6 +10,7 @@ import {
   screen,
   session,
   desktopCapturer,
+  sharedTexture,
 } from 'electron';
 import path from 'path';
 import fs from 'fs';
@@ -61,6 +62,9 @@ import {
   type ScreenSharePickerMode,
 } from './screenSharePolicy';
 import { getDesktopLanguage, isDesktopLanguage, saveStoredLanguage, translateDesktop } from './l10n';
+import { createSdrCaptureController, registerSdrCaptureIpc, resolveNativeSdrSource } from './sdrCapture';
+import { createSdrCaptureTransport } from './sdrCaptureTransport';
+import type { NativeSdrModule } from './sdrCaptureTypes';
 
 // Override Electron's package.json-derived app name so userData lives at
 // "<appData>/Backspace Fork" instead of leaking the monorepo's "@backspace/desktop"
@@ -387,6 +391,9 @@ function createWindow(): void {
   setMainWindow(mainWindow);
   attachRecoveryHandlers(mainWindow);
   keybindManager.setWindow(mainWindow);
+  mainWindow.webContents.on('did-start-navigation', (details) => {
+    if (details.isMainFrame && !details.isSameDocument) invalidateSdrCapture('navigation');
+  });
 
   // Hidden-launch detection. We pass `args: ['--hidden']` on all three platforms
   // (see applyLoginItemSettings), so the argv check is the primary signal. On
@@ -474,7 +481,10 @@ function createWindow(): void {
   // download, and the page that keeps running may be sharing. `did-navigate` fires for a
   // committed cross-document main-frame load; `did-fail-load` for the main frame is the error
   // page that replaced it (-3, ERR_ABORTED, is a cancelled navigation that replaced nothing).
-  mainWindow.webContents.on('render-process-gone', () => systemAudio.stop());
+  mainWindow.webContents.on('render-process-gone', () => {
+    systemAudio.stop();
+    invalidateSdrCapture('renderer-gone');
+  });
   mainWindow.webContents.on('did-navigate', () => systemAudio.stop());
   mainWindow.webContents.on('did-fail-load', (_event, errorCode, _description, _url, isMainFrame) => {
     if (isMainFrame && errorCode !== -3) systemAudio.stop();
@@ -482,6 +492,7 @@ function createWindow(): void {
 
   mainWindow.on('closed', () => {
     systemAudio.stop();
+    invalidateSdrCapture('renderer-gone');
     setMainWindow(null);
     mainWindow = null;
     // Clear recovery state so macOS dock-activate (which calls createWindow again)
@@ -610,6 +621,55 @@ const systemAudio = createSystemAudioController({
   isSandboxed,
   log: (message, ...args) => console.warn('[Main:SystemAudio]', message, ...args),
 });
+
+let nativeSdrModule: NativeSdrModule | null = null;
+function loadNativeSdrModule(): NativeSdrModule {
+  if (nativeSdrModule) return nativeSdrModule;
+  if (process.platform !== 'win32' || !['x64', 'arm64'].includes(process.arch)) throw new Error('Unsupported SDR platform');
+  const modulePath = app.isPackaged
+    ? path.join(process.resourcesPath, 'sdr-capture', 'sdr_capture.node')
+    : path.join(__dirname, '..', 'native', 'sdr-capture', 'build', `win32-${process.arch}`, 'sdr_capture.node');
+  // The path is host-owned, never supplied by the instance's web client. Do
+  // not fall back to development paths when a packaged binary is missing.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const candidate: unknown = require(modulePath);
+  if (typeof candidate !== 'object' || candidate === null || ![
+    'isCaptureSupported', 'startCapture', 'configureCapture', 'stopCapture', 'releaseFrame',
+  ].every((name) => typeof (candidate as Record<string, unknown>)[name] === 'function')) {
+    throw new Error('Native SDR module has an invalid interface');
+  }
+  nativeSdrModule = candidate as NativeSdrModule;
+  return nativeSdrModule;
+}
+
+function isSdrTargetAllowed(frame: Electron.WebFrameMain): boolean {
+  return !!mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()
+    && frame === mainWindow.webContents.mainFrame && !frame.isDestroyed();
+}
+
+const sdrTransport = createSdrCaptureTransport({
+  api: sharedTexture,
+  isTargetAllowed: isSdrTargetAllowed,
+  releaseFrame: (id) => loadNativeSdrModule().releaseFrame(id),
+});
+const sdrCapture = createSdrCaptureController({
+  platform: process.platform, systemVersion: process.getSystemVersion(),
+  transportAvailable: typeof sharedTexture?.importSharedTexture === 'function' && typeof sharedTexture?.sendSharedTexture === 'function',
+  loadModule: loadNativeSdrModule,
+  sendFrame: sdrTransport.sendSdrFrame,
+  isTargetAllowed: isSdrTargetAllowed,
+  isFocused: () => mainWindow?.isFocused() ?? false,
+  now: () => Date.now(),
+  onEnded: (owner, ended) => { if (!owner.isDestroyed()) owner.send('sdr-capture-ended', ended); },
+});
+
+function invalidateSdrCapture(reason: 'navigation' | 'renderer-gone' | 'shutdown'): void {
+  sdrCapture.invalidate(reason);
+  pendingScreenSelection = null;
+  lastScreenSources = [];
+  lastServedScreenSources = [];
+  lastScreenEnumerationAt = null;
+}
 /** Last enumeration, so a preselected id resolves to its DesktopCapturerSource without a second scan. */
 let lastScreenSources: Electron.DesktopCapturerSource[] = [];
 /** Last list handed to the renderer, and when: what a throttled or unfocused caller gets back. */
@@ -830,6 +890,8 @@ function registerIpcHandlers(): void {
     if (event.sender !== mainWindow?.webContents) return 'app';
     return currentPickerMode();
   });
+  registerSdrCaptureIpc(ipcMain, sdrCapture, (event) => event.sender === mainWindow?.webContents
+    && !!event.senderFrame && isSdrTargetAllowed(event.senderFrame));
   // Whether System Audio on this OS build carries Backspace's own playback
   // (the call) to viewers; the stream settings say so before it is turned on.
   ipcMain.handle('get-system-audio-capability', (event, clientUsesSource: unknown) => {
@@ -855,10 +917,16 @@ function registerIpcHandlers(): void {
   // so the selection is guaranteed to be armed when the display-media handler
   // runs. Fire-and-forget left the two unordered — the handler could win, fall
   // back to the prompted flow, and leave this armed to hijack the next share.
-  ipcMain.handle('screen-share-preselect', (event, sourceId: string, shareAudio?: boolean) => {
-    if (event.sender !== mainWindow?.webContents) return;
-    if (typeof sourceId !== 'string' || !sourceId) return;
-    pendingScreenSelection = { sourceId, shareAudio: shareAudio === true, at: Date.now() };
+  ipcMain.handle('screen-share-preselect', (event, sourceId: unknown, shareAudio?: boolean, videoOptions?: unknown) => {
+    if (event.sender !== mainWindow?.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) return;
+    pendingScreenSelection = null;
+    sdrCapture.revokeGrant();
+    if (typeof sourceId !== 'string' || !sourceId || sourceId.length > 128) return;
+    const forceSdr = typeof videoOptions === 'object' && videoOptions !== null && (videoOptions as Record<string, unknown>).forceSdr === true;
+    if (forceSdr && (!mainWindow.isFocused() || !lastScreenSources.some((source) => source.id === sourceId))) {
+      throw new Error('SDR source was not selected from the focused main window');
+    }
+    pendingScreenSelection = { sourceId, shareAudio: shareAudio === true, forceSdr, at: Date.now() };
   });
   // System-picker sessions have no tile to preselect; the renderer only tells
   // us whether loopback audio should ride along with whatever the portal returns.
@@ -1319,10 +1387,11 @@ if (!gotTheLock) {
     //   2. Prompted (older web clients, or nothing preselected): push the
     //      sources to the renderer and wait for screen-share-selected.
     // Audio loopback controlled by user's shareAudio toggle.
-    session.defaultSession.setDisplayMediaRequestHandler(async (_request, callback) => {
+    session.defaultSession.setDisplayMediaRequestHandler(async (request, callback) => {
       console.log('[Main:ScreenShare] Handler invoked');
       try {
         const pending = takePendingScreenSelection();
+        sdrCapture.revokeGrant();
         if (pending) {
           let selected = lastScreenSources.find((s) => s.id === pending.sourceId);
           if (!selected) selected = (await enumerateScreenSources()).find((s) => s.id === pending.sourceId);
@@ -1332,8 +1401,15 @@ if (!gotTheLock) {
             callback();
             return;
           }
+          const nativeSource = pending.forceSdr ? resolveNativeSdrSource(selected, screen.getAllDisplays()) : null;
+          if (pending.forceSdr && (!request.frame || !isSdrTargetAllowed(request.frame) || !mainWindow?.isFocused() || !nativeSource)) {
+            // @ts-expect-error — Electron requires no argument to deny requested video
+            callback();
+            return;
+          }
           console.log('[Main:ScreenShare] Using preselected source:', pending.sourceId, 'audio:', pending.shareAudio);
           callback({ video: selected, ...(pending.shareAudio ? { audio: 'loopback' } : {}) });
+          if (nativeSource && request.frame) sdrCapture.grant(request.frame, nativeSource);
           return;
         }
 
@@ -1398,6 +1474,7 @@ if (!gotTheLock) {
         //     renderer catches that and toasts the user.
         callback({ video: selected, ...(shareAudio ? { audio: 'loopback' } : {}) });
       } catch (err) {
+        sdrCapture.revokeGrant();
         console.error('[Main:ScreenShare] Handler error:', err);
         // @ts-ignore — deny the request without crashing
         callback();
@@ -1540,6 +1617,7 @@ if (!gotTheLock) {
 
   app.on('before-quit', () => {
     systemAudio.stop();
+    invalidateSdrCapture('shutdown');
     isQuitting = true;
     stopActivityDetection();
     keybindManager.stop();

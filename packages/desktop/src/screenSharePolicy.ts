@@ -36,6 +36,7 @@ export interface PendingScreenSelection {
   sourceId: string;
   shareAudio: boolean;
   at: number;
+  forceSdr?: boolean;
 }
 
 /** A preselection older than this is stale: the setup screen was closed without starting. */
@@ -46,8 +47,8 @@ export function isPendingSelectionFresh(
   pending: PendingScreenSelection | null,
   now: number,
 ): boolean {
-  if (!pending) return false;
-  return now - pending.at <= PENDING_SCREEN_SELECTION_TTL_MS;
+  if (!pending || !Number.isFinite(now) || !Number.isFinite(pending.at)) return false;
+  return now >= pending.at && now - pending.at <= PENDING_SCREEN_SELECTION_TTL_MS;
 }
 
 /**

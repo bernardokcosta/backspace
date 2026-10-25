@@ -23,6 +23,12 @@ const evidence = fs.mkdtempSync(path.join(tempRoot, 'sdr-capture-smoke-'));
 const report = path.join(evidence, 'result.json');
 const log = fs.openSync(path.join(evidence, 'electron.log'), 'wx');
 const env = { ...process.env, BACKSPACE_SDR_SMOKE_DIR: evidence, BACKSPACE_SDR_NATIVE: native, BACKSPACE_SDR_SMOKE_MODE: mode };
+if (mode === 'capture') {
+  const preload = path.join(evidence, 'production-preload.cjs');
+  fs.writeFileSync(preload, fs.readFileSync(path.resolve(directory, '../dist/preload.js'), 'utf8')
+    + '\n' + fs.readFileSync(path.resolve(directory, '../test/sdr-capture/bridge-preload.cjs'), 'utf8'), { flag: 'wx' });
+  env.BACKSPACE_SDR_PRELOAD = preload;
+}
 delete env.ELECTRON_RUN_AS_NODE;
 const child = spawn(electron, [path.resolve(directory, '../test/sdr-capture/main.cjs'), '--enable-logging=file', `--log-file=${path.join(evidence, 'chromium.log')}`], { env, stdio: ['ignore', log, log], windowsHide: true });
 let timeout;

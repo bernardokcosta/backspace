@@ -11,8 +11,8 @@
 
 #include <algorithm>
 #include <chrono>
-#include <cmath>
 #include <condition_variable>
+#include <iostream>
 #include <mutex>
 #include <stdexcept>
 #include <thread>
@@ -32,6 +32,14 @@ struct Apartment {
 };
 
 struct Failure : std::runtime_error { using std::runtime_error::runtime_error; };
+
+void diagnostic(const char* stage, const std::string& detail) noexcept {
+  try {
+    // Isolated fixtures retain native diagnostics, never source pixels. The
+    // production renderer still receives only the bounded public reason code.
+    if (GetEnvironmentVariableW(L"BACKSPACE_SDR_SMOKE_DIR", nullptr, 0) > 0) std::cerr << "[native-sdr] " << stage << ": " << detail << '\n';
+  } catch (...) {}
+}
 
 struct Wake {
   std::mutex mutex;
@@ -81,9 +89,12 @@ CaptureSize captureOutputSize(uint32_t width, uint32_t height, const CaptureCons
       || (constraints.width == 0) != (constraints.height == 0)
       || !constraints.frame_rate || constraints.frame_rate > 240) throw std::invalid_argument("Invalid capture dimensions or rate");
   if (constraints.width == 0) return {width, height};
-  const double ratio = std::min(double(constraints.width) / width, double(constraints.height) / height);
-  return {std::max(1u, static_cast<uint32_t>(std::floor(width * ratio))),
-      std::max(1u, static_cast<uint32_t>(std::floor(height * ratio)))};
+  // Compare ratios in integers, preserving the limiting dimension exactly.
+  // A floating ratio followed by floor can turn an exact 90x45 into 89x44.
+  if (uint64_t(constraints.width) * height <= uint64_t(constraints.height) * width) {
+    return {constraints.width, std::max(1u, static_cast<uint32_t>(uint64_t(height) * constraints.width / width))};
+  }
+  return {std::max(1u, static_cast<uint32_t>(uint64_t(width) * constraints.height / height)), constraints.height};
 }
 
 struct CaptureSession::State {
@@ -97,6 +108,7 @@ struct CaptureSession::State {
   std::jthread worker;
 
   void run(std::stop_token stop) noexcept {
+    const char* operation = "initialize";
     try {
       Apartment apartment;
       if (stop.stop_requested()) return;
@@ -124,6 +136,7 @@ struct CaptureSession::State {
         monitor = monitor_at(*source.monitor_origin);
         winrt::check_hresult(interop->CreateForMonitor(monitor, winrt::guid_of<GraphicsCaptureItem>(), winrt::put_abi(item)));
       }
+      operation = "create frame pool";
       SourceColorReader colors;
       auto size = item.Size();
       {
@@ -151,8 +164,10 @@ struct CaptureSession::State {
       capture.session.StartCapture();
       const auto started = std::chrono::steady_clock::now();
       auto last_output = started - std::chrono::seconds(1);
-      bool received = false;
+      bool produced = false;
       while (!stop.stop_requested()) {
+        operation = "wait for frame";
+        if (!produced && std::chrono::steady_clock::now() - started > std::chrono::seconds(10)) throw Failure("frame-timeout");
         bool reconfigure = false;
         {
           std::unique_lock lock(wake->mutex);
@@ -171,14 +186,11 @@ struct CaptureSession::State {
         CaptureConstraints settings;
         { std::lock_guard lock(configuration_mutex); settings = constraints; }
         if (reconfigure) {
+          operation = "reconfigure frame pool";
           capture.pool.Recreate(device, DirectXPixelFormat::R16G16B16A16Float, 2, size);
         }
         CheckedOutFrame current{capture.pool.TryGetNextFrame()};
-        if (!current.frame) {
-          if (!received && std::chrono::steady_clock::now() - started > std::chrono::seconds(10)) throw Failure("frame-timeout");
-          continue;
-        }
-        received = true;
+        if (!current.frame) continue;
         // At most two WGC buffers exist; drop a superseded frame, never queue it.
         if (auto latest = capture.pool.TryGetNextFrame()) {
           current.frame.Close();
@@ -187,6 +199,7 @@ struct CaptureSession::State {
         const auto content = current.frame.ContentSize();
         const auto output = captureOutputSize(static_cast<uint32_t>(content.Width), static_cast<uint32_t>(content.Height), settings);
         if (content.Width != size.Width || content.Height != size.Height) {
+          operation = "resize frame pool";
           current.frame.Close(); current.frame = nullptr;
           size = content;
           capture.pool.Recreate(device, DirectXPixelFormat::R16G16B16A16Float, 2, size);
@@ -202,6 +215,20 @@ struct CaptureSession::State {
         auto surface = current.frame.Surface().as<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>();
         ComPtr<ID3D11Texture2D> texture;
         winrt::check_hresult(surface->GetInterface(IID_PPV_ARGS(&texture)));
+        D3D11_TEXTURE2D_DESC description{};
+        texture->GetDesc(&description);
+        if (static_cast<uint32_t>(content.Width) > description.Width || static_cast<uint32_t>(content.Height) > description.Height) {
+          // WGC can pair a newly announced ContentSize with a buffer retained
+          // from the previous pool generation during resize/configure races.
+          // Never read outside that texture or publish the clipped old frame.
+          diagnostic("resize", "discarding a previous-generation capture buffer");
+          texture.Reset();
+          surface = nullptr;
+          current.frame.Close(); current.frame = nullptr;
+          capture.pool.Recreate(device, DirectXPixelFormat::R16G16B16A16Float, 2, content);
+          continue;
+        }
+        operation = "convert FP16 frame";
         const float measured = converter.measurePeakNits(texture.Get(), static_cast<uint32_t>(content.Width), static_cast<uint32_t>(content.Height));
         if (measured > 10000.0f) throw Failure("invalid-frame");
         const float peak = color.hdr ? std::max(color.white_nits, measured) : color.white_nits;
@@ -211,14 +238,20 @@ struct CaptureSession::State {
         const auto frame = slot->publish(std::move(converted), timestamp);
         try {
           if (stop.stop_requested() || !on_frame(frame)) frames->release(frame.id);
+          else produced = true;
         } catch (...) { frames->release(frame.id); throw; }
         last_output = now;
       }
     } catch (const Failure& error) {
+      diagnostic(operation, error.what());
       report(stop, error.what());
     } catch (const winrt::hresult_error& error) {
+      diagnostic(operation, std::to_string(static_cast<int32_t>(error.code())));
       const auto code = error.code();
       report(stop, code == DXGI_ERROR_DEVICE_REMOVED || code == DXGI_ERROR_DEVICE_RESET || code == DXGI_ERROR_DEVICE_HUNG ? "device-lost" : "capture-failed");
+    } catch (const std::exception& error) {
+      diagnostic(operation, error.what());
+      report(stop, "capture-failed");
     } catch (...) { report(stop, "capture-failed"); }
   }
 

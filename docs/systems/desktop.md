@@ -25,14 +25,19 @@ Source files:
 
 ## Architecture Overview
 
-### Windows SDR conversion foundation (not yet wired into screen sharing)
+### Windows SDR capture (integration in progress)
 
 `native/sdr-capture/` contains a Windows SDK/Node-API conversion module under
 development for opt-in HDR-to-SDR sharing. `sdrCaptureTransport.ts` imports its
 SDR textures through managed Electron sharedTexture references; native storage
 is retained until every renderer/GPU reference is released, with a three-frame
-capacity. Raw handles stay in privileged code. The existing application does
-not yet load or expose this module: current capture behavior is unchanged.
+capacity. Raw handles stay in privileged code. Main/preload expose capability,
+start/configure/stop and bounded ended messages. Acquisition needs a one-use
+30-second grant from an accepted Force SDR preselection for the focused main
+frame. Native code is loaded lazily from the host-owned architecture path;
+missing packaged modules do not fall back to development paths. The saved
+Force SDR setting/track adapter and packaging are not yet implemented, so
+existing web clients and ordinary capture continue using their existing path.
 
 The experimental `capture_session` worker now captures an explicitly mapped
 window/display with free-threaded FP16 WGC buffers, GPU-side source-peak
@@ -51,6 +56,11 @@ transport. Neither substitutes for a real HDR display/received-stream test.
 `--mode capture` tests only a fixture-owned window, including resize,
 cancel/restart, callback-error, source-close and cleanup paths. It briefly
 shows that controlled test window and does not capture unrelated content.
+Capture mode uses the compiled production preload plus a reporting-only test
+bridge, the production host controller and its narrow IPC registration. It
+also exercises cross-document navigation and destruction after a real native
+frame, with zero retained output references afterward. This does not replace
+the real getDisplayMedia selection/audio/publication acceptance tests.
 
 The `Native SDR foundation` workflow compiles and loads x64/ARM64 on matching
 Windows runners without publishing installers. Hardware capture, integration

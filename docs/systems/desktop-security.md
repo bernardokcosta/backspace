@@ -159,20 +159,35 @@ designated => identifier "com.example.app" and anchor apple generic and
 
 ## Experimental native SDR capture
 
-The opt-in SDR work under `native/sdr-capture` remains disconnected from
-production IPC/preload. Only privileged code can load the addon or supply a
-native source. Its isolated `--mode capture` fixture supplies the handle of a
-test window it created; it does not grant a remote page arbitrary capture.
-Native handles stay in main/preload and the sandbox receives only transferable
-VideoFrames. No sandbox, context-isolation or fuse setting is weakened.
+The opt-in SDR work under `native/sdr-capture` now has a narrow main/preload
+bridge, while UI/track integration and packaging remain pending. Only
+privileged code loads the addon and resolves a native source from the trusted
+desktop enumeration/display origin. The renderer cannot pass an HWND,
+HMONITOR, module path or raw texture handle to the native-start IPC.
+
+Main accepts native acquisition only after an accepted Force SDR preselection
+for its focused main frame; its grant expires after 30 seconds, is consumed
+once and is revoked on navigation. IPC checks both sender and senderFrame,
+normalizes geometry/rate and binds configure/stop to the owning session. A
+legitimate active share survives alt-tab. Navigation, renderer loss, close and
+quit stop native capture. Existing clients never requesting Force SDR do not
+start this path.
+
+The isolated `--mode capture` fixture supplies the handle of a test window it
+created, then uses the production controller/IPC/preload. No sandbox,
+context-isolation or fuse setting is weakened. Only transferable VideoFrames
+reach the page. Preload keeps at most one early frame in its isolated world
+until the start reply proves the session id, and closes stale-session frames;
+a new document cannot receive a prior session's in-flight texture.
 
 The worker reserves at most three output textures across active/retired
 sessions; callback/GPU references retain those permits until the physical
 texture is released. A bounded TSFN queue drops superseded frames. Stop,
 environment cleanup and terminal errors stop/join the worker; source closure
-is checked even when a provider omits WGC's Closed event. Main-frame grants,
-production navigation/renderer teardown wiring and real HDR/ARM64 capture
-acceptance remain pending, so the fixture is not production authorization proof.
+is checked even when a provider omits WGC's Closed event. Controlled-source
+navigation/destruction tests pass on x64. The full getDisplayMedia selection
+flow, received HDR comparison and real ARM64 capture acceptance remain pending;
+the fixture is not proof of the whole application flow.
 
 ## Not verified
 

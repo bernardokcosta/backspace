@@ -1,4 +1,92 @@
-import { contextBridge, ipcRenderer } from 'electron';
+/// <reference lib="dom" />
+import { contextBridge, ipcRenderer, sharedTexture } from 'electron';
+import type { SdrCaptureCapability, SdrCaptureConstraints, SdrCaptureEnded } from './sdrCaptureTypes';
+
+let activeSdrSession: string | null = null;
+let pendingSdrStart: object | null = null;
+let earlySdrFrame: { sessionId: string; frame: VideoFrame } | null = null;
+let earlySdrEnd: string | null = null;
+
+function clearEarlySdrFrame(): void {
+  earlySdrFrame?.frame.close();
+  earlySdrFrame = null;
+}
+
+function postSdrFrame(sessionId: string, frame: VideoFrame): void {
+  if (sessionId !== activeSdrSession || !/^https?:$/.test(window.location.protocol)) { frame.close(); return; }
+  try {
+    window.postMessage({ type: 'backspace-sdr-frame', sessionId, frame }, window.location.origin, [frame]);
+  } catch {
+    frame.close();
+    void ipcRenderer.invoke('sdr-capture-transport-error', sessionId).catch(() => {});
+  }
+}
+
+if (process.platform === 'win32' && typeof sharedTexture?.setSharedTextureReceiver === 'function') {
+  sharedTexture.setSharedTextureReceiver(async ({ importedSharedTexture }, metadata: unknown) => {
+    let frame: VideoFrame | null = null;
+    let sessionId: string | null = null;
+    try {
+      if (typeof metadata !== 'object' || metadata === null) return;
+      const id = (metadata as Record<string, unknown>).sessionId;
+      if (typeof id !== 'string' || !/^[0-9a-f-]{36}$/i.test(id)) return;
+      sessionId = id;
+      if (id !== activeSdrSession && !pendingSdrStart) return;
+      frame = importedSharedTexture.getVideoFrame();
+      if (!Number.isInteger(frame.displayWidth) || !Number.isInteger(frame.displayHeight)
+          || frame.displayWidth < 1 || frame.displayHeight < 1 || frame.displayWidth > 16384 || frame.displayHeight > 16384
+          || frame.displayWidth * frame.displayHeight > 33_554_432 || !Number.isSafeInteger(frame.timestamp) || frame.timestamp < 0) {
+        throw new Error('Invalid SDR frame metadata');
+      }
+      if (id === activeSdrSession) postSdrFrame(id, frame);
+      else {
+        // A frame can beat the start IPC reply. Keep one in the isolated world
+        // until that reply proves its session; never expose an old origin's id.
+        clearEarlySdrFrame();
+        earlySdrFrame = { sessionId: id, frame };
+      }
+      frame = null;
+    } catch {
+      if (sessionId) void ipcRenderer.invoke('sdr-capture-transport-error', sessionId).catch(() => {});
+    } finally {
+      frame?.close();
+      importedSharedTexture.release();
+    }
+  });
+}
+
+ipcRenderer.on('sdr-capture-ended', (_event, ended: SdrCaptureEnded) => {
+  if (ended.sessionId === activeSdrSession) activeSdrSession = null;
+  if (ended.sessionId === earlySdrFrame?.sessionId) clearEarlySdrFrame();
+  if (pendingSdrStart) earlySdrEnd = ended.sessionId;
+});
+
+async function startSdrCapture(constraints: SdrCaptureConstraints): Promise<{ sessionId: string }> {
+  if (pendingSdrStart || activeSdrSession) throw new Error('SDR capture is already starting or active');
+  const token = {};
+  pendingSdrStart = token;
+  earlySdrEnd = null;
+  try {
+    const result: unknown = await ipcRenderer.invoke('sdr-capture-start', constraints);
+    if (typeof result !== 'object' || result === null || typeof (result as Record<string, unknown>).sessionId !== 'string') {
+      throw new Error('Invalid SDR start response');
+    }
+    const sessionId = (result as { sessionId: string }).sessionId;
+    if (!/^[0-9a-f-]{36}$/i.test(sessionId) || earlySdrEnd === sessionId) throw new Error('SDR capture ended during start');
+    activeSdrSession = sessionId;
+    if (earlySdrFrame?.sessionId === sessionId) {
+      const buffered = earlySdrFrame;
+      earlySdrFrame = null;
+      postSdrFrame(sessionId, buffered.frame);
+    }
+    clearEarlySdrFrame();
+    return { sessionId };
+  } finally {
+    if (pendingSdrStart === token) pendingSdrStart = null;
+    clearEarlySdrFrame();
+    earlySdrEnd = null;
+  }
+}
 
 contextBridge.exposeInMainWorld('backspace', {
   // Platform info
@@ -100,8 +188,21 @@ contextBridge.exposeInMainWorld('backspace', {
   getScreenSources: () => ipcRenderer.invoke('get-screen-sources'),
   // invoke, not send: the renderer must know the preselection has landed in the
   // main process before it calls getDisplayMedia(), or the two race.
-  preselectScreenSource: (sourceId: string, shareAudio?: boolean) =>
-    ipcRenderer.invoke('screen-share-preselect', sourceId, shareAudio ?? true),
+  preselectScreenSource: (sourceId: string, shareAudio?: boolean, videoOptions?: { forceSdr: boolean }) =>
+    ipcRenderer.invoke('screen-share-preselect', sourceId, shareAudio ?? true, videoOptions),
+  getSdrCaptureCapability: (): Promise<SdrCaptureCapability> => ipcRenderer.invoke('get-sdr-capture-capability'),
+  startSdrCapture,
+  configureSdrCapture: (sessionId: string, constraints: SdrCaptureConstraints): Promise<void> => ipcRenderer.invoke('sdr-capture-configure', sessionId, constraints),
+  stopSdrCapture: (sessionId: string): Promise<void> => {
+    if (activeSdrSession === sessionId) activeSdrSession = null;
+    if (earlySdrFrame?.sessionId === sessionId) clearEarlySdrFrame();
+    return ipcRenderer.invoke('sdr-capture-stop', sessionId);
+  },
+  onSdrCaptureEnded: (callback: (ended: SdrCaptureEnded) => void): (() => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, ended: SdrCaptureEnded) => callback(ended);
+    ipcRenderer.on('sdr-capture-ended', handler);
+    return () => { ipcRenderer.removeListener('sdr-capture-ended', handler); };
+  },
   getScreenSharePickerMode: () => ipcRenderer.invoke('get-screen-share-picker-mode'),
   // `true` from a web client that opens the system-audio source (startSystemAudio)
   // itself; an older client passes nothing and gets the loopback's answer.

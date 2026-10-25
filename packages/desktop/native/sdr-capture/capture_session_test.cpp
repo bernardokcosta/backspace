@@ -7,6 +7,8 @@ void captureSessionPolicyTests() {
   auto require = [](bool valid, const char* message) { if (!valid) throw std::runtime_error(message); };
   auto size = backspace::captureOutputSize(3840, 2160, {1920, 1080, 60});
   require(size.width == 1920 && size.height == 1080, "Requested capture dimensions differ");
+  size = backspace::captureOutputSize(156, 78, {90, 45, 60});
+  require(size.width == 90 && size.height == 45, "Floating-point scaling lost a pixel at an exact aspect ratio");
   size = backspace::captureOutputSize(1920, 1080, {640, 480, 60});
   require(size.width == 640 && size.height == 360, "Capture did not preserve source aspect ratio");
   size = backspace::captureOutputSize(3439, 1440, {0, 0, 60});

@@ -23,7 +23,16 @@
     writer = generator.writable.getWriter();
     preview.srcObject = new MediaStream([generator]);
     const playback = preview.play();
-    const readiness = window.sdrSmoke.ready();
+    const readiness = (async () => {
+      const ready = await window.sdrSmoke.ready();
+      if (ready.mode !== 'capture') return ready;
+      if (typeof window.backspace?.startSdrCapture !== 'function') throw new Error('Production SDR preload bridge is absent');
+      const capability = await window.backspace.getSdrCaptureCapability();
+      if (!capability.supported) throw new Error(`Production SDR capability denied: ${capability.reason}`);
+      const started = await window.backspace.startSdrCapture({ width: 60, height: 30, frameRate: 30 });
+      await window.sdrSmoke.sessionStarted(started.sessionId);
+      return { ...ready, ...started };
+    })();
     const onFrame = async (event) => {
       const ready = await readiness;
       if (event.source !== window || event.origin !== window.location.origin || event.data?.type !== 'backspace-sdr-frame' || event.data.sessionId !== ready.sessionId) return;
@@ -60,6 +69,7 @@
       } finally { busy = false; }
     };
     window.addEventListener('message', onFrame);
+    await readiness;
   } catch (error) {
     await report({ status: 'failed', error: error.message });
   }

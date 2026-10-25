@@ -7,6 +7,9 @@ on:
       - 'packages/desktop/native/sdr-capture/**'
       - 'packages/desktop/scripts/*sdr-capture*'
       - 'packages/desktop/src/sdrCapture*'
+      - 'packages/desktop/src/main.ts'
+      - 'packages/desktop/src/preload.ts'
+      - 'packages/desktop/src/screenSharePolicy*'
       - 'packages/desktop/test/sdr-capture/**'
       - 'packages/desktop/package.json'
       - 'pnpm-lock.yaml'
@@ -16,6 +19,9 @@ on:
       - 'packages/desktop/native/sdr-capture/**'
       - 'packages/desktop/scripts/*sdr-capture*'
       - 'packages/desktop/src/sdrCapture*'
+      - 'packages/desktop/src/main.ts'
+      - 'packages/desktop/src/preload.ts'
+      - 'packages/desktop/src/screenSharePolicy*'
       - 'packages/desktop/test/sdr-capture/**'
       - 'packages/desktop/package.json'
       - 'pnpm-lock.yaml'
@@ -71,7 +77,7 @@ jobs:
       - name: Test native build configuration and frame ownership
         run: |
           node --test packages/desktop/scripts/sdr-capture-build-config.test.mjs
-          pnpm --filter @backspace/desktop exec vitest run src/sdrCaptureTransport.test.ts src/sdrCapturePolicy.test.ts
+          pnpm --filter @backspace/desktop test
       - name: Compile desktop transport
         run: pnpm --filter @backspace/desktop build:ts
       - name: Build the actual target architecture and verify its PE header

@@ -2,20 +2,20 @@ import type { AuthorizedSdrSource, SdrCaptureCapability, SdrCaptureConstraints }
 
 const GRANT_TTL_MS = 30_000;
 
-interface CaptureGrant {
-  source: AuthorizedSdrSource;
+interface CaptureGrant<T extends AuthorizedSdrSource> {
+  source: T;
   owner: object;
   navigationGeneration: number;
   at: number;
 }
 
 /** Authorizes acquisition, not each frame: a legitimate live share survives alt-tab. */
-export function createSdrCaptureAuthorization(): {
-  grant: (source: AuthorizedSdrSource, owner: object, navigationGeneration: number, now: number) => void;
-  consume: (request: { owner: object; navigationGeneration: number; focused: boolean; now: number }) => AuthorizedSdrSource | null;
+export function createSdrCaptureAuthorization<T extends AuthorizedSdrSource = AuthorizedSdrSource>(): {
+  grant: (source: T, owner: object, navigationGeneration: number, now: number) => void;
+  consume: (request: { owner: object; navigationGeneration: number; focused: boolean; now: number }) => T | null;
   revoke: () => void;
 } {
-  let pending: CaptureGrant | null = null;
+  let pending: CaptureGrant<T> | null = null;
   return {
     grant(source, owner, navigationGeneration, now) {
       pending = { source: { ...source }, owner, navigationGeneration, at: now };
