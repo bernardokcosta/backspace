@@ -443,9 +443,10 @@ Permissions checked: CONNECT, SPEAK, STREAM (space channels). DM calls: always f
 
 ## Instance (`routes/instance.ts`) — public
 ```
-GET /instance/info → { name, version, registrationOpen, federatedRegistrationOpen, instanceId, sourceCodeUrl, commit, directoryConfigured, directoryAvailable, directoryEnabled, supportCardEnabled }
+GET /instance/info → { name, version, registrationOpen, federatedRegistrationOpen, instanceId, sourceCodeUrl, commit, directoryConfigured, directoryAvailable, directoryEnabled, maxStickerSizeMb }
 ```
-`supportCardEnabled` is `instance_settings.supportCardEnabled` (default true): whether the web client's Backspace page shows the Support card. The web client is its only reader; the server does nothing else with it. Written by the admin through `PATCH /settings/instance`.
+The Support-card field was retired in 1.15.2 with the project hub; no active
+response exposes it. Its historical database value is retained unchanged.
 Three directory facts, reported separately because folding any two of them leaves a client unable to tell which is false. `directoryConfigured` is `config.directory.endpoint !== ''` on its own: whether this instance has a hub to talk to at all, which is what the pinger, the proxy and Outer Space all rest on; every surface that promises the directory will do something gates on it. `directoryAvailable` is `directoryConfigured` **and** `instance_settings.directoryBrowseEnabled`: whether people here browse, the endpoint checked first so no setting can advertise a directory the instance cannot reach. The Explore page reads it here to decide whether to render the Outer Space section (directory.md §9). `directoryEnabled` is `instance_settings.directoryEnabled`: whether the admin allows spaces here to be listed. The two are independent; the space settings panel reads the latter through `GET /settings/streaming`, not from here.
 `federatedRegistrationOpen` is a UX hint consumed by the Connections add-instance pre-flight (see `client-federation.md`). The 403 from `POST /auth/register` remains the security boundary.
 
@@ -459,10 +460,9 @@ GET   /settings/streaming    (auth)        → { streamingLimits }
 PATCH /settings/streaming    (admin)       → { streamingLimits }
 GET   /settings/instance     (admin)       → { instanceName, registrationOpen, federatedRegistrationOpen, discoveryEnabled,
                                                directoryEnabled, directoryBrowseEnabled, directoryLastPingAt,
-                                               directoryLastError, directoryListedSpaceCount, supportCardEnabled, ... }
+                                                directoryLastError, directoryListedSpaceCount, ... }
 PATCH /settings/instance     (admin)       { instanceName?, registrationOpen?, federatedRegistrationOpen?,
                                              discoveryEnabled?, directoryEnabled?, directoryBrowseEnabled?,
-                                             supportCardEnabled?,
                                              gifApiKey?, maxUploadSizeMb?,
                                              federationRelayEnabled?, federationRelayTtlDays? } → { settings }
 ```
@@ -472,7 +472,8 @@ PATCH /settings/instance     (admin)       { instanceName?, registrationOpen?, f
 
 `directoryBrowseEnabled` is the other directory axis: whether people on this instance see spaces from other instances in Explore. It must be a boolean (`400 field_not_boolean`), is independent of `directoryEnabled` (nothing clears it, and the discovery invariant does not touch it), is carried only on `/settings/instance` and not on `/settings/streaming`, and changing it never marks the directory dirty, since it is nowhere in the served document. It gates `GET /directory` and `directoryAvailable` on `GET /instance/info`. Default true. See [directory.md](directory.md).
 
-`supportCardEnabled` must be a boolean (`400 field_not_boolean` with `{ field: 'supportCardEnabled' }`). It is carried only on `/settings/instance` and not on `/settings/streaming`, is reported publicly on `GET /instance/info`, and never marks the directory dirty. Default true. What it hides: [admin.md](admin.md), General panel.
+Legacy `supportCardEnabled` input is ignored by the settings PATCH like any
+unknown field. It cannot mutate the retained historical column.
 
 ## Notification settings (`routes/notificationSettings.ts`) — auth required
 ```

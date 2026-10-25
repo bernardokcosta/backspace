@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { User } from '@backspace/shared';
-import type { HubUpdateState } from '../../stores/projectHubStore';
 
 // Stub AudioManager to avoid AudioWorkletNode reference error in jsdom.
 // Reached transitively via authStore -> voiceStore.
@@ -13,18 +12,10 @@ vi.mock('../../audio/AudioManager', () => ({
   },
 }));
 
-// The dot's source of truth has its own tests; here only what the You screen
-// does with each state matters.
-const hubState = vi.hoisted(() => ({ state: 'current' as HubUpdateState }));
-vi.mock('../../hooks/useHubUpdateState', () => ({
-  useHubUpdateState: () => ({ state: hubState.state, version: '1.2.0' }),
-}));
-
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { useAuthStore } from '../../stores/authStore';
 import { useUIStore } from '../../stores/uiStore';
 import { MobileYouScreen } from './MobileYouScreen';
-import { HubUpdateDot } from '../projectHub/HubUpdateDot';
 
 const DOT = 'Backspace was updated';
 
@@ -55,7 +46,6 @@ function row(label: string): HTMLElement {
 }
 
 beforeEach(() => {
-  hubState.state = 'current';
   pushMobileScreen.mockReset();
   useUIStore.setState({ pushMobileScreen });
   useAuthStore.setState({ user: self });
@@ -66,48 +56,20 @@ afterEach(() => {
   useAuthStore.setState({ user: null });
 });
 
-describe('MobileYouScreen: Backspace row', () => {
-  it('renders a Backspace row that pushes the backspace screen', () => {
+describe('MobileYouScreen after hub retirement', () => {
+  it('has no Backspace launcher or hub dot', () => {
     render(<MobileYouScreen />);
-
-    fireEvent.click(row('Backspace'));
-
-    expect(pushMobileScreen).toHaveBeenCalledTimes(1);
-    expect(pushMobileScreen).toHaveBeenCalledWith('backspace');
-  });
-
-  it('shows the updated dot on the Backspace row when the instance updated since the last visit', () => {
-    hubState.state = 'updated';
-
-    render(<MobileYouScreen />);
-
-    const dot = screen.getByRole('img', { name: DOT });
-    expect(row('Backspace')).toContainElement(dot);
-    expect(screen.getAllByRole('img', { name: DOT })).toHaveLength(1);
-  });
-
-  it('draws HubUpdateDot, the same informational dot as the desktop sidebar', () => {
-    hubState.state = 'updated';
-
-    render(<MobileYouScreen />);
-    const dot = screen.getByRole('img', { name: DOT });
-
-    const { container } = render(<HubUpdateDot />);
-    expect(dot.outerHTML).toBe(container.innerHTML);
-  });
-
-  it.each<HubUpdateState>(['unknown', 'first-run', 'current'])('shows no dot when the state is %s', (state) => {
-    hubState.state = state;
-
-    render(<MobileYouScreen />);
-
+    expect(screen.queryByRole('button', { name: /^Backspace/ })).toBeNull();
     expect(screen.queryByRole('img', { name: DOT })).toBeNull();
-    expect(within(row('Backspace')).queryByRole('img')).toBeNull();
+  });
+
+  it('keeps Friends navigation', () => {
+    render(<MobileYouScreen />);
+    fireEvent.click(row('Friends'));
+    expect(pushMobileScreen).toHaveBeenCalledWith('friends');
   });
 
   it('puts the dot on no other row', () => {
-    hubState.state = 'updated';
-
     render(<MobileYouScreen />);
 
     for (const label of ['Edit Profile', 'Friends', 'Connections', 'Voice']) {

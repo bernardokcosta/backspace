@@ -98,7 +98,6 @@ const ADMIN_SETTINGS: InstanceAdminSettings = {
   directoryLastPingAt: null,
   directoryLastError: null,
   directoryListedSpaceCount: 0,
-  supportCardEnabled: true,
 };
 
 const ADMIN: User = {

@@ -297,7 +297,6 @@ async function main(): Promise<void> {
       directoryConfigured: false,
       directoryAvailable: false,
       directoryEnabled: false,
-      supportCardEnabled: false,
     };
     answer('/instance/info', info);
   }

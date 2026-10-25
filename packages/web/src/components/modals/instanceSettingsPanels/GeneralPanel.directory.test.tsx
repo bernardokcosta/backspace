@@ -45,7 +45,6 @@ function info(directoryConfigured: boolean): InstanceInfoResponse {
     directoryConfigured,
     directoryAvailable: directoryConfigured,
     directoryEnabled: false,
-    supportCardEnabled: true,
   };
 }
 
@@ -71,7 +70,6 @@ const base: InstanceAdminSettings = {
   // One space already listed, so the note that nothing is listed stays out
   // of the tests that are not about it.
   directoryListedSpaceCount: 1,
-  supportCardEnabled: true,
 };
 
 /** The panel as the app mounts it: inside the router its listing note navigates with. */

@@ -1205,12 +1205,6 @@ export interface InstanceAdminSettings {
    * whether any space has taken it up.
    */
   directoryListedSpaceCount: number;
-  /**
-   * The web client's Backspace page shows the Support card, which links to
-   * the project's Ko-fi page. Hides only that card; the server does nothing
-   * else with it. Default true. Also on `InstanceInfoResponse`.
-   */
-  supportCardEnabled: boolean;
 }
 
 export interface InstanceStreamingLimits {
@@ -1276,10 +1270,6 @@ export interface InstanceInfoResponse {
   directoryConfigured: boolean;
   directoryAvailable: boolean;
   directoryEnabled: boolean;
-  // The admin's switch for the Support card on the web client's Backspace
-  // page. It only hides that card in the web client and changes nothing the
-  // server does.
-  supportCardEnabled: boolean;
   /**
    * Maximum custom sticker / emoji upload size in megabytes.
    */

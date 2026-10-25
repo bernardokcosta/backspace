@@ -9,9 +9,6 @@ vi.mock('../../audio/AudioManager', () => ({
     getInstance: vi.fn().mockReturnValue({ setOutputDevice: vi.fn(), setVolume: vi.fn() }),
   },
 }));
-vi.mock('../../hooks/useHubUpdateState', () => ({
-  useHubUpdateState: () => ({ state: 'current', version: '1.2.0' }),
-}));
 
 import { ChannelSidebar } from './ChannelSidebar';
 import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';

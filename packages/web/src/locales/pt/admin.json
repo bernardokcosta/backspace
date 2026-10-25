@@ -56,11 +56,6 @@
       "toggleDescription": "As pessoas daqui veem espaços de outras instâncias em Espaço Sideral. Os navegadores carregam os ícones e banners desses espaços das instâncias que os hospedam.",
       "unavailable": "Esta instância não está configurada para acessar um diretório, então não há nada para mostrar."
     },
-    "supportCard": {
-      "label": "Página do Backspace",
-      "toggleLabel": "Mostrar o cartão de suporte",
-      "toggleDescription": "Mostra na página do Backspace um cartão com um link para a página do projeto no Ko-fi. Desativá-lo oculta apenas esse cartão."
-    },
     "gif": {
       "label": "Pesquisa de GIFs",
       "description": "Ativar pesquisa de GIFs fornecida pelo Klipy. Obtenha uma chave de API gratuita no portal de desenvolvedores do Klipy.",

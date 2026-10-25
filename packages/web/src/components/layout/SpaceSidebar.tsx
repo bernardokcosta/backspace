@@ -8,7 +8,6 @@ import { useSpaceStore, getMyUserIdForOrigin } from '../../stores/spaceStore';
 import type { TaggedSpace } from '../../stores/spaceStore';
 import { resolveSpaceLayout, type ResolvedSpaceLayoutItem } from '../../utils/spaceLayout';
 import { spaceInviteUrl } from '../../utils/inviteParser';
-import { activeHomeNavItem } from '../../utils/homeNav';
 import { useChatStore } from '../../stores/chatStore';
 import { useUIStore } from '../../stores/uiStore';
 import { useInstanceStore } from '../../stores/instanceStore';
@@ -615,7 +614,6 @@ export function SpaceSidebar() {
   const openModal = useUIStore((s) => s.openModal);
   const addToast = useUIStore((s) => s.addToast);
   const floatingPanelHeight = useUIStore((s) => s.floatingPanelHeight);
-  const currentChannelId = useChatStore((s) => s.currentChannelId);
   const setCurrentChannel = useChatStore((s) => s.setCurrentChannel);
   const unreadChannels = useChatStore((s) => s.unreadChannels);
   const instances = useInstanceStore((s) => s.instances);
@@ -1087,7 +1085,7 @@ export function SpaceSidebar() {
         name={t('spaces:sidebar.directMessages')}
         // The Backspace page is reached from the DM sidebar, so `@me` stays
         // lit there; `showDms` alone is only set on the `@me` route.
-        active={showDms || activeHomeNavItem(location.pathname, currentChannelId) === 'backspace'}
+        active={showDms}
         onClick={handleDmClick}
         type="dm"
         hasUnread={hasDmUnread}

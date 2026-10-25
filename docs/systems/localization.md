@@ -18,6 +18,9 @@ Russian (`ru`), German (`de`), Brazilian Portuguese (`pt`), Simplified Chinese
 (`zh`). Adding a language is a catalog directory plus one entry in
 `supportedLanguages`; nothing else in the code should need to know the list.
 
+The project-hub `project` namespace and Support-card-only admin copy were
+retired in 1.15.2 across all five languages; they are not registered or loaded.
+
 `zh` is the Simplified catalog and detection maps every `zh-*` tag onto it,
 Traditional included: a `zh-TW` browser gets a script its user can read
 rather than English, and the picker says 简体中文 so they know which variant
@@ -122,7 +125,6 @@ Rules:
 | `uploads` | Transfer indicator, upload errors, crop dialog |
 | `desktop` | Renderer-side desktop strings: update banner, recovery notices, keybind setup |
 | `mobile` | Mobile shell, bottom navigation, screen titles |
-| `project` | The Backspace project hub page (`/backspace`) and its sidebar entry: header, the What's new, community, support, insights, report, host and desktop cards, the This instance section and the footer links |
 | `telemetry` | The one-time "say hi" ask and the instance-settings section for the optional daily usage ping |
 | `errors` | Localized messages for every `ErrorCode` in `packages/shared` |
 

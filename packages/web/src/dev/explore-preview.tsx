@@ -288,7 +288,6 @@ const INSTANCE_INFO: InstanceInfoResponse = {
   directoryConfigured: true,
   directoryAvailable: true,
   directoryEnabled: true,
-  supportCardEnabled: true,
 };
 
 /**

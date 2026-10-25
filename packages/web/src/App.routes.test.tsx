@@ -51,9 +51,9 @@ afterEach(() => {
 });
 
 describe('App routes', () => {
-  it('serves /backspace inside the app layout', () => {
+  it('redirects an old /backspace bookmark to Friends', () => {
     renderAt('/backspace');
-    expect(screen.getByTestId('layout')).toHaveTextContent(/^\/backspace$/);
+    expect(screen.getByTestId('layout')).toHaveTextContent(/^\/channels\/@me$/);
   });
 
   it('still serves /explore inside the app layout', () => {

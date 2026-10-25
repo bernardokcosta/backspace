@@ -265,7 +265,7 @@ Returns `null` when `mobileStack.length > 0` — hidden whenever a pushed screen
 |-----|-----------|--------------|
 | Spaces | Dot (red) | `unreadChannels` has any non-voice channel |
 | DMs | Numeric count | Count of DM channels where `lastMessage.id > readStates[dmId]` |
-| You | Dot (red) | Pending incoming friend requests (`status === 'pending'` and `fromId !== authUser.id`), an instance update badge (`useInstanceUpdateBadge`), or the Backspace page's `updated` state (`useHubUpdateState`) |
+| You | Dot (red) | Pending incoming friend requests (resolved with federation-aware `isIncomingRequest`) or an instance update badge (`useInstanceUpdateBadge`) |
 
 Badge caps at `99+` for numeric badges.
 
@@ -360,7 +360,6 @@ Event options: `touchstart` is `{ passive: true }`, `touchmove` is `{ passive: f
 | `members` | `MobileMembersScreen` | `{ spaceId? }` |
 | `voice-full` | `MobileVoiceFullScreen` | — |
 | `explore` | `ExplorePage` | — |
-| `backspace` | `MobileBackspaceScreen`: `MobileScreenHeader` titled `project:nav.label` over `ProjectHubPage showTopBar={false}` (see [project-hub.md](project-hub.md)) | — |
 | `user-profile` | `UserProfileModal` | `{ userId }` (opens modal via `openModal('userProfile', ...)`) |
 
 Instance settings sub-panels (`settings-instance-*`) are wrapped inline with `MobileScreenHeader` + scrollable container + `bg-surface-base`.
@@ -412,7 +411,9 @@ Split-pane layout: 60px `glass-strip` space strip on the left + channel list on 
 
 - Settings gear in header (pushes `settings`)
 - Profile card: banner/accent background, avatar (-10 overlap), display name, username, custom status, bio
-- Action rows (each pushes a screen): Edit Profile, Friends, Connections, Voice & Video, Backspace (pushes `backspace`). A row can carry a `badge` dot at its trailing edge; the Backspace row shows the brand primary 8px dot while `useHubUpdateState().state === 'updated'`
+- Action rows (each pushes a screen): Edit Profile, Friends, Connections, Voice & Video.
+  The project-hub row/screen and its update-dot subscription were removed in
+  1.15.2. The settings gear's instance-update indicator remains independent.
 - Log Out button with `ConfirmDialog`
 
 ---

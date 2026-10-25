@@ -237,17 +237,17 @@ describe('GET /api/instance/info', () => {
     expect(body).toMatchObject({ directoryConfigured: true, directoryAvailable: false });
   });
 
-  it('reports supportCardEnabled=true on a fresh database', async () => {
+  it('omits the retired Support-card setting on a fresh database', async () => {
     const res = await app.inject({ method: 'GET', url: '/api/instance/info' });
     expect(res.statusCode).toBe(200);
-    expect(res.json().supportCardEnabled).toBe(true);
+    expect(res.json()).not.toHaveProperty('supportCardEnabled');
   });
 
-  it('reports supportCardEnabled=false once the admin hid the card', async () => {
+  it('omits the retired setting even if it was disabled in the database', async () => {
     sqlite.prepare('UPDATE instance_settings SET support_card_enabled = 0 WHERE id = 1').run();
     const res = await app.inject({ method: 'GET', url: '/api/instance/info' });
     expect(res.statusCode).toBe(200);
-    expect(res.json().supportCardEnabled).toBe(false);
+    expect(res.json()).not.toHaveProperty('supportCardEnabled');
   });
 
   it('browses by default: a fresh row has the setting on', async () => {

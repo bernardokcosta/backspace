@@ -23,8 +23,6 @@ import { MobileVoiceFullScreen } from './MobileVoiceFullScreen';
 import { MobileMembersScreen } from './MobileMembersScreen';
 import { MobileGroupDmInfo } from './MobileGroupDmInfo';
 import { FriendsPage } from '../chat/FriendsPage';
-import { ProjectHubPage } from '../projectHub/ProjectHubPage';
-import type { ProjectLinks } from '../../utils/projectLinks';
 import { ExplorePage } from '../chat/ExplorePage';
 import { UserProfileModal } from '../modals/UserProfileModal';
 import {
@@ -54,24 +52,6 @@ function MobileFederationPanelWrapper() {
       <div className="flex-1 overflow-y-auto p-4">
         <SettingsPanelSuspense><FederationPanel onApprovalCountChange={setApprovalCount} /></SettingsPanelSuspense>
       </div>
-    </div>
-  );
-}
-
-/**
- * The Backspace page as a pushed screen: the screen header in place of the
- * page's own top bar. `links` defaults to the real constant, as on the page;
- * the design workbench passes filled-in values.
- */
-export function MobileBackspaceScreen({ links }: { links?: ProjectLinks }) {
-  const { t } = useTranslation('project');
-  return (
-    <div className="flex flex-col h-full bg-surface-base">
-      <MobileScreenHeader title={t('nav.label')} />
-      {/* min-h-0 lets this fill only what the header leaves: the page's root
-          is h-full, which as a direct flex item would floor its height at the
-          whole screen and push its last 48px under the stack's clip. */}
-      <div className="flex-1 min-h-0 flex flex-col"><ProjectHubPage links={links} showTopBar={false} /></div>
     </div>
   );
 }
@@ -137,7 +117,6 @@ export const mobileScreenMap: Readonly<Record<string, (params?: Record<string, s
   'group-dm-info': (params) => <MobileGroupDmInfo params={params} />,
   'voice-full': () => <MobileVoiceFullScreen />,
   'explore': () => <ExplorePage />,
-  'backspace': () => <MobileBackspaceScreen />,
   'user-profile': (params) => {
     // Open the user profile modal with the userId from params
     if (params?.userId) {

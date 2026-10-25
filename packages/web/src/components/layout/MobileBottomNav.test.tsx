@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { HubUpdateState } from '../../stores/projectHubStore';
 
 // Stub AudioManager to avoid AudioWorkletNode reference error in jsdom.
 // Reached transitively via chatStore -> useWebSocket -> voiceStore.
@@ -12,11 +11,7 @@ vi.mock('../../audio/AudioManager', () => ({
   },
 }));
 
-// Both dot sources have their own tests; here only how the tab combines them.
-const sources = vi.hoisted(() => ({ hub: 'current' as HubUpdateState, instanceUpdate: false }));
-vi.mock('../../hooks/useHubUpdateState', () => ({
-  useHubUpdateState: () => ({ state: sources.hub, version: '1.2.0' }),
-}));
+const sources = vi.hoisted(() => ({ instanceUpdate: false }));
 vi.mock('../../hooks/useInstanceUpdateBadge', () => ({
   useInstanceUpdateBadge: () => sources.instanceUpdate,
 }));
@@ -44,7 +39,6 @@ function youDot(): Element | null {
 }
 
 beforeEach(() => {
-  sources.hub = 'current';
   sources.instanceUpdate = false;
   useUIStore.setState({ mobileScreen: 'spaces', mobileStack: [] });
   useSocialStore.setState({ requests: [] });
@@ -58,23 +52,14 @@ afterEach(async () => {
 });
 
 describe('MobileBottomNav: You tab dot', () => {
-  it('lights on a hub update alone', () => {
-    sources.hub = 'updated';
-
+  it('stays dark when nothing retained is pending, regardless of old hub storage', () => {
+    localStorage.setItem('backspace_hub_seen_version_user-self', JSON.stringify({ version: '0.0.1' }));
     renderNav();
-
-    expect(youDot()).not.toBeNull();
-  });
-
-  it.each<HubUpdateState>(['unknown', 'first-run', 'current'])('stays dark when the hub state is %s and nothing else is pending', (state) => {
-    sources.hub = state;
-
-    renderNav();
-
     expect(youDot()).toBeNull();
+    localStorage.removeItem('backspace_hub_seen_version_user-self');
   });
 
-  it('still lights on an instance update with the hub current', () => {
+  it('still lights on an instance update', () => {
     sources.instanceUpdate = true;
 
     renderNav();
