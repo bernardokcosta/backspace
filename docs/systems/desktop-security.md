@@ -173,6 +173,13 @@ legitimate active share survives alt-tab. Navigation, renderer loss, close and
 quit stop native capture. Existing clients never requesting Force SDR do not
 start this path.
 
+Force SDR preselection refreshes source identity without thumbnails/icons, so a
+later tile click does not depend on retaining another window's old pixels.
+Focus/main-frame/generation are checked before and after resolution; stale
+async completions cannot arm a later request. Source ids are matched exactly
+against that trusted result. The HWND is the first window-id field; the final
+bounded numeric bookkeeping suffix is preserved, not assumed to be zero.
+
 The isolated `--mode capture` fixture supplies the handle of a test window it
 created, then uses the production controller/IPC/preload. No sandbox,
 context-isolation or fuse setting is weakened. Only transferable VideoFrames

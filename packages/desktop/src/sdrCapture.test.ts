@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { IpcMain, IpcMainInvokeEvent, WebFrameMain } from 'electron';
-import { createSdrCaptureController, registerSdrCaptureIpc, resolveNativeSdrSource } from './sdrCapture';
+import { createSdrCaptureController, registerSdrCaptureIpc, resolveNativeSdrSource, resolveSdrPreselection } from './sdrCapture';
 import type { NativeSdrFrame, NativeSdrModule, NativeSdrSource } from './sdrCaptureTypes';
 
 const source: NativeSdrSource = { kind: 'window', id: 'window:123:0' };
@@ -37,6 +37,7 @@ function setup() {
 describe('SDR source mapping', () => {
   it('maps only a trusted window id or a uniquely matched native display origin', () => {
     expect(resolveNativeSdrSource({ id: 'window:123:0', display_id: '' }, [])).toEqual(source);
+    expect(resolveNativeSdrSource({ id: 'window:123:2', display_id: '' }, [])).toEqual({ kind: 'window', id: 'window:123:2' });
     expect(resolveNativeSdrSource({ id: 'screen:88:0', display_id: '22' }, [
       { id: 22, nativeOrigin: { x: -3840, y: 0 } },
     ])).toEqual({ kind: 'screen', id: 'screen:88:0', displayId: '22', nativeOrigin: { x: -3840, y: 0 } });
@@ -50,6 +51,28 @@ describe('SDR source mapping', () => {
     const screen = { id: 'screen:1:0', display_id: '22' };
     expect(resolveNativeSdrSource(screen, [{ id: 22, nativeOrigin: { x: NaN, y: 0 } }])).toBeNull();
     expect(resolveNativeSdrSource(screen, [{ id: 22, nativeOrigin: { x: 0, y: 0 } }, { id: 22, nativeOrigin: { x: 1920, y: 0 } }])).toBeNull();
+  });
+});
+
+describe('fresh SDR source preselection', () => {
+  const selected = { id: 'window:123:0', display_id: '' };
+  it('re-resolves a previously shown tile without requiring retained thumbnail objects', async () => {
+    const enumerate = vi.fn(async () => [selected]);
+    expect(await resolveSdrPreselection(selected.id, enumerate, () => true)).toBe(selected);
+    expect(enumerate).toHaveBeenCalledOnce();
+  });
+
+  it('denies an unfocused/foreign frame before enumerating and a vanished selection afterward', async () => {
+    const enumerate = vi.fn(async () => [selected]);
+    await expect(resolveSdrPreselection(selected.id, enumerate, () => false)).rejects.toThrow('authorized');
+    expect(enumerate).not.toHaveBeenCalled();
+    await expect(resolveSdrPreselection('window:456:0', enumerate, () => true)).rejects.toThrow('unavailable');
+  });
+
+  it('does not accept a source if focus or document ownership changes during enumeration', async () => {
+    let allowed = true;
+    const enumerate = async () => { allowed = false; return [selected]; };
+    await expect(resolveSdrPreselection(selected.id, enumerate, () => allowed)).rejects.toThrow('authorized');
   });
 });
 

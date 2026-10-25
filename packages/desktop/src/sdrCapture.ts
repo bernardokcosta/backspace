@@ -7,9 +7,10 @@ export function resolveNativeSdrSource(
   source: Pick<DesktopCapturerSource, 'id' | 'display_id'>,
   displays: ReadonlyArray<Pick<Display, 'id' | 'nativeOrigin'>>,
 ): NativeSdrSource | null {
-  const windowId = /^window:([1-9]\d{0,19}):0$/.exec(source.id);
+  const windowId = /^window:([1-9]\d{0,19}):(\d{1,20})$/.exec(source.id);
   if (windowId) {
-    return BigInt(windowId[1]!) <= 0xffffffffffffffffn ? { kind: 'window', id: source.id } : null;
+    return BigInt(windowId[1]!) <= 0xffffffffffffffffn && BigInt(windowId[2]!) <= 0xffffffffffffffffn
+      ? { kind: 'window', id: source.id } : null;
   }
   if (!/^screen:\d+:\d+$/.test(source.id) || !source.display_id) return null;
   const matches = displays.filter((display) => String(display.id) === source.display_id);
@@ -17,6 +18,20 @@ export function resolveNativeSdrSource(
   const origin = matches[0]!.nativeOrigin;
   if (!origin || ![origin.x, origin.y].every((coordinate) => Number.isInteger(coordinate) && coordinate >= -2147483648 && coordinate <= 2147483647)) return null;
   return { kind: 'screen', id: source.id, displayId: source.display_id, nativeOrigin: { ...origin } };
+}
+
+/** Revalidate an explicitly selected id without retaining prior thumbnails. */
+export async function resolveSdrPreselection<T extends Pick<DesktopCapturerSource, 'id' | 'display_id'>>(
+  sourceId: string,
+  enumerate: () => Promise<readonly T[]>,
+  isAuthorized: () => boolean,
+): Promise<T> {
+  if (!sourceId || sourceId.length > 128 || !isAuthorized()) throw new Error('SDR selection is not authorized');
+  const sources = await enumerate();
+  if (!isAuthorized()) throw new Error('SDR selection is no longer authorized');
+  const selected = sources.find((source) => source.id === sourceId);
+  if (!selected) throw new Error('SDR selected source is unavailable');
+  return selected;
 }
 
 interface Dependencies {

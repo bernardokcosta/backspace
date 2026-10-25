@@ -60,9 +60,14 @@ NativeCaptureSource read_source(napi_env env, napi_value object) {
   if (kind == "window") {
     const auto id = read_text(env, property(env, object, "id"));
     const auto separator = id.find(':', 7);
-    if (!id.starts_with("window:") || separator == std::string::npos || id.substr(separator) != ":0") {
+    if (!id.starts_with("window:") || separator == std::string::npos) {
       throw std::invalid_argument("Invalid native window source");
     }
+    // Electron's final numeric bookkeeping field is not always zero (including
+    // windows belonging to Electron itself). It is metadata, not the HWND.
+    uint64_t window_id = 0;
+    const auto suffix = std::from_chars(id.data() + separator + 1, id.data() + id.size(), window_id);
+    if (suffix.ec != std::errc() || suffix.ptr != id.data() + id.size()) throw std::invalid_argument("Invalid native window source");
     uintptr_t handle = 0;
     const auto parsed = std::from_chars(id.data() + 7, id.data() + separator, handle);
     if (parsed.ec != std::errc() || parsed.ptr != id.data() + separator || handle == 0) throw std::invalid_argument("Invalid native window source");

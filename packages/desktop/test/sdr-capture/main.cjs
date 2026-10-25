@@ -1,10 +1,10 @@
-const { app, BrowserWindow, ipcMain, sharedTexture } = require('electron');
+const { app, BrowserWindow, ipcMain, sharedTexture, desktopCapturer } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const http = require('node:http');
 const assert = require('node:assert/strict');
 const { createSdrCaptureTransport } = require('../../dist/sdrCaptureTransport.js');
-const { createSdrCaptureController, registerSdrCaptureIpc, resolveNativeSdrSource } = require('../../dist/sdrCapture.js');
+const { createSdrCaptureController, registerSdrCaptureIpc, resolveNativeSdrSource, resolveSdrPreselection } = require('../../dist/sdrCapture.js');
 
 const evidence = process.env.BACKSPACE_SDR_SMOKE_DIR;
 if (!evidence || !process.env.BACKSPACE_SDR_NATIVE) throw new Error('Use the isolated SDR smoke runner');
@@ -89,7 +89,14 @@ ipcMain.handle('sdr-smoke-ready', async (event) => {
   assert.equal(event.senderFrame, window.webContents.mainFrame);
   if (mode === 'capture') {
     assert.equal(native.isCaptureSupported(), true, 'Windows Graphics Capture is unsupported on this host');
-    const source = resolveNativeSdrSource({ id: `window:${sourceWindow.getNativeWindowHandle().readBigUInt64LE()}:0`, display_id: '' }, []);
+    const hwnd = sourceWindow.getNativeWindowHandle().readBigUInt64LE();
+    const sources = await desktopCapturer.getSources({ types: ['window'], thumbnailSize: { width: 0, height: 0 }, fetchWindowIcons: false });
+    const own = sources.find((candidate) => candidate.id.startsWith(`window:${hwnd}:`));
+    assert.ok(own, 'The controlled source must be a real Electron enumeration result');
+    const selected = await resolveSdrPreselection(own.id, async () => sources,
+      () => !window.isDestroyed() && window.isFocused() && event.senderFrame === window.webContents.mainFrame);
+    assert.equal(selected.thumbnail.isEmpty(), true, 'Source validation must not capture other window thumbnails');
+    const source = resolveNativeSdrSource(selected, []);
     assert.ok(source);
     assert.equal(controller.grant(event.senderFrame, source), true);
     return { sessionId, mode };
@@ -238,7 +245,7 @@ app.whenReady().then(async () => {
   });
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
   if (mode === 'capture') {
-    sourceWindow = new BrowserWindow({ width: 320, height: 160, useContentSize: true, frame: false, hasShadow: false, show: false, skipTaskbar: true,
+    sourceWindow = new BrowserWindow({ width: 320, height: 160, useContentSize: true, frame: false, hasShadow: false, show: false,
       webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false, backgroundThrottling: false } });
     await sourceWindow.loadURL(`http://127.0.0.1:${server.address().port}/source.html`);
     sourceWindow.showInactive();

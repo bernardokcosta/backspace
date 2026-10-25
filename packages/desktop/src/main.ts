@@ -62,7 +62,7 @@ import {
   type ScreenSharePickerMode,
 } from './screenSharePolicy';
 import { getDesktopLanguage, isDesktopLanguage, saveStoredLanguage, translateDesktop } from './l10n';
-import { createSdrCaptureController, registerSdrCaptureIpc, resolveNativeSdrSource } from './sdrCapture';
+import { createSdrCaptureController, registerSdrCaptureIpc, resolveNativeSdrSource, resolveSdrPreselection } from './sdrCapture';
 import { createSdrCaptureTransport } from './sdrCaptureTransport';
 import type { NativeSdrModule } from './sdrCaptureTypes';
 
@@ -605,6 +605,7 @@ interface SerializedScreenSource {
 }
 
 let pendingScreenSelection: PendingScreenSelection | null = null;
+let screenSelectionGeneration = 0;
 /** Loopback preference for system-picker captures (no preselection carries it there). */
 let lastSystemPickerShareAudio: boolean | null = null;
 
@@ -665,6 +666,7 @@ const sdrCapture = createSdrCaptureController({
 
 function invalidateSdrCapture(reason: 'navigation' | 'renderer-gone' | 'shutdown'): void {
   sdrCapture.invalidate(reason);
+  screenSelectionGeneration++;
   pendingScreenSelection = null;
   lastScreenSources = [];
   lastServedScreenSources = [];
@@ -702,6 +704,7 @@ function currentPickerMode(): ScreenSharePickerMode {
 
 /** One-shot: returns and clears the pending preselection, or null when absent or stale. */
 function takePendingScreenSelection(): PendingScreenSelection | null {
+  screenSelectionGeneration++;
   const pending = pendingScreenSelection;
   pendingScreenSelection = null;
   return isPendingSelectionFresh(pending, Date.now()) ? pending : null;
@@ -917,14 +920,20 @@ function registerIpcHandlers(): void {
   // so the selection is guaranteed to be armed when the display-media handler
   // runs. Fire-and-forget left the two unordered — the handler could win, fall
   // back to the prompted flow, and leave this armed to hijack the next share.
-  ipcMain.handle('screen-share-preselect', (event, sourceId: unknown, shareAudio?: boolean, videoOptions?: unknown) => {
+  ipcMain.handle('screen-share-preselect', async (event, sourceId: unknown, shareAudio?: boolean, videoOptions?: unknown) => {
     if (event.sender !== mainWindow?.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) return;
     pendingScreenSelection = null;
+    const generation = ++screenSelectionGeneration;
     sdrCapture.revokeGrant();
     if (typeof sourceId !== 'string' || !sourceId || sourceId.length > 128) return;
     const forceSdr = typeof videoOptions === 'object' && videoOptions !== null && (videoOptions as Record<string, unknown>).forceSdr === true;
-    if (forceSdr && (!mainWindow.isFocused() || !lastScreenSources.some((source) => source.id === sourceId))) {
-      throw new Error('SDR source was not selected from the focused main window');
+    if (forceSdr) {
+      const selected = await resolveSdrPreselection(sourceId,
+        () => desktopCapturer.getSources({ types: ['screen', 'window'], thumbnailSize: { width: 0, height: 0 }, fetchWindowIcons: false }),
+        () => generation === screenSelectionGeneration && !!event.senderFrame && isSdrTargetAllowed(event.senderFrame) && (mainWindow?.isFocused() ?? false));
+      // The accepted request drops all thumbnails. A later click must still
+      // work: retain only this freshly resolved, thumbnail-free source object.
+      lastScreenSources = [selected];
     }
     pendingScreenSelection = { sourceId, shareAudio: shareAudio === true, forceSdr, at: Date.now() };
   });
