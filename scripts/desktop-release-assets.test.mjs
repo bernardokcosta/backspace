@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 import { expectedDesktopAssets, validateDesktopRelease, assembleDesktopRelease, expectedDesktopGroupAssets, validateDesktopBuildGroup, readBuildYaml } from './desktop-release-assets.mjs';
 import { verifyUpdaterPublisher } from './verify-desktop-build.mjs';
@@ -44,6 +45,19 @@ test('workflow keeps matrix read-only, fuses/signature before artifact upload an
   assert.ok(workflow.on.pull_request && Object.hasOwn(workflow.on, 'workflow_dispatch'));
   assert.ok(workflow.jobs.publish.steps.some((step) => step.run?.includes('ci.yml/runs?head_sha=$COMMIT')));
   assert.equal(Object.values(workflow.jobs).filter((job) => job.permissions?.contents === 'write').length, 1);
+});
+
+test('the actual workflow bootstrap snippet writes the selected release id to GitHub output', async (t) => {
+  const directory = await releaseFixture(t);
+  const workflow = readBuildYaml(await fs.readFile(new URL('../.github/workflows/release.yml', import.meta.url), 'utf8'));
+  const step = workflow.jobs.publish.steps.find((step) => step.id === 'bootstrap');
+  const line = step.run.split('\n').find((line) => line.startsWith('node --input-type=module -e '));
+  const code = /-e '(.+)'$/.exec(line)?.[1]; assert.ok(code);
+  await fs.writeFile(path.join(directory, 'release-id.json'), JSON.stringify({ releaseId: 42 }));
+  const output = path.join(directory, 'github-output');
+  const result = spawnSync(process.execPath, ['--input-type=module', '-e', code], { cwd: directory, env: { ...process.env, GITHUB_OUTPUT: output }, encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(await fs.readFile(output, 'utf8'), 'release-id=42\n');
 });
 
 test('missing, empty and truncated assets fail before publication', async (t) => {

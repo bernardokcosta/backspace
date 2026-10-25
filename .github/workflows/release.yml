@@ -374,6 +374,7 @@ jobs:
             result="$(gh api "repos/$REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$COMMIT&event=push&per_page=100" --jq '.workflow_runs | map(select(.head_sha == env.COMMIT and (.head_branch == "master" or .head_branch == "main"))) | sort_by(.run_number) | last | [.status, .conclusion] | @tsv')"
             if [ "$result" = $'completed\tsuccess' ]; then exit 0; fi
             if [[ "$result" == completed* ]]; then echo "::error::Required exact-commit CI did not succeed"; exit 1; fi
+            echo "Waiting for exact-commit CI (attempt $attempt/90)"
             sleep 20
           done
           echo "::error::No successful exact-commit main-branch CI within the deadline"
@@ -395,7 +396,7 @@ jobs:
           COMMIT: ${{ github.sha }}
         run: |
           node scripts/publish-desktop-release.mjs --repository "$REPOSITORY" --tag "$TAG" --commit "$COMMIT" --notes ".github/release-notes/$TAG.md" --prepare --output-id release-id.json
-          node --input-type=module -e 'import fs from "node:fs"; const {releaseId}=JSON.parse(fs.readFileSync("release-id.json","utf8")); fs.appendFileSync(process.env.GITHUB_OUTPUT,`release-id=${releaseId}\n`);'
+          node --input-type=module -e 'import fs from "node:fs"; const {releaseId}=JSON.parse(fs.readFileSync("release-id.json","utf8")); fs.appendFileSync(process.env.GITHUB_OUTPUT,"release-id="+releaseId+"\n");'
       - name: Upload, verify and publish only that release id
         env:
           GH_TOKEN: ${{ github.token }}
