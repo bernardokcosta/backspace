@@ -395,10 +395,13 @@ export class BackspaceApiClient {
   readonly explore: {
     list: (q?: string, limit?: number, offset?: number) => Promise<{ spaces: ExploreSpace[]; total: number; totalAll: number; discoveryEnabled: boolean }>;
     publicJoin: (spaceId: string) => Promise<SpaceWithChannelsAndMembers>;
-    requestJoin: (spaceId: string, message?: string) => Promise<JoinRequest>;
-    getJoinRequests: (spaceId: string, status?: string) => Promise<{ requests: JoinRequest[] }>;
-    decideJoinRequest: (spaceId: string, requestId: string, action: 'accept' | 'decline') => Promise<JoinRequest>;
-    myJoinRequests: (status?: string) => Promise<{ requests: JoinRequest[] }>;
+  };
+
+  readonly joinRequests: {
+    request: (spaceId: string, message?: string) => Promise<JoinRequest>;
+    list: (spaceId: string, status?: string) => Promise<{ requests: JoinRequest[] }>;
+    decide: (spaceId: string, requestId: string, action: 'accept' | 'decline') => Promise<JoinRequest>;
+    mine: (status?: string) => Promise<{ requests: JoinRequest[] }>;
   };
 
   /** The public space directory, read through this instance's proxy (never the hub directly). */
@@ -975,16 +978,19 @@ export class BackspaceApiClient {
       },
       publicJoin: (spaceId: string) =>
         request<SpaceWithChannelsAndMembers>('POST', `/spaces/${spaceId}/public-join`),
-      requestJoin: (spaceId: string, message?: string) =>
+    };
+
+    this.joinRequests = {
+      request: (spaceId: string, message?: string) =>
         request<JoinRequest>('POST', `/spaces/${spaceId}/request-join`, message ? { message } : {}),
-      getJoinRequests: (spaceId: string, status?: string) => {
+      list: (spaceId: string, status?: string) => {
         const params = new URLSearchParams();
         if (status) params.set('status', status);
         return request<{ requests: JoinRequest[] }>('GET', `/spaces/${spaceId}/join-requests?${params}`);
       },
-      decideJoinRequest: (spaceId: string, requestId: string, action: 'accept' | 'decline') =>
+      decide: (spaceId: string, requestId: string, action: 'accept' | 'decline') =>
         request<JoinRequest>('PATCH', `/spaces/${spaceId}/join-requests/${requestId}`, { action }),
-      myJoinRequests: (status?: string) => {
+      mine: (status?: string) => {
         const params = new URLSearchParams();
         if (status) params.set('status', status);
         return request<{ requests: JoinRequest[] }>('GET', `/users/@me/join-requests?${params}`);

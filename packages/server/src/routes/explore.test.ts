@@ -80,7 +80,9 @@ function seedSpace(id: string, visibility: 'public' | 'request' | 'private'): vo
 async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({ logger: false });
   const { exploreRoutes } = await import('./explore.js');
+  const { joinRequestRoutes } = await import('./joinRequests.js');
   await app.register(exploreRoutes);
+  await app.register(joinRequestRoutes);
   await app.ready();
   return app;
 }

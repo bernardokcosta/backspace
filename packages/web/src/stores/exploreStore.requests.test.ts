@@ -10,6 +10,7 @@ const { homeApi, instanceState, subscribers, connectedJoinOrigin } = vi.hoisted(
   // a test sets. Its own behaviour is covered in spaceStore.joinByCode.test.ts.
   connectedJoinOrigin: vi.fn(async (origin?: string) => origin ?? ''),
   homeApi: {
+    get joinRequests() { return { request: this.explore.requestJoin, mine: this.explore.myJoinRequests }; },
     explore: {
       myJoinRequests: vi.fn<(status?: string) => Promise<{ requests: JoinRequest[] }>>(),
       requestJoin: vi.fn<(spaceId: string, message?: string) => Promise<JoinRequest>>(),
@@ -21,7 +22,10 @@ const { homeApi, instanceState, subscribers, connectedJoinOrigin } = vi.hoisted(
     instances: [] as Array<{
       origin: string;
       status: 'connected' | 'connecting' | 'disconnected' | 'error';
-      api: { explore: { myJoinRequests: ReturnType<typeof vi.fn>; requestJoin: ReturnType<typeof vi.fn> } };
+      api: {
+        explore: { myJoinRequests: ReturnType<typeof vi.fn>; requestJoin: ReturnType<typeof vi.fn> };
+        joinRequests: { request: ReturnType<typeof vi.fn>; mine: ReturnType<typeof vi.fn> };
+      };
     }>,
     _autoConnectDone: true,
   },
@@ -92,6 +96,7 @@ function makeInstance(origin: string, status: 'connected' | 'connecting' | 'disc
     origin,
     status,
     api: {
+      get joinRequests() { return { request: this.explore.requestJoin, mine: this.explore.myJoinRequests }; },
       explore: {
         myJoinRequests: vi.fn(),
         requestJoin: vi.fn(),

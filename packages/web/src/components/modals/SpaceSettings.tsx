@@ -8,7 +8,8 @@ import { useSpaceStore } from '../../stores/spaceStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { Avatar } from '../ui/Avatar';
 import { Toggle } from '../ui/Toggle';
-import { api } from '../../api/client';
+import { useAuthStore } from '../../stores/authStore';
+import { getJoinRequestClient } from '../../utils/inviteJoinRequest';
 import { getApiForOrigin } from '../../utils/crossStoreResolvers';
 import { hasPermissionBit, PermissionBits } from '../../utils/permissions';
 import { OverviewPanel, MembersPanel, RolesPanel, BansPanel, SoundboardPanel, AfkPanel, SettingsPanelSuspense } from './lazySettingsPanels';
@@ -463,7 +464,7 @@ export function DiscoveryPanel({ spaceId }: { spaceId: string }) {
       )}
       {/* Pending Join Requests — only shown when visibility is 'request' */}
       {(visibility === 'request' || (space.visibility as SpaceVisibility) === 'request') && (
-        <JoinRequestsSection spaceId={spaceId} />
+        <JoinRequestsSection spaceId={spaceId} origin={space?._instanceOrigin ?? ''} />
       )}
 
       {hasChanges && (
@@ -491,36 +492,52 @@ export function DiscoveryPanel({ spaceId }: { spaceId: string }) {
   );
 }
 
-function JoinRequestsSection({ spaceId }: { spaceId: string }) {
+export function JoinRequestsSection({ spaceId, origin }: { spaceId: string; origin: string }) {
   const { t } = useTranslation(['spaces', 'common']);
   const [requests, setRequests] = useState<JoinRequest[]>([]);
   const f = useFormatters();
   const [loading, setLoading] = useState(true);
   const [actionError, setActionError] = useState('');
+  const token = useAuthStore(s => s.token);
+  const generation = useRef(0);
 
   useEffect(() => {
     let cancelled = false;
+    const current = ++generation.current;
     setLoading(true);
-    api.explore.getJoinRequests(spaceId, 'pending')
+    setRequests([]);
+    setActionError('');
+    getJoinRequestClient(origin)
+      .then(client => {
+        if (cancelled || current !== generation.current || token !== useAuthStore.getState().token) return { requests: [] };
+        return client.joinRequests.list(spaceId, 'pending');
+      })
       .then(({ requests: reqs }) => {
-        if (!cancelled) {
+        if (!cancelled && current === generation.current && token === useAuthStore.getState().token) {
           setRequests(reqs);
           setLoading(false);
         }
       })
-      .catch(() => {
-        if (!cancelled) setLoading(false);
+      .catch((err: unknown) => {
+        if (!cancelled && current === generation.current && token === useAuthStore.getState().token) {
+          setLoading(false); setActionError(describeError(err));
+        }
       });
-    return () => { cancelled = true; };
-  }, [spaceId]);
+    return () => { cancelled = true; generation.current = current + 1; };
+  }, [spaceId, origin, token]);
 
   const handleDecide = async (requestId: string, action: 'accept' | 'decline') => {
+    const current = generation.current;
+    const isCurrent = () => current === generation.current && token === useAuthStore.getState().token;
     setActionError('');
     try {
-      await api.explore.decideJoinRequest(spaceId, requestId, action);
+      const client = await getJoinRequestClient(origin);
+      if (!isCurrent()) return;
+      await client.joinRequests.decide(spaceId, requestId, action);
+      if (!isCurrent()) return;
       setRequests(prev => prev.filter(r => r.id !== requestId));
     } catch (err) {
-      setActionError(describeError(err));
+      if (isCurrent()) setActionError(describeError(err));
     }
   };
 

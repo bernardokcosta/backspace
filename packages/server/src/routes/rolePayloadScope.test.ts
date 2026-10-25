@@ -84,11 +84,13 @@ beforeEach(async () => {
   const { spaceRoutes } = await import('./spaces.js');
   const { channelRoutes } = await import('./channels.js');
   const { exploreRoutes } = await import('./explore.js');
+  const { joinRequestRoutes } = await import('./joinRequests.js');
   const { adminRoutes } = await import('./admin.js');
   app = Fastify();
   await app.register(spaceRoutes);
   await app.register(channelRoutes);
   await app.register(exploreRoutes);
+  await app.register(joinRequestRoutes);
   await app.register(adminRoutes);
 });
 

@@ -260,9 +260,9 @@ export const useExploreStore = create<ExploreState>((set, get) => ({
     const connectedInstances = getConnectedInstances();
 
     const results = await Promise.allSettled([
-      api.explore.myJoinRequests('pending').then(res => ({ requests: res.requests, origin: '' })),
+      api.joinRequests.mine('pending').then(res => ({ requests: res.requests, origin: '' })),
       ...connectedInstances.map(inst =>
-        inst.api.explore.myJoinRequests('pending').then(res => ({ requests: res.requests, origin: inst.origin }))
+        inst.api.joinRequests.mine('pending').then(res => ({ requests: res.requests, origin: inst.origin }))
       ),
     ]);
 
@@ -308,7 +308,7 @@ export const useExploreStore = create<ExploreState>((set, get) => ({
 
   requestJoin: async (space: TaggedExploreSpace, message?: string) => {
     const client = getApiForOrigin(space._instanceOrigin);
-    const request = await client.explore.requestJoin(space.id, message);
+    const request = await client.joinRequests.request(space.id, message);
 
     set((state) => ({
       myRequests: [...state.myRequests, { ...request, _instanceOrigin: space._instanceOrigin }],
@@ -319,7 +319,7 @@ export const useExploreStore = create<ExploreState>((set, get) => ({
 
   requestJoinSpace: async (spaceId: string, origin: string, message?: string) => {
     const target = await connectedJoinOrigin(origin);
-    const request = await getApiForOrigin(target).explore.requestJoin(spaceId, message);
+    const request = await getApiForOrigin(target).joinRequests.request(spaceId, message);
 
     set((state) => ({
       myRequests: [...state.myRequests, { ...request, _instanceOrigin: target }],

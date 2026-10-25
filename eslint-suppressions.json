@@ -53,11 +53,6 @@
       "count": 4
     }
   },
-  "packages/server/src/routes/explore.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
   "packages/server/src/routes/federation.presenceUpdate.test.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 3

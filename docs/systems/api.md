@@ -348,6 +348,14 @@ Channel search matches only messages members wrote (`userWrittenMessages()`); a 
 ```
 GET    /spaces/explore                   ?q=&limit=&offset=  → { spaces[], total, totalAll, discoveryEnabled }
 POST   /spaces/:id/public-join                               → { space }
+```
+
+## Join requests (`routes/joinRequests.ts`) — auth required
+
+Independent of discovery: invitations and space managers use these paths.
+`BackspaceApiClient.joinRequests` groups them as `request`, `list`, `decide`
+and `mine`; the REST paths, permissions and rate limit are unchanged.
+```
 POST   /spaces/:id/request-join          { message? }        → { request }  [5/min; also where an invite to a request space leads]
 GET    /spaces/:id/join-requests         ?status=            → { requests[] }  [MANAGE_SPACE]
 PATCH  /spaces/:id/join-requests/:rid    { action }          → { request }  [MANAGE_SPACE]

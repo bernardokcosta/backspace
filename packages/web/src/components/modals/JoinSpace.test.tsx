@@ -20,6 +20,8 @@ import { useSpaceStore } from '../../stores/spaceStore';
 import { useExploreStore } from '../../stores/exploreStore';
 import { HttpError } from '../../api/client';
 import { JoinRequestRequiredError } from '../../utils/joinErrors';
+import { sendInviteJoinRequest } from '../../utils/inviteJoinRequest';
+vi.mock('../../utils/inviteJoinRequest', () => ({ sendInviteJoinRequest: vi.fn() }));
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -31,6 +33,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 beforeEach(() => {
+  vi.mocked(sendInviteJoinRequest).mockReset().mockResolvedValue('sent');
   mockNavigate.mockClear();
   useUIStore.setState({ activeModal: null });
   useSpaceStore.setState({
@@ -223,9 +226,8 @@ describe('JoinSpaceModal', () => {
 
     it('moves to a request step and sends the request with the note', async () => {
       const user = userEvent.setup();
-      const requestJoinSpace = vi.fn().mockResolvedValue({ id: 'jr-1', spaceId: 'S-REQ', status: 'pending' });
+      const requestJoinSpace = vi.mocked(sendInviteJoinRequest);
       useSpaceStore.setState({ joinByCode: vi.fn().mockRejectedValue(requestRequired()) });
-      useExploreStore.setState({ requestJoinSpace });
       useUIStore.setState({ activeModal: 'joinSpace' });
       renderModal();
 
@@ -243,9 +245,7 @@ describe('JoinSpaceModal', () => {
     it('says a request is already waiting', async () => {
       const user = userEvent.setup();
       useSpaceStore.setState({ joinByCode: vi.fn().mockRejectedValue(requestRequired()) });
-      useExploreStore.setState({
-        requestJoinSpace: vi.fn().mockRejectedValue(new HttpError(409, 'pending', undefined, 'join_request_pending')),
-      });
+      vi.mocked(sendInviteJoinRequest).mockResolvedValue('pending');
       useUIStore.setState({ activeModal: 'joinSpace' });
       renderModal();
 

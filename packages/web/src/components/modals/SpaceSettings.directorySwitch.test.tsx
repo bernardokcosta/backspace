@@ -136,7 +136,7 @@ function connectRemote(origin: string, answer: Promise<InstanceStreamingLimits>)
 }
 
 beforeEach(() => {
-  vi.spyOn(api.explore, 'getJoinRequests').mockResolvedValue({ requests: [] });
+  vi.spyOn(api.joinRequests, 'list').mockResolvedValue({ requests: [] });
   useInstanceStore.setState({ instances: [] });
 });
 

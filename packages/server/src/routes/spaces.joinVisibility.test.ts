@@ -54,10 +54,10 @@ const now = 1_700_000_000_000;
 
 async function buildApp(): Promise<FastifyInstance> {
   const { spaceRoutes } = await import('./spaces.js');
-  const { exploreRoutes } = await import('./explore.js');
+  const { joinRequestRoutes } = await import('./joinRequests.js');
   const f = Fastify();
   await f.register(spaceRoutes);
-  await f.register(exploreRoutes);
+  await f.register(joinRequestRoutes);
   return f;
 }
 

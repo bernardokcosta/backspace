@@ -63,7 +63,7 @@ function seed(permissions: bigint): void {
 }
 
 beforeEach(() => {
-  vi.spyOn(api.explore, 'getJoinRequests').mockResolvedValue([]);
+  vi.spyOn(api.joinRequests, 'list').mockResolvedValue({ requests: [] });
   useUIStore.setState({ activeModal: null, modalData: {}, isMobile: false });
 });
 

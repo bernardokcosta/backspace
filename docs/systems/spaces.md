@@ -3,7 +3,9 @@
 Source files:
 - `packages/server/src/routes/spaces.ts` — Space CRUD, invite, join, members, roles, bans, ownership transfer, invite preview
 - `packages/server/src/routes/channels.ts` — Channel CRUD, category CRUD, channel layout reordering, channel/category permission overrides
-- `packages/server/src/routes/explore.ts` — Discovery listing, public join, join request workflow
+- `packages/server/src/routes/explore.ts` — Discovery listing and public join (retiring)
+- `packages/server/src/routes/joinRequests.ts` — Retained invitation-request/manager workflow
+- `packages/server/src/utils/spaceJoinPayload.ts` — Permission-filtered `buildJoinedSpace` payload shared by acceptance and the transitional public join
 - `packages/server/src/routes/users.ts` — Space layout (sidebar folders/ordering) persistence via `PUT /api/users/@me/space-layout`
 - `packages/web/src/stores/spaceStore.ts` — Client-side space state, multi-instance merge, LWW layout sync
 - `packages/web/src/stores/exploreStore.ts` — Explore page state, multi-instance discovery aggregation
@@ -236,7 +238,7 @@ Public route at `/join/:inviteCode`. Handles six phases:
 Every surface that takes a code reaches the join request flow the same way, so none of them ends at the refusal:
 
 - `spaceStore.joinByCode` turns a `join_request_required` refusal into `JoinRequestRequiredError` (`utils/joinErrors.ts`), an `HttpError` with that code plus `spaceId` and `origin` (`''` for the page's instance). The id comes from `details.spaceId`, else from the invite preview; when neither names it the original refusal is thrown. `connectedJoinOrigin(origin)` is the shared origin check: `''` for the page's own instance, the origin when it holds a connected session, else `NotConnectedError`.
-- `exploreStore.requestJoinSpace(spaceId, origin, message?)` sends `POST /api/spaces/:id/request-join` to that origin and records the request in `myRequests` tagged with it. `sendInviteJoinRequest` (`utils/inviteJoinRequest.ts`) wraps it and reports `join_request_pending` as `'pending'` instead of throwing. The request route's rate limit (5 per minute) and the manager's approval apply unchanged.
+- `sendInviteJoinRequest(spaceId, origin, message?)` (`utils/inviteJoinRequest.ts`) sends `POST /api/spaces/:id/request-join` through `client.joinRequests.request` on the exact connected origin, without discovery or a shared request store. It reports `join_request_pending` as `'pending'`; all other errors propagate. A disconnected/missing remote is `NotConnectedError`, never a home-client fallback. Account changes and the desktop session lifecycle reject obsolete replies. The route's rate limit (5 per minute) and manager approval are unchanged.
 - The space on another instance is reached as for a join: the request goes to the space's instance through the user's connected session there, so the request, the ban check and the membership check all use the user's row on that instance.
 - Surfaces: the Join Page (above); the Join Space dialog, which moves to a `request` step (note, Send Request) and then to `request-sent`; and a DM invite card (`SpaceInviteCard`), which shows "Ask to join" when the live preview says `request` or the join was refused with `join_request_required`, then "Request sent" or "Request pending".
 - Inviters: Invite Friends (`InviteModal`) shows the friend list and the link for a request space, with an intro that says people who open it ask to join; the space menu's Invite People (`SpaceSidebar`, `MobileSpacesScreen`) copies the link and confirms with "Invite link copied. People who open it can ask to join."
@@ -418,7 +420,12 @@ Decline flow:
 - Returns all requests for the current user, optionally filtered by status
 - Client side, `exploreStore.fetchMyRequests()` asks the home instance and every connected instance (`Promise.allSettled`) and tags each request with `_instanceOrigin` (`''` for home); `useSpaceJoin.isPending` matches on `(origin, spaceId)`, since space ids are local to their instance
 
-### Space Managers Resolution (`explore.ts:getSpaceManagers`)
+The manager UI uses `getJoinRequestClient(origin)` for listing and decisions,
+not a home-only client; changing origin/account or unmounting retires its
+in-flight view updates. The accepted-user payload is built by
+`buildJoinedSpace`, with effective channel permissions and role-data filtering.
+
+### Space Managers Resolution (`joinRequests.ts:getSpaceManagers`)
 
 Used to target `join_request_received` events. Iterates all space members and returns IDs where:
 - `userId === space.ownerId`, OR
