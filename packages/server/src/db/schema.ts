@@ -96,6 +96,7 @@ export const spaces = sqliteTable('spaces', {
   ownerTitle: text('owner_title'),
   inviteCode: text('invite_code').unique(),
   visibility: text('visibility').default('private'),
+  /** Legacy directory flag, inert since 1.15.2; retained for data/rollback compatibility. */
   directoryListed: integer('directory_listed').notNull().default(0),
   description: text('description'),
   afkChannelId: text('afk_channel_id'),
@@ -460,6 +461,7 @@ export const instanceSettings = sqliteTable('instance_settings', {
   instanceName: text('instance_name').default('Backspace'),
   workerId: integer('worker_id'),
   instanceId: text('instance_id'),
+  /** Legacy space-discovery setting, inert since 1.15.2. */
   discoveryEnabled: integer('discovery_enabled').notNull().default(1),
   maxBitrateKbps: integer('max_bitrate_kbps').notNull().default(20000),
   minBitrateKbps: integer('min_bitrate_kbps').notNull().default(500),
@@ -489,17 +491,13 @@ export const instanceSettings = sqliteTable('instance_settings', {
   telemetryLastError: text('telemetry_last_error'),
   /** The server version running when telemetry was last switched off; the ask returns on the next minor. */
   telemetryDeclinedVersion: text('telemetry_declined_version'),
-  /** The admin allows spaces on this instance to be listed in the directory. */
+  /** Legacy directory settings/state, inert since 1.15.2; no runtime reads/writes. */
   directoryEnabled: integer('directory_enabled').notNull().default(0),
-  /** A directory ping is owed. Survives restarts and the toggle being off. */
   directoryDirty: integer('directory_dirty').notNull().default(0),
-  /** ms timestamp of the last successful directory ping. */
   directoryLastPingAt: integer('directory_last_ping_at'),
-  /** JSON DirectoryPingError of the last failed ping, null after a success. */
   directoryLastError: text('directory_last_error'),
-  /** People on this instance see spaces from other instances in Explore. */
   directoryBrowseEnabled: integer('directory_browse_enabled').notNull().default(1),
-  /** The web client's Backspace page shows the Support card. Hides only that card; the server does nothing else with it. */
+  /** Legacy hub setting, inert since 1.15.2; retained unchanged for rollback. */
   supportCardEnabled: integer('support_card_enabled', { mode: 'boolean' }).notNull().default(true),
   /** First-boot timestamp (ms); backfilled by ensureDefaults, so non-null after boot. */
   installedAt: integer('installed_at'),

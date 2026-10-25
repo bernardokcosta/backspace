@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { HubUpdateState } from '../../stores/projectHubStore';
 
 // Stub AudioManager to avoid AudioWorkletNode reference error in jsdom.
 // Reached transitively via the voice components and stores.
@@ -12,13 +11,6 @@ vi.mock('../../audio/AudioManager', () => ({
   },
 }));
 
-// The dot's source of truth has its own tests; here only what the sidebar
-// does with each state matters.
-const hubState = vi.hoisted(() => ({ state: 'current' as HubUpdateState }));
-vi.mock('../../hooks/useHubUpdateState', () => ({
-  useHubUpdateState: () => ({ state: hubState.state, version: '1.2.0' }),
-}));
-
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { useChatStore } from '../../stores/chatStore';
@@ -27,7 +19,7 @@ import { useUIStore } from '../../stores/uiStore';
 import { ChannelSidebar } from './ChannelSidebar';
 
 const SELECTED = 'bg-interactive-selected';
-const LABELS = { friends: 'Friends', explore: 'Explore', backspace: 'Backspace' } as const;
+const LABELS = { friends: 'Friends' } as const;
 
 function LocationProbe() {
   return <div data-testid="location">{useLocation().pathname}</div>;
@@ -56,21 +48,21 @@ function selectedItems(): string[] {
 }
 
 beforeEach(() => {
-  hubState.state = 'current';
   useChatStore.setState({ currentChannelId: null });
   useSpaceStore.setState({ spaces: [], currentSpaceId: null, channels: [], dmChannels: [] });
   useUIStore.setState({ showDms: true });
 });
 
 describe('ChannelSidebar home items', () => {
-  it('selects only Explore on /explore', () => {
+  it('has no Explore launcher for a retired bookmark', () => {
     renderAt('/explore');
-    expect(selectedItems()).toEqual(['explore']);
+    expect(screen.queryByText('Explore', { selector: 'span' })).toBeNull();
   });
 
-  it('selects only Backspace on /backspace', () => {
+  it('has no hub launcher or hub update dot, including on an old bookmark', () => {
     renderAt('/backspace');
-    expect(selectedItems()).toEqual(['backspace']);
+    expect(screen.queryByText('Backspace', { selector: 'span' })).toBeNull();
+    expect(screen.queryByRole('img', { name: 'Backspace was updated' })).toBeNull();
   });
 
   it('selects only Friends on the DM home', () => {
@@ -84,10 +76,10 @@ describe('ChannelSidebar home items', () => {
     expect(selectedItems()).toEqual([]);
   });
 
-  it('navigates to /backspace when the Backspace item is clicked', () => {
-    renderAt('/channels/@me');
-    fireEvent.click(homeItem(LABELS.backspace));
-    expect(screen.getByTestId('location')).toHaveTextContent('/backspace');
+  it('still navigates to Friends from Explore', () => {
+    renderAt('/explore');
+    fireEvent.click(homeItem(LABELS.friends));
+    expect(screen.getByTestId('location')).toHaveTextContent('/channels/@me');
   });
 
   it('no longer renders the Coming Soon placeholder', () => {
@@ -95,16 +87,4 @@ describe('ChannelSidebar home items', () => {
     expect(screen.queryByText('Coming Soon')).toBeNull();
   });
 
-  it('shows the updated dot when the instance updated since the last visit', () => {
-    hubState.state = 'updated';
-    renderAt('/channels/@me');
-    const dot = screen.getByRole('img', { name: 'Backspace was updated' });
-    expect(homeItem(LABELS.backspace)).toContainElement(dot);
-  });
-
-  it.each<HubUpdateState>(['unknown', 'first-run', 'current'])('shows no dot when the state is %s', (state) => {
-    hubState.state = state;
-    renderAt('/channels/@me');
-    expect(screen.queryByRole('img', { name: 'Backspace was updated' })).toBeNull();
-  });
 });

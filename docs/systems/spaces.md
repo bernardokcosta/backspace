@@ -3,21 +3,17 @@
 Source files:
 - `packages/server/src/routes/spaces.ts` — Space CRUD, invite, join, members, roles, bans, ownership transfer, invite preview
 - `packages/server/src/routes/channels.ts` — Channel CRUD, category CRUD, channel layout reordering, channel/category permission overrides
-- `packages/server/src/routes/explore.ts` — Discovery listing, public join, join request workflow
+- `packages/server/src/routes/joinRequests.ts` — Retained invitation-request/manager workflow
+- `packages/server/src/utils/spaceJoinPayload.ts` — Permission-filtered `buildJoinedSpace` payload for approval acceptance
 - `packages/server/src/routes/users.ts` — Space layout (sidebar folders/ordering) persistence via `PUT /api/users/@me/space-layout`
 - `packages/web/src/stores/spaceStore.ts` — Client-side space state, multi-instance merge, LWW layout sync
-- `packages/web/src/stores/exploreStore.ts` — Explore page state, multi-instance discovery aggregation
-- `packages/web/src/stores/directoryStore.ts` - Outer Space: the directory feed, origin dedupe, connect-then-join (see [directory.md](directory.md))
-- `packages/web/src/components/chat/ExplorePage.tsx`, `SpaceCard.tsx`, `OuterSpaceSection.tsx` - the Explore page's two sections and the card both use
 - `packages/web/src/components/modals/CreateSpace.tsx` — Space creation modal (icon crop, color, visibility)
 - `packages/web/src/components/modals/JoinSpace.tsx` — Join-by-code modal with federation connect phases
-- `packages/web/src/components/modals/ExploreSpacePreviewCard.tsx` — Compact discoverable-space card rendered inside the Join Space modal
 - `packages/web/src/components/modals/InviteModal.tsx` — Invite link generation and copy
 - `packages/web/src/components/modals/TransferOwnershipModal.tsx` — Ownership transfer member picker
-- `packages/web/src/components/modals/SpaceSettings.tsx` — Space settings: overview, discovery, members, roles, bans
+- `packages/web/src/components/modals/SpaceSettings.tsx` — Space settings: overview (including access/description and approval requests), members, roles, bans and soundboard
 - `packages/web/src/components/JoinPage.tsx` — Public invite landing page with federation redirect
 - `packages/web/src/hooks/useDragManager.ts` — Channel/category/voice-user drag-and-drop
-- `packages/web/src/hooks/useSpaceJoin.ts` — Shared join/request state machine over exploreStore (used by ExplorePage SpaceCard and the JoinSpace modal preview card)
 - `packages/web/src/utils/inviteParser.ts` — Invite code/URL/qualified-code parser
 - `packages/web/src/utils/joinErrors.ts`, `utils/inviteJoinRequest.ts` - `JoinRequestRequiredError` and the join refusal checks; `sendInviteJoinRequest`, the join request an invite to a request space leads to
 
@@ -87,13 +83,15 @@ Each space hosts its own shared catalog and settings.
 **Endpoint:** `PATCH /api/spaces/:id`
 **Permission:** `MANAGE_SPACE`; `ownerTitle` the owner only
 
-**Updatable fields:** name (1-100 chars), icon, banner, avatarColor (validated against AVATAR_COLORS), visibility (public/request/private), description (max 200 chars), directoryListed (boolean), ownerTitle (see "Owner title" below), afkChannelId (a same-space voice channel id, or `null` to switch the feature off) and afkTimeoutSeconds (one of 60/300/900/1800/3600; api.md, "Spaces").
+**Updatable fields:** name (1-100 chars), icon, banner, avatarColor (validated against AVATAR_COLORS), visibility (public/request/private), description (max 200 chars), ownerTitle (see "Owner title" below), afkChannelId (a same-space voice channel id, or `null` to switch the feature off) and afkTimeoutSeconds (one of 60/300/900/1800/3600; api.md, "Spaces").
 
 Every field is checked before anything is written. A body with `ownerTitle` from anyone but the owner is refused with `403 space_owner_only` as a whole, so a member with `MANAGE_SPACE` cannot rename the space in the same request either. An `afkChannelId` naming an unknown id, a text channel or another space's channel is `400 space_afk_invalid_channel`; any other `afkTimeoutSeconds` is `400 space_afk_invalid_timeout`.
 
 Every field is checked before anything is written. A body with `ownerTitle` from anyone but the owner is refused with `403 space_owner_only` as a whole, so a member with `MANAGE_SPACE` cannot rename the space in the same request either.
 
-**Directory listing:** `directoryListed: true` is refused with `400 directory_private_space` when the resulting visibility is `private`, and a listed space switched to `private` has the flag cleared in the same write. A change to the flag, or to name, description, icon, banner, avatarColor or visibility while the space is listed, calls `markDirectoryDirty()` so the directory pinger tells the hub; deleting a listed space does the same. See [directory.md](directory.md) §3.
+**Directory retired in 1.15.2:** legacy listing input is ignored. No response
+exposes the flag, no retained edit clears its historical value and no write
+schedules directory work. See [directory.md](directory.md).
 
 **Side effects:**
 - Old icon/banner files deleted from disk when replaced
@@ -200,7 +198,7 @@ Both run the same check after the code matches (`inviteJoinRefusal` in `spaces.t
 | `request` space, otherwise (a declined request included) | `403 join_request_required`, `details: { spaceId }` |
 | `private` or `public` space | joins (side effects below) |
 
-**A code never admits anyone to a `request` space.** Entry is `POST /api/spaces/:id/request-join` and a manager's approval; `details.spaceId` is the id to send that request to, so a client holding only a code can do it. An instance up to 1.9.0 sends `join_request_required` without `details`; the client then reads the id from the invite preview. `private` spaces are joined by code (an invite is their only entry path); `public` spaces by code or via `POST /api/spaces/:id/public-join`. Combined with the permission membership gate (a non-member cannot obtain `CREATE_INVITE`, see [permissions.md](permissions.md)), a non-member cannot mint a code for a request space, and a code to one leads only to a request.
+**A code never admits anyone to a `request` space.** Entry is `POST /api/spaces/:id/request-join` and a manager's approval; `details.spaceId` is the id to send that request to, so a client holding only a code can do it. An instance up to 1.9.0 sends `join_request_required` without `details`; the client then reads the id from the invite preview. `private` and `public` spaces are joined by code; discovery-only public join was retired in 1.15.2. Combined with the permission membership gate (a non-member cannot obtain `CREATE_INVITE`, see [permissions.md](permissions.md)), a non-member cannot mint a code for a request space, and a code to one leads only to a request.
 
 **Side effects:**
 1. Insert `space_members` row
@@ -236,7 +234,7 @@ Public route at `/join/:inviteCode`. Handles six phases:
 Every surface that takes a code reaches the join request flow the same way, so none of them ends at the refusal:
 
 - `spaceStore.joinByCode` turns a `join_request_required` refusal into `JoinRequestRequiredError` (`utils/joinErrors.ts`), an `HttpError` with that code plus `spaceId` and `origin` (`''` for the page's instance). The id comes from `details.spaceId`, else from the invite preview; when neither names it the original refusal is thrown. `connectedJoinOrigin(origin)` is the shared origin check: `''` for the page's own instance, the origin when it holds a connected session, else `NotConnectedError`.
-- `exploreStore.requestJoinSpace(spaceId, origin, message?)` sends `POST /api/spaces/:id/request-join` to that origin and records the request in `myRequests` tagged with it. `sendInviteJoinRequest` (`utils/inviteJoinRequest.ts`) wraps it and reports `join_request_pending` as `'pending'` instead of throwing. The request route's rate limit (5 per minute) and the manager's approval apply unchanged.
+- `sendInviteJoinRequest(spaceId, origin, message?)` (`utils/inviteJoinRequest.ts`) sends `POST /api/spaces/:id/request-join` through `client.joinRequests.request` on the exact connected origin, without discovery or a shared request store. It reports `join_request_pending` as `'pending'`; all other errors propagate. A disconnected/missing remote is `NotConnectedError`, never a home-client fallback. Account changes and the desktop session lifecycle reject obsolete replies. The route's rate limit (5 per minute) and manager approval are unchanged.
 - The space on another instance is reached as for a join: the request goes to the space's instance through the user's connected session there, so the request, the ban check and the membership check all use the user's row on that instance.
 - Surfaces: the Join Page (above); the Join Space dialog, which moves to a `request` step (note, Send Request) and then to `request-sent`; and a DM invite card (`SpaceInviteCard`), which shows "Ask to join" when the live preview says `request` or the join was refused with `join_request_required`, then "Request sent" or "Request pending".
 - Inviters: Invite Friends (`InviteModal`) shows the friend list and the link for a request space, with an intro that says people who open it ask to join; the space menu's Invite People (`SpaceSidebar`, `MobileSpacesScreen`) copies the link and confirms with "Invite link copied. People who open it can ask to join."
@@ -244,143 +242,36 @@ Every surface that takes a code reaches the join request flow the same way, so n
 ### Join Space Modal (`JoinSpaceModal`)
 
 Opened from the space sidebar "Join a Space" action. The `input` phase is
-**discovery-first**: on open it triggers `exploreStore.fetchSpaces()` +
-`fetchMyRequests()` (same multi-instance discovery data as the Explore page)
-and renders up to 6 unjoined public/request spaces as compact
-`ExploreSpacePreviewCard`s. A "Browse all in Explore" action routes to the full
-Explore page — `navigate('/explore')` on desktop, `pushMobileScreen('explore')`
-on mobile (`uiStore.isMobile`). Joining a public preview card closes the modal
-and navigates into the space.
-
-States: loading (skeletons), empty / all-joined (notice), discovery disabled by
-admin (`discoveryEnabled=false` → notice, invite path becomes primary), fetch
-error (quiet degrade — invite path unaffected).
-
-Below a divider, the secondary **"Have an invite code?"** section keeps the
-invite-code/link flow: `parseInviteInput` → `joinByCode(code, origin?)`, with the
-unchanged federation phases:
+**invitation-only**: it neither fetches nor previews discovery. A supplied
+code/URL runs `parseInviteInput` → `joinByCode(code, origin?)`, with the retained
+federation phases:
 - `connect` — password prompt for federation
 - `fallback` — different-password login for remote instance
 
-The join/request behavior of both the compact preview card and the Explore
-page's `SpaceCard` is provided by the shared `useSpaceJoin` hook, so the two
-surfaces cannot drift.
+The `request` and `request-sent` phases use the independent invitation request
+utility. Desktop/mobile Explore launchers, previews, stores and workbenches
+were removed in 1.15.2; old `/explore` bookmarks redirect to Friends with history
+replacement. Existing remote memberships and explicit Connections remain.
 
-The direct sidebar "Explore Spaces" button remains the 1-click path to the full
-Explore page; the modal's discovery preview is an additional, in-context entry
-point, not a replacement.
+Space managers edit visibility and invitation description in Overview's
+`AccessPanel`, without directory flags or requests for instance discovery
+settings. Pending requests retain per-origin listing/approval there.
 
 ---
 
-## Discovery System
+## Space access and join requests
 
 ### Space Visibility
 
-| Value | Explore listing | Join mechanism |
-|-------|----------------|----------------|
-| `private` | Not listed | Invite code only |
-| `request` | Listed | Submit join request, requires approval (an invite link leads to the same request) |
-| `public` | Listed | Instant join, no invite needed |
+| Value | Join mechanism |
+|-------|----------------|
+| `private` | Invite code only |
+| `request` | Submit request, requires manager approval; an invite leads to the same request |
+| `public` | Immediate entry with an invite code |
 
-A `request` or `public` space whose owner has switched on "List in the global Backspace directory" (`spaces.directoryListed`) is additionally served on `GET /api/directory/spaces` while the instance admin allows it (`instance_settings.directoryEnabled`, which itself requires discovery on), and from there appears in Outer Space on other instances. The switch lives in the space settings Discovery panel, always rendered, and disabled with the first reason that applies, read from the settings document of the instance the space lives on (`streamingLimits` for a home space; a remote space asks its own instance's `GET /api/settings/streaming` on mount, and a load whose origin changed under it writes nothing): the instance has no `DIRECTORY_ENDPOINT` (`directoryConfigured: false`), so a listing would reach no hub and the administrator's own switch cannot change that; then the administrator's listing opt-in is off (`directoryEnabled: false`); then the space is private. The endpoint is asked first because it is the fact the administrator cannot fix from the settings the second reason points at. A fourth state is not a reason: while the document is unknown the switch is disabled and says nothing, and a load that came back empty says so with a Retry (see below). The opt-in reason has a second voice for the administrator of the instance the space lives on, who is told which setting is off rather than that an administrator has to act, and is offered "Turn it on" beside it; that action confirms first and then writes the whole global rung (`discoveryEnabled` and `directoryEnabled` together, the pair the server requires). It is offered only when `settingsStore.isAdmin` is true and the space's `_instanceOrigin` is empty, because admin rights are per instance and the client holds that flag only for home, and because the write goes to home; a remote space keeps the owner-voiced sentence unchanged. The switch is followed by a one-sentence disclosure of what listing makes public. See [directory.md](directory.md) §10.
-
-The panel fetches that settings document itself when the store has none, and says so when the fetch comes back empty. `streamingLimits` is filled once per session by the WS `ready` handler and by nothing else a member can reach, so a `ready` whose fetch failed used to leave the switch disabled with no reason and no way to ask again: the round that stopped the panel guessing (`?? true` / `?? false` asserted "discovery on, not listed" from a document nobody had read) made the silence permanent. Unknown now says it is unknown, in the treatment the Streaming panel uses for its own failed load: the line from `common:states.loadSettingsFailed` under the switch and a `common:actions.retry` button that runs the load again, the remote client's `GET /settings/streaming` for a remote space and `fetchStreamingLimits` for a home one. A remote fetch that fails while home holds a document is not reported: that is the fallback doing its job.
-
-### Explore Endpoint
-
-**Endpoint:** `GET /api/spaces/explore` (`explore.ts:exploreRoutes`)
-**Auth:** Required
-**Query params:** `q` (search), `limit` (1-100, default 50), `offset` (default 0)
-
-**Instance-level gate:** Checks `instance_settings.discoveryEnabled`. If false, returns `{ spaces: [], total: 0, discoveryEnabled: false }`.
-
-**Query:** Raw SQL with LEFT JOIN on `space_members` for member count. Filters to `visibility IN ('public', 'request')`. Search matches `name` or `description` (LIKE, case-insensitive). Ordered by `member_count DESC, created_at DESC`.
-
-**Response (`ExploreSpace[]`):**
-
-```typescript
-{
-  id: string;
-  name: string;
-  icon: string | null;
-  banner: string | null;
-  avatarColor: AvatarColor | null;
-  description: string | null;
-  visibility: 'public' | 'request';
-  memberCount: number;
-  createdAt: number;
-  joined: boolean;         // true if requesting user is already a member
-}
-```
-
-Also returns `total` (filtered count), `totalAll` (all discoverable), `discoveryEnabled`.
-
-### Explore Page Sections
-
-One page, one search box, two sections in fixed order. **Inner Space** is the list described here (the unjoined grid, then the collapsible joined group), from `exploreStore.fetchSpaces()`. **Outer Space**, below it, is the space directory: entries from `directoryStore` read through `GET /api/directory`, minus every origin the session is connected to, paginated 50 at a time, rendered only on an instance that browses a directory. The search box drives both through one 300 ms debounce. Both sections render `SpaceCard`; an Outer card's action opens the connect-then-join dialog instead of joining directly. The home view's channel sidebar also has an "Explore" entry that routes to `/explore`. Full description in [directory.md](directory.md) §9.
-
-### Multi-Instance Discovery (`exploreStore.ts`)
-
-`fetchSpaces()` queries home + all connected remote instances in parallel:
-1. Takes a sequence number, so a reply for an older query cannot land on a newer one (see below)
-2. Waits for `instanceStore._autoConnectDone` to avoid querying with incomplete instance list
-3. Asks home + every connected instance in parallel, each call settling into a result tagged with its origin, so a client that did not answer is named rather than counted
-4. Deduplicates by `spaceId:origin` key
-5. Normalizes remote asset URLs via `resolveAssetUrl`
-6. Merges into `TaggedExploreSpace[]` with `_instanceOrigin`, and records `resultsQuery`
-
-**One fan-out at a time wins.** `fetchSpaces` captures a module-level
-`fetchSeq` on entry and drops its own result if the counter moved while it
-ran, the same guard `directoryStore` runs on Outer Space. A fan-out lasts as
-long as its slowest instance, and one search box drives both stores through
-one debounce, so without it the Inner list could settle on the previous
-query's answer while Outer showed the current one. A superseded run also
-leaves `isLoading` alone: the run that superseded it is still going, and its
-spinner is not the old one's to take down. `fetchMyRequests` has the same
-guard on a counter of its own, for the same reason: it was one call to home
-before multi-instance discovery and is now a fan-out too, and the page calls
-the two together. `reset()` bumps both counters, so a fan-out still in flight
-when the session ends is orphaned rather than landing in the next one: this
-store and `directoryStore` are both cleared on sign-out, on account deletion
-and when another account signs in, through `authStore.resetUserStores`
-([auth.md](auth.md#resetuserstores)).
-
-**`resultsQuery` is the query the spaces on screen answer**, recorded when a
-fan-out lands rather than when it is asked for. The empty copy reads it, not
-`searchQuery`: the box is live and the fetch is debounced, so deciding from
-the box made the copy flip between "no matches" and "nothing yet" about a
-list that had not moved.
-
-**A failure is a state, not a sentence.** `error` is
-`ExploreFetchFailure | null`: `{ kind: 'none_answered' }` when every client in
-the fan-out rejected, and `{ kind: 'failed', cause }` when the fan-out could
-not be run at all. The words belong to the surface, so `ExplorePage` renders
-the first from `spaces:explore.inner.noneAnswered` and the second through
-`describeError(cause)`; the store keeping English text was English on screen
-for every reader of the other three languages. `JoinSpace` reads the same
-field as a boolean and has copy of its own.
-
-**One instance short is also reported.** `error` covers the fan-out nobody
-answered; `unansweredOrigins` covers the rest. It is the list of origins
-whose client did not answer the fan-out that produced the current `spaces`
-(`''` for home, as `_instanceOrigin` encodes it), written by the same `set`
-that publishes the list, cleared when a fetch starts and on `reset()`, and
-dropped by a superseded fan-out along with everything else it would have
-written. `ExplorePage` renders it above the Inner grid as
-`spaces:explore.inner.unreachable`, naming the hosts. The two are exclusive:
-the `none_answered` branch publishes no list, so it leaves this empty and the
-page never shows both. Before this, one instance of several rejecting was
-dropped on the floor and the page showed the survivors' spaces in silence.
-`fetchMyRequests` still reports nothing when a client does not answer: it
-keeps the rows it has and says nothing about the rest.
-
-### Public Join
-
-**Endpoint:** `POST /api/spaces/:id/public-join`
-**Validation:** Space must have `visibility === 'public'`, not banned, not already member.
-
-**Side effects:** Same as invite join (insert member, WS broadcast, add to connectionManager).
-**Response:** Full `SpaceWithChannelsAndMembers` (not just `Space`), so the client can immediately populate the store without a follow-up `GET /api/spaces/:id`. Its roles are shaped for the new member as `GET /api/spaces/:id` shapes them (permissions.md, "Who receives role and override data").
+Visibility still controls invitation admission, not discovery. No spaces are
+enumerated by Explore or a global directory, and there is no public-join route.
+Overview's access/description fields are shown only to `MANAGE_SPACE` holders.
 
 ### Join Request Workflow
 
@@ -416,9 +307,15 @@ Decline flow:
 
 **User's own requests:** `GET /api/users/@me/join-requests?status=<optional>`
 - Returns all requests for the current user, optionally filtered by status
-- Client side, `exploreStore.fetchMyRequests()` asks the home instance and every connected instance (`Promise.allSettled`) and tags each request with `_instanceOrigin` (`''` for home); `useSpaceJoin.isPending` matches on `(origin, spaceId)`, since space ids are local to their instance
+- `BackspaceApiClient.joinRequests.mine` retains this API independently; no
+  discovery store or background request fan-out is recreated.
 
-### Space Managers Resolution (`explore.ts:getSpaceManagers`)
+The manager UI uses `getJoinRequestClient(origin)` for listing and decisions,
+not a home-only client; changing origin/account or unmounting retires its
+in-flight view updates. The accepted-user payload is built by
+`buildJoinedSpace`, with effective channel permissions and role-data filtering.
+
+### Space Managers Resolution (`joinRequests.ts:getSpaceManagers`)
 
 Used to target `join_request_received` events. Iterates all space members and returns IDs where:
 - `userId === space.ownerId`, OR
@@ -430,10 +327,9 @@ Used to target `join_request_received` events. Iterates all space members and re
 
 ### Join
 
-Three join paths:
-1. **Invite code**: `POST /api/spaces/:id/join` or `POST /api/spaces/join` (`private` and `public` spaces; a code to a `request` space leads to path 3)
-2. **Public join** — `POST /api/spaces/:id/public-join` (visibility=public)
-3. **Request accept** — `PATCH /api/spaces/:id/join-requests/:requestId` with `action: 'accept'`
+Two retained join paths:
+1. **Invite code**: `POST /api/spaces/:id/join` or `POST /api/spaces/join` (`private` and `public` spaces; a code to a `request` space leads to path 2)
+2. **Request accept** — `PATCH /api/spaces/:id/join-requests/:requestId` with `action: 'accept'`
 
 All paths: insert `space_members`, register in `connectionManager`, broadcast `member_joined`.
 
@@ -865,7 +761,7 @@ Remote space icons, banners, and member avatars are resolved via `resolveAssetUr
 - `populateFromReady` processes spaces from a remote origin
 - `loadSpaceDetail` loads a remote space
 - `joinByCode` returns a remote space
-- `exploreStore.fetchSpaces` processes remote explore results
+- Manager request avatars use the request's owning origin
 
 ### Client Load State (`useSpaceStore`)
 

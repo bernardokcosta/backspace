@@ -42,7 +42,8 @@ import { JoinPage } from './JoinPage';
 import { HttpError } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
 import { useSpaceStore, NotConnectedError } from '../stores/spaceStore';
-import { useExploreStore } from '../stores/exploreStore';
+import { sendInviteJoinRequest } from '../utils/inviteJoinRequest';
+vi.mock('../utils/inviteJoinRequest', () => ({ sendInviteJoinRequest: vi.fn() }));
 import { useInstanceStore } from '../stores/instanceStore';
 import { JoinRequestRequiredError } from '../utils/joinErrors';
 
@@ -97,11 +98,10 @@ beforeEach(() => {
   mockRemotePreview.mockReset();
   mockNavigate.mockReset();
   joinByCode = vi.fn().mockResolvedValue({ id: 'S-REQ' });
-  requestJoinSpace = vi.fn().mockResolvedValue({ id: 'jr-1', spaceId: 'S-REQ', status: 'pending' });
+  requestJoinSpace = vi.mocked(sendInviteJoinRequest).mockReset().mockResolvedValue('sent');
   connectToRemote = vi.fn().mockResolvedValue(undefined);
   useAuthStore.setState({ token: 'token', user: ME, isLoading: false });
   useSpaceStore.setState({ joinByCode } as never);
-  useExploreStore.setState({ requestJoinSpace, myRequests: [] } as never);
   useInstanceStore.setState({ connectToRemote, instances: [] } as never);
 });
 
@@ -130,7 +130,7 @@ describe('JoinPage for a space joined by request', () => {
   it('says a request is already waiting when the server answers join_request_pending', async () => {
     const user = userEvent.setup();
     mockLocalPreview.mockResolvedValue(preview());
-    requestJoinSpace.mockRejectedValue(new HttpError(409, 'pending', undefined, 'join_request_pending'));
+    requestJoinSpace.mockResolvedValue('pending');
     renderAt('abc123');
 
     await user.click(await screen.findByRole('button', { name: 'Ask to join as Mira' }));
@@ -207,7 +207,7 @@ describe('JoinPage for a space joined by request', () => {
     mockRemotePreview.mockResolvedValue(preview({ spaceId: 'R-REQ' }));
     requestJoinSpace
       .mockRejectedValueOnce(new NotConnectedError(REMOTE))
-      .mockResolvedValueOnce({ id: 'jr-2', spaceId: 'R-REQ', status: 'pending' });
+      .mockResolvedValueOnce('sent');
     renderAt('abc123@orbit.example');
 
     expect(await screen.findByText('Quiet Harbor')).toBeInTheDocument();
@@ -257,7 +257,7 @@ describe('JoinPage heading for a space joined by request', () => {
   it('never promises entry: request already waiting', async () => {
     const user = userEvent.setup();
     mockLocalPreview.mockResolvedValue(preview());
-    requestJoinSpace.mockRejectedValue(new HttpError(409, 'pending', undefined, 'join_request_pending'));
+    requestJoinSpace.mockResolvedValue('pending');
     renderAt('abc123');
 
     await user.click(await screen.findByRole('button', { name: 'Ask to join as Mira' }));

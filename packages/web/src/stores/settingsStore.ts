@@ -54,11 +54,6 @@ export const DEFAULT_STREAMING_LIMITS: InstanceStreamingLimits = {
   allowedFramerates: [30, 45, 60],
   maxResolution: 1080,
   maxFramerate: 60,
-  discoveryEnabled: true,
-  directoryEnabled: false,
-  // The screen-share path is the only reader of these defaults and never
-  // asks this; false is the value that claims nothing.
-  directoryConfigured: false,
   bitrateMatrixOverrides: null,
   allowCustomBitrate: true,
 };
@@ -118,14 +113,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       const limits = await api.settings.getStreaming();
       set({ streamingLimits: limits });
     } catch (err) {
-      // Left null, not filled with defaults. The document carries the two
-      // discovery flags, and `DEFAULT_STREAMING_LIMITS` asserts
-      // `directoryEnabled: false`: substituting it told an admin on a listed
-      // instance that their spaces are not listed, next to a button that
-      // writes the setting. Every reader of this field already handles null,
-      // and the one consumer that needs a number whatever happened (the
-      // screen-share config) goes through `getStreamingLimits(origin)`, which
-      // falls back at read time.
+      // Keep an unknown document unknown. Screen-share configuration uses
+      // getStreamingLimits(origin) when it needs numeric defaults at read time.
       console.warn('[Settings] Failed to fetch streaming limits:', err);
     }
   },
@@ -160,19 +149,6 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     const updated = await api.settings.updateInstance(data);
     set({ instanceSettings: updated });
     invalidateHomeInstanceInfo();
-    // The space settings DiscoveryPanel reads both flags from streamingLimits,
-    // the document any signed-in user may fetch. Mirror them from the server's
-    // answer rather than from the request: turning discovery off clears the
-    // directory server-side, and the answer is where that shows.
-    set((state) => ({
-      streamingLimits: state.streamingLimits
-        ? {
-            ...state.streamingLimits,
-            discoveryEnabled: updated.discoveryEnabled,
-            directoryEnabled: updated.directoryEnabled,
-          }
-        : state.streamingLimits,
-    }));
   },
 
   fetchGifEnabled: async () => {

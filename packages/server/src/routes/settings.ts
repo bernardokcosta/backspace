@@ -1,12 +1,9 @@
-import type { FastifyInstance, FastifyReply } from 'fastify';
-import type Database from 'better-sqlite3';
+import type { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
-import { getDb, getRawDb, schema } from '../db/index.js';
+import { getDb, schema } from '../db/index.js';
 import { authenticate, requireAdmin } from '../utils/auth.js';
 import { config } from '../config.js';
 import { sendError } from '../utils/httpErrors.js';
-import { markDirectoryDirty, readDirectoryState } from '../directory/state.js';
-import { countListedSpaces } from '../directory/document.js';
 import type { InstanceStreamingLimits, InstanceAdminSettings } from '@backspace/shared';
 import { STANDARD_RESOLUTIONS, STANDARD_FRAMERATES, BITRATE_MATRIX_KBPS } from '@backspace/shared/src/constants.js';
 
@@ -26,13 +23,6 @@ function rowToLimits(row: typeof schema.instanceSettings.$inferSelect): Instance
       .filter((n) => (STANDARD_FRAMERATES as readonly number[]).includes(n)),
     maxResolution: row.maxResolution,
     maxFramerate: row.maxFramerate,
-    discoveryEnabled: row.discoveryEnabled === 1,
-    directoryEnabled: row.directoryEnabled === 1,
-    // From configuration, not from the row: whether this instance has a hub
-    // to reach at all. Every surface that offers to list a space needs it,
-    // and a space's own instance is the only one that can answer it, which
-    // is why it travels on the document a peer's client already fetches.
-    directoryConfigured: config.directory.endpoint !== '',
     bitrateMatrixOverrides: (() => {
       const raw = row.bitrateMatrixOverrides as string | null;
       if (!raw) return null;
@@ -49,16 +39,14 @@ function rowToLimits(row: typeof schema.instanceSettings.$inferSelect): Instance
 type SettingsRow = typeof schema.instanceSettings.$inferSelect;
 type SettingsUpdate = Record<string, number | string | boolean | null>;
 
-function rowToAdminSettings(row: SettingsRow, sqlite: Database.Database): InstanceAdminSettings {
+function rowToAdminSettings(row: SettingsRow): InstanceAdminSettings {
   const gifKey = row.gifApiKey as string | null;
   const maxUploadBytes = row.maxUploadSizeBytes ?? config.maxUploadSize;
   const maxStickerBytes = row.maxStickerSizeBytes ?? config.maxStickerSize;
-  const directory = readDirectoryState(sqlite);
   return {
     instanceName: row.instanceName ?? 'Backspace',
     registrationOpen: row.registrationOpen !== null ? row.registrationOpen === 1 : config.registrationOpen,
     federatedRegistrationOpen: row.federatedRegistrationOpen === 1,
-    discoveryEnabled: row.discoveryEnabled === 1,
     gifApiKey: gifKey ? `****${gifKey.slice(-4)}` : undefined,
     gifEnabled: !!gifKey,
     maxUploadSizeMb: Math.round(maxUploadBytes / (1024 * 1024)),
@@ -67,59 +55,7 @@ function rowToAdminSettings(row: SettingsRow, sqlite: Database.Database): Instan
     federationRelayTtlDays: row.federationRelayTtlDays,
     defaultAutoRotateIntervalDays: row.defaultAutoRotateIntervalDays,
     autoAcceptPeering: row.autoAcceptPeering === 1,
-    directoryEnabled: directory.enabled,
-    directoryBrowseEnabled: row.directoryBrowseEnabled === 1,
-    directoryLastPingAt: directory.lastPingAt,
-    directoryLastError: directory.lastError,
-    directoryListedSpaceCount: countListedSpaces(sqlite),
-    supportCardEnabled: row.supportCardEnabled,
   };
-}
-
-/**
- * The one place the "discovery off implies directory off" invariant lives
- * (spec section 4). Runs after the caller has translated `discoveryEnabled`
- * into `updateData`, so the resulting discovery state is known. Returns false
- * after sending the error reply.
- */
-function applyDiscoveryAndDirectory(
-  body: { directoryEnabled?: unknown },
-  updateData: SettingsUpdate,
-  currentRow: SettingsRow,
-  reply: FastifyReply,
-): boolean {
-  const discoveryOn = (updateData.discoveryEnabled ?? currentRow.discoveryEnabled) === 1;
-
-  if (body.directoryEnabled !== undefined) {
-    if (typeof body.directoryEnabled !== 'boolean') {
-      sendError(reply, 400, 'field_not_boolean', { field: 'directoryEnabled' });
-      return false;
-    }
-    if (body.directoryEnabled && !discoveryOn) {
-      sendError(reply, 400, 'directory_requires_discovery');
-      return false;
-    }
-    updateData.directoryEnabled = body.directoryEnabled ? 1 : 0;
-  }
-
-  if (!discoveryOn) {
-    updateData.directoryEnabled = 0;
-  }
-  return true;
-}
-
-/**
- * Fields of instance_settings that feed the served directory document
- * (spec section 4). A write that changes any of them owes a ping; the name
- * is compared through the same fallback the document applies.
- */
-function directoryDocumentChanged(updateData: SettingsUpdate, currentRow: SettingsRow): boolean {
-  const flags = ['directoryEnabled', 'discoveryEnabled', 'federatedRegistrationOpen'] as const;
-  for (const key of flags) {
-    if (updateData[key] !== undefined && updateData[key] !== currentRow[key]) return true;
-  }
-  return updateData.instanceName !== undefined
-    && updateData.instanceName !== (currentRow.instanceName ?? 'Backspace');
 }
 
 export async function settingsRoutes(app: FastifyInstance): Promise<void> {
@@ -208,10 +144,6 @@ export async function settingsRoutes(app: FastifyInstance): Promise<void> {
       updateData.maxFramerate = body.maxFramerate;
     }
 
-    if (body.discoveryEnabled !== undefined) {
-      updateData.discoveryEnabled = body.discoveryEnabled ? 1 : 0;
-    }
-
     if (body.allowCustomBitrate !== undefined) {
       updateData.allowCustomBitrate = body.allowCustomBitrate ? 1 : 0;
     }
@@ -253,17 +185,7 @@ export async function settingsRoutes(app: FastifyInstance): Promise<void> {
       return sendError(reply, 400, 'streaming_min_bitrate_not_below_max');
     }
 
-    // This route carries discoveryEnabled but not directoryEnabled: only the
-    // clearing half of the invariant applies here.
-    if (!applyDiscoveryAndDirectory({}, updateData, currentRow, reply)) {
-      return reply;
-    }
-
     db.update(schema.instanceSettings).set(updateData).where(eq(schema.instanceSettings.id, 1)).run();
-
-    if (directoryDocumentChanged(updateData, currentRow)) {
-      markDirectoryDirty(getRawDb());
-    }
 
     const updatedRow = db.select().from(schema.instanceSettings).where(eq(schema.instanceSettings.id, 1)).get();
     if (!updatedRow) {
@@ -282,7 +204,7 @@ export async function settingsRoutes(app: FastifyInstance): Promise<void> {
       return sendError(reply, 500, 'instance_settings_missing');
     }
 
-    return reply.code(200).send(rowToAdminSettings(row, getRawDb()));
+    return reply.code(200).send(rowToAdminSettings(row));
   });
 
   // PATCH /api/settings/instance — admin only, updates instance admin settings
@@ -308,30 +230,6 @@ export async function settingsRoutes(app: FastifyInstance): Promise<void> {
         return sendError(reply, 400, 'field_not_boolean', { field: 'federatedRegistrationOpen' });
       }
       updateData.federatedRegistrationOpen = body.federatedRegistrationOpen ? 1 : 0;
-    }
-
-    if (body.discoveryEnabled !== undefined) {
-      updateData.discoveryEnabled = body.discoveryEnabled ? 1 : 0;
-    }
-
-    // The incoming directory axis. Deliberately not routed through
-    // applyDiscoveryAndDirectory or directoryDocumentChanged: what this
-    // instance shows its own people is nowhere in the document it serves, so
-    // a change here owes the hub nothing and must never cost a ping.
-    if (body.directoryBrowseEnabled !== undefined) {
-      if (typeof body.directoryBrowseEnabled !== 'boolean') {
-        return sendError(reply, 400, 'field_not_boolean', { field: 'directoryBrowseEnabled' });
-      }
-      updateData.directoryBrowseEnabled = body.directoryBrowseEnabled ? 1 : 0;
-    }
-
-    // Only the web client reads it, to hide the Support card. Nowhere in the
-    // directory document, so it never owes a ping either.
-    if (body.supportCardEnabled !== undefined) {
-      if (typeof body.supportCardEnabled !== 'boolean') {
-        return sendError(reply, 400, 'field_not_boolean', { field: 'supportCardEnabled' });
-      }
-      updateData.supportCardEnabled = body.supportCardEnabled;
     }
 
     if (body.gifApiKey !== undefined) {
@@ -392,24 +290,13 @@ export async function settingsRoutes(app: FastifyInstance): Promise<void> {
       return sendError(reply, 500, 'instance_settings_missing');
     }
 
-    // directoryLastPingAt and directoryLastError are read-only on the wire:
-    // the pinger owns them, so the body's copies are never read. The same
-    // holds for directoryListedSpaceCount, which is counted from `spaces`.
-    if (!applyDiscoveryAndDirectory(body, updateData, currentRow, reply)) {
-      return reply;
-    }
-
     db.update(schema.instanceSettings).set(updateData).where(eq(schema.instanceSettings.id, 1)).run();
-
-    if (directoryDocumentChanged(updateData, currentRow)) {
-      markDirectoryDirty(getRawDb());
-    }
 
     const updatedRow = db.select().from(schema.instanceSettings).where(eq(schema.instanceSettings.id, 1)).get();
     if (!updatedRow) {
       return sendError(reply, 500, 'instance_settings_reload_failed');
     }
 
-    return reply.code(200).send(rowToAdminSettings(updatedRow, getRawDb()));
+    return reply.code(200).send(rowToAdminSettings(updatedRow));
   });
 }

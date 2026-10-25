@@ -5,37 +5,12 @@ import ruCommon from '../locales/ru/common.json';
 import enSpaces from '../locales/en/spaces.json';
 import enDm from '../locales/en/dm.json';
 
-/**
- * «Обзор» names the Explore page, and nothing else.
- *
- * The Russian catalog used «Обзор» for two unrelated places: the Explore
- * page, where you browse spaces you have not joined, and the Overview tab
- * inside space settings and group DM settings. About a dozen strings point
- * at the Explore page by that name (в разделе «Обзор», на странице
- * «Обзор»), so a settings tab carrying the same word made every one of
- * those readings ambiguous.
- *
- * Settled as «Обзор» for the Explore page, which is the idiomatic Russian
- * label for a browse-and-discover surface and already the majority reading,
- * and «Основное» for the Overview tabs, which are editing panels (name,
- * icon, banner) rather than summaries. No sibling tab in either strip
- * carries that word.
- *
- * The parity check in `scripts/i18n` compares languages to each other and
- * cannot see any of this, so the rule lives here.
- */
+/** Retain consistent Russian Overview labels after retiring the Explore page. */
 
 /** Any case of обзор: обзоре, обзором, обзора… */
 const OVERVIEW_WORD = /обзор/iu;
 
-describe('the Russian name for the Explore page', () => {
-  it('is «Обзор» wherever the Explore page is named', () => {
-    expect(enSpaces.explore.title).toBe('Explore');
-    expect(ruSpaces.explore.title).toBe('Обзор');
-    expect(enSpaces.sidebar.dmList.explore).toBe('Explore');
-    expect(ruSpaces.sidebar.dmList.explore).toBe('Обзор');
-  });
-
+describe('the Russian names for retained Overview tabs', () => {
   it('is never reused for an Overview tab', () => {
     // The two Overview tabs: one in space settings, one in group DM
     // settings. Their English is the check that these keys are still the
@@ -46,7 +21,6 @@ describe('the Russian name for the Explore page', () => {
     ];
     for (const [key, english, russian] of tabs) {
       expect(english, key).toBe('Overview');
-      expect(russian, key).not.toBe(ruSpaces.explore.title);
       expect(OVERVIEW_WORD.test(russian), `${key} -> "${russian}"`).toBe(false);
     }
   });
@@ -60,7 +34,6 @@ describe('the Russian name for the Explore page', () => {
   it('does not collide with a sibling tab in either strip', () => {
     const tabLabel = ruSpaces.settings.nav.tabs.overview;
     const spaceSiblings = [
-      ruSpaces.settings.nav.tabs.discovery,
       ruSpaces.settings.nav.tabs.roles,
       ruSpaces.settings.nav.tabs.bans,
       ruSpaces.permissions.title,

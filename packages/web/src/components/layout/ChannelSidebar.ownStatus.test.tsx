@@ -11,9 +11,6 @@ vi.mock('../../audio/AudioManager', () => ({
     }),
   },
 }));
-vi.mock('../../hooks/useHubUpdateState', () => ({
-  useHubUpdateState: () => ({ state: 'current', version: '1.2.0' }),
-}));
 
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';

@@ -80,11 +80,7 @@ You own the server, the data, and the network it federates into.
     </td>
   </tr>
   <tr>
-    <td width="50%" valign="top">
-      <img src="docs/screenshots/space-discovery.webp" alt="The space discovery / Explore view" /><br/>
-      <sub><b>Spaces and discovery.</b> Browse public, request-to-join, and joined spaces.</sub>
-    </td>
-    <td width="50%" valign="top">
+    <td colspan="2" valign="top">
       <img src="docs/screenshots/group-dm.webp" alt="A federated group direct message" /><br/>
       <sub><b>Direct messages.</b> 1-on-1 and group DMs, including members on peer instances.</sub>
     </td>
@@ -128,7 +124,7 @@ You own the server, the data, and the network it federates into.
 - Spaces with channel categories
 - Role-based permissions: bitwise RBAC with category- and channel-level overrides
 - Customizable user sidebar layout, with personal color-coded folders that group whole spaces
-- Space discovery (public, request-to-join, and private)
+- Invitation-based space access, with optional manager approval
 - Shareable invite codes
 
 ### Social

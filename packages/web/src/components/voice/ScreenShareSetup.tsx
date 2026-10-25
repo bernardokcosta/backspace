@@ -64,7 +64,12 @@ type Tab = ScreenSourceTab;
  * "Ready to go live" and let the preview speak.
  */
 type CapturedSurfaceKind = 'monitor' | 'window';
-type SetupError = 'cancelled' | 'unsupported' | 'captureFailed' | 'startFailed' | 'sdrFailed' | null;
+type SetupError = 'cancelled' | 'unsupported' | 'captureFailed' | 'startFailed' | 'sdrFailed' | 'sdrPermission' | null;
+
+const PERMISSION_KEYS = {
+  'denied-user': 'deniedUser', 'denied-system': 'deniedSystem', 'not-declared': 'notDeclared',
+  unsupported: 'unsupported', cancelled: 'cancelled', timeout: 'timeout', failed: 'failed',
+} as const;
 
 function errorKey(err: unknown): SetupError {
   if (err instanceof SdrCaptureError) return 'sdrFailed';
@@ -108,6 +113,9 @@ export function ScreenShareSetup() {
   const [staging, setStaging] = useState(false);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<SetupError>(null);
+  const [permissionFailure, setPermissionFailure] = useState<DesktopSdrPermissionReason>('failed');
+  const [failedSourceId, setFailedSourceId] = useState<string | null>(null);
+  const preparingSourceRef = useRef<{ sourceId: string; generation: number } | null>(null);
   const stagedRef = useRef<MediaStream | null>(null);
   const captureAbortRef = useRef<AbortController | null>(null);
   const ownsCaptureRef = useRef(false);
@@ -208,6 +216,7 @@ export function ScreenShareSetup() {
   /** Electron: a tile was clicked. Resolve an in-flight prompt, or preselect and stage. */
   const stageSource = useCallback(async (sourceId: string) => {
     if (!api) return;
+    if (preparingSourceRef.current?.sourceId === sourceId) return;
     const shareAudio = useVoiceStore.getState().screenShareConfig.shareAudio;
     if (promptInFlightRef.current) {
       // Only the first click answers the request; see promptAnsweredRef.
@@ -225,12 +234,23 @@ export function ScreenShareSetup() {
     }
     setSelectedId(sourceId);
     const generation = ++stageGenerationRef.current;
+    preparingSourceRef.current = { sourceId, generation };
+    setStaging(true);
+    setError(null);
+    setFailedSourceId(null);
     if (ownsCaptureRef.current) api.selectScreenSource(null);
     ownsCaptureRef.current = true;
     captureAbortRef.current?.abort();
     captureAbortRef.current = null;
     replaceStaged(null);
-    const forceSdr = useVoiceStore.getState().screenShareConfig.forceSdr === true && (await getSdrCaptureCapability()).supported;
+    const forceSdr = useVoiceStore.getState().screenShareConfig.forceSdr === true && api.platform === 'win32';
+    const permissionFailed = (reason: DesktopSdrPermissionReason) => {
+      if (generation !== stageGenerationRef.current) return;
+      setPermissionFailure(reason); setError('sdrPermission'); setFailedSourceId(sourceId);
+      setStaging(false); setSelectedId(null); api.selectScreenSource(null);
+      if (preparingSourceRef.current?.generation === generation) preparingSourceRef.current = null;
+    };
+    if (forceSdr && !(await getSdrCaptureCapability()).supported) { permissionFailed('unsupported'); return; }
     if (generation !== stageGenerationRef.current) return;
     if (api.preselectScreenSource) {
       // Awaited: the preselection and getDisplayMedia() travel different IPC
@@ -239,20 +259,26 @@ export function ScreenShareSetup() {
       // prompted flow, and the preselection then sits armed for its whole TTL
       // ready to hijack the next share. The round trip is free next to a dialog.
       try {
-        await api.preselectScreenSource(sourceId, shareAudio, { forceSdr });
+        const result = await api.preselectScreenSource(sourceId, shareAudio, { forceSdr });
+        if (forceSdr && (!result || result.ok !== true)) {
+          const reason = result?.ok === false && Object.hasOwn(PERMISSION_KEYS, result.reason) ? result.reason : 'unsupported';
+          permissionFailed(reason); return;
+        }
       } catch (err) {
         console.error('[ScreenShareSetup] preselectScreenSource failed:', err);
         if (forceSdr) {
-          if (generation === stageGenerationRef.current) { setError('sdrFailed'); setStaging(false); api.selectScreenSource(null); }
+          permissionFailed('failed');
           return;
         }
       }
       // A newer tile was clicked while the preselection was in flight
       if (generation !== stageGenerationRef.current) return;
     } else {
+      if (forceSdr) { permissionFailed('unsupported'); return; }
       // Older desktop: the main process will push sources; answer with this id when it does.
       pendingPromptIdRef.current = sourceId;
     }
+    if (preparingSourceRef.current?.generation === generation) preparingSourceRef.current = null;
     void stage(generation, forceSdr);
   }, [api, stage, replaceStaged]);
 
@@ -306,6 +332,7 @@ export function ScreenShareSetup() {
     if (ownsCaptureRef.current) api?.selectScreenSource(null);
     ownsCaptureRef.current = false;
     if (!isOpen) {
+      preparingSourceRef.current = null;
       stageGenerationRef.current++;
       replaceStaged(null);
       return;
@@ -314,6 +341,8 @@ export function ScreenShareSetup() {
     setSearch('');
     setSelectedId(null);
     setError(null);
+    setFailedSourceId(null);
+    preparingSourceRef.current = null;
     setStarting(false);
     setSettingsOpen(false);
     setSources([]);
@@ -397,6 +426,7 @@ export function ScreenShareSetup() {
     // Abandon any capture still being picked. Without this the promise resolves
     // onto a closed screen and the OS keeps capturing forever.
     stageGenerationRef.current++;
+    preparingSourceRef.current = null;
     captureAbortRef.current?.abort();
     captureAbortRef.current = null;
     setStaging(false);
@@ -428,6 +458,7 @@ export function ScreenShareSetup() {
   }, [isOpen, settingsOpen, handleClose]);
   useEffect(() => () => {
     stageGenerationRef.current++;
+    preparingSourceRef.current = null;
     captureAbortRef.current?.abort();
     if (ownsCaptureRef.current) api?.selectScreenSource(null);
     stopStagedCapture(stagedRef.current);
@@ -760,8 +791,15 @@ export function ScreenShareSetup() {
             </button>
             {error && (
               <span className="text-[12px] text-txt-danger truncate" role="alert">
-                {error === 'sdrFailed' ? t('voice:streamSettings.forceSdrFailed') : t(`voice:screenPicker.${error}`)}
+                {error === 'sdrPermission' ? t(`voice:screenPicker.borderless.${PERMISSION_KEYS[permissionFailure]}`)
+                  : error === 'sdrFailed' ? t('voice:streamSettings.forceSdrFailed') : t(`voice:screenPicker.${error}`)}
               </span>
+            )}
+            {error === 'sdrPermission' && failedSourceId && ['denied-user', 'denied-system', 'timeout', 'failed'].includes(permissionFailure) && (
+              <button type="button" disabled={staging || starting} onClick={() => void stageSource(failedSourceId)}
+                className="text-xs text-accent-primary hover:underline disabled:opacity-40">
+                {t('voice:screenPicker.borderless.requestAgain')}
+              </button>
             )}
           </div>
           <div className="glass-bubble rounded-full px-2 py-2 flex items-center gap-1 flex-shrink-0">

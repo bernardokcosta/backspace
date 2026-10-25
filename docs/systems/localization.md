@@ -18,6 +18,13 @@ Russian (`ru`), German (`de`), Brazilian Portuguese (`pt`), Simplified Chinese
 (`zh`). Adding a language is a catalog directory plus one entry in
 `supportedLanguages`; nothing else in the code should need to know the list.
 
+The project-hub `project` namespace and Support-card-only admin copy were
+retired in 1.15.2 across all five languages; they are not registered or loaded.
+Space discovery/Explore/directory-only copy is also removed. Invitation request
+actions live under `spaces:join.request`, and retained space access/description
+controls under `spaces:settings.access`. Social Discover People is independent
+and retains its own localization.
+
 `zh` is the Simplified catalog and detection maps every `zh-*` tag onto it,
 Traditional included: a `zh-TW` browser gets a script its user can read
 rather than English, and the picker says 简体中文 so they know which variant
@@ -113,7 +120,7 @@ Rules:
 | `chat` | Message list, composer, attachments, embeds, reactions, replies, typing, jump-to-message |
 | `dm` | DM list, group DM management, DM calls, DM system messages |
 | `voice` | Voice channel controls, screen share, stream tiles, device pickers |
-| `spaces` | Space, category and channel CRUD, invites, discovery, membership, bans, roles; the Explore page's Inner and Outer Space sections, the connect-and-join dialog, the connections-that-need-attention chips and the per-space directory switch (`explore.inner.*`, `explore.outer.*`, `explore.connect.*`, `explore.connections.*`, `settings.discovery.directory.*`); the per-space and per-channel notification settings: the bell popover, the dialog, the menu entry and the muted indicator (`notifications.*`; the level and mute-duration labels are closed unions mapped by `switch` in `NotificationSettingsControls.tsx`, never built from the value) |
+| `spaces` | Space, category and channel CRUD, invites/requests, access/description, membership, bans and roles; per-space and per-channel notification settings (`notifications.*`; level/mute-duration labels are closed unions mapped by `switch` in `NotificationSettingsControls.tsx`) |
 | `settings` | User settings modal and its panels (account, voice, privacy, connections, keybinds, desktop) |
 | `admin` | Instance settings panels (general, registration, users, storage, streaming, updates, federation); the space-discovery ladder and the directory status line (`general.discovery.*`, `general.directory.*`) |
 | `federation` | Connected instances UI, peering requests, identity attach and detach |
@@ -122,7 +129,6 @@ Rules:
 | `uploads` | Transfer indicator, upload errors, crop dialog |
 | `desktop` | Renderer-side desktop strings: update banner, recovery notices, keybind setup |
 | `mobile` | Mobile shell, bottom navigation, screen titles |
-| `project` | The Backspace project hub page (`/backspace`) and its sidebar entry: header, the What's new, community, support, insights, report, host and desktop cards, the This instance section and the footer links |
 | `telemetry` | The one-time "say hi" ask and the instance-settings section for the optional daily usage ping |
 | `errors` | Localized messages for every `ErrorCode` in `packages/shared` |
 
@@ -352,12 +358,8 @@ Federation: error bodies relayed from a peer instance follow the same
 contract, so a code from a newer peer is localized and a bare `error` from
 an older peer is shown as is.
 
-The space directory ([directory.md](directory.md)) added four codes:
-`directory_disabled` (the feed proxy, `DIRECTORY_ENDPOINT` empty),
-`directory_unreachable` (the proxy could not read the hub; the Outer Space
-section shows this text as its unreachable state), `directory_private_space`
-(`directoryListed: true` on a private space) and
-`directory_requires_discovery` (`directoryEnabled: true` with discovery off).
+Directory-only errors and `space_not_public` were removed with their exclusive
+endpoints/consumers in 1.15.2. Retained invitation errors remain localized.
 
 Two codes are no longer sent by a current server but stay in the list, because an older instance still sends them and a code never changes meaning: `space_uses_join_requests` (an invite link refused for a space joined by request) and `space_requires_approval` (a DM invite to one refused). Both stopped after 1.9.0, when a request space got an invite link that leads to a join request; `join_request_required` now carries `details.spaceId` for that request ([spaces.md](spaces.md), "Join by Invite Code").
 
@@ -398,12 +400,8 @@ before this change carries an English sentence that is still the row's only
 explanation. See
 [client-federation.md](client-federation.md#the-reason-field-errormessage).
 
-`exploreStore.error` follows the same rule with a smaller vocabulary:
-`{ kind: 'none_answered' }` or `{ kind: 'failed', cause }`, rendered by the
-Explore page from `spaces:explore.inner.noneAnswered` and `describeError`
-respectively. The test for a store that reports a failure is whether the
-words could be chosen later, at the surface, in the language the reader has
-now.
+For a store that reports a failure, words should be chosen at the surface in
+the language the reader has now, rather than stored as an English sentence.
 
 The check reads `ERROR_CODES` by scanning the array for quoted words, so it
 strips comments from the file first (`readErrorCodes` in
@@ -569,28 +567,10 @@ the release PR that flips its flag is merged only after a native read.
 
 **One name per concept, per language.** A concept the product names once in
 English is named once in each catalog, and that name is not reused for
-anything else. The space directory broke this rule in Russian first: it was
-«внешний каталог» in ten strings, «общедоступный каталог» in two and a bare
-«каталог» in three, and «каталог пространств» was also being used for
-*discovery*, which is a different setting with a different switch, so a space
-owner read that the directory was off and went looking for the listing
-control. Settled as «внешний каталог» for the directory (the spelling already
-in the majority, and the one that matches «внешнее пространство» for Outer
-Space), «обнаружение пространств» for discovery (already the admin panel's
-wording), and «папка» for a filesystem directory, so that «каталог» has
-exactly one meaning. German (`Verzeichnis`) and Chinese (`目录`) each carried
-one name already and were left alone. The rule cannot be checked by comparing
-languages to each other, so the Russian one is pinned by
-`src/i18n/ruDirectoryName.test.ts`; a language that develops the same split
-gets its own.
-
-«Обзор» had the same shape: it named the Explore page and also the Overview
-tab in space settings and in group DM settings, while about a dozen strings
-point at the Explore page by that name (в разделе «Обзор»). Kept as «Обзор»
-for the Explore page, since it is the idiomatic label for a browse surface and
-was already the majority reading, and the two tabs renamed «Основное», which
-describes what they are (an editing panel for name, icon and banner) and
-collides with no sibling tab. Pinned by `src/i18n/ruOverviewTabName.test.ts`.
+anything else. Directory-only terminology/tests were retired in 1.15.2 along
+with that module. The retained Russian Overview tabs keep «Основное», an
+editing panel for name, icon and banner, pinned by
+`src/i18n/ruOverviewTabName.test.ts`.
 
 Catalogs are Weblate compatible. No hosted translation platform is
 configured yet; when one is, it points at `packages/web/src/locales` and

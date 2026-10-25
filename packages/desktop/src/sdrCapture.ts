@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { DesktopCapturerSource, Display, IpcMain, IpcMainInvokeEvent, WebFrameMain } from 'electron';
 import { createSdrCaptureAuthorization, normalizeSdrCaptureConstraints, sdrCaptureCapability } from './sdrCapturePolicy';
-import type { NativeSdrFrame, NativeSdrModule, NativeSdrSource, SdrCaptureCapability, SdrCaptureEnded, SdrCaptureEndedReason } from './sdrCaptureTypes';
+import type { NativeSdrFrame, NativeSdrModule, NativeSdrSource, SdrCaptureCapability, SdrCaptureEnded, SdrCaptureEndedReason, SdrCapturePreselectionResult } from './sdrCaptureTypes';
 
 export function resolveNativeSdrSource(
   source: Pick<DesktopCapturerSource, 'id' | 'display_id'>,
@@ -56,11 +56,34 @@ interface ActiveCapture {
 const NATIVE_REASONS: ReadonlySet<string> = new Set([
   'source-closed', 'source-unavailable', 'source-color-unsupported', 'capture-unavailable',
   'device-lost', 'frame-timeout', 'invalid-frame', 'capture-failed', 'callback-failed',
+  'borderless-unsupported', 'borderless-configuration-failed',
 ]);
+
+function sameSource(first: NativeSdrSource, second: NativeSdrSource): boolean {
+  return first.kind === second.kind && first.id === second.id
+    && (first.kind === 'window' || (second.kind === 'screen' && first.displayId === second.displayId
+      && first.nativeOrigin.x === second.nativeOrigin.x && first.nativeOrigin.y === second.nativeOrigin.y));
+}
+
+interface PreparedSelection {
+  owner: WebFrameMain;
+  source: NativeSdrSource;
+  requestId: string;
+  at: number;
+  confirmed: boolean;
+}
+interface PendingPermission {
+  owner: WebFrameMain;
+  source: NativeSdrSource;
+  requestId: string;
+  completion: Promise<SdrCapturePreselectionResult>;
+  cancel: (reason: 'cancelled' | 'timeout') => void;
+}
 
 export function createSdrCaptureController(dependencies: Dependencies): {
   capability: () => SdrCaptureCapability;
-  grant: (owner: WebFrameMain, source: NativeSdrSource) => boolean;
+  prepare: (owner: WebFrameMain, source: NativeSdrSource) => Promise<SdrCapturePreselectionResult>;
+  confirmSelection: (owner: WebFrameMain, source: NativeSdrSource) => boolean;
   revokeGrant: () => void;
   start: (owner: WebFrameMain, constraints: unknown) => { sessionId: string };
   configure: (owner: WebFrameMain, sessionId: string, constraints: unknown) => void;
@@ -73,18 +96,33 @@ export function createSdrCaptureController(dependencies: Dependencies): {
   let probed = false;
   let generation = 0;
   let active: ActiveCapture | null = null;
+  let prepared: PreparedSelection | null = null;
+  let preparing: PendingPermission | null = null;
+
+  function cancelNative(id: string): void {
+    try { native?.cancelBorderlessAccess?.(id); } catch { /* The preparation is still revoked locally. */ }
+  }
+  function revokeGrant(): void {
+    authorization.revoke();
+    const current = prepared; prepared = null;
+    if (current) cancelNative(current.requestId);
+    preparing?.cancel('cancelled');
+  }
 
   function capability(): SdrCaptureCapability {
     const environment = sdrCaptureCapability({ ...dependencies, moduleAvailable: true });
     if (!environment.supported) return environment;
     try { native ??= dependencies.loadModule(); }
     catch { return { supported: false, reason: 'module' }; }
+    if (typeof native.requestBorderlessAccess !== 'function' || typeof native.cancelBorderlessAccess !== 'function') {
+      return { supported: false, reason: 'module' };
+    }
     if (!probed) {
       try { if (!native.isCaptureSupported()) return { supported: false, reason: 'system' }; }
       catch { return { supported: false, reason: 'system' }; }
       probed = true;
     }
-    return { supported: true };
+    return { supported: true, borderless: true };
   }
 
   function end(record: ActiveCapture, reason: SdrCaptureEndedReason): void {
@@ -105,22 +143,69 @@ export function createSdrCaptureController(dependencies: Dependencies): {
 
   return {
     capability,
-    grant(owner, source) {
-      authorization.revoke();
-      if (active || !dependencies.isTargetAllowed(owner) || !dependencies.isFocused()) return false;
+    prepare(owner, source) {
+      if (preparing?.owner === owner && sameSource(preparing.source, source)) return preparing.completion;
+      revokeGrant();
+      if (active || !dependencies.isTargetAllowed(owner) || !dependencies.isFocused() || !capability().supported) {
+        return Promise.resolve({ ok: false, reason: 'unsupported' });
+      }
       const snapshot = source.kind === 'screen' ? { ...source, nativeOrigin: { ...source.nativeOrigin } } : { ...source };
-      authorization.grant(snapshot, owner, generation, dependencies.now());
+      const epoch = generation;
+      const requestId = randomUUID();
+      let settle: (result: SdrCapturePreselectionResult) => void = () => {};
+      const completion = new Promise<SdrCapturePreselectionResult>((resolve) => { settle = resolve; });
+      const pending: PendingPermission = { owner, source: snapshot, requestId, completion,
+        cancel(reason) {
+          if (preparing !== pending) return;
+          preparing = null; clearTimeout(deadline); cancelNative(requestId);
+          settle({ ok: false, reason });
+        } };
+      const deadline = setTimeout(() => pending.cancel('timeout'), 60_000);
+      preparing = pending;
+      try {
+        native!.requestBorderlessAccess!(requestId, (result) => {
+          if (preparing !== pending) { if (result?.status === 'allowed') cancelNative(requestId); return; }
+          preparing = null; clearTimeout(deadline);
+          if (epoch !== generation || !dependencies.isTargetAllowed(owner) || !dependencies.isFocused()) {
+            cancelNative(requestId); settle({ ok: false, reason: 'cancelled' }); return;
+          }
+          if (result?.status === 'allowed') {
+            prepared = { owner, source: snapshot, requestId, at: dependencies.now(), confirmed: false };
+            settle({ ok: true });
+          } else {
+            const reasons = ['denied-user', 'denied-system', 'not-declared', 'unsupported', 'cancelled', 'timeout', 'failed'];
+            cancelNative(requestId);
+            settle({ ok: false, reason: reasons.includes(result?.status)
+              ? result.status as Exclude<typeof result.status, 'allowed'> : 'failed' });
+          }
+        });
+      } catch {
+        if (preparing === pending) { preparing = null; clearTimeout(deadline); cancelNative(requestId); settle({ ok: false, reason: 'failed' }); }
+      }
+      return completion;
+    },
+    confirmSelection(owner, source) {
+      const candidate = prepared;
+      const age = candidate ? dependencies.now() - candidate.at : NaN;
+      if (!candidate || candidate.confirmed || candidate.owner !== owner || !sameSource(candidate.source, source)
+          || !dependencies.isTargetAllowed(owner) || !dependencies.isFocused() || !Number.isFinite(age) || age < 0 || age > 30_000) {
+        revokeGrant(); return false;
+      }
+      candidate.confirmed = true;
+      authorization.grant(candidate.source, owner, generation, candidate.at);
       return true;
     },
-    revokeGrant: () => authorization.revoke(),
+    revokeGrant,
     start(owner, value) {
       if (!dependencies.isTargetAllowed(owner)) throw new Error('SDR target is not authorized');
       if (active) throw new Error('SDR capture is already active');
+      if (!prepared?.confirmed || prepared.owner !== owner) throw new Error('SDR borderless authorization is missing');
+      const permission = prepared; prepared = null;
       const source = authorization.consume({ owner, navigationGeneration: generation, focused: dependencies.isFocused(), now: dependencies.now() });
-      if (!source) throw new Error('SDR capture authorization is missing or expired');
+      if (!source) { cancelNative(permission.requestId); throw new Error('SDR capture authorization is missing or expired'); }
       const constraints = normalizeSdrCaptureConstraints(value);
-      if (!constraints) throw new Error('SDR capture constraints are invalid');
-      if (!capability().supported) throw new Error('SDR capture is unavailable');
+      if (!constraints) { cancelNative(permission.requestId); throw new Error('SDR capture constraints are invalid'); }
+      if (!capability().supported) { cancelNative(permission.requestId); throw new Error('SDR capture is unavailable'); }
       const module = native!;
       const record: ActiveCapture = { owner, sessionId: randomUUID(), nativeId: null };
       active = record;
@@ -138,7 +223,7 @@ export function createSdrCaptureController(dependencies: Dependencies): {
             module.releaseFrame(frame.frameId);
             end(record, 'transport-failed');
           }
-        }, (reason) => end(record, NATIVE_REASONS.has(reason) ? reason as SdrCaptureEndedReason : 'capture-failed'));
+        }, (reason) => end(record, NATIVE_REASONS.has(reason) ? reason as SdrCaptureEndedReason : 'capture-failed'), permission.requestId);
         if (active !== record) {
           module.stopCapture(record.nativeId);
           throw new Error('SDR capture ended during start');
@@ -146,6 +231,7 @@ export function createSdrCaptureController(dependencies: Dependencies): {
         return { sessionId: record.sessionId };
       } catch (error) {
         if (active === record) active = null;
+        cancelNative(permission.requestId);
         throw error;
       }
     },
@@ -167,7 +253,7 @@ export function createSdrCaptureController(dependencies: Dependencies): {
     },
     invalidate(reason) {
       generation++;
-      authorization.revoke();
+      revokeGrant();
       if (active) end(active, reason);
     },
   };

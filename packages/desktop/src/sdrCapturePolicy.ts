@@ -51,8 +51,8 @@ export function sdrCaptureCapability(input: {
 }): SdrCaptureCapability {
   if (input.platform !== 'win32') return { supported: false, reason: 'platform' };
   const version = /^(\d+)\.(\d+)\.(\d+)(?:\.\d+)?$/.exec(input.systemVersion);
-  if (!version || Number(version[1]) < 10 || Number(version[3]) < 18362) return { supported: false, reason: 'system' };
+  if (!version || Number(version[1]) < 10 || Number(version[3]) < 20348) return { supported: false, reason: 'system' };
   if (!input.moduleAvailable) return { supported: false, reason: 'module' };
   if (!input.transportAvailable) return { supported: false, reason: 'transport' };
-  return { supported: true };
+  return { supported: true, borderless: true };
 }

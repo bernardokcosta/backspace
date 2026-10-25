@@ -11,7 +11,7 @@ vi.mock('../../audio/AudioManager', () => ({
   },
 }));
 
-import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { HttpError } from '../../api/client';
 import { useContextMenuStore, type ContextMenuAction } from '../../stores/contextMenuStore';
@@ -28,7 +28,6 @@ const SPACE: TaggedSpace = {
   ownerId: 'someone-else',
   inviteCode: null,
   visibility: 'request',
-  directoryListed: false,
   description: null,
   createdAt: 0,
   _instanceOrigin: '',
@@ -82,6 +81,15 @@ afterEach(() => {
 });
 
 describe('MobileSpacesScreen space menu: Invite People', () => {
+  it('keeps create/join actions but offers no discovery in the add sheet', () => {
+    const { container } = renderScreen();
+    const add = container.querySelector('path[d="M12 4.5v15m7.5-7.5h-15"]')?.closest('button');
+    if (!add) throw new Error('Add-space button missing');
+    fireEvent.click(add);
+    expect(screen.getByRole('button', { name: 'Create Space' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Join Space' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Explore Spaces' })).toBeNull();
+  });
   it('shows the reason an instance up to 1.9.0 gives for refusing a request space its link', async () => {
     useSpaceStore.setState({
       generateInvite: vi.fn().mockRejectedValue(

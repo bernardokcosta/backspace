@@ -357,6 +357,10 @@ export async function stageScreenCapture(options: StageScreenCaptureOptions = {}
   let stream: MediaStream | null = null;
   try {
     if (options.signal?.aborted) throw new DOMException('Capture cancelled', 'AbortError');
+    const capability = config.forceSdr === true || options.forceSdr === true ? await getSdrCaptureCapability() : null;
+    const forceSdr = options.forceSdr ?? (config.forceSdr === true
+      && (getElectronAPI()?.platform === 'win32' || capability?.supported === true));
+    if (forceSdr && !capability?.supported) throw new SdrCaptureError('unsupported');
     // Where the desktop app can build the system audio without Backspace's own
     // playback, that track stands in for the loopback one.
     const ownFree = config.shareAudio ? await acquireAppExcludedSystemAudio() : null;
@@ -371,7 +375,6 @@ export async function stageScreenCapture(options: StageScreenCaptureOptions = {}
     }
     if (ownFree) stream.addTrack(ownFree);
     if (options.signal?.aborted) throw new DOMException('Capture cancelled', 'AbortError');
-    const forceSdr = options.forceSdr ?? (config.forceSdr === true && (await getSdrCaptureCapability()).supported);
     if (forceSdr) {
       stream = await acquireSdrScreenCapture(stream, opts.capture, options.signal);
       if (stream.getVideoTracks()[0]?.readyState !== 'live') throw new SdrCaptureError('source-ended');

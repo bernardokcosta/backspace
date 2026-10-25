@@ -265,7 +265,7 @@ Returns `null` when `mobileStack.length > 0` — hidden whenever a pushed screen
 |-----|-----------|--------------|
 | Spaces | Dot (red) | `unreadChannels` has any non-voice channel |
 | DMs | Numeric count | Count of DM channels where `lastMessage.id > readStates[dmId]` |
-| You | Dot (red) | Pending incoming friend requests (`status === 'pending'` and `fromId !== authUser.id`), an instance update badge (`useInstanceUpdateBadge`), or the Backspace page's `updated` state (`useHubUpdateState`) |
+| You | Dot (red) | Pending incoming friend requests (resolved with federation-aware `isIncomingRequest`) or an instance update badge (`useInstanceUpdateBadge`) |
 
 Badge caps at `99+` for numeric badges.
 
@@ -359,8 +359,6 @@ Event options: `touchstart` is `{ passive: true }`, `touchmove` is `{ passive: f
 | `settings-instance-users` | `UsersPanel` (wrapped) | — |
 | `members` | `MobileMembersScreen` | `{ spaceId? }` |
 | `voice-full` | `MobileVoiceFullScreen` | — |
-| `explore` | `ExplorePage` | — |
-| `backspace` | `MobileBackspaceScreen`: `MobileScreenHeader` titled `project:nav.label` over `ProjectHubPage showTopBar={false}` (see [project-hub.md](project-hub.md)) | — |
 | `user-profile` | `UserProfileModal` | `{ userId }` (opens modal via `openModal('userProfile', ...)`) |
 
 Instance settings sub-panels (`settings-instance-*`) are wrapped inline with `MobileScreenHeader` + scrollable container + `bg-surface-base`.
@@ -379,7 +377,7 @@ Split-pane layout: 60px `glass-strip` space strip on the left + channel list on 
 - Unread pill indicator on left edge (8px dot for unread, 32px bar for selected)
 - Federation badge on space icons (globe icon, amber dot if disconnected)
 - Context menu: Invite, Create Folder, Move to Folder, Remove from Folder, Transfer Ownership, Leave
-- Add Space button at bottom (opens bottom sheet: Create / Join / Explore)
+- Add Space button at bottom (opens bottom sheet: Create / Join by invitation)
 
 **Channel list features:**
 - Channels grouped by categories (collapsible)
@@ -412,7 +410,9 @@ Split-pane layout: 60px `glass-strip` space strip on the left + channel list on 
 
 - Settings gear in header (pushes `settings`)
 - Profile card: banner/accent background, avatar (-10 overlap), display name, username, custom status, bio
-- Action rows (each pushes a screen): Edit Profile, Friends, Connections, Voice & Video, Backspace (pushes `backspace`). A row can carry a `badge` dot at its trailing edge; the Backspace row shows the brand primary 8px dot while `useHubUpdateState().state === 'updated'`
+- Action rows (each pushes a screen): Edit Profile, Friends, Connections, Voice & Video.
+  The project-hub row/screen and its update-dot subscription were removed in
+  1.15.2. The settings gear's instance-update indicator remains independent.
 - Log Out button with `ConfirmDialog`
 
 ---
@@ -877,7 +877,6 @@ Mobile uses the same `.skeleton` / `.skeleton-bar` / `.skeleton-circle` / `.skel
 | `MobileSpacesScreen` channel list | `useSpaceStore.loadingSpaceId === selectedSpaceId` | Mobile-specific render, mirrors desktop `ChannelSidebar`. Empty-state mascot is settle-gated on `loadedSpaceIds` to avoid flashing during the pre-skeleton load window (see "Empty-state mascot — settle gate" above) |
 | `MobileMembersScreen` member list | `useSpaceStore.loadingSpaceId === spaceId` | Mobile-specific render, mirrors desktop `MemberSidebar` |
 | `FriendsPage` (mobile) | `socialStore.isLoading && friends.length === 0 && requests.length === 0` | Shared component; renders `LoadingSpinner` (no skeleton) — used unchanged on mobile |
-| `ExplorePage` (mobile) | `exploreStore.isLoading && spaces.length === 0` | Shared component; renders `LoadingSpinner` — used unchanged on mobile |
 | `GifPicker` (mobile sheet) | per-fetch local state | Shared component; uses `animate-pulse` placeholder tiles — used unchanged on mobile |
 
 **Sizing rule:** mobile skeleton rows must match the row geometry of the real content for that screen so the populate is smooth and no layout shift occurs. The `MobileSpacesScreen` channel-row skeleton is `px-3 py-2` with a `w-4 h-4` icon (~36 px row); the `MobileMembersScreen` row skeleton is `gap-2.5 px-2 py-2.5` with a `w-9 h-9` avatar (~52 px row). Both use staggered `animationDelay` so the shimmer cascades across rows rather than pulsing in lockstep.

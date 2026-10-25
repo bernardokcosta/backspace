@@ -42,6 +42,17 @@ beforeEach(() => {
 afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
 
 describe('Force SDR screen-share lifecycle wiring', () => {
+  it('blocks a saved Windows SDR choice on an old host before raw video or audio acquisition', async () => {
+    const previous = window.backspace;
+    window.backspace = { platform: 'win32' } as BackspaceElectronAPI;
+    sdr.getSdrCaptureCapability.mockResolvedValueOnce({ supported: false, reason: 'bridge' });
+    try {
+      await expect(stageScreenCapture()).rejects.toMatchObject({ reason: 'unsupported' });
+      expect(getDisplayMedia).not.toHaveBeenCalled();
+      expect(sdr.acquireSdrScreenCapture).not.toHaveBeenCalled();
+      expect(useVoiceStore.getState().screenShareConfig.forceSdr).toBe(true);
+    } finally { if (previous) window.backspace = previous; else delete window.backspace; }
+  });
   it('stages only corrected video and forwards capture constraints/cancellation without another microphone capture', async () => {
     const abort = new AbortController();
     expect(await stageScreenCapture({ forceSdr: true, signal: abort.signal })).toBe(corrected.value);

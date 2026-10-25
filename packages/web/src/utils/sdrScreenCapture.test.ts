@@ -89,7 +89,7 @@ beforeEach(async () => {
   vi.stubGlobal('VideoFrame', FakeFrame);
   writes.mockReset().mockResolvedValue(undefined);
   abortWriter.mockReset(); unsubscribe.mockReset();
-  api.getSdrCaptureCapability.mockReset().mockResolvedValue({ supported: true });
+  api.getSdrCaptureCapability.mockReset().mockResolvedValue({ supported: true, borderless: true });
   api.startSdrCapture.mockReset().mockResolvedValue({ sessionId: SESSION });
   api.configureSdrCapture.mockReset().mockResolvedValue(undefined);
   api.stopSdrCapture.mockReset().mockResolvedValue(undefined);
@@ -225,7 +225,9 @@ describe('truthful SDR capability', () => {
   });
 
   it('requires a supported generator and validates the host capability response', async () => {
-    expect(await capability()).toEqual({ supported: true });
+    expect(await capability()).toEqual({ supported: true, borderless: true });
+    api.getSdrCaptureCapability.mockResolvedValueOnce({ supported: true });
+    expect(await capability()).toEqual({ supported: false, reason: 'bridge' });
     api.getSdrCaptureCapability.mockResolvedValueOnce({ supported: false, reason: 'module' });
     expect(await capability()).toEqual({ supported: false, reason: 'module' });
     api.getSdrCaptureCapability.mockResolvedValueOnce({ supported: 'yes' });

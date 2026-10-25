@@ -22,7 +22,7 @@ import { PermissionBits, permissionsToString } from '../../../utils/permissions'
 const SPACE_ID = 'space-1';
 const SPACE: TaggedSpace = {
   id: SPACE_ID, name: 'Space', icon: null, banner: null, avatarColor: null, ownerId: 'owner',
-  inviteCode: null, visibility: 'public', directoryListed: false, description: null, createdAt: 1, _instanceOrigin: '',
+  inviteCode: null, visibility: 'public', description: null, createdAt: 1, _instanceOrigin: '',
 };
 
 const MODERATION = permissionsToString(PermissionBits.KICK_MEMBERS | PermissionBits.BAN_MEMBERS | PermissionBits.MANAGE_ROLES);

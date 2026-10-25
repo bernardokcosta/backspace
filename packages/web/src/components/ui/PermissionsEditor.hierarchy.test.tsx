@@ -24,7 +24,7 @@ import type { PermissionDef } from './OverrideEntry';
 const SPACE_ID = 'space-1';
 const SPACE: TaggedSpace = {
   id: SPACE_ID, name: 'Space', icon: null, banner: null, avatarColor: null, ownerId: 'owner',
-  inviteCode: null, visibility: 'public', directoryListed: false, description: null, createdAt: 1, _instanceOrigin: '',
+  inviteCode: null, visibility: 'public', description: null, createdAt: 1, _instanceOrigin: '',
 };
 
 function role(id: string, name: string, position: number): Role {

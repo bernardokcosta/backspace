@@ -73,8 +73,8 @@ spend the minute's 200 for everybody at that address. The countermeasure is not
 in the app: give such a deployment its own address, or raise the limit.
 
 Routes may tighten the limit for themselves with `config.rateLimit`; those
-overrides sit with their routes (`routes/auth.ts`, `routes/directory.ts`,
-`routes/explore.ts`, `routes/messages.ts`, `routes/dm.ts`, `routes/gif.ts`,
+overrides sit with their routes (`routes/auth.ts`,
+`routes/joinRequests.ts`, `routes/messages.ts`, `routes/dm.ts`, `routes/gif.ts`,
 `routes/users.ts`, `routes/social.ts`), and they are keyed the same way, per
 address, for the same reason. The WebSocket `dm_message_create` event applies
 the DM create route's limit to the socket's address in a counter of its own
@@ -153,7 +153,7 @@ GET    /users/:id/mutuals     ?homeUserId=               → { mutualFriends[], 
 GET    /spaces                                                                 → { spaces[] }
 POST   /spaces                { name, icon?, description? }                    → { space }
 GET    /spaces/:id                                                             → { space, channels[], members[], roles[] }
-PATCH  /spaces/:id            { name?, icon?, banner?, description?, visibility?, avatarColor?, directoryListed?, ownerTitle?, afkChannelId?, afkTimeoutSeconds? } → { space }   [MANAGE_SPACE; ownerTitle: owner]
+PATCH  /spaces/:id            { name?, icon?, banner?, description?, visibility?, avatarColor?, ownerTitle?, afkChannelId?, afkTimeoutSeconds? } → { space }   [MANAGE_SPACE; ownerTitle: owner]
 DELETE /spaces/:id                                                             → { success }  [owner]
 POST   /spaces/:id/invite                                                      → { inviteCode }  [CREATE_INVITE]
 POST   /spaces/:id/join       { inviteCode }                                   → { space }
@@ -162,7 +162,10 @@ GET    /spaces/invite/:code/preview                                            �
 PATCH  /spaces/:id/transfer-ownership  { newOwnerId }                          → { space }  [owner]
 ```
 `POST /spaces/:id/invite` answers every visibility, `request` included (up to 1.9.0 it refused a request space with `403 space_uses_join_requests`). The two join routes never admit anyone to a `request` space: after the code matches they answer `403 user_banned`, `409 already_member`, then, for a request space, `409 join_request_pending` when the caller's request is waiting and otherwise `403 join_request_required` with `details: { spaceId }`, the id for `POST /spaces/:id/request-join`. They read the space's visibility on each call, so a code follows the space when its visibility changes. `InvitePreview` carries `visibility` (absent from an instance up to 1.9.0). See [spaces.md](spaces.md), "Join by Invite Code".
-`directoryListed` must be a boolean (`400 field_not_boolean`), is refused with `400 directory_private_space` when the resulting visibility is `private`, and is cleared in the same write when a listed space is switched to `private`. `Space.directoryListed` is carried on every space response and in the WebSocket ready payload. A change to the flag, to a served field (`name`, `description`, `icon`, `banner`, `avatarColor`, `visibility`) of a listed space, or a `DELETE` of a listed space marks the directory dirty so the pinger tells the hub. See [directory.md](directory.md).
+The legacy `directoryListed` input is ignored; it is absent from all active
+space/ready/accepted-request responses. Retained edits never clear or change
+the stored historical flag. An unknown-only PATCH keeps the existing
+`no_fields_to_update` response. See [directory.md](directory.md).
 `ownerTitle` (a string, or `null` to reset) is accepted from the space's owner only: anyone else who sends it gets `403 space_owner_only` and nothing in the body is written, whatever role they hold. The owner is compared by the caller's row on this instance (`request.userId === spaces.owner_id`), so a federated owner sets it through their replicated row here. The value goes through `normalizeOwnerTitle` (`packages/shared/src/constants.ts`): `null` resets; a string is trimmed and refused with `400 space_owner_title_invalid` (`details: { max }`) when it trims to nothing, is longer than `MAX_OWNER_TITLE_LENGTH` (32 UTF-16 code units), holds a control character, a line or paragraph separator or a bidirectional control, or has no visible character. A blank string does not reset, unlike a nickname. `Space.ownerTitle` is carried on every space response and in the ready payload, `null` when unset. `PATCH /spaces/:id/transfer-ownership` clears it. Instances up to 1.10.0 omit the field and ignore it in a PATCH (`200`, nothing written).
 
 `afkChannelId` (a same-space voice channel id, or `null` to switch the feature off) and `afkTimeoutSeconds` (one of `AFK_TIMEOUT_OPTIONS`: 60/300/900/1800/3600) need `MANAGE_SPACE`. Anything else is refused before anything is written: an unknown id, a text channel or a channel of another space is `400 space_afk_invalid_channel`; any other timeout is `400 space_afk_invalid_timeout`. The timeout stores even while no channel is set; the move only happens while a set channel still exists and is still voice. `Space.afkChannelId` (`null` when off) and `Space.afkTimeoutSeconds` ride every space response and the ready payload; both are optional on the wire, absent from instances up to 1.13.x. Enforcement is client-side (voice.md, "AFK moves").
@@ -344,24 +347,25 @@ has: `file`|`image`|`link`
 
 Channel search matches only messages members wrote (`userWrittenMessages()`); a poke's JSON content is not text anyone wrote. DM search still returns DM system rows.
 
-## Explore (`routes/explore.ts`) — auth required
+## Join requests (`routes/joinRequests.ts`) — auth required
+
+Independent of discovery: invitations and space managers use these paths.
+`BackspaceApiClient.joinRequests` groups them as `request`, `list`, `decide`
+and `mine`; the REST paths, permissions and rate limit are unchanged.
 ```
-GET    /spaces/explore                   ?q=&limit=&offset=  → { spaces[], total, totalAll, discoveryEnabled }
-POST   /spaces/:id/public-join                               → { space }
 POST   /spaces/:id/request-join          { message? }        → { request }  [5/min; also where an invite to a request space leads]
 GET    /spaces/:id/join-requests         ?status=            → { requests[] }  [MANAGE_SPACE]
 PATCH  /spaces/:id/join-requests/:rid    { action }          → { request }  [MANAGE_SPACE]
 GET    /users/@me/join-requests          ?status=            → { requests[] }
 ```
 
-## Directory (`routes/directory.ts`)
-```
-GET    /directory/spaces                 (public)                  → DirectoryDocument
-GET    /directory                        (auth)  ?q=&limit=&offset= → DirectoryFeed
-```
-`GET /directory/spaces` is the document the space directory hub indexes: `{ schema: 1, origin, instance: { name, federatedRegistrationOpen, version }, spaces[] }`, at most 200 spaces that are listed, discoverable and public or request, every `icon`/`banner` an absolute URL on this origin or null. Unauthenticated by design (the hub is a stranger), cached in memory for 30 s or until the next change, and served `Cache-Control: no-cache` so no intermediary holds a pre-delist copy: the in-memory cache, not a shared cache, is what answers the revalidations. It never 404s: with the directory or discovery off, `spaces` is empty and the envelope stays, so a hub fetch of a switched-off instance is a success that clears its rows.
+## Retired discovery APIs (1.15.2)
 
-`GET /directory` is the feed proxy the Explore page's Outer Space section reads; the browser never talks to the hub. `q` (cut to 100 chars), `limit` (1-100, default 50) and `offset` (0-1000) are clamped, not rejected, and forwarded to `{DIRECTORY_ENDPOINT}/v1/spaces`. Each distinct query is cached for 60 s (64 entries) counted from when the hub's edge copy was made (the receive time less the hub's `Age` header, absent or unparsable counting as 0, clamped to 60 s), so the proxy's answer is never older than 60 s end to end even though the hub caches for 60 s of its own; identical in-flight requests share one upstream fetch, and the route carries its own rate limit of 30 per minute, which replaces the global one for it (`429 rate_limited`, the global limiter's shape). `404 directory_disabled` when `DIRECTORY_ENDPOINT` is empty, and the same `404 directory_disabled` when the admin has turned `instance_settings.directoryBrowseEnabled` off, checked before any upstream fetch or cache read; `502 directory_unreachable` when the hub does not answer or answers something that is not a feed. Response `{ schema: 1, spaces: DirectoryEntry[] }`. See [directory.md](directory.md).
+`GET /directory`, `GET /directory/spaces`, `GET /spaces/explore` and
+`POST /spaces/:id/public-join` no longer exist. With the `/api` prefix these
+return JSON 404, not the SPA HTML fallback. There is no proxy, listing document
+or pinger and old `DIRECTORY_ENDPOINT` is ignored. Invitation admission and
+join-request routes remain; see [directory.md](directory.md).
 
 ## Uploads (`routes/files.ts`, `routes/uploads.ts`)
 
@@ -443,10 +447,11 @@ Permissions checked: CONNECT, SPEAK, STREAM (space channels). DM calls: always f
 
 ## Instance (`routes/instance.ts`) — public
 ```
-GET /instance/info → { name, version, registrationOpen, federatedRegistrationOpen, instanceId, sourceCodeUrl, commit, directoryConfigured, directoryAvailable, directoryEnabled, supportCardEnabled }
+GET /instance/info → { name, version, minimumDesktopVersion, registrationOpen, federatedRegistrationOpen, instanceId, sourceCodeUrl, commit, maxStickerSizeMb }
 ```
-`supportCardEnabled` is `instance_settings.supportCardEnabled` (default true): whether the web client's Backspace page shows the Support card. The web client is its only reader; the server does nothing else with it. Written by the admin through `PATCH /settings/instance`.
-Three directory facts, reported separately because folding any two of them leaves a client unable to tell which is false. `directoryConfigured` is `config.directory.endpoint !== ''` on its own: whether this instance has a hub to talk to at all, which is what the pinger, the proxy and Outer Space all rest on; every surface that promises the directory will do something gates on it. `directoryAvailable` is `directoryConfigured` **and** `instance_settings.directoryBrowseEnabled`: whether people here browse, the endpoint checked first so no setting can advertise a directory the instance cannot reach. The Explore page reads it here to decide whether to render the Outer Space section (directory.md §9). `directoryEnabled` is `instance_settings.directoryEnabled`: whether the admin allows spaces here to be listed. The two are independent; the space settings panel reads the latter through `GET /settings/streaming`, not from here.
+The Support-card field was retired in 1.15.2 with the project hub; no active
+response exposes it. Its historical database value is retained unchanged.
+Discovery/directory status fields are retired and omitted, not reported as false.
 `federatedRegistrationOpen` is a UX hint consumed by the Connections add-instance pre-flight (see `client-federation.md`). The 403 from `POST /auth/register` remains the security boundary.
 
 `instanceId` (`InstanceInfoResponse.instanceId`, `string`) is this instance's persistent **epoch** — the incarnation UUID minted once by `ensureDefaults` and stable across restarts (see `database.md → Instance Settings`). It is served here (unauthenticated, credential-free) purely as a **detection** signal: `probePeerReachable` reads it to observe that a peer behind a known origin has been factory-reset (a changed epoch). It is **never** written to a peer's trusted baseline from this channel — only the authenticated `/federation/epoch`, relay envelope, and handshake do that. See `federation.md` "Instance Epoch".
@@ -457,22 +462,20 @@ Three directory facts, reported separately because folding any two of them leave
 ```
 GET   /settings/streaming    (auth)        → { streamingLimits }
 PATCH /settings/streaming    (admin)       → { streamingLimits }
-GET   /settings/instance     (admin)       → { instanceName, registrationOpen, federatedRegistrationOpen, discoveryEnabled,
-                                               directoryEnabled, directoryBrowseEnabled, directoryLastPingAt,
-                                               directoryLastError, directoryListedSpaceCount, supportCardEnabled, ... }
+GET   /settings/instance     (admin)       → { instanceName, registrationOpen, federatedRegistrationOpen, ... }
 PATCH /settings/instance     (admin)       { instanceName?, registrationOpen?, federatedRegistrationOpen?,
-                                             discoveryEnabled?, directoryEnabled?, directoryBrowseEnabled?,
-                                             supportCardEnabled?,
                                              gifApiKey?, maxUploadSizeMb?,
                                              federationRelayEnabled?, federationRelayTtlDays? } → { settings }
 ```
 `registrationOpen` and `federatedRegistrationOpen` are **independent** toggles. PATCH validates `federatedRegistrationOpen` is `boolean` if provided; rejects 400 otherwise. `registrationOpen` is stored as a nullable column (null = fall back to `config.registrationOpen` env default); `federatedRegistrationOpen` is NOT NULL with default 1.
 
-`directoryEnabled` (space directory, see [directory.md](directory.md)) must be a boolean (`400 field_not_boolean`) and needs discovery on: `directoryEnabled: true` while the resulting `discoveryEnabled` is off is `400 directory_requires_discovery`. Both PATCH routes enforce the invariant the other way round too: a write that leaves discovery off clears `directoryEnabled` in the same write, on `/settings/instance` and on `/settings/streaming` (which carries `discoveryEnabled` but not `directoryEnabled`). `directoryLastPingAt`, `directoryLastError` and `directoryListedSpaceCount` are read-only; the PATCH ignores them in the body. The count is the number of spaces that are public or request to join and have opted in to the directory, whatever `directoryEnabled` says. `InstanceStreamingLimits.directoryEnabled` is also carried on `GET /settings/streaming`, read-only there, so a non-admin's space settings can tell whether the instance allows listing. `directoryConfigured` rides with it, also read-only and also from configuration rather than the row (`config.directory.endpoint !== ''`, the same fact `GET /instance/info` reports). It is here because this is the one settings document any signed-in user may read **on any instance**: a space that lives on a peer is gated by that peer's endpoint, which the home instance's `/instance/info` cannot answer for. Neither field is accepted on either PATCH; a body carrying one is ignored, as `directoryLastPingAt` is. A change to `directoryEnabled`, `discoveryEnabled`, `instanceName` or `federatedRegistrationOpen` marks the directory dirty; repeating a stored value does not.
+Legacy discovery/directory settings/status/count PATCH keys are ignored like
+unknown fields on both settings routes. Responses omit them and their stored
+historical columns are unchanged. Instance name, registration, upload/sticker
+limits, GIF and federation policy still work; no write marks a directory dirty.
 
-`directoryBrowseEnabled` is the other directory axis: whether people on this instance see spaces from other instances in Explore. It must be a boolean (`400 field_not_boolean`), is independent of `directoryEnabled` (nothing clears it, and the discovery invariant does not touch it), is carried only on `/settings/instance` and not on `/settings/streaming`, and changing it never marks the directory dirty, since it is nowhere in the served document. It gates `GET /directory` and `directoryAvailable` on `GET /instance/info`. Default true. See [directory.md](directory.md).
-
-`supportCardEnabled` must be a boolean (`400 field_not_boolean` with `{ field: 'supportCardEnabled' }`). It is carried only on `/settings/instance` and not on `/settings/streaming`, is reported publicly on `GET /instance/info`, and never marks the directory dirty. Default true. What it hides: [admin.md](admin.md), General panel.
+Legacy `supportCardEnabled` input is ignored by the settings PATCH like any
+unknown field. It cannot mutate the retained historical column.
 
 ## Notification settings (`routes/notificationSettings.ts`) — auth required
 ```

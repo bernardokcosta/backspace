@@ -175,7 +175,6 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   not_friends: 'You are not friends with this user',
   lookup_failed: 'Looking up the user on the remote instance failed',
   space_not_found: 'Space not found',
-  space_not_public: 'This space does not allow public joins',
   space_not_requestable: 'This space does not accept join requests',
   space_load_failed: 'Failed to load space',
   user_banned: 'You are banned from this space',
@@ -266,10 +265,6 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   dm_call_in_progress: 'A call is already running in this conversation',
   dm_call_not_found: 'This call has already ended',
   file_not_found: 'File not found',
-  directory_disabled: 'The directory is not configured on this instance',
-  directory_unreachable: 'The directory could not be reached',
-  directory_private_space: 'A private space cannot be listed in the directory',
-  directory_requires_discovery: 'Turn on space discovery before enabling the directory',
   // bots
   bot_name_invalid: 'Bot name must be {{min}}-{{max}} characters: lowercase letters, numbers and underscores',
   bot_account_required: 'Only a bot account can do this',

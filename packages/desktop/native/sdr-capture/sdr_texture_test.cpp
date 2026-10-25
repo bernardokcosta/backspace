@@ -10,6 +10,7 @@
 void sourceColorPolicyTests();
 void framePoolTests();
 void captureSessionPolicyTests();
+void borderlessAccessTests();
 
 namespace {
 void require(bool condition, const char* message) {
@@ -28,6 +29,7 @@ int main() {
     sourceColorPolicyTests();
     framePoolTests();
     captureSessionPolicyTests();
+    borderlessAccessTests();
     backspace::SdrTextureConverter converter;
     auto sdr = converter.create(gray({0.0f, 0.18f, 1.0f}), 3, 1, 80.0f, 80.0f);
     auto pixels = converter.readback(sdr);

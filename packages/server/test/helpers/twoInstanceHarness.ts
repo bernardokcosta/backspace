@@ -181,13 +181,8 @@ export interface SpawnInstanceOptions {
    * federated call-start path offline. Default: LiveKit blanked (voice off).
    */
   livekit?: { url: string; apiKey: string; apiSecret: string };
-  /**
-   * Base URL of a space-directory hub for this instance's pinger. Unset (the
-   * default) disables the pinger: the child gets `DIRECTORY_ENDPOINT=''`,
-   * which is the pinger's own guard. Only the directory e2e test points this
-   * at its local stub hub.
-   */
-  directoryEndpoint?: string;
+  /** Test-only overrides, applied before protected identity/port/storage fields. */
+  environment?: Record<string, string>;
 }
 
 /**
@@ -220,6 +215,7 @@ async function spawnOnPort(port: number, opts: SpawnInstanceOptions): Promise<Sp
   const origin = `http://127.0.0.1:${port}`;
   const env: Record<string, string> = {
     ...process.env,
+    ...opts.environment,
     NODE_ENV: 'test',
     ENABLE_TEST_ROUTES: '1',
     PORT: String(port),
@@ -246,11 +242,6 @@ async function spawnOnPort(port: number, opts: SpawnInstanceOptions): Promise<Sp
   // Shortened retry waits for every harness instance. Why: docs/systems/
   // federation.md, "Retry backoff divisor (test only)".
   env.FEDERATION_BACKOFF_DIVISOR = String(HARNESS_BACKOFF_DIVISOR);
-  // Same reason: the directory pinger starts OUTSIDE the workers guard, so a
-  // developer's own DIRECTORY_ENDPOINT would otherwise reach every spawned
-  // instance and start a live pinger at the real hub from unrelated tests. The
-  // pinger's own guard is an empty endpoint, so that is the default here.
-  env.DIRECTORY_ENDPOINT = opts.directoryEndpoint ?? '';
   // Default: bypass rate limits so unrelated tests don't exhaust the per-IP
   // bucket on 127.0.0.1. Test #15 (rate-limit assertion) opts out via
   // bootTwoInstancesWithRateLimits().
@@ -321,12 +312,6 @@ export interface BootOptions {
    * contacted). Default: false → LiveKit stays unconfigured.
    */
   enableLiveKit?: boolean;
-  /**
-   * Point every instance's directory pinger at this hub base URL. Default:
-   * unset, which spawns every instance with `DIRECTORY_ENDPOINT=''` so no
-   * pinger runs. See `spawnInstance`'s option of the same name.
-   */
-  directoryEndpoint?: string;
 }
 
 /**
@@ -349,7 +334,6 @@ export async function bootHomePlusRemotes(
   const publicOriginAsTransport = options.publicOriginAsTransport ?? false;
   const enableFederationWorkers = options.enableFederationWorkers ?? false;
   const livekit = options.enableLiveKit ? { ...TEST_LIVEKIT } : undefined;
-  const directoryEndpoint = options.directoryEndpoint;
   const runId = crypto.randomBytes(4).toString('hex');
   // From packages/server/test/helpers → repo root is up four levels: helpers → test → server → packages → repo-root.
   const runDir = path.resolve(__dirname, `../../../../tests/.tmp/${runId}`);
@@ -365,7 +349,6 @@ export async function bootHomePlusRemotes(
     publicOriginAsTransport,
     enableFederationWorkers,
     livekit,
-    directoryEndpoint,
   });
 
   const remotes: SpawnedInstance[] = [];
@@ -381,7 +364,6 @@ export async function bootHomePlusRemotes(
       publicOriginAsTransport,
       enableFederationWorkers,
       livekit,
-      directoryEndpoint,
     });
     remotes.push(r);
   }

@@ -159,6 +159,24 @@ designated => identifier "com.example.app" and anchor apple generic and
 
 ## Experimental native SDR capture
 
+The borderless native binding is privileged-only: it accepts bounded request
+ids/callbacks from main, never an arbitrary renderer. Allowed consent creates
+an expiring one-use preparation required by native start; cancellation and
+environment shutdown retire it. The permission TSFN is unreferenced so an
+unanswered OS dialog cannot keep the process alive, and cleanup stops the
+polled/cancellable OS operation before releasing callback ownership. No OS
+privacy setting, registry value, Electron sandbox or fuse is disabled. Another
+application can still require Windows' indicator for its own capture.
+
+Consent is reached only through validated Force SDR source preselection, not
+an independent renderer permission IPC. Before Chromium/raw capture main waits
+for consent, checks the original frame/focus/generation again, and timestamps
+its prepared source. The display-media handler must confirm the same source
+once before native start can consume both the host grant and native permission
+preparation. Expired preselection denies capture instead of opening a fallback
+picker. Native/session failures never publish raw video as a successful SDR
+share. Ordinary capture remains a separate user choice, not a failure fallback.
+
 The opt-in SDR work under `native/sdr-capture` now has a narrow main/preload
 bridge and web track integration. Windows packaging verifies its target-only
 native resource before fuse checks; this is not a runtime capture test. Only

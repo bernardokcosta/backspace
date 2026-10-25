@@ -71,7 +71,7 @@ Adds `detached_home_instance`, `detached_home_user_id` and their index. The data
 | inviteCode | text UNIQUE | | |
 | visibility | text | `'private'` | public/request/private |
 | description | text | | |
-| directoryListed | integer NOT NULL | 0 | The owner asked for this space to be listed in the space directory. Refused on a private space (`400 directory_private_space`) and cleared in the same write when a listed space goes private. Served on `GET /api/directory/spaces` only while `instance_settings.directoryEnabled` and `discoveryEnabled` are both 1. See [directory.md](directory.md). |
+| directoryListed | integer NOT NULL | 0 | Legacy flag, inert since 1.15.2. Preserved unchanged, including when visibility becomes private; absent from active wire contracts. See [directory.md](directory.md). |
 | afkChannelId | text | | A voice channel of this space that idle members are moved to, null when the feature is off (migration `0043_space_afk`). Validated on write, never by FK: a deleted or converted channel simply disables the move. |
 | afkTimeoutSeconds | integer NOT NULL | 300 | Seconds of voice inactivity before the move; one of `AFK_TIMEOUT_OPTIONS` (60/300/900/1800/3600). Stored even while no channel is set. |
 | createdAt | integer NOT NULL | | |
@@ -492,7 +492,7 @@ The user INSERT, `usedCount` increment, and redemption row INSERT all run in a s
 | instanceName | text | `'Backspace'` | |
 | workerId | integer | | Snowflake worker ID |
 | instanceId | text | | Persistent instance epoch (incarnation UUID). Minted once per DB by `ensureDefaults` and guaranteed non-null after boot. Discriminator that lets peers detect this instance was factory-reset (new DB → new epoch on same origin). See [federation.md → Instance-Epoch Self-Healing]. |
-| discoveryEnabled | integer NOT NULL | 1 | |
+| discoveryEnabled | integer NOT NULL | 1 | Legacy space-discovery flag, inert since 1.15.2; not the separate user discoverability setting. |
 | maxBitrateKbps | integer NOT NULL | 20000 | |
 | minBitrateKbps | integer NOT NULL | 500 | |
 | bitrateStepKbps | integer NOT NULL | 500 | |
@@ -515,12 +515,12 @@ The user INSERT, `usedCount` increment, and redemption row INSERT all run in a s
 | telemetryLastDay | text | | Last UTC day (`YYYY-MM-DD`) successfully reported. |
 | telemetryLastError | text | | JSON `{ day, status }` of the last failed attempt, null after a success. |
 | telemetryDeclinedVersion | text | | The server version running when telemetry was last switched off (by the modal, the panel, `install.sh` or a receiver `410`). The ask returns on the next minor release; null for a no recorded before the column existed, which is asked once more. |
-| directoryEnabled | integer NOT NULL | 0 | The admin allows spaces on this instance to be listed in the space directory. Never 1 while `discoveryEnabled` is 0: both settings PATCH routes clear it in the same write that turns discovery off, and `directoryEnabled: true` with discovery off is refused (`400 directory_requires_discovery`). |
-| directoryDirty | integer NOT NULL | 0 | A directory ping is owed. Set by `markDirectoryDirty()` on every change to the served document except member counts; cleared by a ping the hub accepted, and only if nothing changed while it was in flight. Survives restarts and the toggle being off. |
-| directoryLastPingAt | integer | | Epoch ms of the last directory ping the hub accepted, null before the first. |
-| directoryLastError | text | | JSON `DirectoryPingError` (`{ at, status, reason? }`) of the last failed directory ping, null after a success. Also the per-day guard for the daily slot: the pinger will not retry a failing hub by the slot on a day that already recorded an error. See [directory.md](directory.md). |
-| directoryBrowseEnabled | integer NOT NULL | 1 | The admin allows people on this instance to see spaces from other instances in Explore ("Outer Space"). The incoming half of the directory, independent of `directoryEnabled`, which is the outgoing half. `GET /api/directory` answers `404 directory_disabled` while it is 0, and `instance/info` reports `directoryAvailable: false`. Default 1, which is what every instance did before the column existed. `DIRECTORY_ENDPOINT` sits above it: with no endpoint there is nothing to browse whatever it says. Nowhere in the served document, so changing it never marks `directoryDirty`. See [directory.md](directory.md). |
-| supportCardEnabled | integer (boolean mode) NOT NULL | 1 | The web client's Backspace page shows the Support card, which links to the project's Ko-fi page. Read only by the web client, through `supportCardEnabled` on `GET /api/instance/info`; it hides only that card and changes nothing the server does. Default 1; migration `0017_fat_rafael_vega.sql` adds it, and an existing row takes the default. Written through `PATCH /api/settings/instance`. |
+| directoryEnabled | integer NOT NULL | 0 | Legacy directory setting, inert since 1.15.2. |
+| directoryDirty | integer NOT NULL | 0 | Legacy directory state, inert since 1.15.2; no ping is owed or scheduled. |
+| directoryLastPingAt | integer | | Legacy timestamp, preserved unchanged. |
+| directoryLastError | text | | Legacy serialized error, preserved unchanged and no longer parsed. |
+| directoryBrowseEnabled | integer NOT NULL | 1 | Legacy browsing setting, inert since 1.15.2. |
+| supportCardEnabled | integer (boolean mode) NOT NULL | 1 | Legacy hub setting, inert since 1.15.2. Neither exposed nor writable through active APIs. |
 | installedAt | integer | | First-boot timestamp (epoch ms). Backfilled by `ensureDefaults` from the oldest local non-deleted account, or `Date.now()` on a fresh DB, so it is non-null after boot and never overwritten. |
 | ledgerStartedAt | integer | | When this instance began recording applied relay events in `federation_applied_events` (epoch ms): set by migration 0022 on an existing instance, null on one that ran it before its first boot. The pull reads no friend event older than it (federation.md "Pull sync", "Cursor") |
 | updatedAt | integer NOT NULL | | |

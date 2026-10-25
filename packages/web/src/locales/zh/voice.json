@@ -87,6 +87,16 @@
     "remoteParticipant": "远端参与者"
   },
   "screenPicker": {
+    "borderless": {
+      "deniedUser": "未获准在没有 Windows 捕获边框的情况下共享。共享已被阻止。",
+      "deniedSystem": "Windows 或管理员阻止了无边框捕获。请先允许访问，再重试。",
+      "notDeclared": "当前安装无法请求无边框捕获。请更新或修复桌面应用。",
+      "unsupported": "此应用或 Windows 版本不支持无边框 SDR 捕获。使用强制 SDR 共享前请先更新。",
+      "cancelled": "无边框捕获请求已取消。未开始直播。",
+      "timeout": "Windows 未及时完成权限请求。未开始直播。",
+      "failed": "无法确认无边框捕获权限。共享仍被阻止。",
+      "requestAgain": "重新请求权限"
+    },
     "title": "共享屏幕",
     "tabs": {
       "screens": "屏幕",

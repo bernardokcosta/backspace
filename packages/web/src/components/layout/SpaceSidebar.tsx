@@ -3,12 +3,11 @@ import { SpaceUnreadBadge } from './SpaceUnreadBadge';
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useSpaceStore, getMyUserIdForOrigin } from '../../stores/spaceStore';
 import type { TaggedSpace } from '../../stores/spaceStore';
 import { resolveSpaceLayout, type ResolvedSpaceLayoutItem } from '../../utils/spaceLayout';
 import { spaceInviteUrl } from '../../utils/inviteParser';
-import { activeHomeNavItem } from '../../utils/homeNav';
 import { useChatStore } from '../../stores/chatStore';
 import { useUIStore } from '../../stores/uiStore';
 import { useInstanceStore } from '../../stores/instanceStore';
@@ -50,7 +49,7 @@ interface SidebarItemProps {
   onClick: () => void;
   onContextMenu?: (e: React.MouseEvent) => void;
   type?: 'space' | 'dm' | 'action';
-  actionType?: 'add' | 'join' | 'explore';
+  actionType?: 'add' | 'join';
   hasUnread?: boolean;
   dimmed?: boolean;
   federationBadge?: boolean;
@@ -122,10 +121,6 @@ function SidebarItem({ id, name, icon, avatarColor, active, onClick, onContextMe
         actionType === 'add' ? (
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" />
-          </svg>
-        ) : actionType === 'explore' ? (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5.5-2.5l7.51-3.49L17.5 6.5 9.99 9.99 6.5 17.5zm5.5-6.6c.61 0 1.1.49 1.1 1.1s-.49 1.1-1.1 1.1-1.1-.49-1.1-1.1.49-1.1 1.1-1.1z" />
           </svg>
         ) : (
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -615,12 +610,10 @@ export function SpaceSidebar() {
   const openModal = useUIStore((s) => s.openModal);
   const addToast = useUIStore((s) => s.addToast);
   const floatingPanelHeight = useUIStore((s) => s.floatingPanelHeight);
-  const currentChannelId = useChatStore((s) => s.currentChannelId);
   const setCurrentChannel = useChatStore((s) => s.setCurrentChannel);
   const unreadChannels = useChatStore((s) => s.unreadChannels);
   const instances = useInstanceStore((s) => s.instances);
   const navigate = useNavigate();
-  const location = useLocation();
 
   // Flyout state
   const [openFolderId, setOpenFolderId] = useState<string | null>(null);
@@ -776,12 +769,6 @@ export function SpaceSidebar() {
     setCurrentSpace(null);
     setCurrentChannel(null);
     navigate('/channels/@me');
-  };
-
-  const handleExploreClick = () => {
-    setCurrentSpace(null);
-    setCurrentChannel(null);
-    navigate('/explore');
   };
 
   // ─── DnD handlers ──────────────────────────────────────────────────────
@@ -1087,7 +1074,7 @@ export function SpaceSidebar() {
         name={t('spaces:sidebar.directMessages')}
         // The Backspace page is reached from the DM sidebar, so `@me` stays
         // lit there; `showDms` alone is only set on the `@me` route.
-        active={showDms || activeHomeNavItem(location.pathname, currentChannelId) === 'backspace'}
+        active={showDms}
         onClick={handleDmClick}
         type="dm"
         hasUnread={hasDmUnread}
@@ -1234,15 +1221,6 @@ export function SpaceSidebar() {
         onClick={() => openModal('joinSpace')}
         type="action"
         actionType="join"
-      />
-
-      <SidebarItem
-        id="explore"
-        name={t('spaces:sidebar.exploreSpaces')}
-        active={location.pathname === '/explore'}
-        onClick={handleExploreClick}
-        type="action"
-        actionType="explore"
       />
 
       {transferModalSpaceId && (

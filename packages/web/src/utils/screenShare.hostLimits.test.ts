@@ -25,9 +25,6 @@ const HOME_LIMITS: InstanceStreamingLimits = {
   allowedFramerates: [30, 45, 60],
   maxResolution: 1080,
   maxFramerate: 60,
-  discoveryEnabled: true,
-  directoryEnabled: false,
-  directoryConfigured: false,
   bitrateMatrixOverrides: null,
   allowCustomBitrate: true,
 };

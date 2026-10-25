@@ -87,7 +87,7 @@ describe('buildVoiceModMenuItems role hierarchy', () => {
       currentSpaceId: 'space-1',
       spaces: [{
         id: 'space-1', name: 'Space', icon: null, banner: null, avatarColor: null, ownerId: 'owner',
-        inviteCode: null, visibility: 'public', directoryListed: false, description: null, createdAt: 1, _instanceOrigin: '',
+        inviteCode: null, visibility: 'public', description: null, createdAt: 1, _instanceOrigin: '',
       }],
       members: [
         member('me', [role('r-helper', 2)]),

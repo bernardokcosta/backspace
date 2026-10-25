@@ -15,8 +15,6 @@ import { useInstanceStore, resolveSessionApiForHome } from './instanceStore';
 import { useActivityStore } from './activityStore';
 import { useDeveloperModeStore } from './developerModeStore';
 import { useSettingsStore } from './settingsStore';
-import { useExploreStore } from './exploreStore';
-import { useDirectoryStore } from './directoryStore';
 import { useNotificationSettingsStore } from './notificationSettingsStore';
 import { deleteAccountOnRemotes } from '../utils/federationOps';
 import { homeHostOf, homeIdentityOf, isMine, ownRowAt, selfIdentityOf, type IdentityFields, type SelfIdentity } from '../utils/identity';
@@ -64,20 +62,6 @@ interface AuthState {
 
 /**
  * Reset all user-scoped stores to prevent data leaking between sessions.
- *
- * `exploreStore` is in this list because `myRequests` holds the signed-in
- * user's own pending join requests: without the call, signing in as someone
- * else showed the previous account's rows until the new session's first
- * fan-out replaced them, and "Request Pending" on a card is a statement about
- * whoever is signed in now. Its `spaces` are a discoverable list rather than
- * private data, but they are one account's view of it, assembled from the
- * instances that account was connected to.
- *
- * `directoryStore` is in it because the feed it holds is fetched through the
- * home instance's proxy as the signed-in user, and because both stores' own
- * `reset()` bump the sequence counters that orphan a fan-out still in flight
- * when the session ends. Leaving either out meant a reply for the old session
- * could land in the new one.
  */
 function resetUserStores() {
   useChatStore.getState().clearAllMessages();
@@ -90,8 +74,6 @@ function resetUserStores() {
   useVoiceStore.getState().resetSession();
   useInstanceStore.getState().reset();
   useActivityStore.getState().reset();
-  useExploreStore.getState().reset();
-  useDirectoryStore.getState().reset();
   useNotificationSettingsStore.getState().reset();
   useSettingsStore.getState().resetUpdateState();
   useDeveloperModeStore.getState().reset();

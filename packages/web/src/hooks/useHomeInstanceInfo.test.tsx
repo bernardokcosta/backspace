@@ -17,10 +17,7 @@ function info(over: Partial<InstanceInfoResponse> = {}): InstanceInfoResponse {
     instanceId: 'instance-1',
     sourceCodeUrl: 'https://github.com/TheZwiss/backspace',
     commit: null,
-    directoryConfigured: false,
-    directoryAvailable: false,
-    directoryEnabled: false,
-    supportCardEnabled: true,
+    maxStickerSizeMb: 10,
     ...over,
   };
 }
@@ -103,20 +100,20 @@ describe('useHomeInstanceInfo', () => {
   });
 
   it('keeps the last value visible while an invalidate rereads, then replaces it', async () => {
-    const spy = vi.spyOn(api.instance, 'info').mockResolvedValueOnce(info({ supportCardEnabled: true }));
+    const spy = vi.spyOn(api.instance, 'info').mockResolvedValueOnce(info({ maxStickerSizeMb: 10 }));
 
     const hook = renderHook(() => useHomeInstanceInfo());
-    await waitFor(() => expect(hook.result.current?.supportCardEnabled).toBe(true));
+    await waitFor(() => expect(hook.result.current?.maxStickerSizeMb).toBe(10));
 
     const reread = deferred<InstanceInfoResponse>();
     spy.mockReturnValueOnce(reread.promise);
     act(() => { invalidateHomeInstanceInfo(); });
 
     expect(spy).toHaveBeenCalledTimes(2);
-    expect(hook.result.current?.supportCardEnabled).toBe(true);
+    expect(hook.result.current?.maxStickerSizeMb).toBe(10);
 
-    await act(async () => { reread.resolve(info({ supportCardEnabled: false })); await reread.promise; });
-    expect(hook.result.current?.supportCardEnabled).toBe(false);
+    await act(async () => { reread.resolve(info({ maxStickerSizeMb: 42 })); await reread.promise; });
+    expect(hook.result.current?.maxStickerSizeMb).toBe(42);
   });
 
   it('keeps the last value when the reread after an invalidate fails', async () => {
@@ -154,7 +151,7 @@ describe('useHomeInstanceInfo', () => {
   });
 
   it('only marks the value stale on invalidate when nothing is subscribed; the next mount shows it and rereads', async () => {
-    const spy = vi.spyOn(api.instance, 'info').mockResolvedValueOnce(info({ supportCardEnabled: true }));
+    const spy = vi.spyOn(api.instance, 'info').mockResolvedValueOnce(info({ maxStickerSizeMb: 10 }));
 
     const first = renderHook(() => useHomeInstanceInfo());
     await waitFor(() => expect(first.result.current).not.toBeNull());
@@ -163,10 +160,10 @@ describe('useHomeInstanceInfo', () => {
     invalidateHomeInstanceInfo();
     expect(spy).toHaveBeenCalledTimes(1);
 
-    spy.mockResolvedValueOnce(info({ supportCardEnabled: false }));
+    spy.mockResolvedValueOnce(info({ maxStickerSizeMb: 42 }));
     const again = renderHook(() => useHomeInstanceInfo());
-    expect(again.result.current?.supportCardEnabled).toBe(true);
-    await waitFor(() => expect(again.result.current?.supportCardEnabled).toBe(false));
+    expect(again.result.current?.maxStickerSizeMb).toBe(10);
+    await waitFor(() => expect(again.result.current?.maxStickerSizeMb).toBe(42));
     expect(spy).toHaveBeenCalledTimes(2);
   });
 
@@ -197,9 +194,9 @@ describe('useHomeInstanceInfo', () => {
     act(() => { invalidateHomeInstanceInfo(); });
     expect(spy).toHaveBeenCalledTimes(2);
 
-    await act(async () => { fresh.resolve(info({ supportCardEnabled: false })); await fresh.promise; });
-    await act(async () => { stale.resolve(info({ supportCardEnabled: true })); await stale.promise; });
+    await act(async () => { fresh.resolve(info({ maxStickerSizeMb: 42 })); await fresh.promise; });
+    await act(async () => { stale.resolve(info({ maxStickerSizeMb: 10 })); await stale.promise; });
 
-    expect(hook.result.current?.supportCardEnabled).toBe(false);
+    expect(hook.result.current?.maxStickerSizeMb).toBe(42);
   });
 });

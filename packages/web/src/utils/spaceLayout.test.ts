@@ -13,7 +13,6 @@ function space(id: string): TaggedSpace {
     ownerId: 'u',
     inviteCode: null,
     visibility: 'public',
-    directoryListed: false,
     description: null,
     createdAt: 1,
     _instanceOrigin: '',

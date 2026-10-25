@@ -27,16 +27,13 @@ import { useDragManager, type DropTarget, type LayoutItem } from '../../hooks/us
 import { useDelayedLoading } from '../../hooks/useDelayedLoading';
 import { useAudioDevices } from '../../hooks/useAudioDevices';
 import { useInstanceUpdateBadge } from '../../hooks/useInstanceUpdateBadge';
-import { useHubUpdateState } from '../../hooks/useHubUpdateState';
 import { activeHomeNavItem } from '../../utils/homeNav';
-import { BackspaceMark } from '../projectHub/BackspaceMark';
-import { HubUpdateDot } from '../projectHub/HubUpdateDot';
 import { DropdownItem } from '../modals/settingsPanels/_shared/SettingsPickerPrimitives';
 import type { UserSettingsTab } from '../modals/UserSettings';
 import { ChannelMutedIndicator } from '../notifications/ChannelMutedIndicator';
 
 export function ChannelSidebar() {
-  const { t } = useTranslation(['spaces', 'common', 'project', 'dm']);
+  const { t } = useTranslation(['spaces', 'common', 'dm']);
   const spaces = useSpaceStore((s) => s.spaces);
   const currentSpaceId = useSpaceStore((s) => s.currentSpaceId);
   const loadingSpaceId = useSpaceStore((s) => s.loadingSpaceId);
@@ -66,7 +63,6 @@ export function ChannelSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const activeHomeItem = activeHomeNavItem(location.pathname, currentChannelId);
-  const hubUpdate = useHubUpdateState();
 
   const [floatingPanelEl, setFloatingPanelEl] = useState<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
@@ -485,32 +481,7 @@ export function ChannelSidebar() {
             <span className="font-medium text-[16px]">{t('common:labels.friends')}</span>
           </div>
 
-          <div
-            onClick={() => navigate('/explore')}
-            className={`flex items-center gap-3 px-2 h-[42px] rounded-[6px] cursor-pointer mb-[2px] transition-colors group ${
-              activeHomeItem === 'explore'
-                ? 'bg-interactive-selected text-white'
-                : 'text-txt-tertiary hover:bg-interactive-hover hover:text-txt-secondary'
-            }`}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className={`flex-shrink-0 ${activeHomeItem === 'explore' ? 'text-white' : 'opacity-70 group-hover:opacity-100'}`}>
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5.5-2.5l7.51-3.49L17.5 6.5 9.99 9.99 6.5 17.5zm5.5-6.6c.61 0 1.1.49 1.1 1.1s-.49 1.1-1.1 1.1-1.1-.49-1.1-1.1.49-1.1 1.1-1.1z" />
-            </svg>
-            <span className="font-medium text-[16px]">{t('spaces:sidebar.dmList.explore')}</span>
-          </div>
 
-          <div
-            onClick={() => navigate('/backspace')}
-            className={`flex items-center gap-3 px-2 h-[42px] rounded-[6px] cursor-pointer mb-[2px] transition-colors group ${
-              activeHomeItem === 'backspace'
-                ? 'bg-interactive-selected text-white'
-                : 'text-txt-tertiary hover:bg-interactive-hover hover:text-txt-secondary'
-            }`}
-          >
-            <BackspaceMark className={`flex-shrink-0 ${activeHomeItem === 'backspace' ? 'text-white' : 'opacity-70 group-hover:opacity-100'}`} />
-            <span className="font-medium text-[16px]">{t('project:nav.label')}</span>
-            {hubUpdate.state === 'updated' && <HubUpdateDot className="ml-auto" />}
-          </div>
 
           <div className="mt-[18px] px-2 mb-1 flex items-center justify-between group">
             <span className="text-[12px] font-bold text-txt-tertiary tracking-wider">{t('spaces:sidebar.directMessages')}</span>

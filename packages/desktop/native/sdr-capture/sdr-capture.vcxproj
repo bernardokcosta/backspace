@@ -40,10 +40,12 @@
     <ClCompile Include="source_color.cpp" />
     <ClCompile Include="frame_pool.cpp" />
     <ClCompile Include="capture_session.cpp" />
+    <ClCompile Include="borderless_access.cpp" />
     <ClCompile Include="sdr_texture_test.cpp"><ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild></ClCompile>
     <ClCompile Include="source_color_test.cpp"><ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild></ClCompile>
     <ClCompile Include="frame_pool_test.cpp"><ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild></ClCompile>
     <ClCompile Include="capture_session_test.cpp"><ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="borderless_access_test.cpp"><ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild></ClCompile>
     <ClCompile Include="addon.cpp"><ExcludedFromBuild Condition="'$(Configuration)'=='Tests'">true</ExcludedFromBuild></ClCompile>
     <ClCompile Include="capture_binding.cpp"><ExcludedFromBuild Condition="'$(Configuration)'=='Tests'">true</ExcludedFromBuild></ClCompile>
     <ClCompile Include="delay_load_hook.cpp"><ExcludedFromBuild Condition="'$(Configuration)'=='Tests'">true</ExcludedFromBuild></ClCompile>
@@ -52,6 +54,7 @@
     <ClInclude Include="frame_pool.h" />
     <ClInclude Include="capture_session.h" />
     <ClInclude Include="capture_binding.h" />
+    <ClInclude Include="borderless_access.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

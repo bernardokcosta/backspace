@@ -39,7 +39,7 @@ const SCENES: readonly Scene[] = ['space-settings', 'create-space', 'join-space'
 const SPACE_ID = 'space-1';
 const SPACE: TaggedSpace = {
   id: SPACE_ID, name: 'Aether Drift', icon: null, banner: null, avatarColor: 'lavender', ownerTitle: null, ownerId: 'owner',
-  inviteCode: 'aether', visibility: 'public', directoryListed: false,
+  inviteCode: 'aether', visibility: 'public',
   description: 'A calm place for night owls, synth music and long conversations.', createdAt: 1, _instanceOrigin: '',
 };
 
@@ -63,7 +63,7 @@ function stubFetch(): void {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
     const path = new URL(url, window.location.href).pathname;
     if (path === `/api/spaces/${SPACE_ID}/members`) return json(MEMBERS);
-    if (path.startsWith('/api/explore') || path.startsWith('/api/join-requests')) return json([]);
+    if (path === `/api/spaces/${SPACE_ID}/join-requests`) return json({ requests: [] });
     if (path.startsWith('/api/')) return json({});
     return realFetch(input, init);
   };

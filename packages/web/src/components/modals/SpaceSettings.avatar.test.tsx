@@ -27,7 +27,6 @@ const base: TaggedSpace = {
   ownerId: 'user-1',
   inviteCode: null,
   visibility: 'public',
-  directoryListed: false,
   description: '',
   createdAt: 1,
   _instanceOrigin: '',
@@ -48,7 +47,7 @@ async function openOn(space: TaggedSpace): Promise<HTMLElement> {
 }
 
 beforeEach(() => {
-  vi.spyOn(api.explore, 'getJoinRequests').mockResolvedValue([]);
+  vi.spyOn(api.joinRequests, 'list').mockResolvedValue({ requests: [] });
   useUIStore.setState({ activeModal: null, modalData: {}, isMobile: false });
 });
 

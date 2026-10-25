@@ -142,12 +142,6 @@
   },
   "join": {
     "title": "Einem Space beitreten",
-    "discoverIntro": "Entdecke Spaces, denen du beitreten kannst, oder sieh dir alle unter „Entdecken“ an.",
-    "discoverError": "Die Spaces zum Entdecken konnten gerade nicht geladen werden. Du kannst unten trotzdem mit einem Einladungscode beitreten.",
-    "discoverEmpty": "Noch keine Spaces zum Entdecken. Probier unten einen Einladungscode oder schau später noch einmal vorbei.",
-    "browseExplore": "Alle unter „Entdecken“ ansehen",
-    "discoveryOff": "Das Entdecken von Spaces ist auf dieser Instanz ausgeschaltet. Du kannst trotzdem mit einem Einladungscode beitreten.",
-    "inviteDivider": "Hast du einen Einladungscode?",
     "invitePlaceholder": "z. B. abc123 oder https://instance.com/join/abc123",
     "submit": "Space beitreten",
     "submitting": "Beitritt läuft…",
@@ -167,99 +161,13 @@
       "submitting": "Anmeldung läuft…"
     },
     "request": {
+      "messagePlaceholder": "Warum möchtest du beitreten? (optional)",
+      "send": "Anfrage senden",
+      "sending": "Wird gesendet…",
       "notice": "Dieser Space nimmt Beitrittsanfragen an. Sende eine, und die Verwaltung prüft sie.",
       "messageLabel": "Notiz zu deiner Anfrage",
       "sent": "Anfrage gesendet. Die Verwaltung prüft sie, und sobald sie zustimmt, erscheint der Space in deiner Liste.",
       "pending": "Du hast für diesen Space schon angefragt. Deine Anfrage wartet auf die Verwaltung."
-    }
-  },
-  "explore": {
-    "title": "Entdecken",
-    "searchPlaceholder": "Spaces suchen…",
-    "discoveryOff": {
-      "member": "Deine Instanzverwaltung hat das Entdecken von Spaces ausgeschaltet. Spaces hier sind nur über Einladungslinks erreichbar.",
-      "admin": "Das Entdecken von Spaces ist auf dieser Instanz ausgeschaltet. Spaces hier sind nur über Einladungslinks erreichbar.",
-      "enable": "Entdecken von Spaces einschalten",
-      "failed": "Die Einstellung konnte nicht geändert werden."
-    },
-    "browseOff": {
-      "member": "Spaces von anderen Instanzen werden hier nicht angezeigt, weil deine Instanzverwaltung das ausgeschaltet hat.",
-      "admin": "Spaces von anderen Instanzen werden hier nicht angezeigt.",
-      "action": "Globale Spaces in „Entdecken“ anzeigen",
-      "confirm": {
-        "title": "Spaces von anderen Instanzen hier anzeigen?",
-        "exposure": "Diese Instanzen sehen die IP-Adresse jedes Browsers, der etwas davon lädt, und die Verwaltung dieser Instanz hat keine Kontrolle über sie.",
-        "off": "Zum späteren Beenden: Einstellungen, Instanz, Allgemein, der Schalter für globale Spaces in „Entdecken“.",
-        "action": "Globale Spaces anzeigen"
-      }
-    },
-    "notListed": {
-      "text": "Kein Space von hier ist im öffentlichen Verzeichnis eingetragen.",
-      "action": "Eintragen",
-      "confirm": {
-        "title": "Spaces dieser Instanz öffentlich eintragen?",
-        "optIn": "Übertragen werden nur Spaces, deren Besitzer den Eintrag selbst einschalten; dieser Schalter trägt von sich aus keinen Space ein.",
-        "off": "Zum späteren Beenden: Einstellungen, Instanz, Allgemein, die Auswahl zum Entdecken von Spaces.",
-        "action": "Spaces eintragen"
-      }
-    },
-    "noMatches": "Keine Spaces passen zu deiner Suche.",
-    "empty": "Noch keine Spaces zum Entdecken.",
-    "joinedSection": "Beigetreten",
-    "notConnected": "Keine Verbindung zu {{host}}",
-    "inner": {
-      "title": "Innerer Space",
-      "subtitle": "Spaces auf deinen Instanzen",
-      "noneAnswered": "Keine Instanz hat geantwortet. Der innere Space bleibt leer, bis eine antwortet.",
-      "unreachable_one": "{{hosts}} ist nicht erreichbar. Spaces auf dieser Instanz werden nicht angezeigt.",
-      "unreachable_other": "{{hosts}} sind nicht erreichbar. Spaces auf diesen Instanzen werden nicht angezeigt."
-    },
-    "outer": {
-      "title": "Äußerer Space",
-      "subtitle": "Communities in ganz Backspace",
-      "empty": "Da draußen ist noch nichts. Spaces, die sich ins Verzeichnis eintragen, erscheinen hier.",
-      "noMatches": "Im Äußeren Space passt nichts zu deiner Suche.",
-      "showMore": "Mehr anzeigen",
-      "connectAndJoin": "Verbinden und beitreten",
-      "connectAndRequest": "Verbinden und anfragen",
-      "closedBadge": "Keine neuen Konten"
-    },
-    "connections": {
-      "title": "Verbindungen, die Aufmerksamkeit brauchen",
-      "sessionExpired": "Anmeldung abgelaufen",
-      "unreachable": "nicht erreichbar",
-      "reconnect": "Erneut anmelden",
-      "retry": "Erneut versuchen"
-    },
-    "connect": {
-      "title": "{{name}} beitreten",
-      "intro": "Dieser Space liegt auf <host>{{host}}</host>. Beim Verbinden wird dort deine Identität angelegt, verknüpft mit deinem Konto auf <home>{{home}}</home>.",
-      "probing": "Verbindung zu {{host}} wird geprüft…",
-      "connecting": "Verbindung wird hergestellt…",
-      "requested": "Deine Anfrage für {{name}} wurde gesendet."
-    },
-    "badges": {
-      "joined": "Beigetreten",
-      "public": "Öffentlich",
-      "request": "Auf Anfrage"
-    },
-    "noDescription": "Keine Beschreibung",
-    "memberCount_one": "{{count}} Mitglied",
-    "memberCount_other": "{{count}} Mitglieder",
-    "viewSpace": "Space öffnen",
-    "join": "Space beitreten",
-    "joining": "Beitritt läuft…",
-    "requestPending": "Anfrage ausstehend",
-    "requestMessagePlaceholder": "Warum möchtest du beitreten? (optional)",
-    "sendRequest": "Anfrage senden",
-    "sendingRequest": "Wird gesendet…",
-    "requestToJoin": "Beitritt anfragen",
-    "preview": {
-      "join": "Beitreten",
-      "joining": "Beitritt läuft…",
-      "pending": "Ausstehend",
-      "request": "Anfragen",
-      "sending": "Wird gesendet…"
     }
   },
   "settings": {
@@ -270,7 +178,6 @@
       "management": "Verwaltung",
       "tabs": {
         "overview": "Übersicht",
-        "discovery": "Entdecken",
         "roles": "Rollen",
         "bans": "Sperren"
       }
@@ -306,12 +213,11 @@
         "failed": "Space konnte nicht gelöscht werden"
       }
     },
-    "discovery": {
-      "title": "Entdecken",
-      "disabledNotice": "Das Entdecken von Spaces wurde von der Instanzverwaltung ausgeschaltet. Eine geänderte Sichtbarkeit wirkt sich erst aus, wenn es wieder eingeschaltet ist.",
+    "access": {
+      "title": "Zugang und Beschreibung",
       "visibility": {
         "label": "Sichtbarkeit",
-        "hint": "Lege fest, wer diesen Space finden und ihm beitreten kann.",
+        "hint": "Lege fest, wie Personen mit einer Einladung diesem Space beitreten.",
         "options": {
           "private": {
             "label": "Privat",
@@ -319,29 +225,18 @@
           },
           "request": {
             "label": "Beitritt auf Anfrage",
-            "description": "Unter „Entdecken“ sichtbar; Beitritt kann angefragt werden"
+            "description": "Eine Einladung führt zu einer Anfrage, die die Verwaltung genehmigen muss"
           },
           "public": {
             "label": "Öffentlich",
-            "description": "Unter „Entdecken“ sichtbar; alle können sofort beitreten"
+            "description": "Personen mit einer Einladung können sofort beitreten"
           }
         }
       },
-      "directory": {
-        "label": "Ins globale Backspace-Verzeichnis eintragen",
-        "hint": "Zeigt diesen Space auf jeder Backspace-Instanz im Äußeren Space.",
-        "notConfigured": "Diese Instanz ist nicht so eingerichtet, dass sie ein Verzeichnis erreicht; dieser Space kann also nirgends eingetragen werden.",
-        "adminOff": "Die Instanzverwaltung muss erst das globale Eintragen erlauben.",
-        "adminOffSelf": "Globales Eintragen ist auf dieser Instanz nicht erlaubt.",
-        "adminOffSelfAction": "Einschalten",
-        "adminOffSelfIntro": "Damit wird globales Eintragen für die ganze Instanz erlaubt: Spaces hier lassen sich in „Entdecken“ finden, und die Instanz meldet sich beim öffentlichen Verzeichnis an.",
-        "privateSpace": "Stell die Sichtbarkeit zuerst auf „Öffentlich“ oder „Beitritt auf Anfrage“.",
-        "disclosure": "Der Eintrag macht öffentlich: Name, Beschreibung, Icon, Banner und Mitgliederzahl des Spaces sowie die Adresse dieser Instanz. Wer das Verzeichnis durchstöbert, lädt Icon und Banner von dieser Instanz."
-      },
       "description": {
         "label": "Beschreibung",
-        "hint": "Eine kurze Zusammenfassung, die unter „Entdecken“ angezeigt wird.",
-        "placeholder": "Eine kurze Beschreibung für die Seite „Entdecken“…",
+        "hint": "Eine kurze Zusammenfassung für Einladungen zu diesem Space.",
+        "placeholder": "Eine kurze Beschreibung dieses Space…",
         "counter": "{{length}}/{{max}}"
       },
       "requests": {
@@ -518,7 +413,6 @@
     "directMessages": "Direktnachrichten",
     "addSpace": "Space hinzufügen",
     "joinSpace": "Space beitreten",
-    "exploreSpaces": "Spaces entdecken",
     "folder": {
       "tooltip_one": "Ordner ({{count}})",
       "tooltip_other": "Ordner ({{count}})",
@@ -557,7 +451,6 @@
       "unreadMessagesOver99": "Mehr als 99 ungelesene Nachrichten"
     },
     "dmList": {
-      "explore": "Entdecken",
       "newDm": "Neue Direktnachricht",
       "empty": "Noch keine Unterhaltungen.",
       "leaveGroup": "Gruppe verlassen",
@@ -645,8 +538,7 @@
   "mobile": {
     "addSheet": {
       "createSpace": "Space erstellen",
-      "joinSpace": "Space beitreten",
-      "exploreSpaces": "Spaces entdecken"
+      "joinSpace": "Space beitreten"
     },
     "muteUser": "Nutzer stummschalten"
   },

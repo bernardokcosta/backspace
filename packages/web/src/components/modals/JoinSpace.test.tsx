@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
@@ -16,10 +16,12 @@ vi.mock('../../audio/AudioManager', () => ({
 
 import { JoinSpaceModal } from './JoinSpace';
 import { useUIStore } from '../../stores/uiStore';
-import { useSpaceStore } from '../../stores/spaceStore';
-import { useExploreStore } from '../../stores/exploreStore';
+import { useSpaceStore, NotConnectedError } from '../../stores/spaceStore';
+import { useInstanceStore, RemoteLoginRequiredError } from '../../stores/instanceStore';
 import { HttpError } from '../../api/client';
 import { JoinRequestRequiredError } from '../../utils/joinErrors';
+import { sendInviteJoinRequest } from '../../utils/inviteJoinRequest';
+vi.mock('../../utils/inviteJoinRequest', () => ({ sendInviteJoinRequest: vi.fn() }));
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -31,25 +33,17 @@ vi.mock('react-router-dom', async () => {
 });
 
 beforeEach(() => {
+  vi.stubGlobal('fetch', vi.fn());
+  vi.mocked(sendInviteJoinRequest).mockReset().mockResolvedValue('sent');
   mockNavigate.mockClear();
   useUIStore.setState({ activeModal: null });
   useSpaceStore.setState({
     spaces: [],
     currentSpaceId: null,
   });
-  useExploreStore.setState({
-    spaces: [],
-    myRequests: [],
-    isLoading: false,
-    discoveryEnabled: true,
-    error: null,
-    fetchSpaces: vi.fn().mockResolvedValue(undefined),
-    fetchMyRequests: vi.fn().mockResolvedValue(undefined),
-    publicJoin: vi.fn().mockResolvedValue({ id: 'p1', name: 'Preview Space' }),
-    requestJoin: vi.fn().mockResolvedValue({ id: 'r1', spaceId: 'p1', status: 'pending' }),
-  });
   useUIStore.setState({ isMobile: false });
 });
+afterEach(() => { vi.unstubAllGlobals(); });
 
 function renderModal() {
   return render(
@@ -60,6 +54,44 @@ function renderModal() {
 }
 
 describe('JoinSpaceModal', () => {
+  it('connects to the explicit invitation origin with the existing password flow', async () => {
+    const user = userEvent.setup();
+    const origin = 'https://orbit.example';
+    const join = vi.fn().mockRejectedValueOnce(new NotConnectedError(origin)).mockResolvedValueOnce({ id: 'remote-space' });
+    const connect = vi.fn().mockResolvedValue(undefined);
+    useSpaceStore.setState({ joinByCode: join });
+    useInstanceStore.setState({ connectToRemote: connect });
+    useUIStore.setState({ activeModal: 'joinSpace' }); renderModal();
+    await user.type(screen.getByPlaceholderText('e.g. abc123 or https://instance.com/join/abc123'), `${origin}/join/code`);
+    await user.click(screen.getByRole('button', { name: 'Join Space' }));
+    await user.type(await screen.findByPlaceholderText('Your account password'), 'fixture-password');
+    await user.click(screen.getByRole('button', { name: 'Connect & Join' }));
+    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/channels/remote-space'));
+    expect(connect).toHaveBeenCalledWith(origin, 'fixture-password', undefined);
+    expect(join).toHaveBeenLastCalledWith('code', origin);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+  it('retains explicit remote-account fallback without any directory lookup', async () => {
+    const user = userEvent.setup();
+    const origin = 'https://orbit.example';
+    const join = vi.fn().mockRejectedValueOnce(new NotConnectedError(origin)).mockResolvedValueOnce({ id: 'remote-space' });
+    const login = vi.fn().mockResolvedValue(undefined);
+    useSpaceStore.setState({ joinByCode: join });
+    useInstanceStore.setState({
+      connectToRemote: vi.fn().mockRejectedValue(new RemoteLoginRequiredError('mira', 'credential-refused')),
+      loginToRemote: login,
+    });
+    useUIStore.setState({ activeModal: 'joinSpace' }); renderModal();
+    await user.type(screen.getByPlaceholderText('e.g. abc123 or https://instance.com/join/abc123'), `${origin}/join/code`);
+    await user.click(screen.getByRole('button', { name: 'Join Space' }));
+    await user.type(await screen.findByPlaceholderText('Your account password'), 'home-password');
+    await user.click(screen.getByRole('button', { name: 'Connect & Join' }));
+    await user.type(await screen.findByPlaceholderText('Password on the remote instance'), 'remote-password');
+    await user.click(screen.getByRole('button', { name: 'Login & Join' }));
+    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/channels/remote-space'));
+    expect(login).toHaveBeenCalledWith(origin, 'mira', 'remote-password');
+    expect(fetch).not.toHaveBeenCalled();
+  });
   it('does not render when activeModal is not "joinSpace"', () => {
     useUIStore.setState({ activeModal: null });
     renderModal();
@@ -136,76 +168,14 @@ describe('JoinSpaceModal', () => {
     });
   });
 
-  it('shows the discovery heading and fetches spaces on open', () => {
+  it('opens only the invitation path, without fetching or previewing discovery', () => {
     useUIStore.setState({ activeModal: 'joinSpace' });
     renderModal();
-    expect(screen.getByText(/Discover spaces to join/i)).toBeInTheDocument();
-    expect(useExploreStore.getState().fetchSpaces).toHaveBeenCalled();
-    expect(screen.getByText('Browse all in Explore')).toBeInTheDocument();
+    expect(screen.queryByText(/Discover spaces to join/i)).toBeNull();
+    expect(fetch).not.toHaveBeenCalled();
+    expect(screen.queryByText('Browse all in Explore')).toBeNull();
   });
 
-  it('renders live preview cards for unjoined discoverable spaces', () => {
-    useExploreStore.setState({
-      spaces: [{
-        id: 'p1', name: 'Preview Space', icon: null, banner: null, avatarColor: null,
-        description: null, visibility: 'public', memberCount: 4, createdAt: 0,
-        joined: false, _instanceOrigin: '',
-      }],
-    });
-    useUIStore.setState({ activeModal: 'joinSpace' });
-    renderModal();
-    expect(screen.getByText('Preview Space')).toBeInTheDocument();
-  });
-
-  it('Browse all navigates to /explore on desktop and closes the modal', async () => {
-    const user = userEvent.setup();
-    useUIStore.setState({ activeModal: 'joinSpace', isMobile: false });
-    renderModal();
-    await user.click(screen.getByText('Browse all in Explore'));
-    expect(mockNavigate).toHaveBeenCalledWith('/explore');
-    expect(useUIStore.getState().activeModal).toBeNull();
-  });
-
-  it('Browse all uses the mobile screen stack when on mobile', async () => {
-    const user = userEvent.setup();
-    const pushMobileScreen = vi.fn();
-    useUIStore.setState({ activeModal: 'joinSpace', isMobile: true, pushMobileScreen });
-    renderModal();
-    await user.click(screen.getByText('Browse all in Explore'));
-    expect(pushMobileScreen).toHaveBeenCalledWith('explore');
-    expect(mockNavigate).not.toHaveBeenCalledWith('/explore');
-  });
-
-  it('shows loading skeletons while discovery is fetching with no spaces yet', () => {
-    useExploreStore.setState({ isLoading: true, spaces: [] });
-    useUIStore.setState({ activeModal: 'joinSpace' });
-    renderModal();
-    // The skeleton branch (discoveryLoading && previewSpaces.length === 0)
-    // renders placeholder rows marked with `animate-pulse`.
-    expect(document.querySelectorAll('.animate-pulse').length).toBeGreaterThan(0);
-  });
-
-  it('degrades to the invite path when discovery fails to load', () => {
-    useExploreStore.setState({ error: 'boom', spaces: [], isLoading: false });
-    useUIStore.setState({ activeModal: 'joinSpace' });
-    renderModal();
-    // Discovery failure shows a degrade note...
-    expect(screen.getByText(/Couldn.t load spaces/i)).toBeInTheDocument();
-    // ...but the invite input stays usable so the user can still join.
-    expect(
-      screen.getByPlaceholderText('e.g. abc123 or https://instance.com/join/abc123')
-    ).toBeInTheDocument();
-  });
-
-  it('hides discovery and shows a notice when discovery is disabled', () => {
-    useExploreStore.setState({ discoveryEnabled: false });
-    useUIStore.setState({ activeModal: 'joinSpace' });
-    renderModal();
-    expect(screen.getByText(/discovery is turned off/i)).toBeInTheDocument();
-    expect(screen.queryByText('Browse all in Explore')).not.toBeInTheDocument();
-    // invite path still available
-    expect(screen.getByPlaceholderText('e.g. abc123 or https://instance.com/join/abc123')).toBeInTheDocument();
-  });
 
   describe('a code of a space joined by request', () => {
     function requestRequired(): JoinRequestRequiredError {
@@ -223,9 +193,8 @@ describe('JoinSpaceModal', () => {
 
     it('moves to a request step and sends the request with the note', async () => {
       const user = userEvent.setup();
-      const requestJoinSpace = vi.fn().mockResolvedValue({ id: 'jr-1', spaceId: 'S-REQ', status: 'pending' });
+      const requestJoinSpace = vi.mocked(sendInviteJoinRequest);
       useSpaceStore.setState({ joinByCode: vi.fn().mockRejectedValue(requestRequired()) });
-      useExploreStore.setState({ requestJoinSpace });
       useUIStore.setState({ activeModal: 'joinSpace' });
       renderModal();
 
@@ -243,9 +212,7 @@ describe('JoinSpaceModal', () => {
     it('says a request is already waiting', async () => {
       const user = userEvent.setup();
       useSpaceStore.setState({ joinByCode: vi.fn().mockRejectedValue(requestRequired()) });
-      useExploreStore.setState({
-        requestJoinSpace: vi.fn().mockRejectedValue(new HttpError(409, 'pending', undefined, 'join_request_pending')),
-      });
+      vi.mocked(sendInviteJoinRequest).mockResolvedValue('pending');
       useUIStore.setState({ activeModal: 'joinSpace' });
       renderModal();
 

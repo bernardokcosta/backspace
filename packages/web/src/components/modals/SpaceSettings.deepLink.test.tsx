@@ -31,9 +31,6 @@ const limits: InstanceStreamingLimits = {
   allowedFramerates: [30, 45, 60],
   maxResolution: 1080,
   maxFramerate: 60,
-  discoveryEnabled: true,
-  directoryEnabled: true,
-  directoryConfigured: true,
   bitrateMatrixOverrides: null,
   allowCustomBitrate: true,
 };
@@ -47,7 +44,6 @@ const space: TaggedSpace = {
   ownerId: 'user-1',
   inviteCode: null,
   visibility: 'public',
-  directoryListed: false,
   description: '',
   createdAt: 1,
   _instanceOrigin: '',
@@ -63,7 +59,7 @@ function seed(permissions: bigint): void {
 }
 
 beforeEach(() => {
-  vi.spyOn(api.explore, 'getJoinRequests').mockResolvedValue([]);
+  vi.spyOn(api.joinRequests, 'list').mockResolvedValue({ requests: [] });
   useUIStore.setState({ activeModal: null, modalData: {}, isMobile: false });
 });
 
@@ -72,12 +68,13 @@ afterEach(() => {
 });
 
 describe('SpaceSettingsModal opening tab', () => {
-  it('opens on the tab the caller names', async () => {
+  it('opens on a retained tab the caller names', async () => {
     seed(PermissionBits.MANAGE_SPACE);
     render(<MemoryRouter><SpaceSettingsModal /></MemoryRouter>);
-    act(() => { useUIStore.getState().openModal('spaceSettings', { tab: 'discovery' }); });
+    act(() => { useUIStore.getState().openModal('spaceSettings', { tab: 'members' }); });
     await act(async () => {});
-    expect(screen.getByRole('switch', { name: SWITCH })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Members' })).toHaveClass('bg-interactive-selected');
+    expect(screen.queryByRole('switch', { name: SWITCH })).toBeNull();
   });
 
   it('falls back to the overview when the named tab is not this user\'s to see', async () => {

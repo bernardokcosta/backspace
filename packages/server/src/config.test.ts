@@ -19,22 +19,10 @@ afterEach(() => {
   else process.env.DIRECTORY_ENDPOINT = saved;
 });
 
-describe('config.directory.endpoint', () => {
-  it('defaults to the project hub when DIRECTORY_ENDPOINT is unset', async () => {
-    const config = await loadConfig();
-    expect(config.directory.endpoint).toBe('https://explore.backspacechat.com');
-  });
-
-  it('an empty DIRECTORY_ENDPOINT stays empty, which means disabled', async () => {
-    process.env.DIRECTORY_ENDPOINT = '';
-    const config = await loadConfig();
-    expect(config.directory.endpoint).toBe('');
-  });
-
-  it('drops trailing slashes from a custom hub', async () => {
-    process.env.DIRECTORY_ENDPOINT = 'https://x.test/';
-    const config = await loadConfig();
-    expect(config.directory.endpoint).toBe('https://x.test');
+describe('retired directory configuration', () => {
+  it.each([undefined, '', 'https://legacy.example/', 'not a URL'])('has no directory config with legacy endpoint %s', async (value) => {
+    if (value !== undefined) process.env.DIRECTORY_ENDPOINT = value;
+    expect(await loadConfig()).not.toHaveProperty('directory');
   });
 });
 

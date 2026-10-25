@@ -27,6 +27,26 @@ Source files:
 
 ### Windows SDR capture (integration in progress)
 
+The 1.15.2 native work adds a bounded borderless-consent operation. It requests
+Windows `Borderless` access only from a capture preparation, retains at most
+eight pending/ready requests, shares one OS operation, and expires each Allowed
+preparation after 30 seconds. Native start consumes that preparation once and
+sets `IsBorderRequired(false)` before `StartCapture`; missing/denied preparation
+cannot start the session. Consent has a separate 60-second bound and can be
+cancelled without waiting for user input on the Electron event loop. This
+main controller now awaits it during source preselection, rechecks focus and
+document ownership, and confirms that exact source before accepting display
+media. The installed web client requires the explicit `borderless: true`
+capability marker and a successful typed preselection result, so a saved
+Windows Force SDR preference cannot silently use an older bordered host.
+Permission denial has a localized explicit retry; cancel/navigation invalidate
+both pending consent and the one-use selection, including late Allowed replies.
+The explicit `--mode borderless` fixture checks only its own window and records
+OS-cropped outline evidence. It reports blocked rather than passing when the
+host cannot open loopback audio; a native-free baseline distinguishes that
+environment failure from the native capture path. Installed/ARM64/audio/HDR
+acceptance must not be inferred from a module build or a property getter.
+
 `native/sdr-capture/` contains a Windows SDK/Node-API conversion module under
 development for opt-in HDR-to-SDR sharing. `sdrCaptureTransport.ts` imports its
 SDR textures through managed Electron sharedTexture references; native storage

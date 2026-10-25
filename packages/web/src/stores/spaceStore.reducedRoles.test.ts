@@ -62,7 +62,7 @@ function member(id: string, roles: Role[]): MemberWithUser {
 function space(roles: Role[], extra: Partial<SpaceWithChannelsAndMembers> = {}): SpaceWithChannelsAndMembers {
   return {
     id: SPACE_ID, name: 'Aether Drift', icon: null, banner: null, avatarColor: 'lavender',
-    ownerId: 'u-owner', inviteCode: null, visibility: 'public', directoryListed: false,
+    ownerId: 'u-owner', inviteCode: null, visibility: 'public',
     description: null, createdAt: 1,
     channels: [GENERAL, STAFF], categories: [],
     members: [member('u-owner', []), member('u-me', [VIP]), member('u-mod', [MODS])],

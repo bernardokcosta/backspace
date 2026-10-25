@@ -9,8 +9,7 @@ Source files:
 - `packages/web/src/utils/crossStoreResolvers.ts` — Neutral module holding the cross-store resolver bindings (`_getApiForOrigin`, `_resolveOriginFromHostname`, `_getTokenForOrigin`). Breaks a TDZ cycle between spaceStore and instanceStore; see "API Client Resolution" below
 - `packages/web/src/utils/identity.ts` — Cross-instance user identity (`homeIdentityOf`, `userKey`, `isMine`, `personRequest`, `ownRowAt`, `userUpdateReach`); "my ids" live in `stores/authStore.ts` (`myRowIds`, `getMyUserIdForOrigin`, `myRowForOrigin`). The rule is section 5
 - `packages/web/src/components/modals/ConnectedInstances.tsx` — Connections settings panel
-- `packages/web/src/components/modals/RemotePasswordStep.tsx` - the password/fallback-login step shared by the Connections add-instance flow and the directory's connect-and-join dialog
-- `packages/web/src/components/modals/ConnectAndJoinModal.tsx` - connect-then-join from an Outer Space card (see [directory.md](directory.md) §9)
+- `packages/web/src/components/modals/RemotePasswordStep.tsx` - retained Connections password step and invitation fallback notices
 
 ---
 
@@ -111,7 +110,7 @@ DMs a user writes on a remote reach their home instance over the S2S peering bet
 | Path | `announceAs` |
 |---|---|
 | `connectToRemote` (and `reauthenticateInstance`, which runs it) | instance label |
-| `loginToRemote`, the explicit per-instance login; `directoryStore.loginAndJoin` reaches it through this | instance label |
+| `loginToRemote`, the explicit per-instance login, also used by invitation fallback | instance label |
 | `reconnectInstance`, a token resume | `null` |
 | `autoConnectAll`, each cached session that verifies | `null` |
 
@@ -177,7 +176,7 @@ Called once per session after login:
 4. For instances **without cached tokens**: create error placeholders (visible in Connections UI with "re-authenticate" prompt)
 5. Set `_autoConnectDone = true` to unblock topology sync
 
-`waitForAutoConnect()`, exported next to the store, resolves once that flag is set (immediately when it already is, with a re-check after subscribing so a flip between the check and the subscription is not missed). Every fan-out over connected instances (`exploreStore`, `socialStore`, `discoverStore`, `utils/mutuals.ts`) awaits it first.
+`waitForAutoConnect()`, exported next to the store, resolves once that flag is set (immediately when it already is, with a re-check after subscribing so a flip between the check and the subscription is not missed). Retained fan-outs over connected instances (`socialStore`, `discoverStore`, `utils/mutuals.ts`) await it first.
 
 ### Topology Sync (`syncInstanceList`)
 
@@ -431,7 +430,7 @@ The **Connections** panel (in user settings) allows managing remote instance con
 
 ### The shared connect path: `connectToInstance`
 
-`connectToInstance(origin, password, displayName?)` in `instanceStore.ts` is the one way to establish a session on another instance from a user-typed password. The Connections add-instance flow (after its `probeInstance` step) and the directory's connect-then-join flow both go through it. It branches on the status the store holds for the canonical origin:
+`connectToInstance(origin, password, displayName?)` in `instanceStore.ts` is the Connections flow's status-aware entry after its `probeInstance` step. It branches on the status the store holds for the canonical origin:
 
 | Store status for the origin | What happens | Outcome |
 |---|---|---|
@@ -443,13 +442,23 @@ The **Connections** panel (in user settings) allows managing remote instance con
 
 Every other failure is thrown as is. It does not validate a typed URL: a caller that wants the self and duplicate checks for user input still runs `probeInstance` first, as the Connections flow does.
 
-**A placeholder is replaced, never removed first.** `connectToRemote` and `loginToRemote` write their new instance by origin (`[...instances.filter(i => i.origin !== origin), instance]`), and `reauthenticateInstance` leaves the stale `error` or `disconnected` entry in `instances` while the request runs (it still drops the origin's spaces and socket; the new session's ready payload brings the spaces back). The origin is therefore never absent from the list: a wrong password leaves the placeholder as it was. This matters because Outer Space dedupes at render from the registry and the live list ([directory.md](directory.md) section 9); with the entry removed up front, an expired instance's spaces surfaced as "Connect and join" cards under the chip that said its session had expired. A `disconnected` origin is deliberately not deduped there: it is an outer instance again for Explore, and connecting from its card comes back through this same path, reusing the identity.
+**A placeholder is replaced, never removed first.** `connectToRemote` and `loginToRemote` write their new instance by origin (`[...instances.filter(i => i.origin !== origin), instance]`), and `reauthenticateInstance` leaves the stale `error` or `disconnected` entry in `instances` while the request runs (it still drops the origin's spaces and socket; the new session's ready payload brings the spaces back). A wrong password leaves the placeholder as it was; existing credentials and explicit Connections remain independent of the retired directory.
 
-### Connect from an Outer Space card
+### Invitation connections after directory retirement
 
-The Explore page's Outer Space section (the space directory, [directory.md](directory.md)) is a second entry point into this flow. Clicking an entry opens `ConnectAndJoinModal`, which probes the entry's host (unless the session already holds a `connected`/`connecting` instance for that origin, in which case the probe and the password step are skipped), shows the same `RemotePasswordStep` the Connections panel uses with the origin prefilled ("This space lives on chat.example.org. Connecting creates your identity there, linked to your account on home.example.org.", an intro that says what connecting does; the field label and its hint are the only two places the modal says "password"), calls `connectToInstance`, and then runs `exploreStore.publicJoin` or `requestJoin` against the new origin through `getApiForOrigin`. The typed password is verified against the home instance and the home mints the per-remote secret exactly as above; the remote never sees what was typed. A `409 already_member` is treated as a join, since the space arrives with the connection's ready payload.
+Explore's connect-and-join entrypoint was removed in 1.15.2. Invitation
+surfaces retain their explicit origin/password/fallback steps without fetching
+a discovery feed, creating a discovery store or silently choosing the home API.
 
-**Pending join requests are keyed by origin.** `exploreStore.fetchMyRequests()` fans out over the home instance and every connected instance with `Promise.allSettled`, tagging each request with `_instanceOrigin` (`''` for home), and `useSpaceJoin.isPending` compares `(origin, spaceId)`. Space ids are local to their instance; until this change a pending request on one origin showed as pending for a same-id space on any other, and a request made on a remote instance never appeared after a reload. A request sent from an invite (`exploreStore.requestJoinSpace`, used by the invite page, the Join Space dialog and a DM invite card for a space joined by request) goes to the space's origin through `connectedJoinOrigin`, the same check `joinByCode` runs (`NotConnectedError` without a connected session, so the surface runs the connect step first), and is recorded with that origin ([spaces.md](spaces.md), "Invite links to a space joined by request").
+**Invitation requests are independent of discovery.** `sendInviteJoinRequest`
+uses `connectedJoinOrigin` and the exact connected instance's
+`api.joinRequests.request`, never a discovery list/fan-out or a fallback home
+client. Space ids remain local to their origin; a missing/disconnected remote
+throws `NotConnectedError` so the surface can connect first. Duplicate pending
+requests report `'pending'` and bans/permissions propagate. Account-switch and
+desktop-session guards reject obsolete replies rather than apply old UI
+state. Managers list/decide on the space's owning origin through the same
+connected-client resolver. No Explore request list remains.
 
 ### Add-Instance Pre-Flight: `federatedRegistrationOpen`
 
@@ -501,13 +510,9 @@ The federation registry is a persistent server-side record of all instances a us
 
 ### Client readers
 
-Two surfaces read the client Map and must agree: the Connections panel
-(`ConnectedInstances.tsx`, every entry with its status, actions and the
-`ReauthForm`) and the Explore page's `ConnectionChips` (entries in
-`auth_expired` or `unreachable` only, with Retry and the same `ReauthForm`;
-see [directory.md](directory.md) section 9). Both render from the Map, so a
-status change from any path (`reconnectInstance`, `reauthenticateInstance`,
-`autoConnectAll`) reaches both at once.
+The Connections panel (`ConnectedInstances.tsx`) reads every entry with its
+status, actions and `ReauthForm`. Status changes from reconnect, reauthentication
+and auto-connect reach it through the same Map. Explore-only chips were removed.
 
 ### The one writer: `writeConnectionState`
 
@@ -520,8 +525,7 @@ one thing (`connected`, `disconnected`, `unreachable`, `token-expired`,
 `no-session`, plus `live-*` phases that move the live entry alone), and writes
 `instances`, `registry` and `registryUpdatedAt` in a single `set`. Call sites
 name a phase; none of them writes a status, which is what keeps the halves from
-drifting apart at one path and putting an instance's spaces in the wrong half of
-the Explore page (`innerOrigins` reads across the pair). The one exception is
+drifting apart and misreporting connection settings. The one exception is
 `autoConnectAll` seeding a registry row from the server registry or from
 localStorage, which creates the persisted record for an origin that has no live
 half yet rather than moving one. The `live-*` phases are for the events the
@@ -556,26 +560,13 @@ each host places it on the panel or row it already has:
 `describeError` says it in the user's language anywhere it does surface as a
 message. Its English text is the log line and the last-resort fallback only.
 
-The chips host keeps an open chip mounted. `ConnectionChips` hides a chip
-whose live instance is `connecting` on its own, but it holds the set of
-opened origins itself and exempts them, because dropping an entry unmounts
-the chip and unmounting `ReauthForm` discards the password being typed into
-it: a `reconnectInstance` started anywhere else (the Connections panel, the
-connect-and-join dialog's silent resume, startup) would otherwise empty the
-field under the user's hands. An origin leaves the set as soon as its entry
-is anything but `auth_expired`, which is the only status the form exists
-for, so a connection that comes back, is disconnected, or stops answering
-takes its open state with it and a later expiry opens a fresh form.
-
 Escape cancels the surface in either phase, and never travels past it in any
 state. That containment is load-bearing: `Modal.tsx` closes the settings
 modal from a document-level Escape listener, so an Escape let through during
 a submit would close the modal around a running reconnect and leave a
 `RemoteLoginRequiredError` with no surface to arrive in. The handler therefore
 stops the event first and judges it after; while a submit is in flight the
-key is swallowed and does nothing, as Cancel does. In the chips host the collapsed pill
-becomes a small matte panel on a line of its own, bounded by the form rather
-than by the section, and collapsing hands focus back to the chip's action.
+key is swallowed and does nothing, as Cancel does.
 
 ### Lifecycle States
 

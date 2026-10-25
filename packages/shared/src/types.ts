@@ -144,7 +144,6 @@ export interface Space {
   ownerTitle: string | null;
   inviteCode: string | null;
   visibility: SpaceVisibility;
-  directoryListed: boolean;
   description: string | null;
   /**
    * Voice channel members idle longer than `afkTimeoutSeconds` are moved to,
@@ -172,59 +171,6 @@ export interface InvitePreview {
    * to a request when the join answers `join_request_required`.
    */
   visibility?: SpaceVisibility;
-}
-
-export interface ExploreSpace {
-  id: string;
-  name: string;
-  icon: string | null;
-  banner: string | null;
-  avatarColor: AvatarColor | null;
-  description: string | null;
-  visibility: SpaceVisibility;
-  memberCount: number;
-  createdAt: number;
-  joined?: boolean;
-}
-
-/** Why the last directory ping did not go through. `reason` is set when `status` is 'fetch'. */
-export interface DirectoryPingError {
-  at: number;
-  status: number | 'network' | 'timeout' | 'origin' | 'fetch';
-  reason?: 'unreachable' | 'status' | 'invalid' | 'origin-mismatch';
-}
-
-/** One space as an instance serves it on GET /api/directory/spaces. */
-export interface DirectoryDocumentSpace {
-  id: string;
-  name: string;
-  description: string | null;
-  icon: string | null;
-  banner: string | null;
-  avatarColor: AvatarColor | null;
-  visibility: 'public' | 'request';
-  memberCount: number;
-  createdAt: number;
-}
-
-/** The document an instance serves. `schema` is fixed at 1 for this release. */
-export interface DirectoryDocument {
-  schema: 1;
-  origin: string;
-  instance: { name: string; federatedRegistrationOpen: boolean; version: string | null };
-  spaces: DirectoryDocumentSpace[];
-}
-
-/** One entry of the hub's feed: a document space plus the origin it came from. */
-export interface DirectoryEntry extends DirectoryDocumentSpace {
-  origin: string;
-  instanceName: string;
-  federatedRegistrationOpen: boolean;
-}
-
-export interface DirectoryFeed {
-  schema: 1;
-  spaces: DirectoryEntry[];
 }
 
 export interface JoinRequest {
@@ -934,7 +880,6 @@ export interface UpdateSpaceRequest {
   banner?: string;
   avatarColor?: string;
   visibility?: SpaceVisibility;
-  directoryListed?: boolean;
   description?: string;
   /** Voice channel id for idle moves, or null to disable. Must be a voice channel of this space. */
   afkChannelId?: string | null;
@@ -1178,7 +1123,6 @@ export interface InstanceAdminSettings {
   instanceName: string;
   registrationOpen: boolean;
   federatedRegistrationOpen: boolean;
-  discoveryEnabled: boolean;
   gifApiKey?: string;
   gifEnabled?: boolean;
   maxUploadSizeMb: number;
@@ -1187,30 +1131,6 @@ export interface InstanceAdminSettings {
   federationRelayTtlDays: number;
   defaultAutoRotateIntervalDays: number;
   autoAcceptPeering: boolean;
-  directoryEnabled: boolean;
-  /**
-   * The other directory axis: whether people on this instance see spaces from
-   * other instances in Explore. Independent of `directoryEnabled`, which is
-   * what this instance sends out. `DIRECTORY_ENDPOINT` sits above it: with no
-   * endpoint there is nothing to browse whatever this says.
-   */
-  directoryBrowseEnabled: boolean;
-  /** Read-only on the wire; the server ignores them on PATCH. */
-  directoryLastPingAt: number | null;
-  directoryLastError: DirectoryPingError | null;
-  /**
-   * Spaces here that have opted in to the directory and are not private,
-   * counted whatever `directoryEnabled` says. Read-only, ignored on PATCH.
-   * The instance switch lists nothing by itself; this is how the admin sees
-   * whether any space has taken it up.
-   */
-  directoryListedSpaceCount: number;
-  /**
-   * The web client's Backspace page shows the Support card, which links to
-   * the project's Ko-fi page. Hides only that card; the server does nothing
-   * else with it. Default true. Also on `InstanceInfoResponse`.
-   */
-  supportCardEnabled: boolean;
 }
 
 export interface InstanceStreamingLimits {
@@ -1221,21 +1141,6 @@ export interface InstanceStreamingLimits {
   allowedFramerates: number[];
   maxResolution: number;
   maxFramerate: number;
-  discoveryEnabled: boolean;
-  /** The admin allows spaces here to be listed in the directory. Read-only on this route; PATCH /settings/instance sets it. */
-  directoryEnabled: boolean;
-  /**
-   * This instance has a `DIRECTORY_ENDPOINT` to reach. Read-only and derived
-   * from configuration, never stored, never accepted on a PATCH.
-   *
-   * It rides on this document because this is the one settings document any
-   * signed-in user may read, on their own instance or on a peer: a space's
-   * own instance answers for itself, which `GET /instance/info` on the home
-   * instance cannot do for a space that lives somewhere else. Without it the
-   * per-space listing switch was enabled on an instance with no endpoint,
-   * writing a flag whose listing document no hub ever fetches.
-   */
-  directoryConfigured: boolean;
   bitrateMatrixOverrides: Record<string, number> | null;
   allowCustomBitrate: boolean;
 }
@@ -1259,27 +1164,6 @@ export interface InstanceInfoResponse {
   sourceCodeUrl: string;
   // Short git SHA/tag of the running build; null in dev builds with no commit injected.
   commit: string | null;
-  // Three independent directory facts (directory.md section 9). They are
-  // reported separately because folding any two of them into one boolean
-  // leaves a client unable to tell which of them is false, and every surface
-  // that says something about the directory needs a different one.
-  //
-  // directoryConfigured: the operator gave this instance a DIRECTORY_ENDPOINT.
-  // Nothing about the directory works without it: no pinger, no proxy, no
-  // Outer Space. Every surface that promises the directory will do something
-  // gates on this.
-  // directoryAvailable: people here browse the directory, which is
-  // directoryConfigured and the admin's browse setting together. The Explore
-  // page gates Outer Space on it.
-  // directoryEnabled: the admin allows spaces here to be listed; the space
-  // settings panel reads it.
-  directoryConfigured: boolean;
-  directoryAvailable: boolean;
-  directoryEnabled: boolean;
-  // The admin's switch for the Support card on the web client's Backspace
-  // page. It only hides that card in the web client and changes nothing the
-  // server does.
-  supportCardEnabled: boolean;
   /**
    * Maximum custom sticker / emoji upload size in megabytes.
    */

@@ -1,5 +1,6 @@
 #include "capture_binding.h"
 #include "capture_session.h"
+#include "borderless_access.h"
 
 #include <atomic>
 #include <charconv>
@@ -120,6 +121,8 @@ struct NativeCaptureBinding::State {
     std::atomic<bool> frame_pending{false};
   };
   napi_env env;
+  BorderlessAccess borderless;
+  std::shared_ptr<std::atomic<bool>> alive = std::make_shared<std::atomic<bool>>(true);
   std::shared_ptr<CaptureFramePool> frames;
   std::unique_ptr<CaptureSession> session;
   Delivery* delivery = nullptr; // Owned by the thread-safe function finalizer.
@@ -141,7 +144,30 @@ struct NativeCaptureBinding::State {
   static void cleanup(void* data) {
     auto& owner = *static_cast<State*>(data);
     owner.cleaned = true;
+    *owner.alive = false;
+    owner.borderless.stop();
     owner.stop();
+  }
+
+  struct PermissionDelivery {
+    std::shared_ptr<std::atomic<bool>> alive;
+    napi_threadsafe_function function = nullptr;
+  };
+  static void permission_finalize(napi_env, void* data, void*) {
+    delete static_cast<PermissionDelivery*>(data);
+  }
+  static void permission_deliver(napi_env env, napi_value callback, void* data, void* payload) {
+    const auto& delivery = *static_cast<PermissionDelivery*>(data);
+    const auto status = std::unique_ptr<BorderlessAccessStatus>(static_cast<BorderlessAccessStatus*>(payload));
+    if (!env || !*delivery.alive) return;
+    try {
+      napi_value argument, receiver, ignored;
+      check(napi_create_object(env, &argument));
+      check(napi_set_named_property(env, argument, "status", text(env, borderlessAccessName(*status))));
+      check(napi_get_undefined(env, &receiver));
+      napi_call_function(env, receiver, callback, 1, &argument, &ignored);
+    } catch (...) {}
+    clear_exception(env);
   }
 
   static void finalize(napi_env env, void* data, void*) {
@@ -202,12 +228,49 @@ struct NativeCaptureBinding::State {
     return *static_cast<State*>(data);
   }
 
+  static napi_value request_borderless(napi_env env, napi_callback_info info) {
+    try {
+      size_t count = 2; napi_value args[2];
+      auto& owner = arguments(env, info, count, args);
+      if (count != 2) throw std::invalid_argument("requestBorderlessAccess requires id and callback");
+      const auto id = read_text(env, args[0]);
+      napi_valuetype type; check(napi_typeof(env, args[1], &type));
+      if (type != napi_function) throw std::invalid_argument("Permission callback must be a function");
+      napi_value result; check(napi_get_undefined(env, &result));
+      auto delivery = std::make_unique<PermissionDelivery>(); delivery->alive = owner.alive;
+      check(napi_create_threadsafe_function(env, args[1], nullptr, text(env, "Backspace borderless consent"),
+          1, 1, delivery.get(), permission_finalize, delivery.get(), permission_deliver, &delivery->function));
+      auto* pending = delivery.release();
+      try {
+        check(napi_unref_threadsafe_function(env, pending->function));
+        if (!owner.borderless.request(id, [pending](BorderlessAccessStatus status) {
+          try {
+            auto value = std::make_unique<BorderlessAccessStatus>(status);
+            if (napi_call_threadsafe_function(pending->function, value.get(), napi_tsfn_nonblocking) == napi_ok) value.release();
+          } catch (...) {}
+          napi_release_threadsafe_function(pending->function, napi_tsfn_release);
+        })) throw std::invalid_argument("Duplicate or excessive permission request");
+      } catch (...) { napi_release_threadsafe_function(pending->function, napi_tsfn_abort); throw; }
+      return result;
+    } catch (const std::exception& error) { napi_throw_error(env, nullptr, error.what()); return nullptr; }
+  }
+
+  static napi_value cancel_borderless(napi_env env, napi_callback_info info) {
+    try {
+      size_t count = 1; napi_value args[1];
+      auto& owner = arguments(env, info, count, args);
+      if (count != 1) throw std::invalid_argument("cancelBorderlessAccess requires id");
+      owner.borderless.cancel(read_text(env, args[0]));
+      napi_value result; check(napi_get_undefined(env, &result)); return result;
+    } catch (const std::exception& error) { napi_throw_error(env, nullptr, error.what()); return nullptr; }
+  }
+
   static napi_value start(napi_env env, napi_callback_info info) {
     try {
-      size_t count = 4;
-      napi_value args[4];
+      size_t count = 5;
+      napi_value args[5];
       auto& owner = arguments(env, info, count, args);
-      if (count != 4) throw std::invalid_argument("startCapture requires source, constraints and callbacks");
+      if (count != 5) throw std::invalid_argument("startCapture requires source, constraints, callbacks and borderless preparation");
       if (owner.session) throw std::runtime_error("Native capture is already active");
       const auto source = read_source(env, args[0]);
       const auto constraints = read_constraints(env, args[1]);
@@ -216,6 +279,7 @@ struct NativeCaptureBinding::State {
         check(napi_typeof(env, args[i], &type));
         if (type != napi_function) throw std::invalid_argument("Native capture callbacks must be functions");
       }
+      if (!owner.borderless.consume(read_text(env, args[4]))) throw std::invalid_argument("Borderless preparation is missing or expired");
       const auto id = "sdr-" + std::to_string(owner.next_id++);
       const auto result = text(env, id);
       auto context = std::make_unique<Delivery>();
@@ -244,7 +308,7 @@ struct NativeCaptureBinding::State {
               if (!delivery->active) return;
               auto event = std::make_unique<Event>(Event{{}, reason});
               if (napi_call_threadsafe_function(delivery->function, event.get(), napi_tsfn_nonblocking) == napi_ok) event.release();
-            });
+            }, true);
       } catch (...) { owner.stop(); throw; }
       return result;
     } catch (const std::exception& error) { napi_throw_error(env, nullptr, error.what()); return nullptr; }
@@ -293,14 +357,18 @@ NativeCaptureBinding::NativeCaptureBinding(napi_env env, napi_value exports, std
     {"configureCapture", nullptr, State::configure, nullptr, nullptr, nullptr, napi_default, state_.get()},
     {"stopCapture", nullptr, State::stop_capture, nullptr, nullptr, nullptr, napi_default, state_.get()},
     {"isCaptureSupported", nullptr, State::supported, nullptr, nullptr, nullptr, napi_default, state_.get()},
+    {"requestBorderlessAccess", nullptr, State::request_borderless, nullptr, nullptr, nullptr, napi_default, state_.get()},
+    {"cancelBorderlessAccess", nullptr, State::cancel_borderless, nullptr, nullptr, nullptr, napi_default, state_.get()},
   };
-  check(napi_define_properties(env, exports, 4, methods));
+  check(napi_define_properties(env, exports, 6, methods));
   check(napi_add_env_cleanup_hook(env, State::cleanup, state_.get()));
 }
 
 NativeCaptureBinding::~NativeCaptureBinding() {
   if (!state_->cleaned) {
     napi_remove_env_cleanup_hook(state_->env, State::cleanup, state_.get());
+    *state_->alive = false;
+    state_->borderless.stop();
     state_->stop();
   }
 }

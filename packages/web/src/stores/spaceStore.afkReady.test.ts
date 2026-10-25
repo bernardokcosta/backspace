@@ -28,7 +28,7 @@ import { useSpaceStore } from './spaceStore';
 function space(id: string, afk?: { afkChannelId?: string | null; afkTimeoutSeconds?: number }): SpaceWithChannelsAndMembers {
   return {
     id, name: id, icon: null, banner: null, avatarColor: null, ownerId: 'o', inviteCode: null,
-    visibility: 'private', directoryListed: false, description: null, createdAt: 1,
+    visibility: 'private', description: null, createdAt: 1,
     channels: [], categories: [], members: [], roles: [], myPermissions: '1',
     ...afk,
   };

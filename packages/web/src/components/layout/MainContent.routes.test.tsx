@@ -12,9 +12,7 @@ vi.mock('../../audio/AudioManager', () => ({
 }));
 
 // The pages themselves have their own tests; here only which one renders matters.
-vi.mock('../chat/ExplorePage', () => ({ ExplorePage: () => <div data-testid="page">explore</div> }));
 vi.mock('../chat/FriendsPage', () => ({ FriendsPage: () => <div data-testid="page">friends</div> }));
-vi.mock('../projectHub/ProjectHubPage', () => ({ ProjectHubPage: () => <div data-testid="page">backspace</div> }));
 
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -38,14 +36,15 @@ beforeEach(() => {
 });
 
 describe('MainContent home pages', () => {
-  it('renders the Backspace page on /backspace', () => {
+  it('does not mount a hub for a retired bookmark', () => {
+    useUIStore.setState({ showDms: true });
     renderAt('/backspace');
-    expect(screen.getByTestId('page')).toHaveTextContent('backspace');
+    expect(screen.getByTestId('page')).toHaveTextContent('friends');
   });
 
-  it('still renders Explore on /explore', () => {
+  it('does not mount discovery for an old Explore bookmark', () => {
     renderAt('/explore');
-    expect(screen.getByTestId('page')).toHaveTextContent('explore');
+    expect(screen.getByTestId('page')).toHaveTextContent('friends');
   });
 
   it('renders Friends on the DM home', () => {
@@ -54,10 +53,4 @@ describe('MainContent home pages', () => {
     expect(screen.getByTestId('page')).toHaveTextContent('friends');
   });
 
-  it('renders the Backspace page on /backspace before the previous space is cleared', () => {
-    // The route effect that clears the space runs after the first render.
-    useSpaceStore.setState({ currentSpaceId: 'space-1' });
-    renderAt('/backspace');
-    expect(screen.getByTestId('page')).toHaveTextContent('backspace');
-  });
 });

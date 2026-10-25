@@ -63,19 +63,12 @@ Settings are split into two API surfaces:
 | instanceName | string | instanceName | 1-32 chars, trimmed | Default: `'Backspace'` |
 | registrationOpen | boolean | registrationOpen | boolean | Local-account registration. DB null = use env `REGISTRATION_OPEN` (default true) |
 | federatedRegistrationOpen | boolean | federatedRegistrationOpen | boolean | Federated-account creation against this instance. NOT NULL DEFAULT 1. Controls whether remote users can create `username@thisInstance` accounts via Connections (see auth.md + client-federation.md) |
-| discoveryEnabled | boolean | discoveryEnabled | boolean | Controls space Explore page |
 | gifApiKey | string? | gifApiKey | string or empty to clear | Returned masked as `****{last4}` for security |
 | gifEnabled | boolean? | (derived) | -- | Read-only; true when gifApiKey is non-null |
 | maxUploadSizeMb | number | maxUploadSizeBytes | positive integer (>=1 MB), upper bound is JS safe-integer ceiling (~8 EB) — effectively unlimited | Operator-set; no application cap. Stored as bytes; converted on read/write. DB null = use env `MAX_UPLOAD_SIZE` (default 100MB) |
 | federationRelayEnabled | boolean | federationRelayEnabled | boolean | Default: 1 (enabled) |
 | federationRelayTtlDays | number | federationRelayTtlDays | integer 1-365 | Default: 30 days |
 | autoAcceptPeering | boolean | autoAcceptPeering | boolean | Default: true. When false, `peer/accept` rejects unsolicited requests (403 PEERING_REQUIRES_APPROVAL); only requests where a local `pending` record already exists are accepted |
-| directoryEnabled | boolean | directoryEnabled | boolean; `true` needs `discoveryEnabled` on (400 `directory_requires_discovery`) | Default: false. Allows spaces here to be listed in the space directory. Cleared in the same write whenever discovery is switched off, on either PATCH route. See [directory.md](directory.md) |
-| directoryBrowseEnabled | boolean | directoryBrowseEnabled | boolean (400 `field_not_boolean`) | Default: true. Allows people here to see spaces from other instances in Explore. The incoming axis, independent of `directoryEnabled`: nothing clears it and it is not part of the discovery invariant. Gates `GET /api/directory` and `directoryAvailable` on the public instance info. Changing it never marks the directory dirty. See [directory.md](directory.md) |
-| supportCardEnabled | boolean | supportCardEnabled | boolean (400 `field_not_boolean`) | Default: true. Whether the web client's Backspace page shows the Support card. Also reported on the public instance info. Hides only that card; see the General panel below |
-| directoryLastPingAt | number \| null | directoryLastPingAt | read-only, ignored on PATCH | Epoch ms of the last directory ping the hub accepted |
-| directoryLastError | DirectoryPingError \| null | directoryLastError | read-only, ignored on PATCH | `{ at, status, reason? }` of the last failed ping, null after a success; feeds the panel's status line |
-| directoryListedSpaceCount | number | (counted from `spaces`) | read-only, ignored on PATCH | Spaces here that are public or request to join with `directory_listed = 1`, counted whatever `directoryEnabled` says. Same predicate as the directory document (`countListedSpaces` in `directory/document.ts`). Drives the panel's listing note and its "N spaces listed" line |
 
 ### Streaming Settings Schema (InstanceStreamingLimits)
 
@@ -88,8 +81,6 @@ Settings are split into two API surfaces:
 | allowedFramerates | number[] | allowedFramerates | Non-empty, values from STANDARD_FRAMERATES | [30,45,60] |
 | maxResolution | number | maxResolution | Must be in STANDARD_RESOLUTIONS | 1080 |
 | maxFramerate | number | maxFramerate | Must be in STANDARD_FRAMERATES | 60 |
-| discoveryEnabled | boolean | discoveryEnabled | boolean | true |
-| directoryEnabled | boolean | directoryEnabled | read-only on this route (set through `PATCH /api/settings/instance`); carried here so a non-admin's space settings can read it | false |
 | bitrateMatrixOverrides | Record<string,number>\|null | bitrateMatrixOverrides | Keys: `{res}_{fps}`, values: 1-1000000 | null |
 | allowCustomBitrate | boolean | allowCustomBitrate | boolean | true |
 
@@ -184,10 +175,6 @@ No authentication. Returns:
   sourceCodeUrl: string;      // AGPL § 13; config.sourceCodeUrl (env BACKSPACE_SOURCE_URL)
   commit: string | null;      // AGPL § 13; config.commit (env BACKSPACE_COMMIT, build-injected)
   instanceId: string;         // Persistent per-instance epoch (incarnation UUID); getInstanceId()
-  directoryConfigured: boolean;  // config.directory.endpoint !== '' alone; every surface that promises the directory gates on it
-  directoryAvailable: boolean;  // directoryConfigured AND instanceSettings.directoryBrowseEnabled; the Explore page gates its Outer Space section on it
-  directoryEnabled: boolean;  // instanceSettings.directoryEnabled; the admin's listing opt-in, independent of the above
-  supportCardEnabled: boolean;  // instanceSettings.supportCardEnabled; the web client's Backspace page shows the Support card
 }
 ```
 
@@ -206,9 +193,11 @@ GET  /api/settings/instance    — admin only → InstanceAdminSettings
 PATCH /api/settings/instance   — admin only → InstanceAdminSettings
 ```
 
-See field table above for validation rules. Cross-field: `discoveryEnabled` and `directoryEnabled` changes here are also synced to `streamingLimits` in the frontend store (`settingsStore.ts:updateInstanceSettings`), from the server's answer rather than the request, since turning discovery off clears the directory server-side.
-
-**Discovery off implies directory off.** `applyDiscoveryAndDirectory` in `routes/settings.ts` runs on both PATCH routes against the resulting state: `directoryEnabled: true` with discovery off is `400 directory_requires_discovery`, and a write that leaves discovery off clears `directoryEnabled` in the same write. A change to `directoryEnabled`, `discoveryEnabled`, `instanceName` or `federatedRegistrationOpen` calls `markDirectoryDirty()` so the directory pinger tells the hub; see [directory.md](directory.md) §3.
+See field table above for validation rules. Discovery/directory settings and
+status fields were retired in 1.15.2: serializers omit them and legacy PATCH
+keys are ignored without changing their stored values. No directory invariant,
+dirty mark, pinger or frontend streaming-policy mirror remains. See
+[directory.md](directory.md).
 
 ### Streaming Settings
 
@@ -574,7 +563,10 @@ Zustand store managing two data objects:
 | isAdmin | boolean | Set externally via `setIsAdmin()` | -- |
 | gifEnabled | boolean | `fetchGifEnabled()` | -- |
 
-**A failed fetch leaves `streamingLimits` null.** `fetchStreamingLimits()` logs and keeps the field unknown rather than substituting `DEFAULT_LIMITS`. The document carries `discoveryEnabled` and `directoryEnabled`, and those defaults assert a pair (`discoveryEnabled: true`, `directoryEnabled: false`) that would be shown to the user as fact: the Explore page's `InstanceDiscoveryHint` would tell an admin on a listed instance that their spaces are not listed, next to a button that writes the setting, and `StreamingPanel` could save invented limits over the instance's real configuration. Every reader handles null without inventing a value; what each one does with an unknown document is described where that surface is, in [directory.md](directory.md) §10 for the Explore hint and the space settings switch, and under StreamingPanel below for the rest.
+**A failed fetch leaves `streamingLimits` null.** `fetchStreamingLimits()` logs
+and keeps an unknown policy unknown; `StreamingPanel` must not save invented
+limits over the instance's real configuration. Screen-share setup uses numeric
+defaults only at read time through `getStreamingLimits(origin)`.
 
 `DEFAULT_LIMITS` still exists, as the read-time fallback inside `getStreamingLimits()`:
 ```typescript
@@ -586,14 +578,13 @@ Zustand store managing two data objects:
   allowedFramerates: [30, 45, 60],
   maxResolution: 1080,
   maxFramerate: 60,
-  discoveryEnabled: true,
-  directoryEnabled: false,
   bitrateMatrixOverrides: null,
   allowCustomBitrate: true,
 }
 ```
 
-**Cross-field sync:** After every `updateInstanceSettings()` the store mirrors `discoveryEnabled` and `directoryEnabled` from the server's answer into `streamingLimits`, which is where the space settings `DiscoveryPanel` reads both flags for a home space (the warning banner and the directory switch's disabled reason; a remote space asks its own instance instead, see [directory.md](directory.md) §10). The answer is used rather than the request because switching discovery off clears the directory server-side.
+Instance-setting saves replace the admin document with the server's answer
+and invalidate shared public info. They do not rewrite streaming limits.
 
 **Exported helper:** `getStreamingLimits()` returns current limits or defaults -- used by voice/streaming code outside React. It is the one place a default may stand in: a screen share has to pick a bitrate whatever the server said. Anything that states a fact to the user, or offers to change one, reads `streamingLimits` and treats null as unknown.
 
@@ -672,22 +663,17 @@ Strings live in the `telemetry` namespace under `panel.*`. Registered as the
 
 #### GeneralPanel
 
-Manages: instance name, the space-discovery ladder, the global browsing switch, GIF API key.
+Manages: instance name and GIF API key.
 
 - Instance name input: max 32 chars, enforced client-side via `slice(0, 32)`
-- Space discovery ladder: one radio group ("Space discovery", "How far spaces on this instance can be found.") replacing what used to be a discovery toggle and a directory toggle. Three mutually exclusive rungs, each a superset of the one above, and each writing both stored flags at once:
-
-  | Rung | Label | `discoveryEnabled` | `directoryEnabled` |
-  |------|-------|--------------------|--------------------|
-  | `invite` | Invite only | false | false |
-  | `local` | Local space discovery | true | false |
-  | `global` | Allow global listing | true | true |
-
-  The selected rung is derived from the draft by `levelOf()`, never stored as a third piece of state, and picking a rung applies that row through `LEVEL_FLAGS`. The pair the server refuses (`directory_requires_discovery`) has no rung, so the old "switching discovery off clears the directory in the draft" special case is gone; the server-side invariant is unchanged and still guards the API.
-- Under the `global` rung only, indented beneath it and rendered as a sibling of the radiogroup (which may own only radios): (1) while `federatedRegistrationOpen` is off, the amber note that listed spaces will show as closed to new accounts, with an "Open federated accounts" button that calls `updateInstanceSettings({ federatedRegistrationOpen: true })` immediately, outside the draft, disabled while in flight and reporting failure through the panel's `saveError` line. The flag is never flipped automatically by picking the rung: opening sign-ups to strangers stays an explicit click. The note appears as soon as the rung is picked in the draft, before any save. (2) a status line of the same shape as the telemetry panel's, fed by `directoryLastPingAt` and `directoryLastError` ("Never reported" / "Last reported <date>", then "Last attempt failed (<reason>)" with the hub's reason for a `fetch` status, a sentence of its own for `origin`, `network` and `timeout`, or the bare HTTP status). (3) the one-sentence disclosure of what listing makes public. Before (1), while `directoryListedSpaceCount` is 0 and the instance has an endpoint, a second amber note says the rung lists nothing by itself and each space has to switch on its own listing, with a "Show me where" button into a space's Discovery tab ("Save and show me where" while the panel has unsaved changes, which saves first); once a space is listed the note gives way to an "N spaces listed" line in the status box. Which space the button opens and when it is offered: [directory.md](directory.md) §10. The status line reads the store's `instanceSettings`, not the draft, and the panel calls `fetchInstanceSettings()` every 10 seconds while mounted (`INSTANCE_SETTINGS_REFRESH_MS`) so it follows the pinger, whatever rung is selected; the draft holds only the five editable fields and a refresh reseeds it only while it has no unsaved edit. Strings under `admin:general.discovery.*` and `admin:general.directory.*`. See [directory.md](directory.md) §10.
-- Global browsing switch, directly under the ladder in the same section, separated by a rule and outside the radiogroup: "Show global spaces in Explore" with "People here see spaces from other instances in Outer Space. Their browsers load those spaces' icons and banners from the instances that own them." It writes `directoryBrowseEnabled`, the incoming axis, and is a draft field saved by the same save bar as the rungs, not an immediate write. On an instance with no `DIRECTORY_ENDPOINT` the switch renders **off** and disabled, with "This instance is not configured to reach a directory, so there is nothing to show." beneath it: off is the effective state whatever the column says, and the column is deliberately not written to match, so browsing resumes at the admin's last choice if an endpoint is ever configured. The panel reads `directoryConfigured` from `GET /api/instance/info`, once. The same fact also takes the global rung out of the ladder, since listing needs the endpoint too; both are described once in [directory.md](directory.md) §10. Strings under `admin:general.browse.*` and `admin:general.discovery.unconfigured`.
+- Discovery/listing/browsing controls, disclosures and directory-only polling
+  were removed in 1.15.2. Name/GIF drafts still survive external refreshes;
+  save/reset and shared-info invalidation remain.
 - GIF key: password input, separate dirty tracking (`gifKeyDirty`). Only sent on save if modified. "Clear key" button sets empty string.
-- Support card switch, its own row below the GIF key: "Show the Support card" with "Shows a card on the Backspace page that links to the project's Ko-fi page. Turning it off hides only that card." It writes `supportCardEnabled` and is a draft field saved by the same save bar as the rest of the panel. It hides the Support card and nothing else: every other card and link on the Backspace page stays. Strings under `admin:general.supportCard.*`.
+- The former Support-card switch was retired with the project hub in 1.15.2.
+  Its wire field is omitted and legacy PATCH input ignored; the historical DB
+  column remains inert for rollback. Successful saves still invalidate the
+  shared public-info cache used by sticker limits.
 
 The registration toggles (`registrationOpen` / `federatedRegistrationOpen`) and the invite-link manager live in [RegistrationPanel](#registrationpanel).
 
@@ -845,4 +831,4 @@ Manages: user list with search/filter/sort/pagination, admin promotion/demotion,
 - **Voice/streaming:** [voice.md](voice.md) -- Client-side enforcement of streaming limits
 - **Permissions:** [permissions.md](permissions.md) -- Admin flag is separate from RBAC; `isAdmin` is a user-level column, not a permission bit
 - **Telemetry:** [telemetry.md](telemetry.md) -- The opt-in daily usage report: payload, opt-in state model, reporter, receiver, retention
-- **Space directory:** [directory.md](directory.md) -- The opt-in public directory: the admin toggle and status line, the per-space switch, the pinger, the hub
+- **Space directory retirement:** [directory.md](directory.md) -- Removed in 1.15.2; historical data preserved inertly.

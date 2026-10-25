@@ -141,12 +141,6 @@
   },
   "join": {
     "title": "加入空间",
-    "discoverIntro": "发现可加入的空间，或在“探索”中浏览全部空间。",
-    "discoverError": "当前无法加载可探索的空间。您仍可在下方使用邀请码加入。",
-    "discoverEmpty": "暂无可探索的空间。请尝试在下方输入邀请码，或稍后再来看看。",
-    "browseExplore": "在“探索”中浏览全部",
-    "discoveryOff": "此实例上已关闭空间发现功能。您仍可使用邀请码加入。",
-    "inviteDivider": "有邀请码？",
     "invitePlaceholder": "例如 abc123 或 https://instance.com/join/abc123",
     "submit": "加入空间",
     "submitting": "正在加入…",
@@ -166,97 +160,13 @@
       "submitting": "正在登录…"
     },
     "request": {
+      "messagePlaceholder": "您为什么想加入？（可选）",
+      "send": "发送申请",
+      "sending": "正在发送…",
       "notice": "此空间采用申请加入模式。发送申请后，管理员会进行审核。",
       "messageLabel": "申请留言",
       "sent": "申请已发送。管理员会进行审核，批准后该空间会出现在您的列表中。",
       "pending": "您已申请加入此空间。您的申请正在等待管理员处理。"
-    }
-  },
-  "explore": {
-    "title": "探索",
-    "searchPlaceholder": "搜索空间…",
-    "discoveryOff": {
-      "member": "您的实例管理员已关闭空间发现。此处的空间只能通过邀请链接加入。",
-      "admin": "本实例已关闭空间发现。此处的空间只能通过邀请链接加入。",
-      "enable": "开启空间发现",
-      "failed": "无法更改该设置。"
-    },
-    "browseOff": {
-      "member": "此处不显示来自其他实例的空间，因为您的实例管理员已关闭该功能。",
-      "admin": "此处不显示来自其他实例的空间。",
-      "action": "在“探索”中显示全局空间",
-      "confirm": {
-        "title": "在此显示来自其他实例的空间？",
-        "exposure": "那些实例会看到每个加载其内容的浏览器的 IP 地址，而本实例的管理员无法控制它们。",
-        "off": "以后要停止显示：设置、实例、常规、在“探索”中显示全局空间的开关。",
-        "action": "显示全局空间"
-      }
-    },
-    "notListed": {
-      "text": "此处没有任何空间被列入公开目录。",
-      "action": "列入目录",
-      "confirm": {
-        "title": "公开列出本实例的空间？",
-        "optIn": "只有其拥有者自行开启列入的空间才会被提交，因此该开关本身不会列入任何空间。",
-        "off": "以后要停止列入：设置、实例、常规、空间发现选项。",
-        "action": "列入空间"
-      }
-    },
-    "noMatches": "没有匹配您搜索的空间。",
-    "empty": "暂无可发现的空间。",
-    "joinedSection": "已加入",
-    "notConnected": "未连接到 {{host}}",
-    "inner": {
-      "title": "内部空间",
-      "subtitle": "您所在实例上的空间",
-      "noneAnswered": "没有实例作出响应。在有实例响应之前，内部空间将保持为空。",
-      "unreachable_other": "无法连接 {{hosts}}。其上的空间未显示。"
-    },
-    "outer": {
-      "title": "外部空间",
-      "subtitle": "遍布 Backspace 的社区",
-      "empty": "外面还什么都没有。加入目录的空间会显示在这里。",
-      "noMatches": "外部空间中没有匹配您搜索的空间。",
-      "showMore": "显示更多",
-      "connectAndJoin": "连接并加入",
-      "connectAndRequest": "连接并申请",
-      "closedBadge": "不接受新账户"
-    },
-    "connections": {
-      "title": "需要处理的连接",
-      "sessionExpired": "会话已过期",
-      "unreachable": "无法连接",
-      "reconnect": "重新登录",
-      "retry": "重试"
-    },
-    "connect": {
-      "title": "加入 {{name}}",
-      "intro": "此空间位于 <host>{{host}}</host>。连接后将在该实例上创建您的身份，并与您在 <home>{{home}}</home> 的账号关联。",
-      "probing": "正在连接 {{host}}…",
-      "connecting": "正在连接…",
-      "requested": "您加入 {{name}} 的申请已发送。"
-    },
-    "badges": {
-      "joined": "已加入",
-      "public": "公开",
-      "request": "需申请"
-    },
-    "noDescription": "无描述",
-    "memberCount_other": "{{count}} 名成员",
-    "viewSpace": "查看空间",
-    "join": "加入空间",
-    "joining": "正在加入…",
-    "requestPending": "申请待处理",
-    "requestMessagePlaceholder": "您为什么想加入？（可选）",
-    "sendRequest": "发送申请",
-    "sendingRequest": "正在发送…",
-    "requestToJoin": "申请加入",
-    "preview": {
-      "join": "加入",
-      "joining": "正在加入…",
-      "pending": "待处理",
-      "request": "申请",
-      "sending": "正在发送…"
     }
   },
   "settings": {
@@ -267,7 +177,6 @@
       "management": "管理",
       "tabs": {
         "overview": "概览",
-        "discovery": "发现",
         "roles": "身份组",
         "bans": "封禁名单"
       }
@@ -303,12 +212,11 @@
         "failed": "删除空间失败"
       }
     },
-    "discovery": {
-      "title": "发现设置",
-      "disabledNotice": "实例管理员已禁用空间发现功能。在重新启用发现功能之前，更改可见性将不会生效。",
+    "access": {
+      "title": "加入方式与描述",
       "visibility": {
         "label": "可见性",
-        "hint": "控制谁可以发现并加入此空间。",
+        "hint": "控制收到邀请的人如何加入此空间。",
         "options": {
           "private": {
             "label": "私密",
@@ -316,29 +224,18 @@
           },
           "request": {
             "label": "需申请加入",
-            "description": "在“探索”中可见；他人可以申请加入"
+            "description": "邀请会引导至加入申请，须由管理员批准"
           },
           "public": {
             "label": "公开",
-            "description": "在“探索”中可见；任何人均可立即加入"
+            "description": "收到邀请的人可以立即加入"
           }
         }
       },
-      "directory": {
-        "label": "列入全局 Backspace 目录",
-        "hint": "在每个 Backspace 实例的外部空间中显示此空间。",
-        "notConfigured": "本实例未配置可访问的目录，因此此空间无法列入任何目录。",
-        "adminOff": "需要实例管理员先允许列入全局目录。",
-        "adminOffSelf": "本实例不允许列入全局目录。",
-        "adminOffSelfAction": "开启",
-        "adminOffSelfIntro": "这会为整个实例允许列入全局目录：此处的空间将可在“探索”中被发现，实例也会开始向公开目录上报自身。",
-        "privateSpace": "请先将可见性设为公开或需申请加入。",
-        "disclosure": "列入目录后将公开：空间的名称、描述、图标、横幅、成员数量以及本实例的地址。浏览目录的人会从本实例加载图标和横幅。"
-      },
       "description": {
         "label": "描述",
-        "hint": "显示在“探索”页面中的简短摘要。",
-        "placeholder": "用于“探索”页面的简短介绍…",
+        "hint": "显示在此空间邀请中的简短摘要。",
+        "placeholder": "此空间的简短介绍…",
         "counter": "{{length}}/{{max}}"
       },
       "requests": {
@@ -513,7 +410,6 @@
     "directMessages": "私信列表",
     "addSpace": "添加空间",
     "joinSpace": "加入空间",
-    "exploreSpaces": "探索空间",
     "folder": {
       "tooltip_other": "文件夹 ({{count}})",
       "spaceCount_other": "{{count}} 个空间",
@@ -549,7 +445,6 @@
       "unreadMessagesOver99": "超过 99 条未读消息"
     },
     "dmList": {
-      "explore": "探索",
       "newDm": "新建私信",
       "empty": "暂无会话。",
       "leaveGroup": "退出群组",
@@ -635,8 +530,7 @@
   "mobile": {
     "addSheet": {
       "createSpace": "创建空间",
-      "joinSpace": "加入空间",
-      "exploreSpaces": "探索空间"
+      "joinSpace": "加入空间"
     },
     "muteUser": "静音用户"
   },

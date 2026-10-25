@@ -57,7 +57,7 @@ export async function getSdrCaptureCapability(): Promise<DesktopSdrCaptureCapabi
     const answer: unknown = await api.getSdrCaptureCapability();
     if (typeof answer !== 'object' || answer === null) return { supported: false, reason: 'bridge' };
     const value = answer as Record<string, unknown>;
-    if (value.supported === true) return { supported: true };
+    if (value.supported === true && value.borderless === true) return { supported: true, borderless: true };
     if (value.supported === false && ['platform', 'system', 'module', 'transport', 'bridge'].includes(String(value.reason))) {
       return { supported: false, reason: value.reason as Extract<DesktopSdrCaptureCapability, { supported: false }>['reason'] };
     }

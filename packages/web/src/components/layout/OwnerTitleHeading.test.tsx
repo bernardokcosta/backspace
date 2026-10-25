@@ -15,7 +15,7 @@ import { OwnerTitleHeading } from './OwnerTitleHeading';
 const space: TaggedSpace = {
   id: 'space', name: 'Space', icon: null, banner: null, avatarColor: null,
   ownerId: 'owner', ownerTitle: null, inviteCode: null, visibility: 'private',
-  directoryListed: false, description: null, createdAt: 1, _instanceOrigin: '',
+  description: null, createdAt: 1, _instanceOrigin: '',
 };
 const user: User = {
   id: 'owner', username: 'owner', displayName: null, avatar: null, banner: null,

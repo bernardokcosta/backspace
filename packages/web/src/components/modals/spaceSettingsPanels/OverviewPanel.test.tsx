@@ -51,7 +51,6 @@ const space: TaggedSpace = {
   ownerId: 'user-1',
   inviteCode: null,
   visibility: 'public',
-  directoryListed: false,
   description: '',
   createdAt: 1,
   _instanceOrigin: '',

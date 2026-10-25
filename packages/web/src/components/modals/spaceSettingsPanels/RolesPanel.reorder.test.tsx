@@ -28,7 +28,7 @@ const ORBIT = 'https://orbit.example';
 function space(origin: string): TaggedSpace {
   return {
     id: SPACE_ID, name: 'Space', icon: null, banner: null, avatarColor: null, ownerId: 'owner',
-    inviteCode: null, visibility: 'public', directoryListed: false, description: null, createdAt: 1, _instanceOrigin: origin,
+    inviteCode: null, visibility: 'public', description: null, createdAt: 1, _instanceOrigin: origin,
   };
 }
 

@@ -96,7 +96,7 @@ export function App() {
             path="/explore"
             element={
               <ProtectedRoute>
-                <AppLayout />
+                <Navigate to="/channels/@me" replace />
               </ProtectedRoute>
             }
           />
@@ -104,7 +104,7 @@ export function App() {
             path="/backspace"
             element={
               <ProtectedRoute>
-                <AppLayout />
+                <Navigate to="/channels/@me" replace />
               </ProtectedRoute>
             }
           />

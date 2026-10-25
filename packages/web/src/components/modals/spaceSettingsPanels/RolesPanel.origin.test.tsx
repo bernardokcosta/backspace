@@ -27,7 +27,7 @@ const ORBIT = 'https://orbit.example';
 
 const SPACE: TaggedSpace = {
   id: SPACE_ID, name: 'Space', icon: null, banner: null, avatarColor: null, ownerId: 'owner',
-  inviteCode: null, visibility: 'public', directoryListed: false, description: null, createdAt: 1, _instanceOrigin: ORBIT,
+  inviteCode: null, visibility: 'public', description: null, createdAt: 1, _instanceOrigin: ORBIT,
 };
 
 function role(id: string, name: string, position: number, permissions: bigint): Role {

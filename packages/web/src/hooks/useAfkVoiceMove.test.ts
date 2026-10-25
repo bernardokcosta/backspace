@@ -30,7 +30,6 @@ const space = {
   ownerTitle: null,
   inviteCode: null,
   visibility: 'public' as const,
-  directoryListed: false,
   description: null,
   afkChannelId: 'afk',
   afkTimeoutSeconds: 300,

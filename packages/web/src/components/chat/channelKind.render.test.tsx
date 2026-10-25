@@ -45,7 +45,7 @@ function textChannel(id: string, myPermissions: string): Channel {
 function space(channels: Channel[]): SpaceWithChannelsAndMembers {
   return {
     id: 's1', name: 's1', icon: null, banner: null, avatarColor: null, ownerId: 'o', inviteCode: null,
-    visibility: 'private', directoryListed: false, description: null, createdAt: 1,
+    visibility: 'private', description: null, createdAt: 1,
     channels, categories: [], members: [], roles: [], myPermissions: '0',
   };
 }

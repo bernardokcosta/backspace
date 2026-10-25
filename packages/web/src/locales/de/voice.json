@@ -87,6 +87,16 @@
     "remoteParticipant": "Gegenstelle"
   },
   "screenPicker": {
+    "borderless": {
+      "deniedUser": "Die Freigabe ohne Windows-Aufnahmerahmen wurde nicht erlaubt. Die Übertragung ist blockiert.",
+      "deniedSystem": "Windows oder ein Administrator hat die rahmenlose Aufnahme blockiert. Erlaube den Zugriff, bevor du es erneut versuchst.",
+      "notDeclared": "Diese Installation kann keine rahmenlose Aufnahme anfordern. Aktualisiere oder repariere die Desktop-App.",
+      "unsupported": "Diese App oder Windows-Version unterstützt keine rahmenlose SDR-Aufnahme. Aktualisiere sie vor einer Freigabe mit SDR erzwingen.",
+      "cancelled": "Die Anfrage zur rahmenlosen Aufnahme wurde abgebrochen. Es wurde keine Übertragung gestartet.",
+      "timeout": "Windows hat die Berechtigungsanfrage nicht rechtzeitig abgeschlossen. Es wurde keine Übertragung gestartet.",
+      "failed": "Die Berechtigung zur rahmenlosen Aufnahme konnte nicht bestätigt werden. Die Übertragung bleibt blockiert.",
+      "requestAgain": "Berechtigung erneut anfordern"
+    },
     "title": "Bildschirm teilen",
     "tabs": {
       "screens": "Bildschirme",

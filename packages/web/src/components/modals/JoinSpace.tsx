@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Modal } from '../ui/Modal';
 import { useUIStore } from '../../stores/uiStore';
 import { useSpaceStore, NotConnectedError } from '../../stores/spaceStore';
 import { useInstanceStore, RemoteLoginRequiredError, type RemoteLoginReason } from '../../stores/instanceStore';
 import { useAuthStore } from '../../stores/authStore';
-import { useExploreStore } from '../../stores/exploreStore';
 import { useNavigate } from 'react-router-dom';
 import { parseInviteInput } from '../../utils/inviteParser';
-import { ExploreSpacePreviewCard } from './ExploreSpacePreviewCard';
 import { describeError } from '../../i18n/errors';
 import { FallbackNotice } from './RemotePasswordStep';
 import { isJoinRequestPendingError, isNotRequestableError, JoinRequestRequiredError } from '../../utils/joinErrors';
@@ -47,42 +45,7 @@ export function JoinSpaceModal() {
   const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
 
-  const isMobile = useUIStore((s) => s.isMobile);
-  const pushMobileScreen = useUIStore((s) => s.pushMobileScreen);
-
-  const discoverySpaces = useExploreStore((s) => s.spaces);
-  const discoveryLoading = useExploreStore((s) => s.isLoading);
-  const discoveryEnabled = useExploreStore((s) => s.discoveryEnabled);
-  const discoveryError = useExploreStore((s) => s.error);
-  const fetchSpaces = useExploreStore((s) => s.fetchSpaces);
-  const fetchMyRequests = useExploreStore((s) => s.fetchMyRequests);
-
   const isOpen = activeModal === 'joinSpace';
-
-  // Fetch discoverable spaces when the modal opens. Fire-and-forget; the invite
-  // section never depends on this resolving.
-  useEffect(() => {
-    if (isOpen) {
-      void fetchSpaces();
-      void fetchMyRequests();
-    }
-  }, [isOpen, fetchSpaces, fetchMyRequests]);
-
-  const previewSpaces = useMemo(
-    () => discoverySpaces.filter((s) => !s.joined).slice(0, 6),
-    [discoverySpaces],
-  );
-
-  const handleBrowseExplore = () => {
-    closeModal();
-    if (isMobile) pushMobileScreen('explore');
-    else navigate('/explore');
-  };
-
-  const handlePreviewJoinSuccess = (spaceId: string) => {
-    closeModal();
-    navigate(`/channels/${spaceId}`);
-  };
 
   // Reset state on close
   useEffect(() => {
@@ -236,69 +199,9 @@ export function JoinSpaceModal() {
         </div>
       )}
 
-      {/* Phase: input — discovery-first, with invite code as a secondary path */}
+      {/* Phase: input — joining requires a supplied invitation. */}
       {phase === 'input' && (
         <div>
-          {/* ── Discovery section ── */}
-          {discoveryEnabled ? (
-            <div className="mb-1">
-              <p className="text-txt-secondary text-sm mb-3">
-                {t('spaces:join.discoverIntro')}
-              </p>
-
-              {discoveryLoading && previewSpaces.length === 0 ? (
-                <div className="space-y-2">
-                  {[0, 1, 2].map((i) => (
-                    <div key={i} className="h-[60px] rounded-lg bg-surface-channel border border-border-soft animate-pulse" />
-                  ))}
-                </div>
-              ) : discoveryError ? (
-                <div className="p-2.5 rounded-lg bg-surface-channel border border-border-soft text-[13px] text-txt-tertiary">
-                  {t('spaces:join.discoverError')}
-                </div>
-              ) : previewSpaces.length === 0 ? (
-                <div className="p-3 rounded-lg bg-surface-channel border border-border-soft text-[13px] text-txt-tertiary text-center">
-                  {t('spaces:join.discoverEmpty')}
-                </div>
-              ) : (
-                <div className="space-y-2 max-h-[280px] overflow-y-auto pr-0.5">
-                  {previewSpaces.map((space) => (
-                    <ExploreSpacePreviewCard
-                      key={`${space.id}:${space._instanceOrigin}`}
-                      space={space}
-                      onJoinSuccess={handlePreviewJoinSuccess}
-                    />
-                  ))}
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={handleBrowseExplore}
-                className="mt-3 w-full py-2 flex items-center justify-center gap-1.5 text-sm font-medium text-accent-primary hover:bg-accent-primary/10 rounded-lg transition-colors"
-              >
-                {t('spaces:join.browseExplore')}
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-          ) : (
-            <div className="mb-1 p-2.5 rounded-lg bg-accent-amber/10 border border-accent-amber/30 text-[13px] text-accent-amber">
-              {t('spaces:join.discoveryOff')}
-            </div>
-          )}
-
-          {/* Divider */}
-          <div className="flex items-center gap-3 my-4">
-            <div className="flex-1 h-px bg-white/[0.06]" />
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-txt-tertiary">
-              {t('spaces:join.inviteDivider')}
-            </span>
-            <div className="flex-1 h-px bg-white/[0.06]" />
-          </div>
-
-          {/* ── Invite-code section (secondary) ── */}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <input
@@ -406,7 +309,7 @@ export function JoinSpaceModal() {
           <textarea
             value={requestMessage}
             onChange={(e) => setRequestMessage(e.target.value)}
-            placeholder={t('spaces:explore.requestMessagePlaceholder')}
+            placeholder={t('spaces:join.request.messagePlaceholder')}
             aria-label={t('spaces:join.request.messageLabel')}
             maxLength={JOIN_REQUEST_MESSAGE_MAX}
             rows={3}
@@ -440,7 +343,7 @@ export function JoinSpaceModal() {
                   disabled={isLoading}
                   className="px-3 py-1.5 bg-accent-primary hover:bg-accent-primary/80 text-white text-sm font-medium rounded-full transition-colors disabled:opacity-50"
                 >
-                  {isLoading ? t('spaces:explore.sendingRequest') : t('spaces:explore.sendRequest')}
+                  {isLoading ? t('spaces:join.request.sending') : t('spaces:join.request.send')}
                 </button>
               </div>
             </div>

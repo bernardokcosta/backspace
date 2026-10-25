@@ -3,27 +3,21 @@ import type { InstanceInfoResponse } from '@backspace/shared';
 import { api } from '../api/client';
 
 /**
- * The home instance's public info (`GET /api/instance/info`), shared by every
- * surface of the Backspace page: the sidebar item, the mobile row, the You
- * tab and the page itself. They read the version and `supportCardEnabled`
- * only through this hook, so they never disagree about either.
+ * The home instance's public info (`GET /api/instance/info`), shared by
+ * sticker upload/management and invalidated after instance settings saves.
  *
  * Fetch rule: whenever a subscriber mounts while there is no fresh value and
  * no request in flight, one request starts on the home API client and every
  * concurrent subscriber shares it. A success is cached for the session. A
  * failure leaves the value as it was (null, or the stale value) and nothing
  * in flight, and nothing retries on a timer: the next subscriber mount
- * (opening the page, for example) tries again. On desktop the sidebar stays
- * mounted, so after a first failure its dot stays off until a page mount or a
- * reload; losing a dot is the safe failure.
+ * tries again.
  *
  * Invalidation is stale-while-revalidate: the last value stays on screen,
- * marked stale, until the reread replaces it, so the Support card, the
- * instance name and the sidebar dot do not blink out after an admin save.
+ * marked stale, until the reread replaces it, so sticker limits do not
+ * disappear after an admin save.
  *
- * The older ad-hoc readers of this endpoint (`UserSettings`, `ExplorePage`,
- * the auth pages, the admin panels) keep their own requests; `ExplorePage`
- * rereads once per mount on purpose.
+ * Other readers (settings, auth and admin panels) keep their own requests.
  */
 
 let cached: InstanceInfoResponse | null = null;

@@ -17,7 +17,7 @@ const SPACE_ID = 'space-1';
 
 const SPACE: TaggedSpace = {
   id: SPACE_ID, name: 'Aether Drift', icon: null, banner: null, avatarColor: 'lavender',
-  ownerId: 'u-owner', inviteCode: null, visibility: 'public', directoryListed: false,
+  ownerId: 'u-owner', inviteCode: null, visibility: 'public',
   description: '', createdAt: 1, _instanceOrigin: '',
 };
 
@@ -40,7 +40,7 @@ function detail(
   return {
     id: SPACE.id, name: SPACE.name, icon: SPACE.icon, banner: SPACE.banner, avatarColor: SPACE.avatarColor,
     ownerId: SPACE.ownerId, inviteCode: SPACE.inviteCode, visibility: SPACE.visibility,
-    directoryListed: SPACE.directoryListed, description: SPACE.description, createdAt: SPACE.createdAt,
+    description: SPACE.description, createdAt: SPACE.createdAt,
     channels: [], categories: [], members, roles: [], ...extra,
   };
 }

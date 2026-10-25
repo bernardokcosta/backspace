@@ -33,7 +33,6 @@ const space: Space & { _instanceOrigin: string } = {
   ownerTitle: null,
   inviteCode: null,
   visibility: 'public',
-  directoryListed: false,
   description: null,
   afkChannelId: null,
   afkTimeoutSeconds: 300,

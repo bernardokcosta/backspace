@@ -8,8 +8,8 @@ const directory = path.dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
 const arch = args[args.indexOf('--arch') + 1];
 const mode = args[args.indexOf('--mode') + 1];
-if (args.length !== 4 || !['x64', 'arm64'].includes(arch) || !['synthetic', 'module', 'baseline', 'capture'].includes(mode)) {
-  throw new Error('Usage: node run-sdr-capture-smoke.mjs --arch x64|arm64 --mode synthetic|module|baseline|capture');
+if (args.length !== 4 || !['x64', 'arm64'].includes(arch) || !['synthetic', 'module', 'baseline', 'capture', 'borderless'].includes(mode)) {
+  throw new Error('Usage: node run-sdr-capture-smoke.mjs --arch x64|arm64 --mode synthetic|module|baseline|capture|borderless');
 }
 if (process.platform !== 'win32' || process.arch !== arch) throw new Error(`Synthetic SDR smoke requires a matching Windows ${arch} host`);
 const require = createRequire(path.join(directory, '../package.json'));
@@ -44,7 +44,7 @@ const child = spawn(electron, [path.resolve(directory, '../test/sdr-capture/main
 let timeout;
 try {
   const exit = await new Promise((resolve, reject) => {
-    timeout = setTimeout(() => { child.kill(); reject(new Error(`Synthetic SDR smoke timed out; evidence: ${evidence}`)); }, 45000);
+    timeout = setTimeout(() => { child.kill(); reject(new Error(`SDR smoke timed out; evidence: ${evidence}`)); }, mode === 'borderless' ? 90000 : 45000);
     child.once('error', reject);
     child.once('exit', resolve);
   });

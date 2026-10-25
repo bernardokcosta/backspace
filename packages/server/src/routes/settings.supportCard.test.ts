@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { type FastifyInstance, type FastifyRequest, type FastifyReply } from 'fastify';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
@@ -85,6 +85,8 @@ beforeEach(async () => {
   app = await buildApp();
 });
 
+afterEach(async () => { await app.close(); sqlite.close(); });
+
 function storedSupportCardEnabled(): number {
   const row = sqlite.prepare('SELECT support_card_enabled AS v FROM instance_settings WHERE id = 1').get() as { v: number } | undefined;
   if (!row) throw new Error('instance_settings row missing');
@@ -100,56 +102,46 @@ async function patchAs(userId: string, payload: Record<string, unknown>) {
   });
 }
 
-async function infoSupportCardEnabled(): Promise<unknown> {
-  const res = await app.inject({ method: 'GET', url: '/api/instance/info' });
-  expect(res.statusCode).toBe(200);
-  return res.json().supportCardEnabled;
-}
-
-describe('supportCardEnabled on the instance settings routes', () => {
-  it('is stored as 1 on a fresh database, so the card shows unless an admin hides it', () => {
+describe('retired support-card setting', () => {
+  it('preserves the historical database default for rollback', () => {
     expect(storedSupportCardEnabled()).toBe(1);
   });
 
-  it('is carried on the admin GET', async () => {
-    const res = await app.inject({ method: 'GET', url: '/api/settings/instance', headers: { 'x-test-user': ADMIN_ID } });
-    expect(res.statusCode).toBe(200);
-    expect(res.json().supportCardEnabled).toBe(true);
-  });
+  describe.each([0, 1])('legacy stored value %i', (value) => {
+    beforeEach(() => { sqlite.prepare('UPDATE instance_settings SET support_card_enabled = ? WHERE id = 1').run(value); });
 
-  it('turns off through the admin PATCH, persists, and the public info follows', async () => {
-    const res = await patchAs(ADMIN_ID, { supportCardEnabled: false });
-    expect(res.statusCode).toBe(200);
-    expect(res.json().supportCardEnabled).toBe(false);
-    expect(storedSupportCardEnabled()).toBe(0);
+    it.each(['/api/instance/info', '/api/settings/instance'])('omits the field from %s', async (url) => {
+      const res = await app.inject({ method: 'GET', url, headers: { 'x-test-user': ADMIN_ID } });
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).not.toHaveProperty('supportCardEnabled');
+      expect(storedSupportCardEnabled()).toBe(value);
+    });
 
-    const get = await app.inject({ method: 'GET', url: '/api/settings/instance', headers: { 'x-test-user': ADMIN_ID } });
-    expect(get.json().supportCardEnabled).toBe(false);
-    expect(await infoSupportCardEnabled()).toBe(false);
-  });
+    it.each([true, false, 'no', null])('ignores legacy PATCH value %s without changing stored data', async (input) => {
+      const before = testDb.select().from(schema.instanceSettings).where(eq(schema.instanceSettings.id, 1)).get();
+      const res = await patchAs(ADMIN_ID, { supportCardEnabled: input });
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).not.toHaveProperty('supportCardEnabled');
+      expect(storedSupportCardEnabled()).toBe(value);
+      const after = testDb.select().from(schema.instanceSettings).where(eq(schema.instanceSettings.id, 1)).get();
+      expect(after).toEqual({ ...before, updatedAt: after?.updatedAt });
+    });
 
-  it('turns back on', async () => {
-    expect((await patchAs(ADMIN_ID, { supportCardEnabled: false })).statusCode).toBe(200);
-    const res = await patchAs(ADMIN_ID, { supportCardEnabled: true });
-    expect(res.statusCode).toBe(200);
-    expect(res.json().supportCardEnabled).toBe(true);
-    expect(storedSupportCardEnabled()).toBe(1);
-    expect(await infoSupportCardEnabled()).toBe(true);
-  });
+    it('keeps unrelated settings editable and the shared public sticker limits', async () => {
+      const res = await patchAs(ADMIN_ID, { instanceName: 'Retained', supportCardEnabled: !value, maxStickerSizeMb: 42 });
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toMatchObject({ instanceName: 'Retained', maxStickerSizeMb: 42 });
+      const info = await app.inject({ method: 'GET', url: '/api/instance/info' });
+      expect(info.json()).toMatchObject({ name: 'Retained', maxStickerSizeMb: 42 });
+      expect(storedSupportCardEnabled()).toBe(value);
+    });
 
-  it('rejects a non-boolean with field_not_boolean and writes nothing', async () => {
-    const res = await patchAs(ADMIN_ID, { supportCardEnabled: 'no' });
-    expect(res.statusCode).toBe(400);
-    expect(res.json()).toMatchObject({ code: 'field_not_boolean', details: { field: 'supportCardEnabled' } });
-    expect(storedSupportCardEnabled()).toBe(1);
-  });
-
-  it('refuses a non-admin PATCH and leaves the setting alone', async () => {
-    const res = await patchAs(MEMBER_ID, { supportCardEnabled: false });
-    expect(res.statusCode).toBe(403);
-    expect(res.json()).toMatchObject({ code: 'forbidden' });
-    expect(storedSupportCardEnabled()).toBe(1);
-    expect(await infoSupportCardEnabled()).toBe(true);
+    it('still refuses non-admin settings writes', async () => {
+      const res = await patchAs(MEMBER_ID, { supportCardEnabled: !value, instanceName: 'Forbidden' });
+      expect(res.statusCode).toBe(403);
+      expect(res.json()).toMatchObject({ code: 'forbidden' });
+      expect(storedSupportCardEnabled()).toBe(value);
+    });
   });
 
   it('stays out of GET /api/settings/streaming', async () => {
@@ -158,15 +150,4 @@ describe('supportCardEnabled on the instance settings routes', () => {
     expect(res.json()).not.toHaveProperty('supportCardEnabled');
   });
 
-  it('leaves the other boolean settings untouched when it changes', async () => {
-    const before = testDb.select().from(schema.instanceSettings).where(eq(schema.instanceSettings.id, 1)).get();
-    expect((await patchAs(ADMIN_ID, { supportCardEnabled: false })).statusCode).toBe(200);
-    const after = testDb.select().from(schema.instanceSettings).where(eq(schema.instanceSettings.id, 1)).get();
-    expect(after).toMatchObject({
-      discoveryEnabled: before?.discoveryEnabled,
-      directoryEnabled: before?.directoryEnabled,
-      directoryBrowseEnabled: before?.directoryBrowseEnabled,
-      directoryDirty: before?.directoryDirty,
-    });
-  });
 });

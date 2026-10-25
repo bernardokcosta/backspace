@@ -20,7 +20,6 @@ type ModalType =
   | 'addDmMember'
   | 'groupDmSettings'
   | 'userProfile'
-  | 'connectAndJoin'
   | 'memberRoles'
   | null;
 

@@ -75,7 +75,6 @@ const SPACE: TaggedSpace = {
   ownerTitle: null, ownerId: 'workbench-user',
   inviteCode: null,
   visibility: 'public',
-  directoryListed: false,
   description: 'Rock pools, field notes and the odd crab.',
   createdAt: 1,
   _instanceOrigin: '',
@@ -294,10 +293,6 @@ async function main(): Promise<void> {
       instanceId: 'instance-1',
       sourceCodeUrl: 'https://github.com/bernardokcosta/backspace',
       commit: null,
-      directoryConfigured: false,
-      directoryAvailable: false,
-      directoryEnabled: false,
-      supportCardEnabled: false,
     };
     answer('/instance/info', info);
   }

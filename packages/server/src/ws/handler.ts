@@ -1944,7 +1944,6 @@ export function buildReadyPayload(userId: string): {
         ownerTitle: spaceRow.ownerTitle,
         inviteCode: spaceRow.inviteCode,
         visibility: (spaceRow.visibility ?? 'private') as SpaceWithChannelsAndMembers['visibility'],
-        directoryListed: spaceRow.directoryListed === 1,
         description: spaceRow.description ?? null,
         afkChannelId: spaceRow.afkChannelId ?? null,
         afkTimeoutSeconds: spaceRow.afkTimeoutSeconds ?? 300,

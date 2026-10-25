@@ -143,12 +143,6 @@
   },
   "join": {
     "title": "Entrar em um espaço",
-    "discoverIntro": "Descubra espaços para entrar ou veja todos em Explorar.",
-    "discoverError": "Não foi possível carregar espaços para descobrir agora. Você ainda pode entrar com um código de convite abaixo.",
-    "discoverEmpty": "Ainda não há espaços para descobrir. Tente um código de convite abaixo ou volte mais tarde.",
-    "browseExplore": "Ver todos em Explorar",
-    "discoveryOff": "A descoberta de espaços está desativada nesta instância. Você ainda pode entrar com um código de convite.",
-    "inviteDivider": "Tem um código de convite?",
     "invitePlaceholder": "ex.: abc123 ou https://instancia.com/join/abc123",
     "submit": "Entrar no espaço",
     "submitting": "Entrando...",
@@ -168,101 +162,13 @@
       "submitting": "Entrando..."
     },
     "request": {
+      "messagePlaceholder": "Por que você quer entrar? (opcional)",
+      "send": "Enviar solicitação",
+      "sending": "Enviando...",
       "notice": "Este espaço aceita solicitações de entrada. Envie uma e um gerente vai analisá-la.",
       "messageLabel": "Nota da solicitação",
       "sent": "Solicitação enviada. Um gerente vai analisá-la, e o espaço aparece na sua lista quando ela for aprovada.",
       "pending": "Você já pediu para entrar neste espaço. Sua solicitação está aguardando um gerente."
-    }
-  },
-  "explore": {
-    "title": "Explorar",
-    "searchPlaceholder": "Pesquisar espaços...",
-    "discoveryOff": {
-      "member": "O administrador da sua instância desativou a descoberta de espaços. Aqui, só é possível entrar nos espaços por link de convite.",
-      "admin": "A descoberta de espaços está desativada nesta instância. Aqui, só é possível entrar nos espaços por link de convite.",
-      "enable": "Ativar descoberta de espaços",
-      "failed": "Não foi possível alterar a configuração."
-    },
-    "browseOff": {
-      "member": "Os espaços de outras instâncias não aparecem aqui porque o administrador da sua instância desativou isso.",
-      "admin": "Os espaços de outras instâncias não aparecem aqui.",
-      "action": "Mostrar espaços globais em Explorar",
-      "confirm": {
-        "title": "Mostrar aqui espaços de outras instâncias?",
-        "exposure": "Essas instâncias veem o endereço IP de cada navegador que carrega um desses espaços, e o administrador desta instância não as controla.",
-        "off": "Para parar de mostrá-los depois: Configurações, Instância, Geral, a opção de espaços globais em Explorar.",
-        "action": "Mostrar espaços globais"
-      }
-    },
-    "notListed": {
-      "text": "Nenhum espaço daqui está listado no diretório público.",
-      "action": "Listar espaços",
-      "confirm": {
-        "title": "Listar publicamente os espaços desta instância?",
-        "optIn": "Somente os espaços cujos donos ativarem a listagem são enviados, então esta opção não lista nenhum espaço por si só.",
-        "off": "Para parar de listar depois: Configurações, Instância, Geral, a opção de descoberta de espaços.",
-        "action": "Listar espaços"
-      }
-    },
-    "noMatches": "Nenhum espaço corresponde à sua pesquisa.",
-    "empty": "Ainda não há espaços descobríveis.",
-    "joinedSection": "Participando",
-    "notConnected": "Não conectado a {{host}}",
-    "inner": {
-      "title": "Espaço Interno",
-      "subtitle": "Espaços nas suas instâncias",
-      "noneAnswered": "Nenhuma instância respondeu. O Espaço Interno fica vazio até que uma responda.",
-      "unreachable_one": "Não foi possível acessar {{hosts}}. Os espaços dessa instância não são exibidos.",
-      "unreachable_many": "Não foi possível acessar {{hosts}}. Os espaços dessas instâncias não são exibidos.",
-      "unreachable_other": "Não foi possível acessar {{hosts}}. Os espaços dessas instâncias não são exibidos."
-    },
-    "outer": {
-      "title": "Espaço Externo",
-      "subtitle": "Comunidades de todo o Backspace",
-      "empty": "Ainda não há nada por lá. Os espaços que aderirem ao diretório aparecem aqui.",
-      "noMatches": "Nada no Espaço Externo corresponde à sua pesquisa.",
-      "showMore": "Mostrar mais",
-      "connectAndJoin": "Conectar e entrar",
-      "connectAndRequest": "Conectar e solicitar",
-      "closedBadge": "Fechado para novas contas"
-    },
-    "connections": {
-      "title": "Conexões que precisam de atenção",
-      "sessionExpired": "sessão expirada",
-      "unreachable": "inacessível",
-      "reconnect": "Reconectar",
-      "retry": "Tentar novamente"
-    },
-    "connect": {
-      "title": "Entrar em {{name}}",
-      "intro": "Este espaço fica em <host>{{host}}</host>. Ao conectar, sua identidade é criada lá, vinculada à sua conta em <home>{{home}}</home>.",
-      "probing": "Acessando {{host}}…",
-      "connecting": "Conectando…",
-      "requested": "Sua solicitação para entrar em {{name}} foi enviada."
-    },
-    "badges": {
-      "joined": "Participando",
-      "public": "Público",
-      "request": "Por solicitação"
-    },
-    "noDescription": "Sem descrição",
-    "memberCount_one": "{{count}} membro",
-    "memberCount_many": "{{count}} membros",
-    "memberCount_other": "{{count}} membros",
-    "viewSpace": "Ver espaço",
-    "join": "Entrar no espaço",
-    "joining": "Entrando...",
-    "requestPending": "Solicitação pendente",
-    "requestMessagePlaceholder": "Por que você quer entrar? (opcional)",
-    "sendRequest": "Enviar solicitação",
-    "sendingRequest": "Enviando...",
-    "requestToJoin": "Solicitar entrada",
-    "preview": {
-      "join": "Entrar",
-      "joining": "Entrando…",
-      "pending": "Pendente",
-      "request": "Solicitar",
-      "sending": "Enviando…"
     }
   },
   "settings": {
@@ -273,7 +179,6 @@
       "management": "Gerenciamento",
       "tabs": {
         "overview": "Visão geral",
-        "discovery": "Descoberta",
         "roles": "Cargos",
         "bans": "Banimentos"
       }
@@ -309,12 +214,11 @@
         "failed": "Falha ao excluir o espaço"
       }
     },
-    "discovery": {
-      "title": "Descoberta",
-      "disabledNotice": "A descoberta de espaços está desativada pelo administrador da instância. Alterar a visibilidade não terá efeito até que a descoberta seja reativada.",
+    "access": {
+      "title": "Acesso e descrição",
       "visibility": {
         "label": "Visibilidade",
-        "hint": "Controle quem pode descobrir este espaço e entrar nele.",
+        "hint": "Controle como as pessoas com um convite entram neste espaço.",
         "options": {
           "private": {
             "label": "Privado",
@@ -322,29 +226,18 @@
           },
           "request": {
             "label": "Solicitar entrada",
-            "description": "Visível em Explorar; as pessoas podem solicitar entrada"
+            "description": "O convite leva a uma solicitação que um gerente precisa aprovar"
           },
           "public": {
             "label": "Público",
-            "description": "Visível em Explorar; qualquer pessoa pode entrar na hora"
+            "description": "As pessoas com um convite podem entrar na hora"
           }
         }
       },
-      "directory": {
-        "label": "Listar no diretório global do Backspace",
-        "hint": "Mostra este espaço no Espaço Externo de todas as instâncias do Backspace.",
-        "notConfigured": "Esta instância não está configurada para acessar um diretório, então listar este espaço não chegaria a nenhum.",
-        "adminOff": "O administrador da sua instância precisa permitir a listagem global.",
-        "adminOffSelf": "A listagem global não é permitida nesta instância.",
-        "adminOffSelfAction": "Ativar",
-        "adminOffSelfIntro": "Isso permite a listagem global para a instância inteira: os espaços daqui passam a ser descobríveis em Explorar, e a instância começa a se reportar ao diretório público.",
-        "privateSpace": "Defina antes a visibilidade como pública ou por solicitação de entrada.",
-        "disclosure": "Listar torna públicos: o nome, a descrição, o ícone, o banner e a contagem de membros do espaço, além do endereço desta instância. Quem navega pelo diretório carrega o ícone e o banner desta instância."
-      },
       "description": {
         "label": "Descrição",
-        "hint": "Um breve resumo exibido na página Explorar.",
-        "placeholder": "Uma breve descrição para a página Explorar...",
+        "hint": "Um breve resumo exibido nos convites para este espaço.",
+        "placeholder": "Uma breve descrição deste espaço...",
         "counter": "{{length}}/{{max}}"
       },
       "requests": {
@@ -523,7 +416,6 @@
     "directMessages": "Mensagens diretas",
     "addSpace": "Adicionar um espaço",
     "joinSpace": "Entrar em um espaço",
-    "exploreSpaces": "Explorar espaços",
     "folder": {
       "tooltip_one": "Pasta ({{count}})",
       "tooltip_many": "Pasta ({{count}})",
@@ -565,7 +457,6 @@
       "unreadMessagesOver99": "Mais de 99 mensagens não lidas"
     },
     "dmList": {
-      "explore": "Explorar",
       "newDm": "Nova mensagem direta",
       "empty": "Nenhuma conversa ainda.",
       "leaveGroup": "Sair do grupo",
@@ -655,8 +546,7 @@
   "mobile": {
     "addSheet": {
       "createSpace": "Criar espaço",
-      "joinSpace": "Entrar em um espaço",
-      "exploreSpaces": "Explorar espaços"
+      "joinSpace": "Entrar em um espaço"
     },
     "muteUser": "Silenciar usuário"
   },
