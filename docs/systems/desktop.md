@@ -135,6 +135,11 @@ Remote suspension records only eligible origins for the current user and moves
 their live status to disconnected without changing registry intent or tokens.
 Re-allow reconnects those origins; user-disconnected/expired sessions are not
 automatically resumed. Old cleanup cannot close sockets from the new epoch.
+If revocation interrupts initial registry discovery or token verification,
+initialization resumes for the same account/session in the next allowed epoch.
+Concurrent callers share one attempt; partially created eligible placeholders
+are retried, voluntary disconnects are retained, and retired attempts cannot
+mark another account's initialization complete.
 Deferred message sends use a narrow receipt-only API path: confirmed HTTP
 success settles delivery without parsing/applying old response data. Ordinary
 API calls still reject stale responses. This prevents a blocked JSON-body read
