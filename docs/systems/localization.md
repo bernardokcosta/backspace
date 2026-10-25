@@ -20,6 +20,10 @@ Russian (`ru`), German (`de`), Brazilian Portuguese (`pt`), Simplified Chinese
 
 The project-hub `project` namespace and Support-card-only admin copy were
 retired in 1.15.2 across all five languages; they are not registered or loaded.
+Space discovery/Explore/directory-only copy is also removed. Invitation request
+actions live under `spaces:join.request`, and retained space access/description
+controls under `spaces:settings.access`. Social Discover People is independent
+and retains its own localization.
 
 `zh` is the Simplified catalog and detection maps every `zh-*` tag onto it,
 Traditional included: a `zh-TW` browser gets a script its user can read

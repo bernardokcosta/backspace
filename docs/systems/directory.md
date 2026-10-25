@@ -1,5 +1,14 @@
 # Space Directory ("Outer Space")
 
+## 1.15.2 retirement
+
+Explore, Outer Space, their desktop/mobile launchers, directory dialogs, stores,
+workbenches and exclusive translations are removed. Join Space now takes an
+invitation only; explicit Connections and origin-aware invitation/approval
+remain independent. Visibility and description are retained in space Overview.
+The server/config/wire retirement is tracked by the 1.15.2 implementation plan;
+the legacy implementation described below is not a UI feature of 1.15.2.
+
 The opt-in public directory of spaces. A space owner asks for a space to be
 listed, the instance admin has allowed listing on that instance, and the space
 appears in the Outer Space section of the Explore page on every Backspace

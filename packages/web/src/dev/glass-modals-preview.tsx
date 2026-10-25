@@ -63,7 +63,7 @@ function stubFetch(): void {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
     const path = new URL(url, window.location.href).pathname;
     if (path === `/api/spaces/${SPACE_ID}/members`) return json(MEMBERS);
-    if (path.startsWith('/api/explore') || path.startsWith('/api/join-requests')) return json([]);
+    if (path === `/api/spaces/${SPACE_ID}/join-requests`) return json({ requests: [] });
     if (path.startsWith('/api/')) return json({});
     return realFetch(input, init);
   };

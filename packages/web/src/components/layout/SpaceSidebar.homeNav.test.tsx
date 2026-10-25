@@ -40,13 +40,13 @@ describe('SpaceSidebar @me item', () => {
   it('does not keep a hub-specific rail selection for a retired bookmark', () => {
     renderAt('/backspace');
     expect(railButton('Direct Messages')).not.toHaveAttribute('aria-current');
-    expect(railButton('Explore Spaces')).not.toHaveAttribute('aria-current');
+    expect(screen.queryByTitle('Explore Spaces')).toBeNull();
   });
 
-  it('is not active on /explore, where the Explore action is', () => {
+  it('offers no Explore action for an old bookmark', () => {
     renderAt('/explore');
     expect(railButton('Direct Messages')).not.toHaveAttribute('aria-current');
-    expect(railButton('Explore Spaces')).toHaveAttribute('aria-current', 'page');
+    expect(screen.queryByTitle('Explore Spaces')).toBeNull();
   });
 
   it('is active on the DM home', () => {

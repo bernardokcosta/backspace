@@ -51,19 +51,14 @@ afterEach(() => {
 });
 
 describe('App routes', () => {
-  it('redirects an old /backspace bookmark to Friends', () => {
-    renderAt('/backspace');
+  it.each(['/backspace', '/explore'])('redirects an old %s bookmark to Friends', (path) => {
+    renderAt(path);
     expect(screen.getByTestId('layout')).toHaveTextContent(/^\/channels\/@me$/);
   });
 
-  it('still serves /explore inside the app layout', () => {
-    renderAt('/explore');
-    expect(screen.getByTestId('layout')).toHaveTextContent(/^\/explore$/);
-  });
-
-  it('sends a signed-out visitor of /backspace to the login page', () => {
+  it.each(['/backspace', '/explore'])('sends a signed-out visitor of %s to login', (path) => {
     useAuthStore.setState({ token: null });
-    renderAt('/backspace');
+    renderAt(path);
     expect(screen.getByTestId('login')).toBeInTheDocument();
   });
 });

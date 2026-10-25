@@ -8,18 +8,13 @@ Source files:
 - `packages/server/src/utils/spaceJoinPayload.ts` — Permission-filtered `buildJoinedSpace` payload shared by acceptance and the transitional public join
 - `packages/server/src/routes/users.ts` — Space layout (sidebar folders/ordering) persistence via `PUT /api/users/@me/space-layout`
 - `packages/web/src/stores/spaceStore.ts` — Client-side space state, multi-instance merge, LWW layout sync
-- `packages/web/src/stores/exploreStore.ts` — Explore page state, multi-instance discovery aggregation
-- `packages/web/src/stores/directoryStore.ts` - Outer Space: the directory feed, origin dedupe, connect-then-join (see [directory.md](directory.md))
-- `packages/web/src/components/chat/ExplorePage.tsx`, `SpaceCard.tsx`, `OuterSpaceSection.tsx` - the Explore page's two sections and the card both use
 - `packages/web/src/components/modals/CreateSpace.tsx` — Space creation modal (icon crop, color, visibility)
 - `packages/web/src/components/modals/JoinSpace.tsx` — Join-by-code modal with federation connect phases
-- `packages/web/src/components/modals/ExploreSpacePreviewCard.tsx` — Compact discoverable-space card rendered inside the Join Space modal
 - `packages/web/src/components/modals/InviteModal.tsx` — Invite link generation and copy
 - `packages/web/src/components/modals/TransferOwnershipModal.tsx` — Ownership transfer member picker
-- `packages/web/src/components/modals/SpaceSettings.tsx` — Space settings: overview, discovery, members, roles, bans
+- `packages/web/src/components/modals/SpaceSettings.tsx` — Space settings: overview (including access/description and approval requests), members, roles, bans and soundboard
 - `packages/web/src/components/JoinPage.tsx` — Public invite landing page with federation redirect
 - `packages/web/src/hooks/useDragManager.ts` — Channel/category/voice-user drag-and-drop
-- `packages/web/src/hooks/useSpaceJoin.ts` — Shared join/request state machine over exploreStore (used by ExplorePage SpaceCard and the JoinSpace modal preview card)
 - `packages/web/src/utils/inviteParser.ts` — Invite code/URL/qualified-code parser
 - `packages/web/src/utils/joinErrors.ts`, `utils/inviteJoinRequest.ts` - `JoinRequestRequiredError` and the join refusal checks; `sendInviteJoinRequest`, the join request an invite to a request space leads to
 
@@ -246,31 +241,20 @@ Every surface that takes a code reaches the join request flow the same way, so n
 ### Join Space Modal (`JoinSpaceModal`)
 
 Opened from the space sidebar "Join a Space" action. The `input` phase is
-**discovery-first**: on open it triggers `exploreStore.fetchSpaces()` +
-`fetchMyRequests()` (same multi-instance discovery data as the Explore page)
-and renders up to 6 unjoined public/request spaces as compact
-`ExploreSpacePreviewCard`s. A "Browse all in Explore" action routes to the full
-Explore page — `navigate('/explore')` on desktop, `pushMobileScreen('explore')`
-on mobile (`uiStore.isMobile`). Joining a public preview card closes the modal
-and navigates into the space.
-
-States: loading (skeletons), empty / all-joined (notice), discovery disabled by
-admin (`discoveryEnabled=false` → notice, invite path becomes primary), fetch
-error (quiet degrade — invite path unaffected).
-
-Below a divider, the secondary **"Have an invite code?"** section keeps the
-invite-code/link flow: `parseInviteInput` → `joinByCode(code, origin?)`, with the
-unchanged federation phases:
+**invitation-only**: it neither fetches nor previews discovery. A supplied
+code/URL runs `parseInviteInput` → `joinByCode(code, origin?)`, with the retained
+federation phases:
 - `connect` — password prompt for federation
 - `fallback` — different-password login for remote instance
 
-The join/request behavior of both the compact preview card and the Explore
-page's `SpaceCard` is provided by the shared `useSpaceJoin` hook, so the two
-surfaces cannot drift.
+The `request` and `request-sent` phases use the independent invitation request
+utility. Desktop/mobile Explore launchers, previews, stores and workbenches
+were removed in 1.15.2; old `/explore` bookmarks redirect to Friends with history
+replacement. Existing remote memberships and explicit Connections remain.
 
-The direct sidebar "Explore Spaces" button remains the 1-click path to the full
-Explore page; the modal's discovery preview is an additional, in-context entry
-point, not a replacement.
+Space managers edit visibility and invitation description in Overview's
+`AccessPanel`, without directory flags or requests for instance discovery
+settings. Pending requests retain per-origin listing/approval there.
 
 ---
 

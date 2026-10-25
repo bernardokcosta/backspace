@@ -19,7 +19,7 @@ import { useUIStore } from '../../stores/uiStore';
 import { ChannelSidebar } from './ChannelSidebar';
 
 const SELECTED = 'bg-interactive-selected';
-const LABELS = { friends: 'Friends', explore: 'Explore' } as const;
+const LABELS = { friends: 'Friends' } as const;
 
 function LocationProbe() {
   return <div data-testid="location">{useLocation().pathname}</div>;
@@ -54,9 +54,9 @@ beforeEach(() => {
 });
 
 describe('ChannelSidebar home items', () => {
-  it('selects only Explore on /explore', () => {
+  it('has no Explore launcher for a retired bookmark', () => {
     renderAt('/explore');
-    expect(selectedItems()).toEqual(['explore']);
+    expect(screen.queryByText('Explore', { selector: 'span' })).toBeNull();
   });
 
   it('has no hub launcher or hub update dot, including on an old bookmark', () => {

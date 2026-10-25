@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { activeHomeNavItem } from './homeNav';
 
 describe('activeHomeNavItem', () => {
-  it('selects Explore on /explore', () => {
-    expect(activeHomeNavItem('/explore', null)).toBe('explore');
+  it('has no special selection for a retired Explore bookmark', () => {
+    expect(activeHomeNavItem('/explore', null)).toBe('friends');
   });
 
   it('has no special selection for a retired hub bookmark', () => {
@@ -22,8 +22,8 @@ describe('activeHomeNavItem', () => {
     expect(activeHomeNavItem('/channels/space-1/channel-1', 'channel-1')).toBeNull();
   });
 
-  it('keeps the page items selected even when a stale channel id lingers', () => {
-    expect(activeHomeNavItem('/explore', 'channel-1')).toBe('explore');
+  it('does not give retired bookmarks a page item while a channel id lingers', () => {
+    expect(activeHomeNavItem('/explore', 'channel-1')).toBeNull();
   });
 
   it('does not treat a path that only starts with a page name as that page', () => {

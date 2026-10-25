@@ -436,9 +436,8 @@ export function waitForAutoConnect(): Promise<void> {
  * through it, naming a phase from the table; nothing else in this file writes
  * a status to either projection, apart from `autoConnectAll` seeding a row from
  * the server registry or from localStorage, which creates the persisted record
- * for an origin that has no live half yet rather than moving one. `innerOrigins`
- * (`utils/directory.ts`) reads across the pair, so halves that disagree put an
- * instance's spaces in the wrong half of the Explore page.
+ * for an origin that has no live half yet rather than moving one. Keeping the
+ * pair synchronized lets connection settings report the live session accurately.
  */
 
 /**

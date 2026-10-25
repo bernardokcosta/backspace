@@ -12,7 +12,6 @@ vi.mock('../../audio/AudioManager', () => ({
 }));
 
 // The pages themselves have their own tests; here only which one renders matters.
-vi.mock('../chat/ExplorePage', () => ({ ExplorePage: () => <div data-testid="page">explore</div> }));
 vi.mock('../chat/FriendsPage', () => ({ FriendsPage: () => <div data-testid="page">friends</div> }));
 
 import { render, screen } from '@testing-library/react';
@@ -43,9 +42,9 @@ describe('MainContent home pages', () => {
     expect(screen.getByTestId('page')).toHaveTextContent('friends');
   });
 
-  it('still renders Explore on /explore', () => {
+  it('does not mount discovery for an old Explore bookmark', () => {
     renderAt('/explore');
-    expect(screen.getByTestId('page')).toHaveTextContent('explore');
+    expect(screen.getByTestId('page')).toHaveTextContent('friends');
   });
 
   it('renders Friends on the DM home', () => {

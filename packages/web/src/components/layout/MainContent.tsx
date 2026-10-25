@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useChatStore } from '../../stores/chatStore';
 import { useUIStore } from '../../stores/uiStore';
@@ -10,7 +9,6 @@ import { VoiceGrid } from '../voice/VoiceGrid';
 import { VoiceControlBar } from '../voice/VoiceControlBar';
 import { VoiceChatPanel } from '../voice/VoiceChatPanel';
 import { FriendsPage } from '../chat/FriendsPage';
-import { ExplorePage } from '../chat/ExplorePage';
 import { Avatar } from '../ui/Avatar';
 import { AvatarStack } from '../ui/AvatarStack';
 import { useVoiceStore } from '../../stores/voiceStore';
@@ -73,8 +71,6 @@ export function MainContent() {
   const isLiveKitConnected = useVoiceStore((s) => s.isLiveKitConnected);
   const connectionError = useVoiceStore((s) => s.connectionError);
   const showDms = useUIStore((s) => s.showDms);
-  const location = useLocation();
-  const isExplorePage = location.pathname === '/explore';
   // The DM call's conversation as this client opens it (never the call's key).
   const { dmChannelId: dmCallChannel } = useActiveDmCall();
   const outgoingCall = useVoiceStore((s) => s.outgoingCall);
@@ -205,13 +201,9 @@ export function MainContent() {
   const channel = channels.find(c => c.id === currentChannelId);
   const isVoiceChannel = channel?.type === 'voice';
 
-  if (showDms || isExplorePage || !currentSpaceId) {
+  if (showDms || !currentSpaceId) {
     if (!currentChannelId) {
-      return isExplorePage ? (
-        <ExplorePage />
-      ) : (
-        <FriendsPage />
-      );
+      return <FriendsPage />;
     }
 
     const dmChannel = dmChannels.find(dm => dm.id === currentChannelId);

@@ -10,7 +10,7 @@ export interface VisibilityOption {
 
 /**
  * The three visibility choices with their wording in the current language.
- * Shared by the create-space modal and the discovery panel so both describe
+ * Shared by the create-space modal and the access panel so both describe
  * the same setting in the same words.
  */
 export function useVisibilityOptions(): VisibilityOption[] {
@@ -18,18 +18,18 @@ export function useVisibilityOptions(): VisibilityOption[] {
   return useMemo(() => [
     {
       value: 'private',
-      label: t('spaces:settings.discovery.visibility.options.private.label'),
-      desc: t('spaces:settings.discovery.visibility.options.private.description'),
+      label: t('spaces:settings.access.visibility.options.private.label'),
+      desc: t('spaces:settings.access.visibility.options.private.description'),
     },
     {
       value: 'request',
-      label: t('spaces:settings.discovery.visibility.options.request.label'),
-      desc: t('spaces:settings.discovery.visibility.options.request.description'),
+      label: t('spaces:settings.access.visibility.options.request.label'),
+      desc: t('spaces:settings.access.visibility.options.request.description'),
     },
     {
       value: 'public',
-      label: t('spaces:settings.discovery.visibility.options.public.label'),
-      desc: t('spaces:settings.discovery.visibility.options.public.description'),
+      label: t('spaces:settings.access.visibility.options.public.label'),
+      desc: t('spaces:settings.access.visibility.options.public.description'),
     },
   ], [t]);
 }

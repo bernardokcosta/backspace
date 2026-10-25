@@ -3,8 +3,8 @@ vi.mock('../../audio/AudioManager', () => ({ AudioManager: { getInstance: vi.fn(
 import { mobileScreenMap } from './MobileShell';
 
 describe('MobileShell retained screens', () => {
-  it('does not register the removed hub screen', () => {
-    expect(mobileScreenMap).not.toHaveProperty('backspace');
+  it.each(['backspace', 'explore'])('does not register the removed %s screen', (screen) => {
+    expect(mobileScreenMap).not.toHaveProperty(screen);
   });
   it.each(['friends', 'channel-chat', 'settings', 'settings-desktop', 'settings-instance-updates'])('keeps %s', (screen) => {
     expect(mobileScreenMap[screen]).toBeTypeOf('function');

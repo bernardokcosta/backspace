@@ -7,55 +7,6 @@
       "description": "O nome exibido na página de login e para instâncias federadas.",
       "counter": "{{length}}/{{max}}"
     },
-    "discovery": {
-      "label": "Descoberta de espaços",
-      "description": "Até onde os espaços desta instância podem ser encontrados.",
-      "levels": {
-        "invite": {
-          "label": "Somente por convite",
-          "description": "Os espaços daqui não são listados em nenhum lugar. Os links de convite continuam funcionando."
-        },
-        "local": {
-          "label": "Descoberta local de espaços",
-          "description": "Os espaços aparecem em Explorar para pessoas nesta instância e em instâncias conectadas a ela."
-        },
-        "global": {
-          "label": "Permitir listagem global",
-          "description": "Cada espaço poderá então ser listado manualmente no diretório global do Backspace pelas próprias configurações de Descoberta."
-        }
-      },
-      "unconfigured": "Esta instância não está configurada para acessar um diretório, portanto nada aqui pode ser listado globalmente."
-    },
-    "directory": {
-      "listingHint": "Ativar isto não lista nenhum espaço por si só. Cada espaço ainda precisa ativar \"{{setting}}\" nas próprias configurações de Descoberta.",
-      "showMeWhere": "Mostrar onde",
-      "saveAndShowMeWhere": "Salvar e mostrar onde",
-      "listedCount_one": "{{count}} espaço listado",
-      "listedCount_many": "{{count}} espaços listados",
-      "listedCount_other": "{{count}} espaços listados",
-      "registrationClosed": "Novas contas de outras instâncias estão fechadas, então os espaços listados aparecerão como fechados para novas contas.",
-      "openFederatedRegistration": "Abrir contas federadas",
-      "disclosure": "Para cada espaço listado, isto torna públicos: o nome, a descrição, o ícone, o banner, a quantidade de membros e o endereço desta instância. As pessoas que navegam pelo diretório carregam o ícone e o banner desta instância.",
-      "status": {
-        "never": "Nunca reportado",
-        "lastPing": "Último relatório em {{date}}",
-        "lastError": "A última tentativa falhou ({{status}})"
-      },
-      "reasons": {
-        "unreachable": "o diretório não conseguiu acessar esta instância",
-        "status": "esta instância respondeu com um erro",
-        "invalid": "esta instância forneceu um documento inválido",
-        "origin-mismatch": "esta instância informa um endereço diferente daquele pelo qual foi acessada",
-        "origin": "o diretório recusou o endereço desta instância; ele deve ser um domínio https sem porta (defina DOMAIN ou PUBLIC_ORIGIN)",
-        "network": "esta instância não conseguiu acessar o diretório",
-        "timeout": "o diretório não respondeu a tempo"
-      }
-    },
-    "browse": {
-      "toggleLabel": "Mostrar espaços globais em Explorar",
-      "toggleDescription": "As pessoas daqui veem espaços de outras instâncias em Espaço Sideral. Os navegadores carregam os ícones e banners desses espaços das instâncias que os hospedam.",
-      "unavailable": "Esta instância não está configurada para acessar um diretório, então não há nada para mostrar."
-    },
     "gif": {
       "label": "Pesquisa de GIFs",
       "description": "Ativar pesquisa de GIFs fornecida pelo Klipy. Obtenha uma chave de API gratuita no portal de desenvolvedores do Klipy.",

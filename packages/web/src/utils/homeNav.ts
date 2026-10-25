@@ -3,15 +3,13 @@
  *
  * One function keeps the sidebar selection mutually exclusive.
  *
- * `/explore` is a page in the main area and wins over a
- * lingering channel id. Anywhere else the Friends view is what shows when no
- * channel is open, and with a channel open neither item is selected.
+ * Friends is the retained home view when no channel is open. Old discovery
+ * bookmarks redirect at the router rather than defining another home item.
  */
 
-export type HomeNavItem = 'friends' | 'explore';
+export type HomeNavItem = 'friends';
 
 export function activeHomeNavItem(pathname: string, currentChannelId: string | null): HomeNavItem | null {
-  if (pathname === '/explore') return 'explore';
   if (currentChannelId === null) return 'friends';
   return null;
 }

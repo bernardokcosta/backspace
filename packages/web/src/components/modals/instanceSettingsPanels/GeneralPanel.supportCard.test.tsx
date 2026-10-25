@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 vi.mock('../../../audio/AudioManager', () => ({ AudioManager: { getInstance: vi.fn(() => ({ setOutputDevice: vi.fn(), setVolume: vi.fn() })) } }));
 const { invalidateHomeInstanceInfo } = vi.hoisted(() => ({ invalidateHomeInstanceInfo: vi.fn() }));
 vi.mock('../../../hooks/useHomeInstanceInfo', () => ({ invalidateHomeInstanceInfo, useHomeInstanceInfo: () => null }));
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { InstanceAdminSettings, InstanceInfoResponse } from '@backspace/shared';
 import { MemoryRouter } from 'react-router-dom';
@@ -34,10 +34,33 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks(); });
 
 describe('GeneralPanel after hub retirement', () => {
+  it('preserves unsaved edits across external settings updates and can reset to the latest value', async () => {
+    seed(); renderPanel(); await editName();
+    act(() => { useSettingsStore.setState({ instanceSettings: { ...base, instanceName: 'External' } }); });
+    expect(screen.getByLabelText('Instance Name')).toHaveValue('Workbench renamed');
+    await userEvent.click(screen.getByRole('button', { name: 'Reset' }));
+    expect(screen.getByLabelText('Instance Name')).toHaveValue('External');
+  });
+  it('reseeds an untouched name when settings change', () => {
+    seed(); renderPanel();
+    act(() => { useSettingsStore.setState({ instanceSettings: { ...base, instanceName: 'External' } }); });
+    expect(screen.getByLabelText('Instance Name')).toHaveValue('External');
+  });
+  it('sends the GIF key only when edited and keeps it across external refresh', async () => {
+    const update = seed(); renderPanel();
+    const key = screen.getByPlaceholderText('Klipy API key');
+    await userEvent.type(key, 'fixture-key');
+    act(() => { useSettingsStore.setState({ instanceSettings: { ...base, instanceName: 'External' } }); });
+    expect(key).toHaveValue('fixture-key');
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(update).toHaveBeenCalledWith({ instanceName: 'Workbench', gifApiKey: 'fixture-key' });
+  });
   it('has no Support card switch or section', () => {
     seed(); renderPanel();
     expect(screen.queryByRole('switch', { name: 'Show the Support card' })).toBeNull();
     expect(screen.queryByText('Backspace page')).toBeNull();
+    expect(screen.queryByRole('radiogroup', { name: 'Space discovery' })).toBeNull();
+    expect(screen.queryByRole('switch', { name: 'Show global spaces in Explore' })).toBeNull();
   });
 
   it('keeps retained draft changes local until save and never sends the retired field', async () => {
@@ -48,6 +71,9 @@ describe('GeneralPanel after hub retirement', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(update).toHaveBeenCalledWith(expect.objectContaining({ instanceName: 'Workbench renamed' }));
     expect(update.mock.calls[0]?.[0]).not.toHaveProperty('supportCardEnabled');
+    expect(update.mock.calls[0]?.[0]).not.toHaveProperty('discoveryEnabled');
+    expect(update.mock.calls[0]?.[0]).not.toHaveProperty('directoryEnabled');
+    expect(update.mock.calls[0]?.[0]).not.toHaveProperty('directoryBrowseEnabled');
     await waitFor(() => expect(invalidateHomeInstanceInfo).toHaveBeenCalledTimes(1));
   });
 
