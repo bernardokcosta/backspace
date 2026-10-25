@@ -1,7 +1,7 @@
 # Spec: Verified desktop release
 
 **Module id:** `verified-desktop-release`
-**Status:** Specification and plan approved by the user; publication/deployment not started
+**Status:** Single-writer implementation and 1.15.1 source preparation complete; review, real matrix verification and publication/deployment pending.
 **Initiative:** [Desktop 1.15.1](2026-10-24-desktop-1.15.1-design.md)
 
 The initiative defines shared commands, style, dependencies and boundaries.

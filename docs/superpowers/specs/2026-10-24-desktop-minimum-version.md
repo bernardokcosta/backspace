@@ -1,7 +1,7 @@
 # Spec: Desktop minimum version
 
 **Module id:** `desktop-minimum-version`
-**Status:** Specification and plan approved by the user; implementation not yet started
+**Status:** Implemented; validation/review and historical-host acceptance pending. Default disabled.
 **Initiative:** [Desktop 1.15.1](2026-10-24-desktop-1.15.1-design.md)
 
 The initiative defines shared commands, style, dependencies and boundaries.

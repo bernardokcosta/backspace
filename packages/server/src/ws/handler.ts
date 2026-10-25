@@ -1,13 +1,15 @@
 import type { FastifyInstance } from 'fastify';
 import type { WebSocket } from 'ws';
 import { verifyJwt } from '../utils/auth.js';
+import { DesktopUpdateRequiredError, requireCompatibleDesktop } from '../utils/desktopAccess.js';
+import { config } from '../config.js';
 import { getDb, schema } from '../db/index.js';
 import { eq, and, or, inArray, desc, sql } from 'drizzle-orm';
 import { handleClientEvent } from './events.js';
 import { recordSocketAddress } from './socketAddress.js';
 import { computePermissions, PermissionBits, permissionsToString } from '../utils/permissions.js';
 import { idsHiddenFromEveryone } from '@backspace/shared/src/permissions.js';
-import { BOT_TOKEN_IN_USE_CLOSE_CODE } from '@backspace/shared/src/constants.js';
+import { BOT_TOKEN_IN_USE_CLOSE_CODE, DESKTOP_UPDATE_REQUIRED_CLOSE_CODE } from '@backspace/shared/src/constants.js';
 import type {
   User,
   Space,
@@ -2307,6 +2309,17 @@ export async function registerWebSocket(app: FastifyInstance): Promise<void> {
           }
 
           // One process per bot credential: a second socket is refused while the first is open.
+          try {
+            requireCompatibleDesktop(request.headers['user-agent'], { isBot: userRow.isBot === 1 }, config.minimumDesktopVersion);
+          } catch (error) {
+            if (!(error instanceof DesktopUpdateRequiredError)) throw error;
+            clearTimeout(authTimeout);
+            // No presence, telemetry, bot-session claim or connection has been
+            // registered. Refuse this socket only, not another valid session.
+            ws.send(JSON.stringify({ type: 'error', message: error.message, code: error.code, details: error.details }));
+            ws.close(DESKTOP_UPDATE_REQUIRED_CLOSE_CODE, error.code);
+            return;
+          }
           if (userRow.isBot === 1) {
             const sessionKey = botTokenId !== null ? `token:${botTokenId}` : `account:${userRow.id}`;
             if (!connectionManager.claimBotSession(sessionKey, ws)) {

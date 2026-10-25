@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
-import { startPendingMessageOrchestrator } from './stores/pendingMessageRehydrate';
 import i18n, { initI18n } from './i18n';
 import './styles/globals.css';
 import { initializeInterfaceScale } from './platform/interfaceScale';
@@ -118,7 +117,6 @@ class ErrorBoundary extends React.Component<
 const root = document.getElementById('root');
 if (!root) throw new Error('Root element not found');
 
-startPendingMessageOrchestrator();
 
 function render(): void {
   ReactDOM.createRoot(root!).render(

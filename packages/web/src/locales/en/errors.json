@@ -1,4 +1,5 @@
 {
+  "desktop_update_required": "Desktop version {{minimumVersion}} or newer is required. Update the app or use a browser.",
   "soundboard_disabled": "The soundboard is disabled in this space.",
   "soundboard_invalid_audio": "The audio is invalid or exceeds the file size limit.",
   "soundboard_duration_limit": "The audio must be at most {{max}} seconds long.",

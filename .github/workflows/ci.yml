@@ -103,6 +103,7 @@ jobs:
       - name: Test
         run: |
           node --test scripts/probe-desktop-compatibility.test.mjs
+          node --test scripts/desktop-release-assets.test.mjs scripts/publish-desktop-release.test.mjs
           pnpm -r test
 
   # ESLint over every workspace package. Its own job rather than a step in the

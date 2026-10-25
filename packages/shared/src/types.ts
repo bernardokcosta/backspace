@@ -1245,6 +1245,8 @@ export interface InstanceStreamingLimits {
 export interface InstanceInfoResponse {
   name: string;
   version: string;
+  /** Serving-instance policy; missing/null means no desktop minimum. */
+  minimumDesktopVersion?: string | null;
   registrationOpen: boolean;
   federatedRegistrationOpen: boolean;
   // Persistent per-instance epoch (incarnation UUID). Minted by ensureDefaults on

@@ -3,6 +3,38 @@
 Base: `/api`. Auth via `Authorization: Bearer <jwt>`. All responses JSON.
 Source files: `packages/server/src/routes/*.ts`
 
+## Desktop minimum policy
+
+The public `/api/instance/info` response optionally includes
+`minimumDesktopVersion: string | null`. Missing/null is disabled; a configured
+value is stable SemVer from `BACKSPACE_MIN_DESKTOP_VERSION` (blank/unset disables,
+malformed values refuse boot). This belongs to the serving instance, not a peer
+or updater feed. Version comparisons are numeric, prereleases sort below their
+stable release, and build metadata does not affect order.
+
+New desktops append `BackspaceFork/<installed-version>` to the existing UA.
+Electron-only shells have an unknown app version, not Electron's version; no
+unobserved legacy package-name parser is invented. A compatibility refusal uses
+HTTP 426 / `desktop_update_required` and details `{ minimumVersion,
+currentVersion? }` (unknown current omitted). Identification is an operational
+compatibility policy, not device attestation or a substitute for authorization.
+
+The guard runs after access-token/account verification in authenticated routes
+(including LiveKit token acquisition), in every raw tus request, and in optional
+human-auth sticker-store reads. Invalid tokens remain 401. Human registration
+is checked before account/invite writes, after any signed bot proof is verified;
+login checks the resolved account before password self-heal writes. Verified
+bot credentials, including replicated bot accounts, are exempt based on DB/
+proof identity, not an asserted client-kind flag. Tus keeps its protocol error
+shape/status and includes the coded refusal as its error text JSON.
+
+The web API client keeps ordinary response data bound to its allowed desktop
+lifecycle. Deferred channel/DM sends have separate receipt-only methods using
+the same existing endpoints: a successful HTTP response acknowledges delivery,
+even if the UI lifecycle retired during the request. No stale message body is
+applied to stores. Failed/unconfirmed requests are not treated as delivered;
+no new wire endpoint or server-side idempotency contract is introduced.
+
 ---
 
 ## Rate limiting

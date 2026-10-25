@@ -58,6 +58,7 @@ async function buildApp(): Promise<FastifyInstance> {
 }
 
 beforeEach(async () => {
+  (config as { minimumDesktopVersion: string | null }).minimumDesktopVersion = null;
   mockDirectory.endpoint = 'https://hub.test';
   sqlite = new Database(':memory:');
   sqlite.pragma('foreign_keys = ON');
@@ -78,6 +79,11 @@ beforeEach(async () => {
 });
 
 describe('GET /api/instance/info', () => {
+  it('publicly reports a disabled or configured minimum desktop policy', async () => {
+    expect((await app.inject({ method: 'GET', url: '/api/instance/info' })).json().minimumDesktopVersion).toBeNull();
+    (config as { minimumDesktopVersion: string | null }).minimumDesktopVersion = '1.15.1';
+    expect((await app.inject({ method: 'GET', url: '/api/instance/info' })).json().minimumDesktopVersion).toBe('1.15.1');
+  });
   it('includes federatedRegistrationOpen (default true)', async () => {
     const res = await app.inject({ method: 'GET', url: '/api/instance/info' });
     expect(res.statusCode).toBe(200);

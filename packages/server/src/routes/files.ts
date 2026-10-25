@@ -5,6 +5,8 @@ import { config } from '../config.js';
 import { getDb, schema } from '../db/index.js';
 import { generateSnowflake } from '../utils/snowflake.js';
 import { verifyAccessToken, AuthError, tokenFromAuthHeader } from '../utils/auth.js';
+import { DesktopUpdateRequiredError, requireCompatibleDesktop } from '../utils/desktopAccess.js';
+import { errorBody } from '../utils/httpErrors.js';
 import {
   parseUploadMetadata,
   extractExtension,
@@ -130,10 +132,16 @@ export async function filesRoutes(app: FastifyInstance): Promise<void> {
       if (token === null) {
         throw { status_code: 401, body: 'Missing or invalid authorization header' };
       }
-      let identity: { userId: string; username: string; homeInstance: string | null };
+      let identity: Awaited<ReturnType<typeof verifyAccessToken>>;
       try {
         identity = await verifyAccessToken(token);
+        requireCompatibleDesktop(req.headers.get('user-agent') ?? undefined, identity, config.minimumDesktopVersion);
       } catch (err) {
+        if (err instanceof DesktopUpdateRequiredError) {
+          // Preserve tus' protocol error handling while retaining the coded
+          // refusal in its text body for clients which can decode it.
+          throw { status_code: err.statusCode, body: JSON.stringify(errorBody(err.statusCode, err.code, err.details)) };
+        }
         if (err instanceof AuthError) {
           throw { status_code: err.statusCode, body: err.message };
         }

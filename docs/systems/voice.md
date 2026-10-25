@@ -448,6 +448,14 @@ Cancellation rolls back any video/audio publication and never revives an ended
 track. Setup generation checks keep a late result from erasing a reopened
 preview, and unmount disarms in-flight source selection as well as its capture.
 
+Desktop compatibility revocation unmounts the ordinary app, closing setup and
+clearing local call/voice intent. The existing `useLiveKit` teardown invalidates
+in-flight room negotiations, disconnects the room and releases microphone,
+camera and native capture. API token acquisition and WS traffic also stop while
+blocked. This updated-client lifecycle is not evidence that a legacy cached
+bundle's independently valid LiveKit grant is revoked across server restart;
+do not eject another valid browser/bot participant by user id to approximate it.
+
 The native bridge, controlled-window proof and remaining HDR/ARM64/package
 acceptance gates are documented in [desktop.md](desktop.md),
 [desktop-security.md](desktop-security.md) and the 1.15.1 validation ledger.

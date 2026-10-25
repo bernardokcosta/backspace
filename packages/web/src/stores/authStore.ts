@@ -5,7 +5,8 @@ import { useUnreadCountStore } from './unreadCountStore';
 import { useMemo } from 'react';
 import { create } from 'zustand';
 import { isChosenUserStatus, type ChosenUserStatus, type FederatedIdentity, type User } from '@backspace/shared';
-import { api } from '../api/client';
+import { api, HttpError } from '../api/client';
+import { captureDesktopSessionWork } from '../utils/desktopSessionAccess';
 import { useChatStore } from './chatStore';
 import { useSpaceStore } from './spaceStore';
 import { useSocialStore } from './socialStore';
@@ -228,9 +229,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   login: async (username: string, password: string) => {
+    const work = captureDesktopSessionWork(); work.assertCurrent();
     set({ isLoading: true, error: null });
     try {
       const response = await api.auth.login({ username, password });
+      work.assertCurrent();
       get().initSession(response.token, response.user);
     } catch (err) {
       set({ isLoading: false, error: err instanceof Error ? err.message : 'Login failed' });
@@ -239,9 +242,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   register: async (username: string, password: string, displayName?: string, avatarColor?: string) => {
+    const work = captureDesktopSessionWork(); work.assertCurrent();
     set({ isLoading: true, error: null });
     try {
       const response = await api.auth.register({ username, password, displayName, avatarColor });
+      work.assertCurrent();
       get().initSession(response.token, response.user);
     } catch (err) {
       set({ isLoading: false, error: err instanceof Error ? err.message : 'Registration failed' });
@@ -257,18 +262,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   loadUser: async () => {
+    const work = captureDesktopSessionWork();
+    if (!work.isCurrent()) return;
     const token = get().token;
     if (!token) return;
 
     set({ isLoading: true });
     try {
       const user = await api.users.me();
+      if (!work.isCurrent()) return;
       // A value already in the page (the true home's report, or the kept
       // report a sign-in started from, with its expiry) is kept as it is.
       set({ user, trueHomeStatus: get().trueHomeStatus ?? seedTrueHomeStatus(user), isLoading: false });
       // Auto-connect to remote instances (fire-and-forget)
       useInstanceStore.getState().autoConnectAll().catch(() => {});
-    } catch {
+    } catch (error) {
+      if (!work.isCurrent() || (error instanceof HttpError && error.code === 'desktop_update_required')) {
+        set({ isLoading: false });
+        return;
+      }
       localStorage.removeItem('backspace_token');
       cancelKeptStatusExpiry();
       set({ token: null, user: null, trueHomeStatus: null, myRowIds: new Map(), isLoading: false });

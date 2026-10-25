@@ -12,8 +12,8 @@ const channelSend = vi.fn();
 vi.mock('../utils/crossStoreResolvers', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../utils/crossStoreResolvers')>()),
   getApiForOrigin: () => ({
-    dm: { sendMessage: (...args: unknown[]) => dmSend(...args) },
-    channels: { sendMessage: (...args: unknown[]) => channelSend(...args) },
+    dm: { sendMessageReceipt: (...args: unknown[]) => dmSend(...args) },
+    channels: { sendMessageReceipt: (...args: unknown[]) => channelSend(...args) },
   }),
 }));
 

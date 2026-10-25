@@ -1,4 +1,5 @@
 {
+  "desktop_update_required": "需要 {{minimumVersion}} 或更高版本的桌面应用。请更新应用或使用浏览器。",
   "soundboard_disabled": "此空间已禁用音效面板。",
   "soundboard_invalid_audio": "音频无效或超过文件大小限制。",
   "soundboard_duration_limit": "音频时长不得超过 {{max}} 秒。",

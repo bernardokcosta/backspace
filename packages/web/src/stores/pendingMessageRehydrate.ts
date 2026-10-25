@@ -3,8 +3,25 @@ import { useTransferStore } from './transferStore';
 import { useUIStore } from './uiStore';
 import { getApiForOrigin, getChannelOrigin, getChannelKind, useSpaceStore } from './spaceStore';
 import { HttpError, RateLimitError } from '../api/client';
+import { captureDesktopSessionWork, isDesktopSessionAllowed } from '../utils/desktopSessionAccess';
 
 let started = false;
+let users = 0;
+let generation = 0;
+let stopSubscriptions: (() => void) | null = null;
+
+function releaseLifecycle(): () => void {
+  let disposed = false;
+  return () => {
+    if (disposed) return;
+    disposed = true;
+    if (--users !== 0) return;
+    started = false;
+    generation++;
+    stopSubscriptions?.(); stopSubscriptions = null;
+    channelsSettled = false; readyOrigins.clear(); remotes = null;
+  };
+}
 
 /**
  * Whether every instance that could hold a bubble's channel has delivered its
@@ -42,6 +59,7 @@ function recheckSettled(): void {
  * fails once every instance has delivered its ready without naming it.
  */
 function dispatchReady(): void {
+  if (!started || !isDesktopSessionAllowed()) return;
   for (const b of usePendingMessageStore.getState().listReadyForDeferredSend()) {
     if (sentClientIds.has(b.clientId)) continue;
     if (getChannelKind(b.channelId) === 'unknown') {
@@ -54,9 +72,14 @@ function dispatchReady(): void {
 }
 
 /** Call once at app start. Idempotent against StrictMode/HMR remounts. */
-export function startPendingMessageOrchestrator(): void {
-  if (started) return;
+export function startPendingMessageOrchestrator(): () => void {
+  users++;
+  if (started) return releaseLifecycle();
   started = true;
+  const revision = ++generation;
+  const alive = () => started && generation === revision && isDesktopSessionAllowed();
+  const disposers: Array<() => void> = [];
+  stopSubscriptions = () => { for (const dispose of disposers) dispose(); };
 
   // 1. TTL discard with toast
   const dropped = usePendingMessageStore.getState().discardExpired(Date.now());
@@ -76,7 +99,8 @@ export function startPendingMessageOrchestrator(): void {
   //    re-run on every progress tick. `sentClientIds` further dedups
   //    per-bubble dispatch.
   let lastStateSig = '';
-  useTransferStore.subscribe((s) => {
+  disposers.push(useTransferStore.subscribe((s) => {
+    if (!alive()) return;
     const sig = Array.from(s.transfers.values())
       .map((t) => `${t.id}|${t.state}|${t.attachmentId ?? ''}`)
       .sort()
@@ -102,14 +126,15 @@ export function startPendingMessageOrchestrator(): void {
     }
 
     dispatchReady();
-  });
+  }));
 
   // 3b. Also re-check when pendingMessageStore mutates (e.g., new bubble appended
   //     AFTER boot, with all transfers already completed — eager-upload path).
   //     Without this, a bubble that becomes ready by virtue of pendingMessageStore
   //     changing — not transferStore — is never dispatched.
   let lastBubblesSig = '';
-  usePendingMessageStore.subscribe((s) => {
+  disposers.push(usePendingMessageStore.subscribe((s) => {
+    if (!alive()) return;
     const sig = Array.from(s.bubbles.values())
       .flat()
       .map((b) => `${b.clientId}|${b.state}|${b.retryCount}`)
@@ -119,100 +144,109 @@ export function startPendingMessageOrchestrator(): void {
     lastBubblesSig = sig;
 
     dispatchReady();
-  });
+  }));
 
   // 3c. Re-check when the client learns channels: a bubble restored at boot
   //     waits for the ready that lists its channel. The index and the DM list
   //     are replaced on every change, so a reference check is enough.
   let lastChannelIndex = useSpaceStore.getState().spaceChannelIndex;
   let lastDmChannels = useSpaceStore.getState().dmChannels;
-  useSpaceStore.subscribe((s) => {
+  disposers.push(useSpaceStore.subscribe((s) => {
+    if (!alive()) return;
     if (s.spaceChannelIndex === lastChannelIndex && s.dmChannels === lastDmChannels) return;
     lastChannelIndex = s.spaceChannelIndex;
     lastDmChannels = s.dmChannels;
     dispatchReady();
-  });
+  }));
 
   // 3d. The remote instances, for `channelsSettled`. Imported lazily:
   //     instanceStore imports the WS layer, which reports readies here.
   void import('./instanceStore').then(({ useInstanceStore }) => {
+    if (!alive()) return;
     const read = (state: { _autoConnectDone: boolean; instances: ReadonlyArray<{ origin: string; status: string }> }): void => {
+      if (!alive()) return;
       remotes = { autoConnectDone: state._autoConnectDone, instances: state.instances };
       recheckSettled();
     };
     read(useInstanceStore.getState());
-    useInstanceStore.subscribe(read);
+    disposers.push(useInstanceStore.subscribe(read));
   });
 
   // 4. Auto-retry on `online`: bump+resend bubbles that failed once with no
   //    prior retries (network-induced failure most likely). Uses the
   //    failed-retryable query — listReadyForDeferredSend gates state==='sending'
   //    and would never return failed bubbles.
-  window.addEventListener('online', () => {
+  const onOnline = () => {
+    if (!alive()) return;
     const list = usePendingMessageStore.getState().listFailedRetryable();
     for (const b of list) {
+      if (sentClientIds.has(b.clientId)) continue;
+      // Claim before either mutation: markSending can synchronously notify the
+      // ready subscriber, which must not issue a second request for this id.
+      sentClientIds.add(b.clientId);
       usePendingMessageStore.getState().bumpRetry(b.clientId);
       usePendingMessageStore.getState().markSending(b.clientId);
       // Add to dispatch set: the markSending transition could re-fire the
       // subscribe handler indirectly via downstream transferStore changes,
       // and we want only one in-flight send for this bubble.
-      sentClientIds.add(b.clientId);
       void deferredSend(b, 1); // online auto-retry counts as the one allowed retry
     }
-  });
+  };
+  window.addEventListener('online', onOnline);
+  disposers.push(() => window.removeEventListener('online', onOnline));
+  return releaseLifecycle();
 }
 
 const sentClientIds = new Set<string>();
 
-async function deferredSend(b: PendingBubble, attempt = 0): Promise<void> {
-  const transfers = useTransferStore.getState().transfers;
-  const attachmentIds = b.transferIds
-    .map((tid) => transfers.get(tid)?.attachmentId)
-    .filter((id): id is string => Boolean(id));
-
-  let client;
-  let isDm: boolean;
+async function deferredSend(b: PendingBubble, attempt = 0, revision = generation): Promise<void> {
+  const session = captureDesktopSessionWork();
+  const alive = () => started && revision === generation && session.isCurrent();
   try {
-    const origin = getChannelOrigin(b.channelId);
-    client = getApiForOrigin(origin);
-    isDm = getChannelKind(b.channelId) === 'dm';
-  } catch (err) {
-    console.warn('[pendingMessageRehydrate] origin resolution failed for', b.clientId, err);
-    usePendingMessageStore.getState().markFailed(b.clientId);
-    return;
-  }
-
-  try {
-    if (isDm) {
-      await client.dm.sendMessage(b.channelId, {
-        content: b.content,
-        attachments: attachmentIds,
-        replyToId: b.replyToId ?? undefined,
-      });
-    } else {
-      await client.channels.sendMessage(b.channelId, {
-        content: b.content,
-        attachments: attachmentIds,
-        replyToId: b.replyToId ?? undefined,
-      });
+    if (!alive()) return;
+    const transfers = useTransferStore.getState().transfers;
+    const attachmentIds = b.transferIds
+      .map((tid) => transfers.get(tid)?.attachmentId)
+      .filter((id): id is string => Boolean(id));
+    let client;
+    let isDm: boolean;
+    try {
+      client = getApiForOrigin(getChannelOrigin(b.channelId));
+      isDm = getChannelKind(b.channelId) === 'dm';
+    } catch (err) {
+      console.warn('[pendingMessageRehydrate] origin resolution failed for', b.clientId, err);
+      if (alive()) usePendingMessageStore.getState().markFailed(b.clientId);
+      return;
     }
-    usePendingMessageStore.getState().removeByClientId(b.channelId, b.clientId);
-  } catch (err) {
-    const status = err instanceof HttpError ? err.status : 0;
-    const isRateLimited = err instanceof RateLimitError;
 
-    // 4xx (client error) and rate limits are permanent — mark failed,
-    // user retries manually.
-    if ((status >= 400 && status < 500) || isRateLimited) {
+    try {
+      if (!alive()) return;
+      const message = { content: b.content, attachments: attachmentIds, replyToId: b.replyToId ?? undefined };
+      if (isDm) await client.dm.sendMessageReceipt(b.channelId, message);
+      else await client.channels.sendMessageReceipt(b.channelId, message);
+      // An acknowledged request already handed off while allowed is delivered,
+      // not a queued draft. Settle it even after teardown to avoid duplicate
+      // delivery on recovery; teardown itself never discards pending contents.
+      usePendingMessageStore.getState().removeByClientId(b.channelId, b.clientId);
+    } catch (err) {
+      if (!alive()) return;
+      const status = err instanceof HttpError ? err.status : 0;
+      const isRateLimited = err instanceof RateLimitError;
+
+      if ((status >= 400 && status < 500) || isRateLimited) {
+        usePendingMessageStore.getState().markFailed(b.clientId);
+        return;
+      }
+      if (attempt === 0 && navigator.onLine) {
+        usePendingMessageStore.getState().bumpRetry(b.clientId);
+        await deferredSend(b, 1, revision);
+        return;
+      }
       usePendingMessageStore.getState().markFailed(b.clientId);
-      return;
     }
-    // Network error / 5xx: one immediate retry while online, then mark failed.
-    if (attempt === 0 && navigator.onLine) {
-      usePendingMessageStore.getState().bumpRetry(b.clientId);
-      void deferredSend(b, 1);
-      return;
-    }
-    usePendingMessageStore.getState().markFailed(b.clientId);
+  } finally {
+    sentClientIds.delete(b.clientId);
+    // A new allowed lifecycle may have waited for this old in-flight request.
+    if (started && (revision !== generation || !session.isCurrent())) dispatchReady();
   }
 }

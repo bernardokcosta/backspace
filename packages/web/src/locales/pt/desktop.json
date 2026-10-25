@@ -1,4 +1,24 @@
 {
+  "compatibility": {
+    "title": "Atualize o Backspace Fork para continuar",
+    "checkingTitle": "Verificando a compatibilidade do aplicativo",
+    "failedTitle": "Não foi possível verificar a compatibilidade",
+    "body": "Esta instância exige um aplicativo desktop compatível. Atualize por aqui ou continue no navegador.",
+    "installed": "Aplicativo instalado", "minimum": "Versão necessária", "unknown": "Indisponível",
+    "checking": "Verificando a política desta instância e o aplicativo instalado…",
+    "checkFailed": "A verificação de compatibilidade falhou. Tente novamente para consultar a política atual.",
+    "versionUnavailable": "Não foi possível ler a versão instalada. Atualize o aplicativo ou tente novamente.",
+    "bridgeUnavailable": "O status da atualização está indisponível. Você ainda pode baixar um instalador.",
+    "manual": "Baixe um instalador e atualize este aplicativo manualmente.",
+    "external": "As atualizações são controladas pelo gerenciador de pacotes. Atualize por ele e reinicie o aplicativo.",
+    "updateChecking": "Procurando uma atualização…",
+    "updateFailed": "Não foi possível concluir a atualização. Tente novamente ou baixe um instalador.",
+    "insufficient": "Ainda não há uma atualização compatível pronta para instalar. Verifique novamente ou baixe a versão necessária.",
+    "ready": "Uma atualização compatível foi baixada e está pronta para instalar.",
+    "downloading": "Baixando atualização: {{percent}}", "progress": "Progresso do download da atualização",
+    "install": "Reiniciar e instalar", "download": "Baixar instalador", "retry": "Verificar novamente", "browser": "Abrir no navegador",
+    "preserved": "Sua conta, credenciais e rascunhos são mantidos. A atividade normal do aplicativo fica pausada até confirmar a compatibilidade."
+  },
   "update": {
     "laterHint": "Você pode instalar depois em Configurações, Desktop",
     "dismiss": "Dispensar esta atualização",

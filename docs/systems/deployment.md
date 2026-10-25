@@ -1,5 +1,56 @@
 # Deployment & Operations
 
+## Optional desktop minimum
+
+`BACKSPACE_MIN_DESKTOP_VERSION` is disabled when unset/blank. Set a stable
+SemVer such as `1.15.1` only after compatible installers/updater metadata have
+been published and verified; invalid/prerelease minima refuse server startup.
+The public instance-info response advertises the minimum or null. Clear the
+setting to recover without changing credentials, drafts, instance identity or
+database state. Browser/mobile web access remains outside desktop policy.
+
+## Verified desktop publication
+
+The release matrix builds with `--publish never`, contents-read permission and
+no publishing token. Every platform verifies packaged fork-owned
+`app-update.yml`, the exact expected installers/manifests, fuses and (macOS)
+bundle signatures before uploading its immutable artifact. Windows also
+verifies each target-only native capture addon. A required matching-host native
+workflow and successful main-branch CI for the exact tag commit gate the sole
+contents-write publisher. Tag-scoped concurrency never cancels an active upload.
+
+`desktop-release-assets.mjs` rejects absent/extra/empty assets, duplicate or
+nested basenames, symlinks, unsafe updater references, wrong versions and
+size/SHA-512 mismatches. Four artifact directories are inspected separately
+before exclusive assembly into the exact 16-file release inventory. Its YAML
+parser is build-time `js-yaml` already pinned via electron-builder, not a server
+dependency. `verify-desktop-build.mjs` checks real outputs and packaged publisher
+identity even when publication is disabled.
+
+`publish-desktop-release.mjs --prepare` resolves the existing immutable tag,
+selects/creates one draft and records its numeric id; finalization explicitly
+uses that id. It validates repository/tag/commit/state/notes and every existing
+asset before adding missing ones, verifies GitHub SHA-256 digests (or downloads
+and hashes when absent), re-lists the complete remote set and only then
+publishes. Reruns reuse identical bytes; different assets or edited notes fail
+without deleting/replacing/unpublishing. API credentials are sent only to fixed
+GitHub API/upload hosts and never forwarded to download CDN redirects. Unknown
+redirects fail. The old split v1.15.0 releases are preserved; their cause remains
+unconfirmed. Fork releases do not invoke upstream-only Flatpak metadata writes.
+
+Anonymous installer/update access and OCI revision still need independent
+post-publication checks. Deploy with policy off first, preserve a consistent
+SQLite backup/environment/image rollback record, and restart only Backspace.
+Unavailable hardware/historical-host acceptance must remain explicit; a green
+workflow is not a substitute for installed-app or active-media recovery tests.
+
+Release-workflow PR/manual runs are read-only candidates: they build all four
+platform groups and validate/assemble the real complete inventory before an
+immutable version tag is created. Only a tag **push** enables the publishing
+job; a manual/PR run can never create a draft or upload public release assets.
+This catches platform-specific `--publish never` output issues without having
+to move a tag or repair an already-public partial release.
+
 Operator- and contributor-facing reference for hosting Backspace: the Docker build pipeline, admin bootstrap, database backup/restore, image pinning, and the relevant environment variables.
 
 Source files:

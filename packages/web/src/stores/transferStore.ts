@@ -6,6 +6,7 @@ import type { Attachment } from '@backspace/shared';
 import { useAuthStore } from './authStore';
 import { getTokenForOrigin } from '../utils/crossStoreResolvers';
 import { getHandle, putHandle, ensurePermission, queryHandlePermission } from '../utils/idbHandles';
+import { captureDesktopSessionWork, isDesktopSessionAllowed, onDesktopSessionAccessChanged } from '../utils/desktopSessionAccess';
 
 export type TransferType = 'upload' | 'download';
 export type TransferState =
@@ -232,6 +233,8 @@ export const useTransferStore = create<TransferStore>()(
       },
 
       startUpload: async (file, opts) => {
+        const work = captureDesktopSessionWork();
+        work.assertCurrent();
         const token = getTokenForOrigin(opts.origin ?? '');
         const user = useAuthStore.getState().user;
         if (!token) throw new Error('Cannot start upload — not authenticated');
@@ -261,12 +264,15 @@ export const useTransferStore = create<TransferStore>()(
           },
           chunkSize: 5 * 1024 * 1024,
           headers: { Authorization: `Bearer ${token}` },
+          onBeforeRequest: () => { work.assertCurrent(); },
           onProgress: (loaded: number) => {
+            if (!work.isCurrent()) return;
             get().updateProgress(id, loaded);
             const t = get().get(id);
             if (t?.state === 'queued') get().setState_(id, 'active');
           },
           onAfterResponse: (_req, res) => {
+            if (!work.isCurrent()) return;
             // res.getHeader returns string | undefined per tus-js-client v4 types.
             const location = res.getHeader('Location');
             const expires = res.getHeader('Upload-Expires');
@@ -276,6 +282,7 @@ export const useTransferStore = create<TransferStore>()(
             }
           },
           onSuccess: (payload) => {
+            if (!work.isCurrent()) return;
             try {
               const body = payload.lastResponse?.getBody?.() ?? '';
               const att = JSON.parse(body) as Attachment;
@@ -292,6 +299,7 @@ export const useTransferStore = create<TransferStore>()(
             }
           },
           onError: (err: Error) => {
+            if (!work.isCurrent()) return;
             const msg = err.message ?? 'Upload error';
             // Treat 4xx as permanent (no retry past tus's own retry chain).
             const permanent = /\b4\d\d\b/.test(msg);
@@ -309,6 +317,7 @@ export const useTransferStore = create<TransferStore>()(
       },
 
       abortUpload: (id) => {
+        if (!isDesktopSessionAllowed()) { get().pauseUpload(id); return; }
         const t = get().get(id);
         const u = liveUploads.get(id);
         if (u) {
@@ -345,6 +354,8 @@ export const useTransferStore = create<TransferStore>()(
       },
 
       resumeUpload: async (id) => {
+        const work = captureDesktopSessionWork();
+        if (!work.isCurrent()) return;
         const t = get().get(id);
         if (!t || t.type !== 'upload') return;
 
@@ -361,12 +372,15 @@ export const useTransferStore = create<TransferStore>()(
         // Fall back to persisted FileSystemFileHandle (cross-reload resume on Chrome/Edge).
         if (!blob && t.fileHandleId) {
           const handle = await getHandle(t.fileHandleId);
+          if (!work.isCurrent()) return;
           if (handle) {
             const perm = await ensurePermission(handle, 'read');
+            if (!work.isCurrent()) return;
             if (perm === 'granted') {
               const handleAny = handle as unknown as { getFile?: () => Promise<File> };
               if (typeof handleAny.getFile === 'function') {
                 blob = await handleAny.getFile();
+                if (!work.isCurrent()) return;
               }
             }
           }
@@ -426,12 +440,15 @@ export const useTransferStore = create<TransferStore>()(
           ...(resumeUrl
             ? { uploadUrl: resumeUrl }
             : { metadata: { filename: fileLike.name, filetype: fileLike.mimetype } }),
+          onBeforeRequest: () => { work.assertCurrent(); },
           onProgress: (loaded: number) => {
+            if (!work.isCurrent()) return;
             get().updateProgress(id, loaded);
             const cur = get().get(id);
             if (cur?.state !== 'active') get().setState_(id, 'active');
           },
           onAfterResponse: (_req, res) => {
+            if (!work.isCurrent()) return;
             // Capture the new Location for fresh sessions; resume reuses the existing one.
             if (canResume) return;
             const location = res.getHeader('Location');
@@ -442,6 +459,7 @@ export const useTransferStore = create<TransferStore>()(
             }
           },
           onSuccess: (payload) => {
+            if (!work.isCurrent()) return;
             try {
               const body = payload.lastResponse?.getBody?.() ?? '';
               const att = JSON.parse(body) as Attachment;
@@ -458,6 +476,7 @@ export const useTransferStore = create<TransferStore>()(
             }
           },
           onError: (err: Error) => {
+            if (!work.isCurrent()) return;
             const msg = err.message ?? 'Upload error';
             const permanent = /\b4\d\d\b/.test(msg);
             get().setError(id, { message: msg, permanent });
@@ -476,6 +495,8 @@ export const useTransferStore = create<TransferStore>()(
       },
 
       startDownload: async (url, opts) => {
+        const work = captureDesktopSessionWork();
+        work.assertCurrent();
         const fileLike = {
           name: opts.filename,
           size: opts.size ?? 0,
@@ -489,6 +510,8 @@ export const useTransferStore = create<TransferStore>()(
         });
 
         const controller = new AbortController();
+        const cancel = () => controller.abort();
+        work.signal.addEventListener('abort', cancel, { once: true });
         liveDownloads.set(id, controller);
         get().setState_(id, 'active');
 
@@ -511,13 +534,16 @@ export const useTransferStore = create<TransferStore>()(
             try {
               handle = await showSavePicker({ suggestedName: opts.filename });
             } catch {
+              if (!work.isCurrent()) return id;
               // User canceled the picker — abort cleanly.
               get().setState_(id, 'aborted');
               liveDownloads.delete(id);
               return id;
             }
+            work.assertCurrent();
             const handleId = `dl-${id}`;
             await putHandle(handleId, handle);
+            work.assertCurrent();
             // Persist the handle key on the transfer.
             set((s) => {
               const t = s.transfers.get(id);
@@ -527,12 +553,15 @@ export const useTransferStore = create<TransferStore>()(
               return { transfers: next };
             });
             writable = await handle.createWritable({ keepExistingData: false });
+            work.assertCurrent();
             const resp = await fetch(url, { signal: controller.signal });
+            work.assertCurrent();
             if (!resp.ok || !resp.body) throw new Error(`Download failed: ${resp.status}`);
             const reader = resp.body.getReader();
             let written = 0;
             for (;;) {
               const { value, done } = await reader.read();
+              work.assertCurrent();
               if (done) break;
               await writable.write(value);
               written += value.byteLength;
@@ -547,10 +576,12 @@ export const useTransferStore = create<TransferStore>()(
             }
             await writable.close();
             writable = undefined;
+            work.assertCurrent();
             get().setState_(id, 'completed');
           } else {
             // Blob fallback — accumulate in memory, then trigger anchor click.
             const resp = await fetch(url, { signal: controller.signal });
+            work.assertCurrent();
             if (!resp.ok) throw new Error(`Download failed: ${resp.status}`);
             const total = Number(resp.headers.get('Content-Length') ?? opts.size ?? 0);
             const chunks: Uint8Array[] = [];
@@ -558,6 +589,7 @@ export const useTransferStore = create<TransferStore>()(
             let loaded = 0;
             for (;;) {
               const { value, done } = await reader.read();
+              work.assertCurrent();
               if (done) break;
               chunks.push(value);
               loaded += value.byteLength;
@@ -580,7 +612,7 @@ export const useTransferStore = create<TransferStore>()(
             try { await writable.close(); } catch { /* best effort */ }
             writable = undefined;
           }
-          if (err instanceof Error && err.name === 'AbortError') {
+          if (!work.isCurrent() || (err instanceof Error && err.name === 'AbortError')) {
             // Aborted via abortDownload/pauseDownload — state already set there.
           } else {
             const msg = err instanceof Error ? err.message : 'Download failed';
@@ -588,6 +620,7 @@ export const useTransferStore = create<TransferStore>()(
             get().setError(id, { message: msg, permanent });
           }
         } finally {
+          work.signal.removeEventListener('abort', cancel);
           liveDownloads.delete(id);
         }
 
@@ -609,6 +642,8 @@ export const useTransferStore = create<TransferStore>()(
       },
 
       resumeDownload: async (id) => {
+        const work = captureDesktopSessionWork();
+        if (!work.isCurrent()) return;
         const t = get().get(id);
         if (!t || t.type !== 'download' || !t.sourceUrl) return;
         if (!t.destFileHandleId) {
@@ -616,11 +651,13 @@ export const useTransferStore = create<TransferStore>()(
           return;
         }
         const handle = await getHandle(t.destFileHandleId);
+        if (!work.isCurrent()) return;
         if (!handle) {
           get().setError(id, { message: 'Destination handle missing', permanent: true });
           return;
         }
         const perm = await ensurePermission(handle, 'readwrite');
+        if (!work.isCurrent()) return;
         if (perm !== 'granted') {
           get().setError(id, { message: 'Permission denied', permanent: false });
           return;
@@ -630,11 +667,16 @@ export const useTransferStore = create<TransferStore>()(
           createWritable?: (opts: { keepExistingData: boolean }) => Promise<FileSystemWritableFileStream>;
         };
         const fileNow = await handleAny.getFile!();
+        if (!work.isCurrent()) return;
         const offset = fileNow.size;
         const writable = await handleAny.createWritable!({ keepExistingData: true });
+        if (!work.isCurrent()) { await writable.close(); return; }
         await (writable as unknown as { seek: (pos: number) => Promise<void> }).seek(offset);
+        if (!work.isCurrent()) { await writable.close(); return; }
 
         const controller = new AbortController();
+        const cancel = () => controller.abort();
+        work.signal.addEventListener('abort', cancel, { once: true });
         liveDownloads.set(id, controller);
         get().setState_(id, 'active');
         try {
@@ -642,11 +684,13 @@ export const useTransferStore = create<TransferStore>()(
             signal: controller.signal,
             headers: { Range: `bytes=${offset}-` },
           });
+          work.assertCurrent();
           if (!resp.ok && resp.status !== 206) throw new Error(`Resume failed: ${resp.status}`);
           const reader = resp.body!.getReader();
           let written = offset;
           for (;;) {
             const { value, done } = await reader.read();
+            work.assertCurrent();
             if (done) break;
             await writable.write(value);
             written += value.byteLength;
@@ -660,12 +704,13 @@ export const useTransferStore = create<TransferStore>()(
             });
           }
           await writable.close();
+          work.assertCurrent();
           get().setState_(id, 'completed');
         } catch (err) {
           // Flush partial bytes before bubbling out so the next resume's offset
           // (read via getFile().size) reflects what's actually on disk.
           try { await writable.close(); } catch { /* best effort */ }
-          if (err instanceof Error && err.name === 'AbortError') {
+          if (!work.isCurrent() || (err instanceof Error && err.name === 'AbortError')) {
             get().setState_(id, 'paused');
           } else {
             const msg = err instanceof Error ? err.message : 'Resume failed';
@@ -673,6 +718,7 @@ export const useTransferStore = create<TransferStore>()(
             get().setError(id, { message: msg, permanent });
           }
         } finally {
+          work.signal.removeEventListener('abort', cancel);
           liveDownloads.delete(id);
         }
       },
@@ -715,6 +761,21 @@ export const useTransferStore = create<TransferStore>()(
   ),
 );
 
+let normalizationDeferred = false;
+const stopDesktopAccess = onDesktopSessionAccessChanged((allowed) => {
+  if (allowed) {
+    if (normalizationDeferred) void normalizeRehydratedTransfers();
+    return;
+  }
+  const store = useTransferStore.getState();
+  for (const transfer of store.transfers.values()) {
+    if (transfer.state !== 'active' && transfer.state !== 'queued') continue;
+    if (transfer.type === 'upload') store.pauseUpload(transfer.id);
+    else store.pauseDownload(transfer.id);
+  }
+});
+if (import.meta.hot) import.meta.hot.dispose(stopDesktopAccess);
+
 /**
  * Boot-time normalization of rehydrated transfers.
  *
@@ -732,10 +793,14 @@ export const useTransferStore = create<TransferStore>()(
  * Idempotent — re-running is harmless.
  */
 async function normalizeRehydratedTransfers(): Promise<void> {
+  normalizationDeferred = !isDesktopSessionAllowed();
+  if (normalizationDeferred) return;
+  const work = captureDesktopSessionWork();
   const store = useTransferStore.getState();
   const transfers = Array.from(store.transfers.values());
 
   for (const t of transfers) {
+    if (!work.isCurrent()) { normalizationDeferred = true; return; }
     // 1) Demote any leaked 'active' state — no live worker exists post-reload.
     if (t.state === 'active') {
       store.setState_(t.id, 'paused');
@@ -749,6 +814,7 @@ async function normalizeRehydratedTransfers(): Promise<void> {
       const isUpload = current.type === 'upload';
       const handleId = isUpload ? current.fileHandleId : current.destFileHandleId;
       if (!handleId) {
+        if (isUpload && liveUploadFiles.has(current.id)) continue;
         store.setError(current.id, {
           message: isUpload
             ? 'File no longer available — discard and re-upload'
@@ -761,6 +827,7 @@ async function normalizeRehydratedTransfers(): Promise<void> {
       // 3) Auto-resume when permission is already 'granted'.
       try {
         const handle = await getHandle(handleId);
+        if (!work.isCurrent()) { normalizationDeferred = true; return; }
         if (!handle) {
           store.setError(current.id, {
             message: isUpload
@@ -772,6 +839,7 @@ async function normalizeRehydratedTransfers(): Promise<void> {
         }
         const mode: 'read' | 'readwrite' = isUpload ? 'read' : 'readwrite';
         const perm = await queryHandlePermission(handle, mode);
+        if (!work.isCurrent()) { normalizationDeferred = true; return; }
         if (perm === 'granted') {
           // Use the live store reference so subsequent state changes are visible
           // to subscribers.
