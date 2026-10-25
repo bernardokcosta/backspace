@@ -1,6 +1,6 @@
 # Spec: borderless-capture
 
-Status: scope and plan approved; inline implementation in progress.
+Status: approved scope implemented and externally reviewed; installed/audio/ARM64/HDR acceptance pending.
 Initiative: [1.15.2 design](2026-10-25-desktop-1.15.2.md).
 
 ## Objective

@@ -1,6 +1,6 @@
 # Spec: remove-explore-directory
 
-Status: scope and plan approved; inline implementation in progress.
+Status: approved scope implemented, locally validated and externally reviewed; the access-draft review finding is corrected with regression coverage.
 Initiative: [1.15.2 design](2026-10-25-desktop-1.15.2.md).
 Dependency: `remove-project-hub`, whose community card consumes this network.
 

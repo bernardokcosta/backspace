@@ -32,7 +32,9 @@ export function AccessPanel({ spaceId }: { spaceId: string }) {
     setVisibility(space?.visibility ?? 'private');
     setDescription(space?.description ?? '');
     setSaveError('');
-  }, [space]);
+    // Overview saves replace the space object too. Only access-field or
+    // identity changes should reseed this independent draft.
+  }, [spaceId, space?._instanceOrigin, space?.visibility, space?.description]);
   if (!space) return null;
 
   const hasChanges = visibility !== space.visibility || description !== (space.description ?? '');
