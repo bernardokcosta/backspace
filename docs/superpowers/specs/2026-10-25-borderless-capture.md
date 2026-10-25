@@ -1,6 +1,6 @@
 # Spec: borderless-capture
 
-Status: approved scope implemented and externally reviewed; installed/audio/ARM64/HDR acceptance pending.
+Status: approved scope implemented and externally reviewed; installed/audio/ARM64/HDR acceptance reported by the operator on 2026-10-25, not independently verified by the assistant. See the [validation record](../validation/2026-10-25-desktop-1.15.2.md).
 Initiative: [1.15.2 design](2026-10-25-desktop-1.15.2.md).
 
 ## Objective
@@ -10,7 +10,7 @@ capture. Starting or publishing that capture must fail closed when supported
 borderless capture cannot be authorized/configured. The operator explicitly
 chooses blocking over fallback with a border and requests permission retry.
 
-## Current implementation and boundaries
+## Baseline implementation and boundaries (1.15.1)
 
 `packages/desktop/native/sdr-capture/capture_session.cpp` creates a WGC session
 on a worker and calls `StartCapture()` without configuring `IsBorderRequired`.
