@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
-import os from 'node:os';
+import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import {
   bootTwoInstances,
@@ -31,31 +30,17 @@ const SERVED_FIXTURE = 'security-headers-fixture.png';
 
 describe('HTTP security headers, LiveKit unconfigured', () => {
   let h: TwoInstanceHarness;
-  let uploadDir: string;
-  let previousUploadDir: string | undefined;
 
   beforeAll(async () => {
-    // twoInstanceHarness passes STORAGE_PATH, which config.ts does not read, so
-    // a spawned instance otherwise falls back to the repo's own data/uploads.
-    // Point UPLOAD_DIR at a scratch directory before spawning: the child
-    // inherits process.env, so the fixture written below is the file the
-    // instance serves, and nothing lands in the working tree.
-    previousUploadDir = process.env.UPLOAD_DIR;
-    uploadDir = await mkdtemp(path.join(os.tmpdir(), 'backspace-headers-'));
-    await mkdir(uploadDir, { recursive: true });
-    await writeFile(path.join(uploadDir, SERVED_FIXTURE), PNG_SIGNATURE);
-    process.env.UPLOAD_DIR = uploadDir;
     h = await bootTwoInstances();
+    // The harness owns this instance's UPLOAD_DIR and cleanup. Put the fixture
+    // in that exact served directory, without changing the parent's env or
+    // depending on the runtime data/uploads fallback.
+    await writeFile(path.join(h.home.storagePath, SERVED_FIXTURE), PNG_SIGNATURE);
   }, 120_000);
 
   afterAll(async () => {
     await h?.cleanup();
-    if (previousUploadDir === undefined) {
-      delete process.env.UPLOAD_DIR;
-    } else {
-      process.env.UPLOAD_DIR = previousUploadDir;
-    }
-    await rm(uploadDir, { recursive: true, force: true });
   });
 
   it('ships the policy enforcing, so a violation is blocked and not merely logged', async () => {

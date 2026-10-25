@@ -101,7 +101,9 @@ jobs:
       # use for a suite whose whole purpose is gating security fixes. They need
       # no Docker, Caddy or LiveKit, and add roughly a minute of wall clock.
       - name: Test
-        run: pnpm -r test
+        run: |
+          node --test scripts/probe-desktop-compatibility.test.mjs
+          pnpm -r test
 
   # ESLint over every workspace package. Its own job rather than a step in the
   # matrix above: the rule set is not type-aware and reads no compiled output,

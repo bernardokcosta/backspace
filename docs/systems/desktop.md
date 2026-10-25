@@ -78,6 +78,23 @@ Windows runners without publishing installers. Hardware capture, integration
 and the release/minimum-version gates remain tracked in the approved 1.15.1
 specifications and validation ledger.
 
+### Disposable compatibility probe
+
+`node scripts/probe-desktop-compatibility.mjs --listen 127.0.0.1 --port 3088
+--output <absolute-new-temp-file>` serves an isolated, account-free diagnostic
+page. In a disposable OS account/VM only, point a verified historical installer
+at that local origin. It records bounded UA, known bridge-method presence,
+getVersion/platform and update mode; it never logs authorization/cookies,
+queries, arbitrary payloads or WebSocket auth/data frames. It does not invoke
+updater checks/installs or acquire media. The app itself may check for updates
+or register protocols at boot, so a new userData directory alone is not sufficient
+isolation. See `scripts/fixtures/desktop-compatibility/README.md`.
+
+Real 1.14.2/1.15.0 samples, active legacy-call/service-worker transition and
+updater relaunch evidence are still absent. The diagnostic is not enforcement,
+device attestation or proof that an already-valid media session is revoked.
+The minimum-version policy is not yet implemented or enabled.
+
 The desktop app wraps the Backspace web client in Electron with:
 - **Main process** (`main.ts`): Window lifecycle, tray icon, IPC handler registry, auto-update, deep linking, activity detection, keybind manager
 - **Preload bridge** (`preload.ts`): Exposes `window.backspace` API via `contextBridge` with full sandbox isolation (`contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`)

@@ -227,6 +227,7 @@ async function spawnOnPort(port: number, opts: SpawnInstanceOptions): Promise<Sp
     DOMAIN: opts.domain,
     DB_PATH: opts.dbPath,
     STORAGE_PATH: opts.storagePath,
+    UPLOAD_DIR: opts.storagePath,
     JWT_SECRET: opts.jwtSecret,
     LIVEKIT_URL: opts.livekit?.url ?? '',
     LIVEKIT_API_KEY: opts.livekit?.apiKey ?? '',
@@ -261,7 +262,10 @@ async function spawnOnPort(port: number, opts: SpawnInstanceOptions): Promise<Sp
   }
   // From packages/server/test/helpers → packages/server is up two levels.
   const serverDir = path.resolve(__dirname, '../../');
-  const proc = spawn('pnpm', ['exec', 'tsx', 'src/index.ts'], {
+  // Use the same Node/tsx source entry as `pnpm start`, not a package-manager
+  // shim: Windows cannot spawn a pnpm .cmd file without a command shell, and
+  // spawning the real child also lets cleanup terminate the server directly.
+  const proc = spawn(process.execPath, ['--import', 'tsx/esm', 'src/index.ts'], {
     cwd: serverDir,
     env,
     stdio: ['ignore', 'pipe', 'pipe'],
