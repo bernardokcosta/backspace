@@ -87,6 +87,16 @@
     "remoteParticipant": "Remote"
   },
   "screenPicker": {
+    "borderless": {
+      "deniedUser": "Permission to share without the Windows capture border was denied. Sharing is blocked.",
+      "deniedSystem": "Windows or an administrator blocked borderless capture. Allow access before trying again.",
+      "notDeclared": "This desktop installation cannot request borderless capture. Update or repair the desktop app.",
+      "unsupported": "This desktop app or Windows version cannot guarantee borderless SDR capture. Update before sharing with Force SDR.",
+      "cancelled": "The borderless capture request was cancelled. No stream was started.",
+      "timeout": "Windows did not finish the permission request in time. No stream was started.",
+      "failed": "Borderless capture permission could not be confirmed. Sharing remains blocked.",
+      "requestAgain": "Request permission again"
+    },
     "title": "Share Your Screen",
     "tabs": {
       "screens": "Screens",

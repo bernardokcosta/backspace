@@ -1,5 +1,6 @@
 #include "capture_session.h"
 #include "source_color.h"
+#include "borderless_access.h"
 
 #include <d3d11_4.h>
 #include <windows.graphics.capture.interop.h>
@@ -147,6 +148,10 @@ struct CaptureSession::State {
       if (stop.stop_requested()) return;
       capture.pool = Direct3D11CaptureFramePool::CreateFreeThreaded(device, DirectXPixelFormat::R16G16B16A16Float, 2, size);
       capture.session = capture.pool.CreateCaptureSession(item);
+      if (!borderlessApisSupported()) throw Failure("borderless-unsupported");
+      operation = "configure borderless session";
+      capture.session.IsBorderRequired(false);
+      if (capture.session.IsBorderRequired()) throw Failure("borderless-configuration-failed");
       if (winrt::Windows::Foundation::Metadata::ApiInformation::IsPropertyPresent(
           L"Windows.Graphics.Capture.GraphicsCaptureSession", L"IsCursorCaptureEnabled")) {
         capture.session.IsCursorCaptureEnabled(true);
@@ -262,12 +267,13 @@ struct CaptureSession::State {
 };
 
 CaptureSession::CaptureSession(NativeCaptureSource source, CaptureConstraints constraints,
-    std::shared_ptr<CaptureFramePool> frames, FrameCallback on_frame, ErrorCallback on_error) {
+    std::shared_ptr<CaptureFramePool> frames, FrameCallback on_frame, ErrorCallback on_error, bool borderless_authorized) {
   captureOutputSize(1, 1, constraints);
   if ((source.window != nullptr) == source.monitor_origin.has_value() || !frames || !on_frame || !on_error) {
     throw std::invalid_argument("Invalid native capture source or callbacks");
   }
   if (source.window && (!IsWindow(source.window) || IsIconic(source.window))) throw std::invalid_argument("Native window source is unavailable");
+  if (!borderless_authorized) throw std::invalid_argument("Borderless capture authorization is required");
   state_ = std::make_unique<State>();
   state_->source = source; state_->constraints = constraints; state_->frames = std::move(frames);
   state_->on_frame = std::move(on_frame); state_->on_error = std::move(on_error);
@@ -293,7 +299,7 @@ void CaptureSession::stop() {
 bool CaptureSession::isSupported() {
   bool supported = false;
   std::thread probe([&supported] {
-    try { Apartment apartment; supported = GraphicsCaptureSession::IsSupported(); } catch (...) {}
+    try { Apartment apartment; supported = GraphicsCaptureSession::IsSupported() && borderlessApisSupported(); } catch (...) {}
   });
   probe.join();
   return supported;

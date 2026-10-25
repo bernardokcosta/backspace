@@ -27,7 +27,8 @@ class CaptureSession {
   using FrameCallback = std::function<bool(const CapturedSdrFrame&)>;
   using ErrorCallback = std::function<void(const std::string&)>;
   CaptureSession(NativeCaptureSource source, CaptureConstraints constraints,
-      std::shared_ptr<CaptureFramePool> frames, FrameCallback on_frame, ErrorCallback on_error);
+      std::shared_ptr<CaptureFramePool> frames, FrameCallback on_frame, ErrorCallback on_error,
+      bool borderless_authorized = false);
   ~CaptureSession();
   CaptureSession(const CaptureSession&) = delete;
   CaptureSession& operator=(const CaptureSession&) = delete;

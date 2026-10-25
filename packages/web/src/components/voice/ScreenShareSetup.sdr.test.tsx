@@ -34,7 +34,7 @@ beforeEach(() => {
   capture.stage.mockReset().mockResolvedValueOnce(first).mockResolvedValue(second);
   capture.apply.mockReset().mockResolvedValue(undefined); capture.stop.mockReset();
   capture.publish.mockReset().mockResolvedValue(true); capture.capability.mockReset().mockResolvedValue({ supported: true });
-  preselect.mockReset().mockResolvedValue(undefined); select.mockReset();
+  preselect.mockReset().mockResolvedValue({ ok: true }); select.mockReset();
   window.backspace = { platform: 'win32', getScreenSharePickerMode: async () => 'app', getScreenSources: async () => [source],
     preselectScreenSource: preselect, selectScreenSource: select, onScreenShareSources: vi.fn() } as unknown as BackspaceElectronAPI;
   useVoiceStore.setState({ isScreenSharing: false, screenShareConfig: { ...useVoiceStore.getInitialState().screenShareConfig, forceSdr: false } });
@@ -44,6 +44,37 @@ beforeEach(() => {
 afterEach(() => { cleanup(); delete window.backspace; vi.restoreAllMocks(); });
 
 describe('SDR setup capture transitions', () => {
+  it.each(['capability', 'preselection'])('blocks the legacy %s contract without silently clearing Force SDR', async (missing) => {
+    useVoiceStore.getState().setScreenShareConfig({ forceSdr: true });
+    if (missing === 'capability') capture.capability.mockResolvedValue({ supported: false, reason: 'bridge' });
+    else preselect.mockResolvedValue(undefined);
+    render(<ScreenShareSetup />);
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent(/cannot guarantee borderless/i));
+    expect(capture.stage).not.toHaveBeenCalled(); expect(capture.publish).not.toHaveBeenCalled();
+    expect(useVoiceStore.getState().screenShareConfig.forceSdr).toBe(true);
+  });
+  it('blocks denied consent before staging and explicitly requests permission again without publishing', async () => {
+    useVoiceStore.getState().setScreenShareConfig({ forceSdr: true });
+    preselect.mockResolvedValueOnce({ ok: false, reason: 'denied-user' }).mockResolvedValue({ ok: true });
+    render(<ScreenShareSetup />);
+    await waitFor(() => expect(screen.getByRole('button', { name: /Request permission again/i })).toBeEnabled());
+    expect(capture.stage).not.toHaveBeenCalled(); expect(capture.publish).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: /Request permission again/i }));
+    await waitFor(() => expect(capture.stage).toHaveBeenCalledOnce());
+    expect(preselect).toHaveBeenCalledTimes(2); expect(capture.publish).not.toHaveBeenCalled();
+  });
+  it('does not restart or retain a permission request after cancellation', async () => {
+    useVoiceStore.getState().setScreenShareConfig({ forceSdr: true });
+    let reply: (value: DesktopSdrPreselectionResult) => void = () => {};
+    preselect.mockImplementationOnce(() => new Promise<DesktopSdrPreselectionResult>((resolve) => { reply = resolve; }));
+    render(<ScreenShareSetup />);
+    await waitFor(() => expect(preselect).toHaveBeenCalledOnce());
+    expect(capture.stage).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(select).toHaveBeenCalledWith(null);
+    await act(async () => reply({ ok: true }));
+    expect(capture.stage).not.toHaveBeenCalled(); expect(capture.publish).not.toHaveBeenCalled();
+  });
   it('takes a fresh preview of the selected source after Force SDR changes', async () => {
     render(<ScreenShareSetup />);
     await waitFor(() => expect(capture.stage).toHaveBeenCalledTimes(1));
@@ -75,7 +106,7 @@ describe('SDR setup capture transitions', () => {
     preselect.mockRejectedValueOnce(new Error('source vanished'));
     render(<ScreenShareSetup />);
     await waitFor(() => expect(preselect).toHaveBeenCalled());
-    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent(/Force SDR failed/));
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent(/permission could not be confirmed/i));
     expect(capture.stage).not.toHaveBeenCalled();
   });
 

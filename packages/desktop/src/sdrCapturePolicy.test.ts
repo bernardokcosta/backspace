@@ -60,9 +60,10 @@ describe('native SDR constraints and capability', () => {
 
   it('requires Windows capture APIs, the native module and usable transport', () => {
     const available = { platform: 'win32' as NodeJS.Platform, systemVersion: '10.0.26300', moduleAvailable: true, transportAvailable: true };
-    expect(sdrCaptureCapability(available)).toEqual({ supported: true });
+    expect(sdrCaptureCapability(available)).toEqual({ supported: true, borderless: true });
     expect(sdrCaptureCapability({ ...available, platform: 'linux' })).toEqual({ supported: false, reason: 'platform' });
     expect(sdrCaptureCapability({ ...available, systemVersion: '10.0.17763' })).toEqual({ supported: false, reason: 'system' });
+    expect(sdrCaptureCapability({ ...available, systemVersion: '10.0.19045' })).toEqual({ supported: false, reason: 'system' });
     expect(sdrCaptureCapability({ ...available, systemVersion: 'unknown' })).toEqual({ supported: false, reason: 'system' });
     expect(sdrCaptureCapability({ ...available, moduleAvailable: false })).toEqual({ supported: false, reason: 'module' });
     expect(sdrCaptureCapability({ ...available, transportAvailable: false })).toEqual({ supported: false, reason: 'transport' });

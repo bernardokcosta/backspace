@@ -87,6 +87,16 @@
     "remoteParticipant": "Remoto"
   },
   "screenPicker": {
+    "borderless": {
+      "deniedUser": "A permissão para compartilhar sem o contorno de captura do Windows foi negada. O compartilhamento está bloqueado.",
+      "deniedSystem": "O Windows ou um administrador bloqueou a captura sem contorno. Libere o acesso antes de tentar novamente.",
+      "notDeclared": "Esta instalação não pode solicitar captura sem contorno. Atualize ou repare o aplicativo desktop.",
+      "unsupported": "Este aplicativo ou esta versão do Windows não oferece captura SDR sem contorno. Atualize antes de compartilhar com Forçar SDR.",
+      "cancelled": "A solicitação de captura sem contorno foi cancelada. Nenhuma transmissão foi iniciada.",
+      "timeout": "O Windows não concluiu a solicitação de permissão a tempo. Nenhuma transmissão foi iniciada.",
+      "failed": "Não foi possível confirmar a permissão de captura sem contorno. O compartilhamento continua bloqueado.",
+      "requestAgain": "Solicitar permissão novamente"
+    },
     "title": "Compartilhar sua tela",
     "tabs": {
       "screens": "Telas",

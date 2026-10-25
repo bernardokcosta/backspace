@@ -1,7 +1,9 @@
-const { app, BrowserWindow, ipcMain, sharedTexture, desktopCapturer } = require('electron');
+const { app, BrowserWindow, ipcMain, sharedTexture, desktopCapturer, session } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const http = require('node:http');
+const { execFileSync } = require('node:child_process');
+const { randomUUID } = require('node:crypto');
 const assert = require('node:assert/strict');
 const { createSdrCaptureTransport } = require('../../dist/sdrCaptureTransport.js');
 const { createSdrCaptureController, registerSdrCaptureIpc, resolveNativeSdrSource, resolveSdrPreselection } = require('../../dist/sdrCapture.js');
@@ -36,6 +38,7 @@ function finish(result) {
   finished = true;
   clearTimeout(timer);
   controller.invalidate('shutdown');
+  if (mode === 'borderless' && captureId) { try { native.stopCapture(captureId); } catch {} captureId = null; }
   if (sourceWindow && !sourceWindow.isDestroyed()) sourceWindow.destroy();
   if (window && !window.isDestroyed()) window.destroy();
   server?.close();
@@ -101,7 +104,8 @@ ipcMain.handle('sdr-smoke-ready', async (event) => {
     assert.equal(selected.thumbnail.isEmpty(), true, 'Source validation must not capture other window thumbnails');
     const source = resolveNativeSdrSource(selected, []);
     assert.ok(source);
-    assert.equal(controller.grant(event.senderFrame, source), true);
+    assert.deepEqual(await controller.prepare(event.senderFrame, source), { ok: true });
+    assert.equal(controller.confirmSelection(event.senderFrame, source), true);
     return { sessionId, mode };
   }
   return { sessionId, mode };
@@ -142,21 +146,28 @@ ipcMain.handle('sdr-smoke-begin-synthetic', (event) => {
 
 async function captureLifecycleChecks() {
   const source = { kind: 'window', id: `window:${sourceWindow.getNativeWindowHandle().readBigUInt64LE()}:0` };
+  async function prepareNative() {
+    const id = randomUUID();
+    const access = await new Promise((resolve) => native.requestBorderlessAccess(id, resolve));
+    assert.equal(access.status, 'allowed'); return id;
+  }
   for (let attempt = 0; attempt < 100; attempt++) {
-    const id = native.startCapture(source, { width: 60, height: 30, frameRate: 30 }, (frame) => native.releaseFrame(frame.frameId), () => {});
+    const permission = await prepareNative();
+    const id = native.startCapture(source, { width: 60, height: 30, frameRate: 30 }, (frame) => native.releaseFrame(frame.frameId), () => {}, permission);
     native.stopCapture(id);
     native.stopCapture(id);
   }
   stage('100 immediate cancel/repeated-stop checks completed');
   async function expectEnd(reason, callback, action) {
     let timeout;
+    const permission = await prepareNative();
     try {
       await new Promise((resolve, reject) => {
         timeout = setTimeout(() => reject(new Error(`Native ${reason} test timed out`)), 8000);
         native.startCapture(source, { width: 60, height: 30, frameRate: 30 }, callback, (actual) => {
           stage(`lifecycle ended ${actual}; retained ${native.retainedFrameCount()}`);
           try { assert.equal(actual, reason); resolve(); } catch (error) { reject(error); }
-        });
+        }, permission);
         action?.();
       });
     } finally { clearTimeout(timeout); }
@@ -182,6 +193,76 @@ async function waitFor(check, description, duration = 5000) {
   }
 }
 
+/** Crops only a fixture-owned source and its fixture-owned background. */
+function outlineEvidence(name) {
+  const bounds = sourceWindow.getBounds();
+  const owner = window.getBounds();
+  assert.ok(bounds.x - 8 >= owner.x && bounds.y - 8 >= owner.y
+    && bounds.x + bounds.width + 8 <= owner.x + owner.width && bounds.y + bounds.height + 8 <= owner.y + owner.height);
+  const filename = path.join(evidence, name + '.png');
+  const literal = filename.replace(/'/g, "''");
+  execFileSync('powershell.exe', ['-NoProfile', '-Command', `Add-Type -AssemblyName System.Drawing; $b=New-Object System.Drawing.Bitmap(${bounds.width + 16},${bounds.height + 16}); $g=[System.Drawing.Graphics]::FromImage($b); try { $g.CopyFromScreen(${bounds.x - 8},${bounds.y - 8},0,0,$b.Size); $b.Save('${literal}',[System.Drawing.Imaging.ImageFormat]::Png) } finally { $g.Dispose(); $b.Dispose() }`], { windowsHide: true });
+  return filename;
+}
+
+async function borderlessProbe() {
+  assert.equal(native.isCaptureSupported(), true);
+  const hwnd = sourceWindow.getNativeWindowHandle().readBigUInt64LE();
+  const sources = await desktopCapturer.getSources({ types: ['window'], thumbnailSize: { width: 0, height: 0 }, fetchWindowIcons: false });
+  const selected = sources.find((candidate) => candidate.id.startsWith(`window:${hwnd}:`));
+  assert.ok(selected, 'Only the controlled source may be selected');
+  const source = resolveNativeSdrSource(selected, []);
+  assert.ok(source);
+  session.defaultSession.setDisplayMediaRequestHandler((request, callback) => {
+    assert.equal(request.frame, window.webContents.mainFrame);
+    callback({ video: selected, ...(request.audioRequested ? { audio: 'loopback' } : {}) });
+  });
+  const results = [];
+  for (const audio of [false, true]) {
+    const requestId = randomUUID();
+    const access = await new Promise((resolve) => native.requestBorderlessAccess(requestId, resolve));
+    stage('real borderless OS permission: ' + access.status);
+    if (access.status !== 'allowed') { finish({ status: 'blocked', mode, access, capturedSource: false }); return; }
+    assert.throws(() => native.startCapture(source, { width: 60, height: 30, frameRate: 30 }, () => {}, () => {}, 'unapproved-id'), /preparation/);
+    const raw = await window.webContents.executeJavaScript(`window.startBorderlessRaw(${audio})`, true);
+    if (raw.failure && audio) {
+      native.cancelBorderlessAccess(requestId);
+      const baseline = await window.webContents.executeJavaScript('window.startBorderlessRaw(true)', true);
+      await window.webContents.executeJavaScript('window.stopBorderlessRaw()');
+      finish({ status: 'blocked', mode, results, audioFailure: raw, nativeFreeAudioBaseline: baseline,
+        error: `System audio could not be verified; native-free baseline: ${JSON.stringify(baseline)}`,
+        retainedFrames: native.retainedFrameCount(), operatorOutlineInspectionRequired: true });
+      return;
+    }
+    assert.equal(raw.video, 1, `Controlled raw capture failed: ${JSON.stringify(raw)}`);
+    let frames = 0; let failure;
+    captureId = native.startCapture(source, { width: 60, height: 30, frameRate: 30 }, (frame) => {
+      frames++; native.releaseFrame(frame.frameId);
+    }, (reason) => { failure = reason; }, requestId);
+    await waitFor(() => frames > 0 || failure, 'the prepared native frame');
+    assert.equal(failure, undefined);
+    outlineEvidence(`dual-capture-audio-${audio}`);
+    assert.equal(await window.webContents.executeJavaScript('window.stopBorderlessRawVideo()'), true);
+    const before = frames;
+    await waitFor(() => frames > before + 2 || failure, 'native video after raw track stop');
+    assert.equal(failure, undefined);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const screenshot = outlineEvidence(`native-only-audio-${audio}`);
+    native.stopCapture(captureId); captureId = null;
+    await window.webContents.executeJavaScript('window.stopBorderlessRaw()');
+    await waitFor(() => native.retainedFrameCount() === 0, 'borderless probe cleanup');
+    results.push({ audio, access: access.status, raw, frames, screenshot });
+  }
+  const cancelled = randomUUID();
+  const late = new Promise((resolve) => native.requestBorderlessAccess(cancelled, resolve));
+  native.cancelBorderlessAccess(cancelled);
+  const answer = await late;
+  assert.ok(['cancelled', 'allowed'].includes(answer.status)); // Completion may have preceded cancellation.
+  assert.throws(() => native.startCapture(source, { width: 60, height: 30, frameRate: 30 }, () => {}, () => {}, cancelled), /preparation/);
+  finish({ status: 'passed', mode, results, cancelledPreparationRejected: true, retainedFrames: native.retainedFrameCount(),
+    operatorOutlineInspectionRequired: true, productionWebAdapter: false, arch: process.arch, electron: process.versions.electron });
+}
+
 ipcMain.handle('sdr-smoke-report', async (event, result) => {
   try {
     if (event.sender !== window?.webContents || event.senderFrame !== window.webContents.mainFrame) return;
@@ -200,7 +281,8 @@ ipcMain.handle('sdr-smoke-report', async (event, result) => {
       assert.ok(endedSessions.some((ended) => ended.sessionId === initialId && ended.reason === 'navigation'));
       await waitFor(() => native.retainedFrameCount() === 0, 'navigation GPU cleanup');
       const source = resolveNativeSdrSource({ id: `window:${sourceWindow.getNativeWindowHandle().readBigUInt64LE()}:0`, display_id: '' }, []);
-      assert.equal(controller.grant(window.webContents.mainFrame, source), true);
+      assert.deepEqual(await controller.prepare(window.webContents.mainFrame, source), { ok: true });
+      assert.equal(controller.confirmSelection(window.webContents.mainFrame, source), true);
       const second = controller.start(window.webContents.mainFrame, { width: 60, height: 30, frameRate: 30 });
       captureId = second.sessionId;
       await waitFor(() => forwardedSessions.has(second.sessionId), 'a real frame before renderer destruction');
@@ -229,7 +311,7 @@ app.whenReady().then(async () => {
     assert.equal(typeof native.startCapture, 'function');
     assert.equal(typeof native.configureCapture, 'function');
     assert.equal(typeof native.stopCapture, 'function');
-    assert.throws(() => native.startCapture({ kind: 'window', id: 'window:0:0' }, { width: 0, height: 0, frameRate: 60 }, () => {}, () => {}), /source/);
+    assert.throws(() => native.startCapture({ kind: 'window', id: 'window:0:0' }, { width: 0, height: 0, frameRate: 60 }, () => {}, () => {}, 'invalid'), /source/);
     native.stopCapture('already-stopped');
     assert.equal(native.retainedFrameCount(), 0);
     finish({ status: 'passed', mode: 'module-load-only', nativeLoaded: true, arch: process.arch, electron: process.versions.electron, gpuTransport: 'not-tested' });
@@ -241,6 +323,8 @@ app.whenReady().then(async () => {
     ['/source.html', { file: 'source.html', type: 'text/html' }],
     ['/source.css', { file: 'source.css', type: 'text/css' }],
     ['/source.js', { file: 'source.js', type: 'text/javascript' }],
+    ['/borderless.html', { file: 'borderless.html', type: 'text/html' }],
+    ['/borderless.js', { file: 'borderless.js', type: 'text/javascript' }],
     ['/utils/sdrScreenCapture.js', { file: path.join(evidence, 'adapter.js'), type: 'text/javascript' }],
     ['/platform/platform', { file: path.join(evidence, 'platform.js'), type: 'text/javascript' }],
   ]);
@@ -255,6 +339,16 @@ app.whenReady().then(async () => {
     response.end(fs.readFileSync(path.isAbsolute(asset.file) ? asset.file : path.join(__dirname, asset.file)));
   });
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
+  if (mode === 'borderless') {
+    window = new BrowserWindow({ x: 40, y: 40, width: 640, height: 480, frame: false, backgroundColor: '#222222',
+      webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false, backgroundThrottling: false } });
+    await window.loadURL(`http://127.0.0.1:${server.address().port}/borderless.html`);
+    sourceWindow = new BrowserWindow({ x: 160, y: 180, width: 320, height: 160, frame: false, hasShadow: false, alwaysOnTop: true,
+      webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false, backgroundThrottling: false } });
+    await sourceWindow.loadURL(`http://127.0.0.1:${server.address().port}/source.html`);
+    await borderlessProbe();
+    return;
+  }
   if (mode === 'capture') {
     sourceWindow = new BrowserWindow({ width: 320, height: 160, useContentSize: true, frame: false, hasShadow: false, show: false,
       webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false, backgroundThrottling: false } });
@@ -280,7 +374,7 @@ app.whenReady().then(async () => {
   timer = setTimeout(() => finish({ status: 'failed', error: `No renderer frame result within 30 seconds; retained ${native.retainedFrameCount()}` }), 30000);
   navigationComplete = window.loadURL(`http://127.0.0.1:${server.address().port}/`);
   await navigationComplete;
-}).catch((error) => finish({ status: 'failed', error: error.message }));
+}).catch((error) => finish({ status: 'failed', error: error instanceof Error ? error.message : String(error) }));
 
 app.on('window-all-closed', () => {});
 app.on('before-quit', () => stage('before-quit'));

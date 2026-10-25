@@ -412,12 +412,20 @@ ScreenShareConfig {
 `forceSdr` is a device-local next-capture preference (voice settings schema 15),
 default off and migrated to false when absent. The quality controls ask the
 desktop capability rather than guessing from the OS name. Unsupported/older
-hosts show an unavailable, effectively-off switch without overwriting a saved
-Windows preference. The monitor's HDR setting is never changed.
+hosts show the unavailable switch without overwriting a saved preference. A
+saved Windows Force SDR choice now blocks sharing on a host without explicit
+borderless support instead of silently starting ordinary capture. Non-Windows
+capture is unchanged. The monitor's HDR setting is never changed.
 
 For a supported attempt, main accepts the selected source with
-`preselectScreenSource(id, shareAudio, { forceSdr: true })` and grants one
-focused main-frame native start. `stageScreenCapture({ forceSdr, signal })`
+`preselectScreenSource(id, shareAudio, { forceSdr: true })`, awaits Windows
+borderless access before any display-media acquisition, and grants one focused
+main-frame native start only after the same source is confirmed. Consent has
+a separate 60-second bound; the 10-second first-frame timer does not run while
+the user is answering it. Denial leaves capture/publication stopped and exposes
+a translated permission retry where meaningful. Each retry revalidates the
+source; the OS may retain its refusal instead of displaying a new dialog.
+`stageScreenCapture({ forceSdr, signal })`
 keeps the ordinary display-media/audio acquisition, then
 `sdrScreenCapture.acquireSdrScreenCapture` replaces video only after a corrected
 native first frame. Preview and publication use that same generated track;

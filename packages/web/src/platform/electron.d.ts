@@ -79,8 +79,11 @@ interface DesktopUpdateSnapshot {
 }
 
 type DesktopSdrCaptureCapability =
-  | { supported: true }
+  | { supported: true; borderless: true }
   | { supported: false; reason: 'platform' | 'system' | 'module' | 'transport' | 'bridge' };
+
+type DesktopSdrPermissionReason = 'denied-user' | 'denied-system' | 'not-declared' | 'unsupported' | 'cancelled' | 'timeout' | 'failed';
+type DesktopSdrPreselectionResult = { ok: true } | { ok: false; reason: DesktopSdrPermissionReason };
 
 interface DesktopSdrCaptureConstraints {
   width: number;
@@ -147,7 +150,7 @@ interface BackspaceElectronAPI {
    * (getDisplayMedia → onScreenShareSources → selectScreenSource).
    */
   getScreenSources?: () => Promise<ElectronScreenSource[]>;
-  preselectScreenSource?: (sourceId: string, shareAudio?: boolean, videoOptions?: { forceSdr: boolean }) => Promise<void>;
+  preselectScreenSource?: (sourceId: string, shareAudio?: boolean, videoOptions?: { forceSdr: boolean }) => Promise<void | DesktopSdrPreselectionResult>;
   /** Optional: old shells retain ordinary capture and must not claim SDR conversion. */
   getSdrCaptureCapability?: () => Promise<DesktopSdrCaptureCapability>;
   startSdrCapture?: (constraints: DesktopSdrCaptureConstraints) => Promise<{ sessionId: string }>;

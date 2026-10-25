@@ -704,12 +704,12 @@ function currentPickerMode(): ScreenSharePickerMode {
   return screenSharePickerMode(process.platform, process.env);
 }
 
-/** One-shot: returns and clears the pending preselection, or null when absent or stale. */
+/** One-shot: caller validates freshness before accepting or denying the request. */
 function takePendingScreenSelection(): PendingScreenSelection | null {
   screenSelectionGeneration++;
   const pending = pendingScreenSelection;
   pendingScreenSelection = null;
-  return isPendingSelectionFresh(pending, Date.now()) ? pending : null;
+  return pending;
 }
 
 function registerIpcHandlers(): void {
@@ -935,14 +935,27 @@ function registerIpcHandlers(): void {
     if (typeof sourceId !== 'string' || !sourceId || sourceId.length > 128) return;
     const forceSdr = typeof videoOptions === 'object' && videoOptions !== null && (videoOptions as Record<string, unknown>).forceSdr === true;
     if (forceSdr) {
+      // Retain strict intent even if an older web client ignores the typed
+      // refusal or calls getDisplayMedia before consent finishes. The handler
+      // must deny that request, not fall through to ordinary bordered capture.
+      pendingScreenSelection = { sourceId, shareAudio: shareAudio === true, forceSdr: true, at: Date.now() };
       const selected = await resolveSdrPreselection(sourceId,
         () => desktopCapturer.getSources({ types: ['screen', 'window'], thumbnailSize: { width: 0, height: 0 }, fetchWindowIcons: false }),
         () => generation === screenSelectionGeneration && !!event.senderFrame && isSdrTargetAllowed(event.senderFrame) && (mainWindow?.isFocused() ?? false));
       // The accepted request drops all thumbnails. A later click must still
       // work: retain only this freshly resolved, thumbnail-free source object.
       lastScreenSources = [selected];
+      const nativeSource = resolveNativeSdrSource(selected, screen.getAllDisplays());
+      if (!nativeSource || !event.senderFrame) return { ok: false, reason: 'unsupported' };
+      const permission = await sdrCapture.prepare(event.senderFrame, nativeSource);
+      if (!permission.ok) return permission;
+      if (generation !== screenSelectionGeneration) return { ok: false, reason: 'cancelled' };
+      if (!isSdrTargetAllowed(event.senderFrame) || !mainWindow?.isFocused()) {
+        sdrCapture.revokeGrant(); return { ok: false, reason: 'cancelled' };
+      }
     }
     pendingScreenSelection = { sourceId, shareAudio: shareAudio === true, forceSdr, at: Date.now() };
+    return { ok: true };
   });
   // System-picker sessions have no tile to preselect; the renderer only tells
   // us whether loopback audio should ride along with whatever the portal returns.
@@ -1412,8 +1425,13 @@ if (!gotTheLock) {
           return;
         }
         const pending = takePendingScreenSelection();
-        sdrCapture.revokeGrant();
+        if (!pending?.forceSdr) sdrCapture.revokeGrant();
         if (pending) {
+          if (!isPendingSelectionFresh(pending, Date.now())) {
+            sdrCapture.revokeGrant();
+            // @ts-expect-error — Electron requires no argument to deny requested video
+            callback(); return;
+          }
           let selected = lastScreenSources.find((s) => s.id === pending.sourceId);
           if (!selected) selected = (await enumerateScreenSources()).find((s) => s.id === pending.sourceId);
           if (!selected) {
@@ -1423,14 +1441,15 @@ if (!gotTheLock) {
             return;
           }
           const nativeSource = pending.forceSdr ? resolveNativeSdrSource(selected, screen.getAllDisplays()) : null;
-          if (pending.forceSdr && (!request.frame || !isSdrTargetAllowed(request.frame) || !mainWindow?.isFocused() || !nativeSource)) {
+          if (pending.forceSdr && (!request.frame || !isSdrTargetAllowed(request.frame) || !mainWindow?.isFocused() || !nativeSource
+              || !sdrCapture.confirmSelection(request.frame, nativeSource))) {
+            sdrCapture.revokeGrant();
             // @ts-expect-error — Electron requires no argument to deny requested video
             callback();
             return;
           }
           console.log('[Main:ScreenShare] Using preselected source:', pending.sourceId, 'audio:', pending.shareAudio);
           callback({ video: selected, ...(pending.shareAudio ? { audio: 'loopback' } : {}) });
-          if (nativeSource && request.frame) sdrCapture.grant(request.frame, nativeSource);
           return;
         }
 
