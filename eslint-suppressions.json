@@ -221,16 +221,6 @@
       "count": 1
     }
   },
-  "packages/web/src/components/chat/ConnectionChips.test.tsx": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 6
-    }
-  },
-  "packages/web/src/components/chat/ExplorePage.search.test.tsx": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    }
-  },
   "packages/web/src/components/chat/FriendsPage.test.tsx": {
     "@typescript-eslint/no-explicit-any": {
       "count": 6
@@ -241,11 +231,6 @@
   },
   "packages/web/src/components/chat/FriendsPage.tsx": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/web/src/components/chat/InstanceDiscoveryHint.test.tsx": {
-    "@typescript-eslint/no-unused-vars": {
       "count": 1
     }
   },
@@ -260,11 +245,6 @@
     }
   },
   "packages/web/src/components/chat/MessageList.tsx": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "packages/web/src/components/chat/OuterSpaceSection.test.tsx": {
     "@typescript-eslint/no-unused-vars": {
       "count": 1
     }
@@ -494,16 +474,6 @@
   "packages/web/src/stores/chatStore.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
-    }
-  },
-  "packages/web/src/stores/directoryStore.test.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 15
-    }
-  },
-  "packages/web/src/stores/exploreStore.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
     }
   },
   "packages/web/src/stores/instanceStore.connect.test.ts": {

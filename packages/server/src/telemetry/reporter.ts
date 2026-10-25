@@ -35,7 +35,7 @@ const TIMEOUT_MS = 10_000;
 
 /**
  * The endpoint is a base URL, so a trailing slash must not double up in the
- * path. Shared with the directory pinger, whose hub answers on the same path.
+ * path.
  */
 export function pingUrl(endpoint: string): string {
   return `${endpoint.replace(/\/+$/, '')}/v1/ping`;

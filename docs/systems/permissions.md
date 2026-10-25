@@ -553,7 +553,7 @@ and category Permissions tabs, and every one of those needs `MANAGE_ROLES`
 | Viewer | Roles | Member rows' roles | Override rows | Own permissions |
 |---|---|---|---|---|
 | Not a member (explore, invite preview, directory, join previews) | none | none | none | none |
-| Member without `MANAGE_ROLES` (a `MANAGE_CHANNELS` holder and a member whose role has overrides included) | every role: `id`, `spaceId`, `name`, `color`, `position`, `isEveryone`, `createdAt`; no `permissions` field | display fields only | refused (`403 missing_permission`) | `myPermissions` on the space and on each channel it can see. `isPrivate` comes on channels and categories in `GET /api/spaces/:id`, on channels only in `ready`, and on neither in the `public-join` answer and `join_request_accepted` |
+| Member without `MANAGE_ROLES` (a `MANAGE_CHANNELS` holder and a member whose role has overrides included) | every role: `id`, `spaceId`, `name`, `color`, `position`, `isEveryone`, `createdAt`; no `permissions` field | display fields only | refused (`403 missing_permission`) | `myPermissions` on the space and on each channel it can see. `isPrivate` comes on channels and categories in `GET /api/spaces/:id`, on channels only in `ready`, and on neither in `join_request_accepted` |
 | Member who holds `MANAGE_ROLES` in the space (the owner, instance admins and `ADMINISTRATOR` holders hold it) | every role with its display fields and `permissions` | display fields only | `GET /channels/:id/overrides`, `GET /categories/:id/overrides` | the same |
 
 `MANAGE_ROLES` counts at space level only: a member whose role is allowed it
@@ -573,14 +573,14 @@ role, `memberRolesView` a member row's roles. Every send site goes through it:
 |---|---|---|
 | WS `ready` (`buildReadyPayload`), each space's `roles` and `members[].roles` | the connecting user | `rolesForViewer` with the user's space permissions, `memberRolesView` |
 | `GET /api/spaces/:id` | members (`403 not_space_member` otherwise) | the same |
-| `POST /api/spaces/:id/public-join` answer and WS `join_request_accepted` (`buildFullSpace` in `routes/explore.ts`) | the member who just joined | the same, for that member |
+| WS `join_request_accepted` (`buildJoinedSpace` in `utils/spaceJoinPayload.ts`) | the member who just joined | the same, for that member |
 | `GET /api/spaces/:id/members`, `PATCH /api/spaces/:id/members/:uid` answer | members, a role manager | `memberRolesView` |
 | `POST /api/spaces/:id/roles`, `PATCH /api/spaces/:id/roles/:rid` answers | the actor | `roleView`, with the actor's permissions after the change (an actor who switched off their own `MANAGE_ROLES` gets no bits back) |
 | `GET /channels/:id/overrides`, `GET /categories/:id/overrides` | managers | refused unless `viewerReadsPermissionData` |
 | `member_joined` | the space | a new member has no roles: `roles: []` |
 | `member_updated` | the space | `memberRolesView`, the same row the `PATCH /members/:uid` answer carries |
 | `space_access_changed` | the space; after an instance admin change, that user alone | carries only `spaceId` |
-| `GET /api/spaces/explore`, `GET /api/spaces/invite/:code/preview`, `GET /api/directory/spaces` | anyone | carry no role or override data |
+| `GET /api/spaces/invite/:code/preview` | anyone holding the invitation | carries no role or override data |
 
 **When a member's permissions change.** Three kinds of change move
 `MANAGE_ROLES`, and each is followed by `space_access_changed` (websocket.md):
@@ -607,7 +607,7 @@ role or override data.
 
 **Mixed versions.** The web client has read the space's role list only from
 `GET /api/spaces/:id`, which already left the bits out for members without
-`MANAGE_ROLES`, and it ignores the `roles` in `ready`, `public-join` and
+`MANAGE_ROLES`, and it ignores the `roles` in `ready` and
 `join_request_accepted`. So an older client on this server and this client on
 an older server (which sends the bits to everyone) behave as before.
 

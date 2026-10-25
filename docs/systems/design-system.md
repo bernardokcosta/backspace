@@ -282,8 +282,8 @@ restores 312px. The width persists per device via uiStore.
 Glass server strip overlays left 72px of channel sidebar.
 Channel sidebar fully opaque with gradient at left edge feeding glass.
 
-Card lists (Explore's Inner and Outer Space sections, the Friends page's
-discover list) share one class, `.card-grid` in `globals.css`: one full-width
+The Friends page's Discover People list uses `.card-grid` in `globals.css`:
+one full-width
 column below the desktop breakpoint, and above it
 `repeat(auto-fill, minmax(min(100%, 280px), 1fr))` with a 1rem gap. It is
 `auto-fill` and not `auto-fit` on purpose, because `auto-fit` collapses the

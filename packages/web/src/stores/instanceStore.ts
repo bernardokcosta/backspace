@@ -428,8 +428,8 @@ export function waitForAutoConnect(): Promise<void> {
  * A connection is held in two projections at once, and both carry a status:
  * the live `ConnectedInstance` in `instances` (token, api client, the status
  * the socket layer mirrors) and the persisted `FederationRegistryEntry` in
- * `registry` (what the Connections panel, the Explore chips and Outer Space
- * render). They are not derived from one another — components read both — so
+ * `registry` (what the Connections panel renders). They are not derived from
+ * one another — components read both — so
  * they can only stay in step if one piece of code moves them together.
  *
  * `writeConnectionState` below is that piece of code. Every status change goes
@@ -830,8 +830,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
 
       // Replace by origin, never append: a re-authentication runs this over
       // the placeholder in `error` or `disconnected`, which stays in the list
-      // until the new session takes its place, so the origin is never absent
-      // (Outer Space dedupes against this list at render).
+      // until the new session takes its place, so the origin is never absent.
       const instance = writeConnectionState(origin, 'connected', {
         insert: {
           origin,
@@ -1056,10 +1055,8 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
   reauthenticateInstance: async (origin: string, password: string) => {
     // The stale placeholder (error or disconnected) stays in `instances`
     // until connectToRemote replaces it by origin on success. Removing it up
-    // front left the origin absent for the request's duration, and for good
-    // on a wrong password, so its spaces surfaced in Outer Space under a chip
-    // saying the session had expired. Its spaces and socket do go now: the
-    // new session's ready payload brings them back.
+    // front would lose it for good on a wrong password. Its spaces and socket
+    // do go now: the new session's ready payload brings them back.
     if (get().instances.some((i) => i.origin === origin)) {
       useSpaceStore.getState().removeInstanceSpaces(origin);
     }

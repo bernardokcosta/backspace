@@ -57,9 +57,7 @@ import type {
   AdminUser,
   AdminResetPasswordResponse,
   InstanceUpdateStatus,
-  ExploreSpace,
   JoinRequest,
-  DirectoryFeed,
   Role,
   SpaceLayoutItem,
   SpaceFolder,
@@ -392,21 +390,11 @@ export class BackspaceApiClient {
     dm: (dmChannelId: string, params: { q?: string; from?: string; has?: string; before?: string; after?: string; offset?: number; limit?: number }) => Promise<{ results: DmMessageWithUser[]; totalCount: number }>;
   };
 
-  readonly explore: {
-    list: (q?: string, limit?: number, offset?: number) => Promise<{ spaces: ExploreSpace[]; total: number; totalAll: number; discoveryEnabled: boolean }>;
-    publicJoin: (spaceId: string) => Promise<SpaceWithChannelsAndMembers>;
-  };
-
   readonly joinRequests: {
     request: (spaceId: string, message?: string) => Promise<JoinRequest>;
     list: (spaceId: string, status?: string) => Promise<{ requests: JoinRequest[] }>;
     decide: (spaceId: string, requestId: string, action: 'accept' | 'decline') => Promise<JoinRequest>;
     mine: (status?: string) => Promise<{ requests: JoinRequest[] }>;
-  };
-
-  /** The public space directory, read through this instance's proxy (never the hub directly). */
-  readonly directory: {
-    list: (q?: string, limit?: number, offset?: number) => Promise<DirectoryFeed>;
   };
 
   readonly gif: {
@@ -966,20 +954,6 @@ export class BackspaceApiClient {
       },
     };
 
-    this.explore = {
-      list: (q?: string, limit = 50, offset = 0) => {
-        const params = new URLSearchParams();
-        if (q) params.set('q', q);
-        params.set('limit', String(limit));
-        params.set('offset', String(offset));
-        return request<{ spaces: ExploreSpace[]; total: number; totalAll: number; discoveryEnabled: boolean }>(
-          'GET', `/spaces/explore?${params}`
-        );
-      },
-      publicJoin: (spaceId: string) =>
-        request<SpaceWithChannelsAndMembers>('POST', `/spaces/${spaceId}/public-join`),
-    };
-
     this.joinRequests = {
       request: (spaceId: string, message?: string) =>
         request<JoinRequest>('POST', `/spaces/${spaceId}/request-join`, message ? { message } : {}),
@@ -994,16 +968,6 @@ export class BackspaceApiClient {
         const params = new URLSearchParams();
         if (status) params.set('status', status);
         return request<{ requests: JoinRequest[] }>('GET', `/users/@me/join-requests?${params}`);
-      },
-    };
-
-    this.directory = {
-      list: (q?: string, limit = 50, offset = 0) => {
-        const params = new URLSearchParams();
-        if (q) params.set('q', q);
-        params.set('limit', String(limit));
-        params.set('offset', String(offset));
-        return request<DirectoryFeed>('GET', `/directory?${params}`);
       },
     };
 

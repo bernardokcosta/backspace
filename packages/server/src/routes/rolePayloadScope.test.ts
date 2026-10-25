@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
 import type Database from 'better-sqlite3';
 import { eq } from 'drizzle-orm';
-import type { ExploreSpace, MemberWithUser, Role, SpaceWithChannelsAndMembers } from '@backspace/shared';
+import type { MemberWithUser, Role, SpaceWithChannelsAndMembers } from '@backspace/shared';
 import { PermissionBits, permissionsToString, stringToPermissions } from '@backspace/shared/src/permissions.js';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
@@ -83,13 +83,11 @@ beforeEach(async () => {
 
   const { spaceRoutes } = await import('./spaces.js');
   const { channelRoutes } = await import('./channels.js');
-  const { exploreRoutes } = await import('./explore.js');
   const { joinRequestRoutes } = await import('./joinRequests.js');
   const { adminRoutes } = await import('./admin.js');
   app = Fastify();
   await app.register(spaceRoutes);
   await app.register(channelRoutes);
-  await app.register(exploreRoutes);
   await app.register(joinRequestRoutes);
   await app.register(adminRoutes);
 });
@@ -281,18 +279,12 @@ describe('MANAGE_ROLES allowed only by a channel override', () => {
   });
 });
 
-describe('non-members: explore, invite preview, joins', () => {
-  it('lists discoverable spaces with no roles, bits or overrides', async () => {
+describe('non-members: retired discovery, invite preview, joins', () => {
+  it('cannot enumerate spaces through retired discovery', async () => {
     as(USERS.outsider);
     const res = await app.inject({ method: 'GET', url: '/api/spaces/explore' });
-    expect(res.statusCode).toBe(200);
-    const spaces = res.json<{ spaces: ExploreSpace[] }>().spaces;
-    expect(spaces.map(s => s.id).sort()).toEqual([REQUEST_SPACE_ID, SPACE_ID].sort());
-    for (const space of spaces) {
-      for (const key of ['roles', 'permissions', 'myPermissions', 'channels', 'categories', 'members', 'overrides']) {
-        expect(space).not.toHaveProperty(key);
-      }
-    }
+    expect(res.statusCode).toBe(404);
+    expect(res.json()).not.toHaveProperty('spaces');
   });
 
   it('previews an invite with no roles, bits or overrides', async () => {
@@ -304,23 +296,28 @@ describe('non-members: explore, invite preview, joins', () => {
     }
   });
 
-  it('answers a public join with display fields only for a member without MANAGE_ROLES', async () => {
+  it('answers an invitation join with display fields only for a member without MANAGE_ROLES', async () => {
     as(USERS.outsider);
-    const res = await app.inject({ method: 'POST', url: `/api/spaces/${SPACE_ID}/public-join` });
+    const res = await app.inject({ method: 'POST', url: '/api/spaces/join', payload: { inviteCode: 'inv-roles' } });
     expect(res.statusCode).toBe(200);
-    const space = res.json<SpaceWithChannelsAndMembers>();
+    const detail = await getDetail(USERS.outsider);
+    expect(detail.status).toBe(200);
+    const space = detail.body;
     expect(space.roles.map(r => r.id).sort()).toEqual(Object.keys(ROLE_BITS).sort());
     expectNoBits(space.roles);
     for (const member of space.members) for (const role of member.roles) expect(role).not.toHaveProperty('permissions');
   });
 
-  it('answers a public join with the bits when @everyone carries MANAGE_ROLES', async () => {
+  it('answers an invitation join with the bits when @everyone carries MANAGE_ROLES', async () => {
     testDb.update(schema.roles)
       .set({ permissions: permissionsToString(EVERYONE_BITS | PermissionBits.MANAGE_ROLES) })
       .where(eq(schema.roles.id, SPACE_ID)).run();
     as(USERS.outsider);
-    const res = await app.inject({ method: 'POST', url: `/api/spaces/${SPACE_ID}/public-join` });
-    const space = res.json<SpaceWithChannelsAndMembers>();
+    const res = await app.inject({ method: 'POST', url: '/api/spaces/join', payload: { inviteCode: 'inv-roles' } });
+    expect(res.statusCode).toBe(200);
+    const detail = await getDetail(USERS.outsider);
+    expect(detail.status).toBe(200);
+    const space = detail.body;
     expect(space.roles.find(r => r.id === SPACE_ID)?.permissions).toBe(permissionsToString(EVERYONE_BITS | PermissionBits.MANAGE_ROLES));
     expect(space.roles.find(r => r.id === 'r-vip')?.permissions).toBe(storedBitsOf('r-vip'));
   });

@@ -85,7 +85,6 @@ const ADMIN_SETTINGS: InstanceAdminSettings = {
   instanceName: 'Workbench',
   registrationOpen: true,
   federatedRegistrationOpen: true,
-  discoveryEnabled: true,
   gifEnabled: false,
   maxUploadSizeMb: 100,
   maxStickerSizeMb: 5,
@@ -93,11 +92,6 @@ const ADMIN_SETTINGS: InstanceAdminSettings = {
   federationRelayTtlDays: 30,
   defaultAutoRotateIntervalDays: 90,
   autoAcceptPeering: true,
-  directoryEnabled: false,
-  directoryBrowseEnabled: true,
-  directoryLastPingAt: null,
-  directoryLastError: null,
-  directoryListedSpaceCount: 0,
 };
 
 const ADMIN: User = {

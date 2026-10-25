@@ -31,9 +31,6 @@ const limits: InstanceStreamingLimits = {
   allowedFramerates: [30, 45, 60],
   maxResolution: 1080,
   maxFramerate: 60,
-  discoveryEnabled: true,
-  directoryEnabled: true,
-  directoryConfigured: true,
   bitrateMatrixOverrides: null,
   allowCustomBitrate: true,
 };
@@ -47,7 +44,6 @@ const space: TaggedSpace = {
   ownerId: 'user-1',
   inviteCode: null,
   visibility: 'public',
-  directoryListed: false,
   description: '',
   createdAt: 1,
   _instanceOrigin: '',

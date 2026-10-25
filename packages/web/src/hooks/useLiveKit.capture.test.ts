@@ -316,8 +316,8 @@ describe('the instance hosting the call', () => {
   const limits = (maxBitrateKbps: number) => ({
     maxBitrateKbps, minBitrateKbps: 500, bitrateStepKbps: 500,
     allowedResolutions: [540, 720, 1080], allowedFramerates: [30, 45, 60],
-    maxResolution: 1080, maxFramerate: 60, discoveryEnabled: true, directoryEnabled: false,
-    directoryConfigured: false, bitrateMatrixOverrides: null, allowCustomBitrate: true,
+    maxResolution: 1080, maxFramerate: 60,
+    bitrateMatrixOverrides: null, allowCustomBitrate: true,
   });
 
   it('records the origin that issued the token and asks it for its limits', async () => {

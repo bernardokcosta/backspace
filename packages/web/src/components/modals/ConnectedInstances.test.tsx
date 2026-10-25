@@ -59,8 +59,6 @@ const RETRO_PROBE = {
   instanceId: 'retro',
   sourceCodeUrl: null,
   commit: null,
-  directoryAvailable: true,
-  directoryEnabled: false,
   origin: 'https://retro.example',
 };
 

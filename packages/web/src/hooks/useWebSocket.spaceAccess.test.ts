@@ -66,7 +66,7 @@ const OTHER_ID = 'sp-other';
 function space(id: string): TaggedSpace {
   return {
     id, name: `Space ${id}`, icon: null, banner: null, avatarColor: 'lavender', ownerId: 'owner',
-    inviteCode: null, visibility: 'public', directoryListed: false, description: '', createdAt: 1,
+    inviteCode: null, visibility: 'public', description: '', createdAt: 1,
     _instanceOrigin: '',
   };
 }
@@ -95,7 +95,7 @@ function detail(id: string, channels: Channel[], roles: Role[], members: MemberW
   const s = space(id);
   return {
     id, name: s.name, icon: null, banner: null, avatarColor: s.avatarColor, ownerId: s.ownerId, inviteCode: null,
-    visibility: s.visibility, directoryListed: false, description: '', createdAt: 1,
+    visibility: s.visibility, description: '', createdAt: 1,
     channels, categories: [], members, roles, myPermissions,
   };
 }

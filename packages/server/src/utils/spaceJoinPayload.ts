@@ -46,7 +46,7 @@ export function buildJoinedSpace(spaceId: string, forUserId: string): SpaceWithC
     avatarColor: (space.avatarColor as SpaceWithChannelsAndMembers['avatarColor']) ?? null,
     ownerId: space.ownerId, ownerTitle: space.ownerTitle, inviteCode: space.inviteCode,
     visibility: (space.visibility ?? 'private') as SpaceWithChannelsAndMembers['visibility'],
-    directoryListed: space.directoryListed === 1, description: space.description ?? null, createdAt: space.createdAt,
+    description: space.description ?? null, createdAt: space.createdAt,
     channels: visibleChannels, categories, members, roles: rolesForViewer(roles, spacePerms),
     myPermissions: permissionsToString(spacePerms),
   };

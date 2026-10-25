@@ -20,9 +20,6 @@ const HOME_LIMITS: InstanceStreamingLimits = {
   allowedFramerates: [30, 60, 120],
   maxResolution: 1440,
   maxFramerate: 120,
-  discoveryEnabled: true,
-  directoryEnabled: false,
-  directoryConfigured: false,
   bitrateMatrixOverrides: null,
   allowCustomBitrate: true,
 };
@@ -102,7 +99,7 @@ describe('StreamHostSubtitle', () => {
 describe('Force SDR quality control', () => {
   function desktop() {
     const api: Partial<BackspaceElectronAPI> = {
-      platform: 'win32', getSdrCaptureCapability: vi.fn(async () => ({ supported: true })),
+      platform: 'win32', getSdrCaptureCapability: vi.fn(async () => ({ supported: true, borderless: true })),
       startSdrCapture: vi.fn(), stopSdrCapture: vi.fn(), configureSdrCapture: vi.fn(), onSdrCaptureEnded: vi.fn(),
     };
     window.backspace = api as BackspaceElectronAPI;
@@ -119,6 +116,15 @@ describe('Force SDR quality control', () => {
     expect(toggle).toHaveAttribute('aria-checked', 'false');
     fireEvent.click(toggle);
     expect(useVoiceStore.getState().screenShareConfig.forceSdr).toBe(true);
+  });
+
+  it('does not enable Force SDR on an older desktop without the borderless guarantee', async () => {
+    desktop();
+    vi.mocked(window.backspace!.getSdrCaptureCapability!).mockResolvedValue({ supported: true } as DesktopSdrCaptureCapability);
+    render(<StreamQualityControls />);
+    const toggle = await screen.findByRole('switch', { name: 'Force SDR' });
+    expect(toggle).toBeDisabled();
+    expect(screen.getByText('Requires a compatible Windows desktop app.')).toBeInTheDocument();
   });
 
   it('shows effective off/unavailable in browsers while preserving a saved Windows preference', async () => {

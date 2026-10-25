@@ -54,8 +54,7 @@ function envBool(key: string, defaultValue: boolean): boolean {
  * would run a setting they did not choose.
  *
  * A blank value is unset, which is `envOptional`'s rule and this file's
- * convention (`DIRECTORY_ENDPOINT` opts out of it in writing, because an empty
- * URL means something there). Blank carries no number, so there is no choice
+ * convention. Blank carries no number, so there is no choice
  * to discard, and `KEY=` is what an operator types to un-set a line: refusing
  * it would stop an instance booting over a gesture that means "I have no
  * opinion", which the default already covers.
@@ -312,19 +311,6 @@ export const config = {
   telemetry: {
     /** Receiver base URL for the opt-in daily ping. Tests and a future move override it. */
     endpoint: envOptional('TELEMETRY_ENDPOINT') ?? 'https://hello.backspacechat.com',
-  },
-  directory: {
-    /**
-     * Hub base URL for the opt-in space directory. Unset means the project
-     * hub. Set to an empty string to disable the pinger and the proxy
-     * entirely (forks, air-gapped installs). Trailing slashes are dropped.
-     *
-     * Written out rather than through envOptional, which folds an empty
-     * value into unset and would hand an operator who set '' the hub.
-     */
-    endpoint: process.env.DIRECTORY_ENDPOINT === undefined
-      ? 'https://explore.backspacechat.com'
-      : process.env.DIRECTORY_ENDPOINT.trim().replace(/\/+$/, ''),
   },
   backup: {
     dir: envOptional('BACKUP_DIR') ?? resolve(dirname(env('DB_PATH', resolve(__dirname, '../../../data/backspace.db'))), 'backups'),

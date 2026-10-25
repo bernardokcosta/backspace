@@ -571,7 +571,7 @@ exported from `stores/instanceStore.ts` that resolves once
 `_autoConnectDone` is set (at once when it already is; otherwise it
 subscribes, re-checks the flag after subscribing to close the race, and
 unsubscribes on the flip). `socialStore.loadFriends`/`loadRequests`,
-`exploreStore.fetchSpaces`/`fetchMyRequests` and `utils/mutuals.ts` use the
+and `utils/mutuals.ts` use the
 same helper.
 
 This ensures the discover page doesn't fire requests before all remote instance connections are established, which would miss remote users.

@@ -31,9 +31,7 @@ import { botRoutes } from './routes/bots.js';
 import { reactionRoutes } from './routes/reactions.js';
 import { botCommandRoutes } from './routes/botCommands.js';
 import { interactionRoutes } from './routes/interactions.js';
-import { exploreRoutes } from './routes/explore.js';
 import { joinRequestRoutes } from './routes/joinRequests.js';
-import { directoryRoutes } from './routes/directory.js';
 import { searchRoutes } from './routes/search.js';
 import { adminRoutes } from './routes/admin.js';
 import { adminUpdateRoutes } from './routes/adminUpdates.js';
@@ -45,7 +43,6 @@ import { buildCspHeaderValue, CSP_REPORT_GROUP, CSP_REPORT_PATH } from './utils/
 import { startFederationWorkers, stopFederationWorkers } from './utils/federationWorker.js';
 import { startBackupWorker, stopBackupWorker } from './utils/backupWorker.js';
 import { startTelemetryReporter, stopTelemetryReporter } from './telemetry/reporter.js';
-import { startDirectoryPinger, stopDirectoryPinger } from './directory/pinger.js';
 import { errorBody } from './utils/httpErrors.js';
 import './utils/federationRollback.js'; // Side-effect: registers rollback callbacks for outbox terminal failures.
 import { registerCallRelayHooks } from './ws/events.js';
@@ -268,9 +265,7 @@ async function main(): Promise<void> {
   await app.register(reactionRoutes);
   await app.register(botCommandRoutes);
   await app.register(interactionRoutes);
-  await app.register(exploreRoutes);
   await app.register(joinRequestRoutes);
-  await app.register(directoryRoutes);
   await app.register(searchRoutes);
   await app.register(adminRoutes);
   await app.register(adminUpdateRoutes);
@@ -329,16 +324,10 @@ async function main(): Promise<void> {
 
   startBackupWorker();
 
-  // The space directory pinger stays outside the workers guard on purpose:
-  // the two-instance harness disables the workers and still needs the pinger,
-  // pointed at a local stub. It has its own guard, an empty DIRECTORY_ENDPOINT.
-  startDirectoryPinger();
-
   const shutdown = async () => {
     console.log('Shutting down...');
     stopFederationWorkers();
     stopTelemetryReporter();
-    stopDirectoryPinger();
     stopBackupWorker();
     await app.close();
     closeDatabase(); // checkpoints WAL — leaves a complete on-disk file

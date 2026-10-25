@@ -85,13 +85,6 @@ and live screen-shares, each labelled with its own resolution and frame rate.
   <sub>Discover people across instances, with mutual friends and mutual spaces surfaced.</sub>
 </div>
 
-## Spaces
-
-<div align="center">
-  <img src="screenshots/space-discovery.webp" alt="The space discovery / Explore view" width="900" /><br/>
-  <sub>Browse and join public, request-to-join, and already-joined spaces.</sub>
-</div>
-
 ## Administration
 
 <div align="center">

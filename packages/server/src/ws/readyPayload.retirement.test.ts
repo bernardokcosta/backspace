@@ -15,6 +15,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 type TestDb = ReturnType<typeof drizzle<typeof schema>>;
 
 let testDb: TestDb;
+let sqlite: Database.Database;
 
 vi.mock('../db/index.js', () => ({
   getDb: () => testDb,
@@ -55,7 +56,7 @@ interface ReadyMessage {
 }
 
 beforeEach(() => {
-  const sqlite = new Database(':memory:');
+  sqlite = new Database(':memory:');
   testDb = drizzle(sqlite, { schema });
   applyMigrations(sqlite);
   testDb.insert(schema.users).values({
@@ -70,17 +71,20 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  sqlite.close();
 });
 
-describe('ready payload directoryListed projection', () => {
-  it('reports each space with its stored directory_listed flag', async () => {
+describe('ready payload discovery retirement', () => {
+  it('omits the retired flag without changing either stored value', async () => {
     const { buildReadyPayload } = await import('./handler.js');
     seedListedSpace('sp-listed', 1);
     seedListedSpace('sp-unlisted', 0);
 
     const message = JSON.parse(JSON.stringify({ type: 'ready', ...buildReadyPayload(OWNER_ID) })) as ReadyMessage;
-    const byId = new Map(message.spaces.map(s => [s.id, s.directoryListed]));
-    expect(byId.get('sp-listed')).toBe(true);
-    expect(byId.get('sp-unlisted')).toBe(false);
+    expect(message.spaces).toHaveLength(2);
+    for (const space of message.spaces) expect(space).not.toHaveProperty('directoryListed');
+    expect(testDb.select({ id: schema.spaces.id, listed: schema.spaces.directoryListed }).from(schema.spaces).all()).toEqual([
+      { id: 'sp-listed', listed: 1 }, { id: 'sp-unlisted', listed: 0 },
+    ]);
   });
 });

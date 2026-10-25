@@ -12,10 +12,8 @@ import { useSettingsStore } from '../../../stores/settingsStore';
 
 const base: InstanceAdminSettings = {
   instanceName: 'Workbench', registrationOpen: true, federatedRegistrationOpen: true,
-  discoveryEnabled: true, maxUploadSizeMb: 100, maxStickerSizeMb: 8, federationRelayEnabled: true,
+  maxUploadSizeMb: 100, maxStickerSizeMb: 8, federationRelayEnabled: true,
   federationRelayTtlDays: 30, defaultAutoRotateIntervalDays: 90, autoAcceptPeering: true,
-  directoryEnabled: false, directoryBrowseEnabled: true, directoryLastPingAt: null,
-  directoryLastError: null, directoryListedSpaceCount: 1,
 };
 
 function seed() {

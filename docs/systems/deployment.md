@@ -239,11 +239,10 @@ Caddy provisions and renews TLS certificates automatically for `DOMAIN`; the per
 | `TELEMETRY` | _(unset)_ | Read by `install.sh` only, for unattended installs. `on` or `off` runs the same transition the admin route runs (`setTelemetryEnabled` in `packages/server/src/telemetry/state.ts`), written into the running container after the health check the same way the instance name is; `on` for an instance that is already on keeps its id and its last reported day. Any other value prints an error and changes nothing. Unset, the installer writes nothing and the admin panel asks after the first login. The running server never reads it. |
 | `TELEMETRY_ENDPOINT` | `https://hello.backspacechat.com` | Receiver base URL for the daily ping, read by the server and by the metrics collector. Point it at a local `wrangler dev` to test end to end. |
 
-**Space directory environment.** One variable, not required. Full detail in [directory.md](directory.md).
-
-| Var | Default | Meaning |
-|-----|---------|---------|
-| `DIRECTORY_ENDPOINT` | `https://explore.backspacechat.com` | Hub base URL for the opt-in space directory, read by the server only. Unset means the project hub. **Set to an empty string to disable the feature**: the pinger does not start and the Explore page's Outer Space section is absent (the proxy answers `404 directory_disabled`), for forks and air-gapped installs. Point it at a local `wrangler dev` to test end to end. Listing itself is a database setting an admin switches on in Instance settings; nothing in the environment lists anything. |
+**Space directory retired in 1.15.2.** `DIRECTORY_ENDPOINT` is ignored and no
+directory worker/proxy/document starts, even with old enabled flags. No operator
+opt-out is needed. Legacy columns/migrations remain inert for rollback; do not
+erase instance data as part of this upgrade. See [directory.md](directory.md).
 
 ### Redeploy: `deploy.sh [pi|vm|all]`
 

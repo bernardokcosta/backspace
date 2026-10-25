@@ -7,7 +7,7 @@ import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
 import { api } from '../../api/client';
 
 const space: TaggedSpace = { id: 's1', name: 'Retained', icon: null, banner: null, avatarColor: null,
-  ownerId: 'owner', inviteCode: null, visibility: 'private', directoryListed: true,
+  ownerId: 'owner', inviteCode: null, visibility: 'private',
   description: 'Old description', createdAt: 1, _instanceOrigin: '' };
 const updateSpace = vi.fn();
 beforeEach(() => {

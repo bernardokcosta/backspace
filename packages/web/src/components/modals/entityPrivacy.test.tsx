@@ -56,7 +56,7 @@ const SEND = PermissionBits.SEND_MESSAGES;
 
 const space: TaggedSpace = {
   id: SPACE_ID, name: 'Aether Drift', icon: null, banner: null, avatarColor: 'lavender', ownerId: 'owner',
-  inviteCode: null, visibility: 'public', directoryListed: false, description: '', createdAt: 1, _instanceOrigin: '',
+  inviteCode: null, visibility: 'public', description: '', createdAt: 1, _instanceOrigin: '',
 };
 const channel: Channel = { id: 'channel-1', spaceId: SPACE_ID, name: 'events', type: 'text', topic: null, position: 0, categoryId: null, createdAt: 1 };
 const category: ChannelCategory = { id: 'category-1', spaceId: SPACE_ID, name: 'Staff', position: 0, createdAt: 1 };

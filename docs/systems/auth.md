@@ -556,20 +556,14 @@ go through the fan-out, and it would need the call if it ever ran mid-session.
 The one place a session's client state is dropped. Called by `initSession`
 (so signing in as another account without a reload cannot inherit the
 previous one's rows), by `logout`, and by `deleteAccount`. It clears, in
-order: chat messages, the space, social, voice, instance, activity, explore
-and directory stores, and the settings store's update state. The signed-in
+order: chat messages, space/access-related state, social, voice, instance,
+activity and the settings store's update state. The signed-in
 user's own records (`myRowIds`, `trueHomeStatus`) live on `authStore`
 itself; each caller resets them in the same `set` that replaces the user.
 
-`exploreStore` and `directoryStore` were added to it on the space directory
-branch. `exploreStore.myRequests` holds the signed-in user's own pending
-join requests and a space card reads "Request Pending" off them, so leaving
-it behind showed one account's requests under another account's session
-until the next fan-out replaced them; `directoryStore` holds a feed fetched
-through the home proxy as the signed-in user. Both stores' `reset()` also
-bump the sequence counters that guard their fan-outs
-([spaces.md](spaces.md#multi-instance-discovery-explorestorets)), so the call
-is what stops a reply for the old session landing in the new one.
+Explore/directory stores were removed in 1.15.2; no replacement discovery store
+is reset or created. Retained invitation/manager requests guard origin/account
+and stale replies independently ([spaces.md](spaces.md)).
 
 Two paths end a session without going through this function, and both are
 safe because they replace the whole JS context: `handleUnauthorized` in

@@ -42,7 +42,7 @@ function populate(): void {
   useSpaceStore.setState({
     spaces: [{
       id: 's1', name: 'Private membership', icon: null, banner: null, avatarColor: null, description: null,
-      visibility: 'private', directoryListed: false, ownerId: user.id, inviteCode: null, createdAt: 1, _instanceOrigin: '',
+      visibility: 'private', ownerId: user.id, inviteCode: null, createdAt: 1, _instanceOrigin: '',
     }],
   });
 }

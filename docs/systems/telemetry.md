@@ -113,19 +113,11 @@ stores it; the country is stored. Cloudflare keeps its own request logs under
 its own retention. This is stated on the receiver's own page and in the modal
 that asks.
 
-**The space directory note.** The opt-in space directory
-([directory.md](directory.md)) is a second Cloudflare Worker,
-`explore.backspacechat.com`, that does learn an instance's domain and does
-fetch from it, because listing a space means publishing where it is. The two
-features are separate opt-ins with separate `instance_settings` columns,
-separate toggles, separate copy, separate Workers and separate databases, and
-nothing in this document changes: the receiver still never learns a domain and
-never fetches. What separation does not buy: both Workers run in the same
-Cloudflare account, whose request logs are disclosed above, and whoever holds
-both datasets could, for a small instance, match a telemetry row's country,
-version and rounded space count to a directory origin. Separate databases
-remove the join key, not the possibility. An instance that lists spaces has
-chosen to publish its address; one that only says hello has not.
+**Space directory retired in 1.15.2.** This fork no longer publishes listings,
+pings a directory or proxies a global feed ([directory.md](directory.md)).
+Telemetry remains an independent opt-in and its receiver/privacy contract is
+unchanged. This removal does not prove deletion of previously published data
+from external caches or separately operated services.
 
 ---
 

@@ -17,9 +17,6 @@ function info(over: Partial<InstanceInfoResponse> = {}): InstanceInfoResponse {
     instanceId: 'instance-1',
     sourceCodeUrl: 'https://github.com/TheZwiss/backspace',
     commit: null,
-    directoryConfigured: false,
-    directoryAvailable: false,
-    directoryEnabled: false,
     maxStickerSizeMb: 10,
     ...over,
   };

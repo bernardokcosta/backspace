@@ -211,7 +211,6 @@ export const ERROR_CODES = [
   'not_friends',
   'lookup_failed',
   'space_not_found',
-  'space_not_public',
   'space_not_requestable',
   'space_load_failed',
   'user_banned',
@@ -304,11 +303,6 @@ export const ERROR_CODES = [
   'dm_call_not_found',
   'file_not_found',
 
-  // Directory
-  'directory_disabled',
-  'directory_unreachable',
-  'directory_private_space',
-  'directory_requires_discovery',
 
   // Personal stickers
   'sticker_invalid_image',

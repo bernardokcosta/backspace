@@ -5,7 +5,6 @@ import type { FastifyInstance } from 'fastify';
 import { eq, and, inArray } from 'drizzle-orm';
 import { getDb, getRawDb, schema } from '../db/index.js';
 import { authenticate } from '../utils/auth.js';
-import { markDirectoryDirty } from '../directory/state.js';
 import { generateSnowflake } from '../utils/snowflake.js';
 import { isMember, isSpaceOwner, isBanned, hasPermission, computePermissions, PermissionBits } from '../utils/permissions.js';
 import { DEFAULT_EVERYONE_PERMISSIONS, ALL_PERMISSIONS, permissionsToString, stringToPermissions, parsePermissionString, roleBitsChangeRefusal, idsHiddenFromEveryone, rolePermissionsVersion, type HeldBitsRefusal } from '@backspace/shared/src/permissions.js';
@@ -49,19 +48,12 @@ function rowToSpace(row: typeof schema.spaces.$inferSelect): Space {
     ownerTitle: row.ownerTitle,
     inviteCode: row.inviteCode,
     visibility: (row.visibility ?? 'private') as Space['visibility'],
-    directoryListed: row.directoryListed === 1,
     description: row.description ?? null,
     afkChannelId: row.afkChannelId ?? null,
     afkTimeoutSeconds: row.afkTimeoutSeconds ?? DEFAULT_AFK_TIMEOUT_SECONDS,
     createdAt: row.createdAt,
   };
 }
-
-/**
- * The space columns the directory document serves (spec section 4). A change
- * to any of them on a listed space owes a ping.
- */
-const DIRECTORY_SPACE_FIELDS = ['name', 'description', 'icon', 'banner', 'avatarColor', 'visibility'] as const;
 
 function rowToChannel(row: typeof schema.channels.$inferSelect): Channel {
   return {
@@ -526,7 +518,7 @@ export async function spaceRoutes(app: FastifyInstance): Promise<void> {
     preHandler: authenticate,
   }, async (request, reply) => {
     const { id } = request.params;
-    const { name, icon, banner, avatarColor, visibility, description, directoryListed, ownerTitle, afkChannelId, afkTimeoutSeconds } = request.body;
+    const { name, icon, banner, avatarColor, visibility, description, ownerTitle, afkChannelId, afkTimeoutSeconds } = request.body;
     const db = getDb();
 
     const server = db.select().from(schema.spaces).where(eq(schema.spaces.id, id)).get();
@@ -618,37 +610,11 @@ export async function spaceRoutes(app: FastifyInstance): Promise<void> {
       updates.afkTimeoutSeconds = afkTimeoutSeconds;
     }
 
-    // Directory listing follows the same MANAGE_SPACE rule as visibility. A
-    // private space is never listed: asking for it is refused, and a listed
-    // space going private is unlisted in the same write (spec section 4).
-    const resultingVisibility = updates.visibility ?? server.visibility ?? 'private';
-    if (directoryListed !== undefined) {
-      if (typeof directoryListed !== 'boolean') {
-        return sendError(reply, 400, 'field_not_boolean', { field: 'directoryListed' });
-      }
-      if (directoryListed && resultingVisibility === 'private') {
-        return sendError(reply, 400, 'directory_private_space');
-      }
-      updates.directoryListed = directoryListed ? 1 : 0;
-    }
-    if (resultingVisibility === 'private' && server.directoryListed === 1) {
-      updates.directoryListed = 0;
-    }
-
     if (Object.keys(updates).length === 0) {
       return sendError(reply, 400, 'no_fields_to_update');
     }
 
     db.update(schema.spaces).set(updates).where(eq(schema.spaces.id, id)).run();
-
-    const listedAfter = (updates.directoryListed ?? server.directoryListed) === 1;
-    const listingChanged = updates.directoryListed !== undefined && updates.directoryListed !== server.directoryListed;
-    const servedFieldChanged = DIRECTORY_SPACE_FIELDS.some(
-      (field) => updates[field] !== undefined && updates[field] !== server[field],
-    );
-    if (listingChanged || (listedAfter && servedFieldChanged)) {
-      markDirectoryDirty(getRawDb());
-    }
 
     // Clean up old icon/banner files that were replaced
     if (icon !== undefined && oldIcon && oldIcon !== (icon || null) && !oldIcon.startsWith('http')) {
@@ -739,11 +705,6 @@ export async function spaceRoutes(app: FastifyInstance): Promise<void> {
       tx.delete(schema.spaceFolderMembers).where(eq(schema.spaceFolderMembers.spaceId, id)).run();
       tx.delete(schema.spaces).where(eq(schema.spaces.id, id)).run();
     });
-
-    // A listed space just left the served document.
-    if (server.directoryListed === 1) {
-      markDirectoryDirty(getRawDb());
-    }
 
     // Clean up all attachment files from disk
     deleteAttachmentFiles(attachmentRows);

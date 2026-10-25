@@ -82,7 +82,7 @@ function user(fields: Partial<User> & Pick<User, 'id'>): User {
 function space(id: string, origin: string): TaggedSpace {
   return {
     id, name: `Space ${id}`, icon: null, banner: null, avatarColor: 'lavender', ownerId: 'someone',
-    inviteCode: null, visibility: 'public', directoryListed: false, description: '', createdAt: 1,
+    inviteCode: null, visibility: 'public', description: '', createdAt: 1,
     _instanceOrigin: origin,
   };
 }
