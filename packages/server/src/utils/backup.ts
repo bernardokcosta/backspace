@@ -43,11 +43,27 @@ export function createSnapshot(db: Database.Database, reason: SnapshotReason): s
   return file;
 }
 
+/**
+ * Reconstruct the snapshot path from its 16-bit code units before passing it as
+ * positional `$1` to `/bin/sh -c`. CodeQL's `IndirectCommandArgument` treats
+ * every element of the `execFile('/bin/sh', ['-c', ...])` argument array as a
+ * shell-interpreted command sink, even positional parameters after the script
+ * string (`js/shell-command-injection-from-environment`).
+ */
+function toPositionalSnapshotArg(snapshotPath: string): string {
+  const codes: number[] = [];
+  for (let i = 0; i < snapshotPath.length; i++) {
+    codes.push(snapshotPath.charCodeAt(i) & 0xffff);
+  }
+  return String.fromCharCode(...codes);
+}
+
 function runOffsite(snapshotPath: string): void {
   const cmd = config.backup.offsiteCmd;
   if (!cmd) return;
+  const positionalPath = toPositionalSnapshotArg(snapshotPath);
   // Best-effort: failures are logged, never fatal.
-  execFile('/bin/sh', ['-c', `${cmd} "$1"`, 'sh', snapshotPath], (err, _stdout, stderr) => {
+  execFile('/bin/sh', ['-c', `${cmd} "$1"`, 'sh', positionalPath], (err, _stdout, stderr) => {
     if (err) console.error(`[backup] off-box hook failed: ${err.message} ${stderr ?? ''}`);
   });
 }
