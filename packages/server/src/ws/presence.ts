@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm';
+import type { WebSocket } from 'ws';
 import { ownsChosenStatus, type Activity, type BotActivity, type ChosenUserStatus, type UserStatus } from '@backspace/shared';
 import { getDb, schema } from '../db/index.js';
 import { connectionManager } from './handler.js';
@@ -65,16 +66,18 @@ export function applyChosenStatus(userId: string, status: ChosenUserStatus): voi
  * The caller has validated the list. The one publisher for the WS
  * `activity_update` and for a bot's stored status (`applyStoredBotActivity`).
  */
-export function publishActivities(userId: string, activities: Activity[]): void {
-  connectionManager.setUserActivities(userId, activities);
+export function publishActivities(userId: string, activities: Activity[], ws?: WebSocket): void {
+  connectionManager.setUserActivities(userId, activities, ws);
   const status = connectionManager.getUserStatus(userId) as UserStatus;
+  // getUserActivities projects playback positions to now, so late joins see current progress.
+  const published = connectionManager.getUserActivities(userId);
 
-  const payload = presenceUpdateFor(userId, status, activities);
+  const payload = presenceUpdateFor(userId, status, published);
   for (const uid of collectProfileBroadcastTargetIds(userId)) connectionManager.sendToUser(uid, payload);
   connectionManager.sendToUser(userId, payload);
 
   void import('../utils/federationPresence.js').then(({ queuePresenceRelay }) => {
-    try { queuePresenceRelay(userId, status, activities); } catch (e) { console.warn('[presence] queuePresenceRelay(activity) failed', e); }
+    try { queuePresenceRelay(userId, status, published); } catch (e) { console.warn('[presence] queuePresenceRelay(activity) failed', e); }
   });
 }
 

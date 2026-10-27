@@ -17,7 +17,7 @@ import { useSocialStore } from '../stores/socialStore';
 import { useSettingsStore } from '../stores/settingsStore';
 import { invalidateHomeInstanceInfo } from './useHomeInstanceInfo';
 import { useDeveloperModeStore } from '../stores/developerModeStore';
-import type { ServerEvent, ClientEvent, ActiveCallInfo, Activity, FederatedIdentity, User } from '@backspace/shared';
+import type { ServerEvent, ClientEvent, FederatedIdentity, User } from '@backspace/shared';
 import { resolveAssetUrl, normalizeUserAssets, normalizeMessageAssets } from '../utils/assetUrls';
 import { broadcastVoiceStatus, broadcastDeafenViaLiveKit } from '../utils/voice';
 import { dmCallCredentialsFrom, dmCallIds, dmCallOrigin, dmCallRefFrom, dmCallRoomKey } from '../utils/dmCall';
@@ -35,6 +35,7 @@ import { useFederationStore } from '../stores/federationStore';
 import { notePendingOriginReady } from '../stores/pendingMessageRehydrate';
 import { useNotificationSettingsStore } from '../stores/notificationSettingsStore';
 import { detectClientKind } from '../platform/clientKind';
+import { fetchCurrentActivities } from '../platform/activityBridge';
 import { ConnectionState as LiveKitConnectionState } from 'livekit-client';
 
 // ─── Rejected peer origins (for unreachable member indicators) ───────────────
@@ -265,7 +266,7 @@ function handleEvent(origin: string, event: ServerEvent, readyAlreadyDelivered =
   const isHome = origin === HOME_ORIGIN;
   const { setUser } = useAuthStore.getState();
   const { populateFromReady, loadSpaceDetail, currentSpaceId, updateMemberPresence, addMember, removeMember, removeDmChannel, upsertUserView } = useSpaceStore.getState();
-  const { addMessage, addRealtimeMessage, updateMessage, removeMessage, applyPinEvent, applyUnpinEvent, setTyping, clearTyping, onReactionAdded, onReactionRemoved } = useChatStore.getState();
+  const { addRealtimeMessage, updateMessage, removeMessage, applyPinEvent, applyUnpinEvent, setTyping, clearTyping, onReactionAdded, onReactionRemoved } = useChatStore.getState();
   const { addVoiceUser, removeVoiceUser, clearVoiceUsersForOrigin, setVoiceUsers, setVoiceChannelElapsedSeconds, setVoiceUserStatus, clearVoiceUserStatus } = useVoiceStore.getState();
 
   switch (event.type) {
@@ -453,12 +454,17 @@ function handleEvent(origin: string, event: ServerEvent, readyAlreadyDelivered =
       // Re-push local Electron activities after reconnect (sleep/wake, network blip, etc.)
       // The process scanner keeps running but onActivityDetected only fires on change,
       // so if the same app was active before and after sleep, nothing would re-push.
-      if (isHome && window.backspace?.getCurrentActivity) {
-        window.backspace.getCurrentActivity().then((activity: unknown) => {
-          if (activity) {
-            useActivityStore.getState().pushActivities([activity as Activity]);
+      if (isHome && (window.backspace?.getCurrentActivities || window.backspace?.getCurrentActivity)) {
+        fetchCurrentActivities().then((activities) => {
+          if (activities.length > 0) {
+            useActivityStore.getState().pushActivities(activities);
+          } else {
+            // Nothing detected: a game the player named themselves still stands
+            useActivityStore.getState().republish();
           }
         }).catch(() => {});
+      } else if (isHome) {
+        useActivityStore.getState().republish();
       }
 
       // Re-push current activities to newly connected instances so their
@@ -1687,7 +1693,7 @@ export function wsSend(event: ClientEvent, origin: string = HOME_ORIGIN): boolea
 /** Send an event to ALL connected WebSocket instances (home + remotes). */
 export function wsSendAll(event: ClientEvent): void {
   if (!isDesktopSessionAllowed()) return;
-  for (const [_origin, conn] of connections) {
+  for (const conn of connections.values()) {
     if (!conn.policyRefused && conn.ws && conn.ws.readyState === WebSocket.OPEN) {
       conn.ws.send(JSON.stringify(event));
     }

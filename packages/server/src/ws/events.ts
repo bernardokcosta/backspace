@@ -253,7 +253,7 @@ export function handleClientEvent(
       handleVoiceDisconnect(event, userId);
       break;
     case 'activity_update':
-      handleActivityUpdate(event, userId);
+      handleActivityUpdate(event, userId, ws);
       break;
     default:
       connectionManager.sendToUser(userId, {
@@ -500,12 +500,8 @@ function handlePresenceUpdate(event: Record<string, unknown>, userId: string): v
   applyChosenStatus(userId, event.status);
 }
 
-function handleActivityUpdate(event: Record<string, unknown>, userId: string): void {
+function handleActivityUpdate(event: Record<string, unknown>, userId: string, ws: WebSocket): void {
   if (!connectionManager.getUserShowActivity(userId)) return;
-  if (!connectionManager.checkActivityRateLimit(userId)) {
-    connectionManager.sendToUser(userId, { type: 'error', message: 'Activity update rate limited' });
-    return;
-  }
 
   const activities = validateActivities(event.activities);
   if (!activities) {
@@ -513,7 +509,14 @@ function handleActivityUpdate(event: Record<string, unknown>, userId: string): v
     return;
   }
 
-  publishActivities(userId, activities);
+  const removingPublishedActivities =
+    activities.length < connectionManager.getUserActivities(userId).length;
+  if (!connectionManager.checkActivityRateLimit(userId, removingPublishedActivities)) {
+    connectionManager.sendToUser(userId, { type: 'error', message: 'Activity update rate limited' });
+    return;
+  }
+
+  publishActivities(userId, activities, ws);
 }
 
 // ─── Voice Handlers (Unified Room API) ─────────────────────────────────────

@@ -4,7 +4,9 @@
     "checkingTitle": "Desktop-Kompatibilität wird geprüft",
     "failedTitle": "Desktop-Kompatibilität konnte nicht geprüft werden",
     "body": "Diese Instanz erfordert eine kompatible Desktop-App. Aktualisiere hier oder nutze deinen Browser.",
-    "installed": "Installierte Desktop-App", "minimum": "Erforderliche Version", "unknown": "Nicht verfügbar",
+    "installed": "Installierte Desktop-App",
+    "minimum": "Erforderliche Version",
+    "unknown": "Nicht verfügbar",
     "checking": "Die Richtlinie dieser Instanz und deine installierte App werden geprüft…",
     "checkFailed": "Die Kompatibilitätsprüfung ist fehlgeschlagen. Prüfe die aktuelle Richtlinie erneut.",
     "versionUnavailable": "Die installierte Version konnte nicht gelesen werden. Aktualisiere die App oder versuche es erneut.",
@@ -15,9 +17,22 @@
     "updateFailed": "Das Update konnte nicht abgeschlossen werden. Versuche es erneut oder lade ein Installationsprogramm herunter.",
     "insufficient": "Noch kein kompatibles Update ist installationsbereit. Prüfe erneut oder lade die erforderliche Version herunter.",
     "ready": "Ein kompatibles Update wurde heruntergeladen und kann installiert werden.",
-    "downloading": "Update wird heruntergeladen: {{percent}}", "progress": "Download-Fortschritt des Updates",
-    "install": "Neustarten und installieren", "download": "Installationsprogramm herunterladen", "retry": "Erneut prüfen", "browser": "Im Browser öffnen",
+    "downloading": "Update wird heruntergeladen: {{percent}}",
+    "progress": "Download-Fortschritt des Updates",
+    "install": "Neustarten und installieren",
+    "download": "Installationsprogramm herunterladen",
+    "retry": "Erneut prüfen",
+    "browser": "Im Browser öffnen",
     "preserved": "Dein Konto, deine Zugangsdaten und Entwürfe bleiben erhalten. Die normale App-Aktivität pausiert, bis die Kompatibilität bestätigt ist."
+  },
+  "mediaSetup": {
+    "neteaseSmtc": {
+      "title": "SMTC in NetEase Cloud Music aktivieren",
+      "body": "Öffne NetEase Cloud Music → Einstellungen → System → SMTC aktivieren und starte die App neu. Backspace benötigt SMTC, um Wiedergabe, Pause und Fortschritt genau zu erkennen.",
+      "gotIt": "Verstanden",
+      "dontRemind": "Nicht mehr erinnern",
+      "dismiss": "Diesen Hinweis ausblenden"
+    }
   },
   "update": {
     "laterHint": "Du kannst das Update später in den Einstellungen unter Desktop installieren",

@@ -4,7 +4,9 @@
     "checkingTitle": "正在检查桌面应用兼容性",
     "failedTitle": "无法检查桌面应用兼容性",
     "body": "此实例需要兼容的桌面应用。您可以在此更新，或在浏览器中继续。",
-    "installed": "已安装的桌面应用", "minimum": "所需版本", "unknown": "不可用",
+    "installed": "已安装的桌面应用",
+    "minimum": "所需版本",
+    "unknown": "不可用",
     "checking": "正在检查此实例的策略和已安装的应用…",
     "checkFailed": "兼容性检查失败。请重试以检查当前策略。",
     "versionUnavailable": "无法读取已安装的版本。请更新应用或重试。",
@@ -15,9 +17,22 @@
     "updateFailed": "无法完成更新。请重试或下载安装程序。",
     "insufficient": "尚无可安装的兼容更新。请再次检查或下载所需版本。",
     "ready": "兼容更新已下载，可以安装。",
-    "downloading": "正在下载更新：{{percent}}", "progress": "更新下载进度",
-    "install": "重启并安装", "download": "下载安装程序", "retry": "再次检查", "browser": "在浏览器中打开",
+    "downloading": "正在下载更新：{{percent}}",
+    "progress": "更新下载进度",
+    "install": "重启并安装",
+    "download": "下载安装程序",
+    "retry": "再次检查",
+    "browser": "在浏览器中打开",
     "preserved": "您的账号、登录凭据和草稿将保留。确认兼容性之前，应用的常规活动将暂停。"
+  },
+  "mediaSetup": {
+    "neteaseSmtc": {
+      "title": "请在网易云音乐中开启 SMTC",
+      "body": "打开网易云音乐 → 设置 → 系统 → 开启 SMTC，然后重启网易云。Backspace 需要它才能准确识别播放、暂停和进度。",
+      "gotIt": "知道了",
+      "dontRemind": "不再提醒",
+      "dismiss": "关闭此提示"
+    }
   },
   "update": {
     "laterHint": "您可以稍后在“设置 - 桌面”中安装此更新",

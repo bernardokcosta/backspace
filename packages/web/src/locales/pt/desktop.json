@@ -4,7 +4,9 @@
     "checkingTitle": "Verificando a compatibilidade do aplicativo",
     "failedTitle": "Não foi possível verificar a compatibilidade",
     "body": "Esta instância exige um aplicativo desktop compatível. Atualize por aqui ou continue no navegador.",
-    "installed": "Aplicativo instalado", "minimum": "Versão necessária", "unknown": "Indisponível",
+    "installed": "Aplicativo instalado",
+    "minimum": "Versão necessária",
+    "unknown": "Indisponível",
     "checking": "Verificando a política desta instância e o aplicativo instalado…",
     "checkFailed": "A verificação de compatibilidade falhou. Tente novamente para consultar a política atual.",
     "versionUnavailable": "Não foi possível ler a versão instalada. Atualize o aplicativo ou tente novamente.",
@@ -15,9 +17,22 @@
     "updateFailed": "Não foi possível concluir a atualização. Tente novamente ou baixe um instalador.",
     "insufficient": "Ainda não há uma atualização compatível pronta para instalar. Verifique novamente ou baixe a versão necessária.",
     "ready": "Uma atualização compatível foi baixada e está pronta para instalar.",
-    "downloading": "Baixando atualização: {{percent}}", "progress": "Progresso do download da atualização",
-    "install": "Reiniciar e instalar", "download": "Baixar instalador", "retry": "Verificar novamente", "browser": "Abrir no navegador",
+    "downloading": "Baixando atualização: {{percent}}",
+    "progress": "Progresso do download da atualização",
+    "install": "Reiniciar e instalar",
+    "download": "Baixar instalador",
+    "retry": "Verificar novamente",
+    "browser": "Abrir no navegador",
     "preserved": "Sua conta, credenciais e rascunhos são mantidos. A atividade normal do aplicativo fica pausada até confirmar a compatibilidade."
+  },
+  "mediaSetup": {
+    "neteaseSmtc": {
+      "title": "Ative o SMTC no NetEase Cloud Music",
+      "body": "Abra o NetEase Cloud Music → Configurações → Sistema → Ativar SMTC e reinicie o aplicativo. O Backspace precisa disso para detectar reprodução, pausa e progresso com precisão.",
+      "gotIt": "Entendi",
+      "dontRemind": "Não lembrar novamente",
+      "dismiss": "Dispensar esta dica"
+    }
   },
   "update": {
     "laterHint": "Você pode instalar depois em Configurações, Desktop",
