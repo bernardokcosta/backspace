@@ -431,6 +431,13 @@ personal and pack uploads enforce the configured base64 byte envelope on the
 received stream (also for chunked bodies), capped at 500 MiB JSON, with HTTP 413
 before validation on excess. Unauthenticated uploads receive 401 before parsing.
 
+## Game icons (`routes/gameIcons.ts`)
+
+| Method | Path | Auth | Purpose |
+|--------|------|------|---------|
+| POST | `/api/game-icons` | JWT | `{image}`; canonical base64 of a PNG, JPEG or WebP of at most 512 KiB (`MAX_GAME_ICON_BYTES`). Re-encodes to a 256 px WebP, stores it content-addressed and records it for the account. Returns `{id, url}` with the absolute URL of the asset. 10 uploads per account per minute (`429 rate_limited`); `409 game_icon_collection_full` at 25,600 icons; `400 game_icon_invalid_image` for anything else |
+| GET | `/api/game-icons/assets/:id.webp` | Public | Immutable WebP; anyone holding the link can read it. `404 game_icon_not_found` for an unknown id or a missing file |
+
 ## GIF (`routes/gif.ts`) — auth required
 ```
 GET /gif/enabled                         → { enabled }

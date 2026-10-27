@@ -201,6 +201,19 @@ column's presence alone never marks the whole migration applied.
 | sticker_peer_policies | policy / auto_sync | default `allow` / 0 | `block` refuses syncs from that peer |
 
 Deleting a pack cascades its versions and items; deleting a user cascades their installs and nulls their created packs' creator. Item assets are RESTRICTed, so an asset in a pack is never swept by the unused-asset cleanup.
+### game_icon_assets and game_icons
+
+Migration `0047_game_icons` (renumbered from `0036` to follow the migrations other pending work already claims; drizzle applies by journal `when`, so a database that already ran `0032_game_icons` skips it) adds only these two tables; no activity or user column changes (an icon is an `assets.largeImage` URL on a transient activity, see [uploads.md](uploads.md#15-game-icons) and [activity-presence.md](activity-presence.md#game-icons)).
+
+| Table | Column | Type | Notes |
+|-------|--------|------|-------|
+| game_icon_assets | id | text PK NOT NULL | SHA-256 of the encoded WebP bytes |
+| game_icon_assets | created_at | integer NOT NULL | Epoch ms of the latest upload of these bytes; set before the file is written |
+| game_icons | user_id | text NOT NULL | FK → users.id, ON DELETE CASCADE |
+| game_icons | icon_id | text NOT NULL | FK → game_icon_assets.id |
+| game_icons | created_at | integer NOT NULL | Epoch ms |
+
+The composite primary key (user_id, icon_id) makes the upload idempotent; one user holds at most 25,600 rows (`MAX_GAME_ICONS_PER_USER`, checked by the route). Deleting a user removes only their rows: unclaimed assets and stale temp files are removed by the storage janitor (`cleanupGameIconAssets`, phase 5; see uploads.md §15).
 
 ### embeds
 | Column | Type | Notes |

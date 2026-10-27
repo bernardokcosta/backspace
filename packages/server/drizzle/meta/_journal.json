@@ -330,6 +330,13 @@
       "when": 1793127501497,
       "tag": "0046_windy_sphinx",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "6",
+      "when": 1793132328667,
+      "tag": "0047_game_icons",
+      "breakpoints": true
     }
   ]
 }
