@@ -107,4 +107,15 @@ describe('the session reset fan-out', () => {
 
     expect(isEmpty()).toBe(true);
   });
+
+  it('persists the rotated session token on password change', async () => {
+    const spy = vi.spyOn(api.users, 'changePassword').mockResolvedValueOnce({ token: 'rotated-jwt-token' });
+    try {
+      await useAuthStore.getState().changePassword('old-pass', 'new-pass');
+      expect(useAuthStore.getState().token).toBe('rotated-jwt-token');
+      expect(localStorage.getItem('backspace_token')).toBe('rotated-jwt-token');
+    } finally {
+      spy.mockRestore();
+    }
+  });
 });

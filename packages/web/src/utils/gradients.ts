@@ -3,7 +3,7 @@
  * Deterministic color assignment based on entity ID (snowflake) or name.
  */
 
-import type { AvatarColor } from '@backspace/shared';
+import { AVATAR_COLORS, type AvatarColor } from '@backspace/shared';
 
 export interface GradientEntry {
   from: string;      // hex start color
@@ -86,6 +86,18 @@ export function getSpaceGradient(id?: string | null, name?: string, avatarColor?
   }
   const key = id || name || 'unknown';
   return SPACE_GRADIENTS[hashString(key) % SPACE_GRADIENTS.length]!;
+}
+
+/**
+ * Pick a random preset avatar color for form defaults (`RegisterPage`,
+ * `CreateSpaceModal`). Uses `crypto.getRandomValues` rather than `Math.random()`
+ * so CodeQL (`js/insecure-randomness`) does not flag `Avatar` when the chosen
+ * preset flows into its props.
+ */
+export function randomAvatarColor(): AvatarColor {
+  const buf = new Uint32Array(1);
+  crypto.getRandomValues(buf);
+  return AVATAR_COLORS[buf[0]! % AVATAR_COLORS.length] ?? 'mint';
 }
 
 /** Banner-color presets: 7 families × 3 shades (deep, vibrant, soft). */

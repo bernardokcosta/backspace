@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { waitForTransferAttachment } from '../../utils/waitForTransfer';
 import { AVATAR_COLORS } from '@backspace/shared';
 import type { SpaceVisibility, AvatarColor } from '@backspace/shared';
-import { SPACE_GRADIENT_MAP, getSpaceGradient } from '../../utils/gradients';
+import { SPACE_GRADIENT_MAP, getSpaceGradient, randomAvatarColor } from '../../utils/gradients';
 import { describeError } from '../../i18n/errors';
 import { useAvatarColorNames, useVisibilityOptions } from './spaceSettingsPanels/spaceOptions';
 
@@ -26,9 +26,7 @@ export function CreateSpaceModal() {
   const [iconPreview, setIconPreview] = useState<string | null>(null);
   const [uploadingIcon, setUploadingIcon] = useState(false);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
-  const [avatarColor, setAvatarColor] = useState<AvatarColor>(
-    AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)] ?? 'mint'
-  );
+  const [avatarColor, setAvatarColor] = useState<AvatarColor>(randomAvatarColor);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -90,7 +88,7 @@ export function CreateSpaceModal() {
     if (iconPreview) URL.revokeObjectURL(iconPreview);
     setIconPreview(null);
     setCropSrc(null);
-    setAvatarColor(AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)] ?? 'mint');
+    setAvatarColor(randomAvatarColor());
     setError('');
   };
 

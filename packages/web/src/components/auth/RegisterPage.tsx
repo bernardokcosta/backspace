@@ -4,7 +4,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../stores/authStore';
 import { Avatar } from '../ui/Avatar';
 import { ImageCropModal } from '../ui/ImageCropModal';
-import { AVATAR_GRADIENT_MAP } from '../../utils/gradients';
+import { AVATAR_GRADIENT_MAP, randomAvatarColor } from '../../utils/gradients';
 import { AVATAR_COLORS } from '@backspace/shared';
 import { PASSWORD_MIN_LENGTH } from '@backspace/shared/src/constants';
 import type { AvatarColor, CheckInviteResponse, InstanceInfoResponse } from '@backspace/shared';
@@ -55,9 +55,7 @@ export function RegisterPage() {
 
   // Step 2 fields
   const [displayName, setDisplayName] = useState('');
-  const [avatarColor, setAvatarColor] = useState<AvatarColor>(
-    () => AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)] ?? 'mint'
-  );
+  const [avatarColor, setAvatarColor] = useState<AvatarColor>(randomAvatarColor);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarCropSrc, setAvatarCropSrc] = useState<string | null>(null);

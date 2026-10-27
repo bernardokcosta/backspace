@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { User } from '@backspace/shared';
+import { AVATAR_COLORS, type User } from '@backspace/shared';
 
 import { Avatar } from './Avatar';
-import { getAvatarGradient, getSpaceGradient } from '../../utils/gradients';
+import { getAvatarGradient, getSpaceGradient, randomAvatarColor } from '../../utils/gradients';
 import { useUIStore } from '../../stores/uiStore';
 
 function makeUser(): User {
@@ -91,5 +91,9 @@ describe('Avatar palette (#328)', () => {
   it('keeps the user palette by default', () => {
     const { container } = render(<Avatar src={null} name="Ada" userId="u-1" avatarColor="rose" />);
     expect(fallbackBackground(container)).toBe(asRendered(getAvatarGradient('u-1', 'Ada', 'rose').gradient));
+  });
+
+  it('picks a valid preset from randomAvatarColor', () => {
+    expect(AVATAR_COLORS).toContain(randomAvatarColor());
   });
 });
