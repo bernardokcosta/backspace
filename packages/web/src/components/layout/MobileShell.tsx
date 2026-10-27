@@ -27,7 +27,6 @@ import { UserProfileModal } from '../modals/UserProfileModal';
 import {
   GeneralPanel,
   UpdatesPanel,
-  TelemetryPanel,
   RegistrationPanel,
   FederationPanel,
   StreamingPanel,
@@ -104,12 +103,6 @@ export const mobileScreenMap: Readonly<Record<string, (params?: Record<string, s
     <div className="flex flex-col h-full bg-surface-base">
       <MobileScreenHeader title={i18n.t('settings:instance.tabs.users')} rightActions={<TransferIndicator />} />
       <div className="flex-1 overflow-y-auto p-4"><SettingsPanelSuspense><UsersPanel /></SettingsPanelSuspense></div>
-    </div>
-  ),
-  'settings-instance-telemetry': () => (
-    <div className="flex flex-col h-full bg-surface-base">
-      <MobileScreenHeader title={i18n.t('settings:instance.tabs.telemetry')} rightActions={<TransferIndicator />} />
-      <div className="flex-1 overflow-y-auto p-4"><SettingsPanelSuspense><TelemetryPanel /></SettingsPanelSuspense></div>
     </div>
   ),
   'members': (params) => <MobileMembersScreen params={params} />,

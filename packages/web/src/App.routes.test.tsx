@@ -26,7 +26,6 @@ vi.mock('./components/auth/LoginPage', () => ({ LoginPage: () => <div data-testi
 vi.mock('./components/auth/RegisterPage', () => ({ RegisterPage: () => <div data-testid="register" /> }));
 vi.mock('./components/JoinPage', () => ({ JoinPage: () => <div data-testid="join" /> }));
 vi.mock('./components/ui/SwUpdatePrompt', () => ({ SwAutoUpdate: () => null }));
-vi.mock('./components/telemetry/TelemetryAsk', () => ({ TelemetryAsk: () => null }));
 vi.mock('./components/voice/ScreenShareSetup', () => ({ ScreenShareSetup: () => null }));
 
 import { render, screen } from '@testing-library/react';

@@ -67,9 +67,8 @@ export const users = sqliteTable('users', {
    */
   detachedHomeInstance: text('detached_home_instance'),
   detachedHomeUserId: text('detached_home_user_id'),
-  /** UTC day (YYYY-MM-DD) of the last authenticated WebSocket activity; written at most once per day. */
+  /** Legacy telemetry activity columns, inert; retained unchanged for rollback. */
   lastActiveDay: text('last_active_day'),
-  /** 'web' | 'desktop' | 'mobile', from the client's auth message. */
   lastClient: text('last_client'),
   createdAt: integer('created_at').notNull(),
 }, (table) => ({
@@ -481,15 +480,11 @@ export const instanceSettings = sqliteTable('instance_settings', {
   federationRelayTtlDays: integer('federation_relay_ttl_days').notNull().default(30),
   defaultAutoRotateIntervalDays: integer('default_auto_rotate_interval_days').notNull().default(90),
   autoAcceptPeering: integer('auto_accept_peering').notNull().default(1),
-  /** null = never asked, 0 = off, 1 = on. */
+  /** Legacy telemetry settings/state, inert; no runtime reads/writes. */
   telemetryEnabled: integer('telemetry_enabled'),
-  /** Random UUID, minted on the first off-to-on transition and kept through off. Never the federation instance_id. */
   telemetryId: text('telemetry_id'),
-  /** Last UTC day successfully reported. */
   telemetryLastDay: text('telemetry_last_day'),
-  /** JSON { day, status } of the last failed attempt, null after a success. */
   telemetryLastError: text('telemetry_last_error'),
-  /** The server version running when telemetry was last switched off; the ask returns on the next minor. */
   telemetryDeclinedVersion: text('telemetry_declined_version'),
   /** Legacy directory settings/state, inert since 1.15.2; no runtime reads/writes. */
   directoryEnabled: integer('directory_enabled').notNull().default(0),

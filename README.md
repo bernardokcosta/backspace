@@ -566,7 +566,6 @@ The most important:
 | `LIVEKIT_URL` / `LIVEKIT_API_KEY` / `LIVEKIT_API_SECRET` | no | none | Enable voice/video |
 | `COMPOSE_PROFILES`   | no       | none        | Set to `voice` to start the bundled LiveKit service |
 | `FEDERATION_ALLOW_PRIVATE_PEERS` | no | `false` | Set `true` only on a LAN-only deployment, so instances on private addresses can still peer when a user adds a handle. Admin-driven peering with a private peer works either way. |
-| `TELEMETRY`          | no       | none        | `on` or `off`: answer the opt-in usage hello at install time instead of in the app. See [Privacy](#privacy). |
 
 ## Voice & Video
 
@@ -714,16 +713,8 @@ This is a private fork and is not accepting external contributions.
 
 ## Privacy
 
-Backspace tracks nobody. There is no analytics, no crash reporting, and nothing
-phones home on its own. The one exception is opt-in: an admin can let their
-instance send me a once-a-day hello with rounded counts (people, messages, the
-version, whether voice and federation are on) and the country the request came
-from. No names, no message content, no addresses of any kind. It stays off until
-an admin says yes, in Instance settings or with `TELEMETRY=on` at install time,
-and can be turned off again at any time. Everything that comes back is published
-as open data on the [insights page](https://backspacechat.com/insights/).
-What is sent, how it is stored and for how long is documented in
-[`docs/systems/telemetry.md`](docs/systems/telemetry.md).
+Backspace tracks nobody. There is no analytics, no crash reporting, and no
+telemetry — nothing phones home.
 
 ## Security
 

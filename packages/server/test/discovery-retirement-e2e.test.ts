@@ -87,7 +87,7 @@ beforeAll(async () => {
   const dbPath = path.join(runDir, 'legacy.db'); seedLegacy(dbPath);
   instance = await spawnInstance({ domain: 'retirement.test.local', dbPath, storagePath: path.join(runDir, 'uploads'),
     jwtSecret: randomBytes(32).toString('hex'), logPath: path.join(runDir, 'server.log'),
-    publicOriginAsTransport: true, environment: { DIRECTORY_ENDPOINT: hubUrl } });
+    publicOriginAsTransport: true, environment: { DIRECTORY_ENDPOINT: hubUrl, TELEMETRY_ENDPOINT: hubUrl } });
   const login = await fetch(`${instance.origin}/api/auth/login`, { method: 'POST',
     headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: 'legacy_owner', password: 'fixture-password' }) });
   expect(login.status).toBe(200);
@@ -98,7 +98,7 @@ beforeAll(async () => {
   fresh = await spawnInstance({ domain: 'fresh-retirement.test.local', dbPath: path.join(runDir, 'fresh.db'),
     storagePath: path.join(runDir, 'fresh-uploads'), jwtSecret: randomBytes(32).toString('hex'),
     logPath: path.join(runDir, 'fresh.log'), publicOriginAsTransport: true,
-    environment: { DIRECTORY_ENDPOINT: hubUrl } });
+    environment: { DIRECTORY_ENDPOINT: hubUrl, TELEMETRY_ENDPOINT: hubUrl } });
 }, 90_000);
 
 afterAll(async () => {
@@ -117,6 +117,7 @@ describe('discovery retirement on the real server with legacy-enabled data', () 
     for (const [method, url] of [
       ['GET', '/api/directory'], ['GET', '/api/directory/spaces'], ['GET', '/api/spaces/explore'],
       ['POST', '/api/spaces/legacy-space/public-join'],
+      ['GET', '/api/admin/telemetry'], ['PUT', '/api/admin/telemetry'], ['GET', '/api/admin/telemetry/preview'],
     ] as const) {
       const res = await call(owner, method, url);
       expect(res.status, url).toBe(404);

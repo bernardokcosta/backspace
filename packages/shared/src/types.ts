@@ -2034,34 +2034,6 @@ export type CheckInviteResponse = CheckInviteValidResponse | CheckInviteInvalidR
 
 export type ClientKind = 'web' | 'desktop' | 'mobile';
 
-/** Schema 1 of the opt-in daily instance report. See docs/systems/telemetry.md. */
-export interface TelemetryPayload {
-  schema: 1;
-  instance: string;
-  day: string;
-  build: { version: string; commit: string | null; modified: boolean };
-  users: { registered: number; active1d: number; active7d: number; active30d: number };
-  clients: { web: number; desktop: number; mobile: number };
-  content: { spaces: number; channels: number; messages: number; messages7d: number; storageMiB: number };
-  features: { voice: boolean; federation: boolean; peers: number; registrationOpen: boolean };
-  runtime: { install: 'prebuilt' | 'source' | null; os: string; arch: string; node: number };
-  installedAt: string;
-}
-
-export interface TelemetryStatus {
-  /** null = never asked. */
-  enabled: boolean | null;
-  lastDay: string | null;
-  lastError: { day: string; status: number } | null;
-  /** The random telemetry id, minted on the first enable and kept through off; null until then. */
-  id: string | null;
-  /**
-   * Whether an admin should be asked now: always while never answered, never
-   * after a yes, and after a no again from the next minor release on.
-   */
-  askDue: boolean;
-}
-
 /** A bot status kind the owner can store (`BOT_ACTIVITY_TYPES`). */
 export type BotActivityType = 'custom' | 'playing' | 'listening' | 'watching';
 

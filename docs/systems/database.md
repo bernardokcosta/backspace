@@ -47,8 +47,8 @@ name, emoji, filename, durationSeconds real, createdAt). See [soundboard.md](sou
 | federationHomeOrphaned | integer | 0 | Instance-epoch self-healing: **1 = DETACHED / sovereign local account** (its home instance was reset/lost), not "frozen." **Set** to 1 by `quarantineOrphanedAccounts` on every real account from a reset home incarnation (flag-only detach — no rename, no login block). **Read** by: the login flow (self-heal path permanently disabled for detached rows; local-password login still works — `auth.md` §4), `users.ts` (unlocks local profile edit + local change-password), the S2S binding guards (`findFederatedUser` tier-2, `profile_update`, identity-delete all exclude detached rows — `federation.md`), and the `GET /api/federation/reset-events` admin surface. Cleared by `tombstoneUser` (deletion) and by re-attach. Detach spec §3/§4. Since #310 a detached row is homed here: `home_instance`/`home_user_id` are NULL and its former identity is in the two columns below |
 | detachedHomeInstance | text | | The home instance a detached account was federated from (`federation.md`, "Detached accounts are homed here"). Detaching (`rehomeDetachedAccount`) moves `home_instance` here and clears it, so the account presents itself to peers as one of this instance's users. Read by `resolveRelayActor` (a reference to the former identity resolves to the row), `resolveOrCreateReplicatedUser`'s deleted-identity check, the sync page's friend relevance, re-attach (the home it re-attaches to), the reset-cleanup listing (`detachedHomeInstanceMatch`) and the self-view (`User.detachedHomeInstance`). Cleared by re-attach; kept on a tombstone. Migration `0025_detached_identity` |
 | detachedHomeUserId | text | | The account's id on its former home, moved from `home_user_id` with `detachedHomeInstance`. Same readers. |
-| lastActiveDay | text | | UTC day (`YYYY-MM-DD`) of the last authenticated WebSocket activity; written at most once per day. Used by telemetry to count active accounts. |
-| lastClient | text | | `'web'`, `'desktop'` or `'mobile'`, taken from the client's WebSocket auth message. |
+| lastActiveDay | text | | Legacy telemetry activity column, inert; retained unchanged for rollback. |
+| lastClient | text | | Legacy telemetry activity column, inert; retained unchanged for rollback. |
 | createdAt | integer NOT NULL | | Epoch ms |
 
 **Index:** `idx_users_home_user_id` on `(home_user_id)` (migration `0020_users_home_user_id_index`). Every federated identity lookup (`resolveRelayActor`, `resolveLocalUser`, the relay's participant, author and mention resolution) filters on `home_user_id` first. It is a single-column index on purpose: a home user id matches about one row, and most pair lookups compare `home_instance` normalized (scheme stripped, lowercased) or in code, where a `(home_user_id, home_instance)` composite's second column cannot be used.
@@ -510,11 +510,11 @@ The user INSERT, `usedCount` increment, and redemption row INSERT all run in a s
 | federationRelayEnabled | integer NOT NULL | 1 | |
 | federationRelayTtlDays | integer NOT NULL | 30 | |
 | autoAcceptPeering | integer NOT NULL | 1 | When 0, `peer/accept` rejects unsolicited requests with 403 |
-| telemetryEnabled | integer | | Opt-in usage pings. null = never asked, 0 = off, 1 = on. |
-| telemetryId | text | | Random UUID, minted on the first off-to-on transition and kept for the life of the install, through off. Never the federation `instanceId`. |
-| telemetryLastDay | text | | Last UTC day (`YYYY-MM-DD`) successfully reported. |
-| telemetryLastError | text | | JSON `{ day, status }` of the last failed attempt, null after a success. |
-| telemetryDeclinedVersion | text | | The server version running when telemetry was last switched off (by the modal, the panel, `install.sh` or a receiver `410`). The ask returns on the next minor release; null for a no recorded before the column existed, which is asked once more. |
+| telemetryEnabled | integer | | Legacy telemetry setting, inert; no runtime reads/writes. |
+| telemetryId | text | | Legacy telemetry ID, inert; preserved unchanged. |
+| telemetryLastDay | text | | Legacy telemetry state, inert; preserved unchanged. |
+| telemetryLastError | text | | Legacy telemetry error, inert; preserved unchanged. |
+| telemetryDeclinedVersion | text | | Legacy telemetry state, inert; preserved unchanged. |
 | directoryEnabled | integer NOT NULL | 0 | Legacy directory setting, inert since 1.15.2. |
 | directoryDirty | integer NOT NULL | 0 | Legacy directory state, inert since 1.15.2; no ping is owed or scheduled. |
 | directoryLastPingAt | integer | | Legacy timestamp, preserved unchanged. |

@@ -5,7 +5,6 @@ import { RegisterPage } from './components/auth/RegisterPage';
 import { AppLayout } from './components/layout/AppLayout';
 import { JoinPage } from './components/JoinPage';
 import { SwAutoUpdate } from './components/ui/SwUpdatePrompt';
-import { TelemetryAsk } from './components/telemetry/TelemetryAsk';
 import { ScreenShareSetup } from './components/voice/ScreenShareSetup';
 import { SoundboardController } from './components/voice/SoundboardController';
 import { useAuthStore } from './stores/authStore';
@@ -60,7 +59,6 @@ export function App() {
       <div className={showTitleBar ? 'flex-1 min-h-0' : 'contents'}>
         <DesktopCompatibilityGate>
         <SwAutoUpdate />
-        <TelemetryAsk />
         <ScreenShareSetup />
         <SoundboardController />
         <Routes>

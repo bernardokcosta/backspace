@@ -17,7 +17,6 @@ Source files:
 - `packages/web/src/components/modals/instanceSettingsPanels/StreamingPanel.tsx` -- Streaming config UI
 - `packages/web/src/components/modals/instanceSettingsPanels/UsersPanel.tsx` -- User management UI
 - `packages/web/src/components/modals/instanceSettingsPanels/UpdatesPanel.tsx` -- Instance version and update guidance UI
-- `packages/web/src/components/modals/instanceSettingsPanels/TelemetryPanel.tsx` -- The daily hello: opt-in switch, state, masked id, live payload preview
 - `packages/server/src/routes/invites.ts` -- Admin invite-link CRUD endpoints
 - `packages/server/src/utils/inviteService.ts` -- Token generation, derived status, atomic redemption transaction
 - `packages/shared/src/types.ts` -- Shared type interfaces
@@ -344,60 +343,6 @@ effort went.
 
 ---
 
-### Telemetry
-
-Admin-only. The opt-in daily usage report, shown in Instance settings as the
-section "Say hi to Jannis".
-
-```
-GET /api/admin/telemetry          → TelemetryStatus
-PUT /api/admin/telemetry          { enabled: boolean } → TelemetryStatus
-GET /api/admin/telemetry/preview  → TelemetryPayload
-```
-
-```typescript
-interface TelemetryStatus {
-  enabled: boolean | null;   // null = this instance was never asked
-  id: string | null;         // the random telemetry id, kept through off; null until the first enable
-  lastDay: string | null;    // last UTC day successfully reported
-  lastError: { day: string; status: number } | null;
-  askDue: boolean;           // whether an admin should be asked now, see telemetry.md §7
-}
-```
-
-**It is off until an admin turns it on**, and nothing is sent or fetched before
-that. The panel shows the toggle, the last reported day, the last error if there
-is one, the id masked, and the live preview: the exact document a ping would
-carry, built by the same function the reporter uses, so the panel can never show
-something the reporter would not send. While reporting is off the preview's
-`instance` is the literal string `preview` rather than a freshly minted id, and
-opening it writes nothing.
-
-`routes/adminTelemetry.ts` is the only HTTP writer of the five
-`instance_settings` telemetry columns, and every write goes through
-`telemetry/state.ts`, which the reporter and `install.sh` also use.
-`PATCH /api/settings/instance` does not touch them, so the id lifecycle has
-exactly one owner. The first enable mints a UUID that is kept for
-the life of the install. Neither branch writes `telemetry_last_day`: that column
-belongs to the reporter, and stamping it here cost the instance a day's ping
-every time the switch was flipped twice. Disabling keeps the id and the last
-reported day and clears the pending error, so a later re-enable reports as the
-same instance and does not repeat a day it already sent. Disabling also stamps
-`telemetry_declined_version` with the running version, which is what keeps the
-ask quiet for the rest of that minor release. Saving "on" while it is already on
-changes nothing at all.
-
-An admin signing in while `askDue` is true sees the modal. Dismissing it
-without answering snoozes it for 7 days in that browser, after which it returns,
-as often as it takes; any answer by any admin settles the ask for everyone,
-because the setting belongs to the instance. A yes ends it for good. A no keeps
-it away until the next minor release, when it is asked once more.
-
-Full reference, including every field, the rounding rule, what is never sent and
-the 90-day retention at the receiver: [telemetry.md](telemetry.md).
-
----
-
 ### User Management
 
 All admin-only.
@@ -612,8 +557,7 @@ Registered as the `updates` sub-tab in `InstancePanel.tsx`, and as
 
 **It always reads the home instance.** `api.admin.updateStatus()` goes through
 the origin-relative client, so a client with remote instances connected still
-reports only the instance that served it — the same rule the telemetry panel
-follows. An operator running two instances gets no signal here that the second
+reports only the instance that served it. An operator running two instances gets no signal here that the second
 one is behind; they see it when they sign in to that instance.
 
 **The dot.** When a release is available, an amber dot appears on the settings
@@ -625,41 +569,6 @@ is also toasted once per version, with an action that opens this panel. Both
 acknowledgements live in `localStorage` per user id
 (`packages/web/src/utils/updateAck.ts`), so they are per browser: a release
 re-arms both, and clearing site data brings them back.
-
-#### TelemetryPanel
-
-The permanent home of the opt-in daily report described in
-[telemetry.md](telemetry.md). It is the only place the setting can be changed
-outside the ask, and it always reads the home instance: there is no local
-copy of the state, so what the panel shows is what the server would send.
-
-Contents, top to bottom:
-
-- The switch, bound to `settingsStore.setTelemetryEnabled(next)`, which returns
-  the server's state and is the only thing the panel commits. There is no draft
-  and no save bar: a failed write leaves the switch where the server has it and
-  reports the reason through a toast.
-- The state line: `Never asked` while `enabled` is `null`, otherwise `Off` or
-  `On`.
-- The last reported day, formatted in the reader's language, or "no hello sent
-  yet". A bare `YYYY-MM-DD` day is built at local midnight before formatting, so
-  a reader west of UTC is not shown the day before.
-- The last failure, when `lastError` is set: its day and HTTP status, plus the
-  note that the next attempt is tomorrow. Absent when there is none.
-- The telemetry id, masked to its first block (`3f6c9e2a…`). The full id is what
-  ties an instance to its rows in the public archive, so the panel confirms
-  which one is in use without putting the whole value on screen. Hidden while
-  the setting is off: the server keeps the id for a later re-enable, but an id
-  on screen next to "Off" would read as if something were still being sent.
-- The live payload, rendered by the shared `PayloadPreview` (`defaultOpen`
-  here, folded away in the ask) straight from `GET /api/admin/telemetry/preview`
-  with a Refresh button. It is refetched after every successful toggle, since
-  the first switch-on mints the id the payload carries.
-- A link to `docs/systems/telemetry.md` on GitHub.
-
-Strings live in the `telemetry` namespace under `panel.*`. Registered as the
-`telemetry` sub-tab in `InstancePanel.tsx` (labelled "Say hi"), and as
-`settings-instance-telemetry` in `MobileShell.tsx` / `MobileInstancePanel.tsx`.
 
 #### GeneralPanel
 
@@ -830,5 +739,5 @@ Manages: user list with search/filter/sort/pagination, admin promotion/demotion,
 - **Federation relay:** [federation.md](federation.md) -- Relay toggle/TTL mechanics, peer management, outbox delivery
 - **Voice/streaming:** [voice.md](voice.md) -- Client-side enforcement of streaming limits
 - **Permissions:** [permissions.md](permissions.md) -- Admin flag is separate from RBAC; `isAdmin` is a user-level column, not a permission bit
-- **Telemetry:** [telemetry.md](telemetry.md) -- The opt-in daily usage report: payload, opt-in state model, reporter, receiver, retention
+- **Telemetry retirement:** [telemetry.md](telemetry.md) -- Removed; historical DB columns preserved inertly.
 - **Space directory retirement:** [directory.md](directory.md) -- Removed in 1.15.2; historical data preserved inertly.

@@ -525,40 +525,6 @@ the endpoint return `checkEnabled: false, reason: 'disabled'` without opening a
 socket. Every network failure is soft: `state: 'unknown'` with a `reason`, never a
 5xx, so the panel always reports the running version.
 
-## Admin: Telemetry (`routes/adminTelemetry.ts`) - admin required
-```
-GET    /admin/telemetry              → TelemetryStatus
-PUT    /admin/telemetry              { enabled: boolean } → TelemetryStatus
-GET    /admin/telemetry/preview      → TelemetryPayload
-```
-
-The opt-in daily usage report. `TelemetryStatus` is `{ enabled: boolean | null,
-id: string | null, lastDay: string | null, lastError: { day, status } | null,
-askDue: boolean }`, where `enabled: null` means the instance was never asked and
-`askDue` says whether the admin should see the ask now (always while never
-answered, never after a yes, and after a no again from the next minor release
-on; telemetry.md §7). All three routes are home-origin only.
-
-`PUT` requires `enabled` to be a boolean and returns 400 `validation_failed` for
-anything else (`"yes"`, `1`, a missing field). It is the only HTTP writer of the
-five `instance_settings` telemetry columns (the reporter records what it sent
-and `install.sh` can set the switch, both through the same `telemetry/state.ts`
-rules); the general settings PATCH never touches them. Enabling mints a `telemetry_id` if the instance never had one; disabling keeps
-the id, so a later re-enable reports under the same id, and stamps
-`telemetry_declined_version` with the running server version. Neither branch touches
-`telemetry_last_day`, which the reporter owns, so a toggle never costs a ping
-and never repeats one; both clear the pending error. Enabling an instance that is already on changes
-nothing. The id is never rotated.
-
-`GET /preview` returns the exact payload a ping would carry right now, built by
-the same function the reporter uses. While reporting is off `instance` is the
-literal string `preview`: an instance that was never on has no id and none is
-minted to render a preview, and one that was on keeps its id but does not show
-it next to "Off". The route writes nothing in either state.
-
-See [telemetry.md](telemetry.md) for the field semantics, the rounding rule and
-what is never sent.
-
 ## Admin: Invite Management (`routes/invites.ts`) — admin required
 
 All endpoints sit behind `[authenticate, requireAdmin]`. Mutating endpoints wrap their read-modify-write in a SQLite transaction with an in-txn re-fetch + status re-derive; any state mismatch returns 409. Service layer: `packages/server/src/utils/inviteService.ts` (`InviteValidationError` → 400, `InviteNotFoundError` → 404, `InviteStateConflictError` → 409).

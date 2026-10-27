@@ -9,8 +9,7 @@ import { shouldBadgeUpdate } from '../utils/updateAck';
  * this in several places costs nothing.
  *
  * Always the home instance. Connected remote instances are never consulted —
- * Instance settings administer the instance that served this client, the same
- * way the telemetry panel does.
+ * Instance settings administer the instance that served this client.
  */
 export function useInstanceUpdateBadge(): boolean {
   const status = useSettingsStore((s) => s.updateStatus);

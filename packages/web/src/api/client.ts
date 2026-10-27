@@ -85,8 +85,6 @@ import type {
   AttachProofResponse,
   ReattachRequest,
   ReattachResponse,
-  TelemetryPayload,
-  TelemetryStatus,
   BotSearchResult,
   BotSummary,
   CreateBotRequest,
@@ -470,11 +468,6 @@ export class BackspaceApiClient {
     listBlockedBots: () => Promise<{ bots: AdminBlockedBot[] }>;
     unblockBot: (homeInstance: string, homeUserId: string) => Promise<{ success: boolean }>;
     updateStatus: (refresh?: boolean) => Promise<InstanceUpdateStatus>;
-    telemetry: {
-      get: () => Promise<TelemetryStatus>;
-      set: (enabled: boolean) => Promise<TelemetryStatus>;
-      preview: () => Promise<TelemetryPayload>;
-    };
     stickerPacks: {
       listReviews: () => Promise<StickerPackSummary[]>;
       approve: (id: string) => Promise<{ success: boolean; status: string }>;
@@ -1132,11 +1125,6 @@ export class BackspaceApiClient {
           'GET',
           `/admin/instance/update-status${refresh ? '?refresh=true' : ''}`,
         ),
-      telemetry: {
-        get: () => request<TelemetryStatus>('GET', '/admin/telemetry'),
-        set: (enabled) => request<TelemetryStatus>('PUT', '/admin/telemetry', { enabled }),
-        preview: () => request<TelemetryPayload>('GET', '/admin/telemetry/preview'),
-      },
       stickerPacks: {
         listReviews: () => request<StickerPackSummary[]>('GET', '/admin/sticker-packs/reviews'),
         approve: (id: string) => request<{ success: boolean; status: string }>('POST', `/admin/sticker-packs/${encodeURIComponent(id)}/approve`),

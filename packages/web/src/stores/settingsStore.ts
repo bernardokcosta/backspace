@@ -1,9 +1,8 @@
 import { create } from 'zustand';
-import type { InstanceStreamingLimits, InstanceAdminSettings, TelemetryPayload, TelemetryStatus, InstanceUpdateStatus } from '@backspace/shared';
+import type { InstanceStreamingLimits, InstanceAdminSettings, InstanceUpdateStatus } from '@backspace/shared';
 import { api } from '../api/client';
 import { describeError } from '../i18n/errors';
 import { EMPTY_ACK, readUpdateAck, writeUpdateAck, pendingUpdateVersion, type UpdateAck } from '../utils/updateAck';
-import { clearDismissal } from '../utils/telemetryAsk';
 import { getApiForOrigin } from '../utils/crossStoreResolvers';
 import { invalidateHomeInstanceInfo } from '../hooks/useHomeInstanceInfo';
 
@@ -20,8 +19,6 @@ interface SettingsState {
   instanceSettings: InstanceAdminSettings | null;
   isAdmin: boolean;
   gifEnabled: boolean;
-  telemetry: TelemetryStatus | null;
-  telemetryPreview: TelemetryPayload | null;
   fetchStreamingLimits: () => Promise<void>;
   /** Fetch a remote instance's streaming document; `''` is a no-op (home has its own field). */
   fetchStreamingLimitsFor: (origin: string) => Promise<void>;
@@ -29,9 +26,6 @@ interface SettingsState {
   fetchInstanceSettings: () => Promise<void>;
   updateInstanceSettings: (data: Partial<InstanceAdminSettings>) => Promise<void>;
   fetchGifEnabled: () => Promise<void>;
-  fetchTelemetry: () => Promise<void>;
-  fetchTelemetryPreview: () => Promise<void>;
-  setTelemetryEnabled: (enabled: boolean) => Promise<void>;
   setIsAdmin: (isAdmin: boolean) => void;
   updateStatus: InstanceUpdateStatus | null;
   updateStatusLoading: boolean;
@@ -105,8 +99,6 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   instanceSettings: null,
   isAdmin: false,
   gifEnabled: false,
-  telemetry: null,
-  telemetryPreview: null,
 
   fetchStreamingLimits: async () => {
     try {
@@ -158,28 +150,6 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     } catch {
       set({ gifEnabled: false });
     }
-  },
-
-  // Telemetry errors propagate to the caller, which shows them. The store does
-  // not swallow them, the same as updateInstanceSettings.
-  fetchTelemetry: async () => {
-    const telemetry = await api.admin.telemetry.get();
-    set({ telemetry });
-  },
-
-  fetchTelemetryPreview: async () => {
-    const telemetryPreview = await api.admin.telemetry.preview();
-    set({ telemetryPreview });
-  },
-
-  // Both the modal and the settings panel answer through here, so this is
-  // where a stored answer forgets the browser's snooze: a "later" clicked
-  // before a no has nothing left to hold back, and left in place it would
-  // delay the ask the next minor release brings.
-  setTelemetryEnabled: async (enabled: boolean) => {
-    const telemetry = await api.admin.telemetry.set(enabled);
-    set({ telemetry });
-    clearDismissal(localStorage);
   },
 
   setIsAdmin: (isAdmin: boolean) => set({ isAdmin }),

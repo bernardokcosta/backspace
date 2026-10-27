@@ -12,18 +12,12 @@ import { StreamingPanel } from '../instanceSettingsPanels/StreamingPanel';
 import { StoragePanel } from '../instanceSettingsPanels/StoragePanel';
 import { UsersPanel } from '../instanceSettingsPanels/UsersPanel';
 import { UpdatesPanel } from '../instanceSettingsPanels/UpdatesPanel';
-import { TelemetryPanel } from '../instanceSettingsPanels/TelemetryPanel';
 
-type SubTab = 'general' | 'registration' | 'federation' | 'streaming' | 'storage' | 'users' | 'updates' | 'telemetry';
+type SubTab = 'general' | 'registration' | 'federation' | 'streaming' | 'storage' | 'users' | 'updates';
 
 export function InstancePanel() {
   const { t } = useTranslation(['settings']);
   const fetchInstanceSettings = useSettingsStore((s) => s.fetchInstanceSettings);
-  const fetchTelemetry = useSettingsStore((s) => s.fetchTelemetry);
-  // Read here rather than in the telemetry panel alone: the invitation has to
-  // be decided before that tab is ever opened, because it is what invites the
-  // admin to open it.
-  const telemetry = useSettingsStore((s) => s.telemetry);
 
   const [subTab, setSubTab] = useState<SubTab>('general');
   const [approvalCount, setApprovalCount] = useState(0);
@@ -37,15 +31,7 @@ export function InstancePanel() {
     { id: 'storage', label: t('settings:instance.tabs.storage') },
     { id: 'users', label: t('settings:instance.tabs.users') },
     { id: 'updates', label: t('settings:instance.tabs.updates'), badgeDot: updateBadge },
-    {
-      id: 'telemetry',
-      label: t('settings:instance.tabs.telemetry'),
-      // Whenever the hello is not being sent, whether that is because nobody
-      // has answered yet or because someone said no. `telemetry` is null while
-      // the status is still loading, and an unknown state invites nothing.
-      invite: telemetry !== null && telemetry.enabled !== true,
-    },
-  ], [approvalCount, updateBadge, telemetry, t]);
+  ], [approvalCount, updateBadge, t]);
 
   const handleNavigate = useCallback((id: string) => {
     setSubTab(id as SubTab);
@@ -59,9 +45,7 @@ export function InstancePanel() {
     // The streaming limits are not fetched here: `StreamingPanel` is the only
     // reader of that document in this tree and loads it itself, which is also
     // how it can say when the load failed.
-    // Failure leaves `telemetry` null, which shows the plain entry.
-    void fetchTelemetry().catch(() => undefined);
-  }, [fetchInstanceSettings, fetchTelemetry]);
+  }, [fetchInstanceSettings]);
 
   return (
     <div className="space-y-4">
@@ -74,7 +58,6 @@ export function InstancePanel() {
       {subTab === 'storage' && <StoragePanel />}
       {subTab === 'users' && <UsersPanel />}
       {subTab === 'updates' && <UpdatesPanel />}
-      {subTab === 'telemetry' && <TelemetryPanel />}
     </div>
   );
 }

@@ -34,10 +34,8 @@ import { statusOnConnect, type StatusSourceRow } from '../utils/presenceStatus.j
 import { ownsChosenStatus, type ChosenUserStatus } from '@backspace/shared';
 import { attachReplicaSessionHost, showReplicaStatusOnConnect, showReplicaStatusOnDisconnect, type ReplicaSessionHost } from './replicaPresence.js';
 import { presenceIdentityOf, presenceUpdateFor, snapshotActivities } from './presenceEvent.js';
-import { touchUserActivity, parseClientKind } from '../telemetry/activity.js';
 import { isGroupConversation } from '../utils/dmConversation.js';
 import { normalizeOriginForCompare } from '../utils/federationAuth.js';
-import { utcDay } from '../telemetry/day.js';
 import { memberRolesView, rolesForViewer } from '../utils/permissionDataView.js';
 import { canCountUnread, readyUnreadCounts, unreadCountFollowUp } from './channelUnreadCounts.js';
 import { userWrittenMessages } from '../db/userWrittenMessages.js';
@@ -1604,77 +1602,6 @@ class ConnectionManager implements ReplicaSessionHost {
 export const connectionManager = new ConnectionManager();
 attachReplicaSessionHost(connectionManager);
 
-// The pong path runs every 30 seconds per socket, so a database that keeps
-// refusing this write would flood the log at one line per socket per pong. One
-// line per hour is the compromise: quiet enough that a persistent fault does
-// not bury everything else, loud enough that an outage lasting a week stays
-// visible for the whole week. A one-shot flag was the earlier form and it went
-// permanently silent after the first failure, so an outage that began before
-// anyone looked left no trace at all.
-const ACTIVITY_WARN_INTERVAL_MS = 60 * 60 * 1000;
-let activityWarnedAt = 0;
-
-/**
- * The last UTC day each live connection recorded activity for.
- *
- * Keyed on the socket, so it dies with the socket and holds nothing across
- * reconnects. `touchUserActivity` already refuses to rewrite a row that holds
- * today, so this memo changes no stored value; what it avoids is the round
- * trip. Without it an `UPDATE` runs for every socket on every pong, which on an
- * instance holding a few hundred desktop clients open is constant write-lock
- * churn on `users` for a column that moves once a day.
- *
- * A miss is always safe: a connection with no memo simply writes, and the
- * statement's own predicate makes that a no-op when the day is already there.
- */
-const activityDayByConnection: WeakMap<object, string> = new WeakMap();
-
-/**
- * Day-coarse activity for the opt-in telemetry counts. `authMessage` is the
- * parsed auth message on the auth path (its optional `client` field names the
- * client kind) and null on a heartbeat pong, which touches the day only.
- *
- * A failed write is swallowed: this bookkeeping is optional, and it runs on the
- * auth path (where a throw would look like a rejected token) and inside the
- * 'pong' listener (where an uncaught throw would take the process down).
- *
- * `connection` is the socket, used as the key of a per-connection memo of the
- * day already recorded. Given, a pong that has already recorded today returns
- * without touching the database. Omitted, every call writes.
- */
-export function recordConnectionActivity(
-  userId: string,
-  authMessage: Record<string, unknown> | null,
-  now: Date,
-  connection?: object,
-): void {
-  const today = utcDay(now);
-  // The auth path is never skipped: it carries the client kind, which can
-  // differ from what the row holds even on a day already recorded. Only the
-  // pong path, which touches the day and nothing else, has anything to skip.
-  if (authMessage === null && connection !== undefined
-    && activityDayByConnection.get(connection) === today) {
-    return;
-  }
-  try {
-    const db = getDb();
-    if (authMessage) {
-      touchUserActivity(db, userId, today, parseClientKind(authMessage.client));
-    } else {
-      touchUserActivity(db, userId, today);
-    }
-    // Recorded only after the write did not throw, so a failing database is
-    // retried on the next pong rather than memoised as done.
-    if (connection !== undefined) activityDayByConnection.set(connection, today);
-  } catch (err) {
-    const at = now.getTime();
-    if (activityWarnedAt === 0 || at - activityWarnedAt >= ACTIVITY_WARN_INTERVAL_MS) {
-      activityWarnedAt = at;
-      console.warn(`[ws] could not record activity: ${err instanceof Error ? err.message : String(err)}`);
-    }
-  }
-}
-
 // ─── WebSocket Rate Limiter (Token Bucket) ─────────────────────────────────
 
 class WsRateLimiter {
@@ -2313,7 +2240,7 @@ export async function registerWebSocket(app: FastifyInstance): Promise<void> {
           } catch (error) {
             if (!(error instanceof DesktopUpdateRequiredError)) throw error;
             clearTimeout(authTimeout);
-            // No presence, telemetry, bot-session claim or connection has been
+            // No presence, bot-session claim or connection has been
             // registered. Refuse this socket only, not another valid session.
             ws.send(JSON.stringify({ type: 'error', message: error.message, code: error.code, details: error.details }));
             ws.close(DESKTOP_UPDATE_REQUIRED_CLOSE_CODE, error.code);
@@ -2348,18 +2275,10 @@ export async function registerWebSocket(app: FastifyInstance): Promise<void> {
           // sessions already reported an activity (its code may have set one).
           const seededActivities = seedStoredBotActivity(userRow);
 
-          // Captured for the pong closure: `userId` is a mutable outer binding, so
-          // its narrowing to a string does not survive into the callback.
-          const activeUserId = userId;
-          recordConnectionActivity(activeUserId, parsed, new Date());
-
           // Mark alive for heartbeat detection; browsers auto-respond to ping frames (RFC 6455)
           wsIsAlive.set(ws, true);
           ws.on('pong', () => {
             wsIsAlive.set(ws, true);
-            // `ws` is the memo key: this socket writes the day once and then
-            // stops asking until the day rolls over.
-            recordConnectionActivity(activeUserId, null, new Date(), ws);
           });
 
           // Build and send ready payload

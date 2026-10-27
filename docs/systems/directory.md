@@ -43,7 +43,7 @@ does not prove deletion from any external cache or independently operated hub.
   connected origin, independent of discovery.
 - Explicit Connections, existing remote memberships, federation identity and
   credentials remain. No mass disconnect or local-storage reset occurs.
-- Social **Discover People**, instance updates, telemetry and AGPL source offer
+- Social **Discover People**, instance updates and AGPL source offer
   are separate features and remain.
 
 See [spaces.md](spaces.md), [api.md](api.md), [database.md](database.md) and
