@@ -6,6 +6,8 @@ let activeCallback: MediaChangeCallback | null = null;
 let currentTrack: MediaTrackInfo | null = null;
 let bus: unknown = null;
 let pollTimer: NodeJS.Timeout | null = null;
+/** Incremented on every (re)start and stop so in-flight polls cannot republish after death. */
+let busGeneration = 0;
 
 const PLAYER_NAME_MAP: Record<string, string> = {
   spotify: 'Spotify',
@@ -91,13 +93,21 @@ export function startLinuxMedia(callback: MediaChangeCallback): void {
     // P2: D-Bus emits async errors via EventEmitter; the surrounding try/catch
     // cannot observe them. Without a listener an unavailable bus crashes the
     // desktop process instead of degrading media detection.
+    const generation = ++busGeneration;
     const emitter = bus as { on?: (ev: string, fn: (err: unknown) => void) => void };
     emitter.on?.('error', (err) => {
       console.warn('[MediaDetector] Linux MPRIS bus error:', err);
+      // A dead bus must not leave a ghost track: clear and notify so the UI
+      // stops showing a song that is no longer observable (review finding).
       stopLinuxMediaPollOnly();
+      if (currentTrack !== null) {
+        currentTrack = null;
+        activeCallback?.(null);
+      }
     });
 
     const checkMpris = async () => {
+      if (generation !== busGeneration) return;
       try {
         const messageBus = bus as {
           getProxyObject: (dest: string, path: string) => Promise<{
@@ -110,15 +120,20 @@ export function startLinuxMedia(callback: MediaChangeCallback): void {
         if (!messageBus || typeof messageBus.getProxyObject !== 'function') return;
 
         const dbusObj = await messageBus.getProxyObject('org.freedesktop.DBus', '/org/freedesktop/DBus');
+        if (generation !== busGeneration) return;
         const dbusIface = dbusObj.getInterface('org.freedesktop.DBus');
         const names = (await dbusIface.ListNames?.()) ?? [];
+        if (generation !== busGeneration) return;
         const mprisNames = (names as string[]).filter((n) => n.startsWith('org.mpris.MediaPlayer2.'));
 
         for (const name of mprisNames) {
+          if (generation !== busGeneration) return;
           try {
             const playerObj = await messageBus.getProxyObject(name, '/org/mpris/MediaPlayer2');
+            if (generation !== busGeneration) return;
             const props = playerObj.getInterface('org.freedesktop.DBus.Properties');
             const statusRaw = await props.Get?.('org.mpris.MediaPlayer2.Player', 'PlaybackStatus');
+            if (generation !== busGeneration) return;
             const status = statusRaw && typeof statusRaw === 'object' && 'value' in (statusRaw as Record<string, unknown>)
               ? (statusRaw as { value?: unknown }).value
               : statusRaw;
@@ -164,6 +179,7 @@ export function startLinuxMedia(callback: MediaChangeCallback): void {
 
 /** Stop polling/disconnect without clearing the selected track callback state twice. */
 function stopLinuxMediaPollOnly(): void {
+  busGeneration++;
   if (pollTimer) {
     clearInterval(pollTimer);
     pollTimer = null;
@@ -177,6 +193,7 @@ function stopLinuxMediaPollOnly(): void {
 }
 
 export function stopLinuxMedia(): void {
+  busGeneration++;
   if (pollTimer) {
     clearInterval(pollTimer);
     pollTimer = null;
