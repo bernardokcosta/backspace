@@ -30,6 +30,11 @@
       "toggleLabel": "允许新的联邦账号注册",
       "toggleDescription": "来自其他实例的用户可通过其“连接”设置在此创建联邦账号。现有联邦账号始终可以正常登录，不受此设置影响。"
     },
+    "spaceCreation": {
+      "label": "创建空间",
+      "toggleLabel": "允许创建新空间",
+      "toggleDescription": "用户可以在此实例上创建新空间。关闭后，只有实例管理员可以创建空间，普通用户只能加入现有空间。"
+    },
     "saved": "注册设置已保存",
     "saveFailed": "更新注册设置失败"
   },

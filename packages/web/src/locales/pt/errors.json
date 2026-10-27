@@ -266,5 +266,6 @@
   "sticker_pack_invalid_state": "Esse pacote de figurinhas não está em um estado válido para esta ação.",
   "sticker_peer_blocked": "A sincronização de figurinhas está bloqueada para esta instância.",
   "sticker_pack_limit_exceeded": "O pacote de figurinhas atingiu o limite de figurinhas.",
-  "sticker_limit_out_of_range": "O limite de tamanho da figurinha deve estar entre {{min}} e {{max}} MB."
+  "sticker_limit_out_of_range": "O limite de tamanho da figurinha deve estar entre {{min}} e {{max}} MB.",
+  "space_creation_disabled": "A criação de novos espaços está desativada nesta instância."
 }

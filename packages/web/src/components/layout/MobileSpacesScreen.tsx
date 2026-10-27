@@ -8,6 +8,8 @@ import { spaceInviteUrl } from '../../utils/inviteParser';
 import { useChatStore } from '../../stores/chatStore';
 import { useVoiceStore } from '../../stores/voiceStore';
 import { useAuthStore } from '../../stores/authStore';
+import { useSettingsStore } from '../../stores/settingsStore';
+import { useHomeInstanceInfo } from '../../hooks/useHomeInstanceInfo';
 import { useContextMenuStore, type ContextMenuItem } from '../../stores/contextMenuStore';
 import { useNavigate } from 'react-router-dom';
 import { getSpaceGradient } from '../../utils/gradients';
@@ -73,6 +75,9 @@ export function MobileSpacesScreen() {
 
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
+  const isAdmin = useSettingsStore((s) => s.isAdmin);
+  const homeInfo = useHomeInstanceInfo();
+  const canCreateSpace = Boolean(user?.isAdmin || isAdmin || (homeInfo?.spaceCreationOpen ?? true));
 
   // Local state
   // Initial value: prefer `currentSpaceId` if set (the user is currently in a
@@ -934,15 +939,17 @@ export function MobileSpacesScreen() {
           >
             <div className="w-10 h-1 bg-txt-tertiary/30 rounded-full mx-auto mt-2 mb-1" />
             <div className="py-2">
-              <button
-                onClick={() => { setShowAddSheet(false); openModal('createSpace'); }}
-                className="w-full flex items-center gap-3 px-5 py-3 text-left hover:bg-interactive-hover"
-              >
-                <svg className="w-5 h-5 text-accent-mint" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-                <span className="text-sm text-txt-primary">{t('spaces:mobile.addSheet.createSpace')}</span>
-              </button>
+              {canCreateSpace && (
+                <button
+                  onClick={() => { setShowAddSheet(false); openModal('createSpace'); }}
+                  className="w-full flex items-center gap-3 px-5 py-3 text-left hover:bg-interactive-hover"
+                >
+                  <svg className="w-5 h-5 text-accent-mint" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                  <span className="text-sm text-txt-primary">{t('spaces:mobile.addSheet.createSpace')}</span>
+                </button>
+              )}
               <button
                 onClick={() => { setShowAddSheet(false); openModal('joinSpace'); }}
                 className="w-full flex items-center gap-3 px-5 py-3 text-left hover:bg-interactive-hover"

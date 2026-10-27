@@ -30,6 +30,11 @@
       "toggleLabel": "Permitir novas contas federadas",
       "toggleDescription": "Usuários de outras instâncias podem criar uma conta federada aqui pelas configurações de Conexões. Contas federadas existentes sempre podem fazer login, independentemente desta configuração."
     },
+    "spaceCreation": {
+      "label": "Criação de espaços",
+      "toggleLabel": "Permitir a criação de novos espaços",
+      "toggleDescription": "Usuários podem criar novos espaços nesta instância. Quando desativado, apenas administradores da instância podem criar espaços e usuários comuns só podem entrar em espaços existentes."
+    },
     "saved": "Configurações de cadastro salvas",
     "saveFailed": "Falha ao atualizar as configurações de cadastro"
   },

@@ -30,6 +30,11 @@
       "toggleLabel": "Allow new federated accounts",
       "toggleDescription": "Users from other instances can create a federated account here via their Connections settings. Existing federated accounts can always log in regardless of this setting."
     },
+    "spaceCreation": {
+      "label": "Space Creation",
+      "toggleLabel": "Allow creating new spaces",
+      "toggleDescription": "Users can create new spaces on this instance. When off, only instance admins can create spaces and regular users can only join existing ones."
+    },
     "saved": "Registration settings saved",
     "saveFailed": "Failed to update registration settings"
   },

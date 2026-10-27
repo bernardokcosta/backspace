@@ -4,6 +4,7 @@ import { getDb, schema } from '../db/index.js';
 import { authenticate, requireAdmin } from '../utils/auth.js';
 import { config } from '../config.js';
 import { sendError } from '../utils/httpErrors.js';
+import { connectionManager } from '../ws/handler.js';
 import type { InstanceStreamingLimits, InstanceAdminSettings } from '@backspace/shared';
 import { STANDARD_RESOLUTIONS, STANDARD_FRAMERATES, BITRATE_MATRIX_KBPS } from '@backspace/shared/src/constants.js';
 
@@ -47,6 +48,7 @@ function rowToAdminSettings(row: SettingsRow): InstanceAdminSettings {
     instanceName: row.instanceName ?? 'Backspace',
     registrationOpen: row.registrationOpen !== null ? row.registrationOpen === 1 : config.registrationOpen,
     federatedRegistrationOpen: row.federatedRegistrationOpen === 1,
+    spaceCreationOpen: row.spaceCreationOpen !== 0,
     gifApiKey: gifKey ? `****${gifKey.slice(-4)}` : undefined,
     gifEnabled: !!gifKey,
     maxUploadSizeMb: Math.round(maxUploadBytes / (1024 * 1024)),
@@ -232,6 +234,13 @@ export async function settingsRoutes(app: FastifyInstance): Promise<void> {
       updateData.federatedRegistrationOpen = body.federatedRegistrationOpen ? 1 : 0;
     }
 
+    if (body.spaceCreationOpen !== undefined) {
+      if (typeof body.spaceCreationOpen !== 'boolean') {
+        return sendError(reply, 400, 'field_not_boolean', { field: 'spaceCreationOpen' });
+      }
+      updateData.spaceCreationOpen = body.spaceCreationOpen ? 1 : 0;
+    }
+
     if (body.gifApiKey !== undefined) {
       // Skip masked placeholder values — the GET endpoint returns '****xxxx' for security,
       // so if the client sends that back unchanged, don't corrupt the real key
@@ -295,6 +304,13 @@ export async function settingsRoutes(app: FastifyInstance): Promise<void> {
     const updatedRow = db.select().from(schema.instanceSettings).where(eq(schema.instanceSettings.id, 1)).get();
     if (!updatedRow) {
       return sendError(reply, 500, 'instance_settings_reload_failed');
+    }
+
+    if (body.spaceCreationOpen !== undefined && currentRow.spaceCreationOpen !== updatedRow.spaceCreationOpen) {
+      connectionManager.sendToAll({
+        type: 'instance_settings_updated',
+        spaceCreationOpen: updatedRow.spaceCreationOpen === 1,
+      });
     }
 
     return reply.code(200).send(rowToAdminSettings(updatedRow));

@@ -30,6 +30,11 @@
       "toggleLabel": "Neue föderierte Konten erlauben",
       "toggleDescription": "Nutzer anderer Instanzen können hier über ihre Verbindungseinstellungen ein föderiertes Konto anlegen. Bestehende föderierte Konten können sich unabhängig von dieser Einstellung immer anmelden."
     },
+    "spaceCreation": {
+      "label": "Space-Erstellung",
+      "toggleLabel": "Erstellen neuer Spaces erlauben",
+      "toggleDescription": "Nutzer können auf dieser Instanz neue Spaces erstellen. Wenn ausgeschaltet, können nur Instanz-Admins Spaces erstellen und normale Nutzer nur bestehenden Spaces beitreten."
+    },
     "saved": "Registrierungseinstellungen gespeichert",
     "saveFailed": "Registrierungseinstellungen konnten nicht gespeichert werden"
   },

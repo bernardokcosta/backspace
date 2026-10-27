@@ -13,7 +13,10 @@ vi.mock('../../audio/AudioManager', () => ({
 
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { HttpError } from '../../api/client';
+import { HttpError, api } from '../../api/client';
+import { __resetHomeInstanceInfoForTests } from '../../hooks/useHomeInstanceInfo';
+import { useAuthStore } from '../../stores/authStore';
+import { useSettingsStore } from '../../stores/settingsStore';
 import { useContextMenuStore, type ContextMenuAction } from '../../stores/contextMenuStore';
 import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
 import { useUIStore } from '../../stores/uiStore';
@@ -61,6 +64,9 @@ function lastToast(): { message: string; type: string } | undefined {
 }
 
 beforeEach(() => {
+  __resetHomeInstanceInfoForTests();
+  useAuthStore.setState({ user: { id: 'u1', username: 'alice', displayName: null, avatar: null, avatarColor: null, bio: null, pronouns: null, customStatus: null, banner: null, isAdmin: false, status: 'online', createdAt: 0 } });
+  useSettingsStore.setState({ isAdmin: false });
   useSpaceStore.setState({
     spaces: [SPACE],
     currentSpaceId: null,
@@ -77,6 +83,9 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  __resetHomeInstanceInfoForTests();
+  useAuthStore.setState({ user: { id: 'u1', username: 'alice', displayName: null, avatar: null, avatarColor: null, bio: null, pronouns: null, customStatus: null, banner: null, isAdmin: false, status: 'online', createdAt: 0 } });
+  useSettingsStore.setState({ isAdmin: false });
   useSpaceStore.setState({ generateInvite: realGenerateInvite });
 });
 
@@ -90,8 +99,41 @@ describe('MobileSpacesScreen space menu: Invite People', () => {
     expect(screen.getByRole('button', { name: 'Join Space' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Explore Spaces' })).toBeNull();
   });
+  it('hides Create Space in the add sheet for non-admins when spaceCreationOpen is false, but keeps it for admins', async () => {
+    vi.spyOn(api.instance, 'info').mockResolvedValue({
+      name: 'Backspace',
+      version: '1.0.0',
+      minimumDesktopVersion: null,
+      registrationOpen: true,
+      federatedRegistrationOpen: true,
+      spaceCreationOpen: false,
+      instanceId: 'id-1',
+      sourceCodeUrl: 'https://example.com',
+      commit: null,
+      maxStickerSizeMb: 2,
+    });
+    const { container, unmount } = renderScreen();
+    await waitFor(() => expect(api.instance.info).toHaveBeenCalled());
+    const add = container.querySelector('path[d="M12 4.5v15m7.5-7.5h-15"]')?.closest('button');
+    if (!add) throw new Error('Add-space button missing');
+    fireEvent.click(add);
+    expect(screen.queryByRole('button', { name: 'Create Space' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Join Space' })).toBeInTheDocument();
+    unmount();
+
+    useAuthStore.setState({ user: { id: 'u1', username: 'admin', displayName: null, avatar: null, avatarColor: null, bio: null, pronouns: null, customStatus: null, banner: null, isAdmin: true, status: 'online', createdAt: 0 } });
+    useSettingsStore.setState({ isAdmin: true });
+    const adminRender = renderScreen();
+    const adminAdd = adminRender.container.querySelector('path[d="M12 4.5v15m7.5-7.5h-15"]')?.closest('button');
+    fireEvent.click(adminAdd!);
+    expect(screen.getByRole('button', { name: 'Create Space' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Join Space' })).toBeInTheDocument();
+  });
   it('shows the reason an instance up to 1.9.0 gives for refusing a request space its link', async () => {
-    useSpaceStore.setState({
+    __resetHomeInstanceInfoForTests();
+  useAuthStore.setState({ user: { id: 'u1', username: 'alice', displayName: null, avatar: null, avatarColor: null, bio: null, pronouns: null, customStatus: null, banner: null, isAdmin: false, status: 'online', createdAt: 0 } });
+  useSettingsStore.setState({ isAdmin: false });
+  useSpaceStore.setState({
       generateInvite: vi.fn().mockRejectedValue(
         new HttpError(403, 'This space uses join requests', undefined, 'space_uses_join_requests'),
       ),
@@ -105,7 +147,10 @@ describe('MobileSpacesScreen space menu: Invite People', () => {
   });
 
   it('copies the link of a space joined by request and says where it leads', async () => {
-    useSpaceStore.setState({ generateInvite: vi.fn().mockResolvedValue('abc123') });
+    __resetHomeInstanceInfoForTests();
+  useAuthStore.setState({ user: { id: 'u1', username: 'alice', displayName: null, avatar: null, avatarColor: null, bio: null, pronouns: null, customStatus: null, banner: null, isAdmin: false, status: 'online', createdAt: 0 } });
+  useSettingsStore.setState({ isAdmin: false });
+  useSpaceStore.setState({ generateInvite: vi.fn().mockResolvedValue('abc123') });
     const { container } = renderScreen();
     openSpaceMenu(container);
     await act(async () => { menuAction('invite').onClick(); });
@@ -115,7 +160,10 @@ describe('MobileSpacesScreen space menu: Invite People', () => {
   });
 
   it('copies the link of a public space with the plain confirmation', async () => {
-    useSpaceStore.setState({ spaces: [{ ...SPACE, visibility: 'public' }], generateInvite: vi.fn().mockResolvedValue('abc123') });
+    __resetHomeInstanceInfoForTests();
+  useAuthStore.setState({ user: { id: 'u1', username: 'alice', displayName: null, avatar: null, avatarColor: null, bio: null, pronouns: null, customStatus: null, banner: null, isAdmin: false, status: 'online', createdAt: 0 } });
+  useSettingsStore.setState({ isAdmin: false });
+  useSpaceStore.setState({ spaces: [{ ...SPACE, visibility: 'public' }], generateInvite: vi.fn().mockResolvedValue('abc123') });
     const { container } = renderScreen();
     openSpaceMenu(container);
     await act(async () => { menuAction('invite').onClick(); });
@@ -125,7 +173,10 @@ describe('MobileSpacesScreen space menu: Invite People', () => {
   });
 
   it('keeps the generic text when the failure has no code', async () => {
-    useSpaceStore.setState({ generateInvite: vi.fn().mockRejectedValue(new HttpError(502, 'Bad Gateway')) });
+    __resetHomeInstanceInfoForTests();
+  useAuthStore.setState({ user: { id: 'u1', username: 'alice', displayName: null, avatar: null, avatarColor: null, bio: null, pronouns: null, customStatus: null, banner: null, isAdmin: false, status: 'online', createdAt: 0 } });
+  useSettingsStore.setState({ isAdmin: false });
+  useSpaceStore.setState({ generateInvite: vi.fn().mockRejectedValue(new HttpError(502, 'Bad Gateway')) });
     const { container } = renderScreen();
     openSpaceMenu(container);
     await act(async () => { menuAction('invite').onClick(); });
@@ -133,7 +184,10 @@ describe('MobileSpacesScreen space menu: Invite People', () => {
   });
 
   it('keeps the generic text when the clipboard write fails', async () => {
-    useSpaceStore.setState({ generateInvite: vi.fn().mockResolvedValue('abc123') });
+    __resetHomeInstanceInfoForTests();
+  useAuthStore.setState({ user: { id: 'u1', username: 'alice', displayName: null, avatar: null, avatarColor: null, bio: null, pronouns: null, customStatus: null, banner: null, isAdmin: false, status: 'online', createdAt: 0 } });
+  useSettingsStore.setState({ isAdmin: false });
+  useSpaceStore.setState({ generateInvite: vi.fn().mockResolvedValue('abc123') });
     writeText.mockRejectedValue(new DOMException('Document is not focused.', 'NotAllowedError'));
     const { container } = renderScreen();
     openSpaceMenu(container);

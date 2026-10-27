@@ -151,7 +151,7 @@ GET    /users/:id/mutuals     ?homeUserId=               → { mutualFriends[], 
 ## Spaces (`routes/spaces.ts`) — auth required
 ```
 GET    /spaces                                                                 → { spaces[] }
-POST   /spaces                { name, icon?, description? }                    → { space }
+POST   /spaces                { name, icon?, description? }                    → { space }   [spaceCreationOpen or admin]
 GET    /spaces/:id                                                             → { space, channels[], members[], roles[] }
 PATCH  /spaces/:id            { name?, icon?, banner?, description?, visibility?, avatarColor?, ownerTitle?, afkChannelId?, afkTimeoutSeconds? } → { space }   [MANAGE_SPACE; ownerTitle: owner]
 DELETE /spaces/:id                                                             → { success }  [owner]
@@ -447,7 +447,7 @@ Permissions checked: CONNECT, SPEAK, STREAM (space channels). DM calls: always f
 
 ## Instance (`routes/instance.ts`) — public
 ```
-GET /instance/info → { name, version, minimumDesktopVersion, registrationOpen, federatedRegistrationOpen, instanceId, sourceCodeUrl, commit, maxStickerSizeMb }
+GET /instance/info → { name, version, minimumDesktopVersion, registrationOpen, federatedRegistrationOpen, spaceCreationOpen, instanceId, sourceCodeUrl, commit, maxStickerSizeMb }
 ```
 The Support-card field was retired in 1.15.2 with the project hub; no active
 response exposes it. Its historical database value is retained unchanged.
@@ -462,12 +462,12 @@ Discovery/directory status fields are retired and omitted, not reported as false
 ```
 GET   /settings/streaming    (auth)        → { streamingLimits }
 PATCH /settings/streaming    (admin)       → { streamingLimits }
-GET   /settings/instance     (admin)       → { instanceName, registrationOpen, federatedRegistrationOpen, ... }
-PATCH /settings/instance     (admin)       { instanceName?, registrationOpen?, federatedRegistrationOpen?,
+GET   /settings/instance     (admin)       → { instanceName, registrationOpen, federatedRegistrationOpen, spaceCreationOpen, ... }
+PATCH /settings/instance     (admin)       { instanceName?, registrationOpen?, federatedRegistrationOpen?, spaceCreationOpen?,
                                              gifApiKey?, maxUploadSizeMb?,
                                              federationRelayEnabled?, federationRelayTtlDays? } → { settings }
 ```
-`registrationOpen` and `federatedRegistrationOpen` are **independent** toggles. PATCH validates `federatedRegistrationOpen` is `boolean` if provided; rejects 400 otherwise. `registrationOpen` is stored as a nullable column (null = fall back to `config.registrationOpen` env default); `federatedRegistrationOpen` is NOT NULL with default 1.
+`registrationOpen`, `federatedRegistrationOpen`, and `spaceCreationOpen` are **independent** toggles. PATCH validates `federatedRegistrationOpen` and `spaceCreationOpen` are `boolean` if provided; rejects 400 otherwise. `registrationOpen` is stored as a nullable column (null = fall back to `config.registrationOpen` env default); `federatedRegistrationOpen` and `spaceCreationOpen` are NOT NULL with default 1. When `spaceCreationOpen` changes, the server broadcasts `{ type: 'instance_settings_updated', spaceCreationOpen }` to all connected WebSocket clients.
 
 Legacy discovery/directory settings/status/count PATCH keys are ignored like
 unknown fields on both settings routes. Responses omit them and their stored

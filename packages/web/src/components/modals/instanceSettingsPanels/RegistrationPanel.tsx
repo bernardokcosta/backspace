@@ -14,6 +14,7 @@ import { Modal } from '../../ui/Modal';
 interface RegistrationDraft {
   registrationOpen: boolean;
   federatedRegistrationOpen: boolean;
+  spaceCreationOpen: boolean;
 }
 
 function formatExpiry(invite: InviteLinkSummary): string {
@@ -1565,6 +1566,7 @@ export function RegistrationPanel() {
       setDraft({
         registrationOpen: instanceSettings.registrationOpen,
         federatedRegistrationOpen: instanceSettings.federatedRegistrationOpen,
+        spaceCreationOpen: instanceSettings.spaceCreationOpen,
       });
       setSaveError('');
     }
@@ -1590,7 +1592,8 @@ export function RegistrationPanel() {
 
   const hasChanges = !!instanceSettings && (
     draft.registrationOpen !== instanceSettings.registrationOpen ||
-    draft.federatedRegistrationOpen !== instanceSettings.federatedRegistrationOpen
+    draft.federatedRegistrationOpen !== instanceSettings.federatedRegistrationOpen ||
+    draft.spaceCreationOpen !== instanceSettings.spaceCreationOpen
   );
 
   const handleSave = async () => {
@@ -1600,6 +1603,7 @@ export function RegistrationPanel() {
       await updateInstanceSettings({
         registrationOpen: draft.registrationOpen,
         federatedRegistrationOpen: draft.federatedRegistrationOpen,
+        spaceCreationOpen: draft.spaceCreationOpen,
       });
       addToast(t('admin:registration.saved'), 'success', 2000);
     } catch (err) {
@@ -1616,6 +1620,7 @@ export function RegistrationPanel() {
       setDraft({
         registrationOpen: instanceSettings.registrationOpen,
         federatedRegistrationOpen: instanceSettings.federatedRegistrationOpen,
+        spaceCreationOpen: instanceSettings.spaceCreationOpen,
       });
     }
     setSaveError('');
@@ -1662,6 +1667,25 @@ export function RegistrationPanel() {
             <Toggle
               enabled={draft.federatedRegistrationOpen}
               onChange={(v) => setDraft({ ...draft, federatedRegistrationOpen: v })}
+            />
+          </label>
+        </div>
+      </div>
+
+      {/* Space creation */}
+      <div>
+        <div className="text-[11px] font-semibold text-txt-tertiary uppercase tracking-wider mb-1.5">{t('admin:registration.spaceCreation.label')}</div>
+        <div className="rounded-lg bg-white/[0.02] p-3.5">
+          <label className="flex items-center justify-between cursor-pointer gap-4">
+            <div className="flex-1">
+              <div className="text-sm font-medium text-txt-primary">{t('admin:registration.spaceCreation.toggleLabel')}</div>
+              <div className="text-xs text-txt-tertiary mt-0.5">
+                {t('admin:registration.spaceCreation.toggleDescription')}
+              </div>
+            </div>
+            <Toggle
+              enabled={draft.spaceCreationOpen}
+              onChange={(v) => setDraft({ ...draft, spaceCreationOpen: v })}
             />
           </label>
         </div>

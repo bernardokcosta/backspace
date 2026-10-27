@@ -13,7 +13,10 @@ vi.mock('../../audio/AudioManager', () => ({
 
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { HttpError } from '../../api/client';
+import { HttpError, api } from '../../api/client';
+import { __resetHomeInstanceInfoForTests } from '../../hooks/useHomeInstanceInfo';
+import { useAuthStore } from '../../stores/authStore';
+import { useSettingsStore } from '../../stores/settingsStore';
 import { useChatStore } from '../../stores/chatStore';
 import { useContextMenuStore, type ContextMenuAction } from '../../stores/contextMenuStore';
 import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
@@ -62,6 +65,9 @@ function lastToast(): { message: string; type: string } | undefined {
 }
 
 beforeEach(() => {
+  __resetHomeInstanceInfoForTests();
+  useAuthStore.setState({ user: { id: 'u1', username: 'alice', displayName: null, avatar: null, avatarColor: null, bio: null, pronouns: null, customStatus: null, banner: null, isAdmin: false, status: 'online', createdAt: 0 } });
+  useSettingsStore.setState({ isAdmin: false });
   useChatStore.setState({ currentChannelId: null });
   useSpaceStore.setState({ spaces: [SPACE], currentSpaceId: null, channels: [], dmChannels: [], folders: [], spaceLayout: [{ t: 's', id: SPACE.id }] });
   useUIStore.setState({ showDms: true, isMobile: false, toasts: [] });
@@ -138,5 +144,30 @@ describe('SpaceSidebar space menu: Notification settings', () => {
     expect(strip).not.toBeNull();
     expect(strip).not.toContainElement(heading);
     expect(heading.closest('.fixed')?.parentElement).toBe(document.body);
+  });
+
+  it('hides Create a Space for non-admins when spaceCreationOpen is false, keeping Join a Space, and keeps it for admins', async () => {
+    vi.spyOn(api.instance, 'info').mockResolvedValue({
+      name: 'Backspace',
+      version: '1.0.0',
+      minimumDesktopVersion: null,
+      registrationOpen: true,
+      federatedRegistrationOpen: true,
+      spaceCreationOpen: false,
+      instanceId: 'id-1',
+      sourceCodeUrl: 'https://example.com',
+      commit: null,
+      maxStickerSizeMb: 2,
+    });
+    const { unmount } = renderSidebar();
+    await waitFor(() => expect(screen.queryByTitle('Add a Space')).toBeNull());
+    expect(screen.getByTitle('Join a Space')).toBeInTheDocument();
+    unmount();
+
+    useAuthStore.setState({ user: { id: 'u1', username: 'admin', displayName: null, avatar: null, avatarColor: null, bio: null, pronouns: null, customStatus: null, banner: null, isAdmin: true, status: 'online', createdAt: 0 } });
+    useSettingsStore.setState({ isAdmin: true });
+    renderSidebar();
+    expect(screen.getByTitle('Add a Space')).toBeInTheDocument();
+    expect(screen.getByTitle('Join a Space')).toBeInTheDocument();
   });
 });

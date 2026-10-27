@@ -14,12 +14,15 @@ let sqlite: Database.Database;
 let testDb: ReturnType<typeof drizzle<typeof schema>>;
 let app: FastifyInstance;
 vi.mock('../db/index.js', () => ({ getDb: () => testDb, getRawDb: () => sqlite, schema }));
+const sendToAll = vi.fn();
+vi.mock('../ws/handler.js', () => ({ connectionManager: { sendToAll } }));
 vi.mock('../utils/auth.js', () => ({
   authenticate: async (req: { userId?: string }) => { req.userId = 'admin-1'; },
   requireAdmin: async () => {},
 }));
 
 beforeEach(async () => {
+  sendToAll.mockReset();
   sqlite = new Database(':memory:'); sqlite.pragma('foreign_keys = ON');
   const dir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../drizzle');
   for (const file of fs.readdirSync(dir).filter(f => f.endsWith('.sql')).sort()) {
@@ -56,6 +59,30 @@ describe('retained federated registration settings', () => {
   });
 });
 
+describe('spaceCreationOpen settings and broadcast', () => {
+  it('defaults to true and reads the stored false value', async () => {
+    expect((await app.inject('/api/settings/instance')).json().spaceCreationOpen).toBe(true);
+    setSettings({ spaceCreationOpen: 0 });
+    expect((await app.inject('/api/settings/instance')).json().spaceCreationOpen).toBe(false);
+  });
+  it.each([false, true])('persists %s through PATCH and broadcasts instance_settings_updated', async value => {
+    setSettings({ spaceCreationOpen: value ? 0 : 1 });
+    const res = await app.inject({ method: 'PATCH', url: '/api/settings/instance', payload: { spaceCreationOpen: value } });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().spaceCreationOpen).toBe(value);
+    expect(readSettings()?.spaceCreationOpen).toBe(value ? 1 : 0);
+    expect(sendToAll).toHaveBeenCalledWith({ type: 'instance_settings_updated', spaceCreationOpen: value });
+  });
+  it('keeps a stored false when a partial PATCH omits it without broadcasting', async () => {
+    setSettings({ spaceCreationOpen: 0 });
+    const res = await app.inject({ method: 'PATCH', url: '/api/settings/instance', payload: { instanceName: 'NewName' } });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toMatchObject({ instanceName: 'NewName', spaceCreationOpen: false });
+    expect(readSettings()?.spaceCreationOpen).toBe(0);
+    expect(sendToAll).not.toHaveBeenCalled();
+  });
+});
+
 describe('retained settings error contracts', () => {
   it.each([
     ['streaming', { maxBitrateKbps: 10 }, 'streaming_max_bitrate_out_of_range', { min: 500, max: 1000000 }],
@@ -63,6 +90,7 @@ describe('retained settings error contracts', () => {
     ['streaming', { bitrateMatrixOverrides: { bogus: 100 } }, 'streaming_bitrate_matrix_key_invalid', { key: 'bogus' }],
     ['instance', { instanceName: 'x'.repeat(33) }, 'instance_name_length', { min: 1, max: 32 }],
     ['instance', { federatedRegistrationOpen: 'yes' }, 'field_not_boolean', { field: 'federatedRegistrationOpen' }],
+    ['instance', { spaceCreationOpen: 'no' }, 'field_not_boolean', { field: 'spaceCreationOpen' }],
     ['instance', { federationRelayTtlDays: 0 }, 'relay_ttl_out_of_range', { min: 1, max: 365 }],
   ] as const)('rejects %s input with %s', async (route, payload, code, details) => {
     const before = readSettings();
@@ -70,7 +98,7 @@ describe('retained settings error contracts', () => {
     expect(res.statusCode).toBe(400); expect(res.json().code).toBe(code);
     if (details) expect(res.json().details).toEqual(details);
     if (code === 'streaming_max_bitrate_out_of_range') expect(res.json().error).toBe('maxBitrateKbps must be between 500 and 1000000');
-    if (code === 'field_not_boolean') expect(res.json().error).toContain('federatedRegistrationOpen');
+    if (code === 'field_not_boolean' && details && 'field' in details) expect(res.json().error).toContain(String(details.field));
     expect(readSettings()).toEqual(before);
   });
   it('names offending resolutions and retains the allowed native value', async () => {

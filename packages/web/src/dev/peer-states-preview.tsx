@@ -85,6 +85,7 @@ const ADMIN_SETTINGS: InstanceAdminSettings = {
   instanceName: 'Workbench',
   registrationOpen: true,
   federatedRegistrationOpen: true,
+  spaceCreationOpen: true,
   gifEnabled: false,
   maxUploadSizeMb: 100,
   maxStickerSizeMb: 5,

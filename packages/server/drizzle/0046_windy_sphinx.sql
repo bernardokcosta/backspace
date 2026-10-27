@@ -1,0 +1,1 @@
+ALTER TABLE `instance_settings` ADD `space_creation_open` integer DEFAULT 1 NOT NULL;

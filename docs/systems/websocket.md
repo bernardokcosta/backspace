@@ -115,6 +115,7 @@ All four also need the actor to outrank the target (permissions.md, "Role hierar
 | `ready` | (see Ready Payload below) | user |
 | `pong` | — | user |
 | `error` | message, code?, details?, dmChannelId? | user; `details` fills the code's placeholders, as in an HTTP error body (`content_too_long` carries `max`); a refused `dm_call_start` or `dm_call_accept` goes to the sending socket only and names its `dmChannelId`; a refused `dm_message_create`, `dm_message_edit`, `dm_message_delete` or `channel_poke` goes to the sending socket only |
+| `instance_settings_updated` | spaceCreationOpen: boolean | all connected users on this instance (broadcast when an admin changes `spaceCreationOpen` via `PATCH /api/settings/instance`) |
 
 ### Messages
 | type | fields | scope |

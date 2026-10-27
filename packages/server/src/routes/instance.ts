@@ -26,6 +26,7 @@ export async function instanceRoutes(app: FastifyInstance): Promise<void> {
       minimumDesktopVersion: config.minimumDesktopVersion,
       registrationOpen,
       federatedRegistrationOpen: settings?.federatedRegistrationOpen === 1,
+      spaceCreationOpen: settings?.spaceCreationOpen !== 0,
       instanceId: getInstanceId(),
       // AGPL-3.0 § 13: advertise the source of the running version to every
       // network user (and federated peer) — public/unauthenticated by design.

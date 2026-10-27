@@ -62,6 +62,7 @@ Settings are split into two API surfaces:
 | instanceName | string | instanceName | 1-32 chars, trimmed | Default: `'Backspace'` |
 | registrationOpen | boolean | registrationOpen | boolean | Local-account registration. DB null = use env `REGISTRATION_OPEN` (default true) |
 | federatedRegistrationOpen | boolean | federatedRegistrationOpen | boolean | Federated-account creation against this instance. NOT NULL DEFAULT 1. Controls whether remote users can create `username@thisInstance` accounts via Connections (see auth.md + client-federation.md) |
+| spaceCreationOpen | boolean | spaceCreationOpen | boolean | Whether non-admin users can create new spaces on this instance. NOT NULL DEFAULT 1. Instance admins (`isAdmin = 1`) are exempt |
 | gifApiKey | string? | gifApiKey | string or empty to clear | Returned masked as `****{last4}` for security |
 | gifEnabled | boolean? | (derived) | -- | Read-only; true when gifApiKey is non-null |
 | maxUploadSizeMb | number | maxUploadSizeBytes | positive integer (>=1 MB), upper bound is JS safe-integer ceiling (~8 EB) — effectively unlimited | Operator-set; no application cap. Stored as bytes; converted on read/write. DB null = use env `MAX_UPLOAD_SIZE` (default 100MB) |
@@ -594,6 +595,7 @@ Owns the two independent registration gates and the admin invite-link CRUD surfa
 
 - **Public registration** (`registrationOpen`) — "Allow anyone to create a local account from `/register`. When off, only invite links work for new local accounts."
 - **Federated registration** (`federatedRegistrationOpen`) — "Allow users from other instances to create a federated account here via their Connections settings. Existing federated accounts log in normally."
+- **Space creation** (`spaceCreationOpen`) — "Allow non-admin users to create new spaces on this instance. When off, only instance administrators can create spaces."
 
 **Invite Links** (below the toggles) — segmented `[Active] [Archived]` tabs (local component state, default `active`). Tab switch refetches via `GET /api/admin/invites?status=...`. A `tabRef` discards stale in-flight fetches when the admin switches tabs mid-load. `[+ Create link]` button opens the Create modal.
 

@@ -823,7 +823,8 @@ export type ServerEvent =
   // The space's roles or a member's roles changed: what the receiver may see
   // or do there, and how its roles and members look, may be different now.
   // The client refetches that space's detail (docs/systems/websocket.md).
-  | { type: 'space_access_changed'; spaceId: string };
+  | { type: 'space_access_changed'; spaceId: string }
+  | { type: 'instance_settings_updated'; spaceCreationOpen: boolean };
 
 // ─── API Request/Response Types ─────────────────────────────────────────────
 
@@ -1123,6 +1124,7 @@ export interface InstanceAdminSettings {
   instanceName: string;
   registrationOpen: boolean;
   federatedRegistrationOpen: boolean;
+  spaceCreationOpen: boolean;
   gifApiKey?: string;
   gifEnabled?: boolean;
   maxUploadSizeMb: number;
@@ -1154,6 +1156,7 @@ export interface InstanceInfoResponse {
   minimumDesktopVersion?: string | null;
   registrationOpen: boolean;
   federatedRegistrationOpen: boolean;
+  spaceCreationOpen: boolean;
   // Persistent per-instance epoch (incarnation UUID). Minted by ensureDefaults on
   // first boot and stable across restarts; changes only on a wipe/re-provision.
   // Peers use it to detect that a remote has been re-provisioned (self-healing).

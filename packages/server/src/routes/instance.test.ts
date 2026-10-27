@@ -40,6 +40,11 @@ describe('GET /api/instance/info', () => {
     testDb.update(schema.instanceSettings).set({ federatedRegistrationOpen: 0 }).where(eq(schema.instanceSettings.id, 1)).run();
     expect((await app.inject('/api/instance/info')).json().federatedRegistrationOpen).toBe(false);
   });
+  it('reports spaceCreationOpen default true and stored false override', async () => {
+    expect((await app.inject('/api/instance/info')).json().spaceCreationOpen).toBe(true);
+    testDb.update(schema.instanceSettings).set({ spaceCreationOpen: 0 }).where(eq(schema.instanceSettings.id, 1)).run();
+    expect((await app.inject('/api/instance/info')).json().spaceCreationOpen).toBe(false);
+  });
   it('retains the real version, source offer, identity and upload limits', async () => {
     const res = await app.inject('/api/instance/info'); expect(res.statusCode).toBe(200);
     const body = res.json();

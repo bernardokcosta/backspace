@@ -290,6 +290,7 @@ async function main(): Promise<void> {
       version: '1.7.0',
       registrationOpen: false,
       federatedRegistrationOpen: true,
+      spaceCreationOpen: true,
       instanceId: 'instance-1',
       sourceCodeUrl: 'https://github.com/bernardokcosta/backspace',
       commit: null,

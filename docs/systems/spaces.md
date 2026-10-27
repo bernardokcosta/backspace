@@ -31,7 +31,7 @@ Each space hosts its own shared catalog and settings.
 
 **Endpoint:** `POST /api/spaces` (`spaces.ts:spaceRoutes`)
 **Auth:** Required
-**Permission:** Any authenticated user
+**Permission:** Any authenticated user when `instance_settings.spaceCreationOpen = 1`; restricted to instance admins (`users.isAdmin = 1`) when `spaceCreationOpen = 0` (returns `403 space_creation_disabled` for non-admin users). Desktop (`SpaceSidebar`) and mobile (`MobileSpacesScreen`) hide the create-space affordances for non-admins when `spaceCreationOpen` is `false`.
 
 **Request body (`CreateSpaceRequest`):**
 

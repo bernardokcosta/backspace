@@ -172,4 +172,18 @@ describe('space routes send stable error codes', () => {
     expect(res.statusCode).toBe(400);
     expect(res.json<ErrorBody>().code).toBe('cannot_target_owner');
   });
+
+  it('space_creation_disabled when spaceCreationOpen is 0 for a non-admin user, but allows instance admin', async () => {
+    testDb.insert(schema.instanceSettings).values({ id: 1, spaceCreationOpen: 0, updatedAt: now }).run();
+    const blocked = await app.inject({ method: 'POST', url: '/api/spaces', payload: { name: 'Blocked Space' } });
+    expect(blocked.statusCode).toBe(403);
+    const body = blocked.json<ErrorBody>();
+    expect(body.code).toBe('space_creation_disabled');
+    expect(body.error).toBe('Creating new spaces is disabled on this instance');
+
+    testDb.insert(schema.users).values({ id: 'inst-admin', username: 'inst-admin', passwordHash: 'x', isAdmin: 1, createdAt: now }).run();
+    currentUserId = 'inst-admin';
+    const allowed = await app.inject({ method: 'POST', url: '/api/spaces', payload: { name: 'Admin Space' } });
+    expect(allowed.statusCode).toBe(201);
+  });
 });

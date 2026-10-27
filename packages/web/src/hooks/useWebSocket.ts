@@ -15,6 +15,7 @@ import { useChatStore } from '../stores/chatStore';
 import { useVoiceStore } from '../stores/voiceStore';
 import { useSocialStore } from '../stores/socialStore';
 import { useSettingsStore } from '../stores/settingsStore';
+import { invalidateHomeInstanceInfo } from './useHomeInstanceInfo';
 import { useDeveloperModeStore } from '../stores/developerModeStore';
 import type { ServerEvent, ClientEvent, ActiveCallInfo, Activity, FederatedIdentity, User } from '@backspace/shared';
 import { resolveAssetUrl, normalizeUserAssets, normalizeMessageAssets } from '../utils/assetUrls';
@@ -760,6 +761,7 @@ function handleEvent(origin: string, event: ServerEvent, readyAlreadyDelivered =
           break;
         }
         setUser(event.user);
+        useSettingsStore.getState().setIsAdmin(event.user.isAdmin ?? false);
         // Another device switched Developer Mode: the account has one value.
         if (event.user.developerMode !== undefined) {
           useDeveloperModeStore.getState().setEnabled(event.user.developerMode);
@@ -1437,6 +1439,25 @@ function handleEvent(origin: string, event: ServerEvent, readyAlreadyDelivered =
 
     case 'pong':
       break;
+
+    case 'instance_settings_updated': {
+      if (!isHome) break;
+      invalidateHomeInstanceInfo();
+      const settingsState = useSettingsStore.getState();
+      if (settingsState.instanceSettings) {
+        useSettingsStore.setState({
+          instanceSettings: {
+            ...settingsState.instanceSettings,
+            spaceCreationOpen: event.spaceCreationOpen,
+          },
+        });
+      }
+      const isAdmin = Boolean(useAuthStore.getState().user?.isAdmin || settingsState.isAdmin);
+      if (!event.spaceCreationOpen && !isAdmin && useUIStore.getState().activeModal === 'createSpace') {
+        useUIStore.getState().closeModal();
+      }
+      break;
+    }
 
     case 'space_access_changed':
       void refreshSpaceAccess(origin, event.spaceId);

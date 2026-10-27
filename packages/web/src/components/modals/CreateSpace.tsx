@@ -1,9 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '../ui/Modal';
 import { ImageCropModal } from '../ui/ImageCropModal';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useUIStore } from '../../stores/uiStore';
+import { useAuthStore } from '../../stores/authStore';
+import { useSettingsStore } from '../../stores/settingsStore';
+import { useHomeInstanceInfo } from '../../hooks/useHomeInstanceInfo';
 import { useTransferStore } from '../../stores/transferStore';
 import { useNavigate } from 'react-router-dom';
 import { waitForTransferAttachment } from '../../utils/waitForTransfer';
@@ -37,6 +40,11 @@ export function CreateSpaceModal() {
   const navigate = useNavigate();
 
   const isOpen = activeModal === 'createSpace';
+  const homeInfo = useHomeInstanceInfo();
+  const authIsAdmin = useAuthStore((s) => s.user?.isAdmin);
+  const settingsIsAdmin = useSettingsStore((s) => s.isAdmin);
+  const isAdmin = Boolean(authIsAdmin || settingsIsAdmin);
+  const canCreateSpace = Boolean(isAdmin || (homeInfo?.spaceCreationOpen ?? true));
 
   const handleIconSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -92,7 +100,18 @@ export function CreateSpaceModal() {
     setError('');
   };
 
+  useEffect(() => {
+    if (isOpen && !canCreateSpace) {
+      closeModal();
+    }
+  }, [isOpen, canCreateSpace, closeModal]);
+
   const handleSubmit = async (e: React.FormEvent) => {
+    if (!canCreateSpace) {
+      e.preventDefault();
+      handleClose();
+      return;
+    }
     e.preventDefault();
     setError('');
 

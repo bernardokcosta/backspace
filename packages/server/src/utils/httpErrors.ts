@@ -195,6 +195,7 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   sticker_peer_blocked: 'Sticker synchronization is blocked for this peer',
   sticker_pack_limit_exceeded: 'Sticker pack has reached the maximum number of stickers',
   // spaces
+  space_creation_disabled: 'Creating new spaces is disabled on this instance',
   space_owner_title_invalid: 'Owner titles can be 1 to {{max}} characters on one line, with at least one visible character and no control characters.',
   member_nickname_invalid: 'Nicknames can be at most {{max}} characters on one line, with at least one visible character and no control characters.',
   space_name_required: 'Space name is required',

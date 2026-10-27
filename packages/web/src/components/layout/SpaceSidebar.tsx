@@ -11,6 +11,9 @@ import { spaceInviteUrl } from '../../utils/inviteParser';
 import { useChatStore } from '../../stores/chatStore';
 import { useUIStore } from '../../stores/uiStore';
 import { useInstanceStore } from '../../stores/instanceStore';
+import { useAuthStore } from '../../stores/authStore';
+import { useSettingsStore } from '../../stores/settingsStore';
+import { useHomeInstanceInfo } from '../../hooks/useHomeInstanceInfo';
 import { useContextMenuStore, type ContextMenuItem } from '../../stores/contextMenuStore';
 import { Tooltip } from '../ui/Tooltip';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
@@ -613,6 +616,11 @@ export function SpaceSidebar() {
   const setCurrentChannel = useChatStore((s) => s.setCurrentChannel);
   const unreadChannels = useChatStore((s) => s.unreadChannels);
   const instances = useInstanceStore((s) => s.instances);
+  const homeInfo = useHomeInstanceInfo();
+  const authIsAdmin = useAuthStore((s) => s.user?.isAdmin);
+  const settingsIsAdmin = useSettingsStore((s) => s.isAdmin);
+  const isAdmin = Boolean(authIsAdmin || settingsIsAdmin);
+  const canCreateSpace = Boolean(isAdmin || (homeInfo?.spaceCreationOpen ?? true));
   const navigate = useNavigate();
 
   // Flyout state
@@ -1205,14 +1213,16 @@ export function SpaceSidebar() {
 
       <div className="w-8 h-[2px] bg-white/[0.06] rounded-full mb-1.5 shrink-0" />
 
-      <SidebarItem
-        id="add-space"
-        name={t('spaces:sidebar.addSpace')}
-        active={false}
-        onClick={() => openModal('createSpace')}
-        type="action"
-        actionType="add"
-      />
+      {canCreateSpace && (
+        <SidebarItem
+          id="add-space"
+          name={t('spaces:sidebar.addSpace')}
+          active={false}
+          onClick={() => openModal('createSpace')}
+          type="action"
+          actionType="add"
+        />
+      )}
 
       <SidebarItem
         id="join-space"

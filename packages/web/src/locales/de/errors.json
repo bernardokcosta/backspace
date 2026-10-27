@@ -266,5 +266,6 @@
   "sticker_pack_invalid_state": "Dieses Stickerpaket befindet sich nicht in einem gültigen Zustand für diese Aktion.",
   "sticker_peer_blocked": "Die Stickersynchronisierung ist für diese Instanz blockiert.",
   "sticker_pack_limit_exceeded": "Das Stickerpaket hat die maximale Stickeranzahl erreicht.",
-  "sticker_limit_out_of_range": "Das Sticker-Größenlimit muss zwischen {{min}} und {{max}} MB liegen."
+  "sticker_limit_out_of_range": "Das Sticker-Größenlimit muss zwischen {{min}} und {{max}} MB liegen.",
+  "space_creation_disabled": "Das Erstellen neuer Spaces ist auf dieser Instanz deaktiviert."
 }

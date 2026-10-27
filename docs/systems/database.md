@@ -502,6 +502,7 @@ The user INSERT, `usedCount` increment, and redemption row INSERT all run in a s
 | maxFramerate | integer NOT NULL | 60 | |
 | registrationOpen | integer | | Local-anonymous-signup gate. null = use env (`config.registrationOpen`); 0/1 = explicit admin override. |
 | federatedRegistrationOpen | integer NOT NULL | 1 | Independent gate for federated identity replication via Connections (`POST /api/auth/register` with `homeInstance` set). Existing federated accounts always log in regardless of this value. |
+| spaceCreationOpen | integer NOT NULL | 1 | Whether non-admin users can create new spaces on this instance (`POST /api/spaces`). Instance admins (`users.is_admin = 1`) are exempt. Migration `0046_windy_sphinx`. |
 | gifApiKey | text | | Klipy API key |
 | bitrateMatrixOverrides | text | | JSON sparse overrides |
 | allowCustomBitrate | integer NOT NULL | 1 | |

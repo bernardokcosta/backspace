@@ -229,6 +229,22 @@ export async function spaceRoutes(app: FastifyInstance): Promise<void> {
   app.post<{ Body: CreateSpaceRequest }>('/api/spaces', {
     preHandler: authenticate,
   }, async (request, reply) => {
+    const db = getDb();
+    const settingsRow = db.select({ spaceCreationOpen: schema.instanceSettings.spaceCreationOpen })
+      .from(schema.instanceSettings)
+      .where(eq(schema.instanceSettings.id, 1))
+      .get();
+
+    if (settingsRow && settingsRow.spaceCreationOpen === 0) {
+      const caller = db.select({ isAdmin: schema.users.isAdmin })
+        .from(schema.users)
+        .where(eq(schema.users.id, request.userId))
+        .get();
+      if (!caller || caller.isAdmin !== 1) {
+        return sendError(reply, 403, 'space_creation_disabled');
+      }
+    }
+
     const { name, icon, banner, avatarColor, visibility, description } = request.body;
 
     if (!name || typeof name !== 'string') {
@@ -252,7 +268,6 @@ export async function spaceRoutes(app: FastifyInstance): Promise<void> {
       ? avatarColor
       : AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
 
-    const db = getDb();
     const spaceId = generateSnowflake();
     const textCategoryId = generateSnowflake();
     const voiceCategoryId = generateSnowflake();
