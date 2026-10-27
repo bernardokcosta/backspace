@@ -478,6 +478,11 @@ class ConnectionManager implements ReplicaSessionHost {
       this.activityObservedAt.set(userId, Date.now());
       if (ws) {
         this.activityWs.set(userId, ws);
+      } else {
+        // Federation relay, bot stored status, or any non-socket publisher now
+        // owns the activity set: a later disconnect of a stale local socket
+        // must not wipe the home's projection (P1 review finding).
+        this.activityWs.delete(userId);
       }
     }
   }

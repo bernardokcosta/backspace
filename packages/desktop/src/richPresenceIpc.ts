@@ -293,14 +293,28 @@ let startPromise: Promise<void> | null = null;
 /**
  * Directories clients scan for the sockets: XDG_RUNTIME_DIR first (the
  * documented location), then the TMPDIR/TMP/TEMP//tmp chain.
+ * Windows uses named pipes (\\.\pipe\discord-ipc-N), not filesystem sockets.
  */
 export function candidateSocketDirs(): string[] {
+  if (process.platform === 'win32') return [];
   const dirs: string[] = [];
   const xdg = process.env['XDG_RUNTIME_DIR'];
   if (xdg && xdg.trim()) dirs.push(xdg);
   const tmp = process.env['TMPDIR'] || process.env['TMP'] || process.env['TEMP'] || '/tmp';
   if (!dirs.includes(tmp)) dirs.push(tmp);
   return dirs;
+}
+
+/** Full socket paths to bind: named pipes on Windows, dir/slot files elsewhere. */
+export function candidateSocketPaths(): string[] {
+  if (process.platform === 'win32') {
+    return SLOTS.map((slot) => `\\\\.\\pipe\\discord-ipc-${slot}`);
+  }
+  const paths: string[] = [];
+  for (const dir of candidateSocketDirs()) {
+    for (const slot of SLOTS) paths.push(path.join(dir, `discord-ipc-${slot}`));
+  }
+  return paths;
 }
 
 type SlotStatus = 'free' | 'live' | 'stale' | 'occupied';
@@ -326,6 +340,12 @@ function probeSocketPath(socketPath: string, timeoutMs = 400): Promise<'live' | 
 }
 
 async function slotStatus(socketPath: string): Promise<SlotStatus> {
+  // Named pipes have no filesystem entry to lstat: probe only.
+  if (process.platform === 'win32' || socketPath.startsWith('\\\\.\\pipe\\')) {
+    const probe = await probeSocketPath(socketPath);
+    if (probe === 'live') return 'live';
+    return 'free';
+  }
   let stat: fs.Stats;
   try {
     stat = fs.lstatSync(socketPath);
@@ -475,12 +495,24 @@ function feedConnection(conn: Connection, chunk: Buffer): void {
         }
         break;
       }
-      // Not raw JSON, not a decodable frame: if there are enough bytes for a
-      // header it is malformed (bad opcode/length); otherwise wait for more.
+      // tryDecodeFrame returns null for both incomplete and malformed. A valid
+      // header with a short body is fragmentation (stream transports split
+      // header and body across data events) — wait for more bytes instead of
+      // killing the connection (P2 review finding).
       if (buf.length >= 8) {
-        socket.write(encodeFrame(OP_CLOSE, { code: 4000, message: 'malformed payload' }));
-        socket.end();
-        return;
+        const op = buf.readInt32LE(0);
+        const len = buf.readInt32LE(4);
+        const headerValid = op >= OP_HANDSHAKE && op <= OP_PONG && len >= 0 && len <= MAX_FRAME_BYTES;
+        if (headerValid && buf.length < 8 + len) break;
+        if (headerValid && buf.length > MAX_BUFFER_BYTES) {
+          socket.end();
+          return;
+        }
+        if (!headerValid) {
+          socket.write(encodeFrame(OP_CLOSE, { code: 4000, message: 'malformed payload' }));
+          socket.end();
+          return;
+        }
       }
       break;
     }
@@ -565,10 +597,10 @@ export async function startRichPresenceIpcServer(opts: RichPresenceIpcServerOpti
   startPromise = (async () => {
     const bound: string[] = [];
     const spawned: net.Server[] = [];
+    const isWindowsPipe = process.platform === 'win32';
 
-    for (const dir of candidateSocketDirs()) {
-      for (const slot of SLOTS) {
-        const socketPath = path.join(dir, `discord-ipc-${slot}`);
+    for (const socketPath of candidateSocketPaths()) {
+      if (!isWindowsPipe) {
         const status = await slotStatus(socketPath);
         if (status === 'live' || status === 'occupied') continue; // Someone else's — leave it alone
         if (status === 'stale') {
@@ -578,24 +610,29 @@ export async function startRichPresenceIpcServer(opts: RichPresenceIpcServerOpti
             continue;
           }
         }
+      } else {
+        // Pipes: bind only when no live server answers; no file to reclaim.
+        if ((await slotStatus(socketPath)) === 'live') continue;
+      }
 
-        // One net.Server per path — a server can only listen once
-        const socketServer = net.createServer(handleConnection);
-        const listen = new Promise<boolean>((resolve) => {
-          socketServer.once('error', () => resolve(false));
-          socketServer.listen(socketPath, () => resolve(true));
-        });
-        if (await listen) {
+      // One net.Server per path — a server can only listen once
+      const socketServer = net.createServer(handleConnection);
+      const listen = new Promise<boolean>((resolve) => {
+        socketServer.once('error', () => resolve(false));
+        socketServer.listen(socketPath, () => resolve(true));
+      });
+      if (await listen) {
+        if (!isWindowsPipe) {
           try {
             fs.chmodSync(socketPath, 0o600);
           } catch {
             // Permissions are best-effort hardening
           }
-          spawned.push(socketServer);
-          bound.push(socketPath);
-        } else {
-          socketServer.close();
         }
+        spawned.push(socketServer);
+        bound.push(socketPath);
+      } else {
+        socketServer.close();
       }
     }
 

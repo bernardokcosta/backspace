@@ -109,10 +109,6 @@ export async function gameIconRoutes(app: FastifyInstance): Promise<void> {
   }, async (request, reply) => {
     const { image } = request.body;
     if (!uploadLimit.consume(request.userId)) return sendError(reply, 429, 'rate_limited');
-    // Refused before the decode; collectGameIcon checks again where the row is written.
-    if (iconCount(request.userId) >= MAX_GAME_ICONS_PER_USER) {
-      return sendError(reply, 409, 'game_icon_collection_full', { max: MAX_GAME_ICONS_PER_USER });
-    }
     if (!/^[A-Za-z0-9+/]*={0,2}$/.test(image)) return sendError(reply, 400, 'validation_failed');
     const bytes = Buffer.from(image, 'base64');
     if (bytes.toString('base64') !== image) return sendError(reply, 400, 'validation_failed');
@@ -123,6 +119,15 @@ export async function gameIconRoutes(app: FastifyInstance): Promise<void> {
       throw error;
     }
     const id = createHash('sha256').update(encoded).digest('hex');
+    // Quota applies only to new distinct icons: re-uploading bytes the account
+    // already claims renews that claim (collectGameIcon) even at the cap, so a
+    // full collection cannot block renewal and let in-use icons expire (P3).
+    const alreadyClaimed = getDb().select().from(schema.gameIcons).where(and(
+      eq(schema.gameIcons.userId, request.userId), eq(schema.gameIcons.iconId, id),
+    )).get();
+    if (!alreadyClaimed && iconCount(request.userId) >= MAX_GAME_ICONS_PER_USER) {
+      return sendError(reply, 409, 'game_icon_collection_full', { max: MAX_GAME_ICONS_PER_USER });
+    }
     // Row first, file second: an asset row always exists by the time its file does.
     const now = Date.now();
     getDb().insert(schema.gameIconAssets).values({ id, createdAt: now })

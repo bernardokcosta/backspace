@@ -86,7 +86,11 @@ export function ActivityGameSection() {
   }, [detectedGames, manualGames, hidden, order]);
 
   const trimmed = draft.trim();
-  const canAdd = trimmed !== '' && (!canBind || program !== '') && manualGames.length < 30;
+  // Binding to a running program is optional: Linux enumerates /proc, other
+  // desktop platforms return an empty list, and browsers see no processes.
+  // Text-only manual games always work; a selected program only enables
+  // auto-detection when that program runs (P2 review finding).
+  const canAdd = trimmed !== '' && manualGames.length < 30;
   const programOptions = programs;
   const detectedToRename = detectedGames.filter(
     (game) => !manualGames.some((manual) => renameKey(manual.name) === renameKey(game.name)),
@@ -257,7 +261,7 @@ export function ActivityGameSection() {
           onSubmit={(event) => {
             event.preventDefault();
             if (!canAdd) return;
-            addManualGame(trimmed, canBind ? program : null);
+            addManualGame(trimmed, program || null);
             setDraft('');
             setProgram('');
           }}
