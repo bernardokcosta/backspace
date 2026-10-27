@@ -79,8 +79,12 @@ if ! command -v docker &>/dev/null; then
     error "Docker is required. Install it and re-run this script."
     exit 1
   fi
-  info "Installing Docker via official script..."
-  curl -fsSL https://get.docker.com | sh
+  info "Installing Docker via official script (pinned commit + SHA-256 verified)..."
+  docker_install_tmp="$(mktemp)"
+  curl -fsSL https://raw.githubusercontent.com/docker/docker-install/ada7a567e59b3935bd601bb21e422da50e80e376/install.sh -o "$docker_install_tmp"
+  echo "2b102d809152ea157a59f171319f489d971273b2d26dd7e9a6d1d737ce89289d  $docker_install_tmp" | sha256sum -c - >/dev/null
+  LOAD_SCRIPT_COMMIT_SHA="ada7a567e59b3935bd601bb21e422da50e80e376" sh "$docker_install_tmp"
+  rm -f "$docker_install_tmp"
   sudo systemctl enable --now docker 2>/dev/null || true
   # Resolve the current user via `id -un`, not $USER: under `set -u`, $USER is
   # not guaranteed to be set (sudo, `su` without -l, cron, some `docker exec`
