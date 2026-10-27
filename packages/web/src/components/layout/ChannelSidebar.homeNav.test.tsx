@@ -11,40 +11,19 @@ vi.mock('../../audio/AudioManager', () => ({
   },
 }));
 
-import { fireEvent, render, screen } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { useChatStore } from '../../stores/chatStore';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useUIStore } from '../../stores/uiStore';
 import { ChannelSidebar } from './ChannelSidebar';
 
-const SELECTED = 'bg-interactive-selected';
-const LABELS = { friends: 'Friends' } as const;
-
-function LocationProbe() {
-  return <div data-testid="location">{useLocation().pathname}</div>;
-}
-
 function renderAt(pathname: string) {
   return render(
     <MemoryRouter initialEntries={[pathname]}>
       <ChannelSidebar />
-      <LocationProbe />
     </MemoryRouter>,
   );
-}
-
-/** The clickable row of a home item, found by its visible label. */
-function homeItem(label: string): HTMLElement {
-  const row = screen.getByText(label, { selector: 'span' }).parentElement;
-  if (!row) throw new Error(`no row for ${label}`);
-  return row;
-}
-
-function selectedItems(): string[] {
-  return Object.entries(LABELS)
-    .filter(([, label]) => homeItem(label).classList.contains(SELECTED))
-    .map(([key]) => key);
 }
 
 beforeEach(() => {
@@ -53,7 +32,7 @@ beforeEach(() => {
   useUIStore.setState({ showDms: true });
 });
 
-describe('ChannelSidebar home items', () => {
+describe('ChannelSidebar DM view', () => {
   it('has no Explore launcher for a retired bookmark', () => {
     renderAt('/explore');
     expect(screen.queryByText('Explore', { selector: 'span' })).toBeNull();
@@ -65,26 +44,14 @@ describe('ChannelSidebar home items', () => {
     expect(screen.queryByRole('img', { name: 'Backspace was updated' })).toBeNull();
   });
 
-  it('selects only Friends on the DM home', () => {
+  it('does not render a redundant Friends button above Direct Messages', () => {
     renderAt('/channels/@me');
-    expect(selectedItems()).toEqual(['friends']);
-  });
-
-  it('selects none of them while a DM is open', () => {
-    useChatStore.setState({ currentChannelId: 'dm-1' });
-    renderAt('/channels/@me/dm-1');
-    expect(selectedItems()).toEqual([]);
-  });
-
-  it('still navigates to Friends from Explore', () => {
-    renderAt('/explore');
-    fireEvent.click(homeItem(LABELS.friends));
-    expect(screen.getByTestId('location')).toHaveTextContent('/channels/@me');
+    expect(screen.queryByText('Friends', { selector: 'span' })).toBeNull();
+    expect(screen.getByText('Direct Messages', { selector: 'span' })).toBeInTheDocument();
   });
 
   it('no longer renders the Coming Soon placeholder', () => {
     renderAt('/channels/@me');
     expect(screen.queryByText('Coming Soon')).toBeNull();
   });
-
 });

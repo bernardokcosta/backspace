@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import type { Channel } from '@backspace/shared';
 import { useSpaceStore, getChannelOrigin, getMyUserIdForOrigin } from '../../stores/spaceStore';
 import { useChatStore } from '../../stores/chatStore';
@@ -27,7 +27,6 @@ import { useDragManager, type DropTarget, type LayoutItem } from '../../hooks/us
 import { useDelayedLoading } from '../../hooks/useDelayedLoading';
 import { useAudioDevices } from '../../hooks/useAudioDevices';
 import { useInstanceUpdateBadge } from '../../hooks/useInstanceUpdateBadge';
-import { activeHomeNavItem } from '../../utils/homeNav';
 import { DropdownItem } from '../modals/settingsPanels/_shared/SettingsPickerPrimitives';
 import type { UserSettingsTab } from '../modals/UserSettings';
 import { ChannelMutedIndicator } from '../notifications/ChannelMutedIndicator';
@@ -61,8 +60,6 @@ export function ChannelSidebar() {
   const isSpaceDeafened = !!(myOriginId && spaceId && spaceDeafenedUserIds.has(`${spaceId}:${myOriginId}`));
   const isPermissionMuted = !!(myOriginId && spaceId && permissionMutedUserIds.has(`${spaceId}:${myOriginId}`));
   const navigate = useNavigate();
-  const location = useLocation();
-  const activeHomeItem = activeHomeNavItem(location.pathname, currentChannelId);
 
   const [floatingPanelEl, setFloatingPanelEl] = useState<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
@@ -411,11 +408,6 @@ export function ChannelSidebar() {
     navigate(`/channels/${currentSpaceId || '@me'}/${channelId}`);
   };
 
-  const handleHomeClick = () => {
-    setCurrentChannel(null);
-    navigate('/channels/@me');
-  };
-
   const handleVoiceJoin = (channelId: string) => {
     // Don't re-join the same channel — prevents duplicate LiveKit connections.
     // A dropped session is the exception: the channel ID is kept so the user
@@ -465,26 +457,8 @@ export function ChannelSidebar() {
         <div className="h-12 px-[10px] flex items-center border-b border-border-hard z-10">
           <DmSearchBar />
         </div>
-        <div className="flex-1 overflow-y-auto pt-4 px-2 no-scrollbar" style={{ paddingBottom: floatingPanelHeight + 24 }}>
-          <div
-            onClick={handleHomeClick}
-            className={`flex items-center gap-3 px-2 h-[42px] rounded-[6px] cursor-pointer mb-[2px] transition-colors group ${
-              activeHomeItem === 'friends'
-                ? 'bg-interactive-selected text-white'
-                : 'text-txt-tertiary hover:bg-interactive-hover hover:text-txt-secondary'
-            }`}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className={`flex-shrink-0 ${activeHomeItem === 'friends' ? 'text-white' : 'opacity-70 group-hover:opacity-100'}`}>
-              <path d="M13 10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-2-4a2 2 0 1 1 4 0 2 2 0 0 1-4 0Z" />
-              <path d="M3 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-1c0-2.76-5.37-4-8-4s-8 1.24-8 4v1Z" />
-              <path d="M3.5 13.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" opacity=".5" />
-            </svg>
-            <span className="font-medium text-[16px]">{t('common:labels.friends')}</span>
-          </div>
-
-
-
-          <div className="mt-[18px] px-2 mb-1 flex items-center justify-between group">
+        <div className="flex-1 overflow-y-auto pt-3 px-2 no-scrollbar" style={{ paddingBottom: floatingPanelHeight + 24 }}>
+          <div className="px-2 mb-1 flex items-center justify-between group">
             <span className="text-[12px] font-bold text-txt-tertiary tracking-wider">{t('spaces:sidebar.directMessages')}</span>
             <button
               onClick={() => openModal('newDm')}
