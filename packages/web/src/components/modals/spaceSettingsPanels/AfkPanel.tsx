@@ -46,46 +46,54 @@ export function AfkPanel({ spaceId }: { spaceId: string }) {
   };
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold text-txt-primary">{t('spaces:settings.afk.title')}</h2>
-      <div className="text-sm text-txt-secondary">
-        <label htmlFor="afk-channel">{t('spaces:settings.afk.channelLabel')}</label>
-        <select
-          id="afk-channel"
-          disabled={saving}
-          value={channelId}
-          onChange={(e) => { setChannelId(e.target.value); setDirty(true); }}
-          className="input-standard w-full mt-2"
-        >
-          <option value="">{t('spaces:settings.afk.disabled')}</option>
-          {voiceChannels.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
+    <section className="space-y-3">
+      <div>
+        <h2 className="text-lg font-semibold text-txt-primary">{t('spaces:settings.afk.title')}</h2>
+        <p className="text-xs text-txt-tertiary mt-1">{t('spaces:settings.afk.hint')}</p>
       </div>
-      <div className="text-sm text-txt-secondary">
-        <label htmlFor="afk-timeout">{t('spaces:settings.afk.timeoutLabel')}</label>
-        <select
-          id="afk-timeout"
-          disabled={saving || channelId === ''}
-          value={timeout}
-          onChange={(e) => { setTimeout(Number(e.target.value)); setDirty(true); }}
-          className="input-standard w-full mt-2"
-        >
-          {AFK_TIMEOUT_OPTIONS.map((s) => (
-            <option key={s} value={s}>{Math.round(s / 60)} {t('spaces:settings.afk.minutes')}</option>
-          ))}
-        </select>
+      <div className="rounded-lg bg-white/[0.02] p-4 space-y-4">
+        <div>
+          <label htmlFor="afk-channel" className="block text-xs text-txt-secondary mb-1.5">
+            {t('spaces:settings.afk.channelLabel')}
+          </label>
+          <select
+            id="afk-channel"
+            disabled={saving}
+            value={channelId}
+            onChange={(e) => { setChannelId(e.target.value); setDirty(true); }}
+            className="input-standard w-full"
+          >
+            <option value="">{t('spaces:settings.afk.disabled')}</option>
+            {voiceChannels.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="afk-timeout" className="block text-xs text-txt-secondary mb-1.5">
+            {t('spaces:settings.afk.timeoutLabel')}
+          </label>
+          <select
+            id="afk-timeout"
+            disabled={saving || channelId === ''}
+            value={timeout}
+            onChange={(e) => { setTimeout(Number(e.target.value)); setDirty(true); }}
+            className="input-standard w-full"
+          >
+            {AFK_TIMEOUT_OPTIONS.map((s) => (
+              <option key={s} value={s}>{Math.round(s / 60)} {t('spaces:settings.afk.minutes')}</option>
+            ))}
+          </select>
+        </div>
       </div>
-      <p className="text-xs text-txt-tertiary">{t('spaces:settings.afk.hint')}</p>
       {error && <p role="alert" className="text-sm text-accent-rose">{error}</p>}
       {dirty && (
         <div className="flex gap-3">
-          <button disabled={saving} onClick={() => void save()} className="bg-accent-primary text-white px-4 py-2 rounded-lg disabled:opacity-40">
+          <button disabled={saving} onClick={() => void save()} className="bg-accent-primary hover:bg-accent-primary/80 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-40">
             {saving ? t('common:states.loading') : t('common:actions.save')}
           </button>
         </div>
       )}
-    </div>
+    </section>
   );
 }

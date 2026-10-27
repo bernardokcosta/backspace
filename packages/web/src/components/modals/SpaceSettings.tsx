@@ -51,31 +51,31 @@ export function AccessPanel({ spaceId }: { spaceId: string }) {
   };
 
   return (
-    <section className="space-y-5 mt-6">
+    <section className="space-y-5">
       <h2 className="text-lg font-semibold text-txt-primary">{t('spaces:settings.access.title')}</h2>
       <div>
-        <div className="text-[11px] font-semibold text-txt-tertiary uppercase tracking-wider mb-1.5">{t('spaces:settings.access.visibility.label')}</div>
-        <p className="text-xs text-txt-tertiary mb-2">{t('spaces:settings.access.visibility.hint')}</p>
-        <div className="rounded-lg bg-white/[0.02] p-3.5 space-y-1.5">
+        <div className="text-[11px] font-semibold text-txt-tertiary uppercase tracking-wider mb-1">{t('spaces:settings.access.visibility.label')}</div>
+        <p className="text-xs text-txt-tertiary mb-2.5">{t('spaces:settings.access.visibility.hint')}</p>
+        <div className="rounded-lg bg-white/[0.02] p-4 space-y-1.5">
           {visibilityOptions.map(opt => (
             <label key={opt.value} className={`flex items-start gap-3 p-2.5 rounded cursor-pointer transition-colors ${visibility === opt.value ? 'bg-interactive-selected' : 'hover:bg-interactive-hover'}`}>
               <input type="radio" name="visibility" value={opt.value} checked={visibility === opt.value}
                 onChange={() => setVisibility(opt.value)} className="mt-0.5 accent-accent-primary" />
               <div>
                 <div className="text-sm font-medium text-txt-primary">{opt.label}</div>
-                <div className="text-xs text-txt-tertiary">{opt.desc}</div>
+                <div className="text-xs text-txt-tertiary mt-0.5">{opt.desc}</div>
               </div>
             </label>
           ))}
         </div>
       </div>
       <div>
-        <div className="text-[11px] font-semibold text-txt-tertiary uppercase tracking-wider mb-1.5">{t('spaces:settings.access.description.label')}</div>
-        <p className="text-xs text-txt-tertiary mb-2">{t('spaces:settings.access.description.hint')}</p>
-        <div className="rounded-lg bg-white/[0.02] p-3.5">
+        <div className="text-[11px] font-semibold text-txt-tertiary uppercase tracking-wider mb-1">{t('spaces:settings.access.description.label')}</div>
+        <p className="text-xs text-txt-tertiary mb-2.5">{t('spaces:settings.access.description.hint')}</p>
+        <div className="rounded-lg bg-white/[0.02] p-4">
           <textarea value={description} onChange={e => setDescription(e.target.value.slice(0, DESCRIPTION_MAX_LENGTH))}
             placeholder={t('spaces:settings.access.description.placeholder')} rows={3} className="input-standard w-full resize-none" />
-          <div className="text-[11px] text-txt-tertiary text-right">
+          <div className="text-[11px] text-txt-tertiary text-right mt-1.5">
             {t('spaces:settings.access.description.counter', { length: description.length, max: DESCRIPTION_MAX_LENGTH })}
           </div>
         </div>
@@ -257,9 +257,12 @@ export function SpaceSettingsModal() {
                 </button>
               )}
               <SettingsPanelSuspense key={tab}>
-                {tab === 'overview' && <OverviewPanel spaceId={currentSpaceId} />}
-                {tab === 'overview' && canManageSpace && <AccessPanel key={currentSpaceId} spaceId={currentSpaceId} />}
-                {tab === 'overview' && canManageSpace && <AfkPanel spaceId={currentSpaceId} />}
+                {tab === 'overview' && (
+                  <OverviewPanel spaceId={currentSpaceId}>
+                    {canManageSpace && <AccessPanel key={currentSpaceId} spaceId={currentSpaceId} />}
+                    {canManageSpace && <AfkPanel spaceId={currentSpaceId} />}
+                  </OverviewPanel>
+                )}
                 {tab === 'soundboard' && canManageSpace && <SoundboardPanel spaceId={currentSpaceId} />}
                 {tab === 'members' && <MembersPanel spaceId={currentSpaceId} />}
                 {tab === 'roles' && canManageRoles && <RolesPanel spaceId={currentSpaceId} />}

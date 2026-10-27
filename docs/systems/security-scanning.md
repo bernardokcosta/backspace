@@ -353,7 +353,7 @@ inside the major the parent already accepts: `@fastify/busboy` 3.2.2 (through
 `@fastify/multipart`), `proxy-addr` 2.0.8 and `fast-uri` 2.4.7 and 3.1.8 (through
 fastify), `brace-expansion` 1.1.21, 2.1.7 and 5.0.12, `source-map-js` 1.2.2,
 `http-cache-semantics` 4.3.0 (the advisory covers "through 4.2.0" and lists no
-fix; 4.3.0 was published after it), and `sharp` 0.35.5, below.
+fix; 4.3.0 was published after it), `esbuild` 0.28.2 (overriding `esbuild@^0.18` pulled transitively by `drizzle-kit` → `@esbuild-kit/core-utils` to clear `GHSA-67mh-4wv8-2f99`), and `sharp` 0.35.5, below.
 
 ### Fixed by override rather than deferred: sharp
 

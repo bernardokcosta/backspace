@@ -14,6 +14,7 @@ import { ChannelSidebar } from './ChannelSidebar';
 import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
 import { useChatStore } from '../../stores/chatStore';
 import { useUIStore } from '../../stores/uiStore';
+import { useAuthStore } from '../../stores/authStore';
 import {
   LEFT_PANEL_DEFAULT_WIDTH,
   LEFT_PANEL_MAX_WIDTH,
@@ -170,6 +171,28 @@ describe('ChannelSidebar: drag-to-resize (left column)', () => {
     renderSidebar();
     fireEvent.dblClick(screen.getByRole('separator'));
     expect(useUIStore.getState().leftPanelWidth).toBe(LEFT_PANEL_DEFAULT_WIDTH);
+  });
+
+  it('scales the floating bottom panel width with the left column width', () => {
+    useAuthStore.setState({
+      user: {
+        id: 'u1', username: 'bekco', displayName: 'BeKCo', avatar: null, banner: null,
+        accentColor: null, avatarColor: null, bio: null, status: 'online', customStatus: null,
+        isAdmin: false, createdAt: 1, homeInstance: null, homeUserId: null, replicatedInstances: [],
+      },
+    });
+    const { container } = renderSidebar();
+    const floatingPanel = container.querySelector<HTMLElement>('[data-pip-obstacle="bottom"]');
+    expect(floatingPanel).not.toBeNull();
+    expect(floatingPanel?.style.width).toBe(`${LEFT_PANEL_DEFAULT_WIDTH - 16}px`);
+
+    dragBorder(300, 8000);
+    expect(floatingPanel?.style.width).toBe(`${LEFT_PANEL_MAX_WIDTH - 16}px`);
+
+    dragBorder(300, -8000);
+    expect(floatingPanel?.style.width).toBe(`${LEFT_PANEL_MIN_WIDTH - 16}px`);
+
+    act(() => { useAuthStore.setState({ user: null }); });
   });
 
   it('resizes by keyboard steps, with Shift for a bigger step, clamped at the floor', () => {

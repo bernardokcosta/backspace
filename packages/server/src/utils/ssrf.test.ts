@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 const lookup = vi.fn<(host: string) => Promise<{ address: string; family: number }>>();
 vi.mock('dns', () => ({ default: { promises: { lookup: (h: string) => lookup(h) } } }));
 
-const { validateExternalUrl, isPrivateIp } = await import('./ssrf.js');
+const { validateExternalUrl, isPrivateIp, safeFetch } = await import('./ssrf.js');
 
 describe('isPrivateIp', () => {
   it('still answers the addresses it always answered', () => {
@@ -71,5 +71,47 @@ describe('validateExternalUrl', () => {
   it('refuses non-http schemes before touching DNS', async () => {
     await expect(validateExternalUrl('file:///etc/passwd')).rejects.toThrow('Invalid URL scheme');
     expect(lookup).not.toHaveBeenCalled();
+  });
+
+  describe('safeFetch', () => {
+    const originalFetch = global.fetch;
+    const fetchMock = vi.fn<typeof fetch>();
+
+    beforeEach(() => {
+      lookup.mockReset();
+      fetchMock.mockReset();
+      global.fetch = fetchMock;
+    });
+
+    afterEach(() => {
+      global.fetch = originalFetch;
+    });
+
+    it('validates the URL and calls fetch with redirect set to manual', async () => {
+      lookup.mockResolvedValue({ address: '93.184.216.34', family: 4 });
+      const okResponse = new Response('ok', { status: 200 });
+      fetchMock.mockResolvedValueOnce(okResponse);
+
+      const res = await safeFetch('https://example.com/resource?foo=bar');
+      expect(res).toBe(okResponse);
+      expect(fetchMock).toHaveBeenCalledWith('https://example.com/resource?foo=bar', {
+        redirect: 'manual',
+      });
+    });
+
+    it('re-validates every redirect hop and blocks redirects to private IPs', async () => {
+      lookup
+        .mockResolvedValueOnce({ address: '93.184.216.34', family: 4 })
+        .mockResolvedValueOnce({ address: '127.0.0.1', family: 4 });
+      fetchMock.mockResolvedValueOnce(
+        new Response(null, {
+          status: 302,
+          headers: { location: 'http://internal.example/admin' },
+        }),
+      );
+
+      await expect(safeFetch('https://example.com/start')).rejects.toThrow('Private IP not allowed');
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
   });
 });

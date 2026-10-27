@@ -18,9 +18,10 @@ import { useAvatarColorNames } from './spaceOptions';
 
 interface OverviewPanelProps {
   spaceId: string;
+  children?: React.ReactNode;
 }
 
-export function OverviewPanel({ spaceId }: OverviewPanelProps) {
+export function OverviewPanel({ spaceId, children }: OverviewPanelProps) {
   const { t } = useTranslation(['spaces', 'common']);
   const colorNames = useAvatarColorNames();
   const spaces = useSpaceStore((s) => s.spaces);
@@ -298,12 +299,13 @@ export function OverviewPanel({ spaceId }: OverviewPanelProps) {
 
   return (
     <>
-      <div className="space-y-5">
-        <h2 className="text-lg font-semibold text-txt-primary mb-6">{t('spaces:settings.nav.tabs.overview')}</h2>
+      <div className="space-y-8">
+        <section className="space-y-5">
+        <h2 className="text-lg font-semibold text-txt-primary">{t('spaces:settings.nav.tabs.overview')}</h2>
         {/* Space Identity */}
         <div>
-          <div className="text-[11px] font-semibold text-txt-tertiary uppercase tracking-wider mb-1.5">{t('spaces:settings.overview.identity')}</div>
-          <div className="rounded-lg bg-white/[0.02] p-3.5 space-y-4">
+          <div className="text-[11px] font-semibold text-txt-tertiary uppercase tracking-wider mb-2">{t('spaces:settings.overview.identity')}</div>
+          <div className="rounded-lg bg-white/[0.02] p-4 space-y-4">
         {/* Space Icon */}
         <div>
           <label className="block text-xs text-txt-secondary mb-1.5">
@@ -475,11 +477,15 @@ export function OverviewPanel({ spaceId }: OverviewPanelProps) {
         {saveError && (
           <div className="p-2 bg-accent-rose/10 border border-accent-rose/30 rounded text-txt-danger text-sm">{saveError}</div>
         )}
+        </section>
+
+        {children}
+
         {/* Danger Zone */}
         {isOwner && (
           <div>
-            <div className="text-[11px] font-semibold text-txt-danger uppercase tracking-wider mb-1.5">{t('common:labels.dangerZone')}</div>
-            <div className="rounded-lg bg-white/[0.02] p-3.5 space-y-4">
+            <div className="text-[11px] font-semibold text-txt-danger uppercase tracking-wider mb-2">{t('common:labels.dangerZone')}</div>
+            <div className="rounded-lg bg-white/[0.02] p-4 space-y-4">
               {/* Transfer Ownership */}
               <div>
                 <p className="text-xs text-txt-tertiary mb-3">{t('spaces:settings.overview.transfer.description')}</p>

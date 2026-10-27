@@ -131,6 +131,20 @@ describe('OverviewPanel ownership transfer candidates', () => {
     expect(screen.queryByText('Owner On Orbit')).not.toBeInTheDocument();
   });
 
+  it('renders child sections before the Danger Zone', () => {
+    render(
+      <MemoryRouter>
+        <OverviewPanel spaceId="space-1">
+          <div data-testid="afk-section">AFK Channel</div>
+        </OverviewPanel>
+      </MemoryRouter>,
+    );
+
+    const afkSection = screen.getByTestId('afk-section');
+    const transferButton = screen.getByRole('button', { name: 'Transfer Ownership' });
+    expect(afkSection.compareDocumentPosition(transferButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("leave out the session row on the page instance", () => {
     openTransfer();
 
