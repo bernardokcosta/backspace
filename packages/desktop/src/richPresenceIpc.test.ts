@@ -257,7 +257,9 @@ afterEach(() => {
   }
 });
 
-describe('RichPresenceIpcServer', () => {
+describe.skipIf(process.platform === 'win32')('RichPresenceIpcServer', () => {
+  // Unix domain sockets in a temp dir; Windows uses named pipes (\\.\pipe\...)
+  // and a different client path, so these are Unix-only.
   it('binds all free slots and chmods them 600', async () => {
     await startServer();
     const status = getRichPresenceIpcStatus();

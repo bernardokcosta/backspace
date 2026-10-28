@@ -306,7 +306,7 @@ function themedIconCandidates(iconName: string, home: string): string[] {
 
 /** The `Icon=` of a .desktop entry: an absolute path, or a theme name resolved through hicolor. */
 function iconFromDesktopEntry(entry: DesktopEntry, home: string): string[] {
-  if (entry.icon.startsWith('/')) return [entry.icon];
+  if (path.isAbsolute(entry.icon)) return [entry.icon];
   return themedIconCandidates(entry.icon, home);
 }
 

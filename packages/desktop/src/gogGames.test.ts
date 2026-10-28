@@ -70,7 +70,7 @@ describe('loadGogIndex', () => {
   });
 
   it('resolves the games dir under home', () => {
-    expect(getGogGamesDir('/home/u')).toBe('/home/u/GOG Games');
+    expect(getGogGamesDir('/home/u')).toBe(path.join('/home/u', 'GOG Games'));
   });
 });
 

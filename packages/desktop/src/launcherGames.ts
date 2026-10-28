@@ -301,6 +301,25 @@ function readGogPlayTask(installPath: string, appName: string): { name: string |
 
 // ─── Bottles ────────────────────────────────────────────────────────────────
 
+const WINDOWS_DRIVE = /^[A-Za-z]:[\\/]/;
+
+/**
+ * Host folder for a Bottles program, or null for a Windows guest path.
+ * A bare Windows path (C:\...) is a guest path even on a Windows host where
+ * path.isAbsolute says otherwise — unless it lives under the bottle dir,
+ * which is how a host path like <bottle>/drive_c/... looks on Windows.
+ */
+function bottlesHostDir(programPath: string | null, bottleDir: string): string | null {
+  if (!programPath) return null;
+  if (WINDOWS_DRIVE.test(programPath)) {
+    const normProg = programPath.replace(/\\/g, '/').toLowerCase();
+    const normBottle = bottleDir.replace(/\\/g, '/').toLowerCase().replace(/\/+$/, '');
+    if (normProg.startsWith(normBottle + '/')) return path.dirname(programPath);
+    return null;
+  }
+  return path.isAbsolute(programPath) ? path.dirname(programPath) : null;
+}
+
 function readBottles(bottlesDir: string): LauncherGame[] {
   const games: LauncherGame[] = [];
   for (const bottle of readDir(bottlesDir)) {
@@ -326,7 +345,7 @@ function readBottles(bottlesDir: string): LauncherGame[] {
         kind: 'bottles',
         exeNames,
         // A Windows path says nothing about the host folder; a host path does
-        dir: programPath && path.isAbsolute(programPath) ? path.dirname(programPath) : null,
+        dir: bottlesHostDir(programPath, bottleDir),
         iconPath: fs.existsSync(icon) ? icon : null,
       });
     }

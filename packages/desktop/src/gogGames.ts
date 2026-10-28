@@ -99,10 +99,14 @@ export function loadGogIndex(home: string = os.homedir(), force = false): GogGam
   return games;
 }
 
+function normalizeForCompare(p: string): string {
+  return p.replace(/\\/g, '/').toLowerCase().replace(/\/+$/, '');
+}
+
 function isUnder(target: string, dir: string): boolean {
-  const t = target.toLowerCase();
-  const d = dir.toLowerCase();
-  return d.length > 0 && (t === d || t.startsWith(d.endsWith(path.sep) ? d : d + path.sep));
+  const t = normalizeForCompare(target);
+  const d = normalizeForCompare(dir);
+  return d.length > 0 && (t === d || t.startsWith(d + '/'));
 }
 
 /**

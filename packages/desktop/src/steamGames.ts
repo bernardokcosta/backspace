@@ -234,16 +234,20 @@ export function loadSteamIndex(roots: string[] = getSteamRoots(), force = false)
 
 // ─── Matching ───────────────────────────────────────────────────────────────
 
+function normalizeForCompare(p: string): string {
+  return p.replace(/\\/g, '/').toLowerCase().replace(/\/+$/, '');
+}
+
 function isUnder(exe: string, dir: string): boolean {
-  const e = exe.toLowerCase();
-  const d = dir.toLowerCase();
-  if (d.length > 0 && (e === d || e.startsWith(d.endsWith(path.sep) ? d : d + path.sep))) {
+  const e = normalizeForCompare(exe);
+  const d = normalizeForCompare(dir);
+  if (d.length > 0 && (e === d || e.startsWith(d + '/'))) {
     return true;
   }
   try {
-    const realExe = fs.realpathSync(exe).toLowerCase();
-    const realDir = fs.realpathSync(dir).toLowerCase();
-    return realDir.length > 0 && (realExe === realDir || realExe.startsWith(realDir.endsWith(path.sep) ? realDir : realDir + path.sep));
+    const realExe = normalizeForCompare(fs.realpathSync(exe));
+    const realDir = normalizeForCompare(fs.realpathSync(dir));
+    return realDir.length > 0 && (realExe === realDir || realExe.startsWith(realDir + '/'));
   } catch {
     return false;
   }

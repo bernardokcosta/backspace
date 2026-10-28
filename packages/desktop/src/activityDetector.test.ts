@@ -65,6 +65,19 @@ interface FakeProc {
   cwd?: string;
 }
 
+// Fake symlink targets by absolute link path. Windows normalizes absolute
+// POSIX targets (C:\...) and needs privileges to create symlinks at all, so
+// the fake /proc tree records the intended target here and readlinkSync is
+// patched below to serve it without touching the OS.
+const fakeLinkTargets = new Map<string, string>();
+const origReadlinkSync = fs.readlinkSync.bind(fs);
+(fs as unknown as { readlinkSync: typeof fs.readlinkSync }).readlinkSync = ((p: fs.PathLike, ...rest: unknown[]) => {
+  const key = String(p);
+  const fake = fakeLinkTargets.get(key);
+  if (fake !== undefined) return fake;
+  return (origReadlinkSync as (...a: unknown[]) => string)(p, ...rest);
+}) as typeof fs.readlinkSync;
+
 function makeFakeProc(entries: FakeProc[]): string {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fake-proc-'));
   for (const e of entries) {
@@ -74,7 +87,14 @@ function makeFakeProc(entries: FakeProc[]): string {
       fs.writeFileSync(path.join(dir, 'exe'), 'not-a-symlink');
     } else if (e.exe !== undefined) {
       // Symlink targets need not exist for readlink
-      fs.symlinkSync(e.exe, path.join(dir, 'exe'));
+      const link = path.join(dir, 'exe');
+      fakeLinkTargets.set(link, e.exe);
+      try {
+        fs.symlinkSync(e.exe, link);
+      } catch {
+        // Windows without privileges or POSIX targets: the patched
+        // readlinkSync above still serves the recorded target.
+      }
     }
     if (e.cmdline) {
       fs.writeFileSync(path.join(dir, 'cmdline'), e.cmdline.join('\0') + '\0');
@@ -82,7 +102,15 @@ function makeFakeProc(entries: FakeProc[]): string {
     if (e.comm) {
       fs.writeFileSync(path.join(dir, 'comm'), e.comm + '\n');
     }
-    if (e.cwd) fs.symlinkSync(e.cwd, path.join(dir, 'cwd'));
+    if (e.cwd) {
+      const link = path.join(dir, 'cwd');
+      fakeLinkTargets.set(link, e.cwd);
+      try {
+        fs.symlinkSync(e.cwd, link);
+      } catch {
+        // Same as exe: serve from the map when the OS link is unavailable.
+      }
+    }
   }
   // Noise that exists in real /proc
   fs.mkdirSync(path.join(root, 'self'));
@@ -203,6 +231,8 @@ describe('parseProcessList', () => {
 // ─── readProcessInfos (fake /proc) ──────────────────────────────────────────
 
 describe('readProcessInfos', () => {
+  // Fake /proc relies on POSIX symlinks: Windows normalizes absolute targets
+  // (C:\...) and needs privileges to create them at all.
   it('reads pid, name, cmdline and the full exe path for regular processes', () => {
     const root = makeFakeProc([
       { pid: 42, exe: '/usr/games/cs2', cmdline: ['/usr/games/cs2', '-novid'], comm: 'cs2' },
@@ -1002,7 +1032,7 @@ describe('listRunningPrograms', () => {
     expect(programs.find((p) => p.process === 'Weird Game.exe')?.label).toBe('Weird Game');
   });
 
-  it('skips processes of other users', () => {
+  it.skipIf(process.platform === 'win32' || typeof process.getuid !== 'function')('skips processes of other users', () => {
     const root = makeFakeProc([{ pid: 2, exe: '/home/u/g/Game', cmdline: ['Game'], comm: 'Game' }]);
     expect(listRunningPrograms(root, process.getuid!() + 1)).toEqual([]);
     expect(listRunningPrograms(root, process.getuid!())).toHaveLength(1);

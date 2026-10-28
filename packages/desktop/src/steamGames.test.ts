@@ -69,15 +69,19 @@ interface ManifestSpec {
  *   <lib>/steamapps/appmanifest_<appid>.acf                → manifests
  * Extra manifests can be written by the caller into primaryApps(home).
  */
+function vdfEscape(p: string): string {
+  return p.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
 function makeSteamTree(libs: Array<{ dir: string; manifests: ManifestSpec[] }>): string {
   const home = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'steam-home-')));
   const steamRoot = path.join(home, '.local', 'share', 'Steam');
   fs.mkdirSync(path.join(steamRoot, 'steamapps'), { recursive: true });
 
-  const libEntries = libs.map((l, i) => `  "${i + 1}"\n  {\n    "path"    "${l.dir}"\n  }`);
+  const libEntries = libs.map((l, i) => `  "${i + 1}"\n  {\n    "path"    "${vdfEscape(l.dir)}"\n  }`);
   fs.writeFileSync(
     path.join(steamRoot, 'steamapps', 'libraryfolders.vdf'),
-    `"libraryfolders"\n{\n  "0"\n  {\n    "path"    "${steamRoot}"\n  }\n${libEntries.join('\n')}\n}\n`,
+    `"libraryfolders"\n{\n  "0"\n  {\n    "path"    "${vdfEscape(steamRoot)}"\n  }\n${libEntries.join('\n')}\n}\n`,
   );
 
   for (const lib of libs) {
@@ -161,7 +165,8 @@ describe('getSteamRoots', () => {
     const native = path.join(home, '.local', 'share', 'Steam');
     fs.mkdirSync(path.join(native, 'steamapps'), { recursive: true });
     fs.mkdirSync(path.join(home, '.steam'), { recursive: true });
-    fs.symlinkSync(native, path.join(home, '.steam', 'steam'));
+    // Directory symlink: Windows needs 'junction' to work without privileges.
+    fs.symlinkSync(native, path.join(home, '.steam', 'steam'), process.platform === 'win32' ? 'junction' : 'dir');
     expect(getSteamRoots(home)).toHaveLength(1);
   });
 

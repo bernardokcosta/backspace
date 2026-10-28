@@ -185,14 +185,14 @@ export function loadFlatpakIndex(installDirs: string[] = getFlatpakInstallDirs()
 /** The Flatpak game whose sandbox files dir contains the running exe. */
 export function findFlatpakGameForProcess(exe: string | null, games: FlatpakGame[]): FlatpakGame | null {
   if (!exe) return null;
-  const lower = exe.toLowerCase();
+  const lower = exe.replace(/\\/g, '/').toLowerCase().replace(/\/+$/, '');
   for (const game of games) {
-    const dir = game.filesDir.toLowerCase();
-    if (lower === dir || lower.startsWith(dir.endsWith(path.sep) ? dir : dir + path.sep)) return game;
+    const dir = game.filesDir.replace(/\\/g, '/').toLowerCase().replace(/\/+$/, '');
+    if (dir.length > 0 && (lower === dir || lower.startsWith(dir + '/'))) return game;
     try {
-      const realExe = fs.realpathSync(exe).toLowerCase();
-      const realDir = fs.realpathSync(game.filesDir).toLowerCase();
-      if (realExe === realDir || realExe.startsWith(realDir.endsWith(path.sep) ? realDir : realDir + path.sep)) return game;
+      const realExe = fs.realpathSync(exe).replace(/\\/g, '/').toLowerCase().replace(/\/+$/, '');
+      const realDir = fs.realpathSync(game.filesDir).replace(/\\/g, '/').toLowerCase().replace(/\/+$/, '');
+      if (realDir.length > 0 && (realExe === realDir || realExe.startsWith(realDir + '/'))) return game;
     } catch {
       // ignore
     }
