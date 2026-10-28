@@ -480,8 +480,14 @@ acceptance gates are documented in [desktop.md](desktop.md),
   changes can be serialized without presenting the requested value as a
   negotiated result. Stats inspection retries briefly while the sender or
   encoder implementation is still unavailable.
-- Sender parameters set the chosen bitrate ceiling and framerate with high
-  priority. Application starts immediately, retries at bounded intervals until
+- Camera, screen-share video and its VP8 fallback publish at normal WebRTC
+  priority (`low`); microphone audio keeps LiveKit's `high` priority so video
+  yields to speech under contention. Sender updates reassert video priority and
+  network priority only on encoding zero: Chromium rejects changing these on a
+  non-first simulcast encoding, discarding the whole update. Bitrate/framerate
+  ceilings still target the highest-quality encoding, not the low camera layer.
+- Sender parameters set the chosen bitrate ceiling and framerate without
+  bypassing congestion control. Application starts immediately, retries at bounded intervals until
   a real `RTCRtpSender` encoding is available, and always re-asserts the values
   at 5 seconds after Chromium's bandwidth estimate converges. The same bounded
   scheduler runs after LiveKit reconnects and screen-track restarts, where the
