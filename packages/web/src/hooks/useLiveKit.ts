@@ -743,6 +743,26 @@ export function useLiveKit() {
     };
     const gen = ++_connectGeneration;
 
+    // Leaving the previous room discards its watches: `watchingStreams` is
+    // viewer-scoped (keyed by user id), so without this a watch set in room
+    // A would auto-subscribe a same-user share met in room B. Runs
+    // synchronously (before any await) so a sidebar Assistir that joins and
+    // then sets its watch keeps only the new room's intent.
+    useVoiceStore.setState({ watchingStreams: new Set() });
+
+    // Quarantine the previous room synchronously (before any await): its
+    // handlers guard on `roomRef.current === <its room>`, and its republish /
+    // resume memories could otherwise re-add watches (e.g. a `stream_resume`
+    // arriving mid-switch) that the new room would then auto-subscribe.
+    // The async SDK teardown still happens below; only the destroy is
+    // awaited there, never a second state clear that could wipe the new
+    // room's intent. (AppLayout remounts can lose roomRef while _activeRoom
+    // survives, hence the OR.)
+    const roomToDisconnect = roomRef.current || _activeRoom;
+    roomRef.current = null;
+    _activeRoom = null;
+    if (roomToDisconnect) clearRoomStreamState(roomToDisconnect);
+
     // Ensure AudioContext is created and resumed before tracks arrive
     await AudioManager.getInstance().resumeContext();
     if (gen !== _connectGeneration) return;
@@ -766,16 +786,11 @@ export function useLiveKit() {
     useVoiceStore.getState().setIsLiveKitConnected(false);
     useVoiceStore.getState().setConnectionQuality('unknown');
 
-    // 2. Strictly disconnect previous room (Local Ref OR Global Ref)
+    // 2. Strictly disconnect the previous room captured above (refs already
+    // nulled so its terminal events stay inert while tearing down).
     // This handles cases where AppLayout might have remounted, losing roomRef but leaving _activeRoom alive.
-    const roomToDisconnect = roomRef.current || _activeRoom;
-    
+    // A channel switch retains pre-armed capture.
     if (roomToDisconnect) {
-      // A channel switch retains pre-armed capture. Ignore the old room's
-      // terminal events before starting asynchronous SDK teardown.
-      roomRef.current = null;
-      _activeRoom = null;
-      clearRoomStreamState(roomToDisconnect);
       try {
         console.log('[LiveKit] Destroying previous room:', roomToDisconnect.name);
         await destroyRoom(roomToDisconnect);
@@ -992,7 +1007,20 @@ export function useLiveKit() {
         } else {
           // A share this viewer watched before a full reconnect, back.
           const stream = resume.takeOnPublication(participant.identity);
-          if (stream) resumeRemoteStream(newRoom, participant.identity, stream);
+          if (stream) {
+            resumeRemoteStream(newRoom, participant.identity, stream);
+          } else {
+            // A sidebar Assistir that set `watchingStreams` before the share
+            // was published (join in flight): subscribe + ping now so one
+            // click is enough. No cue here; it played at the click.
+            const watcherUserId = resolveParticipantUserId(participant.identity);
+            if (useVoiceStore.getState().watchingStreams.has(watcherUserId)) {
+              publication.setSubscribed(true);
+              newRoom.localParticipant
+                .publishData(encodeStreamWatch(streamWatchFor({ userId: watcherUserId, identity: participant.identity }, true)), { reliable: true })
+                .catch(() => {});
+            }
+          }
         }
         updateParticipants();
       });
@@ -1124,7 +1152,10 @@ export function useLiveKit() {
 
       updateParticipants();
 
-      // Subscribe to non-screen-share tracks from existing participants (safety net)
+      // Subscribe to non-screen-share tracks from existing participants (safety net).
+      // Screen shares follow the watch state: a sidebar Assistir that joined
+      // with the share already published pre-set `watchingStreams`, so it
+      // joins here instead of needing a second click in the grid.
       newRoom.remoteParticipants.forEach((rp) => {
         rp.trackPublications.forEach((pub) => {
           if (
@@ -1132,6 +1163,16 @@ export function useLiveKit() {
             pub.source !== Track.Source.ScreenShareAudio
           ) {
             (pub as RemoteTrackPublication).setSubscribed(true);
+            return;
+          }
+          const watcherUserId = resolveParticipantUserId(rp.identity);
+          if (useVoiceStore.getState().watchingStreams.has(watcherUserId)) {
+            (pub as RemoteTrackPublication).setSubscribed(true);
+            if (pub.source === Track.Source.ScreenShare) {
+              newRoom.localParticipant
+                .publishData(encodeStreamWatch(streamWatchFor({ userId: watcherUserId, identity: rp.identity }, true)), { reliable: true })
+                .catch(() => {});
+            }
           }
         });
       });

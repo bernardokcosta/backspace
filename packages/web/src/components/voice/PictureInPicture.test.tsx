@@ -21,13 +21,35 @@ function renderPip() {
   );
 }
 
+function remoteCameraParticipant() {
+  return {
+    identity: '2:bob',
+    userId: '2',
+    username: 'bob',
+    homeUserId: null,
+    isMuted: false,
+    isDeafened: false,
+    isCameraOn: true,
+    isScreenSharing: false,
+    isLocal: false,
+    audioTrack: null,
+    videoTrack: {} as unknown as MediaStreamTrack,
+    screenTrack: null,
+    screenAudioTrack: null,
+    lkVideoTrack: null,
+    lkScreenTrack: null,
+    cachedUser: null,
+  };
+}
+
 beforeEach(() => {
   // In a space voice channel while looking at a text channel elsewhere: the
-  // state in which the floating window appears.
+  // state in which the floating window appears (with a remote camera on, so
+  // there is video to show).
   useVoiceStore.setState({
     currentVoiceChannelId: 'voice-1',
     activeDmCall: null,
-    participants: [],
+    participants: [remoteCameraParticipant() as never],
     focusedParticipantId: null,
     watchingStreams: new Set(),
     speakingParticipantIds: new Set(),
@@ -81,5 +103,34 @@ describe('PictureInPicture and the floating window setting', () => {
     // Viewing the key as if it were a conversation is viewing something else.
     useChatStore.setState({ currentChannelId: 'key-1' });
     expect(renderPip().container).not.toBeEmptyDOMElement();
+  });
+
+  it('stays hidden when nobody has camera or screen share on', () => {
+    useVoiceStore.setState({ participants: [] });
+    expect(renderPip().container).toBeEmptyDOMElement();
+    cleanup();
+
+    // Audio-only remote participant: still no video to show.
+    useVoiceStore.setState({
+      participants: [{
+        identity: '2:bob',
+        userId: '2',
+        username: 'bob',
+        homeUserId: null,
+        isMuted: false,
+        isDeafened: false,
+        isCameraOn: false,
+        isScreenSharing: false,
+        isLocal: false,
+        audioTrack: {} as unknown as MediaStreamTrack,
+        videoTrack: null,
+        screenTrack: null,
+        screenAudioTrack: null,
+        lkVideoTrack: null,
+        lkScreenTrack: null,
+        cachedUser: null,
+      } as never],
+    });
+    expect(renderPip().container).toBeEmptyDOMElement();
   });
 });

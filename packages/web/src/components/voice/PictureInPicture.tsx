@@ -391,7 +391,7 @@ export function PictureInPicture() {
   const { displayName: resolvedName, avatar: resolvedAvatar, user: resolvedUser } =
     useVoiceParticipantMeta(displayParticipant ?? EMPTY_PARTICIPANT);
 
-  if (!shouldShow) return null;
+  if (!shouldShow || !selectedStream) return null;
 
   const displayName = displayParticipant
     ? (displayParticipant.isLocal ? `${resolvedName} (You)` : resolvedName)

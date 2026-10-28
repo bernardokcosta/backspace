@@ -1,8 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
 import { useVoiceStore, type VoiceChannelElapsed } from '../../stores/voiceStore';
 import { useSpaceStore } from '../../stores/spaceStore';
+import { useUIStore } from '../../stores/uiStore';
 import { useSelfIdInChannel } from '../../utils/channelUser';
-import { useContextMenuStore, type ContextMenuItem } from '../../stores/contextMenuStore';
+import { useContextMenuStore, menuPositionFor, type ContextMenuItem } from '../../stores/contextMenuStore';
 import { buildVoiceModMenuItems, VolumeSliderItem } from './voiceMenuItems';
 import { VoiceUserRow } from './VoiceUserRow';
 import { useTranslation } from 'react-i18next';
@@ -47,6 +48,8 @@ interface VoiceChannelProps {
   locked?: boolean;
   canManage?: boolean;
   onSettingsClick?: () => void;
+  /** Called when the viewer asks to watch `sharerUserId`'s screen from the sidebar. */
+  onWatchStream?: (sharerUserId: string) => void;
   voiceUserHandlers?: (userId: string, channelId: string) => {
     draggable: boolean;
     isBeingDragged: boolean;
@@ -64,7 +67,7 @@ interface VoiceChannelProps {
 }
 
 /** Wrapper component for the volume slider so it can use hooks (useState). */
-export function VoiceChannel({ channelId, channelName, onClick, locked, canManage, onSettingsClick, voiceUserHandlers, dropZone }: VoiceChannelProps) {
+export function VoiceChannel({ channelId, channelName, onClick, locked, canManage, onSettingsClick, onWatchStream, voiceUserHandlers, dropZone }: VoiceChannelProps) {
   const { t } = useTranslation(['voice', 'common']);
   const serverVoiceUsers = useVoiceStore((s) => s.voiceUsers.get(channelId)) ?? EMPTY_VOICE_USERS;
   const currentVoiceChannel = useVoiceStore((s) => s.currentVoiceChannelId);
@@ -104,9 +107,11 @@ export function VoiceChannel({ channelId, channelName, onClick, locked, canManag
   const isActive = currentVoiceChannel === channelId;
 
   const openContextMenu = useContextMenuStore((s) => s.open);
+  const openUserProfile = useUIStore((s) => s.openUserProfile);
+  const channelOrigin = useSpaceStore((s) => s.channelOriginMap.get(channelId) ?? '');
 
   const handleContextMenu = useCallback(
-    (e: React.MouseEvent, userId: string) => {
+    (e: React.MouseEvent | React.KeyboardEvent, userId: string) => {
       if (userId === myIdHere) return;
       e.preventDefault();
       e.stopPropagation();
@@ -140,9 +145,45 @@ export function VoiceChannel({ channelId, channelName, onClick, locked, canManag
         render: () => React.createElement(VolumeSliderItem, { userId, channelId }),
       });
 
-      openContextMenu({ x: e.clientX, y: e.clientY }, items);
+      openContextMenu(menuPositionFor(e), items);
     },
     [myIdHere, channelId, openContextMenu],
+  );
+
+  const handleOpenProfile = useCallback(
+    (e: React.MouseEvent | React.KeyboardEvent, userId: string) => {
+      const member = useSpaceStore.getState().members.find((m) => m.userId === userId);
+      if (!member) return;
+      e.stopPropagation();
+      useContextMenuStore.getState().close();
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      const spaceId = useSpaceStore.getState().channelToSpaceMap.get(channelId) ?? member.spaceId;
+      openUserProfile(member.user, channelOrigin, rect, 'right', { spaceId, userId });
+    },
+    [channelId, channelOrigin, openUserProfile],
+  );
+
+  const handleRowKeyDown = useCallback(
+    (e: React.KeyboardEvent, userId: string) => {
+      if (e.target !== e.currentTarget) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleOpenProfile(e, userId);
+      } else if (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey)) {
+        e.preventDefault();
+        handleContextMenu(e, userId);
+      }
+    },
+    [handleContextMenu, handleOpenProfile],
+  );
+
+  const handleWatchStream = useCallback(
+    (e: React.MouseEvent, sharerUserId: string) => {
+      e.stopPropagation();
+      if (locked) return;
+      onWatchStream?.(sharerUserId);
+    },
+    [locked, onWatchStream],
   );
 
   return (
@@ -244,16 +285,25 @@ export function VoiceChannel({ channelId, channelName, onClick, locked, canManag
             const userDrag = voiceUserHandlers?.(userId, channelId);
             const isDraggable = !!(userDrag?.draggable && userId !== myIdHere);
             const isBeingDragged = userDrag?.isBeingDragged ?? false;
+            const hasMember = !!member;
+            const isSelfHere = userId === myIdHere;
+            const showWatch = isScreenSharing && !isSelfHere;
 
             return (
               <div
                 key={userId}
-                className={`px-[10px] py-1 rounded-[6px] hover:bg-interactive-hover transition-colors ${
-                  isDraggable ? 'cursor-grab active:cursor-grabbing' : ''
+                role={hasMember ? 'button' : undefined}
+                tabIndex={hasMember ? 0 : undefined}
+                aria-label={hasMember ? displayName : undefined}
+                data-voice-user-row={userId}
+                className={`px-[10px] py-1 rounded-[6px] hover:bg-interactive-hover transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-primary/60 ${
+                  isDraggable ? 'cursor-grab active:cursor-grabbing' : hasMember ? 'cursor-pointer' : ''
                 } ${isBeingDragged ? 'opacity-50' : ''}`}
                 draggable={isDraggable}
                 onDragStart={isDraggable ? userDrag!.onDragStart : undefined}
                 onDragEnd={isDraggable ? userDrag!.onDragEnd : undefined}
+                onClick={hasMember ? (e) => handleOpenProfile(e, userId) : undefined}
+                onKeyDown={hasMember ? (e) => handleRowKeyDown(e, userId) : undefined}
                 onContextMenu={(e) => handleContextMenu(e, userId)}
               >
                 <VoiceUserRow
@@ -274,6 +324,21 @@ export function VoiceChannel({ channelId, channelName, onClick, locked, canManag
                   isSpeaking={speakingUserIds.has(userId)}
                   connectionWarning={connectionWarning}
                 />
+                {showWatch && (
+                  <button
+                    type="button"
+                    onClick={(e) => handleWatchStream(e, userId)}
+                    disabled={locked}
+                    aria-label={t('voice:stream.watch')}
+                    title={t('voice:stream.watch')}
+                    className="mt-1 ml-8 flex w-[calc(100%-32px)] items-center justify-center gap-1.5 rounded-[6px] bg-accent-primary px-2 py-1 text-[12px] font-semibold text-white transition-colors hover:bg-accent-primary/80 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                    </svg>
+                    {t('voice:stream.watchShort')}
+                  </button>
+                )}
               </div>
             );
           })}
