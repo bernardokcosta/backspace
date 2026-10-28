@@ -13,6 +13,7 @@ import i18n from '../../i18n';
 import { formatters } from '../../i18n/formatters';
 import { SYSTEM_AUDIO_NOTE_I18N_KEYS, systemAudioNote, useOwnAudioInSystemAudio } from '../../utils/systemAudioNote';
 import { getSdrCaptureCapability } from '../../utils/sdrScreenCapture';
+import { resolveScreenShareCodec, supportsScreenShareH265 } from '../../utils/screenShareCodec';
 
 /**
  * The stream quality controls (resolution, frame rate, content mode, codec,
@@ -34,6 +35,7 @@ const MODES: { value: ScreenShareConfig['mode']; labelKey: 'voice:streamSettings
 const CODEC_OPTIONS = [
   { value: 'vp9' as const, labelKey: 'voice:streamSettings.codecOption.vp9' as const },
   { value: 'h264' as const, labelKey: 'voice:streamSettings.codecOption.h264' as const },
+  { value: 'h265' as const, labelKey: 'voice:streamSettings.codecOption.h265' as const },
 ];
 
 /** Whole Mbps when the value is round, otherwise one decimal; the number goes through the locale. */
@@ -124,6 +126,10 @@ export function StreamQualityControls({ capturePending = false }: { capturePendi
   const { t } = useTranslation(['voice', 'common']);
   const config = useVoiceStore((s) => s.screenShareConfig);
   const setConfig = useVoiceStore((s) => s.setScreenShareConfig);
+  const h265Supported = supportsScreenShareH265();
+  const effectiveCodec = resolveScreenShareCodec(config.codec);
+  const h265DescriptionId = React.useId();
+  const showH265Help = config.codec === 'h265' || !h265Supported;
   const { origin: hostOrigin, limits } = useStreamHostLimits();
   const electronPlatform = isElectron() ? window.backspace?.platform : null;
   const isScreenSharing = useVoiceStore((s) => s.isScreenSharing);
@@ -223,19 +229,30 @@ export function StreamQualityControls({ capturePending = false }: { capturePendi
         </div>
         <div className="flex gap-1.5">
           {CODEC_OPTIONS.map((c) => {
-            const isSelected = config.codec === c.value;
+            const isSelected = effectiveCodec === c.value;
+            const unavailable = c.value === 'h265' && !h265Supported;
             return (
               <button
                 key={c.value}
+                disabled={unavailable}
+                title={unavailable ? t('voice:streamSettings.h265Unavailable') : undefined}
+                aria-describedby={c.value === 'h265' && showH265Help ? h265DescriptionId : undefined}
                 onClick={() => setConfig({ codec: c.value })}
                 aria-pressed={isSelected}
-                className={`${pillBase} ${isSelected ? pillSelected : pillUnselected}`}
+                className={`${pillBase} ${isSelected ? pillSelected : pillUnselected} disabled:opacity-40 disabled:cursor-not-allowed`}
               >
                 {t(c.labelKey)}
               </button>
             );
           })}
         </div>
+        {showH265Help && (
+          <div id={h265DescriptionId} className="text-[10px] text-txt-tertiary mt-1.5">
+            {config.codec === 'h265'
+              ? h265Supported ? t('voice:streamSettings.h265Note') : t('voice:streamSettings.h265LocalFallback')
+              : t('voice:streamSettings.h265Unavailable')}
+          </div>
+        )}
       </div>
 
       {/* Bitrate — Auto | Custom pills like every other row; the slider only exists in Custom */}

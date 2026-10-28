@@ -6,6 +6,7 @@ import { useSpaceStore, getChannelOrigin, getMyUserIdForOrigin } from './spaceSt
 import { useAuthStore } from './authStore';
 import { isElectron } from '../platform/platform';
 import { voiceFlagKey } from '../utils/permissionMute';
+import { normalizeScreenShareCodec, type ScreenShareCodec } from '../utils/screenShareCodec';
 
 export interface ScreenShareConfig {
   height: number | 'native';
@@ -14,7 +15,7 @@ export interface ScreenShareConfig {
   customBitrateKbps: number | null;
   shareAudio: boolean;
   forceSdr: boolean;
-  codec: 'vp9' | 'h264';
+  codec: ScreenShareCodec;
 }
 
 /**
@@ -872,7 +873,7 @@ export const useVoiceStore = create<VoiceState>()(
     }),
     {
       name: 'backspace-voice-settings',
-      version: 15,
+      version: 16,
       migrate: (persistedState: any, version: number) => {
         if (version === 0) {
           persistedState.streamAttenuationEnabled = false;
@@ -944,6 +945,9 @@ export const useVoiceStore = create<VoiceState>()(
         if (version < 15 && persistedState.screenShareConfig) {
           persistedState.screenShareConfig.forceSdr = persistedState.screenShareConfig.forceSdr === true;
         }
+        if (version < 16 && persistedState.screenShareConfig) {
+          persistedState.screenShareConfig.codec = normalizeScreenShareCodec(persistedState.screenShareConfig.codec);
+        }
         return persistedState;
       },
       storage: createJSONStorage(() => localStorage),
@@ -974,6 +978,13 @@ export const useVoiceStore = create<VoiceState>()(
       }),
       merge: (persistedState: any, currentState: VoiceState) => {
         const merged = { ...currentState, ...persistedState };
+        // Old/partial settings keep the new defaults; invalid codec values must
+        // not bypass capability checks even when the stored version is current.
+        merged.screenShareConfig = {
+          ...currentState.screenShareConfig,
+          ...persistedState?.screenShareConfig,
+          codec: normalizeScreenShareCodec(persistedState?.screenShareConfig?.codec ?? currentState.screenShareConfig.codec),
+        };
         // Reconstruct non-persisted Sets/Maps to their defaults
         merged.spaceMutedUserIds = currentState.spaceMutedUserIds;
         merged.spaceDeafenedUserIds = currentState.spaceDeafenedUserIds;

@@ -1,11 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AudioPresets, BackupCodecPolicy, Track } from 'livekit-client';
+import { AudioPresets, BackupCodecPolicy, LocalVideoTrack, Track } from 'livekit-client';
 import { useVoiceStore } from '../stores/voiceStore';
 import { useUIStore } from '../stores/uiStore';
 import i18n from '../i18n';
 import {
+  applyOverdrive,
   buildScreenShareOptions,
+  CAMERA_OVERDRIVE,
+  CAMERA_PRESET,
   getPublishedScreenShareCodec,
+  getRequestedPublishedScreenShareCodec,
   publishScreenShare,
   stageScreenCapture,
   stopScreenShare,
@@ -27,7 +31,10 @@ vi.mock('./streamHostLimits', () => ({
     allowedFramerates: [30, 45, 60, 75, 90, 120],
   }),
 }));
-vi.mock('./livekitInternals', () => internals);
+vi.mock('./livekitInternals', async importOriginal => ({
+  ...await importOriginal<typeof import('./livekitInternals')>(),
+  ...internals,
+}));
 
 type FakeTrack = {
   kind: 'video' | 'audio';
@@ -91,6 +98,7 @@ function attachPublishedSender(
 beforeEach(() => {
   vi.useFakeTimers();
   vi.clearAllMocks();
+  vi.stubGlobal('RTCRtpSender', { getCapabilities: () => ({ codecs: [{ mimeType: 'video/H265' }] }) });
   internals.getPublisherPC.mockReturnValue(null);
   internals.getMediaStreamTrack.mockReturnValue(null);
   localStorage.clear();
@@ -110,9 +118,291 @@ beforeEach(() => {
 afterEach(() => {
   vi.clearAllTimers();
   vi.useRealTimers();
+  vi.unstubAllGlobals();
 });
 
 describe('screen-share media options', () => {
+  it('ignores encoder stats that arrive after a codec republish of the same capture', async () => {
+    useVoiceStore.getState().setScreenShareConfig({ codec: 'h265' });
+    const room = fakeRoom();
+    const video = makeVideoTrack();
+    const sender = attachPublishedSender(room, video, []);
+    let resolveOld!: (reports: Map<string, Record<string, unknown>>) => void;
+    const oldStats = new Promise<Map<string, Record<string, unknown>>>((resolve) => { resolveOld = resolve; });
+    const vp9Stats = new Map([
+      ['codec-vp9', { id: 'codec-vp9', type: 'codec', mimeType: 'video/VP9' }],
+      ['send-vp9', { type: 'outbound-rtp', kind: 'video', codecId: 'codec-vp9', bytesSent: 100 }],
+    ]);
+    sender.getStats.mockReturnValueOnce(oldStats).mockResolvedValue(vp9Stats);
+    const addToast = vi.spyOn(useUIStore.getState(), 'addToast');
+    await publishScreenShare(room, makeStream(video));
+    useVoiceStore.getState().setScreenShareConfig({ codec: 'vp9' });
+    await publishScreenShare(room, makeStream(video));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(getPublishedScreenShareCodec()).toBe('vp9');
+
+    resolveOld(new Map([
+      ['codec-h264', { id: 'codec-h264', type: 'codec', mimeType: 'video/H264' }],
+      ['send-h264', {
+        type: 'outbound-rtp', kind: 'video', codecId: 'codec-h264', bytesSent: 5000, encoderImplementation: 'OpenH264',
+      }],
+    ]));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(getPublishedScreenShareCodec()).toBe('vp9');
+    expect(addToast).not.toHaveBeenCalled();
+  });
+
+  it('keeps HEVC fallback senders and future fallback encodings in sync with live quality changes', async () => {
+    useVoiceStore.getState().setScreenShareConfig({ codec: 'h265', customBitrateKbps: 9500 });
+    const room = fakeRoom();
+    const video = makeVideoTrack();
+    const backupVideo = makeVideoTrack('h264-backup');
+    const primaryEncodings: RTCRtpEncodingParameters[] = [{ active: true, maxBitrate: 18_000_000, maxFramerate: 60 }];
+    const backupEncodings: RTCRtpEncodingParameters[] = [{ active: true, maxBitrate: 18_000_000, maxFramerate: 60 }];
+    const track = Object.assign(Object.create(LocalVideoTrack.prototype) as LocalVideoTrack, {
+      _mediaStreamTrack: video,
+      encodings: primaryEncodings,
+      publishOptions: { videoCodec: 'h265', screenShareEncoding: { maxBitrate: 18_000_000, maxFramerate: 60 } },
+      simulcastCodecs: new Map([['h264', { mediaStreamTrack: backupVideo, encodings: backupEncodings }]]),
+    });
+    room.localParticipant.getTrackPublications.mockReturnValue([{ source: Track.Source.ScreenShare, track }]);
+    const primary = {
+      track: { id: video.id }, getParameters: () => ({ encodings: [{ active: false }] }),
+      setParameters: vi.fn().mockResolvedValue(undefined),
+    };
+    const backup = {
+      track: { id: backupVideo.id }, getParameters: () => ({ encodings: [{ active: true }] }),
+      setParameters: vi.fn().mockResolvedValue(undefined),
+    };
+    internals.getPublisherPC.mockReturnValue({ getSenders: () => [primary, backup] });
+    internals.getMediaStreamTrack.mockImplementation((value) => value.mediaStreamTrack);
+
+    expect(await applyOverdrive(room, Track.Source.ScreenShare,
+      buildScreenShareOptions(useVoiceStore.getState().screenShareConfig).overdrive)).toBe(true);
+
+    expect(backup.setParameters).toHaveBeenCalledWith(expect.objectContaining({
+      encodings: [expect.objectContaining({ active: true, maxBitrate: 9_500_000, maxFramerate: 60, priority: 'low' })],
+    }));
+    expect(primary.setParameters).toHaveBeenCalledWith(expect.objectContaining({
+      encodings: [expect.objectContaining({ active: false })],
+    }));
+    expect(primaryEncodings[0]?.maxBitrate).toBe(9_500_000);
+    expect(backupEncodings[0]?.maxBitrate).toBe(9_500_000);
+    expect(track.publishOptions?.screenShareEncoding?.maxBitrate).toBe(9_500_000);
+    expect(track.publishOptions?.backupCodec).toMatchObject({ codec: 'h264', encoding: { maxBitrate: 9_500_000 } });
+  });
+
+  it('inspects the active cloned H.264 sender after HEVC regression instead of the paused primary', async () => {
+    useVoiceStore.getState().setScreenShareConfig({ codec: 'h265' });
+    const room = fakeRoom();
+    const video = makeVideoTrack();
+    const primary = attachPublishedSender(room, video, [
+      ['codec-hevc', { id: 'codec-hevc', type: 'codec', mimeType: 'video/H265' }],
+      ['send-hevc', { type: 'outbound-rtp', kind: 'video', codecId: 'codec-hevc', bytesSent: 50_000 }],
+    ]);
+    primary.getParameters.mockReturnValue({ encodings: [{ active: false }] });
+    room.localParticipant.getTrackPublications.mockReturnValue([{
+      source: Track.Source.ScreenShare,
+      track: { mediaStreamTrack: video, simulcastCodecs: new Map([['h264', { mediaStreamTrack: { id: 'backup' } }]]) },
+    }]);
+    const backup = {
+      track: { id: 'backup' },
+      getParameters: () => ({ encodings: [{ active: true }] }),
+      getStats: vi.fn().mockResolvedValue(new Map([
+        ['codec-h264', { id: 'codec-h264', type: 'codec', mimeType: 'video/H264' }],
+        ['send-h264', {
+          type: 'outbound-rtp', kind: 'video', codecId: 'codec-h264', bytesSent: 100,
+          encoderImplementation: 'OpenH264',
+        }],
+      ])),
+      setParameters: vi.fn().mockResolvedValue(undefined),
+    };
+    internals.getPublisherPC.mockReturnValue({ getSenders: () => [primary, backup] });
+    const addToast = vi.spyOn(useUIStore.getState(), 'addToast');
+
+    await publishScreenShare(room, makeStream(video));
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(getRequestedPublishedScreenShareCodec()).toBe('h265');
+    expect(getPublishedScreenShareCodec()).toBe('h264');
+    expect(addToast).toHaveBeenCalledWith(i18n.t('voice:streamSettings.softwareH264Fallback'), 'warning', 8000);
+    expect(sdp.activate).not.toHaveBeenCalled();
+  });
+
+  it('retries HEVC encoder inspection while implementation stats are unavailable', async () => {
+    useVoiceStore.getState().setScreenShareConfig({ codec: 'h265' });
+    const room = fakeRoom();
+    const video = makeVideoTrack();
+    const reports = (implementation?: string) => new Map([
+      ['codec-hevc', { id: 'codec-hevc', type: 'codec', mimeType: 'video/H265' }],
+      ['send-hevc', {
+        type: 'outbound-rtp', kind: 'video', codecId: 'codec-hevc', bytesSent: 100,
+        ...(implementation ? { encoderImplementation: implementation } : {}),
+      }],
+    ]);
+    const sender = attachPublishedSender(room, video, []);
+    sender.getStats.mockResolvedValueOnce(reports()).mockResolvedValue(reports('PlatformEncoder'));
+
+    await publishScreenShare(room, makeStream(video));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(sender.getStats).toHaveBeenCalledOnce();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(sender.getStats).toHaveBeenCalledTimes(2);
+    await vi.advanceTimersByTimeAsync(7000);
+    expect(sender.getStats).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not warn about an inactive software backup while HEVC is sending', async () => {
+    useVoiceStore.getState().setScreenShareConfig({ codec: 'h265' });
+    const room = fakeRoom();
+    const video = makeVideoTrack();
+    attachPublishedSender(room, video, [
+      ['codec-hevc', { id: 'codec-hevc', type: 'codec', mimeType: 'video/H265' }],
+      ['codec-h264', { id: 'codec-h264', type: 'codec', mimeType: 'video/H264' }],
+      ['send-hevc', { type: 'outbound-rtp', kind: 'video', codecId: 'codec-hevc', bytesSent: 100, encoderImplementation: 'PlatformEncoder' }],
+      ['send-h264', { type: 'outbound-rtp', kind: 'video', codecId: 'codec-h264', bytesSent: 0, active: false, encoderImplementation: 'OpenH264' }],
+    ]);
+    const addToast = vi.spyOn(useUIStore.getState(), 'addToast');
+    await publishScreenShare(room, makeStream(video));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(getPublishedScreenShareCodec()).toBe('h265');
+    expect(addToast).not.toHaveBeenCalled();
+  });
+
+  it('publishes supported HEVC with single-codec H.264 regression and full fallback quality ceilings', async () => {
+    useVoiceStore.getState().setScreenShareConfig({ codec: 'h265' });
+    const options = buildScreenShareOptions(useVoiceStore.getState().screenShareConfig);
+    expect(options.publish.videoCodec).toBe('h265');
+    expect(options.publish.videoEncoding).toEqual({ maxBitrate: 18_000_000, maxFramerate: 60, priority: 'low' });
+    expect(options.publish.backupCodec).toEqual({
+      codec: 'h264', encoding: { maxBitrate: 18_000_000, maxFramerate: 60, priority: 'low' },
+    });
+    expect(options.publish.backupCodecPolicy).toBe(BackupCodecPolicy.REGRESSION);
+    const room = fakeRoom();
+    const video = makeVideoTrack();
+    attachPublishedSender(room, video, [
+      ['codec-hevc', { id: 'codec-hevc', type: 'codec', mimeType: 'video/H265' }],
+      ['send-hevc', {
+        type: 'outbound-rtp', kind: 'video', codecId: 'codec-hevc', bytesSent: 500,
+        encoderImplementation: 'PlatformEncoder',
+      }],
+    ]);
+
+    await publishScreenShare(room, makeStream(video));
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(room.localParticipant.publishTrack).toHaveBeenCalledWith(video, expect.objectContaining({
+      videoCodec: 'h265',
+      screenShareEncoding: options.publish.videoEncoding,
+      backupCodec: options.publish.backupCodec,
+      backupCodecPolicy: BackupCodecPolicy.REGRESSION,
+    }));
+    expect(getRequestedPublishedScreenShareCodec()).toBe('h265');
+    expect(getPublishedScreenShareCodec()).toBe('h265');
+    expect(sdp.activate).not.toHaveBeenCalled();
+    expect(sdp.deactivate).not.toHaveBeenCalled();
+    expect(CAMERA_PRESET.codec).toBe('h264');
+  });
+
+  it('uses effective H.264 on an unsupported device while preserving the saved HEVC preference', async () => {
+    vi.stubGlobal('RTCRtpSender', { getCapabilities: () => ({ codecs: [{ mimeType: 'video/H264' }] }) });
+    useVoiceStore.getState().setScreenShareConfig({ codec: 'h265' });
+    const room = fakeRoom();
+    const video = makeVideoTrack();
+    attachPublishedSender(room, video, [
+      ['codec-h264', { id: 'codec-h264', type: 'codec', mimeType: 'video/H264' }],
+      ['send-h264', {
+        type: 'outbound-rtp', kind: 'video', codecId: 'codec-h264', bytesSent: 100,
+        encoderImplementation: 'PlatformEncoder',
+      }],
+    ]);
+
+    await publishScreenShare(room, makeStream(video));
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(room.localParticipant.publishTrack).toHaveBeenCalledWith(video, expect.objectContaining({ videoCodec: 'h264' }));
+    expect(getRequestedPublishedScreenShareCodec()).toBe('h264');
+    expect(getPublishedScreenShareCodec()).toBe('h264');
+    expect(useVoiceStore.getState().screenShareConfig.codec).toBe('h265');
+    expect(sdp.activate).toHaveBeenCalledOnce();
+    expect(sdp.deactivate).toHaveBeenCalledOnce();
+  });
+
+  it('publishes camera, screen and backup video below microphone priority from the first negotiation', () => {
+    const options = buildScreenShareOptions(useVoiceStore.getState().screenShareConfig);
+
+    expect(CAMERA_PRESET.encoding).toHaveProperty('priority', 'low');
+    expect(options.publish.videoEncoding).toHaveProperty('priority', 'low');
+    expect(options.publish.backupCodec?.encoding).toHaveProperty('priority', 'low');
+  });
+
+  it('restores normal video priority on a single screen encoding without lowering its quality ceiling', async () => {
+    const room = fakeRoom();
+    const video = makeVideoTrack();
+    const sender = attachPublishedSender(room, video, []);
+    sender.getParameters.mockReturnValue({ encodings: [{
+      active: true, priority: 'high', networkPriority: 'high', maxBitrate: 1_000_000,
+    }] } as RTCRtpSendParameters);
+
+    const options = buildScreenShareOptions(useVoiceStore.getState().screenShareConfig);
+    expect(await applyOverdrive(room, Track.Source.ScreenShare, options.overdrive)).toBe(true);
+    expect(sender.setParameters).toHaveBeenCalledWith(expect.objectContaining({
+      encodings: [{
+        active: true,
+        priority: 'low',
+        networkPriority: 'low',
+        maxBitrate: 18_000_000,
+        maxFramerate: 60,
+      }],
+    }));
+  });
+
+  it.each([Track.Source.Camera, Track.Source.ScreenShare])(
+    'updates %s simulcast priority only on encoding zero and quality only on the highest layer',
+    async (source) => {
+      const room = fakeRoom();
+      const video = makeVideoTrack();
+      room.localParticipant.getTrackPublications.mockReturnValue([
+        { source, track: { mediaStreamTrack: video } },
+      ]);
+      const encodings: RTCRtpEncodingParameters[] = [
+        { rid: 'q', active: true, priority: 'low', networkPriority: 'low', maxBitrate: 100_000, scaleResolutionDownBy: 4 },
+        { rid: 'h', active: true, priority: 'low', networkPriority: 'low', maxBitrate: 400_000, scaleResolutionDownBy: 2 },
+        { rid: 'f', active: true, priority: 'low', networkPriority: 'low', maxBitrate: 1_000_000, scaleResolutionDownBy: 1 },
+      ];
+      const sender = {
+        track: { id: video.id },
+        getParameters: vi.fn(() => ({ encodings: encodings.map((encoding) => ({ ...encoding })) })),
+        setParameters: vi.fn(async (parameters: RTCRtpSendParameters) => {
+          // Chromium rejects changing sender-wide priority on non-first encodings.
+          if (parameters.encodings.slice(1).some((encoding) =>
+            encoding.priority !== 'low' || encoding.networkPriority !== 'low')) {
+            throw new DOMException('Attempted to set an unimplemented parameter', 'OperationError');
+          }
+        }),
+      };
+      const microphone = { track: { id: 'microphone' }, setParameters: vi.fn() };
+      internals.getPublisherPC.mockReturnValue({ getSenders: () => [microphone, sender] });
+      internals.getMediaStreamTrack.mockImplementation((track) => track.mediaStreamTrack);
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const options = source === Track.Source.Camera
+        ? CAMERA_OVERDRIVE
+        : buildScreenShareOptions(useVoiceStore.getState().screenShareConfig).overdrive;
+
+      expect(await applyOverdrive(room, source, options)).toBe(true);
+      expect(sender.setParameters).toHaveBeenCalledWith(expect.objectContaining({
+        encodings: [
+          encodings[0],
+          encodings[1],
+          { ...encodings[2], maxBitrate: options.maxBitrate, maxFramerate: options.maxFramerate },
+        ],
+        degradationPreference: options.degradationPreference,
+      }));
+      expect(microphone.setParameters).not.toHaveBeenCalled();
+      expect(sender.getParameters().encodings).toEqual(encodings);
+    },
+  );
+
   it('publishes VP9 directly without enabling the H.264 SDP hook', async () => {
     const room = fakeRoom();
     const video = makeVideoTrack();

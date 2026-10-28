@@ -1,7 +1,7 @@
 import { act, cleanup, render, renderHook } from '@testing-library/react';
 import { createElement } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { Room, RoomEvent, DisconnectReason, Track, ConnectionState } from 'livekit-client';
+import { Room, RoomEvent, DisconnectReason, Track, ConnectionState, BackupCodecPolicy } from 'livekit-client';
 import { useLiveKit } from './useLiveKit';
 import { useVoiceStore } from '../stores/voiceStore';
 import { useAuthStore } from '../stores/authStore';
@@ -469,6 +469,7 @@ describe('the sharer\'s own side across a republish', () => {
       screenShareConfig: { ...useVoiceStore.getState().screenShareConfig, codec: 'vp9', shareAudio: false },
     });
   });
+  afterEach(() => vi.unstubAllGlobals());
 
   /** The local participant, with publish and unpublish emitting the SDK's events. */
   function localSharer(room: Room, identity = ME) {
@@ -542,6 +543,62 @@ describe('the sharer\'s own side across a republish', () => {
     mocks.audio.playSound.mockClear();
     return room;
   }
+
+  it.each([true, false])('changes a live share to HEVC preference (device supported: %s) without recapture or republish loops', async (supported) => {
+    vi.stubGlobal('RTCRtpSender', { getCapabilities: () => ({ codecs: [{ mimeType: supported ? 'video/H265' : 'video/H264' }] }) });
+    const room = await sharingWithOneViewer();
+    const publishTrack = vi.mocked(room.localParticipant.publishTrack);
+    const capture = publishTrack.mock.calls[0]![0];
+    const before = publishTrack.mock.calls.length;
+
+    await act(async () => { useVoiceStore.getState().setScreenShareConfig({ codec: 'h265' }); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+
+    expect(publishTrack).toHaveBeenCalledTimes(before + 1);
+    expect(publishTrack).toHaveBeenLastCalledWith(capture, expect.objectContaining({
+      videoCodec: supported ? 'h265' : 'h264', backupCodecPolicy: BackupCodecPolicy.REGRESSION,
+    }));
+    expect(useVoiceStore.getState().screenShareConfig.codec).toBe('h265');
+    expect(sharerIsListedAsSharing(ME)).toBe(true);
+    expect(useVoiceStore.getState().streamWatchers.get(ME)?.has(VIEWER)).toBe(true);
+    expect(cuesPlayed()).toEqual([]);
+
+    await act(async () => { useVoiceStore.getState().setScreenShareConfig({ fps: 30, customBitrateKbps: 3000 }); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    expect(publishTrack).toHaveBeenCalledTimes(before + 1);
+  });
+
+  it.each(['h265', 'h264'] as const)('updates backup policy when switching from %s on an HEVC-unavailable device', async (initialCodec) => {
+    vi.stubGlobal('RTCRtpSender', { getCapabilities: () => ({ codecs: [{ mimeType: 'video/H264' }] }) });
+    useVoiceStore.setState({ screenShareConfig: { ...useVoiceStore.getState().screenShareConfig, codec: initialCodec } });
+    const room = await sharingWithOneViewer();
+    const publishTrack = vi.mocked(room.localParticipant.publishTrack);
+    const capture = publishTrack.mock.calls[0]![0];
+    const before = publishTrack.mock.calls.length;
+    expect(publishTrack).toHaveBeenLastCalledWith(capture, expect.objectContaining({
+      videoCodec: 'h264',
+      backupCodec: expect.objectContaining({ codec: initialCodec === 'h265' ? 'h264' : 'vp8' }),
+      backupCodecPolicy: initialCodec === 'h265' ? BackupCodecPolicy.REGRESSION : BackupCodecPolicy.SIMULCAST,
+    }));
+
+    const nextCodec = initialCodec === 'h265' ? 'h264' : 'h265';
+    await act(async () => { useVoiceStore.getState().setScreenShareConfig({ codec: nextCodec }); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+
+    expect(publishTrack).toHaveBeenCalledTimes(before + 1);
+    expect(publishTrack).toHaveBeenLastCalledWith(capture, expect.objectContaining({
+      videoCodec: 'h264',
+      backupCodec: expect.objectContaining({ codec: nextCodec === 'h265' ? 'h264' : 'vp8' }),
+      backupCodecPolicy: nextCodec === 'h265' ? BackupCodecPolicy.REGRESSION : BackupCodecPolicy.SIMULCAST,
+    }));
+    expect(sharerIsListedAsSharing(ME)).toBe(true);
+    expect(useVoiceStore.getState().streamWatchers.get(ME)?.has(VIEWER)).toBe(true);
+    expect(cuesPlayed()).toEqual([]);
+
+    await act(async () => { useVoiceStore.getState().setScreenShareConfig({ fps: 30, customBitrateKbps: 3000 }); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    expect(publishTrack).toHaveBeenCalledTimes(before + 1);
+  });
 
   it('plays neither stream_ended nor stream_started for the codec change', async () => {
     const room = await sharingWithOneViewer();

@@ -390,15 +390,15 @@ ScreenShareConfig {
   customBitrateKbps: number | null, // Admin override (if allowed)
   shareAudio: boolean,              // System audio loopback (see Platform Support below)
   forceSdr: boolean,                // Opt-in Windows HDR → SDR video conversion; default false
-  codec: 'vp9' | 'h264'             // Persisted codec preference
+  codec: 'vp9' | 'h264' | 'h265'    // Persisted codec preference; HEVC is opt-in
 }
 ```
 
 ### Build Pipeline (`buildScreenShareOptions()`)
 1. Resolve bitrate from matrix (custom > override > default > native estimate)
 2. Clamp to instance limits (minBitrateKbps, maxBitrateKbps)
-3. Select the persisted codec: VP9 (default) or H.264
-4. Configure a VP8 simulcast backup at reduced framerate/bitrate; room dynacast pauses it when no subscriber needs it
+3. Resolve the persisted codec: VP9 (default), H.264 or H.265/HEVC. An unavailable local HEVC choice uses effective H.264 without changing the saved preference.
+4. VP9/H.264 choices retain a reduced-FPS/bitrate VP8 simulcast backup, paused by dynacast when unused. An HEVC choice instead uses full-ceiling H.264 fallback with forced codec regression, not permanent dual encoding.
 5. Content hint: `'detail'` (text) or `'motion'` (gaming)
 6. Degradation preference: preserve resolution for text, balanced for gaming
 
@@ -409,7 +409,7 @@ ScreenShareConfig {
 
 ### Windows Force SDR
 
-`forceSdr` is a device-local next-capture preference (voice settings schema 15),
+`forceSdr` is a device-local next-capture preference (introduced in voice settings schema 15),
 default off and migrated to false when absent. The quality controls ask the
 desktop capability rather than guessing from the OS name. Unsupported/older
 hosts show the unavailable switch without overwriting a saved preference. A
@@ -469,9 +469,25 @@ acceptance gates are documented in [desktop.md](desktop.md),
 [desktop-security.md](desktop-security.md) and the 1.15.1 validation ledger.
 
 ### Codec and sender parameters
+- `utils/screenShareCodec.ts` owns the three requested codec values, safe HEVC
+  capability detection and effective local fallback. H.265 availability comes
+  from WebRTC sender capabilities (`supportsH265` in LiveKit), not the user-agent
+  or WebCodecs. Missing/failing capability APIs disable the HEVC pill and explain
+  why. Voice settings schema 16 preserves valid codec preferences, normalizes
+  invalid values to VP9, and fills missing config fields on hydration. A saved
+  HEVC preference is never rewritten just because another device lacks support.
+- H.265 is screen-share-only; cameras remain H.264. Chromium/driver selects its
+  encoder: no native AMF/NVENC integration or unconditional hardware claim. Its
+  H.264 backup uses `BackupCodecPolicy.REGRESSION` (2), not `SIMULCAST` or merely
+  `PREFER_REGRESSION`: an incompatible subscriber makes the SFU regress the track
+  for all viewers. Quality ceilings stay full because this replaces HEVC instead
+  of supplementing it. A short negotiation transition may still occur; automatic
+  return to HEVC when that viewer leaves is not promised. A locally unsupported
+  saved HEVC choice publishes only H.264, without adding a VP8 parallel encoder.
 - H.264 uses an SDP profile override only during its publish negotiation; the
   hook is removed in `finally` so later camera or microphone negotiations are
-  unaffected.
+  unaffected. HEVC publication and its SDK-managed H.264 regression do not install
+  this hook; a local effective H.264 publication follows the normal H.264 path.
 - Selecting H.264 does not guarantee hardware encoding. The negotiated codec
   and `encoderImplementation` reported by WebRTC stats are shown in the
   connection inspector. If Chromium reports the OpenH264 software fallback,
@@ -479,9 +495,26 @@ acceptance gates are documented in [desktop.md](desktop.md),
   is tracked separately from the codec confirmed by outbound stats, so codec
   changes can be serialized without presenting the requested value as a
   negotiated result. Stats inspection retries briefly while the sender or
-  encoder implementation is still unavailable.
-- Sender parameters set the chosen bitrate ceiling and framerate with high
-  priority. Application starts immediately, retries at bounded intervals until
+  encoder implementation is still unavailable, for HEVC as for H.264. Cloned
+  fallback tracks are mapped to their publication in shared stats and initial
+  encoder inspection; paused senders are not mistaken for the active codec based
+  on old cumulative byte counters. Missing implementation data remains unknown.
+- HEVC live quality changes update the active fallback sender as well as the
+  primary and LiveKit 2.23's cached publish/encoding options. A late regression
+  must not revive old bitrate/FPS ceilings or a stale degradation preference.
+- Live republish compares the primary codec, backup codec and backup policy,
+  not just the effective/observed codec. Switching an unavailable HEVC preference
+  to explicit H.264 restores VP8/`SIMULCAST` even though both use H.264 locally;
+  the reverse transition restores single-codec regression. Quality-only changes
+  do not republish.
+- Camera, screen-share video and its VP8 fallback publish at normal WebRTC
+  priority (`low`); microphone audio keeps LiveKit's `high` priority so video
+  yields to speech under contention. Sender updates reassert video priority and
+  network priority only on encoding zero: Chromium rejects changing these on a
+  non-first simulcast encoding, discarding the whole update. Bitrate/framerate
+  ceilings still target the highest-quality encoding, not the low camera layer.
+- Sender parameters set the chosen bitrate ceiling and framerate without
+  bypassing congestion control. Application starts immediately, retries at bounded intervals until
   a real `RTCRtpSender` encoding is available, and always re-asserts the values
   at 5 seconds after Chromium's bandwidth estimate converges. The same bounded
   scheduler runs after LiveKit reconnects and screen-track restarts, where the

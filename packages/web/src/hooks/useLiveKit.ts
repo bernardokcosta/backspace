@@ -33,7 +33,7 @@ import {
   applyOverdrive,
   scheduleScreenShareOverdrive,
   republishScreenShare,
-  getRequestedPublishedScreenShareCodec,
+  needsScreenShareRepublish,
   handleScreenShareUnpublished,
   handleScreenShareAudioUnpublished,
   settleScreenShareAfterReconnect,
@@ -762,10 +762,27 @@ export function useLiveKit() {
     roomRef.current = null;
     _activeRoom = null;
     if (roomToDisconnect) clearRoomStreamState(roomToDisconnect);
+    // Single-flight teardown for the room above: a superseded attempt must
+    // still destroy it (its refs are already gone, so no later attempt can).
+    let oldRoomDestroyed = false;
+    const destroyOldRoom = async () => {
+      if (roomToDisconnect && !oldRoomDestroyed) {
+        oldRoomDestroyed = true;
+        try {
+          console.log('[LiveKit] Destroying previous room:', roomToDisconnect.name);
+          await destroyRoom(roomToDisconnect);
+        } catch (err) {
+          console.warn('Error disconnecting from previous room:', err);
+        }
+      }
+    };
 
     // Ensure AudioContext is created and resumed before tracks arrive
     await AudioManager.getInstance().resumeContext();
-    if (gen !== _connectGeneration) return;
+    if (gen !== _connectGeneration) {
+      await destroyOldRoom();
+      return;
+    }
 
     // 1. Reset state immediately to reflect "Loading/Switching" in UI
     SpeakingDetector.getInstance().clear();
@@ -790,14 +807,7 @@ export function useLiveKit() {
     // nulled so its terminal events stay inert while tearing down).
     // This handles cases where AppLayout might have remounted, losing roomRef but leaving _activeRoom alive.
     // A channel switch retains pre-armed capture.
-    if (roomToDisconnect) {
-      try {
-        console.log('[LiveKit] Destroying previous room:', roomToDisconnect.name);
-        await destroyRoom(roomToDisconnect);
-      } catch (err) {
-        console.warn('Error disconnecting from previous room:', err);
-      }
-    }
+    await destroyOldRoom();
     if (gen !== _connectGeneration) return;
     
     try {
@@ -1248,10 +1258,10 @@ export function useLiveKit() {
         // audio track, never the video.
         await syncScreenShareAudio(room);
         const opts = buildScreenShareOptions(screenShareConfig);
-        // Codec changed mid-stream — the codec is baked into SDP negotiation,
-        // so republish the same track under the new options (no re-capture).
-        const publishedCodec = getRequestedPublishedScreenShareCodec();
-        if (publishedCodec && publishedCodec !== opts.publish.videoCodec) {
+        // Primary/backup codecs and policy are negotiation-bound, even when
+        // local HEVC fallback keeps the same effective H264 primary. Quality
+        // changes alone update the senders without republishing the capture.
+        if (needsScreenShareRepublish(opts.publish)) {
           await republishScreenShare(room);
           return;
         }
