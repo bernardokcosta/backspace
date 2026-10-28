@@ -216,6 +216,20 @@ describe('voice capture teardown', () => {
     expect(result.current.connectedChannelId).toBe('second');
   });
 
+  it('starts tearing down the old room before resumeContext resolves on channel switch', async () => {
+    const { result } = renderHook(() => useLiveKit());
+    await act(async () => { await result.current.connect('first'); });
+    expect(mocks.disconnect).not.toHaveBeenCalled();
+    let releaseResume!: () => void;
+    mocks.audio.resumeContext.mockReturnValueOnce(new Promise<void>(r => { releaseResume = r; }));
+    let switching!: Promise<void>;
+    act(() => { switching = result.current.connect('second'); });
+    // The old room's teardown has started even though resume is still pending.
+    expect(mocks.disconnect).toHaveBeenCalledTimes(1);
+    await act(async () => { releaseResume(); await switching; });
+    expect(result.current.connectedChannelId).toBe('second');
+  });
+
   it('releases pre-armed capture when the token request fails', async () => {
     mocks.token.mockRejectedValueOnce(new Error('token unavailable'));
     const { result } = renderHook(() => useLiveKit());

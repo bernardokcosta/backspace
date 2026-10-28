@@ -762,25 +762,24 @@ export function useLiveKit() {
     roomRef.current = null;
     _activeRoom = null;
     if (roomToDisconnect) clearRoomStreamState(roomToDisconnect);
-    // Single-flight teardown for the room above: a superseded attempt must
-    // still destroy it (its refs are already gone, so no later attempt can).
-    let oldRoomDestroyed = false;
-    const destroyOldRoom = async () => {
-      if (roomToDisconnect && !oldRoomDestroyed) {
-        oldRoomDestroyed = true;
-        try {
-          console.log('[LiveKit] Destroying previous room:', roomToDisconnect.name);
-          await destroyRoom(roomToDisconnect);
-        } catch (err) {
-          console.warn('Error disconnecting from previous room:', err);
-        }
+    // Start tearing the old room down immediately (before any await): if
+    // this attempt is superseded or unmounted while `resumeContext()` is
+    // still pending, nobody else holds a reference to destroy it. Every path
+    // below awaits this same promise; awaiting it never clears watch intent.
+    const oldRoomTeardown = (async () => {
+      if (!roomToDisconnect) return;
+      try {
+        console.log('[LiveKit] Destroying previous room:', roomToDisconnect.name);
+        await destroyRoom(roomToDisconnect);
+      } catch (err) {
+        console.warn('Error disconnecting from previous room:', err);
       }
-    };
+    })();
 
     // Ensure AudioContext is created and resumed before tracks arrive
     await AudioManager.getInstance().resumeContext();
     if (gen !== _connectGeneration) {
-      await destroyOldRoom();
+      await oldRoomTeardown;
       return;
     }
 
@@ -803,11 +802,11 @@ export function useLiveKit() {
     useVoiceStore.getState().setIsLiveKitConnected(false);
     useVoiceStore.getState().setConnectionQuality('unknown');
 
-    // 2. Strictly disconnect the previous room captured above (refs already
-    // nulled so its terminal events stay inert while tearing down).
+    // 2. Join the teardown started above (refs already nulled so the old
+    // room's terminal events stay inert while tearing down).
     // This handles cases where AppLayout might have remounted, losing roomRef but leaving _activeRoom alive.
     // A channel switch retains pre-armed capture.
-    await destroyOldRoom();
+    await oldRoomTeardown;
     if (gen !== _connectGeneration) return;
     
     try {
