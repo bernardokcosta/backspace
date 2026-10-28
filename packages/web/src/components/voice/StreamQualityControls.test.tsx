@@ -96,6 +96,54 @@ describe('StreamHostSubtitle', () => {
   });
 });
 
+describe('H.265 quality control', () => {
+  function webRtcCodecs(h265: boolean) {
+    vi.stubGlobal('RTCRtpSender', {
+      getCapabilities: () => ({ codecs: [{ mimeType: h265 ? 'video/H265' : 'video/H264' }] }),
+    });
+  }
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('offers H.265 when the WebRTC sender supports it and saves an explicit selection', () => {
+    webRtcCodecs(true);
+    render(<StreamQualityControls />);
+    const hevc = screen.getByRole('button', { name: 'H265 (HEVC)' });
+    expect(hevc).toBeEnabled();
+    fireEvent.click(hevc);
+    expect(useVoiceStore.getState().screenShareConfig.codec).toBe('h265');
+    expect(hevc).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByText(/Chromium chooses the encoder/)).toBeInTheDocument();
+    expect(screen.getByText(/switches to H264 for everyone/)).toBeInTheDocument();
+  });
+
+  it('disables H.265 and explains a device without WebRTC HEVC support', () => {
+    webRtcCodecs(false);
+    render(<StreamQualityControls />);
+    const hevc = screen.getByRole('button', { name: 'H265 (HEVC)' });
+    expect(hevc).toBeDisabled();
+    expect(hevc).toHaveAttribute('title', 'H265 is not available for WebRTC publishing on this device.');
+    fireEvent.click(hevc);
+    expect(useVoiceStore.getState().screenShareConfig.codec).toBe('vp9');
+    expect(screen.getByText('H265 is not available for WebRTC publishing on this device.')).toBeInTheDocument();
+  });
+
+  it('highlights effective H.264 without overwriting a saved unavailable H.265 preference', () => {
+    webRtcCodecs(false);
+    useVoiceStore.setState({ screenShareConfig: { ...useVoiceStore.getState().screenShareConfig, codec: 'h265' } });
+    render(<StreamQualityControls />);
+    expect(screen.getByRole('button', { name: 'H264' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'H265 (HEVC)' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByText(/Your H265 preference is kept/)).toBeInTheDocument();
+    expect(useVoiceStore.getState().screenShareConfig.codec).toBe('h265');
+  });
+
+  it('keeps H.265 unavailable if the capability API throws', () => {
+    vi.stubGlobal('RTCRtpSender', { getCapabilities: () => { throw new Error('unavailable'); } });
+    render(<StreamQualityControls />);
+    expect(screen.getByRole('button', { name: 'H265 (HEVC)' })).toBeDisabled();
+  });
+});
+
 describe('Force SDR quality control', () => {
   function desktop() {
     const api: Partial<BackspaceElectronAPI> = {

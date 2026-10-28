@@ -143,8 +143,12 @@
     "codec": "Codec",
     "codecOption": {
       "vp9": "VP9",
-      "h264": "H264"
+      "h264": "H264",
+      "h265": "H265 (HEVC)"
     },
+    "h265Note": "O Chromium escolhe o codificador; a aceleração por hardware depende do dispositivo e do driver. Se alguém não puder receber H265, a transmissão muda para H264 para todos.",
+    "h265Unavailable": "H265 não está disponível para transmissão por WebRTC neste dispositivo.",
+    "h265LocalFallback": "Sua preferência por H265 foi mantida, mas este dispositivo não o oferece para WebRTC. Esta transmissão usa H264.",
     "bitrate": "Taxa de bits",
     "custom": "Personalizada",
     "auto": "Automática",

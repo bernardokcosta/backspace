@@ -547,9 +547,6 @@
   "packages/web/src/utils/screenShare.ts": {
     "@typescript-eslint/ban-ts-comment": {
       "count": 1
-    },
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
     }
   },
   "scripts/gen-icons.mjs": {

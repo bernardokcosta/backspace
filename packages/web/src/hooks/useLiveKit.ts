@@ -33,7 +33,7 @@ import {
   applyOverdrive,
   scheduleScreenShareOverdrive,
   republishScreenShare,
-  getRequestedPublishedScreenShareCodec,
+  needsScreenShareRepublish,
   handleScreenShareUnpublished,
   handleScreenShareAudioUnpublished,
   settleScreenShareAfterReconnect,
@@ -1207,10 +1207,10 @@ export function useLiveKit() {
         // audio track, never the video.
         await syncScreenShareAudio(room);
         const opts = buildScreenShareOptions(screenShareConfig);
-        // Codec changed mid-stream — the codec is baked into SDP negotiation,
-        // so republish the same track under the new options (no re-capture).
-        const publishedCodec = getRequestedPublishedScreenShareCodec();
-        if (publishedCodec && publishedCodec !== opts.publish.videoCodec) {
+        // Primary/backup codecs and policy are negotiation-bound, even when
+        // local HEVC fallback keeps the same effective H264 primary. Quality
+        // changes alone update the senders without republishing the capture.
+        if (needsScreenShareRepublish(opts.publish)) {
           await republishScreenShare(room);
           return;
         }

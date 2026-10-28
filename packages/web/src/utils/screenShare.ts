@@ -1,8 +1,9 @@
-import { Room, Track, BackupCodecPolicy, AudioPresets, ConnectionState } from 'livekit-client';
+import { Room, Track, BackupCodecPolicy, AudioPresets, ConnectionState, LocalVideoTrack } from 'livekit-client';
 import { useVoiceStore } from '../stores/voiceStore';
 import type { ScreenShareConfig, ScreenShareAudioState } from '../stores/voiceStore';
 import { getStreamHostLimits } from './streamHostLimits';
-import { getPublisherPC, getMediaStreamTrack } from './livekitInternals';
+import { resolveScreenShareCodec, type ScreenShareCodec } from './screenShareCodec';
+import { getPublisherPC, getMediaStreamTrack, getPublishedMediaStreamTracks, isRtpSenderActive, syncSingleCodecVideoEncodingCeilings } from './livekitInternals';
 import { broadcastVoiceStatus } from './voice';
 import { encodeShareSignal, type ShareSignal } from './streamWatchProtocol';
 import { activate as activateHwOverdrive, deactivate as deactivateHwOverdrive } from './hwOverdrive';
@@ -27,12 +28,13 @@ export interface OverdriveOptions {
   maxBitrate: number;
   maxFramerate: number;
   degradationPreference: RTCDegradationPreference;
+  syncBackupEncodings?: boolean;
 }
 
 export interface ScreenShareBuildResult {
   capture: { width: number; height: number; frameRate: number };
   publish: {
-    videoCodec: 'vp9' | 'h264';
+    videoCodec: ScreenShareCodec;
     videoEncoding: { maxBitrate: number; maxFramerate: number; priority: RTCPriorityType };
     simulcast: false;
     backupCodec?: { codec: 'vp8' | 'h264'; encoding: { maxBitrate: number; maxFramerate: number; priority: RTCPriorityType } };
@@ -189,25 +191,27 @@ export function buildScreenShareOptions(savedConfig: ScreenShareConfig): ScreenS
 
   // Convert to bps ONLY at the WebRTC boundary
   const bps = clampedKbps * 1000;
-  // The persisted config is the only source of codec intent. The VP8 backup
-  // remains simulcast: room dynacast pauses it when nobody needs it, while an
-  // incompatible subscriber can receive VP8 without regressing every viewer.
+  const videoCodec = resolveScreenShareCodec(config.codec);
+  // HEVC is opt-in with one active codec: the SFU regresses to H264 for an
+  // incompatible viewer, rather than running a second encoder in parallel.
+  // A saved HEVC choice on an unsupported device also stays H264-only.
+  const singleCodec = config.codec === 'h265';
 
   // Backup encoding: cap at 30fps and proportional bitrate to keep CPU overhead low
-  const backupFps = Math.min(fps, 30);
+  const backupFps = singleCodec ? fps : Math.min(fps, 30);
   const backupBps = Math.round(bps * (backupFps / fps));
 
   return {
     capture: { width: captureWidth, height: captureHeight, frameRate: fps },
     publish: {
-      videoCodec: config.codec,
+      videoCodec,
       videoEncoding: { maxBitrate: bps, maxFramerate: fps, priority: VIDEO_PRIORITY },
       simulcast: false,
       backupCodec: {
-        codec: 'vp8' as const,
+        codec: singleCodec ? 'h264' : 'vp8',
         encoding: { maxBitrate: backupBps, maxFramerate: backupFps, priority: VIDEO_PRIORITY },
       },
-      backupCodecPolicy: BackupCodecPolicy.SIMULCAST,
+      backupCodecPolicy: singleCodec ? BackupCodecPolicy.REGRESSION : BackupCodecPolicy.SIMULCAST,
       audioPreset: AudioPresets.musicHighQualityStereo,
       dtx: false,
       red: false,
@@ -217,6 +221,7 @@ export function buildScreenShareOptions(savedConfig: ScreenShareConfig): ScreenS
       maxBitrate: bps,
       maxFramerate: fps,
       degradationPreference: mode === 'text' ? 'maintain-resolution' : 'balanced',
+      ...(singleCodec ? { syncBackupEncodings: true } : {}),
     },
     contentHint: mode === 'text' ? 'detail' : 'motion',
   };
@@ -263,37 +268,39 @@ export async function applyOverdrive(
     const pc = getPublisherPC(room);
     if (!pc) return false;
 
-    const pubMediaTrack = getMediaStreamTrack(pub.track);
-    const senders = pc.getSenders();
-    const sender = senders.find(s => s.track?.id === pubMediaTrack?.id);
-    if (!sender) return false;
-
-    const params = sender.getParameters();
-    if (!params.encodings?.length) return false;
-    // Before LiveKit finishes configuring the sender, Chromium can expose one
-    // empty placeholder encoding. Any values written there are replaced by
-    // LiveKit's sendEncodings, so report "not ready" and let the bounded
-    // scheduler retry after negotiation advances.
-    if (params.encodings.length === 1 && Object.keys(params.encodings[0]!).length === 0) {
-      return false;
+    const syncBackup = options.syncBackupEncodings && source === Track.Source.ScreenShare;
+    if (syncBackup) {
+      syncSingleCodecVideoEncodingCeilings(pub.track, {
+        maxBitrate: options.maxBitrate, maxFramerate: options.maxFramerate, priority: VIDEO_PRIORITY,
+      }, options.degradationPreference);
+      if (pub.track instanceof LocalVideoTrack) {
+        await pub.track.setDegradationPreference(options.degradationPreference);
+      }
     }
-
-    // Target the highest-quality layer. With simulcast, encodings[0] is the
-    // lowest layer; our overdrive must hit the top layer so the custom bitrate
-    // slider controls the full-resolution stream, not the quarter-res one.
-    // For non-simulcast tracks (single encoding), length - 1 === 0.
-    const idx = params.encodings.length - 1;
-    params.encodings[idx]!.maxBitrate = options.maxBitrate;
-    params.encodings[idx]!.maxFramerate = options.maxFramerate;
-    // Priority is sender-wide and Chromium accepts it only on encoding zero.
-    // Writing it to a non-first simulcast layer rejects the entire update,
-    // including the quality ceilings above. Never raise video to mic priority.
-    params.encodings[0]!.priority = VIDEO_PRIORITY;
-    params.encodings[0]!.networkPriority = VIDEO_PRIORITY;
-    (params as any).degradationPreference = options.degradationPreference;
-
-    await sender.setParameters(params);
-    return true;
+    const tracks = syncBackup ? getPublishedMediaStreamTracks(pub.track) : [getMediaStreamTrack(pub.track)];
+    const trackIds = new Set(tracks.map((track) => track?.id));
+    const senders = pc.getSenders().filter((sender) => sender.track && trackIds.has(sender.track.id));
+    if (!senders.length) return false;
+    let applied = true;
+    for (const sender of senders) {
+      const params = sender.getParameters();
+      // Chromium's empty placeholder is replaced after negotiation; retry it.
+      if (!params.encodings?.length
+          || (params.encodings.length === 1 && Object.keys(params.encodings[0]!).length === 0)) {
+        applied = false;
+        continue;
+      }
+      // Quality ceilings belong to the top layer; sender-wide priority belongs
+      // only to encoding zero. Preserve disabled layers and yield video to voice.
+      const idx = params.encodings.length - 1;
+      params.encodings[idx]!.maxBitrate = options.maxBitrate;
+      params.encodings[idx]!.maxFramerate = options.maxFramerate;
+      params.encodings[0]!.priority = VIDEO_PRIORITY;
+      params.encodings[0]!.networkPriority = VIDEO_PRIORITY;
+      params.degradationPreference = options.degradationPreference;
+      await sender.setParameters(params);
+    }
+    return applied;
   } catch (err) {
     console.warn('[ScreenShare] Failed to apply overdrive:', err);
     return false;
@@ -442,16 +449,31 @@ export function stopStagedCapture(stream: MediaStream | null | undefined): void 
 // ---------------------------------------------------------------------------
 
 /** Codec confirmed by outbound WebRTC stats; null until stats expose it. */
-let _publishedScreenShareCodec: 'vp9' | 'h264' | 'vp8' | null = null;
-/** Requested codec of the current publication, used only to decide whether republish is needed. */
-let _requestedPublishedScreenShareCodec: 'vp9' | 'h264' | null = null;
+type PublishedScreenShareCodec = ScreenShareCodec | 'vp8';
+let _publishedScreenShareCodec: PublishedScreenShareCodec | null = null;
+/** Negotiation intent is separate from both live quality and the observed codec. */
+interface ScreenSharePublicationCodecs {
+  videoCodec: ScreenShareCodec;
+  backupCodec: 'vp8' | 'h264' | undefined;
+  backupCodecPolicy: BackupCodecPolicy | undefined;
+}
+let _publishedScreenShareCodecs: ScreenSharePublicationCodecs | null = null;
+/** A republish may reuse the capture id; retire its older asynchronous stats. */
+let _encoderInspectionGeneration = 0;
 
-export function getPublishedScreenShareCodec(): 'vp9' | 'h264' | 'vp8' | null {
+export function getPublishedScreenShareCodec(): PublishedScreenShareCodec | null {
   return _publishedScreenShareCodec;
 }
 
-export function getRequestedPublishedScreenShareCodec(): 'vp9' | 'h264' | null {
-  return _requestedPublishedScreenShareCodec;
+export function getRequestedPublishedScreenShareCodec(): ScreenShareCodec | null {
+  return _publishedScreenShareCodecs?.videoCodec ?? null;
+}
+
+export function needsScreenShareRepublish(options: ScreenShareBuildResult['publish']): boolean {
+  if (!_publishedScreenShareCodecs) return false;
+  return _publishedScreenShareCodecs.videoCodec !== options.videoCodec
+    || _publishedScreenShareCodecs.backupCodec !== options.backupCodec?.codec
+    || _publishedScreenShareCodecs.backupCodecPolicy !== options.backupCodecPolicy;
 }
 
 /** True while republishScreenShare() swaps publications; unpublish handlers must not treat it as a stop. */
@@ -504,9 +526,10 @@ export async function publishScreenShare(
   stream: MediaStream,
   options: PublishScreenShareOptions = {},
 ): Promise<boolean> {
+  const encoderGeneration = ++_encoderInspectionGeneration;
   const config = useVoiceStore.getState().screenShareConfig;
   const opts = buildScreenShareOptions(config);
-  const needsH264SdpPatch = config.codec === 'h264';
+  const needsH264SdpPatch = opts.publish.videoCodec === 'h264';
   const videoTrack = stream.getVideoTracks()[0];
   if (!videoTrack || videoTrack.readyState !== 'live') { stopStagedCapture(stream); return false; }
   const sendsSdr = isSdrScreenCapture(stream);
@@ -542,6 +565,7 @@ export async function publishScreenShare(
       // LiveKit uses screenShareEncoding (not videoEncoding) for screen share tracks.
       // Without this, the default ScreenSharePresets.h1080fps15 caps at 15fps.
       screenShareEncoding: opts.publish.videoEncoding,
+      degradationPreference: opts.overdrive.degradationPreference,
       simulcast: opts.publish.simulcast,
       ...(opts.publish.backupCodec ? {
         backupCodec: opts.publish.backupCodec,
@@ -553,7 +577,11 @@ export async function publishScreenShare(
     if (audioToPublish) { await publishScreenShareAudioTrack(room, audioToPublish); audioPublished = true; }
     ensureCaptureLive();
 
-    _requestedPublishedScreenShareCodec = opts.publish.videoCodec;
+    _publishedScreenShareCodecs = {
+      videoCodec: opts.publish.videoCodec,
+      backupCodec: opts.publish.backupCodec?.codec,
+      backupCodecPolicy: opts.publish.backupCodecPolicy,
+    };
     _publishedScreenShareCodec = null;
     _liveSource = source;
     // A published share is settled: nothing is left to wait for.
@@ -565,7 +593,7 @@ export async function publishScreenShare(
       screenShareAudio: audioToPublish ? 'published' : idleScreenShareAudioState(),
     });
     scheduleScreenShareOverdrive(room);
-    scheduleEncoderDetection(room, config.codec, videoTrack.id);
+    scheduleEncoderDetection(room, opts.publish.videoCodec, videoTrack.id, encoderGeneration);
     return true;
   } catch (err) {
     console.error('[ScreenShare] Failed to publish screen share:', err);
@@ -631,7 +659,7 @@ export async function republishScreenShare(room: Room): Promise<void> {
     _republishing = false;
   }
   _publishedScreenShareCodec = null;
-  _requestedPublishedScreenShareCodec = null;
+  _publishedScreenShareCodecs = null;
 
   const ok = await publishScreenShare(room, stream, {
     sourceId: _liveSource?.id ?? null,
@@ -1022,20 +1050,22 @@ interface EncoderStatsEntry extends RTCStats {
   encoderImplementation?: string;
 }
 
-function normalizeVideoCodec(value: string | undefined): 'vp9' | 'h264' | 'vp8' | null {
+function normalizeVideoCodec(value: string | undefined): PublishedScreenShareCodec | null {
   const normalized = value?.toLowerCase();
   if (normalized?.includes('vp9')) return 'vp9';
   if (normalized?.includes('h264')) return 'h264';
+  if (normalized?.includes('h265')) return 'h265';
   if (normalized?.includes('vp8')) return 'vp8';
   return null;
 }
 
 async function inspectPublishedEncoder(
   room: Room,
-  requestedCodec: 'vp9' | 'h264',
+  requestedCodec: ScreenShareCodec,
   expectedTrackId: string,
+  generation: number,
 ): Promise<boolean> {
-  if (!useVoiceStore.getState().isScreenSharing) return true;
+  if (generation !== _encoderInspectionGeneration || !useVoiceStore.getState().isScreenSharing) return true;
 
   const pc = getPublisherPC(room);
   if (!pc) return false;
@@ -1044,45 +1074,43 @@ async function inspectPublishedEncoder(
   if (!screenPub?.track) return false;
   const mediaTrack = getMediaStreamTrack(screenPub.track);
   if (!mediaTrack || mediaTrack.id !== expectedTrackId) return true;
-  const sender = pc.getSenders().find(s => s.track?.id === expectedTrackId);
-  if (!sender) return false;
-
-  const stats = await sender.getStats();
-  const codecById = new Map<string, string>();
-  const outbound: Array<{ codec: 'vp9' | 'h264' | 'vp8'; bytesSent: number; encoderImpl: string | null }> = [];
-  stats.forEach((report) => {
-    const entry = report as EncoderStatsEntry;
-    if (entry.type === 'codec' && entry.mimeType) codecById.set(entry.id, entry.mimeType);
-  });
-  stats.forEach((report) => {
-    const entry = report as EncoderStatsEntry;
-    if (entry.type !== 'outbound-rtp' || (entry.kind !== 'video' && entry.mediaType !== 'video')) return;
-    if (entry.active === false) return;
-    const codec = normalizeVideoCodec(entry.mimeType ?? (entry.codecId ? codecById.get(entry.codecId) : undefined));
-    if (!codec) return;
-    outbound.push({
-      codec,
-      bytesSent: entry.bytesSent ?? 0,
-      encoderImpl: entry.encoderImplementation ?? null,
+  const trackIds = new Set(getPublishedMediaStreamTracks(screenPub.track).map((track) => track.id));
+  const senders = pc.getSenders().filter((sender) => sender.track && trackIds.has(sender.track.id));
+  const outbound: Array<{ codec: PublishedScreenShareCodec; bytesSent: number; encoderImpl: string | null }> = [];
+  for (const sender of senders) {
+    if (!isRtpSenderActive(sender)) continue;
+    const stats = await sender.getStats();
+    const codecById = new Map<string, string>();
+    stats.forEach((report) => {
+      const entry = report as EncoderStatsEntry;
+      if (entry.type === 'codec' && entry.mimeType) codecById.set(entry.id, entry.mimeType);
     });
-  });
+    stats.forEach((report) => {
+      const entry = report as EncoderStatsEntry;
+      if (entry.type !== 'outbound-rtp' || (entry.kind !== 'video' && entry.mediaType !== 'video')) return;
+      if (entry.active === false) return;
+      const codec = normalizeVideoCodec(entry.mimeType ?? (entry.codecId ? codecById.get(entry.codecId) : undefined));
+      if (!codec) return;
+      outbound.push({
+        codec,
+        bytesSent: entry.bytesSent ?? 0,
+        encoderImpl: entry.encoderImplementation ?? null,
+      });
+    });
+  }
+  if (generation !== _encoderInspectionGeneration || !useVoiceStore.getState().isScreenSharing) return true;
   if (outbound.length === 0) return false;
 
   const sending = outbound.filter((entry) => entry.bytesSent > 0);
-  // SIMULCAST can expose the requested primary and VP8 backup together. Prefer
-  // a confirmed, sending primary; only report the backup when the requested
-  // codec is absent/inactive and VP8 is the stream actually carrying bytes.
+  // Prefer a confirmed active primary, otherwise the active fallback. Paused
+  // primary senders can retain old cumulative byte counters after regression.
   const selected = sending.find((entry) => entry.codec === requestedCodec)
     ?? (sending.length > 0
       ? sending.reduce((best, entry) => entry.bytesSent > best.bytesSent ? entry : best)
       : outbound.find((entry) => entry.codec === requestedCodec) ?? outbound[0]!);
   _publishedScreenShareCodec = selected.codec;
 
-  const h264Implementations = outbound
-    .filter((entry) => entry.codec === 'h264')
-    .map((entry) => entry.encoderImpl)
-    .filter((value): value is string => value != null);
-  if (requestedCodec === 'h264' && h264Implementations.some((value) => /openh264/i.test(value))) {
+  if (selected.codec === 'h264' && selected.encoderImpl && /openh264/i.test(selected.encoderImpl)) {
     useUIStore.getState().addToast(
       i18n.t('voice:streamSettings.softwareH264Fallback'),
       'warning',
@@ -1091,28 +1119,30 @@ async function inspectPublishedEncoder(
     return true;
   }
 
-  // Chromium may expose the codec before encoderImplementation. Retry H264
-  // briefly so the software-fallback signal is not lost to stats timing.
-  return requestedCodec !== 'h264'
-    || selected.codec !== 'h264'
-    || h264Implementations.length > 0;
+  // Chromium may expose the codec before its implementation. Retry briefly
+  // for HEVC and H264 (including an HEVC regression), without inventing hardware.
+  return (selected.codec !== 'h264' && selected.codec !== 'h265')
+    || selected.encoderImpl !== null;
 }
 
 const ENCODER_DETECTION_OFFSETS_MS = [0, 1000, 4000, 8000] as const;
 
 function scheduleEncoderDetection(
   room: Room,
-  requestedCodec: 'vp9' | 'h264',
+  requestedCodec: ScreenShareCodec,
   expectedTrackId: string,
+  generation: number,
 ): void {
   const startedAt = Date.now();
   let attemptIndex = 0;
   const inspect = async (): Promise<void> => {
+    if (generation !== _encoderInspectionGeneration) return;
     try {
-      if (await inspectPublishedEncoder(room, requestedCodec, expectedTrackId)) return;
+      if (await inspectPublishedEncoder(room, requestedCodec, expectedTrackId, generation)) return;
     } catch {
       // Non-critical — the connection inspector still exposes available stats.
     }
+    if (generation !== _encoderInspectionGeneration) return;
     attemptIndex += 1;
     if (attemptIndex >= ENCODER_DETECTION_OFFSETS_MS.length) return;
     const targetOffset = ENCODER_DETECTION_OFFSETS_MS[attemptIndex]!;
@@ -1127,6 +1157,7 @@ function scheduleEncoderDetection(
 // ---------------------------------------------------------------------------
 
 export async function stopScreenShare(room: Room): Promise<void> {
+  ++_encoderInspectionGeneration;
   // Sent first and not awaited: a stop must not wait on the data channel.
   // Viewers handle the message on either side of the removal.
   announceShare(room, 'stream_stop');
@@ -1151,7 +1182,7 @@ export async function stopScreenShare(room: Room): Promise<void> {
   deactivateHwOverdrive();
   endScreenShareAudio(room);
   _publishedScreenShareCodec = null;
-  _requestedPublishedScreenShareCodec = null;
+  _publishedScreenShareCodecs = null;
   useVoiceStore.setState({ isScreenSharing: false, screenShareSdr: false });
   // `voice_status` is what carries isScreenSharing to people who are not in the
   // LiveKit room (channel lists, join sheets). Every stop path funnels through
@@ -1241,13 +1272,14 @@ function announceShare(room: Room, signal: ShareSignal): void {
 
 /** The share is over without stopScreenShare: the OS stop bar, a source that ended, a reconnect that lost it. */
 function endLocalShare(room: Room): void {
+  ++_encoderInspectionGeneration;
   disposeActiveScreenShareCapture(room);
   _reconnectingRoom = null;
   announceShare(room, 'stream_stop');
   deactivateHwOverdrive();
   endScreenShareAudio(room);
   _publishedScreenShareCodec = null;
-  _requestedPublishedScreenShareCodec = null;
+  _publishedScreenShareCodecs = null;
   useVoiceStore.setState({ isScreenSharing: false, screenShareSdr: false });
   // `voice_status` is what carries isScreenSharing to people who are not in the
   // LiveKit room (channel lists, join sheets). Every stop path funnels through

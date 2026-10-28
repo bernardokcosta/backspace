@@ -55,6 +55,9 @@ Source files:
 - Screen-share Force SDR controls/failures use `voice:streamSettings.forceSdr*`
   in all five catalogs; capability/unavailable and restart-share copy describe
   effective behavior without changing the saved device preference.
+- Screen-share HEVC capability/fallback help uses `voice:streamSettings.h265*`
+  in all five catalogs. `codecOption.h265` is the invariant codec name
+  "H265 (HEVC)", allowlisted like VP9/H264; the explanatory text is translated.
 - Shared error codes: `packages/shared/src/errors.ts` (`ERROR_CODES`,
   `ErrorCode`, `ApiErrorBody`, `isErrorCode`)
 - Server error helper: `packages/server/src/utils/httpErrors.ts` (`sendError`,

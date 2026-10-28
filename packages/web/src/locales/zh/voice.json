@@ -143,8 +143,12 @@
     "codec": "编解码器",
     "codecOption": {
       "vp9": "VP9",
-      "h264": "H264"
+      "h264": "H264",
+      "h265": "H265 (HEVC)"
     },
+    "h265Note": "编码器由 Chromium 选择；硬件加速取决于设备和驱动。如果有观众无法接收 H265，直播将为所有人切换为 H264。",
+    "h265Unavailable": "此设备无法通过 WebRTC 发布 H265。",
+    "h265LocalFallback": "已保留您的 H265 偏好，但此设备的 WebRTC 不支持 H265。本次直播使用 H264。",
     "bitrate": "码率",
     "custom": "自定义",
     "auto": "自动",

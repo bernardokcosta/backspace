@@ -143,8 +143,12 @@
     "codec": "Codec",
     "codecOption": {
       "vp9": "VP9",
-      "h264": "H264"
+      "h264": "H264",
+      "h265": "H265 (HEVC)"
     },
+    "h265Note": "Chromium wählt den Encoder; Hardwarebeschleunigung hängt vom Gerät und Treiber ab. Kann ein Zuschauer H265 nicht empfangen, wechselt der Stream für alle zu H264.",
+    "h265Unavailable": "H265 ist auf diesem Gerät für die Übertragung über WebRTC nicht verfügbar.",
+    "h265LocalFallback": "Deine H265-Einstellung bleibt gespeichert, aber dieses Gerät unterstützt H265 nicht über WebRTC. Dieser Stream verwendet H264.",
     "bitrate": "Bitrate",
     "custom": "Manuell",
     "auto": "Auto",

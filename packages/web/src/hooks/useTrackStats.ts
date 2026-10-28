@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Track } from 'livekit-client';
 import { getActiveRoom } from './useLiveKit';
-import { discoverPeerConnections } from '../utils/livekitInternals';
+import { discoverPeerConnections, getPublishedMediaStreamTracks, isRtpSenderActive } from '../utils/livekitInternals';
 
 // ── Types ──
 
@@ -239,8 +239,7 @@ export function useTrackStats(enabled: boolean): TrackStatsSnapshot | null {
 
       // Local tracks
       for (const pub of room.localParticipant.trackPublications.values()) {
-        const mst = pub.track?.mediaStreamTrack;
-        if (mst) {
+        for (const mst of getPublishedMediaStreamTracks(pub.track)) {
           identityMap.set(mst.id, {
             source: mapSource(pub.source),
             direction: 'send',
@@ -283,6 +282,7 @@ export function useTrackStats(enabled: boolean): TrackStatsSnapshot | null {
 
           let senderStats: RTCStatsReport;
           try {
+            if (sender.track.kind === 'video' && !isRtpSenderActive(sender)) continue;
             senderStats = await sender.getStats();
           } catch {
             continue;
@@ -297,7 +297,7 @@ export function useTrackStats(enabled: boolean): TrackStatsSnapshot | null {
           });
 
           senderStats.forEach((report: any) => {
-            if (report.type !== 'outbound-rtp') return;
+            if (report.type !== 'outbound-rtp' || report.active === false) return;
 
             const kind = reportKind(report);
             if (!kind) return;
