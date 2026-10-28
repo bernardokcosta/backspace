@@ -319,20 +319,19 @@ cannot be worked one at a time.
 
 ### What is left open, and why
 
-Sixteen OSV findings are held in `osv-scanner.toml`, in two shapes. Fourteen need a
-major upgrade that is a separate decision with its own compatibility work. Two
-have no fixed release at all and sit only in build tooling. None of them is
-dismissed:
+One OSV finding is held in `osv-scanner.toml`. It has no fixed release and
+sits only in build tooling. It is deferred, not dismissed:
 
 | Package | Findings | Bucket | Fixed in |
 |---------|----------|--------|----------|
-| `fastify` 4.29.1 | 9 | server image | 5.x (5.12.2, one in 5.12.5) |
-| `@fastify/static` 7.0.4 | 2 | server image | 10.x |
-| `find-my-way` 8.2.2 | 1 | server image | 9.7.0 |
-| `esbuild` 0.18.20 | 1 | build-time (`drizzle-kit` to `@esbuild-kit/core-utils`) | 0.25.0 |
-| `postcss-selector-parser` 6.1.4 | 1 | build-time (`tailwindcss` 3 and `postcss-nested`) | 7.1.6 only; tailwindcss 3 does not accept 7.x |
-| `braces` 3.0.3 | 1 | build-time (`tailwindcss` 3 through `chokidar` and `micromatch`) | no fixed release |
-| `sprintf-js` 1.1.3 | 1 | build-time (`electron-builder` to `@electron/get` to `global-agent` to `roarr`) | no fixed release |
+| `deepmerge` 4.3.1 | 1 | build-time (`@rollup/plugin-node-resolve` via `vite-plugin-pwa`/`workbox-build` and `prism-react-renderer`) | no fixed release (4.3.1 is the latest; advisory covers through 4.3.1) |
+
+The prior backlog (fastify 4, `@fastify/static` 7, `find-my-way` 8, `esbuild`
+0.18, `react-router`, `lodash`, and the `pnpm.overrides` floors below) was
+cleared by upgrades and its entries removed. The three `CVE-2026-*` ignores
+(`postcss-selector-parser` CVE-2026-104844, `braces` CVE-2026-93687,
+`sprintf-js` CVE-2026-97058) stopped matching the lockfile and were removed
+when the scanner flagged them as unused.
 
 The five fastify findings published on 2026-09-30 were each checked against the
 server rather than only deferred. Each needs a feature the server does not use:
