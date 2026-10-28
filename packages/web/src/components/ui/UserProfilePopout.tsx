@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFormatters } from '../../i18n/formatters';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +7,10 @@ import { Avatar } from '../ui/Avatar';
 import { Username } from '../ui/Username';
 import { BotBadge } from './BotBadge';
 import { ProfileBio } from './ProfileBio';
-import { useSpaceStore } from '../../stores/spaceStore';
+import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
+import { useVoiceStore } from '../../stores/voiceStore';
+import { hasPermissionBit, PermissionBits } from '../../utils/permissions';
+import { watchUserScreen, stopWatchingUserScreen } from '../../utils/watchStream';
 import { api } from '../../api/client';
 import { useSelfIdentity } from '../../stores/authStore';
 import { openDirectMessage } from '../../utils/openDirectMessage';
@@ -30,6 +33,11 @@ import { ProfileActivities } from './ProfileActivities';
 /** Gap between the card and the element it was opened from. */
 const ANCHOR_OFFSET = 8;
 
+/** Fallback when the space store is stubbed (tests): no locked channel. */
+const EMPTY_CHANNEL_PERMS: ReadonlyMap<string, string> = new Map();
+/** Fallback when the space store is stubbed (tests): no spaces to match. */
+const EMPTY_SPACES: readonly TaggedSpace[] = [];
+
 interface UserProfilePopoutProps {
   user: User;
   /** The instance that issued `user` ('' = the page's own). */
@@ -44,7 +52,7 @@ interface UserProfilePopoutProps {
 
 export function UserProfilePopout({ user: propUser, origin, onClose, anchor, placement = 'right', member = null }: UserProfilePopoutProps) {
   useEmojiShortcodeNames();
-  const { t } = useTranslation(['social', 'common']);
+  const { t } = useTranslation(['social', 'common', 'voice']);
   const navigate = useNavigate();
   const f = useFormatters();
   const openModal = useUIStore((s) => s.openModal);
@@ -75,6 +83,54 @@ export function UserProfilePopout({ user: propUser, origin, onClose, anchor, pla
   }) && !isMobile;
 
   const [mutualCounts, setMutualCounts] = useState<{ friends: number; spaces: number } | null>(null);
+
+  // Screen share this member is publishing, if any: the voice channel whose
+  // occupant list holds their instance-local id with a live screen flag
+  // (LiveKit participants when we share the room, WS presence otherwise).
+  // Candidates are restricted to the member's own origin: the same user id
+  // is valid on every instance, so matching ids on another origin must never
+  // arm this card's controls. While watching, the Watch button is replaced
+  // by Stop watching.
+  const voiceUsers = useVoiceStore((s) => s.voiceUsers);
+  const screenParticipants = useVoiceStore((s) => s.participants);
+  const currentVoiceChannelId = useVoiceStore((s) => s.currentVoiceChannelId);
+  const voiceUserStates = useVoiceStore((s) => s.voiceUserStates);
+  const watchingStreams = useVoiceStore((s) => s.watchingStreams);
+  const watchingChannels = useVoiceStore((s) => s.watchingChannels);
+  const channelPermissions = useSpaceStore((s) => s.channelPermissions) ?? EMPTY_CHANNEL_PERMS;
+  const channelOriginMap = useSpaceStore((s) => s.channelOriginMap) ?? EMPTY_CHANNEL_PERMS;
+  const spaces = useSpaceStore((s) => s.spaces) ?? EMPTY_SPACES;
+  const memberOrigin = member
+    ? (spaces.find((sp) => sp.id === member.spaceId)?._instanceOrigin ?? '')
+    : '';
+  const screenShareChannelId = useMemo(() => {
+    if (!member || isYou) return null;
+    // Same id, several origins: the shared WS presence cannot tell whose
+    // screen is live, and the watch binding cannot tell whose watch it is.
+    // Hide the controls instead of driving the wrong room.
+    const origins = new Set<string>();
+    for (const [cid, ids] of voiceUsers) {
+      if (ids.includes(member.userId)) origins.add(channelOriginMap.get(cid) ?? '');
+    }
+    if (origins.size !== 1 || !origins.has(memberOrigin)) return null;
+    for (const [cid, ids] of voiceUsers) {
+      if ((channelOriginMap.get(cid) ?? '') !== memberOrigin) continue;
+      if (!ids.includes(member.userId)) continue;
+      // Participants are this room's only: WS presence decides elsewhere.
+      const live = cid === currentVoiceChannelId
+        ? screenParticipants.find((p) => p.userId === member.userId)
+        : undefined;
+      const sharing = live
+        ? live.isScreenSharing
+        : (voiceUserStates.get(member.userId)?.isScreenSharing ?? false);
+      if (sharing) return cid;
+    }
+    return null;
+  }, [member, isYou, voiceUsers, screenParticipants, currentVoiceChannelId, voiceUserStates, channelOriginMap, memberOrigin]);
+  const isWatchingShare = screenShareChannelId !== null && !!member
+    && watchingStreams.has(member.userId)
+    && watchingChannels.get(member.userId) === screenShareChannelId;  const canWatchChannel = screenShareChannelId !== null
+    && hasPermissionBit(channelPermissions.get(screenShareChannelId), PermissionBits.CONNECT);
 
   useEffect(() => {
     loadFederatedMutuals(user.id, user.homeUserId)
@@ -135,6 +191,17 @@ export function UserProfilePopout({ user: propUser, origin, onClose, anchor, pla
     if (!member) return;
     onClose();
     openModal('memberRoles', { spaceId: member.spaceId, userId: member.userId });
+  };
+
+  const handleWatchStream = () => {
+    if (!member || !screenShareChannelId) return;
+    onClose();
+    watchUserScreen(screenShareChannelId, member.userId, navigate);
+  };
+
+  const handleStopWatchingStream = () => {
+    if (!member || !screenShareChannelId) return;
+    stopWatchingUserScreen(member.userId, screenShareChannelId);
   };
 
   const handleAvatarClick = (event: React.MouseEvent) => {
@@ -207,6 +274,30 @@ export function UserProfilePopout({ user: propUser, origin, onClose, anchor, pla
             <div className="text-[13px] text-txt-secondary italic mt-1">
               {replaceEmojiShortcodes(user.customStatus)}
             </div>
+          )}
+          {/* Screen share controls: a member publishing a screen gets Watch
+              here (below the @name, above the sections below); while the
+              viewer is watching it reads Stop watching instead. */}
+          {screenShareChannelId && member && !isYou && (
+            isWatchingShare ? (
+              <button
+                onClick={handleStopWatchingStream}
+                aria-label={t('voice:stream.stopWatching')}
+                className="w-full mt-3 py-2 rounded-lg text-[13px] font-medium text-txt-secondary hover:text-txt-primary bg-transparent hover:bg-white/[0.04] transition-colors"
+              >
+                {t('voice:stream.stopWatching')}
+              </button>
+            ) : (
+              <button
+                onClick={handleWatchStream}
+                disabled={!canWatchChannel}
+                aria-label={t('voice:stream.watch')}
+                title={t('voice:stream.watch')}
+                className="w-full mt-3 py-2 rounded-lg text-[13px] font-semibold text-white bg-accent-primary hover:bg-accent-primary/80 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+              >
+                {t('voice:stream.watchShort')}
+              </button>
+            )
           )}
         </div>
 

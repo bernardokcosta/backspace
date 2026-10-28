@@ -48,8 +48,6 @@ interface VoiceChannelProps {
   locked?: boolean;
   canManage?: boolean;
   onSettingsClick?: () => void;
-  /** Called when the viewer asks to watch `sharerUserId`'s screen from the sidebar. */
-  onWatchStream?: (sharerUserId: string) => void;
   voiceUserHandlers?: (userId: string, channelId: string) => {
     draggable: boolean;
     isBeingDragged: boolean;
@@ -67,7 +65,7 @@ interface VoiceChannelProps {
 }
 
 /** Wrapper component for the volume slider so it can use hooks (useState). */
-export function VoiceChannel({ channelId, channelName, onClick, locked, canManage, onSettingsClick, onWatchStream, voiceUserHandlers, dropZone }: VoiceChannelProps) {
+export function VoiceChannel({ channelId, channelName, onClick, locked, canManage, onSettingsClick, voiceUserHandlers, dropZone }: VoiceChannelProps) {
   const { t } = useTranslation(['voice', 'common']);
   const serverVoiceUsers = useVoiceStore((s) => s.voiceUsers.get(channelId)) ?? EMPTY_VOICE_USERS;
   const currentVoiceChannel = useVoiceStore((s) => s.currentVoiceChannelId);
@@ -177,15 +175,6 @@ export function VoiceChannel({ channelId, channelName, onClick, locked, canManag
     [handleContextMenu, handleOpenProfile],
   );
 
-  const handleWatchStream = useCallback(
-    (e: React.MouseEvent, sharerUserId: string) => {
-      e.stopPropagation();
-      if (locked) return;
-      onWatchStream?.(sharerUserId);
-    },
-    [locked, onWatchStream],
-  );
-
   return (
     <div
       onDragOver={dropZone?.onDragOver}
@@ -286,8 +275,6 @@ export function VoiceChannel({ channelId, channelName, onClick, locked, canManag
             const isDraggable = !!(userDrag?.draggable && userId !== myIdHere);
             const isBeingDragged = userDrag?.isBeingDragged ?? false;
             const hasMember = !!member;
-            const isSelfHere = userId === myIdHere;
-            const showWatch = isScreenSharing && !isSelfHere;
 
             return (
               <div
@@ -324,21 +311,6 @@ export function VoiceChannel({ channelId, channelName, onClick, locked, canManag
                   isSpeaking={speakingUserIds.has(userId)}
                   connectionWarning={connectionWarning}
                 />
-                {showWatch && (
-                  <button
-                    type="button"
-                    onClick={(e) => handleWatchStream(e, userId)}
-                    disabled={locked}
-                    aria-label={t('voice:stream.watch')}
-                    title={t('voice:stream.watch')}
-                    className="mt-1 ml-8 flex w-[calc(100%-32px)] items-center justify-center gap-1.5 rounded-[6px] bg-accent-primary px-2 py-1 text-[12px] font-semibold text-white transition-colors hover:bg-accent-primary/80 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-                    </svg>
-                    {t('voice:stream.watchShort')}
-                  </button>
-                )}
               </div>
             );
           })}

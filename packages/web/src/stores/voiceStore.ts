@@ -145,6 +145,7 @@ export interface VoiceState {
   streamVolumes: Map<string, number>;       // userId → 0-200 (100 default)
   streamMutes: Map<string, boolean>;        // userId → muted?
   watchingStreams: Set<string>;             // userIds we're watching
+  watchingChannels: Map<string, string>;    // userId → voice channel id the watch belongs to
   unwatchedCameras: Set<string>;           // userIds whose cameras we've opted out of
   // Sharer's LiveKit identity → watcher LiveKit identities (in-memory only).
   // Identities, not user ids: a user id differs per instance, the identity is
@@ -165,7 +166,7 @@ export interface VoiceState {
   streamAttenuationStrength: number;        // 0-100, default 50
   setStreamVolume: (userId: string, volume: number) => void;
   setStreamMute: (userId: string, muted: boolean) => void;
-  watchStream: (userId: string) => void;
+  watchStream: (userId: string, channelId?: string | null) => void;
   unwatchStream: (userId: string) => void;
   unwatchCamera: (userId: string) => void;
   rewatchCamera: (userId: string) => void;
@@ -349,6 +350,7 @@ export const useVoiceStore = create<VoiceState>()(
       streamVolumes: new Map(),
       streamMutes: new Map(),
       watchingStreams: new Set(),
+      watchingChannels: new Map(),
       unwatchedCameras: new Set(),
       streamWatchers: new Map(),
       recordStreamWatch: (sharerIdentity, watcherIdentity, watching) => {
@@ -416,18 +418,27 @@ export const useVoiceStore = create<VoiceState>()(
           return { streamMutes: newMap };
         });
       },
-      watchStream: (userId) => {
+      watchStream: (userId, channelId) => {
         set((state) => {
           const newSet = new Set(state.watchingStreams);
           newSet.add(userId);
-          return { watchingStreams: newSet };
+          const newChannels = new Map(state.watchingChannels);
+          // The channel defaults to the room the viewer is in: tiles only
+          // render (and click) inside it. Callers watching another room pass
+          // it explicitly so the watch stays bound to the right channel.
+          const room = channelId ?? state.currentVoiceChannelId;
+          if (room) newChannels.set(userId, room);
+          else newChannels.delete(userId);
+          return { watchingStreams: newSet, watchingChannels: newChannels };
         });
       },
       unwatchStream: (userId) => {
         set((state) => {
           const newSet = new Set(state.watchingStreams);
           newSet.delete(userId);
-          return { watchingStreams: newSet };
+          const newChannels = new Map(state.watchingChannels);
+          newChannels.delete(userId);
+          return { watchingStreams: newSet, watchingChannels: newChannels };
         });
       },
       unwatchCamera: (userId) => {
@@ -713,6 +724,7 @@ export const useVoiceStore = create<VoiceState>()(
         streamVolumes: new Map(),
         streamMutes: new Map(),
         watchingStreams: new Set(),
+        watchingChannels: new Map(),
         unwatchedCameras: new Set(),
         streamWatchers: new Map(),
         // Space-enforced restrictions
@@ -778,6 +790,7 @@ export const useVoiceStore = create<VoiceState>()(
             streamVolumes: new Map(),
             streamMutes: new Map(),
             watchingStreams: new Set(),
+            watchingChannels: new Map(),
             unwatchedCameras: new Set(),
             streamWatchers: new Map(),
             voiceUsers,
@@ -824,6 +837,7 @@ export const useVoiceStore = create<VoiceState>()(
           streamVolumes: new Map(),
           streamMutes: new Map(),
           watchingStreams: new Set(),
+          watchingChannels: new Map(),
           unwatchedCameras: new Set(),
           streamWatchers: new Map(),
           micPermissionDenied: false,
@@ -863,6 +877,7 @@ export const useVoiceStore = create<VoiceState>()(
         streamVolumes: new Map(),
         streamMutes: new Map(),
         watchingStreams: new Set(),
+        watchingChannels: new Map(),
         unwatchedCameras: new Set(),
         streamWatchers: new Map(),
         spaceMutedUserIds: new Set(),
@@ -1006,6 +1021,7 @@ export const useVoiceStore = create<VoiceState>()(
         merged.streamVolumes = currentState.streamVolumes;
         merged.streamMutes = currentState.streamMutes;
         merged.watchingStreams = currentState.watchingStreams;
+        merged.watchingChannels = currentState.watchingChannels;
         merged.unwatchedCameras = currentState.unwatchedCameras;
         return merged;
       },

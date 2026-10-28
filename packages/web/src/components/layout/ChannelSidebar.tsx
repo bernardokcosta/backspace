@@ -11,9 +11,6 @@ import { useInstanceStore } from '../../stores/instanceStore';
 import { VoiceChannel } from '../voice/VoiceChannel';
 import { VoiceControls } from '../voice/VoiceControls';
 import { useVoiceStore } from '../../stores/voiceStore';
-import { getActiveRoom, setStreamSubscription } from '../../hooks/useLiveKit';
-import { encodeStreamWatch, streamWatchFor } from '../../utils/streamWatchProtocol';
-import { getSfxVolume } from '../../utils/sfx';
 import { ProfileAvatar } from '../ui/ProfileAvatar';
 import { Mascot } from '../ui/Mascot';
 import { wsSend } from '../../hooks/useWebSocket';
@@ -1265,34 +1262,6 @@ function ChannelItem({
   const canManage = hasPermissionBit(chPerms, PermissionBits.MANAGE_CHANNELS);
   if (channel.type === 'voice') {
     const canConnect = hasPermissionBit(chPerms, PermissionBits.CONNECT);
-    const handleWatchStream = (sharerUserId: string) => {
-      if (!canConnect) return;
-      // Viewer feedback now, like StreamTile's Watch button: the subscription
-      // and the stream_watch ping below (or the auto-subscribe in useLiveKit
-      // when the share is not published yet) complete the watch silently.
-      AudioManager.getInstance().playSound('stream_user_joined', { volume: getSfxVolume() });
-      handleVoiceJoin(channel.id);
-      const vs = useVoiceStore.getState();
-      vs.watchStream(sharerUserId);
-      const room = getActiveRoom();
-      const participant = vs.participants.find((p) => p.userId === sharerUserId);
-      if (room && participant) {
-        setStreamSubscription(room, participant.identity, true);
-        const payload = encodeStreamWatch(streamWatchFor({ userId: sharerUserId, identity: participant.identity }, true));
-        void room.localParticipant.publishData(payload, { reliable: true });
-        // Focus only when the video is already live. Focusing a tile whose
-        // screen track is not live yet is cleared by VoiceGrid's stream-key
-        // cleanup before the first frame arrives; the grid still shows the
-        // tile and the viewer can click it to focus once it plays.
-        if (participant.screenTrack?.readyState === 'live') {
-          vs.setFocusedParticipant(`${participant.identity}:stream`);
-        }
-      }
-      // When the room or participant is not here yet (join in flight), the
-      // pre-set watch in `watchingStreams` is picked up by useLiveKit: fresh
-      // screen publications auto-subscribe + ping, and existing ones are
-      // subscribed on connect.
-    };
     return (
       <div
         className={`relative ${isDragging ? 'opacity-50' : ''}`}
@@ -1306,7 +1275,6 @@ function ChannelItem({
           locked={!canConnect}
           canManage={canManage}
           onSettingsClick={onSettingsClick}
-          onWatchStream={handleWatchStream}
           voiceUserHandlers={voiceUserHandlers}
           dropZone={voiceChannelDropZone}
         />
