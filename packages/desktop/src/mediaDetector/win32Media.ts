@@ -33,6 +33,21 @@ export function isBrowserPlayer(player?: string): boolean {
   return BROWSER_PLAYERS.has(player);
 }
 
+/**
+ * Whether an SMTC session belongs to this app itself and must never become a
+ * "listening" activity. The app registers the AppUserModelId
+ * `io.github.bernardokcosta.backspacefork` (main.ts) and its document title is
+ * "Backspace Fork" (web/index.html), so any audible element in our own
+ * renderer — a rogue LiveKit element before the AppLayout observer kills it,
+ * an unmuted tile, a cue — surfaces as a playing session titled
+ * "Backspace Fork" and would otherwise be reported as music the user is
+ * listening to (e.g. for the whole duration of a screen share).
+ */
+export function isOwnAppSession(appId?: string): boolean {
+  if (!appId) return false;
+  return appId.toLowerCase().includes('backspace');
+}
+
 export function resolvePlayerFromAppId(appId: string): string {
   const lower = appId.toLowerCase();
   if (isNetEaseAppId(lower)) return 'NetEase Cloud Music';
@@ -196,7 +211,9 @@ export function selectSmtcTrack(
   result: SmtcProbeResult,
   now = Date.now(),
 ): MediaTrackInfo | null {
-  const playing = result.sessions.filter((session) => session.status === 'playing' && session.title);
+  const playing = result.sessions.filter(
+    (session) => session.status === 'playing' && session.title && !isOwnAppSession(session.appId),
+  );
   const session = playing.find((item) => !isBrowserPlayer(item.player)) || playing[0];
   if (!session) return null;
 

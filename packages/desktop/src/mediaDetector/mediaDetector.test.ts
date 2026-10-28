@@ -9,6 +9,7 @@ import {
   selectNetEaseFallbackTrack,
   resolvePlayerFromAppId,
   isBrowserPlayer,
+  isOwnAppSession,
   shouldRequestNetEaseSetup,
   type SmtcProbeResult,
 } from './win32Media';
@@ -464,6 +465,50 @@ describe('Media Detector - Win32 SMTC Parser', () => {
       }],
     }));
     expect(selectSmtcTrack(paused)).toBeNull();
+  });
+
+  it('ignores media sessions from the app itself', () => {
+    expect(isOwnAppSession('io.github.bernardokcosta.backspacefork')).toBe(true);
+    expect(isOwnAppSession('Backspace Fork')).toBe(true);
+    expect(isOwnAppSession('cloudmusic.exe')).toBe(false);
+    expect(isOwnAppSession('chrome.exe')).toBe(false);
+    expect(isOwnAppSession('')).toBe(false);
+    expect(isOwnAppSession(undefined)).toBe(false);
+
+    // The app's own session (e.g. an audible element while screen sharing)
+    // must never shadow real music, and alone it reports nothing.
+    const res = parseSmtcOutput(JSON.stringify({
+      ok: true,
+      sessions: [
+        {
+          appId: 'io.github.bernardokcosta.backspacefork',
+          status: 4,
+          title: 'Backspace Fork',
+          artist: '',
+          mediaType: 'music',
+        },
+        {
+          appId: 'cloudmusic.exe',
+          status: 4,
+          title: '海阔天空',
+          artist: 'Beyond',
+          mediaType: 'music',
+        },
+      ],
+    }));
+    expect(selectSmtcTrack(res)).toMatchObject({ title: '海阔天空' });
+
+    const onlyOwn = parseSmtcOutput(JSON.stringify({
+      ok: true,
+      sessions: [{
+        appId: 'io.github.bernardokcosta.backspacefork',
+        status: 4,
+        title: 'Backspace Fork',
+        artist: '',
+        mediaType: 'music',
+      }],
+    }));
+    expect(selectSmtcTrack(onlyOwn)).toBeNull();
   });
 
   it('extrapolates the SMTC timeline snapshot to the current playback position', () => {

@@ -159,7 +159,12 @@ export function VoiceUser({ tile, large }: VoiceUserProps) {
           ref={videoRef}
           autoPlay
           playsInline
-          muted={isLocal}
+          // Camera tiles are video-only and always muted: all voice audio
+          // flows through GlobalAudioRenderer's Web Audio pipeline. An
+          // unmuted element registers an OS media session attributed to this
+          // app ("Backspace Fork"), which media detection would otherwise
+          // report as music the user is listening to.
+          muted
           className={`w-full h-full ${large ? 'object-contain bg-black' : 'object-cover'}`}
         />
       ) : (
