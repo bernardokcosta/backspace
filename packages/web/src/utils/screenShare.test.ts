@@ -4,7 +4,10 @@ import { useVoiceStore } from '../stores/voiceStore';
 import { useUIStore } from '../stores/uiStore';
 import i18n from '../i18n';
 import {
+  applyOverdrive,
   buildScreenShareOptions,
+  CAMERA_OVERDRIVE,
+  CAMERA_PRESET,
   getPublishedScreenShareCodec,
   publishScreenShare,
   stageScreenCapture,
@@ -113,6 +116,81 @@ afterEach(() => {
 });
 
 describe('screen-share media options', () => {
+  it('publishes camera, screen and backup video below microphone priority from the first negotiation', () => {
+    const options = buildScreenShareOptions(useVoiceStore.getState().screenShareConfig);
+
+    expect(CAMERA_PRESET.encoding).toHaveProperty('priority', 'low');
+    expect(options.publish.videoEncoding).toHaveProperty('priority', 'low');
+    expect(options.publish.backupCodec?.encoding).toHaveProperty('priority', 'low');
+  });
+
+  it('restores normal video priority on a single screen encoding without lowering its quality ceiling', async () => {
+    const room = fakeRoom();
+    const video = makeVideoTrack();
+    const sender = attachPublishedSender(room, video, []);
+    sender.getParameters.mockReturnValue({ encodings: [{
+      active: true, priority: 'high', networkPriority: 'high', maxBitrate: 1_000_000,
+    }] } as RTCRtpSendParameters);
+
+    const options = buildScreenShareOptions(useVoiceStore.getState().screenShareConfig);
+    expect(await applyOverdrive(room, Track.Source.ScreenShare, options.overdrive)).toBe(true);
+    expect(sender.setParameters).toHaveBeenCalledWith(expect.objectContaining({
+      encodings: [{
+        active: true,
+        priority: 'low',
+        networkPriority: 'low',
+        maxBitrate: 18_000_000,
+        maxFramerate: 60,
+      }],
+    }));
+  });
+
+  it.each([Track.Source.Camera, Track.Source.ScreenShare])(
+    'updates %s simulcast priority only on encoding zero and quality only on the highest layer',
+    async (source) => {
+      const room = fakeRoom();
+      const video = makeVideoTrack();
+      room.localParticipant.getTrackPublications.mockReturnValue([
+        { source, track: { mediaStreamTrack: video } },
+      ]);
+      const encodings: RTCRtpEncodingParameters[] = [
+        { rid: 'q', active: true, priority: 'low', networkPriority: 'low', maxBitrate: 100_000, scaleResolutionDownBy: 4 },
+        { rid: 'h', active: true, priority: 'low', networkPriority: 'low', maxBitrate: 400_000, scaleResolutionDownBy: 2 },
+        { rid: 'f', active: true, priority: 'low', networkPriority: 'low', maxBitrate: 1_000_000, scaleResolutionDownBy: 1 },
+      ];
+      const sender = {
+        track: { id: video.id },
+        getParameters: vi.fn(() => ({ encodings: encodings.map((encoding) => ({ ...encoding })) })),
+        setParameters: vi.fn(async (parameters: RTCRtpSendParameters) => {
+          // Chromium rejects changing sender-wide priority on non-first encodings.
+          if (parameters.encodings.slice(1).some((encoding) =>
+            encoding.priority !== 'low' || encoding.networkPriority !== 'low')) {
+            throw new DOMException('Attempted to set an unimplemented parameter', 'OperationError');
+          }
+        }),
+      };
+      const microphone = { track: { id: 'microphone' }, setParameters: vi.fn() };
+      internals.getPublisherPC.mockReturnValue({ getSenders: () => [microphone, sender] });
+      internals.getMediaStreamTrack.mockImplementation((track) => track.mediaStreamTrack);
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const options = source === Track.Source.Camera
+        ? CAMERA_OVERDRIVE
+        : buildScreenShareOptions(useVoiceStore.getState().screenShareConfig).overdrive;
+
+      expect(await applyOverdrive(room, source, options)).toBe(true);
+      expect(sender.setParameters).toHaveBeenCalledWith(expect.objectContaining({
+        encodings: [
+          encodings[0],
+          encodings[1],
+          { ...encodings[2], maxBitrate: options.maxBitrate, maxFramerate: options.maxFramerate },
+        ],
+        degradationPreference: options.degradationPreference,
+      }));
+      expect(microphone.setParameters).not.toHaveBeenCalled();
+      expect(sender.getParameters().encodings).toEqual(encodings);
+    },
+  );
+
   it('publishes VP9 directly without enabling the H.264 SDP hook', async () => {
     const room = fakeRoom();
     const video = makeVideoTrack();

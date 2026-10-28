@@ -33,9 +33,9 @@ export interface ScreenShareBuildResult {
   capture: { width: number; height: number; frameRate: number };
   publish: {
     videoCodec: 'vp9' | 'h264';
-    videoEncoding: { maxBitrate: number; maxFramerate: number };
+    videoEncoding: { maxBitrate: number; maxFramerate: number; priority: RTCPriorityType };
     simulcast: false;
-    backupCodec?: { codec: 'vp8' | 'h264'; encoding: { maxBitrate: number; maxFramerate: number } };
+    backupCodec?: { codec: 'vp8' | 'h264'; encoding: { maxBitrate: number; maxFramerate: number; priority: RTCPriorityType } };
     backupCodecPolicy?: BackupCodecPolicy;
     audioPreset: typeof AudioPresets.musicHighQualityStereo;
     dtx: false;
@@ -50,9 +50,13 @@ export interface ScreenShareBuildResult {
 // Camera preset (fixed 720p30 H264, decoupled from screen share)
 // ---------------------------------------------------------------------------
 
+// WebRTC's normal priority. LiveKit publishes microphones at high priority;
+// video must yield to speech when both share a congested transport.
+const VIDEO_PRIORITY = 'low' as const;
+
 export const CAMERA_PRESET = {
   resolution: { width: 1280, height: 720 },
-  encoding: { maxBitrate: 2_000_000, maxFramerate: 30 },
+  encoding: { maxBitrate: 2_000_000, maxFramerate: 30, priority: VIDEO_PRIORITY },
   codec: 'h264' as const,
 } as const;
 
@@ -197,11 +201,11 @@ export function buildScreenShareOptions(savedConfig: ScreenShareConfig): ScreenS
     capture: { width: captureWidth, height: captureHeight, frameRate: fps },
     publish: {
       videoCodec: config.codec,
-      videoEncoding: { maxBitrate: bps, maxFramerate: fps },
+      videoEncoding: { maxBitrate: bps, maxFramerate: fps, priority: VIDEO_PRIORITY },
       simulcast: false,
       backupCodec: {
         codec: 'vp8' as const,
-        encoding: { maxBitrate: backupBps, maxFramerate: backupFps },
+        encoding: { maxBitrate: backupBps, maxFramerate: backupFps, priority: VIDEO_PRIORITY },
       },
       backupCodecPolicy: BackupCodecPolicy.SIMULCAST,
       audioPreset: AudioPresets.musicHighQualityStereo,
@@ -281,8 +285,11 @@ export async function applyOverdrive(
     const idx = params.encodings.length - 1;
     params.encodings[idx]!.maxBitrate = options.maxBitrate;
     params.encodings[idx]!.maxFramerate = options.maxFramerate;
-    params.encodings[idx]!.priority = 'high';
-    params.encodings[idx]!.networkPriority = 'high';
+    // Priority is sender-wide and Chromium accepts it only on encoding zero.
+    // Writing it to a non-first simulcast layer rejects the entire update,
+    // including the quality ceilings above. Never raise video to mic priority.
+    params.encodings[0]!.priority = VIDEO_PRIORITY;
+    params.encodings[0]!.networkPriority = VIDEO_PRIORITY;
     (params as any).degradationPreference = options.degradationPreference;
 
     await sender.setParameters(params);
