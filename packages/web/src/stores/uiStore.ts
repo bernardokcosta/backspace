@@ -11,6 +11,7 @@ type ModalType =
   | 'createChannel'
   | 'createCategory'
   | 'invite'
+  | 'inviteFriend'
   | 'userSettings'
   | 'spaceSettings'
   | 'channelSettings'

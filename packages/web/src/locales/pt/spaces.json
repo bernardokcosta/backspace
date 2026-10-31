@@ -141,6 +141,12 @@
       "serverError": "Não foi possível enviar (erro do servidor)"
     }
   },
+  "inviteFriend": {
+    "title": "Convidar {{name}} para um espaço",
+    "intro": "Escolha um dos seus espaços para enviar um convite.",
+    "noSpaces": "Você ainda não está em nenhum espaço",
+    "contextMenu": "Convidar para um espaço"
+  },
   "join": {
     "title": "Entrar em um espaço",
     "invitePlaceholder": "ex.: abc123 ou https://instancia.com/join/abc123",
