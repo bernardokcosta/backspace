@@ -11,7 +11,6 @@ import type { ErrorCode, ErrorDetails } from '@backspace/shared/src/errors';
  * details a route passes.
  */
 export const ERROR_MESSAGES: Record<ErrorCode, string> = {
-  desktop_update_required: 'Desktop version {{minimumVersion}} or newer is required. Update the desktop app or use a browser.',
   soundboard_disabled: 'The soundboard is disabled in this space',
   soundboard_invalid_audio: 'Invalid audio or file size exceeds the upload limit',
   soundboard_duration_limit: 'Audio must be at most {{max}} seconds long',

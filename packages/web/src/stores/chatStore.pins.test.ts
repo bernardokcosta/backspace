@@ -46,7 +46,7 @@ function board(): PinWithMessage[] {
 beforeEach(() => {
   vi.clearAllMocks();
   useAuthStore.setState({ user: me } as never);
-  useSpaceStore.setState({ channelOriginMap: new Map() } as never);
+  useSpaceStore.setState({ channelOriginMap: new Map(), spaceChannelIndex: new Map() } as never);
   useChatStore.setState({
     messages: new Map([[CH, [message('before')]]]),
     pinnedByChannel: new Map([[CH, [pin(message('before'))]]]),
@@ -58,6 +58,12 @@ afterEach(() => {
 });
 
 describe('pin board session hygiene', () => {
+  it.each(['', 'https://remote.example'])('never queries text-only pins for a voice channel on %s', async (origin) => {
+    useSpaceStore.setState({ spaceChannelIndex: new Map([[CH, { spaceId: 'space', origin, type: 'voice' }]]),
+      channelOriginMap: new Map([[CH, origin]]) });
+    await useChatStore.getState().loadPins(CH);
+    expect(pinsApi.pins).not.toHaveBeenCalled();
+  });
   it('clearAllMessages drops the boards with everything else', () => {
     expect(board()).toHaveLength(1);
     useChatStore.getState().clearAllMessages();

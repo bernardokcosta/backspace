@@ -18,7 +18,6 @@ import {
 import { useSpaceStore } from './spaceStore';
 import { useSocialStore } from './socialStore';
 import { connectInstance, disconnectInstance as disconnectWs, disconnectAllRemote } from '../hooks/useWebSocket';
-import { captureDesktopSessionWork, onDesktopSessionAccessChanged } from '../utils/desktopSessionAccess';
 // dmOriginFailover lazily reads useInstanceStore/useSpaceStore/useChatStore at call time,
 // so a static import here does not create an import-time cycle.
 import { useUIStore } from './uiStore';
@@ -712,7 +711,6 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
   },
 
   connectToRemote: async (origin: string, password: string, displayName?: string) => {
-    const work = captureDesktopSessionWork(); work.assertCurrent();
     const currentUser = useAuthStore.getState().user;
     if (!currentUser) throw new Error('Not logged in');
 
@@ -762,13 +760,11 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
         }
 
         const { valid } = await homeApi.users.verifyPassword(password);
-        work.assertCurrent();
         if (!valid) {
           throw new Error('Incorrect password');
         }
 
         const credential = await homeApi.users.federationCredential({ origin });
-        work.assertCurrent();
         credentialOrigin = credential.origin;
         finalUsername = `${bareUsername}@${trueHomeHost}`;
 
@@ -783,7 +779,6 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
             homeUserId: trueHomeUserId,
           });
         } catch (err) {
-          work.assertCurrent();
           // Already registered, or registration closed: fall through to login,
           // remembering which, because only the first says an account exists.
           refusal = registrationRefusal(err);
@@ -812,20 +807,16 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
         throw new Error('Failed to authenticate with remote instance');
       }
 
-      work.assertCurrent();
-
       // The remote account now authenticates with the issued secret — record it
       // so no later launch tries to migrate an already-migrated account.
       if (homeApi && credentialOrigin) {
         await homeApi.users
           .federationCredential({ origin: credentialOrigin, markProvisioned: true })
           .catch((err) => console.warn('[federation] Could not record credential state:', err));
-        work.assertCurrent();
       }
 
       // Step 3: Complete connection
       const info = await tempClient.instance.info();
-      work.assertCurrent();
       const authenticatedClient = createApiClient(origin, () => response.token);
 
       // Replace by origin, never append: a re-authentication runs this over
@@ -857,7 +848,6 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
       maybeAutoReattach(instance).catch(() => {});
 
       await peerHomeWithRemote(origin, instance.label);
-      work.assertCurrent();
 
       // Sync instance list to all instances (fire-and-forget)
       get().syncInstanceList().catch(() => {});
@@ -869,17 +859,14 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
   },
 
   loginToRemote: async (origin: string, username: string, password: string) => {
-    const work = captureDesktopSessionWork(); work.assertCurrent();
     set({ isLoading: true, error: null });
 
     try {
       const tempClient = createApiClient(origin, () => null);
       const response = await tempClient.auth.login({ username, password });
-      work.assertCurrent();
 
       // Fetch instance info for the label
       const info = await tempClient.instance.info();
-      work.assertCurrent();
 
       const authenticatedClient = createApiClient(origin, () => response.token);
 
@@ -919,7 +906,6 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
       );
 
       await peerHomeWithRemote(origin, instance.label);
-      work.assertCurrent();
 
       // Sync instance list to all instances (fire-and-forget)
       get().syncInstanceList().catch(() => {});
@@ -965,8 +951,6 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
   },
 
   reconnectInstance: async (origin: string) => {
-    const work = captureDesktopSessionWork();
-    if (!work.isCurrent()) return;
     let inst = get().instances.find(i => i.origin === origin);
 
     // A live session, or an attempt already in flight, needs no second one.
@@ -1010,7 +994,6 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
 
     try {
       const user = await inst.api.users.me();
-      if (!work.isCurrent()) return;
 
       // Refresh the instance label (non-critical — a failure here must not
       // block a successful token reconnect).
@@ -1020,7 +1003,6 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
       } catch {
         // Keep whatever label the instance already had.
       }
-      if (!work.isCurrent()) return;
 
       writeConnectionState(origin, 'connected', {
         live: { user, ...(info ? { label: info.name } : {}) },
@@ -1041,7 +1023,6 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
 
       void peerHomeWithRemote(origin, null);
     } catch (err) {
-      if (!work.isCurrent()) return;
       if (isNetworkError(err)) {
         writeConnectionState(origin, 'unreachable');
         // The socket's own backoff is what recovers this one.
@@ -1212,16 +1193,13 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
     get().syncRegistry().catch(() => {});
   },
 
-  autoConnectAll: coalesceDesktopBootstrap(async (work) => {
+  autoConnectAll: coalesceSessionBootstrap(async (work) => {
     if (!work.isCurrent()) return;
     const currentUser = useAuthStore.getState().user;
     if (!currentUser) {
       set({ _autoConnectDone: true });
       return;
     }
-
-    const interrupted = desktopInterruptedBootstrapUser === currentUser.id;
-    if (interrupted) desktopInterruptedBootstrapUser = null;
 
     const cached = loadCachedTokens(currentUser.id);
 
@@ -1239,19 +1217,12 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
     }
 
     if (!work.isCurrent()) return;
-    const manualDisconnects = interrupted
-      ? [...get().registry.values()].filter((entry) => entry.status === 'disconnected')
-      : [];
 
     // Initialize registry from server data
     const registry = new Map<string, FederationRegistryEntry>();
     for (const entry of serverRegistry) {
       registry.set(entry.origin, entry);
     }
-    // A voluntary local disconnect made during the pause may not have reached
-    // home yet. Resuming initialization must not overwrite that intent.
-    for (const entry of manualDisconnects) registry.set(entry.origin, entry);
-
     // Seed any replicatedInstances that aren't yet in the registry. This covers
     // (a) accounts whose remotes were added before the federation registry table
     // existed, and (b) the GET-failed degraded mode where we still want the user
@@ -1370,13 +1341,9 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
       // Never connect to ourselves — home WS is managed separately
       if (isSelfOrigin(origin)) continue;
       const existing = get().instances.find((entry) => entry.origin === origin);
-      const suspended = desktopSuspendedOrigins.get(origin) === currentUser.id;
-      if (existing && !suspended) continue; // already loaded outside this interrupted bootstrap
-      const cachedEntry = existing?.token
-        ? { token: existing.token, label: existing.label, username: existing.username }
-        : cached[origin];
+      if (existing) continue;
+      const cachedEntry = cached[origin];
       const regEntry = get().registry.get(origin);
-      if (suspended) desktopSuspendedOrigins.delete(origin);
       if (cachedEntry) {
         // Respect user's explicit disconnect — don't auto-reconnect
         if (regEntry?.status === 'disconnected') {
@@ -1538,9 +1505,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
   }),
 
   reset: () => {
-    desktopBootstrapRevision++;
-    desktopInterruptedBootstrapUser = null;
-    desktopSuspendedOrigins.clear();
+    sessionBootstrapRevision++;
     // Clean up space store for each connected remote instance before tearing down
     const { instances } = get();
     for (const inst of instances) {
@@ -1556,76 +1521,32 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
   },
 }));
 
-// A compatibility pause is transport liveness, never a voluntary disconnect
-// or invalid credential. Keep its eligible origins scoped to the current user.
-const desktopSuspendedOrigins = new Map<string, string>();
-let desktopInterruptedBootstrapUser: string | null = null;
-let desktopBootstrapRevision = 0;
-interface DesktopBootstrapAttempt {
+let sessionBootstrapRevision = 0;
+interface SessionBootstrapAttempt {
   userId: string | null;
   isCurrent: () => boolean;
   completion: Promise<void>;
 }
-let desktopActiveBootstrap: DesktopBootstrapAttempt | null = null;
+let activeSessionBootstrap: SessionBootstrapAttempt | null = null;
 
-/** One initialization per allowed epoch/account; callers share completion. */
-function coalesceDesktopBootstrap(initialize: (work: { isCurrent: () => boolean }) => Promise<void>): () => Promise<void> {
+/** One initialization per account/session; callers share completion. */
+function coalesceSessionBootstrap(initialize: (work: { isCurrent: () => boolean }) => Promise<void>): () => Promise<void> {
   return () => {
-    const session = captureDesktopSessionWork();
     const { user } = useAuthStore.getState();
     const userId = user?.id ?? null;
-    const revision = desktopBootstrapRevision;
-    const isCurrent = () => session.isCurrent()
-      && (useAuthStore.getState().user?.id ?? null) === userId
-      && desktopBootstrapRevision === revision;
+    const revision = sessionBootstrapRevision;
+    const isCurrent = () => (useAuthStore.getState().user?.id ?? null) === userId
+      && sessionBootstrapRevision === revision;
     if (!isCurrent()) return Promise.resolve();
-    if (desktopActiveBootstrap?.userId === userId && desktopActiveBootstrap.isCurrent()) return desktopActiveBootstrap.completion;
-    const attempt: DesktopBootstrapAttempt = { userId, isCurrent, completion: Promise.resolve() };
-    desktopActiveBootstrap = attempt;
+    if (activeSessionBootstrap?.userId === userId && activeSessionBootstrap.isCurrent()) return activeSessionBootstrap.completion;
+    const attempt: SessionBootstrapAttempt = { userId, isCurrent, completion: Promise.resolve() };
+    activeSessionBootstrap = attempt;
     attempt.completion = initialize(attempt).finally(() => {
-      if (desktopActiveBootstrap === attempt) desktopActiveBootstrap = null;
+      if (activeSessionBootstrap === attempt) activeSessionBootstrap = null;
     });
     return attempt.completion;
   };
 }
-
-function resumeDesktopSuspendedOrigins(): void {
-  const suspended = [...desktopSuspendedOrigins]; desktopSuspendedOrigins.clear();
-  for (const [origin, owner] of suspended) {
-    const state = useInstanceStore.getState();
-    const instance = state.instances.find((entry) => entry.origin === origin);
-    if (owner !== useAuthStore.getState().user?.id || !instance?.token || state.registry.get(origin)?.status === 'disconnected') continue;
-    void state.reconnectInstance(origin).catch(() => {});
-  }
-}
-
-const stopDesktopAccess = onDesktopSessionAccessChanged((allowed) => {
-  const state = useInstanceStore.getState();
-  const userId = useAuthStore.getState().user?.id;
-  if (!allowed) {
-    const interrupted = Boolean(userId && !state._autoConnectDone && desktopActiveBootstrap?.userId === userId);
-    if (interrupted && userId) desktopInterruptedBootstrapUser = userId;
-    for (const instance of state.instances) {
-      const registryStatus = state.registry.get(instance.origin)?.status;
-      if (!userId || !instance.token || registryStatus === 'disconnected') continue;
-      if (registryStatus === 'auth_expired' && !(interrupted && instance.status === 'connecting')) continue;
-      if (instance.status !== 'connected' && instance.status !== 'connecting' && registryStatus !== 'unreachable') continue;
-      desktopSuspendedOrigins.set(instance.origin, userId);
-      writeConnectionState(instance.origin, 'live-disconnected');
-    }
-    return;
-  }
-  if (userId && desktopInterruptedBootstrapUser === userId && !state._autoConnectDone) {
-    const session = captureDesktopSessionWork();
-    void state.autoConnectAll().finally(() => {
-      if (session.isCurrent() && useAuthStore.getState().user?.id === userId) resumeDesktopSuspendedOrigins();
-    }).catch(() => {});
-    return;
-  }
-  desktopInterruptedBootstrapUser = null;
-  resumeDesktopSuspendedOrigins();
-});
-if (import.meta.hot) import.meta.hot.dispose(stopDesktopAccess);
 
 // ─── Shared connect path ─────────────────────────────────────────────────────
 

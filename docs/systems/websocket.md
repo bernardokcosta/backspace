@@ -1,16 +1,13 @@
 # WebSocket Protocol Reference
 
-## Desktop minimum compatibility
+Desktop version is not an admission condition: old and unknown-version shells
+use the same authentication and reconnect flow as browsers. The retired desktop
+minimum policy no longer emits version errors or closes sockets with code 4406.
 
-When the optional serving-instance minimum is enabled, an identifiable old or
-unknown desktop receives the standard `error` event with code
-`desktop_update_required` and `{ minimumVersion, currentVersion? }`, then close
-4406. This occurs after token/account validation but before presence, telemetry,
-bot-session claim or connection registration. Verified bots are exempt; client
-metadata cannot claim that exemption. Only that socket is refused, not another
-valid browser/bot session. Updated clients stop reconnecting on this code or
-close 4406 and notify only the refusing origin; peer policy cannot replace the
-serving instance's floor or updater feed. Explicit recovery/disconnect may retry.
+The client reports only numeric close codes and reconnect attempt counts to the
+serving instance's bounded diagnostics sink, never tokens, payloads, peer URLs or
+user ids. This does not alter WS authentication or reconnect rules. See
+[diagnostics.md](diagnostics.md).
 
 Endpoint: `GET /ws` (upgrade to WebSocket)
 Transport: JSON messages over WebSocket

@@ -6,7 +6,6 @@ import { getDb, schema } from '../db/index.js';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import type { ErrorCode } from '@backspace/shared/src/errors';
 import { isBotTokenString, isRetiredLegacyBotJwt, verifyBotToken } from './botTokens.js';
-import { guardDesktopAccess } from './desktopAccess.js';
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, config.passwordHashCost);
@@ -132,7 +131,6 @@ export async function authenticate(
   }
   try {
     const identity = await verifyAccessToken(token);
-    if (!guardDesktopAccess(request, reply, identity)) return;
     (request as FastifyRequest & { userId: string; username: string }).userId = identity.userId;
     (request as FastifyRequest & { userId: string; username: string }).username = identity.username;
     (request as FastifyRequest & { userId: string; username: string }).homeInstance = identity.homeInstance;

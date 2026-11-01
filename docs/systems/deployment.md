@@ -1,13 +1,21 @@
 # Deployment & Operations
 
-## Optional desktop minimum
+## Operational logs (1.15.9)
 
-`BACKSPACE_MIN_DESKTOP_VERSION` is disabled when unset/blank. Set a stable
-SemVer such as `1.15.1` only after compatible installers/updater metadata have
-been published and verified; invalid/prerelease minima refuse server startup.
-The public instance-info response advertises the minimum or null. Clear the
-setting to recover without changing credentials, drafts, instance identity or
-database state. Browser/mobile web access remains outside desktop policy.
+Central JSONL diagnostics live beside `DB_PATH` under `diagnostics/`, capped at
+4.5 GB with oldest-first rotation. Compose caps Backspace, LiveKit and Caddy
+stdout/stderr to 50 MB × 3 files each, leaving the combined application-log budget
+below 5 GB. Existing containers must be recreated for Docker limits to apply;
+schedule that restart around active calls. No client log files or persistent
+diagnostic queue are created. See [diagnostics.md](diagnostics.md) for privacy,
+failure behavior, administration and limits on other deployment systems.
+
+## Desktop access
+
+Desktop minimum-version enforcement has been removed. Any existing
+`BACKSPACE_MIN_DESKTOP_VERSION` value is ignored, including malformed values;
+it cannot prevent boot or desktop access. No database or credential cleanup is
+needed. Optional app updates and release artifact verification remain enabled.
 
 ## Verified desktop publication
 
@@ -39,7 +47,7 @@ redirects fail. The old split v1.15.0 releases are preserved; their cause remain
 unconfirmed. Fork releases do not invoke upstream-only Flatpak metadata writes.
 
 Anonymous installer/update access and OCI revision still need independent
-post-publication checks. Deploy with policy off first, preserve a consistent
+post-publication checks. Preserve a consistent
 SQLite backup/environment/image rollback record, and restart only Backspace.
 Unavailable hardware/historical-host acceptance must remain explicit; a green
 workflow is not a substitute for installed-app or active-media recovery tests.

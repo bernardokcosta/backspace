@@ -121,7 +121,9 @@ describe('chosen status (#298 follow-up)', () => {
     // the choice untouched.
     expect(await waitUntil(() => statusRow(A, danaOnA.id)?.status === 'offline', 15_000)).toBe(true);
     expect(statusRow(A, danaOnA.id)).toEqual({ status: 'offline', chosen: 'dnd' });
-    expect(presenceFor(observer, danaOnA.id).at(-1)).toBe('offline');
+    // DB commit and delivery to another process are separate observations.
+    // Wait for the actual WS event, just as the reconnect assertion below does.
+    expect(await waitUntil(() => presenceFor(observer, danaOnA.id).at(-1) === 'offline', 5_000)).toBe(true);
 
     const second = track(await connectWs(A.origin, danaOnA.token));
     expect(readyStatus(second)).toBe('dnd');

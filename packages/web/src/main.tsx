@@ -1,3 +1,4 @@
+import './diagnosticsBootstrap';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
@@ -6,6 +7,8 @@ import i18n, { initI18n } from './i18n';
 import './styles/globals.css';
 import { initializeInterfaceScale } from './platform/interfaceScale';
 import { waitForEmojiShortcodeNames } from './utils/emojiShortcodes';
+import { recordDiagnostic } from './utils/diagnostics';
+import { diagnosticError } from '@backspace/shared/src/diagnostics';
 
 const stopInterfaceScale = initializeInterfaceScale();
 if (import.meta.hot) import.meta.hot.dispose(stopInterfaceScale);
@@ -24,6 +27,7 @@ class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    recordDiagnostic({ event: 'runtime-error', subsystem: 'app', level: 'error', ...diagnosticError(error) });
     console.error('[ErrorBoundary]', error, errorInfo.componentStack);
     // Renderer is alive enough to show the fallback UI — disarm the boot timer.
     // Without this, the timer fires 20s after a caught render error and

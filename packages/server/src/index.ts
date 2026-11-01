@@ -1,4 +1,4 @@
-import Fastify, { type FastifyRequest } from 'fastify';
+import Fastify, { LogController, type FastifyRequest } from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
@@ -39,6 +39,8 @@ import { adminUpdateRoutes } from './routes/adminUpdates.js';
 import { gifRoutes } from './routes/gif.js';
 import { federationRoutes } from './routes/federation.js';
 import { cspReportRoutes } from './routes/cspReport.js';
+import { diagnosticRoutes } from './routes/diagnostics.js';
+import { DiagnosticLogStore, diagnosticLoggerStream, captureServerConsole, writeDiagnostic, installFatalDiagnostics } from './utils/diagnosticLogs.js';
 import { buildCspHeaderValue, CSP_REPORT_GROUP, CSP_REPORT_PATH } from './utils/csp.js';
 import { startFederationWorkers, stopFederationWorkers } from './utils/federationWorker.js';
 import { startBackupWorker, stopBackupWorker } from './utils/backupWorker.js';
@@ -53,6 +55,9 @@ import fs from 'fs';
 import { MESSAGE_PAGING_HEADER } from '@backspace/shared';
 
 async function main(): Promise<void> {
+  const diagnosticLogs = new DiagnosticLogStore(path.join(path.dirname(config.dbPath), 'diagnostics'));
+  captureServerConsole(diagnosticLogs, config.version);
+  installFatalDiagnostics(diagnosticLogs, config.version);
   const app = Fastify({
     // A count of trusted hops, not `true`. `request.ip` is the address the
     // nearest proxy appended rather than the left-most thing in
@@ -66,7 +71,11 @@ async function main(): Promise<void> {
     trustProxy: trustProxyFn(config.trustedProxyHops),
     logger: {
       level: 'info',
+      base: { version: config.version },
+      stream: diagnosticLoggerStream(diagnosticLogs),
     },
+    logController: new LogController({ disableRequestLogging: (request) =>
+      ['/api/health', '/api/diagnostics'].includes(request.url.split('?', 1)[0] ?? '') }),
   });
 
   // The origin is deliberately reflected rather than restricted to a peer
@@ -275,6 +284,7 @@ async function main(): Promise<void> {
   // rate limiter. The sink is unauthenticated by design and writes a log line
   // per report, and @fastify/rate-limit only covers routes registered after it.
   await app.register(cspReportRoutes);
+  await app.register(diagnosticRoutes, { store: diagnosticLogs });
   await app.register(registerWebSocket);
 
   app.get('/api/health', async () => {
@@ -293,6 +303,7 @@ async function main(): Promise<void> {
 
   try {
     await app.listen({ port: config.port, host: config.host });
+    writeDiagnostic(diagnosticLogs, 'server', { event: 'server-started', subsystem: 'server', level: 'info', version: config.version });
     console.log(`Backspace server running at http://${config.host}:${config.port}`);
   } catch (err) {
     app.log.error(err);
@@ -320,6 +331,7 @@ async function main(): Promise<void> {
   startBackupWorker();
 
   const shutdown = async () => {
+    writeDiagnostic(diagnosticLogs, 'server', { event: 'server-stopped', subsystem: 'server', level: 'info', version: config.version });
     console.log('Shutting down...');
     stopFederationWorkers();
     stopBackupWorker();

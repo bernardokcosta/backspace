@@ -893,7 +893,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   loadPins: async (channelId: string) => {
-    if (isDmChannel(channelId)) return;
+    if (isDmChannel(channelId) || useSpaceStore.getState().spaceChannelIndex.get(channelId)?.type === 'voice') return;
     const origin = getChannelOrigin(channelId);
     const client = getApiForOrigin(origin);
     // A logout/login while the GET is in flight must not repopulate the

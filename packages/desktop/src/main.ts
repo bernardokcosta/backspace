@@ -85,7 +85,6 @@ import { getDesktopLanguage, isDesktopLanguage, saveStoredLanguage, translateDes
 import { createSdrCaptureController, registerSdrCaptureIpc, resolveNativeSdrSource, resolveSdrPreselection } from './sdrCapture';
 import { createSdrCaptureTransport } from './sdrCaptureTransport';
 import type { NativeSdrModule } from './sdrCaptureTypes';
-import { desktopUserAgent } from './desktopUserAgent';
 
 // Override Electron's package.json-derived app name so userData lives at
 // "<appData>/Backspace Fork" instead of leaking the monorepo's "@backspace/desktop"
@@ -410,7 +409,6 @@ function createWindow(): void {
   });
 
   setMainWindow(mainWindow);
-  mainWindow.webContents.setUserAgent(desktopUserAgent(mainWindow.webContents.getUserAgent(), app.getVersion()));
   attachRecoveryHandlers(mainWindow);
   keybindManager.setWindow(mainWindow);
   mainWindow.webContents.on('did-start-navigation', (details) => {

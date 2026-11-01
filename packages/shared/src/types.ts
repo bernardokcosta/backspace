@@ -1163,8 +1163,6 @@ export interface InstanceStreamingLimits {
 export interface InstanceInfoResponse {
   name: string;
   version: string;
-  /** Serving-instance policy; missing/null means no desktop minimum. */
-  minimumDesktopVersion?: string | null;
   registrationOpen: boolean;
   federatedRegistrationOpen: boolean;
   spaceCreationOpen: boolean;

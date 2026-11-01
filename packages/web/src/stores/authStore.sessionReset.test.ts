@@ -16,8 +16,7 @@ vi.mock('../hooks/useWebSocket', () => ({
 
 import { useAuthStore } from './authStore';
 import { useSpaceStore } from './spaceStore';
-import { api, HttpError } from '../api/client';
-import { setDesktopSessionAllowed } from '../utils/desktopSessionAccess';
+import { api } from '../api/client';
 
 const user: User = {
   id: 'u1',
@@ -57,25 +56,29 @@ beforeEach(() => {
 });
 
 describe('the session reset fan-out', () => {
-  it('preserves the token and draft-bearing stores on a desktop policy refusal', async () => {
-    populate(); localStorage.setItem('backspace_token', 'tok');
-    const me = vi.spyOn(api.users, 'me').mockRejectedValueOnce(new HttpError(426, 'Update', undefined, 'desktop_update_required'));
-    try {
-      await useAuthStore.getState().loadUser();
-      expect(useAuthStore.getState().token).toBe('tok'); expect(localStorage.getItem('backspace_token')).toBe('tok');
-      expect(isEmpty()).toBe(false);
-    } finally { me.mockRestore(); }
-  });
-  it('ignores a late user lookup failure across compatibility teardown/reallow', async () => {
+  it('ignores a late user lookup failure after the account changes', async () => {
     let reject: (error: Error) => void = () => {};
     const me = vi.spyOn(api.users, 'me').mockImplementationOnce(() => new Promise((_resolve, no) => { reject = no; }));
     localStorage.setItem('backspace_token', 'tok');
     try {
       const lookup = useAuthStore.getState().loadUser();
-      setDesktopSessionAllowed(false); setDesktopSessionAllowed(true);
+      useAuthStore.setState({ token: 'new-token', user: { ...user, id: 'u2' } });
+      localStorage.setItem('backspace_token', 'new-token');
       reject(new Error('late network result')); await lookup;
-      expect(useAuthStore.getState().token).toBe('tok'); expect(localStorage.getItem('backspace_token')).toBe('tok');
-    } finally { setDesktopSessionAllowed(true); me.mockRestore(); }
+      expect(useAuthStore.getState().token).toBe('new-token'); expect(localStorage.getItem('backspace_token')).toBe('new-token');
+      expect(useAuthStore.getState().user?.id).toBe('u2');
+    } finally { me.mockRestore(); }
+  });
+  it('ignores a late successful lookup after sign-out', async () => {
+    let resolve!: (value: User) => void;
+    const me = vi.spyOn(api.users, 'me').mockImplementationOnce(() => new Promise((yes) => { resolve = yes; }));
+    try {
+      const lookup = useAuthStore.getState().loadUser();
+      useAuthStore.getState().logout();
+      resolve(user); await lookup;
+      expect(useAuthStore.getState().user).toBeNull();
+      expect(useAuthStore.getState().token).toBeNull();
+    } finally { me.mockRestore(); }
   });
   it('clears retained memberships on sign-out', () => {
     populate();

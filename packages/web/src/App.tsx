@@ -9,7 +9,7 @@ import { ScreenShareSetup } from './components/voice/ScreenShareSetup';
 import { SoundboardController } from './components/voice/SoundboardController';
 import { useAuthStore } from './stores/authStore';
 import { isElectron } from './platform/platform';
-import { DesktopCompatibilityGate } from './components/desktop/DesktopCompatibilityGate';
+import { startPendingMessageOrchestrator } from './stores/pendingMessageRehydrate';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.token);
@@ -48,6 +48,8 @@ export function App() {
     }
   }, []);
 
+  useEffect(() => startPendingMessageOrchestrator(), []);
+
   const showTitleBar = isElectron();
 
   return (
@@ -57,7 +59,6 @@ export function App() {
           style={{ height: 'var(--titlebar-inset)', borderBottomWidth: 'calc(1px / var(--interface-scale))' }} />
       )}
       <div className={showTitleBar ? 'flex-1 min-h-0' : 'contents'}>
-        <DesktopCompatibilityGate>
         <SwAutoUpdate />
         <ScreenShareSetup />
         <SoundboardController />
@@ -109,7 +110,6 @@ export function App() {
           <Route path="/" element={<Navigate to="/channels/@me" replace />} />
           <Route path="*" element={<Navigate to="/channels/@me" replace />} />
         </Routes>
-        </DesktopCompatibilityGate>
       </div>
     </div>
   );

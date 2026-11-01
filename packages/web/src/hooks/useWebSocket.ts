@@ -6,9 +6,7 @@ import { useEphemeralReplyStore } from '../stores/ephemeralReplyStore';
 import { applySpaceMemberUpdate } from '../stores/spaceMemberUpdates';
 import { useUnreadCountStore } from '../stores/unreadCountStore';
 import React, { useEffect, useRef } from 'react';
-import { noteDesktopPolicyRefused } from '../utils/desktopPolicyEvents';
-import { captureDesktopSessionWork, isDesktopSessionAllowed, onDesktopSessionAccessChanged } from '../utils/desktopSessionAccess';
-import { DESKTOP_UPDATE_REQUIRED_CLOSE_CODE } from '@backspace/shared/src/constants';
+import { recordDiagnostic } from '../utils/diagnostics';
 import { isMyIdentity, useAuthStore } from '../stores/authStore';
 import { useSpaceStore, getChannelOrigin, getMyUserIdForOrigin } from '../stores/spaceStore';
 import { useChatStore } from '../stores/chatStore';
@@ -84,7 +82,6 @@ interface ConnectionState {
   ws: WebSocket | null;
   heartbeatWorker: Worker | null;
   reconnectAttempts: number;
-  policyRefused?: boolean;
   reconnectTimer: ReturnType<typeof setTimeout> | undefined;
   token: string;
 }
@@ -116,7 +113,7 @@ function startHeartbeat(conn: ConnectionState): void {
   stopHeartbeat(conn);
   conn.heartbeatWorker = createHeartbeatWorker();
   conn.heartbeatWorker.onmessage = () => {
-    if (isDesktopSessionAllowed() && !conn.policyRefused && conn.ws && conn.ws.readyState === WebSocket.OPEN) {
+    if (conn.ws && conn.ws.readyState === WebSocket.OPEN) {
       conn.ws.send(JSON.stringify({ type: 'ping' }));
     }
   };
@@ -1547,10 +1544,7 @@ function getOrCreateConnection(origin: string, token: string): ConnectionState {
 }
 
 function connectToOrigin(origin: string, token: string): void {
-  if (!isDesktopSessionAllowed()) return;
-  const work = captureDesktopSessionWork();
   const conn = getOrCreateConnection(origin, token);
-  if (conn.policyRefused) return;
 
   if (conn.ws && (conn.ws.readyState === WebSocket.OPEN || conn.ws.readyState === WebSocket.CONNECTING)) {
     return;
@@ -1561,7 +1555,7 @@ function connectToOrigin(origin: string, token: string): void {
   conn.ws = ws;
 
   ws.onopen = () => {
-    if (!work.isCurrent() || conn.ws !== ws) { ws.close(); return; }
+    if (conn.ws !== ws) { ws.close(); return; }
     conn.reconnectAttempts = 0;
     ws.send(JSON.stringify({ type: 'auth', token: conn.token, client: detectClientKind() }));
     startHeartbeat(conn);
@@ -1570,7 +1564,7 @@ function connectToOrigin(origin: string, token: string): void {
   // Whether this socket has delivered its session's `ready` yet.
   let readyDelivered = false;
   ws.onmessage = (e) => {
-    if (!work.isCurrent() || conn.ws !== ws) return;
+    if (conn.ws !== ws) return;
     let event: ServerEvent;
     try {
       event = JSON.parse(e.data as string) as ServerEvent;
@@ -1579,13 +1573,6 @@ function connectToOrigin(origin: string, token: string): void {
       return;
     }
     const readyAlreadyDelivered = readyDelivered;
-    if (event.type === 'error' && event.code === 'desktop_update_required') {
-      conn.policyRefused = true;
-      if (conn.reconnectTimer) { clearTimeout(conn.reconnectTimer); conn.reconnectTimer = undefined; }
-      stopHeartbeat(conn);
-      noteDesktopPolicyRefused(origin);
-      ws.close();
-    }
     if (event.type === 'ready') readyDelivered = true;
     try {
       handleEvent(origin, event, readyAlreadyDelivered);
@@ -1596,10 +1583,7 @@ function connectToOrigin(origin: string, token: string): void {
 
   ws.onclose = (event) => {
     if (conn.ws !== ws) return;
-    if (event?.code === DESKTOP_UPDATE_REQUIRED_CLOSE_CODE && !conn.policyRefused) {
-      conn.policyRefused = true;
-      noteDesktopPolicyRefused(origin);
-    }
+    recordDiagnostic({ event: 'ws-closed', subsystem: 'websocket', level: event?.code === 1000 ? 'info' : 'warning', reason: event?.code });
     conn.ws = null;
     stopHeartbeat(conn);
     // Mark remote instance as disconnected in instanceStore
@@ -1609,9 +1593,10 @@ function connectToOrigin(origin: string, token: string): void {
       });
     }
     // Only reconnect if the connection is still registered (not explicitly disconnected)
-    if (work.isCurrent() && connections.has(origin) && conn.token && !conn.policyRefused) {
+    if (connections.has(origin) && conn.token) {
       const delay = Math.min(1000 * Math.pow(2, conn.reconnectAttempts), 30000);
       conn.reconnectAttempts++;
+      recordDiagnostic({ event: 'ws-reconnect', subsystem: 'websocket', level: 'warning', attempt: conn.reconnectAttempts });
       conn.reconnectTimer = setTimeout(() => connectToOrigin(origin, conn.token), delay);
     }
   };
@@ -1639,13 +1624,6 @@ function disconnectFromOrigin(origin: string): void {
   }
   connections.delete(origin);
 }
-
-// Revoke sockets synchronously, not only after React's subtree cleanup. This
-// also prevents a block→allow batched render from retaining an old connection.
-const stopDesktopAccess = onDesktopSessionAccessChanged((allowed) => {
-  if (!allowed) for (const origin of [...connections.keys()]) disconnectFromOrigin(origin);
-});
-if (import.meta.hot) import.meta.hot.dispose(stopDesktopAccess);
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
@@ -1681,9 +1659,8 @@ export function getHomeWsConnected(): boolean {
  * and the result is false.
  */
 export function wsSend(event: ClientEvent, origin: string = HOME_ORIGIN): boolean {
-  if (!isDesktopSessionAllowed()) return false;
   const conn = connections.get(origin);
-  if (conn?.ws && !conn.policyRefused && conn.ws.readyState === WebSocket.OPEN) {
+  if (conn?.ws && conn.ws.readyState === WebSocket.OPEN) {
     conn.ws.send(JSON.stringify(event));
     return true;
   }
@@ -1692,9 +1669,8 @@ export function wsSend(event: ClientEvent, origin: string = HOME_ORIGIN): boolea
 
 /** Send an event to ALL connected WebSocket instances (home + remotes). */
 export function wsSendAll(event: ClientEvent): void {
-  if (!isDesktopSessionAllowed()) return;
   for (const conn of connections.values()) {
-    if (!conn.policyRefused && conn.ws && conn.ws.readyState === WebSocket.OPEN) {
+    if (conn.ws && conn.ws.readyState === WebSocket.OPEN) {
       conn.ws.send(JSON.stringify(event));
     }
   }

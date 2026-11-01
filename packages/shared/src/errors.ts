@@ -17,7 +17,6 @@
  * fails when a code has no catalog entry.
  */
 export const ERROR_CODES = [
-  'desktop_update_required',
   'soundboard_disabled',
   'soundboard_invalid_audio',
   'soundboard_duration_limit',

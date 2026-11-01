@@ -5,7 +5,6 @@ import { api, createApiClient } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
 import { useInstanceStore, type ConnectedInstance } from '../stores/instanceStore';
 import { NotConnectedError } from '../stores/spaceStore';
-import { setDesktopSessionAllowed } from './desktopSessionAccess';
 import { sendInviteJoinRequest } from './inviteJoinRequest';
 
 const REMOTE = 'https://orbit.example';
@@ -19,13 +18,12 @@ function answer(status = 201, body: unknown = { id: 'r1', spaceId: 'same-id', st
   return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 }
 beforeEach(() => {
-  setDesktopSessionAllowed(true);
   useAuthStore.setState({ token: 'account-a', user });
   localStorage.setItem('backspace_token', 'account-a');
   useInstanceStore.setState({ instances: [remote(REMOTE), remote(OTHER)] });
   vi.stubGlobal('fetch', vi.fn(async () => answer()));
 });
-afterEach(() => { vi.unstubAllGlobals(); setDesktopSessionAllowed(true); useInstanceStore.setState({ instances: [] }); });
+afterEach(() => { vi.unstubAllGlobals(); useInstanceStore.setState({ instances: [] }); });
 
 describe('retained invitation join requests', () => {
   it.each(['', REMOTE, OTHER])('sends same-id only to its connected origin %s without discovery', async (origin) => {
@@ -59,15 +57,14 @@ describe('retained invitation join requests', () => {
     await expect(sendInviteJoinRequest('same-id', REMOTE)).rejects.toMatchObject({ code, status: 403 });
   });
 
-  it.each(['account', 'desktop'] as const)('rejects a reply made obsolete by %s lifecycle changes', async (change) => {
+  it('rejects a reply made obsolete by an account change', async () => {
     let release!: (value: Response) => void;
     const started = new Promise<void>((resolve) => {
       vi.mocked(fetch).mockImplementationOnce(() => { resolve(); return new Promise<Response>(r => { release = r; }); });
     });
     const result = sendInviteJoinRequest('same-id', REMOTE).catch((error: unknown) => error);
     await started;
-    if (change === 'account') useAuthStore.setState({ token: 'account-b', user: { ...user, id: 'other' } });
-    else setDesktopSessionAllowed(false);
+    useAuthStore.setState({ token: 'account-b', user: { ...user, id: 'other' } });
     release(answer());
     expect(await result).toMatchObject({ name: 'AbortError' });
   });

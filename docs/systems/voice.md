@@ -1,5 +1,10 @@
 # Voice, Video & Calls System
 
+LiveKit connection-state transitions and numeric disconnect reasons are reported
+through [central diagnostics](diagnostics.md). Room/user identities, media, device
+names and tokens are excluded. Reporting is best-effort and does not change
+capture permissions, retry decisions or call lifecycle behavior.
+
 Source files:
 - Server: `routes/livekit.ts`, `ws/handler.ts`, `ws/events.ts`
 - Client: `hooks/useLiveKit.ts`, `stores/voiceStore.ts`, `utils/voice.ts`, `utils/voiceActions.ts`, `utils/screenShare.ts`

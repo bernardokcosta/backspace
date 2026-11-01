@@ -1,5 +1,10 @@
 # Telemetry — retired
 
+Version 1.15.9 adds separate [instance-owned operational diagnostics](diagnostics.md).
+It does not restore the upstream ping, old telemetry columns or any third-party
+destination. Diagnostic storage is server-only and bounded; clients retain only
+a short-lived in-memory queue, never local log files.
+
 The optional daily usage ping ("Say hi to Jannis" / `hello.backspacechat.com`) and all associated telemetry code are removed. Their UI (`TelemetryAsk`, `HelloModal`, `TelemetryPanel`, `PayloadPreview`, scene and answer buttons), store slice, translations, server reporter/state/payload/activity modules, startup/shutdown hooks, admin routes, installer prompt/flags, configuration and shared contracts no longer exist.
 
 ## Compatibility

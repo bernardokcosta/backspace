@@ -99,7 +99,7 @@ the real getDisplayMedia selection/audio/publication acceptance tests.
 
 The `Native SDR foundation` workflow compiles and loads x64/ARM64 on matching
 Windows runners without publishing installers. Hardware capture, integration
-and the release/minimum-version gates remain tracked in the approved 1.15.1
+and the release acceptance checks remain tracked in the approved 1.15.1
 specifications and validation ledger.
 
 ### Disposable compatibility probe
@@ -117,65 +117,27 @@ isolation. See `scripts/fixtures/desktop-compatibility/README.md`.
 Real 1.14.2/1.15.0 samples, active legacy-call/service-worker transition and
 updater relaunch evidence are still absent. The diagnostic is not enforcement,
 device attestation or proof that an already-valid media session is revoked.
-The optional minimum-version policy is implemented below; no production
-activation or real historical-host acceptance is implied by the probe.
+No real historical-host acceptance is implied by the probe.
 
-### Serving-instance desktop compatibility
+### Desktop startup
 
-`BACKSPACE_MIN_DESKTOP_VERSION` defaults off; `/api/instance/info` advertises
-its stable SemVer or null. `desktopCompatibilityStore` queries only that public
-serving-origin endpoint (8-second bound, one 60-second poll, focus/refusal retry)
-and the existing installed `getVersion` bridge. Browser access skips both.
-Missing/null policy allows older hosts even without the bridge; malformed or
-unavailable policy blocks until a successful recheck. Known required floors
-survive failures; a fresh disabled policy can recover. Generation/abort guards
-discard late lookup/IPC results. An allowed poll keeps the app mounted until
-its result actually revokes compatibility, avoiding periodic call disconnects.
+Operational failure reports use the serving instance's central diagnostic sink,
+with a short-lived memory queue and no local log files. Existing recovery/update/
+keybind callbacks supply safe status codes; there is no new privileged bridge or
+mandatory startup check. See [diagnostics.md](diagnostics.md).
 
-`DesktopCompatibilityGate` replaces every ordinary route/controller with the
-localized `RequiredDesktopUpdate` screen before any session startup, rather
-than displaying a dismissible modal above a running app. Renderer-ready and
-the native titlebar stay outside. Updater subscriptions stay alive outside the
-protected subtree. The mandatory screen ignores dismissal; install requires
-an actual ready auto-update whose version satisfies the floor, rechecked at
-click time. Manual/package-manager ownership, progress and failure remain
-truthful. Recovery uses the existing trusted fork release-page action and
-`window.open(servingOrigin)` (the existing main-process HTTP(S) handler opens
-it in the OS browser), never an unimplemented preload method or peer URL.
-Initial updater IPC snapshots cannot overwrite newer events or disposed work.
+Desktop minimum-version enforcement has been removed. App routes and session
+startup do not wait for instance policy or the installed-version bridge; policy
+lookup failures cannot replace the application with a mandatory update screen.
+The legacy minimum-version environment setting is ignored. Optional updater
+prompts, settings and native recovery remain unchanged.
 
-Pending-message orchestration starts only in the allowed subtree and has
-reference-counted idempotent teardown. It removes subscriptions/online
-listeners and suppresses late dispatch/retries without erasing queued contents.
-A send already handed off while allowed still settles a confirmed success to
-avoid duplicate delivery on recovery. A synchronous, store-free
-`desktopSessionAccess` revision/abort seam guards API dispatch/replies, WebSocket
-connections/auth/sends/heartbeats/reconnects and transfer awaits, before React
-unmount completes. Revocation permanently invalidates work from the old
-lifecycle even after a subsequent re-allow. API failures caused by this pause
-or `desktop_update_required` do not clear the saved account token.
-
-Remote suspension records only eligible origins for the current user and moves
-their live status to disconnected without changing registry intent or tokens.
-Re-allow reconnects those origins; user-disconnected/expired sessions are not
-automatically resumed. Old cleanup cannot close sockets from the new epoch.
-If revocation interrupts initial registry discovery or token verification,
-initialization resumes for the same account/session in the next allowed epoch.
-Concurrent callers share one attempt; partially created eligible placeholders
-are retried, voluntary disconnects are retained, and retired attempts cannot
-mark another account's initialization complete.
-Deferred message sends use a narrow receipt-only API path: confirmed HTTP
-success settles delivery without parsing/applying old response data. Ordinary
-API calls still reject stale responses. This prevents a blocked JSON-body read
-from turning an acknowledged send back into a queued message.
-
-On teardown, remote sockets, call/setup state and the existing LiveKit room/
-mic/camera/native capture lifecycle stop. Uploads/downloads pause (tus abort
-without server deletion), retaining Files, handles, URLs and pending messages;
-rehydration auto-resume waits for allow. Remote refusals remain origin-scoped
-and cannot supply the global floor. This does not prove targeted revocation of
-independently valid media grants held by old cached bundles across a server
-restart; that historical active-call test remains unverified.
+`App` starts the reference-counted pending-message orchestrator and tears it
+down on unmount. Confirmed message receipts still settle without parsing a
+response body, avoiding duplicate sends after teardown. Federation bootstrap
+callers share one attempt per account/session; account changes and store resets
+invalidate late initialization results. Transfers retain their ordinary explicit
+pause, resume and cancellation behavior without a compatibility pause.
 
 The desktop app wraps the Backspace web client in Electron with:
 - **Main process** (`main.ts`): Window lifecycle, tray icon, IPC handler registry, auto-update, deep linking, activity detection, keybind manager

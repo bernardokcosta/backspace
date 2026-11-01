@@ -150,7 +150,6 @@ describe('SpaceSidebar space menu: Notification settings', () => {
     vi.spyOn(api.instance, 'info').mockResolvedValue({
       name: 'Backspace',
       version: '1.0.0',
-      minimumDesktopVersion: null,
       registrationOpen: true,
       federatedRegistrationOpen: true,
       spaceCreationOpen: false,

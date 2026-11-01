@@ -17,7 +17,6 @@ let app: FastifyInstance;
 vi.mock('../db/index.js', () => ({ getDb: () => testDb, getRawDb: () => sqlite, schema }));
 
 beforeEach(async () => {
-  (config as { minimumDesktopVersion: string | null }).minimumDesktopVersion = null;
   sqlite = new Database(':memory:'); sqlite.pragma('foreign_keys = ON');
   const dir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../drizzle');
   for (const file of fs.readdirSync(dir).filter(f => f.endsWith('.sql')).sort()) {
@@ -30,10 +29,8 @@ beforeEach(async () => {
 afterEach(async () => { await app.close(); sqlite.close(); });
 
 describe('GET /api/instance/info', () => {
-  it('publicly reports a disabled or configured desktop minimum', async () => {
-    expect((await app.inject('/api/instance/info')).json().minimumDesktopVersion).toBeNull();
-    (config as { minimumDesktopVersion: string | null }).minimumDesktopVersion = '1.15.1';
-    expect((await app.inject('/api/instance/info')).json().minimumDesktopVersion).toBe('1.15.1');
+  it('does not advertise a desktop version requirement', async () => {
+    expect((await app.inject('/api/instance/info')).json()).not.toHaveProperty('minimumDesktopVersion');
   });
   it('keeps federated registration default and stored override', async () => {
     expect((await app.inject('/api/instance/info')).json().federatedRegistrationOpen).toBe(true);

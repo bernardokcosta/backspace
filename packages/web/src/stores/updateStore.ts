@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { isElectron } from '../platform/platform';
-import { compareDesktopVersions } from '@backspace/shared/src/desktopCompatibility';
 
 /**
  * Desktop update state for the renderer.
@@ -152,13 +151,6 @@ export function shouldPrompt(snapshot: DesktopUpdateSnapshot | null): boolean {
  */
 export function canRestartToInstall(snapshot: DesktopUpdateSnapshot | null): boolean {
   return snapshot?.capability === 'auto' && snapshot.status.phase === 'ready';
-}
-
-/** Mandatory compatibility recovery ignores dismissal, never readiness/version. */
-export function canInstallRequiredUpdate(snapshot: DesktopUpdateSnapshot | null, minimumVersion: string): boolean {
-  if (snapshot?.capability !== 'auto' || snapshot.status.phase !== 'ready') return false;
-  const order = compareDesktopVersions(snapshot.status.version, minimumVersion);
-  return order !== null && order >= 0;
 }
 
 // Refcounted so the toast and the settings panel can both subscribe, and so

@@ -6,12 +6,11 @@ import { usePendingMessageStore } from './pendingMessageStore';
 import { useTransferStore } from './transferStore';
 import { useSpaceStore } from './spaceStore';
 import { startPendingMessageOrchestrator } from './pendingMessageRehydrate';
-import { setDesktopSessionAllowed } from '../utils/desktopSessionAccess';
 let stop: (() => void) | undefined;
-afterEach(() => { stop?.(); setDesktopSessionAllowed(true); vi.restoreAllMocks(); usePendingMessageStore.setState({ bubbles: new Map() }); });
+afterEach(() => { stop?.(); vi.restoreAllMocks(); usePendingMessageStore.setState({ bubbles: new Map() }); });
 describe('confirmed pending delivery with the real API/store/orchestrator', () => {
-  it('does not resend an HTTP-confirmed message when its body completes after blocking', async () => {
-    setDesktopSessionAllowed(true); useTransferStore.setState({ transfers: new Map() });
+  it('does not resend an HTTP-confirmed message when its body completes after teardown', async () => {
+    useTransferStore.setState({ transfers: new Map() });
     usePendingMessageStore.setState({ bubbles: new Map() }); useSpaceStore.getState().reset();
     const channel: Channel = { id: 'receipt-channel', spaceId: 'space', name: 'receipt', type: 'text', topic: null, position: 0, categoryId: null, createdAt: 1, myPermissions: '1' };
     useSpaceStore.getState().upsertChannel(channel, 'space', '');
@@ -26,10 +25,10 @@ describe('confirmed pending delivery with the real API/store/orchestrator', () =
       transferIds: [transfer], createdAtLocal: Date.now(), tusExpiresAt: Date.now() + 60_000, state: 'sending', retryCount: 0 });
     stop = startPendingMessageOrchestrator();
     await vi.waitFor(() => expect(fetcher).toHaveBeenCalledOnce());
-    setDesktopSessionAllowed(false); stop();
+    stop();
     finish({ id: 'delivered' }); await new Promise((resolve) => setTimeout(resolve, 0));
     expect(usePendingMessageStore.getState().bubbles.get(channel.id) ?? []).toEqual([]);
-    setDesktopSessionAllowed(true); stop = startPendingMessageOrchestrator();
+    stop = startPendingMessageOrchestrator();
     await new Promise((resolve) => setTimeout(resolve, 0)); expect(fetcher).toHaveBeenCalledOnce();
   });
 });

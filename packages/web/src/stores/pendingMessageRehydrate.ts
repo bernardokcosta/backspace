@@ -3,7 +3,6 @@ import { useTransferStore } from './transferStore';
 import { useUIStore } from './uiStore';
 import { getApiForOrigin, getChannelOrigin, getChannelKind, useSpaceStore } from './spaceStore';
 import { HttpError, RateLimitError } from '../api/client';
-import { captureDesktopSessionWork, isDesktopSessionAllowed } from '../utils/desktopSessionAccess';
 
 let started = false;
 let users = 0;
@@ -59,7 +58,7 @@ function recheckSettled(): void {
  * fails once every instance has delivered its ready without naming it.
  */
 function dispatchReady(): void {
-  if (!started || !isDesktopSessionAllowed()) return;
+  if (!started) return;
   for (const b of usePendingMessageStore.getState().listReadyForDeferredSend()) {
     if (sentClientIds.has(b.clientId)) continue;
     if (getChannelKind(b.channelId) === 'unknown') {
@@ -77,7 +76,7 @@ export function startPendingMessageOrchestrator(): () => void {
   if (started) return releaseLifecycle();
   started = true;
   const revision = ++generation;
-  const alive = () => started && generation === revision && isDesktopSessionAllowed();
+  const alive = () => started && generation === revision;
   const disposers: Array<() => void> = [];
   stopSubscriptions = () => { for (const dispose of disposers) dispose(); };
 
@@ -200,8 +199,7 @@ export function startPendingMessageOrchestrator(): () => void {
 const sentClientIds = new Set<string>();
 
 async function deferredSend(b: PendingBubble, attempt = 0, revision = generation): Promise<void> {
-  const session = captureDesktopSessionWork();
-  const alive = () => started && revision === generation && session.isCurrent();
+  const alive = () => started && revision === generation;
   try {
     if (!alive()) return;
     const transfers = useTransferStore.getState().transfers;
@@ -224,7 +222,7 @@ async function deferredSend(b: PendingBubble, attempt = 0, revision = generation
       const message = { content: b.content, attachments: attachmentIds, replyToId: b.replyToId ?? undefined };
       if (isDm) await client.dm.sendMessageReceipt(b.channelId, message);
       else await client.channels.sendMessageReceipt(b.channelId, message);
-      // An acknowledged request already handed off while allowed is delivered,
+      // An acknowledged request already handed off is delivered,
       // not a queued draft. Settle it even after teardown to avoid duplicate
       // delivery on recovery; teardown itself never discards pending contents.
       usePendingMessageStore.getState().removeByClientId(b.channelId, b.clientId);
@@ -246,7 +244,7 @@ async function deferredSend(b: PendingBubble, attempt = 0, revision = generation
     }
   } finally {
     sentClientIds.delete(b.clientId);
-    // A new allowed lifecycle may have waited for this old in-flight request.
-    if (started && (revision !== generation || !session.isCurrent())) dispatchReady();
+    // A new lifecycle may have waited for this old in-flight request.
+    if (started && revision !== generation) dispatchReady();
   }
 }

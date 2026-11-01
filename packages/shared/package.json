@@ -1,6 +1,6 @@
 {
   "name": "@backspace/shared",
-  "version": "1.15.8",
+  "version": "1.15.9",
   "private": true,
   "license": "AGPL-3.0-only",
   "author": "Jannis Braun",
@@ -17,8 +17,8 @@
     "./src/constants.js": "./src/constants.ts",
     "./src/errors": "./src/errors.ts",
     "./src/errors.js": "./src/errors.ts",
-    "./src/desktopCompatibility": "./src/desktopCompatibility.ts",
-    "./src/desktopCompatibility.js": "./src/desktopCompatibility.ts",
+    "./src/diagnostics": "./src/diagnostics.ts",
+    "./src/diagnostics.js": "./src/diagnostics.ts",
     "./src/dmSystemEvents": "./src/dmSystemEvents.ts",
     "./src/dmSystemEvents.js": "./src/dmSystemEvents.ts",
     "./src/stickers": "./src/stickers.ts",

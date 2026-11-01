@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { recordDiagnostic } from '../utils/diagnostics';
 import {
   Room,
   RoomEvent,
@@ -1063,6 +1064,7 @@ export function useLiveKit() {
       });
       newRoom.on(RoomEvent.ConnectionStateChanged, (state) => {
         if (roomRef.current === newRoom) {
+          recordDiagnostic({ event: 'voice-state', subsystem: 'voice', level: state === ConnectionState.Reconnecting ? 'warning' : 'info', state });
           setConnectionState(state);
           const connected = state === ConnectionState.Connected;
           const connecting = state === ConnectionState.Connecting || state === ConnectionState.Reconnecting;
@@ -1115,6 +1117,7 @@ export function useLiveKit() {
         settleScreenShareAfterReconnect(newRoom);
         if (roomRef.current !== newRoom) return;
         republish.clear();
+        recordDiagnostic({ event: 'voice-state', subsystem: 'voice', level: reason === DisconnectReason.CLIENT_INITIATED ? 'info' : 'warning', state: 'disconnected', reason });
         resume.clear();
         // The SDK emits Disconnected before rejecting an initial connect.
         // Keep that attempt current so its catch can report the failure.

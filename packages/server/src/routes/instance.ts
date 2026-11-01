@@ -23,7 +23,6 @@ export async function instanceRoutes(app: FastifyInstance): Promise<void> {
     const response: InstanceInfoResponse = {
       name: instanceName,
       version: config.version,
-      minimumDesktopVersion: config.minimumDesktopVersion,
       registrationOpen,
       federatedRegistrationOpen: settings?.federatedRegistrationOpen === 1,
       spaceCreationOpen: settings?.spaceCreationOpen !== 0,

@@ -2,7 +2,6 @@ import { api, type BackspaceApiClient } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
 import { useInstanceStore } from '../stores/instanceStore';
 import { connectedJoinOrigin, NotConnectedError } from '../stores/spaceStore';
-import { captureDesktopSessionWork } from './desktopSessionAccess';
 import { isJoinRequestPendingError } from './joinErrors';
 
 /** What became of a join request sent from an invite: a new one, or one already waiting. */
@@ -31,9 +30,7 @@ export async function sendInviteJoinRequest(
   message?: string,
 ): Promise<InviteRequestOutcome> {
   const session = useAuthStore.getState().token;
-  const work = captureDesktopSessionWork();
   const assertCurrent = () => {
-    work.assertCurrent();
     if (useAuthStore.getState().token !== session) throw new DOMException('Session changed', 'AbortError');
   };
   assertCurrent();

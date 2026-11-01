@@ -1,12 +1,8 @@
 # Localization
 
-Desktop compatibility refusals use `desktop_update_required` with the stable
-`minimumVersion` interpolation in all five errors catalogs. Unknown installed
-versions are omitted on the wire, not serialized as a fake current version.
-The mandatory root screen uses `desktop:compatibility.*` in all five catalogs,
-including policy lookup failures, unknown host version, actual update progress,
-ready-only install and manual/package-manager ownership. It does not render
-raw updater error strings or trust peer-provided recovery URLs.
+The retired desktop minimum-version policy's mandatory-screen copy and error
+code have been removed from all five catalogs. Optional desktop update prompts
+and settings remain localized.
 
 How Backspace is translated, and the rules every string, count, date and
 error message follows so that the translations stay correct as the product

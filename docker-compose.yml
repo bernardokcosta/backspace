@@ -27,6 +27,11 @@ services:
         BACKSPACE_COMMIT: ${BACKSPACE_COMMIT:-}
     container_name: backspace
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "50000000"
+        max-file: "3"
     volumes:
       - ./data:/app/data
     env_file:
@@ -55,6 +60,11 @@ services:
     image: caddy:2.11.1-alpine
     container_name: caddy
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "50000000"
+        max-file: "3"
     ports:
       - "80:80"
       - "443:443"
@@ -78,6 +88,11 @@ services:
     image: livekit/livekit-server:v1.9.11
     container_name: livekit
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "50000000"
+        max-file: "3"
     network_mode: host
     volumes:
       - ./livekit.yaml:/etc/livekit.yaml:ro
