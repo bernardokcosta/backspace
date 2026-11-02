@@ -354,6 +354,49 @@ fastify), `brace-expansion` 1.1.21, 2.1.7 and 5.0.12, `source-map-js` 1.2.2,
 `http-cache-semantics` 4.3.0 (the advisory covers "through 4.2.0" and lists no
 fix; 4.3.0 was published after it), `esbuild` 0.28.2 (overriding `esbuild@^0.18` pulled transitively by `drizzle-kit` → `@esbuild-kit/core-utils` to clear `GHSA-67mh-4wv8-2f99`), and `sharp` 0.35.5, below.
 
+### Fixed with compatibility patches: minimatch and glob (2026-10-30)
+
+`GHSA-g3hv-75wg-m249` / `CVE-2026-118764` affects minimatch <11.0.1
+(globparts amplification denial of service). `GHSA-3g3m-2fjr-6pw4` /
+`CVE-2026-118773` affects glob >=9 through 14.0.1 (AbortSignal cancellation
+bypass). Both were published on 2026-10-30 and affect the 1.15.9 lockfile.
+They are fixed, not added to the exception
+register: `pnpm.overrides` selects minimatch ^11.0.3 everywhere and glob
+^14.0.3 for consumers requesting glob >=9 (`@fastify/static` and Workbox).
+
+A blanket override alone breaks desktop packaging. minimatch 11 exports named
+functions, and its parsed pattern components are nonrecursive `Matcher` objects,
+not regular expressions. Three version-specific pnpm patches preserve the
+existing Electron builder and its callers:
+
+- `@electron/asar@3.4.1`: use the named `minimatch` function for unpack patterns.
+- `dir-compare@4.2.0`: use the named function for include/exclude filters used by
+  `@electron/universal`.
+- `glob@7.2.3`: use `Matcher.pattern` and `Matcher.test()` in both walkers instead
+  of RegExp `_glob` and `String.match()`. Keep its callback API for asar and
+  rimraf/temp. Its local `Minimatch` subclass skips only row merging, preserving
+  the one-row-per-brace-alternative metadata expected by glob 7 (including
+  explicit dotfiles and `nonull`); parsing and amplification limits are inherited
+  unchanged. glob 7 itself is outside the new glob advisory's affected range.
+
+Other consumers already use the supported named exports, `Minimatch`, or
+`minimatch.match()` (filelist via ejs/jake). The overrides do not restore the old
+regular-expression matcher or disable the upstream safety limits. Both updated
+libraries support the repository's Node floor and use the permissive BlueOak
+license. The existing `COPY patches/ patches/` supplies these patches to Docker
+installs as well.
+
+`packages/desktop/src/packagingDependencies.test.ts` resolves the actual
+electron-builder dependency graph and checks recursive sync/callback traversal,
+braces, dotfiles, ignores, unpacked native resources, dir-compare filters,
+electron-builder exclusions, ejs rendering, filelist traversal, sync/callback
+brace alternatives and the upstream preprocessing amplification limit. The
+production web build also exercises Workbox.
+Remove the compatibility patches when the pinned callers support minimatch 11;
+remove the overrides when all upstream dependency ranges require fixed versions.
+No additional OSV exception is introduced. The workflow uses `--output-file`,
+the non-deprecated spelling, without changing scan enforcement or SARIF upload.
+
 ### Fixed by override rather than deferred: sharp
 
 `GHSA-rgj7-g3m4-5g8c` (HIGH, published 2026-09-08) reports sharp bundling a

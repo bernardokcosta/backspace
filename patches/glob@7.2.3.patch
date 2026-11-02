@@ -1,0 +1,44 @@
+diff --git a/common.js b/common.js
+--- a/common.js
++++ b/common.js
+@@ -15,3 +15,7 @@
+ var minimatch = require("minimatch")
+ var isAbsolute = require("path-is-absolute")
+-var Minimatch = minimatch.Minimatch
++// glob 7 indexes matches and globSet per brace alternative.
++// Keep rows separate; inherited parsing and safety limits still apply.
++var Minimatch = class extends minimatch.Minimatch {
++  mergeRows () {}
++}
+diff --git a/glob.js b/glob.js
+--- a/glob.js
++++ b/glob.js
+@@ -384,3 +384,3 @@
+   var negate = !!this.minimatch.negate
+-  var rawGlob = pn._glob
++  var rawGlob = pn.pattern
+   var dotOk = this.dot || rawGlob.charAt(0) === '.'
+@@ -393,5 +393,5 @@
+       if (negate && !prefix) {
+-        m = !e.match(pn)
++        m = !pn.test(e)
+       } else {
+-        m = e.match(pn)
++        m = pn.test(e)
+       }
+diff --git a/sync.js b/sync.js
+--- a/sync.js
++++ b/sync.js
+@@ -146,3 +146,3 @@
+   var negate = !!this.minimatch.negate
+-  var rawGlob = pn._glob
++  var rawGlob = pn.pattern
+   var dotOk = this.dot || rawGlob.charAt(0) === '.'
+@@ -155,5 +155,5 @@
+       if (negate && !prefix) {
+-        m = !e.match(pn)
++        m = !pn.test(e)
+       } else {
+-        m = e.match(pn)
++        m = pn.test(e)
+       }

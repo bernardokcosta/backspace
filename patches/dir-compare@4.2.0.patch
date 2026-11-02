@@ -1,0 +1,13 @@
+diff --git a/build/src/FilterHandler/defaultFilterHandler.js b/build/src/FilterHandler/defaultFilterHandler.js
+--- a/build/src/FilterHandler/defaultFilterHandler.js
++++ b/build/src/FilterHandler/defaultFilterHandler.js
+@@ -7,3 +7,3 @@
+ const path_1 = __importDefault(require("path"));
+-const minimatch_1 = __importDefault(require("minimatch"));
++const minimatch_1 = require("minimatch");
+ /**
+@@ -29,3 +29,3 @@
+         const pat = patternArray[i];
+-        if ((0, minimatch_1.default)(path, pat, { dot: true, matchBase: true })) { //nocase
++        if ((0, minimatch_1.minimatch)(path, pat, { dot: true, matchBase: true })) { //nocase
+             return true;

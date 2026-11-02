@@ -1,0 +1,18 @@
+diff --git a/lib/asar.js b/lib/asar.js
+--- a/lib/asar.js
++++ b/lib/asar.js
+@@ -40,3 +40,3 @@
+ const path = __importStar(require("path"));
+-const minimatch_1 = __importDefault(require("minimatch"));
++const minimatch_1 = require("minimatch");
+ const wrapped_fs_1 = __importDefault(require("./wrapped-fs"));
+@@ -53,3 +53,3 @@
+ function isUnpackedDir(dirPath, pattern, unpackDirs) {
+-    if (dirPath.startsWith(pattern) || (0, minimatch_1.default)(dirPath, pattern)) {
++    if (dirPath.startsWith(pattern) || (0, minimatch_1.minimatch)(dirPath, pattern)) {
+         if (!unpackDirs.includes(dirPath)) {
+@@ -146,3 +146,3 @@
+             if (unpack) {
+-                shouldUnpack = (0, minimatch_1.default)(filename, unpack, { matchBase: true });
++                shouldUnpack = (0, minimatch_1.minimatch)(filename, unpack, { matchBase: true });
+             }
