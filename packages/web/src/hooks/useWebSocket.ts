@@ -527,38 +527,31 @@ function handleEvent(origin: string, event: ServerEvent, readyAlreadyDelivered =
         // at broadcast and hardware time.
       }
 
-      // Server-authoritative voice session check: if we had a voice connection
-      // but the server's voiceStates doesn't include us (server restarted and
-      // lost in-memory voiceRooms), tear down the stale LiveKit session cleanly.
-      // If the server still knows about us (WS blip, not a restart), do nothing —
-      // useLiveKit's ConnectionStateChanged handler will re-register if needed.
+      // A new socket must reclaim its live local voice session even while the
+      // server still lists it in reconnect grace: closing the old socket cleared
+      // getVoiceWs. LiveKit can remain connected throughout this signaling blip.
+      // A refresh on the same socket is not a resume and must not steal voice.
       {
         const { currentVoiceChannelId } = useVoiceStore.getState();
-        if (currentVoiceChannelId) {
+        if (currentVoiceChannelId && !readyAlreadyDelivered) {
           const voiceOrigin = getChannelOrigin(currentVoiceChannelId);
           if (voiceOrigin === origin) {
-            const serverKnowsUs = event.voiceStates?.[currentVoiceChannelId]?.includes(event.user.id);
-            if (!serverKnowsUs) {
-              const activeRoom = getActiveRoom();
-              const localStatus = useVoiceStore.getState().voiceConnectionStatus;
-              const recoverable = localStatus === 'connecting'
-                || localStatus === 'reconnecting'
-                || (activeRoom != null && (
-                  activeRoom.state === LiveKitConnectionState.Connected
-                  || activeRoom.state === LiveKitConnectionState.Connecting
-                  || activeRoom.state === LiveKitConnectionState.Reconnecting
-                ));
-              if (recoverable) {
-                // A ready snapshot can race the new socket's voice
-                // registration. Reassert the session and keep LiveKit's own
-                // reconnect machinery and local media intent intact.
-                wsSend({ type: 'voice_join', channelId: currentVoiceChannelId }, origin);
-                broadcastVoiceStatus(origin);
-              }
-              // A completed network disconnect intentionally retains the
-              // channel ID for the Retry action. Absence from a ready snapshot
-              // alone is not a terminal refusal, so leave that intent intact.
+            const activeRoom = getActiveRoom();
+            const localStatus = useVoiceStore.getState().voiceConnectionStatus;
+            const recoverable = localStatus === 'connecting'
+              || localStatus === 'reconnecting'
+              || (activeRoom != null && (
+                activeRoom.state === LiveKitConnectionState.Connected
+                || activeRoom.state === LiveKitConnectionState.Connecting
+                || activeRoom.state === LiveKitConnectionState.Reconnecting
+                || activeRoom.state === LiveKitConnectionState.SignalReconnecting
+              ));
+            if (recoverable) {
+              wsSend({ type: 'voice_join', channelId: currentVoiceChannelId }, origin);
+              broadcastVoiceStatus(origin);
             }
+            // A completed network disconnect retains the channel ID for Retry;
+            // a ready snapshot alone must not restart that disconnected intent.
           }
         }
       }
@@ -1467,6 +1460,7 @@ function handleEvent(origin: string, event: ServerEvent, readyAlreadyDelivered =
       break;
 
     case 'error': {
+      recordDiagnostic({ event: 'ws-error', subsystem: 'websocket', level: 'error', errorCode: event.code });
       console.error(`WebSocket error (${origin || 'home'}):`, event.message);
       // A refused dm_call_start names its DM: the call this client is placing
       // there never started, so the calling state and its ring go. A refused

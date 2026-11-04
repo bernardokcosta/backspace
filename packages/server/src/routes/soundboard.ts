@@ -8,7 +8,7 @@ import { getDb, schema } from '../db/index.js';
 import { config } from '../config.js';
 import { authenticate } from '../utils/auth.js';
 import { hasPermission, isMember } from '../utils/permissions.js';
-import { sendError } from '../utils/httpErrors.js';
+import { errorBody, sendError } from '../utils/httpErrors.js';
 import { generateSnowflake } from '../utils/snowflake.js';
 import { createFixedWindowLimit } from '../utils/fixedWindowLimit.js';
 import { connectionManager } from '../ws/handler.js';
@@ -132,20 +132,34 @@ export async function soundboardRoutes(app: FastifyInstance): Promise<void> {
     if (!memberGate(request.userId, spaceId, reply)) return;
     const channel = getDb().select().from(schema.channels).where(eq(schema.channels.id, channelId)).get();
     const session = connectionManager.getUserRoom(request.userId);
-    if (!channel || channel.spaceId !== spaceId || channel.type !== 'voice' || session?.roomId !== channelId
-      || !connectionManager.getVoiceWs(request.userId) || !hasPermission(request.userId, spaceId, PermissionBits.VIEW_CHANNEL, channelId)
-      || !hasPermission(request.userId, spaceId, PermissionBits.CONNECT, channelId) || !hasPermission(request.userId, spaceId, PermissionBits.SPEAK, channelId)
-      || connectionManager.isSpaceMuted(spaceId, request.userId) || connectionManager.isPermissionMuted(spaceId, request.userId)
-      || connectionManager.isSpaceDeafened(spaceId, request.userId) || connectionManager.getVoiceUserStatus(request.userId)?.isDeafened) {
-      return sendError(reply, 403, 'forbidden');
+    if (!channel || channel.spaceId !== spaceId || channel.type !== 'voice') return sendError(reply, 403, 'channel_not_found');
+    if (session?.roomId !== channelId || connectionManager.getVoiceWs(request.userId)?.readyState !== 1) {
+      return sendError(reply, 403, 'soundboard_voice_required');
+    }
+    for (const permission of ['VIEW_CHANNEL', 'CONNECT', 'SPEAK'] as const) {
+      if (!hasPermission(request.userId, spaceId, PermissionBits[permission], channelId)) {
+        return sendError(reply, 403, 'missing_permission', { permission });
+      }
+    }
+    if (connectionManager.isSpaceMuted(spaceId, request.userId) || connectionManager.isPermissionMuted(spaceId, request.userId)) {
+      return sendError(reply, 403, 'soundboard_muted');
+    }
+    if (connectionManager.isSpaceDeafened(spaceId, request.userId) || connectionManager.getVoiceUserStatus(request.userId)?.isDeafened) {
+      return sendError(reply, 403, 'soundboard_deafened');
     }
     const settings = settingsFor(spaceId);
     if (!settings.enabled) return sendError(reply, 403, 'soundboard_disabled');
     const sound = getDb().select().from(schema.soundboardSounds).where(and(eq(schema.soundboardSounds.id, soundId), eq(schema.soundboardSounds.spaceId, spaceId))).get();
     if (!sound) return sendError(reply, 404, 'soundboard_not_found');
     if (sound.durationSeconds > settings.maxDurationSeconds) return sendError(reply, 400, 'soundboard_duration_limit', { max: settings.maxDurationSeconds });
-    if (!plays.consume(`user:${request.userId}`)) return sendError(reply, 429, 'rate_limited');
-    if (!plays.consume(`room:${channelId}`)) return sendError(reply, 429, 'rate_limited');
+    const retryAfter = plays.consumeAll([`user:${request.userId}`, `room:${channelId}`]);
+    if (retryAfter > 0) {
+      const seconds = Math.ceil(retryAfter / 1000);
+      reply.header('Retry-After', seconds);
+      // Retry-After is not CORS-safelisted. Existing clients also read the
+      // numeric body field, so remote members get the same short cooldown.
+      return reply.code(429).send({ ...errorBody(429, 'rate_limited'), retryAfter: seconds });
+    }
     const payload = JSON.stringify({ type: 'soundboard_play', channelId, spaceId, sound });
     for (const uid of connectionManager.getRoomParticipants(channelId)) {
       if (!isMember(spaceId, uid) || !hasPermission(uid, spaceId, PermissionBits.VIEW_CHANNEL, channelId)

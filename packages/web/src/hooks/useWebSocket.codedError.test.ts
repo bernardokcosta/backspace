@@ -1,4 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { recordDiagnostic } from '../utils/diagnostics';
+
+vi.mock('../utils/diagnostics', () => ({ recordDiagnostic: vi.fn() }));
 
 // jsdom has no AudioWorkletNode; the handler's imports reach the voice stack.
 vi.mock('../audio/AudioManager', () => ({
@@ -62,6 +65,7 @@ function homeSocket(): FakeWebSocket {
 }
 
 beforeEach(async () => {
+  vi.clearAllMocks();
   await initI18n();
   FakeWebSocket.all = [];
   vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -84,6 +88,7 @@ describe('a coded WebSocket refusal', () => {
     const toasts = useUIStore.getState().toasts;
     expect(toasts).toHaveLength(1);
     expect(toasts[0]!.message).toBe(i18n.t('errors:recipient_deleted'));
+    expect(recordDiagnostic).toHaveBeenCalledWith({ event: 'ws-error', subsystem: 'websocket', level: 'error', errorCode: 'recipient_deleted' });
   });
 
   it('fills the placeholders from details', () => {
@@ -108,5 +113,6 @@ describe('a coded WebSocket refusal', () => {
     ws.deliver({ type: 'error', message: 'Unknown event type: nope' });
 
     expect(useUIStore.getState().toasts).toHaveLength(0);
+    expect(recordDiagnostic).toHaveBeenCalledWith({ event: 'ws-error', subsystem: 'websocket', level: 'error', errorCode: undefined });
   });
 });

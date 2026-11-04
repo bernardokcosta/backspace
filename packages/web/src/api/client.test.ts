@@ -1,6 +1,9 @@
 import { describe, it, expect, afterEach, vi } from 'vitest';
 import { createApiClient, HttpError, RateLimitError } from './client';
 import { describeError } from '../i18n/errors';
+import { recordDiagnostic } from '../utils/diagnostics';
+
+vi.mock('../utils/diagnostics', () => ({ recordDiagnostic: vi.fn() }));
 
 const originalFetch = globalThis.fetch;
 
@@ -19,6 +22,28 @@ async function thrownBy(run: () => Promise<unknown>): Promise<unknown> {
 
 afterEach(() => {
   globalThis.fetch = originalFetch;
+  vi.clearAllMocks();
+});
+
+describe('privacy-safe API diagnostics', () => {
+  const client = createApiClient('https://home.test', () => 'private-token');
+
+  it.each([403, 429])('retains the wire error code for HTTP %s without the error body', async status => {
+    answer(status, JSON.stringify({ code: 'missing_permission', error: 'private message', details: { permission: 'private' } }));
+    await thrownBy(() => client.users.me());
+    expect(recordDiagnostic).toHaveBeenCalledWith({ event: 'api-failed', subsystem: 'api', level: 'warning',
+      method: 'GET', route: '/users/@me', status, errorCode: 'missing_permission' });
+    expect(JSON.stringify(vi.mocked(recordDiagnostic).mock.calls)).not.toMatch(/private/);
+  });
+
+  it('drops unknown response codes and still reports invalid error bodies', async () => {
+    answer(500, JSON.stringify({ code: 'private-input', error: 'private message' }));
+    await thrownBy(() => client.users.me());
+    expect(recordDiagnostic).toHaveBeenLastCalledWith(expect.not.objectContaining({ errorCode: 'private-input' }));
+    answer(502, 'not JSON');
+    await thrownBy(() => client.users.me());
+    expect(recordDiagnostic).toHaveBeenLastCalledWith(expect.objectContaining({ status: 502 }));
+  });
 });
 
 describe('a 429 answer', () => {
@@ -69,6 +94,12 @@ describe('a 429 answer', () => {
     answer(429, null);
     const err = (await thrownBy(() => client.users.me())) as RateLimitError;
     expect(err.retryAfter).toBe(60);
+  });
+
+  it('uses the soundboard JSON wait when a federated response hides Retry-After', async () => {
+    answer(429, JSON.stringify({ code: 'rate_limited', statusCode: 429, retryAfter: 1 }));
+    const err = await thrownBy(() => client.soundboard.play('space', 'sound', 'voice')) as RateLimitError;
+    expect(err.retryAfter).toBe(1);
   });
 });
 

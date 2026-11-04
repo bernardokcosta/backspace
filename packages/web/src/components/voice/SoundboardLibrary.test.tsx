@@ -8,20 +8,25 @@ import { useVoiceStore } from '../../stores/voiceStore';
 import { useAuthStore } from '../../stores/authStore';
 import { soundboardKey, useSoundboardPreferences, useSoundboardStore } from '../../stores/soundboardStore';
 import { useKeybindStore } from '../../stores/keybindStore';
+import type { User } from '@backspace/shared';
+import { SoundboardController } from './SoundboardController';
 
 const api = vi.hoisted(() => ({ list: vi.fn(), play: vi.fn(), remove: vi.fn() }));
 vi.mock('../../utils/crossStoreResolvers', async importOriginal => ({
   ...await importOriginal<typeof import('../../utils/crossStoreResolvers')>(), getApiForOrigin: () => ({ soundboard: api }),
 }));
 vi.mock('../../audio/AudioManager', () => ({ AudioManager: { getInstance: () => ({}) } }));
-vi.mock('../../audio/soundboardPlayback', () => ({ receiveSoundboardPlay: vi.fn(), stopSoundboardPlayback: vi.fn() }));
+vi.mock('../../audio/soundboardPlayback', () => ({ receiveSoundboardPlay: vi.fn(), stopSoundboardPlayback: vi.fn(), updateSoundboardVolume: vi.fn() }));
 const clip = { id: '1', spaceId: 'space', uploaderId: 'remote-me', name: 'Victory', emoji: '🔊', filename: '1.wav', durationSeconds: 1, createdAt: 1 };
 
 beforeEach(() => {
   vi.clearAllMocks(); useSoundboardStore.getState().reset();
-  useAuthStore.setState({ user: null, myRowIds: new Map([['https://remote.test', 'remote-me']]) });
-  useSpaceStore.setState({ spacePermissions: new Map([['space', permissionsToString(PermissionBits.ATTACH_FILES)]]), channelPermissions: new Map([['voice', permissionsToString(PermissionBits.SPEAK)]]) });
-  useVoiceStore.setState({ isDeafened: false, spaceMutedUserIds: new Set(), spaceDeafenedUserIds: new Set() });
+  useAuthStore.setState({ user: { id: 'home-me' } as User, myRowIds: new Map([['https://remote.test', 'remote-me']]) });
+  useSpaceStore.setState({ spacePermissions: new Map([['space', permissionsToString(PermissionBits.ATTACH_FILES)]]),
+    channelPermissions: new Map([['voice', permissionsToString(PermissionBits.SPEAK | PermissionBits.CONNECT | PermissionBits.VIEW_CHANNEL)]]),
+    spaceChannelIndex: new Map([['voice', { spaceId: 'space', origin: 'https://remote.test', type: 'voice' }]]),
+    channelOriginMap: new Map([['voice', 'https://remote.test']]), channelToSpaceMap: new Map([['voice', 'space']]) });
+  useVoiceStore.setState({ ...useVoiceStore.getInitialState(), currentVoiceChannelId: 'voice', isLiveKitConnected: true, voiceConnectionStatus: 'connected' });
   useSoundboardPreferences.setState({ shortcuts: {} }); useKeybindStore.setState({ keybinds: [] });
   api.list.mockResolvedValue({ settings: DEFAULT_SOUNDBOARD_SETTINGS, sounds: [clip] });
   api.play.mockResolvedValue({ success: true }); api.remove.mockResolvedValue({ success: true });
@@ -34,6 +39,30 @@ describe('soundboard library UX and gating', () => {
     await waitFor(() => expect(api.play).toHaveBeenCalledWith('space', '1', 'voice'));
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'missing' } });
     expect(screen.getByText('No sounds match your search.')).toBeInTheDocument();
+  });
+  it('routes a shortcut and button through the same in-flight playback lock', async () => {
+    let finish!: () => void;
+    api.play.mockReturnValueOnce(new Promise<void>(resolve => { finish = resolve; }));
+    const prefix = `${soundboardKey('https://remote.test', 'space')}:`;
+    useSoundboardPreferences.getState().setShortcut(prefix + clip.id,
+      { code: 'F13', ctrl: false, alt: false, shift: false, meta: false, label: 'F13' });
+    render(<><SoundboardController /><SoundboardLibrary origin="https://remote.test" spaceId="space" channelId="voice" /></>);
+    const button = await screen.findByRole('button', { name: 'Play Victory' });
+    fireEvent.click(button);
+    fireEvent.keyDown(document.body, { key: 'F13', code: 'F13' });
+    expect(api.play).toHaveBeenCalledOnce();
+    expect(button).toBeDisabled();
+    await act(async () => { finish(); });
+    expect(button).toBeDisabled();
+  });
+  it('blocks permission-muted or disconnected playback before making a doomed request', async () => {
+    useVoiceStore.setState({ permissionMutedUserIds: new Set(['space:remote-me']) });
+    renderLibrary();
+    const button = await screen.findByRole('button', { name: 'Play Victory' });
+    expect(button).toBeDisabled();
+    act(() => { useVoiceStore.setState({ permissionMutedUserIds: new Set(), isLiveKitConnected: false }); });
+    expect(button).toBeDisabled();
+    expect(api.play).not.toHaveBeenCalled();
   });
   it('blocks playback for server mute and clips exceeding a lowered cap', async () => {
     useVoiceStore.setState({ spaceMutedUserIds: new Set(['space:remote-me']) });

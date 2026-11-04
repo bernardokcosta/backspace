@@ -66,6 +66,25 @@ playback; self microphone mute does not (the soundboard is separate from mic
 capture). User and room each allow one play per two seconds, preventing multiple
 members from bypassing the room budget.
 
+Playback requires an **open** voice-owning socket. A signaling-only reconnect
+rebinds it through the existing `voice_join` resume even while the server's
+snapshot still lists the participant in grace; LiveKit need not reconnect.
+Closed/missing sockets or a different room return `soundboard_voice_required`.
+Moderator/permission mute returns `soundboard_muted`, self/space deafen returns
+`soundboard_deafened`, and a missing channel permission returns
+`missing_permission` with its existing permission detail. Checks are not bypassed.
+
+The user and room budgets are consumed atomically: a room refusal never starts
+or extends the rejected actor's personal cooldown. A 429 includes `Retry-After`
+in seconds, rounded up from the actual remaining delay. Clients also receive
+the same numeric `retryAfter` in the JSON error body, since
+cross-origin browsers cannot read an unexposed `Retry-After` header. Buttons and shortcuts
+share one in-memory submission/cooldown state, revalidate the current session,
+permissions and catalog before sending, and never automatically replay a sound.
+Reset invalidates pending submissions; an older response cannot unlock a new
+session's playback. The shared visibility-aware second beat re-enables controls
+after cooldown without creating per-sound timers.
+
 Errors: `soundboard_disabled`, `soundboard_invalid_audio`,
 `soundboard_duration_limit` (`max`), `soundboard_full` (`max`),
 `soundboard_not_found`, plus existing authorization/validation/rate-limit codes.

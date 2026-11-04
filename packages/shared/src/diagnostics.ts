@@ -2,7 +2,7 @@ import { isErrorCode } from './errors.js';
 
 export const DIAGNOSTIC_EVENTS = [
   'runtime-error', 'unhandled-rejection', 'console-error', 'console-warning',
-  'api-failed', 'ws-closed', 'ws-reconnect', 'voice-state',
+  'api-failed', 'ws-error', 'ws-closed', 'ws-reconnect', 'voice-state',
   'desktop-recovery', 'desktop-update', 'desktop-keybind',
   'server-log', 'server-console', 'server-started', 'server-stopped', 'csp-violation',
 ] as const;
@@ -58,6 +58,21 @@ export function diagnosticRoute(value: unknown): string | undefined {
   if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//')) return;
   return value.split(/[?#]/, 1)[0]!.split('/').slice(0, 17)
     .map(part => !part || ROUTE_PARTS.has(part) ? part : ':id').join('/');
+}
+
+/** ErrorEvent sometimes exposes a script location but no Error/stack object. */
+export function diagnosticLocation(filename: unknown, line: unknown, column: unknown): Pick<DiagnosticEvent, 'frames'> {
+  if (typeof filename !== 'string' || filename.length > 16_384
+      || !/^(?:https?:\/\/|file:\/\/\/|\/|[a-zA-Z]:[\\/])/.test(filename)
+      || typeof line !== 'number' || !Number.isSafeInteger(line) || line < 1 || line > 99_999_999
+      || typeof column !== 'number' || !Number.isSafeInteger(column) || column < 0 || column > 99_999_999) return {};
+  let pathname = filename;
+  if (/^(?:https?:\/\/|file:\/\/\/)/.test(filename)) {
+    try { pathname = new URL(filename).pathname; } catch { return {}; }
+  } else if (filename.startsWith('//')) return {};
+  const basename = pathname.split(/[?#]/, 1)[0]!.split(/[\\/]/).at(-1);
+  const frame = `${basename}:${line}:${column}`;
+  return FRAME.test(frame) ? { frames: [frame] } : {};
 }
 
 export function diagnosticError(value: unknown): Pick<DiagnosticEvent, 'errorName' | 'errorCode' | 'frames'> {

@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MessageWithUser, ServerEvent, User } from '@backspace/shared';
+import { getActiveRoom } from './useLiveKit';
+
+vi.mock('./useLiveKit', () => ({ getActiveRoom: vi.fn(() => null) }));
 
 // jsdom has no AudioWorkletNode; the handler's imports reach the voice stack.
 vi.mock('../audio/AudioManager', () => ({
@@ -54,6 +57,7 @@ const { connectInstance, disconnectInstance } = await import('./useWebSocket');
 const { useAuthStore } = await import('../stores/authStore');
 const { useChatStore } = await import('../stores/chatStore');
 const { useSpaceStore } = await import('../stores/spaceStore');
+const { useVoiceStore } = await import('../stores/voiceStore');
 
 function user(fields: Partial<User> & Pick<User, 'id'>): User {
   return {
@@ -159,6 +163,8 @@ function dmCacheKept(): boolean {
 }
 
 beforeEach(() => {
+  vi.mocked(getActiveRoom).mockReturnValue(null);
+  useVoiceStore.setState({ ...useVoiceStore.getInitialState() });
   FakeWebSocket.all = [];
   vi.spyOn(console, 'error').mockImplementation(() => {});
   vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -170,6 +176,47 @@ beforeEach(() => {
     messages: new Map([[DM, cached]]),
     hasMore: new Map([[DM, false]]),
     loadMessages,
+  });
+});
+
+describe('voice socket ownership after ready', () => {
+  function voiceReady(origin: string, serverKnowsUs = true): { ws: FakeWebSocket; payload: Record<string, unknown> } {
+    const row = origin ? user({ id: 'remote-row', homeUserId: jannis.id, homeInstance: 'home.example' }) : jannis;
+    useVoiceStore.setState({ currentVoiceChannelId: REMOTE_CHANNEL, voiceConnectionStatus: 'connected', isLiveKitConnected: true });
+    vi.mocked(getActiveRoom).mockReturnValue({ state: 'connected' } as never);
+    const ws = origin ? remoteSocket() : homeSocket();
+    const payload = { ...ready(row, [{ ...remoteSpace, channels: [{ ...remoteSpace.channels[0], type: 'voice' }] }]),
+      voiceStates: serverKnowsUs ? { [REMOTE_CHANNEL]: [row.id] } : {} };
+    return { ws, payload };
+  }
+
+  it.each(['', REMOTE])('rebinds the voice socket even while %s still lists the participant in grace', origin => {
+    const { ws, payload } = voiceReady(origin);
+    ws.deliver(payload);
+    expect(ws.sent.filter(e => e.type === 'voice_join')).toEqual([{ type: 'voice_join', channelId: REMOTE_CHANNEL }]);
+    expect(ws.sent.some(e => e.type === 'voice_status')).toBe(true);
+    expect(useVoiceStore.getState().currentVoiceChannelId).toBe(REMOTE_CHANNEL);
+  });
+
+  it('does not reclaim voice on a permission-refresh ready from the same socket', () => {
+    const { ws, payload } = voiceReady('');
+    ws.deliver(payload);
+    ws.sent = [];
+    ws.deliver(payload);
+    expect(ws.sent.some(e => e.type === 'voice_join')).toBe(false);
+  });
+
+  it('does not rejoin disconnected Retry intent or an unrelated origin', () => {
+    const { ws, payload } = voiceReady('', false);
+    useVoiceStore.setState({ voiceConnectionStatus: 'disconnected', isLiveKitConnected: false });
+    vi.mocked(getActiveRoom).mockReturnValue(null);
+    ws.deliver(payload);
+    expect(ws.sent.some(e => e.type === 'voice_join')).toBe(false);
+    useVoiceStore.setState({ voiceConnectionStatus: 'connected', isLiveKitConnected: true });
+    vi.mocked(getActiveRoom).mockReturnValue({ state: 'connected' } as never);
+    const remote = remoteSocket();
+    remote.deliver(ready(jannis));
+    expect(remote.sent.some(e => e.type === 'voice_join')).toBe(false);
   });
 });
 

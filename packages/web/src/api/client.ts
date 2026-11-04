@@ -561,17 +561,18 @@ export class BackspaceApiClient {
       }
 
       if (!response.ok) {
-        recordDiagnostic({ event: 'api-failed', subsystem: 'api', level: response.status >= 500 ? 'error' : 'warning', method, route: path, status: response.status });
+        const body: unknown = await response.json().catch(() => null);
+        const error = HttpError.fromBody(response.status, body);
+        recordDiagnostic({ event: 'api-failed', subsystem: 'api', level: response.status >= 500 ? 'error' : 'warning',
+          method, route: path, status: response.status, ...(error.code ? { errorCode: error.code } : {}) });
         if (response.status === 401 && requireAuth && onUnauthorized) {
           onUnauthorized();
         }
         if (response.status === 429) {
-          const body: unknown = await response.json().catch(() => ({}));
-          const retryAfter = (body as { retryAfter?: number }).retryAfter
+          const retryAfter = (body as { retryAfter?: number } | null)?.retryAfter
             ?? (parseInt(response.headers.get('retry-after') || '', 10) || 60);
           throw new RateLimitError(retryAfter, body);
         }
-        const error = HttpError.fromBody(response.status, await response.json().catch(() => null));
         throw error;
       }
 

@@ -60,7 +60,7 @@ beforeEach(async () => {
   voice.getVoiceUserStatus.mockReturnValue({ isMuted: false, isDeafened: false });
   app = Fastify(); await app.register(soundboardRoutes);
 });
-afterEach(async () => { await app.close(); sqlite.close(); await rm(config.uploadDir, { recursive: true, force: true }); });
+afterEach(async () => { vi.restoreAllMocks(); await app.close(); sqlite.close(); await rm(config.uploadDir, { recursive: true, force: true }); });
 
 const root = '/api/spaces/space/soundboard';
 const headers = (user = 'alice') => ({ authorization: user });
@@ -154,10 +154,48 @@ describe('soundboard routes and validated media', () => {
     expect((await play(sound.id, 'alice', 'elsewhere')).statusCode).toBe(403);
     voice.getUserRoom.mockReturnValue(null);
     const denied = await play(sound.id);
-    expect(denied.statusCode).toBe(403); expect(denied.json().code).toBe('forbidden');
+    expect(denied.statusCode).toBe(403); expect(denied.json().code).toBe('soundboard_voice_required');
     voice.getUserRoom.mockReturnValue({ roomId: 'voice' });
     db.insert(schema.channelOverrides).values({ channelId: 'voice', targetType: 'member', targetId: 'alice', allow: '0', deny: permissionsToString(PermissionBits.SPEAK) }).run();
     expect((await play(sound.id)).statusCode).toBe(403);
+  });
+  it('does not claim playback succeeded through a closed voice socket and works once rebound', async () => {
+    const sound = (await upload()).json();
+    voice.getVoiceWs.mockReturnValue({ readyState: 3, send: vi.fn() });
+    const denied = await play(sound.id);
+    expect(denied.statusCode).toBe(403);
+    expect(denied.json().code).toBe('soundboard_voice_required');
+    voice.getVoiceWs.mockReturnValue({ readyState: 1, send: vi.fn() });
+    voice.getVoiceUserStatus.mockReturnValue({ isMuted: true, isDeafened: false });
+    expect((await play(sound.id)).statusCode).toBe(200);
+  });
+  it.each([
+    ['isSpaceMuted', 'soundboard_muted'],
+    ['isPermissionMuted', 'soundboard_muted'],
+    ['isSpaceDeafened', 'soundboard_deafened'],
+  ] as const)('explains playback blocked by %s', async (method, code) => {
+    const sound = (await upload()).json(); voice[method].mockReturnValue(true);
+    expect((await play(sound.id)).json().code).toBe(code);
+  });
+  it('names the missing channel permission rather than returning a generic refusal', async () => {
+    const sound = (await upload()).json();
+    db.insert(schema.channelOverrides).values({ channelId: 'voice', targetType: 'member', targetId: 'alice', allow: '0', deny: permissionsToString(PermissionBits.SPEAK) }).run();
+    expect((await play(sound.id)).json()).toMatchObject({ code: 'missing_permission', details: { permission: 'SPEAK' } });
+  });
+  it('does not penalize a room-refused actor with a phantom cooldown and reports Retry-After', async () => {
+    const sound = (await upload()).json();
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(10_000);
+    expect((await play(sound.id, 'alice')).statusCode).toBe(200);
+    clock.mockReturnValue(11_500);
+    const denied = await play(sound.id, 'bob');
+    expect(denied.statusCode).toBe(429);
+    expect(denied.headers['retry-after']).toBe('1');
+    // Cross-origin browsers cannot read Retry-After unless CORS exposes it.
+    // The existing API client can always read the equivalent JSON value.
+    expect(denied.json().retryAfter).toBe(1);
+    clock.mockReturnValue(12_000);
+    expect((await play(sound.id, 'bob')).statusCode).toBe(200);
+    clock.mockRestore();
   });
   it('rate limits both individual actors and shared rooms', async () => {
     const sound = (await upload()).json();

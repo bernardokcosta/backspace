@@ -77,4 +77,15 @@ describe('memory-only diagnostic reporting', () => {
     dispose(); recordDiagnostic(event);
     await vi.advanceTimersByTimeAsync(10_000); expect(send).toHaveBeenCalledOnce();
   });
+  it('retains the script location when a runtime ErrorEvent has no error object', async () => {
+    const send = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 204 }));
+    vi.stubGlobal('fetch', send);
+    dispose = startDiagnosticCapture();
+    window.dispatchEvent(new ErrorEvent('error', { filename: 'https://private.example/assets/client-a.js?token=secret',
+      lineno: 12, colno: 34, message: 'private input' }));
+    await vi.advanceTimersByTimeAsync(5000);
+    const body = String(send.mock.calls[0]?.[1]?.body);
+    expect(JSON.parse(body).events[0]).toMatchObject({ event: 'runtime-error', frames: ['client-a.js:12:34'] });
+    expect(body).not.toMatch(/private|secret|https/);
+  });
 });

@@ -11,6 +11,8 @@
 export interface FixedWindowLimit {
   /** Count one event for `key`. True when it is within the limit, false when it is refused. */
   consume(key: string, now?: number): boolean;
+  /** Atomically consume all keys; 0 admits, otherwise the remaining wait in ms. */
+  consumeAll(keys: readonly string[], now?: number): number;
   /** Tests only: forget every window. */
   reset(): void;
 }
@@ -32,18 +34,29 @@ export function createFixedWindowLimit(limit: { readonly max: number; readonly w
     }
   }
 
-  return {
-    consume(key: string, now: number = Date.now()): boolean {
-      if (rateLimitsDisabled()) return true;
-      sweep(now);
+  function consumeAll(keys: readonly string[], now: number = Date.now()): number {
+    if (rateLimitsDisabled()) return 0;
+    sweep(now);
+    const unique = [...new Set(keys)];
+    let retryAfter = 0;
+    for (const key of unique) {
       const window = windows.get(key);
-      if (!window || now - window.startedAt >= limit.windowMs) {
-        windows.set(key, { count: 1, startedAt: now });
-        return true;
+      if (window && now - window.startedAt < limit.windowMs && window.count >= limit.max) {
+        retryAfter = Math.max(retryAfter, limit.windowMs - (now - window.startedAt));
       }
-      window.count += 1;
-      return window.count <= limit.max;
-    },
+    }
+    if (retryAfter > 0) return retryAfter;
+    for (const key of unique) {
+      const window = windows.get(key);
+      if (!window || now - window.startedAt >= limit.windowMs) windows.set(key, { count: 1, startedAt: now });
+      else window.count++;
+    }
+    return 0;
+  }
+
+  return {
+    consume: (key, now) => consumeAll([key], now) === 0,
+    consumeAll,
     reset(): void {
       windows.clear();
       lastSweepAt = 0;

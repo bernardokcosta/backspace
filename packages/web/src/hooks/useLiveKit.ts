@@ -1064,10 +1064,11 @@ export function useLiveKit() {
       });
       newRoom.on(RoomEvent.ConnectionStateChanged, (state) => {
         if (roomRef.current === newRoom) {
-          recordDiagnostic({ event: 'voice-state', subsystem: 'voice', level: state === ConnectionState.Reconnecting ? 'warning' : 'info', state });
+          const reconnecting = state === ConnectionState.Reconnecting || state === ConnectionState.SignalReconnecting;
+          recordDiagnostic({ event: 'voice-state', subsystem: 'voice', level: reconnecting ? 'warning' : 'info', state });
           setConnectionState(state);
           const connected = state === ConnectionState.Connected;
-          const connecting = state === ConnectionState.Connecting || state === ConnectionState.Reconnecting;
+          const connecting = state === ConnectionState.Connecting || reconnecting;
 
           setIsConnected(connected);
           setIsConnecting(connecting);
@@ -1075,10 +1076,10 @@ export function useLiveKit() {
           // One update, so no subscriber sees the room disconnected but not
           // yet reconnecting (SoundController would play a leave). Both kinds
           // of reconnect count: a signal resume and a full reconnect.
-          const reconnecting = state === ConnectionState.Reconnecting || state === ConnectionState.SignalReconnecting;
           useVoiceStore.setState({
             isLiveKitConnected: connected,
-            voiceConnectionStatus: connected ? 'connected' : reconnecting ? 'reconnecting' : 'connecting',
+            voiceConnectionStatus: connected ? 'connected' : reconnecting ? 'reconnecting'
+              : state === ConnectionState.Connecting ? 'connecting' : 'disconnected',
           });
 
           if (state === ConnectionState.Reconnecting) {

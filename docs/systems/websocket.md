@@ -11,6 +11,13 @@ user ids. This does not alter WS authentication or reconnect rules. See
 
 Endpoint: `GET /ws` (upgrade to WebSocket)
 Transport: JSON messages over WebSocket
+
+Client diagnostics distinguish `ws-error` refusals (recognized wire code only)
+from transport `ws-closed`/`ws-reconnect` events. A replacement socket's first
+`ready` reasserts a live local space voice session through `voice_join`, even
+when `voiceStates` still lists it in reconnect grace. Same-socket refreshes and
+disconnected Retry intent do not reclaim voice; the server still revalidates
+permissions and membership. See [voice.md](voice.md).
 Source: `packages/server/src/ws/handler.ts`, `packages/server/src/ws/events.ts`
 
 ---

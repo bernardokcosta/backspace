@@ -12,6 +12,7 @@ import { describeError } from '../i18n/errors';
 import type { ScrollAnchor } from '../components/chat/scrollAnchor';
 
 const MAX_MESSAGES_PER_CHANNEL = 200;
+const pinLoads = new Map<string, object>();
 
 // Page size of every history request: the newest page, older pages and newer
 // pages. A page shorter than this reached the end of history on its side.
@@ -541,7 +542,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
   })),
   setEditingMessage: (messageId) => set({ editingMessageId: messageId }),
 
-  clearAllMessages: () => set({
+  clearAllMessages: () => {
+    pinLoads.clear();
+    set({
     messages: new Map(),
     hasMore: new Map(),
     typingUsers: new Map(),
@@ -561,7 +564,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     // survive a session change (logout/login), where the next account may
     // not even hold READ_MESSAGE_HISTORY for the channel.
     pinnedByChannel: new Map(),
-  }),
+    });
+  },
 
   loadMessages: async (channelId: string, force?: boolean) => {
     if (!force && get().hasMore.has(channelId)) return true;
@@ -893,15 +897,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   loadPins: async (channelId: string) => {
-    if (isDmChannel(channelId) || useSpaceStore.getState().spaceChannelIndex.get(channelId)?.type === 'voice') return;
-    const origin = getChannelOrigin(channelId);
+    const channel = useSpaceStore.getState().spaceChannelIndex.get(channelId);
+    if (!channel || channel.type !== 'text') return;
+    const origin = channel.origin;
     const client = getApiForOrigin(origin);
     // A logout/login while the GET is in flight must not repopulate the
     // board the session change just cleared (clearAllMessages above).
     const sessionUid = useAuthStore.getState().user?.id ?? null;
+    const run = {};
+    pinLoads.set(channelId, run);
     try {
       const { pins } = await client.channels.pins(channelId);
-      if (useAuthStore.getState().user?.id !== sessionUid) return;
+      const current = useSpaceStore.getState().spaceChannelIndex.get(channelId);
+      if (pinLoads.get(channelId) !== run || useAuthStore.getState().user?.id !== sessionUid
+          || current?.type !== 'text' || current.origin !== origin || current.spaceId !== channel.spaceId) return;
       set((state) => {
         const next = new Map(state.pinnedByChannel);
         next.set(channelId, pins);
@@ -910,6 +919,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     } catch {
       // Pins are decoration: a failed load leaves the previous list (or none)
       // rather than blocking the channel.
+    } finally {
+      if (pinLoads.get(channelId) === run) pinLoads.delete(channelId);
     }
   },
 
@@ -1402,6 +1413,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   removeChannelStates: (channelIds: Set<string>) => {
     if (channelIds.size === 0) return;
+    for (const channelId of channelIds) pinLoads.delete(channelId);
     set((state) => {
       const newUnread = new Set(state.unreadChannels);
       const newReadStates = new Map(state.readStates);
@@ -1409,6 +1421,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const newHasMore = new Map(state.hasMore);
       const newDetached = new Map(state.detachedChannels);
       const newLoadStates = new Map(state.loadStates);
+      const newPins = new Map(state.pinnedByChannel);
       for (const channelId of channelIds) {
         newUnread.delete(channelId);
         newReadStates.delete(channelId);
@@ -1416,8 +1429,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
         newHasMore.delete(channelId);
         newDetached.delete(channelId);
         newLoadStates.delete(channelId);
+        newPins.delete(channelId);
       }
-      return { unreadChannels: newUnread, readStates: newReadStates, messages: newMessages, hasMore: newHasMore, detachedChannels: newDetached, loadStates: newLoadStates };
+      return { unreadChannels: newUnread, readStates: newReadStates, messages: newMessages, hasMore: newHasMore,
+        detachedChannels: newDetached, loadStates: newLoadStates, pinnedByChannel: newPins };
     });
   },
 
