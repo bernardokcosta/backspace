@@ -27,12 +27,12 @@
     "uiohook-napi": "^1.5.5"
   },
   "optionalDependencies": {
-    "@vencord/venmic": "7.2.3"
+    "@vencord/venmic": "7.2.5"
   },
   "devDependencies": {
     "@electron/fuses": "^2.1.3",
     "@electron/rebuild": "^4.2.1",
-    "electron": "^45.0.0",
+    "electron": "^45.1.0",
     "electron-builder": "^26.18.0",
     "typescript": "^5.9.3",
     "vitest": "^5.0.5"
