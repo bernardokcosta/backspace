@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '../ui/Modal';
 import { Avatar } from '../ui/Avatar';
 import { useUIStore } from '../../stores/uiStore';
+import { useAuthStore } from '../../stores/authStore';
 import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
 import { type TaggedFriend } from '../../stores/socialStore';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
@@ -70,34 +71,53 @@ export function InviteFriendModal() {
   const closeModal = useUIStore((s) => s.closeModal);
   const spaces = useSpaceStore((s) => s.spaces);
   const generateInvite = useSpaceStore((s) => s.generateInvite);
+  const accountId = useAuthStore(s => s.user?.id);
+  const token = useAuthStore(s => s.token);
 
   const isOpen = activeModal === 'inviteFriend';
   const friend = (modalData.friend as TaggedFriend | undefined) ?? FALLBACK_FRIEND;
 
   const [results, setResults] = useState<Map<string, SpaceInviteSendStatus>>(new Map());
+  const session = useRef({ active: false, busy: false, sent: new Set<string>() });
 
   useEffect(() => {
+    const run = { active: isOpen, busy: false, sent: new Set<string>() };
+    session.current = run;
     if (isOpen) setResults(new Map());
-  }, [isOpen, friend.id, friend._instanceOrigin]);
+    return () => { run.active = false; };
+  }, [isOpen, modalData, accountId, token]);
 
   const canonical = useCanonicalUserView(friend as unknown as User, friend._instanceOrigin);
   const friendName = canonical.displayName ?? parseFederatedUsername(canonical.username).baseName;
 
   const invite = async (space: TaggedSpace) => {
     const key = spaceKey(space);
+    const run = session.current;
+    const isCurrent = () => {
+      const ui = useUIStore.getState();
+      const auth = useAuthStore.getState();
+      return run.active && session.current === run && ui.activeModal === 'inviteFriend'
+        && ui.modalData === modalData && auth.user?.id === accountId && auth.token === token;
+    };
+    if (!accountId || !friend.id || !isCurrent() || run.busy || run.sent.has(key)) return;
+    run.busy = true;
     setResults((prev) => new Map(prev).set(key, { kind: 'pending' }));
-    let status: SpaceInviteSendStatus;
     try {
-      const inviteCode = await generateInvite(space.id);
-      status = await sendSpaceInvite(
+      const inviteCode = await generateInvite(space.id, space._instanceOrigin ?? '');
+      if (!isCurrent()) return;
+      const status = await sendSpaceInvite(
         friend,
         { spaceId: space.id, instanceOrigin: space._instanceOrigin ?? '', inviteCode },
         t,
       );
+      if (!isCurrent()) return;
+      if (status.kind === 'success') run.sent.add(key);
+      setResults((prev) => new Map(prev).set(key, status));
     } catch (err) {
-      status = { kind: 'failure', reason: describeError(err) };
+      if (isCurrent()) setResults((prev) => new Map(prev).set(key, { kind: 'failure', reason: describeError(err) }));
+    } finally {
+      run.busy = false;
     }
-    setResults((prev) => new Map(prev).set(key, status));
   };
 
   const sending = useMemo(

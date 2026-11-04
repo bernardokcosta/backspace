@@ -1,10 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '../ui/Modal';
 import { Avatar } from '../ui/Avatar';
 import { useUIStore } from '../../stores/uiStore';
 import { useSpaceStore } from '../../stores/spaceStore';
-import { useSelfIdentity } from '../../stores/authStore';
+import { useAuthStore, useSelfIdentity } from '../../stores/authStore';
 import { useSocialStore, type TaggedFriend } from '../../stores/socialStore';
 import { isMine, parseFederatedUsername, userKey } from '../../utils/identity';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
@@ -124,6 +124,7 @@ function InviteSelectFriendRow({
 export function InviteModal() {
   const { t } = useTranslation(['spaces', 'common']);
   const activeModal = useUIStore((s) => s.activeModal);
+  const modalData = useUIStore(s => s.modalData);
   const closeModal = useUIStore((s) => s.closeModal);
   const generateInvite = useSpaceStore((s) => s.generateInvite);
   const currentSpaceId = useSpaceStore((s) => s.currentSpaceId);
@@ -131,6 +132,8 @@ export function InviteModal() {
   const spaceMembers = useSpaceStore((s) => s.members);
   const friends = useSocialStore((s) => s.friends);
   const self = useSelfIdentity();
+  const accountId = useAuthStore(s => s.user?.id);
+  const token = useAuthStore(s => s.token);
 
   const isOpen = activeModal === 'invite';
   const currentSpace = spaces.find((s) => s.id === currentSpaceId);
@@ -150,6 +153,17 @@ export function InviteModal() {
   const [sending, setSending] = useState(false);
   const [results, setResults] = useState<Map<string, SendStatus>>(new Map());
   const inputRef = useRef<HTMLInputElement>(null);
+  const sendRun = useRef<object | null>(null);
+  const isCurrentView = useCallback(() => {
+    const ui = useUIStore.getState();
+    const auth = useAuthStore.getState();
+    const state = useSpaceStore.getState();
+    return isOpen && ui.activeModal === 'invite' && ui.modalData === modalData
+      && state.currentSpaceId === currentSpaceId && auth.user?.id === accountId && auth.token === token
+      && (state.spaces.find(space => space.id === currentSpaceId)?._instanceOrigin ?? '') === instanceOrigin;
+  }, [isOpen, modalData, currentSpaceId, instanceOrigin, accountId, token]);
+
+  useEffect(() => () => { sendRun.current = null; }, [isCurrentView]);
 
   const inviteUrl = inviteCode
     ? spaceInviteUrl(instanceOrigin, inviteCode)
@@ -158,21 +172,26 @@ export function InviteModal() {
   // Fetch / generate the per-space invite code on open.
   useEffect(() => {
     if (!isOpen || !currentSpaceId) return;
+    let active = true;
+    setInviteCode('');
     setCodeLoading(true);
     setCodeError('');
-    generateInvite(currentSpaceId).then(
+    generateInvite(currentSpaceId, instanceOrigin).then(
       (code) => {
+        if (!active || !isCurrentView()) return;
         setInviteCode(code);
         setCodeLoading(false);
       },
       (err) => {
+        if (!active || !isCurrentView()) return;
         setCodeError(describeError(err));
         setCodeLoading(false);
       },
     );
-  }, [isOpen, currentSpaceId, generateInvite]);
+    return () => { active = false; };
+  }, [isOpen, currentSpaceId, instanceOrigin, generateInvite, isCurrentView]);
 
-  // Reset modal state on open.
+  // A replaced source or auth session starts a fresh invitation view.
   useEffect(() => {
     if (isOpen) {
       setQuery('');
@@ -180,9 +199,10 @@ export function InviteModal() {
       setResults(new Map());
       setSending(false);
       setLinkCopied(false);
-      setTimeout(() => inputRef.current?.focus(), 100);
+      const timer = setTimeout(() => inputRef.current?.focus(), 100);
+      return () => clearTimeout(timer);
     }
-  }, [isOpen]);
+  }, [isOpen, isCurrentView]);
 
   // Federated-identity match per CLAUDE.md rule. The currently-loaded space's
   // member list lives on the store as `members: MemberWithUser[]`. Read the
@@ -231,7 +251,9 @@ export function InviteModal() {
   );
 
   const sendInvitesTo = async (targets: TaggedFriend[]) => {
-    if (!currentSpace || !inviteCode || targets.length === 0) return;
+    if (!currentSpace || !inviteCode || targets.length === 0 || !isCurrentView() || sendRun.current) return;
+    const run = {};
+    sendRun.current = run;
     setSending(true);
 
     // Mark all targets as pending in the results map (preserving prior successes).
@@ -251,6 +273,7 @@ export function InviteModal() {
     }));
 
     const settled = await Promise.allSettled(calls);
+    if (sendRun.current !== run || !isCurrentView()) return;
     setResults((prev) => {
       const next = new Map(prev);
       for (const s of settled) {
@@ -263,10 +286,11 @@ export function InviteModal() {
       );
       if (allSucceeded) {
         // Defer close until after this state batch settles.
-        queueMicrotask(() => closeModal());
+        queueMicrotask(() => { if (isCurrentView()) closeModal(); });
       }
       return next;
     });
+    sendRun.current = null;
     setSending(false);
   };
 

@@ -10,6 +10,8 @@ Source files:
 - `packages/web/src/components/modals/CreateSpace.tsx` — Space creation modal (icon crop, color, visibility)
 - `packages/web/src/components/modals/JoinSpace.tsx` — Join-by-code modal with federation connect phases
 - `packages/web/src/components/modals/InviteModal.tsx` — Invite link generation and copy
+- `packages/web/src/components/modals/InviteFriendModal.tsx` — Pick a space for a friend or one-on-one DM counterpart
+- `packages/web/src/utils/spaceInvite.ts` — Shared true-home DM invitation sender
 - `packages/web/src/components/modals/TransferOwnershipModal.tsx` — Ownership transfer member picker
 - `packages/web/src/components/modals/SpaceSettings.tsx` — Space settings: overview (including access/description and approval requests), members, roles, bans and soundboard
 - `packages/web/src/components/JoinPage.tsx` — Public invite landing page with federation redirect
@@ -178,6 +180,29 @@ The friend-picker surface in `InviteModal` uses the same per-space invite code a
 ```
 
 Built by `getLocalInvitePreview` (`utils/spaceInviteSnapshot.ts`). `getLocalInviteSnapshot`, which the DM invite route stores in the card, is the same read without `visibility`.
+
+### Invite a friend from their context menu
+
+Friends and one-on-one DM rows offer **Invite to Space**. `InviteFriendModal`
+lists the user's joined spaces; selecting one lazily calls
+`generateInvite(spaceId, origin)` on that exact instance, then sends the existing
+DM invitation card. Space keys include both origin and id, so equal ids on
+different instances cannot mix codes. Permission failures stay on the selected
+row and can be retried; the existing server authorization is unchanged.
+Groups retain Leave Group rather than choosing an arbitrary recipient.
+
+Both invitation dialogs use `utils/spaceInvite.ts`: resolve the recipient by
+home identity, route through `getFriendsHomeOrigin`, and translate the source
+origin relative to the receiving instance. Unresolvable legacy stubs fail
+without sending. The new picker is mounted in both application shells and all
+five locales supply its labels.
+
+Closing/replacing the picker, changing its recipient or changing the auth
+session invalidates pending lookups before they send. Synchronous in-flight
+guards prevent duplicate input; completed sends cannot be undone, but late
+results cannot mark a different view successful or close another modal.
+The existing space-first dialog likewise ignores stale code/send responses and
+resets its selection/results when its source or auth session changes.
 
 ### Join by Invite Code
 

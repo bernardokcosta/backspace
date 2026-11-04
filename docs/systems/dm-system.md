@@ -811,6 +811,12 @@ System messages (`type = 'system'` in `dm_messages`) record group lifecycle even
 
 ### `space_invite` (user-initiated, federated via processCreateEvent)
 
+The client offers this existing card from the space-first Invite Friends
+dialog and from **Invite to Space** on a friend or one-on-one DM context menu.
+Both use `utils/spaceInvite.ts` for true-home recipient resolution and source
+origin translation; see `spaces.md`, "Invite a friend from their context menu".
+No new DM protocol or group-recipient behavior is introduced.
+
 Sent by `POST /api/dm/space-invite` (see `docs/systems/spaces.md`). Unlike membership-event system messages, this one is user-initiated content — the inviter authored it deliberately. It travels through the standard DM message create relay (`processCreateEvent`), not a dedicated event kind. The route hands every invite to `queueDmRelay`, as the message routes do, so it reaches each instance that hosts a participant, the sender's own home included when the sender is a federated account acting on this instance (a homeward relay, `attributionRefusal` case 2).
 
 JSON content shape:

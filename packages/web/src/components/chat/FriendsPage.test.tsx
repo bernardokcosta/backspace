@@ -1,11 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { FriendsPage } from './FriendsPage';
 import { useSocialStore, type TaggedFriend, type TaggedFriendRequest } from '../../stores/socialStore';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useUIStore } from '../../stores/uiStore';
+import { useContextMenuStore } from '../../stores/contextMenuStore';
 import type { Friend, FriendRequest } from '@backspace/shared';
 import { api as mockedApi } from '../../api/client';
 pageApi.client = mockedApi;
@@ -197,6 +198,21 @@ beforeEach(() => {
 });
 
 describe('FriendsPage', () => {
+  it('opens the space invitation picker from a friend context menu with its origin', () => {
+    const friend = makeFriend({ displayName: 'Invite Friend', _instanceOrigin: 'https://friend.example',
+      homeUserId: 'friend-home-id', homeInstance: 'friend.example' });
+    useUIStore.setState({ activeModal: null, modalData: {} });
+    useContextMenuStore.getState().close();
+    useSocialStore.setState({ friends: [friend] });
+    renderFriendsPage();
+    fireEvent.contextMenu(screen.getByText('Invite Friend'));
+    const item = useContextMenuStore.getState().menu?.items.find(item => item.key === 'invite-to-server');
+    expect(item?.type).toBe('action');
+    if (item?.type !== 'action') throw new Error('missing invitation action');
+    act(() => { item.onClick(); });
+    expect(useUIStore.getState().activeModal).toBe('inviteFriend');
+    expect(useUIStore.getState().modalData.friend).toBe(friend);
+  });
   describe('Add Friend tab', () => {
     it('renders the search input when Add Friend tab is clicked', async () => {
       const user = userEvent.setup();

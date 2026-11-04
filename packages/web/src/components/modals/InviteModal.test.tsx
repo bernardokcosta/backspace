@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 // Stub AudioManager to avoid AudioWorkletNode reference error in jsdom.
@@ -451,7 +451,7 @@ describe('InviteModal', () => {
     expect(
       screen.getByText('Send to friends, or share a link. People who open it ask to join, and a manager approves each request.'),
     ).toBeInTheDocument();
-    expect(generateInvite).toHaveBeenCalledWith('space-1');
+    expect(generateInvite).toHaveBeenCalledWith('space-1', '');
     await waitFor(() => {
       expect(screen.getByDisplayValue(`${window.location.origin}/join/req-code`)).toBeInTheDocument();
     });
@@ -463,10 +463,56 @@ describe('InviteModal', () => {
     expect(mockSpaceInvite.mock.calls[0][0]).toMatchObject({ spaceId: 'space-1', inviteCode: 'req-code' });
   });
 
-  it('keeps the plain intro for a space that is not joined by request', () => {
+  it('keeps the plain intro for a space that is not joined by request', async () => {
     setUpStore();
     render(<InviteModal />);
     expect(screen.getByText('Send to friends, or share a link.')).toBeInTheDocument();
+    await screen.findByDisplayValue(/\/join\/test-code/);
+  });
+
+  it('ignores a stale code lookup after switching the source space', async () => {
+    let oldCode!: (code: string) => void;
+    setUpStore({ generateInvite: vi.fn().mockReturnValueOnce(new Promise<string>(resolve => { oldCode = resolve; }))
+      .mockResolvedValueOnce('fresh-code') });
+    render(<InviteModal />);
+    act(() => {
+      useSpaceStore.setState({ currentSpaceId: 'other-space', spaces: [makeSpace(), makeSpace({ id: 'other-space' })] });
+    });
+    await screen.findByDisplayValue(/\/join\/fresh-code/);
+    await act(async () => { oldCode('stale-code'); });
+    expect(screen.getByDisplayValue(/\/join\/fresh-code/)).toBeInTheDocument();
+    expect(screen.queryByDisplayValue(/\/join\/stale-code/)).not.toBeInTheDocument();
+  });
+
+  it('does not close a different modal when an old invitation send succeeds', async () => {
+    let finish!: () => void;
+    mockSpaceInvite.mockReturnValueOnce(new Promise<void>(resolve => { finish = resolve; }));
+    setUpStore({ friends: [makeFriend({ id: 'f1', displayName: 'Alex' })] });
+    render(<InviteModal />);
+    await screen.findByDisplayValue(/\/join\/test-code/);
+    await userEvent.click(screen.getByText('Alex'));
+    await userEvent.click(screen.getByRole('button', { name: /send 1 invite/i }));
+    await waitFor(() => expect(mockSpaceInvite).toHaveBeenCalledOnce());
+    act(() => { useUIStore.getState().openModal('userSettings'); });
+    await act(async () => { finish(); });
+    expect(useUIStore.getState().activeModal).toBe('userSettings');
+  });
+
+  it('resets a canceled send when the account session changes without closing the modal', async () => {
+    let finish!: () => void;
+    mockSpaceInvite.mockReturnValueOnce(new Promise<void>(resolve => { finish = resolve; }));
+    setUpStore({ friends: [makeFriend({ id: 'f1', displayName: 'Alex' })] });
+    render(<InviteModal />);
+    await screen.findByDisplayValue(/\/join\/test-code/);
+    await userEvent.click(screen.getByText('Alex'));
+    await userEvent.click(screen.getByRole('button', { name: /send 1 invite/i }));
+    await waitFor(() => expect(mockSpaceInvite).toHaveBeenCalledOnce());
+    act(() => { useAuthStore.setState({ token: 'replacement-session' }); });
+    await screen.findByDisplayValue(/\/join\/test-code/);
+    expect(screen.getByRole('button', { name: /@alex/ })).toBeEnabled();
+    await act(async () => { finish(); });
+    expect(useUIStore.getState().activeModal).toBe('invite');
+    expect(screen.queryByText('✓ Sent')).not.toBeInTheDocument();
   });
 
   it('passes federated target shape for remote friends', async () => {

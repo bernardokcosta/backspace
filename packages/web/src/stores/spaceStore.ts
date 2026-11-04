@@ -441,7 +441,7 @@ interface SpaceState {
   joinSpace: (spaceId: string, inviteCode: string) => Promise<void>;
   leaveSpace: (spaceId: string) => Promise<void>;
   joinByCode: (inviteCode: string, origin?: string) => Promise<Space>;
-  generateInvite: (spaceId: string) => Promise<string>;
+  generateInvite: (spaceId: string, origin?: string) => Promise<string>;
   createChannel: (spaceId: string, name: string, type: 'text' | 'voice', topic?: string, categoryId?: string) => Promise<Channel>;
   /**
    * A space channel the user can see, from an event or a response: its index
@@ -933,9 +933,9 @@ export const useSpaceStore = create<SpaceState>((set, get) => ({
     return space;
   },
 
-  generateInvite: async (spaceId: string) => {
+  generateInvite: async (spaceId: string, explicitOrigin?: string) => {
     const space =get().spaces.find(s => s.id === spaceId);
-    const origin = space?._instanceOrigin ?? '';
+    const origin = explicitOrigin ?? space?._instanceOrigin ?? '';
     const client = getApiForOrigin(origin);
     const result = await client.spaces.invite(spaceId);
     return result.inviteCode;
