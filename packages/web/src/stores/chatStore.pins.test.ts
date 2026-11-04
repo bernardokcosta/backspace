@@ -46,7 +46,8 @@ function board(): PinWithMessage[] {
 beforeEach(() => {
   vi.clearAllMocks();
   useAuthStore.setState({ user: me } as never);
-  useSpaceStore.setState({ channelOriginMap: new Map(), spaceChannelIndex: new Map() } as never);
+  useSpaceStore.setState({ channelOriginMap: new Map([[CH, '']]),
+    spaceChannelIndex: new Map([[CH, { spaceId: 'space', origin: '', type: 'text' }]]) } as never);
   useChatStore.setState({
     messages: new Map([[CH, [message('before')]]]),
     pinnedByChannel: new Map([[CH, [pin(message('before'))]]]),
@@ -58,6 +59,45 @@ afterEach(() => {
 });
 
 describe('pin board session hygiene', () => {
+  it('waits for metadata instead of guessing a home text endpoint for an unknown channel', async () => {
+    useSpaceStore.setState({ spaceChannelIndex: new Map(), channelOriginMap: new Map() });
+    await useChatStore.getState().loadPins(CH);
+    expect(pinsApi.pins).not.toHaveBeenCalled();
+  });
+  it('removes boards with deleted channel state and rejects late responses', async () => {
+    let finish!: (v: { pins: PinWithMessage[] }) => void;
+    pinsApi.pins.mockReturnValueOnce(new Promise(r => { finish = r; }));
+    const loading = useChatStore.getState().loadPins(CH);
+    useChatStore.getState().removeChannelStates(new Set([CH]));
+    expect(board()).toEqual([]);
+    finish({ pins: [pin(message('stale'))] }); await loading;
+    expect(board()).toEqual([]);
+  });
+  it('does not let an older GET overwrite a newer pin board', async () => {
+    let old!: (v: { pins: PinWithMessage[] }) => void;
+    pinsApi.pins.mockReturnValueOnce(new Promise(r => { old = r; })).mockResolvedValueOnce({ pins: [pin(message('new'))] });
+    const loading = useChatStore.getState().loadPins(CH);
+    await useChatStore.getState().loadPins(CH);
+    old({ pins: [pin(message('old'))] }); await loading;
+    expect(board()[0]?.message?.content).toBe('new');
+  });
+  it('rejects an old GET across a reset followed by login to the same account', async () => {
+    let finish!: (v: { pins: PinWithMessage[] }) => void;
+    pinsApi.pins.mockReturnValueOnce(new Promise(r => { finish = r; }));
+    const loading = useChatStore.getState().loadPins(CH);
+    useChatStore.getState().clearAllMessages();
+    finish({ pins: [pin(message('stale'))] }); await loading;
+    expect(board()).toEqual([]);
+  });
+  it('rejects pins if the channel changed origin or kind while loading', async () => {
+    let finish!: (v: { pins: PinWithMessage[] }) => void;
+    pinsApi.pins.mockReturnValueOnce(new Promise(r => { finish = r; }));
+    const loading = useChatStore.getState().loadPins(CH);
+    useChatStore.setState({ pinnedByChannel: new Map() });
+    useSpaceStore.setState({ spaceChannelIndex: new Map([[CH, { spaceId: 'space', origin: 'https://other.test', type: 'text' }]]) });
+    finish({ pins: [pin(message('stale'))] }); await loading;
+    expect(board()).toEqual([]);
+  });
   it.each(['', 'https://remote.example'])('never queries text-only pins for a voice channel on %s', async (origin) => {
     useSpaceStore.setState({ spaceChannelIndex: new Map([[CH, { spaceId: 'space', origin, type: 'voice' }]]),
       channelOriginMap: new Map([[CH, origin]]) });

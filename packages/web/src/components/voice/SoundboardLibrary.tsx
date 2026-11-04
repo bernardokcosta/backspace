@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSoundboard } from '../../hooks/useSoundboard';
 import { useAuthStore, getMyUserIdForOrigin } from '../../stores/authStore';
 import { useSpaceStore } from '../../stores/spaceStore';
-import { useVoiceStore } from '../../stores/voiceStore';
-import { soundboardKey, useSoundboardPreferences } from '../../stores/soundboardStore';
+import { soundboardKey, useSoundboardPreferences, useSoundboardStore } from '../../stores/soundboardStore';
 import { hasPermissionBit, PermissionBits } from '../../utils/permissions';
 import { sameShortcut, shortcutFromEvent, conflictsWithVoiceShortcut } from '../../utils/soundboardShortcuts';
 import { getApiForOrigin } from '../../utils/crossStoreResolvers';
@@ -16,7 +15,7 @@ import { receiveSoundboardPlay, stopSoundboardPlayback } from '../../audio/sound
 export function SoundboardLibrary({ origin, spaceId, channelId }: { origin: string; spaceId: string; channelId?: string }) {
   const { t } = useTranslation(['voice', 'common']);
   const { formatNumber } = useFormatters();
-  const { document, loading, error: loadError, reload } = useSoundboard(origin, spaceId);
+  const { document, loading, error: loadError, reload, canPlay, playbackBusy } = useSoundboard(origin, spaceId, channelId);
   const [query, setQuery] = useState(''); const [adding, setAdding] = useState(false);
   const [pending, setPending] = useState<string | null>(null); const [error, setError] = useState('');
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -25,15 +24,9 @@ export function SoundboardLibrary({ origin, spaceId, channelId }: { origin: stri
   const volume = useSoundboardPreferences(s => s.volume);
   const setShortcut = useSoundboardPreferences(s => s.setShortcut);
   const spacePerms = useSpaceStore(s => s.spacePermissions.get(spaceId));
-  const channelPerms = useSpaceStore(s => channelId ? s.channelPermissions.get(channelId) : undefined);
-  const spaceMuted = useVoiceStore(s => s.spaceMutedUserIds);
-  const spaceDeafened = useVoiceStore(s => s.spaceDeafenedUserIds);
-  const deafened = useVoiceStore(s => s.isDeafened);
   useAuthStore(s => s.user?.id);
   const myId = getMyUserIdForOrigin(origin);
   const manager = hasPermissionBit(spacePerms, PermissionBits.MANAGE_SPACE);
-  const canPlay = !!channelId && hasPermissionBit(channelPerms, PermissionBits.SPEAK)
-    && !spaceMuted.has(`${spaceId}:${myId}`) && !spaceDeafened.has(`${spaceId}:${myId}`) && !deafened;
   const prefix = `${soundboardKey(origin, spaceId)}:`;
   if (!document) return <div className="py-6 space-y-3 text-txt-tertiary" role="status">
     {loadError ? <><p className="text-accent-rose">{describeError(loadError)}</p><button onClick={() => void reload()} className="text-accent-primary">{t('common:actions.retry')}</button></> : t('common:states.loading')}
@@ -44,7 +37,7 @@ export function SoundboardLibrary({ origin, spaceId, channelId }: { origin: stri
   const play = async (id: string) => {
     if (!channelId || pending) return;
     setPending(id); setError('');
-    try { await getApiForOrigin(origin).soundboard.play(spaceId, id, channelId); }
+    try { await useSoundboardStore.getState().play(origin, spaceId, id, channelId); }
     catch (cause) { setError(describeError(cause)); }
     finally { setPending(null); }
   };
@@ -71,7 +64,7 @@ export function SoundboardLibrary({ origin, spaceId, channelId }: { origin: stri
         const overLimit = sound.durationSeconds > settings.maxDurationSeconds;
         const binding = shortcuts[prefix + sound.id];
         return <div key={sound.id} className="rounded-xl bg-surface-channel p-3 min-w-0 space-y-2">
-          <button disabled={!channelId || !canPlay || !settings.enabled || overLimit || !!pending} onClick={() => void play(sound.id)}
+          <button disabled={!channelId || !canPlay || !settings.enabled || overLimit || !!pending || playbackBusy} onClick={() => void play(sound.id)}
             aria-label={t('voice:soundboard.playNamed', { name: sound.name })} className={`w-full text-left rounded-lg hover:bg-accent-primary/10 focus-visible:ring-2 focus-visible:ring-accent-primary transition-colors ${channelId ? 'disabled:opacity-40' : ''}`}>
             <span className="block text-3xl mb-2 truncate" aria-hidden="true">{sound.emoji}</span><span className="block text-sm font-medium text-txt-primary truncate" title={sound.name}>{sound.name}</span>
             <span className="text-xs text-txt-tertiary">{t('voice:soundboard.selection', { duration: formatNumber(Math.round(sound.durationSeconds * 100) / 100) })}</span>

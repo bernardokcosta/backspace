@@ -33,6 +33,12 @@ The space soundboard REST endpoints, permission gates and account/room budgets
 are documented in [soundboard.md](soundboard.md). The upload accepts only
 validated PCM WAV in base64 JSON, not the chat attachment/tus pipeline.
 
+Soundboard playback preserves its authorization gates but names missing live
+voice ownership, moderation mute and deafen using `soundboard_voice_required`,
+`soundboard_muted` and `soundboard_deafened`. Its user/room two-second budgets
+are atomic; a refusal returns the actual remaining `Retry-After` in seconds
+and the same numeric `retryAfter` in JSON for cross-origin clients.
+
 Every request passes a limit: the global **200 per minute** registered in
 `packages/server/src/index.ts`, or the route's own where it declares one. A
 route with `config.rateLimit` **replaces** the global limit for itself rather

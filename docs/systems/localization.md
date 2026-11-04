@@ -1,5 +1,9 @@
 # Localization
 
+Soundboard playback refusals distinguish missing/reconnecting voice ownership,
+moderation/permission mute and deafen with three stable error codes and text in
+all five catalogs. Ordinary self microphone mute remains allowed.
+
 The retired desktop minimum-version policy's mandatory-screen copy and error
 code have been removed from all five catalogs. Optional desktop update prompts
 and settings remain localized.

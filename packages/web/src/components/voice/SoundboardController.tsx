@@ -5,13 +5,11 @@ import { SoundboardLibrary } from './SoundboardLibrary';
 import { useVoiceStore } from '../../stores/voiceStore';
 import { useSpaceStore, getChannelOrigin, getMyUserIdForOrigin } from '../../stores/spaceStore';
 import { useAuthStore } from '../../stores/authStore';
-import { useSoundboardStore, useSoundboardPreferences, soundboardKey } from '../../stores/soundboardStore';
+import { canPlaySoundboard, useSoundboardStore, useSoundboardPreferences, soundboardKey } from '../../stores/soundboardStore';
 import { stopSoundboardPlayback, updateSoundboardVolume } from '../../audio/soundboardPlayback';
 import { shortcutFromEvent, sameShortcut, conflictsWithVoiceShortcut } from '../../utils/soundboardShortcuts';
-import { getApiForOrigin } from '../../utils/crossStoreResolvers';
 import { useUIStore } from '../../stores/uiStore';
 import { describeError } from '../../i18n/errors';
-import { hasPermissionBit, PermissionBits } from '../../utils/permissions';
 
 export function SoundboardController() {
   const { t } = useTranslation('voice');
@@ -51,9 +49,8 @@ export function SoundboardController() {
       const channel = voice.currentVoiceChannelId;
       const space = channel ? useSpaceStore.getState().channelToSpaceMap.get(channel) : undefined;
       if (!userId || !channel || !space || !voice.isLiveKitConnected || voice.isDeafened) return;
-      const targetOrigin = getChannelOrigin(channel); const uid = getMyUserIdForOrigin(targetOrigin);
-      if (voice.spaceMutedUserIds.has(`${space}:${uid}`) || voice.spaceDeafenedUserIds.has(`${space}:${uid}`)
-        || !hasPermissionBit(useSpaceStore.getState().channelPermissions.get(channel), PermissionBits.SPEAK)) return;
+      const targetOrigin = getChannelOrigin(channel);
+      if (!canPlaySoundboard(targetOrigin, space, channel, voice)) return;
       const shortcut = shortcutFromEvent(event);
       if (!shortcut || conflictsWithVoiceShortcut(shortcut)) return;
       const key = soundboardKey(targetOrigin, space);
@@ -66,7 +63,7 @@ export function SoundboardController() {
       });
       if (!sound || sound.durationSeconds > document.settings.maxDurationSeconds) return;
       event.preventDefault();
-      void getApiForOrigin(targetOrigin).soundboard.play(space, sound.id, channel).catch(cause => useUIStore.getState().addToast(describeError(cause), 'warning'));
+      void useSoundboardStore.getState().play(targetOrigin, space, sound.id, channel).catch(cause => useUIStore.getState().addToast(describeError(cause), 'warning'));
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);

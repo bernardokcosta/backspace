@@ -1,4 +1,4 @@
-import { diagnosticError, normalizeDiagnostic, type DiagnosticEvent } from '@backspace/shared/src/diagnostics';
+import { diagnosticError, diagnosticLocation, normalizeDiagnostic, type DiagnosticEvent } from '@backspace/shared/src/diagnostics';
 import { version } from '../../package.json';
 
 interface Entry { event: DiagnosticEvent; key: string; createdAt: number; attempts: number }
@@ -96,7 +96,11 @@ export function startDiagnosticCapture(): () => void {
   reporter = current;
   const disposers: Array<() => void> = [];
   const report = (event: DiagnosticEvent['event'], error: unknown) => current.record({ event, subsystem: 'app', level: 'error', ...diagnosticError(error) });
-  const onError = (event: ErrorEvent) => report('runtime-error', event.error ?? { stack: `${event.filename}:${event.lineno}:${event.colno}` });
+  const onError = (event: ErrorEvent) => {
+    const details = diagnosticError(event.error);
+    current.record({ event: 'runtime-error', subsystem: 'app', level: 'error',
+      ...details, ...(!details.frames ? diagnosticLocation(event.filename, event.lineno, event.colno) : {}) });
+  };
   const onRejection = (event: PromiseRejectionEvent) => report('unhandled-rejection', event.reason);
   const onOnline = () => { void current.flush(); };
   const onPageHide = () => { void current.flush(true); };

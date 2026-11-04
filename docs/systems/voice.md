@@ -92,6 +92,17 @@ current channel as a reconnect whenever `voiceConnectionStatus` is
 
 ---
 
+## Signaling resume and connection status
+
+On the first `ready` from a replacement WebSocket, a client still holding a
+live/connecting/reconnecting space voice session reasserts `voice_join` and
+voice status even when the server already lists its row in the room. Presence
+in the grace snapshot does not mean the new socket owns voice. A same-socket
+permission refresh does not rejoin, and disconnected Retry intent or voice
+held on another origin is not claimed. DM calls keep their existing
+`voice_status` resume path. Signal-only reconnects remain `isConnecting` in
+the hook, and a disconnected SDK state never briefly becomes `connecting`.
+
 ## DM Call State Machine
 
 States: `ringing` → `active` → destroyed

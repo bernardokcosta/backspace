@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeDiagnostic, diagnosticError, diagnosticRoute } from '@backspace/shared/src/diagnostics';
+import { normalizeDiagnostic, diagnosticError, diagnosticRoute, diagnosticLocation } from '@backspace/shared/src/diagnostics';
 
 describe('privacy-safe diagnostic contract', () => {
   it('keeps only bounded operational metadata, never arbitrary content', () => {
@@ -33,5 +33,29 @@ describe('privacy-safe diagnostic contract', () => {
   });
   it('preserves safe bind-failure codes needed for operational recovery', () => {
     expect(diagnosticError(Object.assign(new Error('private host details'), { code: 'EADDRINUSE' }))).toMatchObject({ errorCode: 'EADDRINUSE' });
+  });
+  it('preserves a closed WS error event and rejects unrecognized codes', () => {
+    expect(normalizeDiagnostic({ event: 'ws-error', subsystem: 'websocket', level: 'error', errorCode: 'missing_permission' }))
+      .toMatchObject({ event: 'ws-error', errorCode: 'missing_permission' });
+    expect(normalizeDiagnostic({ event: 'ws-error', subsystem: 'websocket', level: 'error', errorCode: 'PRIVATE_CANARY' }))
+      .not.toHaveProperty('errorCode');
+  });
+  it('retains only bounded script basenames for runtime errors without a stack', () => {
+    expect(diagnosticLocation('https://private.example/assets/client-a.js?secret#private', 12, 34)).toEqual({ frames: ['client-a.js:12:34'] });
+    expect(diagnosticLocation('file:///C:/Users/private/app/index.js', 1, 0)).toEqual({ frames: ['index.js:1:0'] });
+    for (const filename of ['data:text/javascript,private', 'https://private.example/avatar.png', 'private input']) {
+      expect(diagnosticLocation(filename, 1, 1)).toEqual({});
+    }
+    expect(diagnosticLocation('/assets/index.js', Infinity, 1)).toEqual({});
+    expect(diagnosticLocation('/assets/index.js', 0, 1)).toEqual({});
+    expect(diagnosticLocation('/assets/index.js', 1, 100_000_000)).toEqual({});
+  });
+  it('never mistakes a URL authority for a script basename', () => {
+    for (const filename of ['https://customer-private.js?token=secret', 'https://customer-private.js', '//customer-private.js']) {
+      const location = diagnosticLocation(filename, 12, 34);
+      expect(location).toEqual({});
+      const safe = normalizeDiagnostic({ event: 'runtime-error', subsystem: 'app', level: 'error', ...location });
+      expect(JSON.stringify(safe)).not.toMatch(/customer-private|secret/);
+    }
   });
 });

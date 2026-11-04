@@ -23,4 +23,13 @@ describe('createFixedWindowLimit', () => {
     limit.reset();
     expect(limit.consume('a', 1)).toBe(true);
   });
+  it('checks several budgets atomically and reports the actual remaining delay', () => {
+    const limit = createFixedWindowLimit({ max: 1, windowMs: 2000 });
+    expect(limit.consumeAll(['user:alice', 'room:a'], 0)).toBe(0);
+    expect(limit.consumeAll(['user:bob', 'room:a'], 1500)).toBe(500);
+    // Bob's rejected attempt did not start a phantom personal cooldown.
+    expect(limit.consumeAll(['user:bob', 'room:a'], 2000)).toBe(0);
+    expect(limit.consumeAll(['user:bob', 'room:b'], 2500)).toBe(1500);
+    expect(limit.consumeAll(['user:bob', 'user:bob'], 4000)).toBe(0);
+  });
 });

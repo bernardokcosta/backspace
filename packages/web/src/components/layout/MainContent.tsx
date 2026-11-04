@@ -91,11 +91,13 @@ export function MainContent() {
   const [pinsOpen, setPinsOpen] = useState(false);
   const pinCount = useChatStore((s) => s.pinnedByChannel.get(currentChannelId ?? '')?.length ?? 0);
   const loadPins = useChatStore((s) => s.loadPins);
+  const pinChannel = useSpaceStore(s => s.spaceChannelIndex.get(currentChannelId ?? ''));
   // Preload pins so the header badge counts without opening the popover.
-  // loadPins no-ops for DM channels (pins are space-channels only in v1).
+  // A restored URL can precede ready's channel metadata. Wait for a known
+  // text channel instead of sending a guessed home-origin pins request.
   useEffect(() => {
-    if (currentChannelId) void loadPins(currentChannelId);
-  }, [currentChannelId, loadPins]);
+    if (currentChannelId && pinChannel?.type === 'text') void loadPins(currentChannelId);
+  }, [currentChannelId, pinChannel, loadPins]);
   const canManageChannelMessages = useSpaceStore((s) => {
     if (!currentChannelId) return false;
     return hasPermissionBit(s.channelPermissions.get(currentChannelId), PermissionBits.MANAGE_MESSAGES);

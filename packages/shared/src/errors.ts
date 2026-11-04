@@ -22,6 +22,9 @@ export const ERROR_CODES = [
   'soundboard_duration_limit',
   'soundboard_full',
   'soundboard_not_found',
+  'soundboard_voice_required',
+  'soundboard_muted',
+  'soundboard_deafened',
   // Generic
   'not_found',
   'forbidden',

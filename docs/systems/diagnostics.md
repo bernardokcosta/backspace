@@ -39,6 +39,15 @@ only source/bundle basenames and line/column numbers, not messages or arguments.
 Client reports are untrusted operational hints, never authentication or audit
 proof. The server records its own receipt time separately from client time.
 
+HTTP failure reports retain the recognized wire `ErrorCode` (including 429),
+never the response text/body/details. `ws-error` explicitly records a received
+WS refusal under `websocket`, with its recognized code when supplied by the
+server; uncoded legacy refusals remain identifiable as uncoded. Existing console
+output is unchanged. A runtime `ErrorEvent` without an Error/stack can retain
+only a validated script basename and bounded line/column, never its full URL,
+query, message or local directory. Historical reports missing these fields
+cannot be retrospectively diagnosed from the new instrumentation.
+
 ## API and abuse controls
 
 `POST /api/diagnostics` is public, like CSP reporting, so failures before sign-in

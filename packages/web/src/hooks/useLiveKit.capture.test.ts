@@ -67,6 +67,27 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 describe('voice capture teardown', () => {
+  it('keeps the hook connecting during a signal-only reconnect', async () => {
+    const { result } = renderHook(() => useLiveKit());
+    await act(async () => { await result.current.connect('channel'); });
+    act(() => { result.current.room!.emit(RoomEvent.ConnectionStateChanged, ConnectionState.SignalReconnecting); });
+    expect(result.current.isConnecting).toBe(true);
+    expect(useVoiceStore.getState().voiceConnectionStatus).toBe('reconnecting');
+  });
+
+  it('never advertises a disconnected room as connecting', async () => {
+    const { result } = renderHook(() => useLiveKit());
+    await act(async () => { await result.current.connect('channel'); });
+    const statuses: string[] = [];
+    const unsubscribe = useVoiceStore.subscribe(s => statuses.push(s.voiceConnectionStatus));
+    act(() => {
+      result.current.room!.emit(RoomEvent.ConnectionStateChanged, ConnectionState.Disconnected);
+      result.current.room!.emit(RoomEvent.Disconnected, DisconnectReason.STATE_MISMATCH);
+    });
+    unsubscribe();
+    expect(statuses).not.toContain('connecting');
+    expect(useVoiceStore.getState().voiceConnectionStatus).toBe('disconnected');
+  });
   it('preserves voice intent across Reconnecting → Connected', async () => {
     useVoiceStore.setState({ currentVoiceChannelId: 'channel' });
     const leaveSpy = vi.spyOn(useVoiceStore.getState(), 'leaveVoice');
