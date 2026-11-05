@@ -3,7 +3,7 @@ import { mkdir, mkdtemp, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { canPlayJuno, type JunoAction, type JunoSnapshot } from '@backspace/shared/src/juno.js';
+import { canPlayJuno, type JunoAction, type JunoSnapshot, type JunoRankingPage } from '@backspace/shared/src/juno.js';
 import { spawnInstance, type SpawnedInstance } from './helpers/twoInstanceHarness.js';
 import { registerLocal, type TestUser } from './helpers/testUsers.js';
 import { connectWs, type WsCapture } from './helpers/wsListener.js';
@@ -13,6 +13,7 @@ vi.setConfig({ testTimeout: 60_000 });
 let instance: SpawnedInstance;
 let directory: string;
 let channelId: string;
+let spaceId: string;
 const users: TestUser[] = [];
 const sockets: WsCapture[] = [];
 async function call(user: TestUser, method: string, url: string, body?: unknown): Promise<Response> {
@@ -28,6 +29,16 @@ async function act(user: TestUser, action: JunoAction | { type: 'create' }): Pro
   const res = await call(user, 'POST', `/api/channels/${channelId}/juno`, body);
   expect(res.status, await res.clone().text()).toBe(200); return res.json() as Promise<JunoSnapshot>;
 }
+async function finishRound(snapshot: JunoSnapshot): Promise<JunoSnapshot> {
+  for (let step = 0; step < 1_000 && snapshot.game!.phase === 'playing'; step++) {
+    const user = users.find(u => u.id === snapshot.game!.currentPlayerId)!;
+    const own = (await read(user)).game!;
+    const playable = own.hand.find(card => (!own.drawnCardId || own.drawnCardId === card.id) && canPlayJuno(card, own.hand, own.topCard!, own.color!));
+    snapshot = await act(user, playable ? { type: 'play', cardId: playable.id, color: 'mint', announce: true }
+      : { type: own.drawnCardId ? 'pass' : 'draw' });
+  }
+  return snapshot;
+}
 beforeAll(async () => {
   directory = await mkdtemp(path.join(tmpdir(), 'backspace-juno-e2e-'));
   const uploads = path.join(directory, 'uploads'); await mkdir(uploads);
@@ -37,6 +48,7 @@ beforeAll(async () => {
   const owner = users[0]!;
   const response = await call(owner, 'POST', '/api/spaces', { name: 'Juno acceptance' }); expect(response.status).toBe(201);
   const space = await response.json() as { id: string; inviteCode: string };
+  spaceId = space.id;
   for (const user of users.slice(1)) expect((await call(user, 'POST', `/api/spaces/${space.id}/join`, { inviteCode: space.inviteCode })).status).toBe(200);
   const channel = await call(owner, 'POST', `/api/spaces/${space.id}/channels`, { name: 'juno-table', type: 'voice' });
   expect(channel.status).toBe(201); channelId = ((await channel.json()) as { id: string }).id;
@@ -65,16 +77,37 @@ describe('real Juno server with four independently authenticated voice sockets',
       expect(views[i]!.game!.hand).toHaveLength(7);
       for (let j = 0; j < 5; j++) if (i !== j) for (const card of views[i]!.game!.hand) expect(JSON.stringify(views[j])).not.toContain(card.id);
     }
-    let snapshot = views[0]!;
-    for (let step = 0; step < 1_000 && snapshot.game!.phase === 'playing'; step++) {
-      const user = users.find(u => u.id === snapshot.game!.currentPlayerId)!;
-      const own = (await read(user)).game!;
-      const playable = own.hand.find(card => (!own.drawnCardId || own.drawnCardId === card.id) && canPlayJuno(card, own.hand, own.topCard!, own.color!));
-      snapshot = await act(user, playable ? { type: 'play', cardId: playable.id, color: 'mint', announce: true }
-        : { type: own.drawnCardId ? 'pass' : 'draw' });
-    }
+    const snapshot = await finishRound(views[0]!);
     expect(snapshot.game!.phase).toBe('finished'); expect(snapshot.game!.winnerId).toBeTruthy();
     expect(sockets.every(ws => ws.events.some(e => e.type === 'juno_updated'))).toBe(true);
     for (const ws of sockets) for (const event of ws.events.filter(e => e.type === 'juno_updated')) expect(Object.keys(event).sort()).toEqual(['channelId', 'type']);
+    expect(snapshot.game!.scoreboard?.status).toBe('credited');
+    const board = snapshot.game!.scoreboard!;
+    const ranking = await (await call(users[4]!, 'GET', `/api/spaces/${spaceId}/juno/ranking`)).json() as JunoRankingPage;
+    expect(ranking.entries).toHaveLength(4); expect(ranking.me.totalXp).toBe(0);
+    for (const row of board.standings) expect(ranking.entries.find(r => r.user.id === row.userId)?.totalXp).toBe(row.xp);
+    for (let i = 0; i < 10; i++) expect((await read(users[0]!)).game!.scoreboard).toEqual(board);
+  });
+  it('combines another channel, survives host restart and isolates another space', async () => {
+    const channel = await call(users[0]!, 'POST', `/api/spaces/${spaceId}/channels`, { name: 'second-table', type: 'voice' });
+    channelId = ((await channel.json()) as { id: string }).id;
+    for (let i = 0; i < 2; i++) {
+      sockets[i]!.send({ type: 'voice_join', channelId });
+      await waitUntil(() => sockets[i]!.events.some(e => e.type === 'voice_state_update' && e.channelId === channelId && e.userId === users[i]!.id && e.action === 'join'), { timeoutMs: 5000 });
+    }
+    await act(users[0]!, { type: 'create' }); await act(users[1]!, { type: 'join' });
+    expect((await finishRound(await act(users[0]!, { type: 'start' }))).game!.scoreboard?.status).toBe('credited');
+    const before = await (await call(users[0]!, 'GET', `/api/spaces/${spaceId}/juno/ranking`)).json() as JunoRankingPage;
+    expect(before.me.completedRounds).toBe(2);
+    for (const ws of sockets) ws.close();
+    const exited = new Promise<void>(resolve => instance.proc.once('exit', () => resolve())); instance.proc.kill('SIGTERM'); await exited;
+    instance = await spawnInstance({ domain: instance.domain, dbPath: instance.dbPath, storagePath: instance.storagePath,
+      jwtSecret: instance.jwtSecret, logPath: path.join(directory, 'restarted.log') });
+    const after = await (await call(users[0]!, 'GET', `/api/spaces/${spaceId}/juno/ranking`)).json() as JunoRankingPage;
+    expect(after.me).toMatchObject({ totalXp: before.me.totalXp, wins: before.me.wins,
+      completedRounds: before.me.completedRounds, rank: before.me.rank, user: { id: before.me.user.id } });
+    const another = await (await call(users[0]!, 'POST', '/api/spaces', { name: 'Independent XP' })).json() as { id: string };
+    const empty = await (await call(users[0]!, 'GET', `/api/spaces/${another.id}/juno/ranking`)).json() as JunoRankingPage;
+    expect(empty.total).toBe(0); expect(empty.me.totalXp).toBe(0);
   });
 });

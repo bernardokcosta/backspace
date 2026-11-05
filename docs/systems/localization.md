@@ -3,6 +3,10 @@
 Native Juno UI/rules/card names live under `voice:juno`; `juno_*` error codes
 have entries in all five error catalogs. The invariant game name "Juno" follows
 the existing brand-name allowlist convention; its surrounding copy is translated.
+Juno result/XP/ranking/loading/unavailable text and win/round plurals use the same
+five catalogs. Wire colors stay coral/amber/mint/sky, but their translated labels
+are red/yellow/green/blue to match the supplied original art. Button/score labels
+are real localized DOM text, not baked-in Portuguese preview text.
 
 Soundboard playback refusals distinguish missing/reconnecting voice ownership,
 moderation/permission mute and deafen with three stable error codes and text in
@@ -56,6 +60,9 @@ Source files:
 - Error mapping: `packages/web/src/i18n/errors.ts` (`describeError`)
 - Language picker: `packages/web/src/components/modals/settingsPanels/LanguageSection.tsx`
 - Catalogs: `packages/web/src/locales/<lng>/<namespace>.json`
+- The shared Games picker prompt uses `voice:juno.chooseGame`; the voice
+  sidebar's RNNoise description uses `voice:controls.audioTreatmentHint` and
+  explicitly distinguishes processing from muting in all five catalogs.
 - Screen-share Force SDR controls/failures use `voice:streamSettings.forceSdr*`
   in all five catalogs; capability/unavailable and restart-share copy describe
   effective behavior without changing the saved device preference.

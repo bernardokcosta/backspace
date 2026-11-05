@@ -17,7 +17,9 @@ vi.mock('../ws/handler.js', () => ({ connectionManager: {
   getUserRoom: () => ({ roomId: state.room }), getVoiceWs: () => ({ readyState: state.socket }), sendToChannel: state.changed,
 } }));
 import { schema } from '../db/index.js';
+vi.mock('../games/junoProgression.js', () => ({ JUNO_ACCOUNT_MERGED_EVENT: 'juno:account-merged', settleJunoRound: vi.fn(), readJunoRanking: vi.fn(), hydrateJunoSnapshot: (snapshot: JunoSnapshot) => snapshot }));
 import { junoRoutes } from './juno.js';
+import { JunoRooms } from '../games/juno.js';
 let app: FastifyInstance;
 const url = '/api/channels/voice/juno';
 const headers = { authorization: 'remote-row' };
@@ -28,6 +30,16 @@ beforeEach(async () => {
 afterEach(async () => { await app.close(); });
 const create = () => app.inject({ method: 'POST', url, headers, payload: { type: 'create' } });
 describe('Juno authorized transport', () => {
+  it('routes committed application-local identity merges to its rooms and removes the listener on close', async () => {
+    const remap = vi.spyOn(JunoRooms.prototype, 'remapPendingRecipient');
+    try {
+      app.server.emit('juno:account-merged', 'old-stub', 'retained-account');
+      expect(remap).toHaveBeenCalledWith('old-stub', 'retained-account');
+      expect(app.server.listenerCount('juno:account-merged')).toBe(1);
+      await app.close();
+      expect(app.server.listenerCount('juno:account-merged')).toBe(0);
+    } finally { remap.mockRestore(); }
+  });
   it('requires auth, membership, channel permissions, voice ownership and a human', async () => {
     expect((await app.inject({ method: 'GET', url })).statusCode).toBe(401);
     state.member = false; expect((await create()).statusCode).toBe(403); state.member = true;
@@ -47,7 +59,9 @@ describe('Juno authorized transport', () => {
   });
   it('rejects malformed commands before touching the game', async () => {
     for (const payload of [{ type: 'cheat' }, { type: 'play', gameId: 'x', revision: -1, cardId: 'a' },
-      { type: 'join' }, { type: 'play', gameId: 'x', revision: 1, cardId: 'x', color: 'purple' }]) {
+      { type: 'join' }, { type: 'create', xp: 999 }, { type: 'create', userId: 'fake' },
+      { type: 'create', recipientIds: { 'remote-row': 'someone-else' } },
+      { type: 'play', gameId: 'x', revision: 1, cardId: 'x', color: 'purple' }]) {
       expect((await app.inject({ method: 'POST', url, headers, payload })).statusCode).toBe(400);
     }
     expect((await app.inject({ method: 'GET', url, headers })).json().game).toBeNull();

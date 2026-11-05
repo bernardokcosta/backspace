@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, primaryKey, foreignKey, real, unique, index, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, primaryKey, foreignKey, real, unique, index, uniqueIndex, check } from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
 
 export const users = sqliteTable('users', {
@@ -153,6 +153,40 @@ export const channels = sqliteTable('channels', {
   createdAt: integer('created_at').notNull(),
 }, (table) => ({
   spaceIdx: index('idx_channels_space_id').on(table.spaceId),
+}));
+
+export const junoRoundResults = sqliteTable('juno_round_results', {
+  roundId: text('round_id').primaryKey(),
+  spaceId: text('space_id').notNull().references(() => spaces.id, { onDelete: 'cascade' }),
+  channelId: text('channel_id').references(() => channels.id, { onDelete: 'set null' }),
+  finishedAt: integer('finished_at').notNull(),
+  scoringVersion: integer('scoring_version').notNull(),
+}, table => ({ spaceIdx: index('idx_juno_results_space').on(table.spaceId) }));
+
+export const junoRoundParticipants = sqliteTable('juno_round_participants', {
+  roundId: text('round_id').notNull().references(() => junoRoundResults.roundId, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  place: integer('place').$type<1 | 2 | 3 | 4>(),
+  cardCount: integer('card_count'),
+  xp: integer('xp').notNull(),
+  outcome: text('outcome', { enum: ['completed', 'abandoned', 'unranked'] }).notNull(),
+}, table => ({
+  pk: primaryKey({ columns: [table.roundId, table.userId] }),
+  userIdx: index('idx_juno_participants_user').on(table.userId),
+  nonnegative: check('juno_participant_nonnegative', sql`${table.xp} >= 0 AND (${table.cardCount} IS NULL OR ${table.cardCount} >= 0)`),
+}));
+
+export const junoPlayerStats = sqliteTable('juno_player_stats', {
+  spaceId: text('space_id').notNull().references(() => spaces.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  totalXp: integer('total_xp').notNull().default(0),
+  wins: integer('wins').notNull().default(0),
+  completedRounds: integer('completed_rounds').notNull().default(0),
+}, table => ({
+  pk: primaryKey({ columns: [table.spaceId, table.userId] }),
+  rankIdx: index('idx_juno_stats_ranking').on(table.spaceId, table.totalXp, table.wins, table.userId),
+  userIdx: index('idx_juno_stats_user').on(table.userId),
+  nonnegative: check('juno_stats_nonnegative', sql`${table.totalXp} >= 0 AND ${table.wins} >= 0 AND ${table.completedRounds} >= ${table.wins}`),
 }));
 
 export const messages = sqliteTable('messages', {

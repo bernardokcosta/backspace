@@ -25,6 +25,13 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
+it('routes Juno ranking through the selected origin with encoded space and pagination', async () => {
+  answer(200, JSON.stringify({ spaceId: 'remote space', entries: [] }));
+  const client = createApiClient('https://remote.test', () => 'remote-token');
+  await client.juno.ranking('remote space', { limit: 10, offset: 20 });
+  expect(globalThis.fetch).toHaveBeenCalledWith('https://remote.test/api/spaces/remote%20space/juno/ranking?limit=10&offset=20', expect.objectContaining({ method: 'GET' }));
+});
+
 describe('privacy-safe API diagnostics', () => {
   const client = createApiClient('https://home.test', () => 'private-token');
 

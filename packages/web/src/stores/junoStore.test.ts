@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { JunoSnapshot } from '@backspace/shared/src/juno';
-const api = vi.hoisted(() => ({ get: vi.fn(), command: vi.fn() }));
+import type { JunoRankingPage, JunoSnapshot } from '@backspace/shared/src/juno';
+import { junoRanking } from '../components/games/junoTestFixtures';
+import { HttpError } from '../api/client';
+const api = vi.hoisted(() => ({ get: vi.fn(), command: vi.fn(), ranking: vi.fn() }));
 const resolve = vi.hoisted(() => vi.fn(() => ({ juno: api })));
 vi.mock('../utils/crossStoreResolvers', () => ({ getApiForOrigin: resolve }));
 import { useJunoStore } from './junoStore';
@@ -59,5 +61,35 @@ describe('Juno session state', () => {
     useJunoStore.setState({ snapshot: snapshot(2) }); api.get.mockRejectedValueOnce(denied);
     await useJunoStore.getState().load();
     expect(useJunoStore.getState().snapshot).toBeNull(); expect(useJunoStore.getState().error).toBe(denied);
+  });
+});
+
+describe('Juno ranking scoped reads', () => {
+  const rankingTarget = { accountId: target.accountId, origin: target.origin, spaceId: 'space', selfId: target.selfId };
+  it('uses the host and ignores an old space response', async () => {
+    const old = deferred<JunoRankingPage>(); api.ranking.mockReturnValueOnce(old.promise).mockResolvedValueOnce(junoRanking('other'));
+    const first = useJunoStore.getState().loadRanking(rankingTarget);
+    await useJunoStore.getState().loadRanking({ ...rankingTarget, spaceId: 'other' });
+    old.resolve(junoRanking()); await first;
+    expect(resolve).toHaveBeenCalledWith(target.origin);
+    expect(useJunoStore.getState().ranking.page?.spaceId).toBe('other');
+  });
+  it('drops older page failures after a newer success and clears data on permission loss', async () => {
+    const old = deferred<JunoRankingPage>(); api.ranking.mockReturnValueOnce(old.promise).mockResolvedValueOnce(junoRanking());
+    const first = useJunoStore.getState().loadRanking(rankingTarget);
+    await useJunoStore.getState().loadRanking(rankingTarget, { offset: 25 });
+    old.reject(new Error('old')); await first; expect(useJunoStore.getState().ranking.error).toBeNull();
+    api.ranking.mockRejectedValueOnce(new HttpError(403, 'denied'));
+    await useJunoStore.getState().loadRanking(rankingTarget); expect(useJunoStore.getState().ranking.page).toBeNull();
+  });
+  it('never installs a late response after logout or a different origin/account', async () => {
+    const response = deferred<JunoRankingPage>(); api.ranking.mockReturnValueOnce(response.promise);
+    const load = useJunoStore.getState().loadRanking(rankingTarget); useJunoStore.getState().reset();
+    response.resolve(junoRanking()); await load; expect(useJunoStore.getState().ranking.page).toBeNull();
+  });
+  it('distinguishes old-host unavailability from a successful empty ranking', async () => {
+    api.ranking.mockRejectedValueOnce(new HttpError(404, 'unknown route'));
+    await useJunoStore.getState().loadRanking(rankingTarget); expect(useJunoStore.getState().ranking.unsupported).toBe(true);
+    expect(useJunoStore.getState().ranking.page).toBeNull();
   });
 });

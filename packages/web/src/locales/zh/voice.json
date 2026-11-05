@@ -1,5 +1,15 @@
 {
   "juno": {
+    "rankingTitle": "空间排行榜", "spaceRanking": "排行榜 · {{space}}", "roundResults": "本轮结果", "victory": "胜利！",
+    "xpEarned": "获得 {{xp}} XP", "totalXp": "总经验值", "rank": "名次", "noRank": "暂无排名", "yourStats": "你的进度",
+    "winsLabel": "获胜", "roundsLabel": "轮次", "wins_other": "获胜 {{count}} 次", "rounds_other": "完成 {{count}} 轮",
+    "emptyRanking": "还没有已完成的对局。完成第一轮，开启本空间排行榜。",
+    "creditPending": "正在保存本轮经验值，请稍候再创建新牌桌。",
+    "abandoned": "已离开本轮", "unranked": "本轮不获得经验值", "rankingUnavailable": "此空间的服务器尚不支持 Juno 排行榜。",
+    "backToGame": "返回牌桌", "previousPage": "上一页", "nextPage": "下一页",
+    "scoreHint": "Juno 经验值属于本空间，汇总其中所有语音频道的对局。",
+    "scoreRules": "第 1 名：120 XP · 第 2 名：80 XP · 第 3 名：40 XP · 第 4 名：20 XP。并列者获得相同名次和经验值。只有正常结束且有胜者的对局计入；提前离开不获得经验值。",
+    "chooseGame": "选择一款游戏，与通话中的朋友一起玩。",
     "name": "Juno", "games": "游戏", "open": "打开 Juno", "tagline": "来一场友好的较量",
     "invitation": "下一轮从这里开始", "description": "匹配颜色、扭转局势，率先出完手牌。这是为语音频道中 2–4 人打造的原创纸牌游戏。",
     "create": "创建牌桌", "lobbyTitle": "请入座", "lobbyHint": "通话中的每个人都能加入。准备好后由房主开始。",
@@ -13,7 +23,7 @@
     "activeColor": "颜色：{{color}}", "clockwise": "顺时针", "counterclockwise": "逆时针", "spectating": "你正在观战。加入下一个大厅即可游戏。",
     "winner": "{{name}} 获胜！", "finished": "本轮结束", "results": { "playersLeft": "玩家不足，无法继续。本轮没有获胜者。", "stalemate": "无法摸牌或出牌。本轮平局。", "expired": "此牌桌已达到两小时上限。请创建新大厅。" },
     "cardCount_other": "{{count}} 张牌",
-    "colors": { "coral": "珊瑚红", "amber": "琥珀黄", "mint": "薄荷绿", "sky": "天空蓝" },
+    "colors": { "coral": "红色", "amber": "黄色", "mint": "绿色", "sky": "蓝色" },
     "faces": { "skip": "跳过", "reverse": "反转", "draw2": "加二", "wild": "变色牌", "draw4": "变色加四" },
     "rules": "游戏规则", "rulesText": "每人获得 7 张牌。打出与上一张相同颜色或符号的牌，或打出变色牌并选择颜色。率先出完手牌即可获胜。\n跳过牌让下家跳过回合；反转牌改变顺序（两人时跳过对手）。+2 和 +4 让下家立即摸牌并跳过回合。不可叠加。手中没有当前颜色的牌时才能打 +4；无质疑机制。\n摸一张牌后，只能打出刚摸到的牌或跳过。摸到的牌不能出时自动跳过。出牌后只剩一张时，必须先勾选‘喊 Juno’，否则罚摸两张。\n每回合 45 秒。超时摸一张并跳过；如果已经摸过则只跳过。玩家离开后手牌放回牌堆，少于两人时本轮无胜者结束。短暂语音重连会保留座位。重启服务器会结束所有游戏。"
   },
@@ -249,6 +259,7 @@
     "fullscreen": "全屏",
     "disconnect": "断开连接",
     "connectionInfo": "连接信息",
+    "audioTreatmentHint": "减少麦克风噪声，不会将麦克风静音。",
     "noiseSuppressionOff": "停用 AI 噪声抑制",
     "noiseSuppressionOn": "启用 AI 噪声抑制"
   },

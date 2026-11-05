@@ -1,5 +1,16 @@
 {
   "juno": {
+    "rankingTitle": "Ranking do espaço", "spaceRanking": "Ranking de {{space}}", "roundResults": "Resultado da rodada", "victory": "Vitória!",
+    "xpEarned": "+{{xp}} XP ganhos", "totalXp": "XP total", "rank": "Posição", "noRank": "Ainda sem posição", "yourStats": "Seu progresso",
+    "winsLabel": "Vitórias", "roundsLabel": "Rodadas", "wins_one": "{{count}} vitória", "wins_many": "{{count}} vitórias", "wins_other": "{{count}} vitórias",
+    "rounds_one": "{{count}} rodada", "rounds_many": "{{count}} rodadas", "rounds_other": "{{count}} rodadas",
+    "emptyRanking": "Nenhuma rodada concluída ainda. Jogue a primeira para começar o ranking deste espaço.",
+    "creditPending": "Salvando o XP desta rodada. Aguarde antes de abrir uma nova mesa.",
+    "abandoned": "Saiu da rodada", "unranked": "Sem XP nesta rodada", "rankingUnavailable": "O servidor deste espaço ainda não oferece ranking do Juno.",
+    "backToGame": "Voltar à mesa", "previousPage": "Página anterior", "nextPage": "Próxima página",
+    "scoreHint": "O XP do Juno pertence a este espaço e soma todos os seus canais de voz.",
+    "scoreRules": "1º: 120 XP · 2º: 80 XP · 3º: 40 XP · 4º: 20 XP. Empates compartilham posição e XP. Só contam rodadas concluídas com vencedor; sair antes não rende XP.",
+    "chooseGame": "Escolha um jogo para jogar com quem está na chamada.",
     "name": "Juno", "games": "Jogos", "open": "Abrir Juno", "tagline": "Uma boa rivalidade entre amigos",
     "invitation": "A próxima rodada começa aqui", "description": "Combine cores, vire o jogo e seja o primeiro a ficar sem cartas. Um jogo original para 2 a 4 pessoas neste canal de voz.",
     "create": "Criar uma mesa", "lobbyTitle": "Puxe uma cadeira", "lobbyHint": "Quem está na chamada pode entrar. O anfitrião começa quando a mesa estiver pronta.",
@@ -13,7 +24,7 @@
     "activeColor": "Cor: {{color}}", "clockwise": "Sentido horário", "counterclockwise": "Sentido anti-horário", "spectating": "Você está assistindo. Entre na próxima mesa para jogar.",
     "winner": "{{name}} venceu!", "finished": "Rodada encerrada", "results": { "playersLeft": "Não há jogadores suficientes para continuar. Esta rodada não tem vencedor.", "stalemate": "Não é possível comprar nem jogar cartas. A rodada empatou.", "expired": "Esta mesa atingiu o limite de duas horas. Abra uma nova mesa." },
     "cardCount_one": "{{count}} carta", "cardCount_many": "{{count}} cartas", "cardCount_other": "{{count}} cartas",
-    "colors": { "coral": "Coral", "amber": "Âmbar", "mint": "Menta", "sky": "Azul" },
+    "colors": { "coral": "Vermelho", "amber": "Amarelo", "mint": "Verde", "sky": "Azul" },
     "faces": { "skip": "Bloqueio", "reverse": "Inverter", "draw2": "Comprar duas", "wild": "Coringa", "draw4": "Coringa comprar quatro" },
     "rules": "Como jogar", "rulesText": "Cada jogador recebe 7 cartas. Combine a cor ou o símbolo da última carta, ou jogue um coringa e escolha a cor. Fique sem cartas para vencer.\nBloqueio pula o próximo jogador; inverter muda o sentido (com dois jogadores, pula o adversário). +2 e +4 fazem o próximo comprar e perder a vez. Não acumulam. +4 só pode ser jogado sem nenhuma carta da cor ativa; não há desafios.\nCompre uma: só pode jogar essa nova carta, se combinar, ou passar. Se ela não combinar, a vez passa automaticamente. Antes de ficar com uma carta, marque ‘Dizer Juno’; caso contrário, compre duas.\nSão 45 segundos por turno. Ao acabar o tempo, compre uma e passe; se já comprou, apenas passe. Ao sair, suas cartas voltam ao baralho; com menos de dois jogadores a rodada termina sem vencedor. Uma reconexão rápida da voz mantém seu lugar. Reiniciar o servidor encerra os jogos."
   },
@@ -249,6 +260,7 @@
     "fullscreen": "Tela cheia",
     "disconnect": "Desconectar",
     "connectionInfo": "Informações da conexão",
+    "audioTreatmentHint": "Reduz o ruído do microfone. Isso não silencia seu microfone.",
     "noiseSuppressionOff": "Desativar supressão de ruído com IA",
     "noiseSuppressionOn": "Ativar supressão de ruído com IA"
   },

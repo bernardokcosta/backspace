@@ -1,0 +1,708 @@
+{
+  "source": "User-supplied Juno art, 2026-11-05",
+  "archives": {
+    "cards": {
+      "name": "Juno_Kit_Completo_108_Cartas.zip",
+      "sha256": "557035a594e1d00a0319dcdb85d138458ceb3089862514031570afedf224910e"
+    },
+    "ui": {
+      "name": "juno-ui.zip",
+      "sha256": "79cddf091378c79851fd04111fcab7d9572acab675132402c662d09fe99a772c"
+    }
+  },
+  "files": [
+    {
+      "path": "cards/coral-0.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_001_vermelho_0.webp",
+      "bytes": 59146,
+      "sha256": "8025b0f322990ffc149c8164356d4a2f470aed2df6355ac63d1380c7a325a142",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/coral-1.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_002_vermelho_1.webp",
+      "bytes": 56986,
+      "sha256": "cdc0491b2a2f10dae98fb11b3b1bfa971967b2f3b83ca82bce115ff8ad132a43",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/coral-2.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_004_vermelho_2.webp",
+      "bytes": 57904,
+      "sha256": "00ade5b0a086f6e79c7db1fdb97170a8d507b4e369e41c5951424edf83996c7a",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/coral-3.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_006_vermelho_3.webp",
+      "bytes": 58886,
+      "sha256": "c9eb4e5c6b67b26e6d9ac83d0716d44778ded3116fe69b10133be61959cabe45",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/coral-4.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_008_vermelho_4.webp",
+      "bytes": 58274,
+      "sha256": "d5ce4fd34a78d3b25d8b79b727d13a1c75899a20de96ad81a81b0fabd9660d76",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/coral-5.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_010_vermelho_5.webp",
+      "bytes": 58864,
+      "sha256": "c924bc577581dc1d94228a24e6f0a3e4c02e84d62fb392a12b33f8604c85543b",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/coral-6.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_012_vermelho_6.webp",
+      "bytes": 59414,
+      "sha256": "2a574acded4b542f00c9af22806def2d9be7de0052a4dc550b82565dbd8eb994",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/coral-7.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_014_vermelho_7.webp",
+      "bytes": 57196,
+      "sha256": "6cc28453570a76f110b8bbc180a8d20c14cfece51fb2f690d47c88aaf39740ab",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/coral-8.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_016_vermelho_8.webp",
+      "bytes": 59294,
+      "sha256": "a96a0cf42cc03a4c592c0d69b5c75910e73745fbe9e92b923d9c353cf4537449",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/coral-9.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_018_vermelho_9.webp",
+      "bytes": 58428,
+      "sha256": "f27ab3b3a8fb3186122ccceedb48559d9134d498dc631137d4e69236a0f34731",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/coral-skip.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_020_vermelho_bloqueio.webp",
+      "bytes": 63364,
+      "sha256": "b41ca1f96286cb8f0306da3e20ba545c047b1ec924ae53abd9b8c1d5703b2461",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/coral-reverse.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_022_vermelho_inversao.webp",
+      "bytes": 63078,
+      "sha256": "76f5792e8a6f27f9e28e003d409a7a4fae6ed62db72f6f0c22c204350baec459",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/coral-draw2.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_024_vermelho_mais2.webp",
+      "bytes": 59672,
+      "sha256": "2ca2d132b1c10dfeef0a648f6410ca30c837254e910eadf4cb0bc6bcb85badd2",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/amber-0.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_026_amarelo_0.webp",
+      "bytes": 75888,
+      "sha256": "74463a2640ba0c6a57f1f6c072b70e0262cd7664530f67e9ab8bd0cdef20211d",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/amber-1.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_027_amarelo_1.webp",
+      "bytes": 73476,
+      "sha256": "1f0f29e9761a1ad5d7b58bcc5387b9666b1ec3ad1e94465d16e6dfbfbd4b48c1",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/amber-2.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_029_amarelo_2.webp",
+      "bytes": 74810,
+      "sha256": "914c6e1af3d0e7dc47c62a16cd5f8079147bcfd731786787eab185bfd1a3eb1e",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/amber-3.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_031_amarelo_3.webp",
+      "bytes": 76218,
+      "sha256": "4627a029c89c643686c6f0c36344115b583720fbd166af38d9aae88eccfd8174",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/amber-4.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_033_amarelo_4.webp",
+      "bytes": 74576,
+      "sha256": "56a9f37175a8e60cec67cdfac10ee3db488eb114ef52b5fd3f60c560ebaa8295",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/amber-5.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_035_amarelo_5.webp",
+      "bytes": 75046,
+      "sha256": "96936a32963886193e97d609f0a4a317763d65eee54fb24bfd19d09b5805561b",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/amber-6.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_037_amarelo_6.webp",
+      "bytes": 75948,
+      "sha256": "124c9e4146888c2ebd28d8d72fd583b5efacd8b69bf671ab48dd40ad83f37f8b",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/amber-7.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_039_amarelo_7.webp",
+      "bytes": 73734,
+      "sha256": "de16a0bf4d290b7394d723e3b177bb433b05391320482e2fcaf673beeeffc468",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/amber-8.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_041_amarelo_8.webp",
+      "bytes": 76630,
+      "sha256": "196b897653094cb37d544c8c960ff6df86b9e725bad96cf7f612d0d758185937",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/amber-9.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_043_amarelo_9.webp",
+      "bytes": 75860,
+      "sha256": "c14f650ac053b7c03527081e6584d9ad7e775e659657953d8bd92b40aca9b116",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/amber-skip.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_045_amarelo_bloqueio.webp",
+      "bytes": 80984,
+      "sha256": "93c66a5a12d700de4e53563d614bc4bf5a46e85bd4a17a857c63fc61d5ab304c",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/amber-reverse.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_047_amarelo_inversao.webp",
+      "bytes": 80470,
+      "sha256": "9519170f2c60a2d35bcc08c667049dc2489e5440564c24a3bd2e76dd81c86723",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/amber-draw2.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_049_amarelo_mais2.webp",
+      "bytes": 75740,
+      "sha256": "e357e4af57364bd605422b2114c67e10946173d930d340f01ae16fafecc0620e",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/mint-0.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_051_verde_0.webp",
+      "bytes": 76148,
+      "sha256": "be7c0db044f537770183680cca801a75ed5d0c1b2c841cc5d6f28aac3e120964",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/mint-1.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_052_verde_1.webp",
+      "bytes": 73474,
+      "sha256": "a77662f7b0f0a080bfeb87a97f02acfb0a2f6f62c5df4bf9aa6a86bd480f911b",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/mint-2.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_054_verde_2.webp",
+      "bytes": 75346,
+      "sha256": "6f1a4aac479dc5e1e481bdf99eef2fe6ed26cea294e4ba202f986a2e6c6be076",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/mint-3.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_056_verde_3.webp",
+      "bytes": 76382,
+      "sha256": "e1a0892b438aa17d108989ed657626abb61932fbadb7c5abd9cf6e1bede2dfc9",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/mint-4.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_058_verde_4.webp",
+      "bytes": 74730,
+      "sha256": "509ab15e882c8901327fd68618af5ce42992e2b4179c0e0b75266ca4fd327bc8",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/mint-5.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_060_verde_5.webp",
+      "bytes": 75106,
+      "sha256": "ff3c9c07def7baccb60894490c0104383cd60a7a0c3f049291a94d0d4e57adc5",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/mint-6.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_062_verde_6.webp",
+      "bytes": 76352,
+      "sha256": "41811eb02489291343760bd2b5af40de643a1d55ab1b2de7a90a431c5574d0aa",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/mint-7.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_064_verde_7.webp",
+      "bytes": 73882,
+      "sha256": "21618ad8a014d9ee3751a6c604343d8a66faf9a336550a41a17caa484aba9c55",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/mint-8.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_066_verde_8.webp",
+      "bytes": 76806,
+      "sha256": "6001812b8ca9ad575e15c9c776e320cdc50c0b7d303469aebe8bb6184a0c1c5e",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/mint-9.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_068_verde_9.webp",
+      "bytes": 76100,
+      "sha256": "7486217e31bf380a8795881ee93d74dac99a0c28d9adf483afd7b37f3f9e5665",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/mint-skip.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_070_verde_bloqueio.webp",
+      "bytes": 81020,
+      "sha256": "7ecd3be97acab1df6de15e3c7d3e0365bb77311b91372297cefdae87773b2536",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/mint-reverse.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_072_verde_inversao.webp",
+      "bytes": 80608,
+      "sha256": "d5439577d6b544612c7ab97e115041a7fdd6cd33822495e842be37eb105a45ac",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/mint-draw2.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_074_verde_mais2.webp",
+      "bytes": 76294,
+      "sha256": "ff4c5e79d948ef659f86dc688ddcdcb39e303d1fe60b2e2117c7f9e81eeb2746",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/sky-0.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_076_azul_0.webp",
+      "bytes": 63168,
+      "sha256": "914ee04341a3f0ca80ea28695725a30781610bdf58a4db0046ce8b0b39b0517b",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/sky-1.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_077_azul_1.webp",
+      "bytes": 60556,
+      "sha256": "13cb7d12eb9d29bca716b6bb0700d20800153c75948198b3251b6c54f852a669",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/sky-2.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_079_azul_2.webp",
+      "bytes": 62332,
+      "sha256": "5dbb3aab4e72c70f75771c798d97d200e0598ebb37a155f3fbffd2ab5f8b28c4",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/sky-3.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_081_azul_3.webp",
+      "bytes": 63528,
+      "sha256": "3d435ef61e8bb2245ce9bf432510c5e6bbf8d195c607a3f78402c1eafa548f62",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/sky-4.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_083_azul_4.webp",
+      "bytes": 61704,
+      "sha256": "2e2c728e2da9cebfe02cd96ad8005ad4b079ca2017d2fc99c7e88acf1f6bc177",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/sky-5.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_085_azul_5.webp",
+      "bytes": 62310,
+      "sha256": "7b84e29157c651e6ee982b7c3612cc8bc261133f828a4974f70d30eb901835b7",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/sky-6.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_087_azul_6.webp",
+      "bytes": 63294,
+      "sha256": "aefb145486b9dbca048a945072602481f89e2f558ad54c9cb163b41ae9003b81",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/sky-7.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_089_azul_7.webp",
+      "bytes": 60926,
+      "sha256": "a721ca800162c818995a23e3ba55c2824475c79c7bcd966622619fe6d11a7147",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/sky-8.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_091_azul_8.webp",
+      "bytes": 63918,
+      "sha256": "64165877687d9d92d8b1cf758c3a58a6778b64ff36ad3bcc6226861514e1dfe1",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/sky-9.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_093_azul_9.webp",
+      "bytes": 62964,
+      "sha256": "274ae9732eaf5e6aba6c4365b1e5137f50544fd94517c89d7e980a653c3d56c1",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/sky-skip.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_095_azul_bloqueio.webp",
+      "bytes": 68140,
+      "sha256": "d964266803c4651fb09f11b791e73e7064e494d56c310616c28c0c26730f4ead",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/sky-reverse.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_097_azul_inversao.webp",
+      "bytes": 67628,
+      "sha256": "ee11b2afed1023be0d2b59761516917d851bedca1da759d578db558a7bae95df",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/sky-draw2.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_099_azul_mais2.webp",
+      "bytes": 63340,
+      "sha256": "5727dad3203e1560454e1a56729a45d96bd8d64233687d549b899699af0cd967",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/wild.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_101_coringa.webp",
+      "bytes": 95362,
+      "sha256": "2ed9808d9bb98a04a99783c4c0e8dfaa46bfd549631dd53a97eda5f49635d61c",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/draw4.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/baralho_108_webp/JUNO_105_coringa_mais4.webp",
+      "bytes": 96496,
+      "sha256": "d6baf335cac8bb9ba7af919a9c66f19594c58ac84ede058ad07fbaafe2785eec",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "cards/back.webp",
+      "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",
+      "sourceEntry": "Juno_Kit_Completo/verso.webp",
+      "bytes": 85154,
+      "sha256": "1465b6afdddb5e1c1d36bcade946e743735b8541ee3f41476c66aeba9832542a",
+      "dimensions": [
+        720,
+        1056
+      ]
+    },
+    {
+      "path": "ui/background.webp",
+      "sourceArchive": "juno-ui.zip",
+      "sourceEntry": "JUNO_UI_ESTILO_APROVADO/assets/fundo/fundo_juno_unico_16x9.webp",
+      "bytes": 167580,
+      "sha256": "5b1da71bb1f32758751f29f23c3162ef162f2024f2c85e7500bc8e183a81ed66",
+      "dimensions": [
+        2560,
+        1440
+      ]
+    },
+    {
+      "path": "ui/logo.svg",
+      "sourceArchive": "juno-ui.zip",
+      "sourceEntry": "JUNO_UI_ESTILO_APROVADO/assets/ui/logo_juno.svg",
+      "bytes": 1624,
+      "sha256": "ac63065389a279a3f4bad50b9fe8dfd70b7d72d18ea2b2c121cff757408074b7"
+    },
+    {
+      "path": "ui/orbit.svg",
+      "sourceArchive": "juno-ui.zip",
+      "sourceEntry": "JUNO_UI_ESTILO_APROVADO/assets/ui/orbita_mesa.svg",
+      "bytes": 1387,
+      "sha256": "40e196f40ca36b7c75f512b44201577cc65d7d03b86b7c3729b1ad519643fd42"
+    },
+    {
+      "path": "ui/avatar-frame.svg",
+      "sourceArchive": "juno-ui.zip",
+      "sourceEntry": "JUNO_UI_ESTILO_APROVADO/assets/ui/moldura_avatar.svg",
+      "bytes": 601,
+      "sha256": "e6126c43b89c9da53bef7656156e56505a6d83a329ef5af84e7aa4531a875368"
+    },
+    {
+      "path": "ui/player-plate.svg",
+      "sourceArchive": "juno-ui.zip",
+      "sourceEntry": "JUNO_UI_ESTILO_APROVADO/assets/ui/placa_jogador.svg",
+      "bytes": 518,
+      "sha256": "2247b94156291994408c9a8dc049c9126677119f63c8c42d3d6a86195e3e9a5a"
+    },
+    {
+      "path": "ui/button-primary.svg",
+      "sourceArchive": "juno-ui.zip",
+      "sourceEntry": "JUNO_UI_ESTILO_APROVADO/assets/ui/botao_primario.svg",
+      "bytes": 316,
+      "sha256": "191fb9f98ced8cec0e3967566d3feac2847ff3df6f7f6edc5a214243a7f69afa"
+    },
+    {
+      "path": "ui/button-secondary.svg",
+      "sourceArchive": "juno-ui.zip",
+      "sourceEntry": "JUNO_UI_ESTILO_APROVADO/assets/ui/botao_secundario.svg",
+      "bytes": 316,
+      "sha256": "2315f92ad3254f04e83f76c6a578fd85b7fa4a6a059a4a3f7923f6e54e464a68"
+    },
+    {
+      "path": "ui/crown.svg",
+      "sourceArchive": "juno-ui.zip",
+      "sourceEntry": "JUNO_UI_ESTILO_APROVADO/assets/ui/coroa_vitoria.svg",
+      "bytes": 831,
+      "sha256": "eb7bda2a3c2579fd4b3c58eda79c68b96fdd6ca458a280f9d5f9a325a39dd829"
+    },
+    {
+      "path": "ui/medal-gold.svg",
+      "sourceArchive": "juno-ui.zip",
+      "sourceEntry": "JUNO_UI_ESTILO_APROVADO/assets/ui/medalha_ouro.svg",
+      "bytes": 676,
+      "sha256": "d90df1f93f1e5c9788cecc3e2233195f71d0065611aac9004443aaacc91389a2"
+    },
+    {
+      "path": "ui/medal-silver.svg",
+      "sourceArchive": "juno-ui.zip",
+      "sourceEntry": "JUNO_UI_ESTILO_APROVADO/assets/ui/medalha_prata.svg",
+      "bytes": 676,
+      "sha256": "e164160c4d4dd5c28fecfe5ec582e5a9de12552fff29ecd0f8692c5d479f523f"
+    },
+    {
+      "path": "ui/medal-bronze.svg",
+      "sourceArchive": "juno-ui.zip",
+      "sourceEntry": "JUNO_UI_ESTILO_APROVADO/assets/ui/medalha_bronze.svg",
+      "bytes": 676,
+      "sha256": "09134e47d95597637f562eebc21ad886c039691c8f120b6f6e64678e4de32200"
+    },
+    {
+      "path": "ui/ranking-row.svg",
+      "sourceArchive": "juno-ui.zip",
+      "sourceEntry": "JUNO_UI_ESTILO_APROVADO/assets/ui/linha_ranking.svg",
+      "bytes": 188,
+      "sha256": "1e223643c57af0c5e459d5e60552ffec710735552fee3b57b8a92ac5017862c4"
+    }
+  ]
+}

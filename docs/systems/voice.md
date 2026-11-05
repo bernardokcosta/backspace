@@ -15,14 +15,27 @@ Source files:
 
 ## Voice Channel Join Flow
 
+The sidebar's status row places the RNNoise toggle immediately before Disconnect.
+Its microphone-with-sparkle icon is always intact (never crossed out), mint when
+active, with `aria-pressed` and localized help explaining that it does not mute.
+It changes only the existing `rnnoiseEnabled` preference, not microphone mute or
+other processing options. The former bottom-row slot now holds Games, alongside
+camera, screen share and soundboard.
+
 Space voice channels also support a shared [soundboard](soundboard.md). The host
 authorizes playback and signals only participants' voice-owning sockets; clients
 play through the existing master output bus, independently of microphone capture.
 
-They also support native [Juno games](juno.md): 2–4 players, a Games button in the
-call controls and a tile/focused table in the existing voice mosaic. The game
+They also support native [Juno games](juno.md): 2–4 players, Games buttons in the
+voice sidebar and desktop/mobile call controls that open a shared game list,
+and a tile/focused table in the existing voice mosaic. The game
 reuses voice membership and reconnect grace, never a screen-share publication;
 minimizing the game does not leave it. This release does not support DM games.
+Juno XP aggregates completed rounds across the hosting space's voice channels;
+the ranking view requires space membership but not voice. Active tables still
+reuse the same media/signaling owner. Navigating ranking/results changes no
+capture, mute, RNNoise or LiveKit state. See [juno.md](juno.md) for settlement and
+retention rules.
 
 1. Client sends `voice_join { channelId }` via WS
 2. Server checks CONNECT permission, enforces one-room-per-user

@@ -4,6 +4,7 @@ import { useVoiceStore } from '../../stores/voiceStore';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { ScreenShareSettingsPopover } from './ScreenShareSettingsPopover';
 import { SoundboardButton } from './SoundboardButton';
+import { GamesButton } from '../games/GamesButton';
 import { ConnectionInfoPopover } from './ConnectionInfoPopover';
 import { hasPermissionBit, PermissionBits } from '../../utils/permissions';
 import { handleCameraAction, handleDisconnectAction, handleScreenShareAction, reconnectVoice } from '../../utils/voiceActions';
@@ -110,7 +111,7 @@ export function VoiceControls() {
 
   return (
     <>
-      {/* Row 1: Signal icon + status text + disconnect */}
+      {/* Row 1: Signal icon + status text + audio treatment + disconnect */}
       <div className="relative flex items-center gap-2 px-3 pt-3 pb-1">
         <button
           ref={connectionBtnRef}
@@ -145,6 +146,23 @@ export function VoiceControls() {
             </button>
           )}
           <button
+            type="button"
+            onClick={() => setRnnoiseEnabled(!rnnoiseEnabled)}
+            aria-pressed={rnnoiseEnabled}
+            aria-label={rnnoiseEnabled ? t('voice:controls.noiseSuppressionOff') : t('voice:controls.noiseSuppressionOn')}
+            aria-description={t('voice:controls.audioTreatmentHint')}
+            title={`${rnnoiseEnabled ? t('voice:controls.noiseSuppressionOff') : t('voice:controls.noiseSuppressionOn')}\n${t('voice:controls.audioTreatmentHint')}`}
+            className={`w-7 h-7 flex items-center justify-center shrink-0 rounded transition-colors focus-visible:ring-2 focus-visible:ring-accent-primary ${
+              rnnoiseEnabled ? 'text-accent-mint bg-accent-mint/10 hover:bg-accent-mint/20' : 'text-txt-tertiary hover:text-txt-primary hover:bg-interactive-hover'
+            }`}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
+              <rect x="8" y="4" width="6" height="11" rx="3" fill="currentColor" stroke="none" />
+              <path d="M5 11v1a6 6 0 0012 0v-1M11 18v3M8 21h6" />
+              <path d="M19 2l.9 2.1L22 5l-2.1.9L19 8l-.9-2.1L16 5l2.1-.9Z" fill="currentColor" stroke="none" />
+            </svg>
+          </button>
+          <button
             onClick={handleDisconnect}
             className="w-7 h-7 flex items-center justify-center text-txt-tertiary hover:text-txt-primary transition-colors rounded"
             title={t('voice:controls.disconnect')}
@@ -163,7 +181,7 @@ export function VoiceControls() {
         />
       </div>
 
-      {/* Row 2: Camera, Screen Share, Noise Suppression */}
+      {/* Row 2: Camera, Screen Share, Soundboard, Games */}
       <div className="relative flex items-center gap-1 px-3 pb-2 pt-1">
         {canSpeak && (
           <button
@@ -212,33 +230,7 @@ export function VoiceControls() {
 
         {/* Soundboard */}
         <SoundboardButton className="flex-1 h-[34px] flex items-center justify-center rounded-[4px] transition-colors bg-surface-base text-txt-tertiary hover:bg-surface-channel hover:text-txt-secondary" />
-        {/* AI Noise Suppression (RNNoise) */}
-        <button
-          onClick={() => setRnnoiseEnabled(!rnnoiseEnabled)}
-          className={`${btnBase} ${
-            rnnoiseEnabled
-              ? 'bg-surface-base text-status-online hover:bg-surface-channel'
-              : btnDefaultStyle
-          }`}
-          title={rnnoiseEnabled ? t('voice:controls.noiseSuppressionOff') : t('voice:controls.noiseSuppressionOn')}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" opacity={rnnoiseEnabled ? 0.15 : 0.08} />
-            <path d="M12 1a2 2 0 012 2v1a2 2 0 01-4 0V3a2 2 0 012-2z" />
-            <path d="M12 7c-1.66 0-3 1.34-3 3v2c0 1.66 1.34 3 3 3s3-1.34 3-3v-2c0-1.66-1.34-3-3-3z" />
-            <path d="M17 11v1c0 2.76-2.24 5-5 5s-5-2.24-5-5v-1H5v1c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92v-1h-2z" />
-            {rnnoiseEnabled ? (
-              <>
-                <circle cx="18" cy="5" r="1.2" fill="currentColor" />
-                <circle cx="20" cy="8" r="0.9" fill="currentColor" opacity="0.7" />
-                <circle cx="6" cy="5" r="1.2" fill="currentColor" />
-                <circle cx="4" cy="8" r="0.9" fill="currentColor" opacity="0.7" />
-              </>
-            ) : (
-              <line x1="4" y1="4" x2="20" y2="20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
-            )}
-          </svg>
-        </button>
+        <GamesButton className={`${btnBase} ${btnDefaultStyle}`} />
 
         {/* Screen share menu — quality settings + stop, anchored to the share button */}
         <ScreenShareSettingsPopover

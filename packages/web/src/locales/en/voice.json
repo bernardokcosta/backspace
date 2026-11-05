@@ -1,5 +1,16 @@
 {
   "juno": {
+    "rankingTitle": "Space ranking", "spaceRanking": "Ranking · {{space}}", "roundResults": "Round results", "victory": "Victory!",
+    "xpEarned": "+{{xp}} XP earned", "totalXp": "Total XP", "rank": "Position", "noRank": "Not ranked yet", "yourStats": "Your progress",
+    "winsLabel": "Wins", "roundsLabel": "Rounds", "wins_one": "{{count}} win", "wins_other": "{{count}} wins",
+    "rounds_one": "{{count}} round", "rounds_other": "{{count}} rounds",
+    "emptyRanking": "No completed rounds yet. Play the first round to start this space’s ranking.",
+    "creditPending": "Saving this round’s XP. Please wait before starting a new lobby.",
+    "abandoned": "Left the round", "unranked": "No XP this round", "rankingUnavailable": "This space’s server does not support Juno ranking yet.",
+    "backToGame": "Back to table", "previousPage": "Previous page", "nextPage": "Next page",
+    "scoreHint": "Juno XP belongs to this space, across all its voice channels.",
+    "scoreRules": "1st: 120 XP · 2nd: 80 XP · 3rd: 40 XP · 4th: 20 XP. Ties share place and XP. Only completed rounds with a winner count; leaving early earns no XP.",
+    "chooseGame": "Choose a game to play with the people in your call.",
     "name": "Juno", "games": "Games", "open": "Open Juno", "tagline": "A little friendly rivalry",
     "invitation": "Your next round starts here", "description": "Match colors, turn the tables, and be the first to empty your hand. An original card game for 2–4 people in this voice channel.",
     "create": "Create a table", "lobbyTitle": "Pull up a seat", "lobbyHint": "Everyone in the call can join. The host starts when the table is ready.",
@@ -13,7 +24,7 @@
     "activeColor": "Color: {{color}}", "clockwise": "Clockwise", "counterclockwise": "Counterclockwise", "spectating": "You’re watching. Join the next lobby to play.",
     "winner": "{{name}} wins!", "finished": "Round finished", "results": { "playersLeft": "Not enough players to continue. No winner this round.", "stalemate": "No cards can be drawn or played. This round is a draw.", "expired": "This table reached its two-hour limit. Open a fresh lobby." },
     "cardCount_one": "{{count}} card", "cardCount_other": "{{count}} cards",
-    "colors": { "coral": "Coral", "amber": "Amber", "mint": "Mint", "sky": "Sky" },
+    "colors": { "coral": "Red", "amber": "Yellow", "mint": "Green", "sky": "Blue" },
     "faces": { "skip": "Skip", "reverse": "Reverse", "draw2": "Draw two", "wild": "Wild", "draw4": "Wild draw four" },
     "rules": "How to play", "rulesText": "Each player gets 7 cards. Match the last card’s color or symbol, or play a wild and choose a color. Empty your hand to win.\nSkip skips the next player; reverse changes direction (with two players, it skips). +2 and +4 immediately draw cards for the next player and skip their turn. No stacking. +4 is only allowed when you have no card of the active color; no challenges.\nDraw one: play only that new card if it matches, or pass. An unplayable draw passes automatically. Before playing down to one card, check ‘Say Juno’; otherwise you draw two.\nYou have 45 seconds per turn. Time running out draws one and passes; after drawing it just passes. If someone leaves, their cards return to the deck; fewer than two players ends the round without a winner. A short voice reconnect keeps your seat. Restarting the server ends games."
   },
@@ -249,6 +260,7 @@
     "fullscreen": "Fullscreen",
     "disconnect": "Disconnect",
     "connectionInfo": "Connection Info",
+    "audioTreatmentHint": "Reduces microphone noise. This does not mute your microphone.",
     "noiseSuppressionOff": "Disable AI Noise Suppression",
     "noiseSuppressionOn": "Enable AI Noise Suppression"
   },

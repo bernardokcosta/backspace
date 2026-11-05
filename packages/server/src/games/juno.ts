@@ -1,6 +1,8 @@
 import { randomInt, randomUUID } from 'node:crypto';
 import { JUNO_COLORS, JUNO_TURN_MS, canPlayJuno, type JunoAction, type JunoCard,
-  type JunoColor, type JunoCommand, type JunoMove, type JunoPerson, type JunoSnapshot, type JunoView } from '@backspace/shared/src/juno.js';
+  type JunoColor, type JunoCommand, type JunoMove, type JunoPerson, type JunoSnapshot, type JunoView, type JunoScoreboard } from '@backspace/shared/src/juno.js';
+import { buildJunoStandings } from './junoStandings.js';
+import type { JunoSettlement } from './junoProgression.js';
 
 export class JunoError extends Error {}
 function refuse(code: string): never { throw new JunoError(code); }
@@ -109,11 +111,15 @@ export function actInRound(round: JunoRound, userId: string, action: JunoAction,
 interface Table {
   id: string; hostId: string; people: JunoPerson[]; round: JunoRound | null;
   revision: number; createdAt: number; updatedAt: number;
+  spaceId: string | null; starters: JunoPerson[];
+  settlement?: JunoSettlement; scoreboard?: JunoScoreboard; retryAt: number;
 }
 interface RoomOptions {
   present: (channelId: string, userId: string) => boolean;
   changed: (channelId: string) => void;
   now?: () => number;
+  spaceIdForChannel?: (channelId: string) => string | null;
+  settle?: (input: JunoSettlement) => JunoScoreboard;
 }
 /** Ephemeral authority. All state transitions complete synchronously before notifying readers. */
 export class JunoRooms {
@@ -126,12 +132,34 @@ export class JunoRooms {
     if (table) { table.revision = revision; table.updatedAt = this.now(); }
     this.options.changed(channelId);
   }
+  private complete(channelId: string, table: Table): void {
+    const round = table.round;
+    if (!round?.result || !this.options.settle || !table.spaceId) return;
+    if (!table.settlement) {
+      table.settlement = { roundId: table.id, spaceId: table.spaceId, channelId, finishedAt: this.now(),
+        scoringVersion: 1, result: round.result, standings: buildJunoStandings(table.starters,
+          round.players.map(p => ({ userId: p.userId, cardCount: p.hand.length })), round.winnerId, round.result) };
+      table.scoreboard = { roundId: table.id, status: round.result === 'emptyHand' ? 'pending' : 'unranked',
+        standings: table.settlement.standings.map(p => ({ ...p })) };
+    }
+    if (table.scoreboard?.status !== 'pending' || this.now() < table.retryAt) return;
+    table.retryAt = this.now() + 1000;
+    try {
+      // The integration cannot mutate the frozen proposal kept for a retry.
+      table.scoreboard = this.options.settle({ ...table.settlement, standings: table.settlement.standings.map(p => ({ ...p })),
+        ...(table.settlement.recipientIds ? { recipientIds: new Map(table.settlement.recipientIds) } : {}) });
+      if (table.scoreboard.status !== 'pending') this.changed(channelId, table);
+    } catch { /* The integration reports failures; keep the same pending result for the next pass. */ }
+  }
   private remove(channelId: string, table: Table, userId: string): void {
     table.people = table.people.filter(person => person.userId !== userId);
-    if (!table.people.length) { this.tables.delete(channelId); this.changed(channelId); return; }
+    if (!table.people.length) {
+      if (table.scoreboard?.status === 'pending') { this.changed(channelId, table); return; }
+      this.tables.delete(channelId); this.changed(channelId); return;
+    }
     if (table.hostId === userId) table.hostId = table.people[0]!.userId;
     const round = table.round;
-    if (round) {
+    if (round && !round.result) {
       const index = round.players.findIndex(p => p.userId === userId);
       if (index >= 0) {
         const currentId = round.players[round.turn]!.userId;
@@ -146,22 +174,27 @@ export class JunoRooms {
         if (!round.result && round.players.length < 2) { round.result = 'playersLeft'; round.winnerId = null; }
       }
     }
+    this.complete(channelId, table);
     this.changed(channelId, table);
   }
   private settle(channelId: string): void {
     const table = this.tables.get(channelId); if (!table) return;
     const now = this.now();
+    this.complete(channelId, table);
     for (const person of [...table.people]) {
       if (!this.options.present(channelId, person.userId)) this.remove(channelId, table, person.userId);
     }
     if (!this.tables.has(channelId)) return;
+    if (!table.people.length && table.scoreboard?.status !== 'pending') {
+      this.tables.delete(channelId); this.changed(channelId); return;
+    }
     const round = table.round;
     if (!round || round.result) {
-      if (now - table.updatedAt >= 15 * 60_000) { this.tables.delete(channelId); this.changed(channelId); }
+      if (table.scoreboard?.status !== 'pending' && now - table.updatedAt >= 15 * 60_000) { this.tables.delete(channelId); this.changed(channelId); }
       return;
     }
     if (now - table.createdAt >= 2 * 60 * 60_000) {
-      round.result = 'expired'; this.changed(channelId, table); return;
+      round.result = 'expired'; this.complete(channelId, table); this.changed(channelId, table); return;
     }
     if (now >= round.deadline) {
       const player = round.players[round.turn]!;
@@ -172,17 +205,29 @@ export class JunoRooms {
         if (round.blockedTurns >= round.players.length) round.result = 'stalemate';
       }
       round.lastMove = { type: 'timeout', userId: player.userId, amount: drawn.length };
-      advance(round, now); this.changed(channelId, table);
+      advance(round, now); this.complete(channelId, table); this.changed(channelId, table);
     }
   }
   tick(): void { for (const channelId of this.tables.keys()) this.settle(channelId); }
+  /** Only the committed, proof-authorized merge may redirect a pending award. */
+  remapPendingRecipient(sourceId: string, targetId: string): void {
+    if (sourceId === targetId) return;
+    for (const table of this.tables.values()) {
+      if (!table.settlement || table.scoreboard?.status !== 'pending') continue;
+      const recipientIds = new Map(table.settlement.recipientIds);
+      for (const row of table.settlement.standings) {
+        if ((recipientIds.get(row.userId) ?? row.userId) === sourceId) recipientIds.set(row.userId, targetId);
+      }
+      table.settlement.recipientIds = recipientIds;
+    }
+  }
   dispose(): void { this.tables.clear(); }
   read(channelId: string, userId: string): JunoSnapshot {
     this.settle(channelId);
     const table = this.tables.get(channelId);
     if (!table) return { revision: this.revision, game: null };
     const round = table.round;
-    const self = round?.players.find(person => person.userId === userId);
+    const self = table.people.some(person => person.userId === userId) ? round?.players.find(person => person.userId === userId) : undefined;
     return { revision: table.revision, game: {
       id: table.id, phase: !round ? 'lobby' : round.result ? 'finished' : 'playing', hostId: table.hostId,
       players: table.people.map(person => {
@@ -194,8 +239,9 @@ export class JunoRooms {
       currentPlayerId: round && !round.result ? round.players[round.turn]!.userId : null,
       drawnCardId: self && round?.players[round.turn]?.userId === userId ? round.drawnCardId : null,
       remainingMs: round && !round.result ? Math.max(0, round.deadline - this.now()) : 0,
-      winnerId: round?.winnerId ?? null, result: round?.result ?? null,
+      winnerId: round?.winnerId ? table.settlement?.recipientIds?.get(round.winnerId) ?? round.winnerId : null, result: round?.result ?? null,
       lastMove: round?.lastMove ? { ...round.lastMove, ...(round.lastMove.card ? { card: { ...round.lastMove.card } } : {}) } : null,
+      ...(table.scoreboard ? { scoreboard: { ...table.scoreboard, standings: table.scoreboard.standings.map(p => ({ ...p })) } } : {}),
     } };
   }
   command(channelId: string, person: JunoPerson, command: JunoCommand): JunoSnapshot {
@@ -205,7 +251,8 @@ export class JunoRooms {
       if (table) refuse('juno_exists');
       if (this.tables.size >= 1_000) refuse('juno_capacity');
       table = { id: randomUUID(), hostId: person.userId, people: [{ ...person }], round: null,
-        revision: 0, createdAt: this.now(), updatedAt: this.now() };
+        revision: 0, createdAt: this.now(), updatedAt: this.now(),
+        spaceId: this.options.spaceIdForChannel?.(channelId) ?? null, starters: [], retryAt: 0 };
       this.tables.set(channelId, table); this.changed(channelId, table); return this.read(channelId, person.userId);
     }
     if (!table || command.gameId !== table.id || command.revision !== table.revision) refuse('juno_stale');
@@ -224,17 +271,20 @@ export class JunoRooms {
       if (command.type === 'start' || command.type === 'rematch') {
         if (table.hostId !== person.userId) refuse('juno_host_required');
         if (command.type === 'rematch') {
-          if (!table.round?.result) refuse('juno_invalid_move');
+          if (!table.round?.result || table.scoreboard?.status === 'pending') refuse('juno_invalid_move');
           table.id = randomUUID(); table.round = null; table.people = [{ ...person }]; table.createdAt = this.now();
+          table.starters = []; table.settlement = undefined; table.scoreboard = undefined; table.retryAt = 0;
         } else {
           if (table.round || table.people.length < 2) refuse('juno_need_players');
           table.round = startRound(table.people, this.now()); table.createdAt = this.now();
+          table.starters = table.people.map(p => ({ userId: p.userId, name: p.name }));
         }
       } else {
         if (!table.round) refuse('juno_invalid_move');
         actInRound(table.round, person.userId, command, this.now());
       }
     }
+    this.complete(channelId, table);
     this.changed(channelId, table); return this.read(channelId, person.userId);
   }
 }

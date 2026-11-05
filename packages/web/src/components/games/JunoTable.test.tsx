@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import type { JunoView } from '@backspace/shared/src/juno';
 import { useJunoStore } from '../../stores/junoStore';
 import { JunoTable } from './JunoTable';
+vi.mock('../../audio/AudioManager', () => ({ AudioManager: { getInstance: () => ({}) } }));
 
 const command = vi.fn(async () => {});
 function game(phase: JunoView['phase'] = 'lobby'): JunoView {
@@ -18,6 +19,21 @@ beforeEach(() => {
     connected: true, snapshot: { revision: 1, game: game() }, observedAt: Date.now(), command, open: true });
 });
 describe('Juno native table', () => {
+  it('focuses a leave confirmation and consumes Escape without mutating the game', async () => {
+    render(<JunoTable />); const leave = screen.getByRole('button', { name: 'Leave game' });
+    await userEvent.click(leave);
+    expect(screen.getByRole('group', { name: /leave this game/i })).toContainElement(document.activeElement as HTMLElement);
+    await userEvent.keyboard('{Escape}');
+    expect(screen.queryByRole('group', { name: /leave this game/i })).not.toBeInTheDocument();
+    expect(command).not.toHaveBeenCalled(); expect(leave).toHaveFocus();
+  });
+  it('navigates to the ranking and back without losing a private hand or sending commands', async () => {
+    useJunoStore.setState({ snapshot: { revision: 1, game: game('playing') } }); render(<JunoTable />);
+    await userEvent.click(screen.getByRole('button', { name: 'Space ranking' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Back to table' }));
+    expect(screen.getByRole('group', { name: 'Your hand' })).toBeInTheDocument();
+    expect(command).not.toHaveBeenCalled();
+  });
   it('starts a lobby using a real button and minimizing does not leave the game', async () => {
     render(<JunoTable />);
     await userEvent.click(screen.getByRole('button', { name: /start round/i })); expect(command).toHaveBeenCalledWith({ type: 'start' });
@@ -28,9 +44,9 @@ describe('Juno native table', () => {
     useJunoStore.setState({ snapshot: { revision: 1, game: game('playing') } }); render(<JunoTable />);
     await userEvent.click(screen.getByRole('checkbox', { name: /say juno/i }));
     await userEvent.click(screen.getByRole('button', { name: /play.*wild/i })); expect(command).not.toHaveBeenCalled();
-    await userEvent.click(screen.getByRole('button', { name: 'Mint' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Green' }));
     expect(command).toHaveBeenCalledWith({ type: 'play', cardId: 'wild', color: 'mint', announce: true });
-    expect(screen.getByRole('button', { name: /play.*sky.*8/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /play.*blue.*8/i })).toBeDisabled();
   });
   it('shows spectators no hand and no draw action', () => {
     useJunoStore.setState({ target: { accountId: 'c', selfId: 'c', origin: '', channelId: 'voice' }, snapshot: { revision: 1, game: { ...game('playing'), hand: [] } } });

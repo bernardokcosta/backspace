@@ -127,6 +127,9 @@ export function tombstoneUser(uid: string, options?: TombstoneOptions): string[]
     .all();
 
   db.transaction((tx) => {
+    // Tombstones retain the users row, so FK cascades alone cannot erase Juno data.
+    tx.delete(schema.junoPlayerStats).where(eq(schema.junoPlayerStats.userId, uid)).run();
+    tx.delete(schema.junoRoundParticipants).where(eq(schema.junoRoundParticipants.userId, uid)).run();
     // Remove from spaces, roles, friends, DMs, read states, reactions, folders
     tx.delete(schema.spaceMembers).where(eq(schema.spaceMembers.userId, uid)).run();
     tx.delete(schema.memberRoles).where(eq(schema.memberRoles.userId, uid)).run();

@@ -10,6 +10,10 @@ import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
 import { signJwt } from '../utils/auth.js';
 import { oneOnOneKey } from '../utils/dmConversation.js';
+import { canPlayJuno, type JunoAction } from '@backspace/shared/src/juno.js';
+import { JunoRooms } from '../games/juno.js';
+import { settleJunoRound, type JunoSettlement } from '../games/junoProgression.js';
+import { tombstoneUser } from '../utils/userDeletion.js';
 
 /** The 1-on-1 key of two home identities. */
 const pairKey = (a: string, b: string): string => oneOnOneKey({ id: a, homeUserId: null }, { id: b, homeUserId: null });
@@ -329,6 +333,96 @@ describe('POST /api/users/@me/reattach — stub merge', () => {
     const friendRows = testDb.select().from(schema.friends).all();
     expect(friendRows).toHaveLength(1);
     expect(friendRows[0]!.friendId).toBe('detached-1');
+  });
+
+  function pendingJunoRound(includeTarget = false) {
+    testDb.insert(schema.spaces).values({ id: 'juno-pending', name: 'Juno', ownerId: 'alice', createdAt: 1 }).run();
+    let now = 0; let lastInput: JunoSettlement | undefined;
+    const people = includeTarget ? ['stub-new', 'detached-1', 'alice'] : ['stub-new', 'alice'];
+    const rooms = new JunoRooms({ now: () => now, changed: () => {}, present: () => true, spaceIdForChannel: () => 'juno-pending',
+      settle: input => { lastInput = input; return settleJunoRound(input, testDb); } });
+    const remap = (source: string, target: string) => rooms.remapPendingRecipient(source, target);
+    app.server.on('juno:account-merged', remap);
+    sqlite.exec("CREATE TRIGGER fail_juno_pending BEFORE INSERT ON juno_round_participants BEGIN SELECT RAISE(ABORT, 'pending disk failure'); END;");
+    const send = (id: string, action: JunoAction) => {
+      const view = rooms.read('pending-channel', id);
+      return rooms.command('pending-channel', { userId: id, name: id }, { ...action, gameId: view.game!.id, revision: view.revision });
+    };
+    rooms.command('pending-channel', { userId: people[0]!, name: people[0]! }, { type: 'create' });
+    for (const id of people.slice(1)) send(id, { type: 'join' });
+    send(people[0]!, { type: 'start' });
+    for (let i = 0; i < 3000 && rooms.read('pending-channel', 'alice').game!.phase === 'playing'; i++) {
+      const game = rooms.read('pending-channel', 'alice').game!;
+      const actor = game.currentPlayerId!; const own = rooms.read('pending-channel', actor).game!;
+      const card = own.hand.find(c => (!own.drawnCardId || own.drawnCardId === c.id) && canPlayJuno(c, own.hand, own.topCard!, own.color!));
+      send(actor, card ? { type: 'play', cardId: card.id, color: 'mint', announce: true } : { type: own.drawnCardId ? 'pass' : 'draw' });
+    }
+    const pending = rooms.read('pending-channel', 'alice').game!;
+    expect(pending.scoreboard?.status).toBe('pending');
+    expect(testDb.select().from(schema.junoRoundResults).all()).toEqual([]);
+    expect(testDb.select().from(schema.junoPlayerStats).all()).toEqual([]);
+    return { pending, retry: () => { sqlite.exec('DROP TRIGGER fail_juno_pending'); now += 1000; rooms.tick(); return rooms.read('pending-channel', 'alice').game!; },
+      repeat: () => settleJunoRound(lastInput!, testDb), dispose: () => { app.server.off('juno:account-merged', remap); rooms.dispose(); } };
+  }
+
+  it.each([false, true])('reattaches while SQLite credit is pending and credits once (target also played: %s)', async includeTarget => {
+    const round = pendingJunoRound(includeTarget);
+    try {
+      const expected = round.pending.scoreboard!.standings.filter(row => row.userId !== 'alice').sort((a, b) => b.xp - a.xp)[0]!;
+      expect((await reattach('detached-1', 'youruser@orbit.test')).statusCode).toBe(200);
+      expect(testDb.select().from(schema.users).where(eq(schema.users.id, 'stub-new')).get()).toBeUndefined();
+      const result = round.retry(); expect(result.scoreboard?.status).toBe('credited');
+      expect(result.scoreboard?.standings.filter(row => row.userId === 'detached-1')).toHaveLength(1);
+      expect(result.scoreboard?.standings.find(row => row.userId === 'detached-1')).toMatchObject({ xp: expected.xp, place: expected.place });
+      for (let i = 0; i < 100; i++) round.repeat();
+      expect(testDb.select().from(schema.junoPlayerStats).where(eq(schema.junoPlayerStats.userId, 'detached-1')).get())
+        .toMatchObject({ totalXp: expected.xp, completedRounds: 1, wins: expected.place === 1 ? 1 : 0 });
+    } finally { round.dispose(); }
+  });
+
+  it('does not redirect pending awards when reattachment rolls back', async () => {
+    const round = pendingJunoRound();
+    try {
+      verifyMock.mockResolvedValue({ valid: true, homeUserId: 'new-home-1', username: 'held' });
+      testDb.insert(schema.users).values({ id: 'holder', username: 'held@orbit.test', passwordHash: 'real-hash', homeInstance: 'orbit.test', homeUserId: 'someone-else', createdAt: 1 }).run();
+      expect((await reattach('detached-1', 'youruser@orbit.test')).statusCode).toBe(409);
+      expect(testDb.select().from(schema.users).where(eq(schema.users.id, 'stub-new')).get()).toBeDefined();
+      const result = round.retry();
+      expect(result.scoreboard?.standings).toHaveLength(2);
+      expect(result.scoreboard?.standings.some(row => row.userId === 'stub-new')).toBe(true);
+    } finally { round.dispose(); }
+  });
+
+  it('never revives a merged target tombstoned before the pending retry', async () => {
+    const round = pendingJunoRound();
+    try {
+      expect((await reattach('detached-1', 'youruser@orbit.test')).statusCode).toBe(200);
+      tombstoneUser('detached-1', { purgeContent: false });
+      expect(round.retry().scoreboard?.standings.some(row => row.userId === 'detached-1')).toBe(false);
+      for (let i = 0; i < 3; i++) round.repeat();
+      expect(testDb.select().from(schema.junoPlayerStats).where(eq(schema.junoPlayerStats.userId, 'detached-1')).all()).toEqual([]);
+      expect(testDb.select().from(schema.junoRoundParticipants).where(eq(schema.junoRoundParticipants.userId, 'detached-1')).all()).toEqual([]);
+    } finally { round.dispose(); }
+  });
+
+  it('consolidates Juno round awards once per round before deleting the stub', async () => {
+    testDb.insert(schema.spaces).values({ id: 'juno-space', name: 'Juno', ownerId: 'alice', createdAt: 1 }).run();
+    for (const roundId of ['shared-round', 'stub-round']) testDb.insert(schema.junoRoundResults)
+      .values({ roundId, spaceId: 'juno-space', finishedAt: 1, scoringVersion: 1 }).run();
+    testDb.insert(schema.junoRoundParticipants).values([
+      { roundId: 'shared-round', userId: 'detached-1', place: 1, cardCount: 0, xp: 120, outcome: 'completed' },
+      { roundId: 'shared-round', userId: 'stub-new', place: 2, cardCount: 1, xp: 80, outcome: 'completed' },
+      { roundId: 'stub-round', userId: 'stub-new', place: 2, cardCount: 3, xp: 80, outcome: 'completed' },
+    ]).run();
+    testDb.insert(schema.junoPlayerStats).values([
+      { spaceId: 'juno-space', userId: 'detached-1', totalXp: 120, wins: 1, completedRounds: 1 },
+      { spaceId: 'juno-space', userId: 'stub-new', totalXp: 160, wins: 0, completedRounds: 2 },
+    ]).run();
+    expect((await reattach('detached-1', 'youruser@orbit.test')).statusCode).toBe(200);
+    expect(testDb.select().from(schema.junoPlayerStats).all()).toEqual([
+      { spaceId: 'juno-space', userId: 'detached-1', totalXp: 200, wins: 1, completedRounds: 2 },
+    ]);
+    expect(testDb.select().from(schema.junoRoundParticipants).all()).toHaveLength(2);
   });
 
   it('takes the handle the merged stub of the same identity held', async () => {

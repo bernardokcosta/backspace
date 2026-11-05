@@ -22,6 +22,7 @@ type ModalType =
   | 'groupDmSettings'
   | 'userProfile'
   | 'memberRoles'
+  | 'games'
   | null;
 
 /**

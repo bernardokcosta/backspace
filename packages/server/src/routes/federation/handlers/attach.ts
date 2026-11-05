@@ -20,6 +20,7 @@ import { keepNewerReadPointer, reconcileDmChannelFederatedId, type DmReconcileRe
 import { announceDmReconcile } from '../../../utils/dmConversationEvents.js';
 import { sendError } from '../../../utils/httpErrors.js';
 import { announceUserUpdated, claimHandleName, handleFromHint, relayHandleOf } from '../stubName.js';
+import { JUNO_ACCOUNT_MERGED_EVENT, mergeJunoProgression } from '../../../games/junoProgression.js';
 
 /** Thrown inside the re-attach transaction to roll it back when the handle is held. */
 class HandleHeldError extends Error {
@@ -230,6 +231,7 @@ export function registerAttachRoutes(app: FastifyInstance): void {
         }
         // dm_channels.owner_id (plain text column, NO FK → straight repoint).
         rawDb.prepare(`UPDATE dm_channels SET owner_id = ? WHERE owner_id = ?`).run(targetId, stubId);
+        mergeJunoProgression(db, stubId, targetId);
         rawDb.prepare(`DELETE FROM users WHERE id = ?`).run(stubId);
       }
 
@@ -292,6 +294,9 @@ export function registerAttachRoutes(app: FastifyInstance): void {
       console.warn(`[federation] Re-attach of ${detached.id} refused: account ${err.holderId} signs in with ${handle}@${homeDomain}`);
       return sendError(reply, 409, 'reattach_handle_taken');
     }
+    // Never redirect ephemeral recipients inside the transaction: a later handle
+    // conflict must roll everything back, including the right to receive XP.
+    if (existingRow) app.server.emit(JUNO_ACCOUNT_MERGED_EVENT, existingRow.id, detached.id);
     if (movedReplica) announceUserUpdated(movedReplica);
 
     // Best-effort initial profile pull (spec §3.2 step 4), applied as the

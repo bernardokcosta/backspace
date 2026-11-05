@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { JUNO_TURN_MS, canPlayJuno, type JunoAction, type JunoCard } from '@backspace/shared/src/juno.js';
+import { JUNO_TURN_MS, canPlayJuno, type JunoAction, type JunoCard, type JunoScoreboard } from '@backspace/shared/src/juno.js';
+import type { JunoSettlement } from './junoProgression.js';
 import { createJunoDeck, JunoRooms, startRound, actInRound, type JunoRound } from './juno.js';
 
 const card = (id: string, face: JunoCard['face'] = '3', color: JunoCard['color'] = 'coral'): JunoCard => ({ id, face, color });
@@ -133,5 +134,71 @@ describe('Juno rooms, privacy and lifecycle', () => {
   it('expires idle lobbies and supports disposal', () => {
     const { rooms, setTime } = setup(); setTime(15 * 60_000); rooms.tick();
     expect(rooms.read('voice', 'a').game).toBeNull(); rooms.dispose();
+  });
+});
+
+describe('Juno immutable settlement lifecycle', () => {
+  function setup() {
+    let now = 0; let failing = false;
+    const present = new Set(['a', 'b', 'c', 'd']);
+    const settle = vi.fn((input: JunoSettlement): JunoScoreboard => {
+      if (failing) throw new Error('disk unavailable');
+      return { roundId: input.roundId, status: input.result === 'emptyHand' ? 'credited' : 'unranked', standings: input.standings };
+    });
+    const rooms = new JunoRooms({ present: (_channel, id) => present.has(id), changed: () => {}, now: () => now,
+      spaceIdForChannel: () => 'space', settle });
+    rooms.command('voice', { userId: 'a', name: 'a' }, { type: 'create' });
+    const send = (id: string, action: JunoAction) => {
+      const view = rooms.read('voice', id);
+      return rooms.command('voice', { userId: id, name: id }, { ...action, gameId: view.game!.id, revision: view.revision });
+    };
+    for (const id of ['b', 'c', 'd']) send(id, { type: 'join' });
+    send('a', { type: 'start' });
+    const finish = () => {
+      for (let i = 0; i < 3000; i++) {
+        const view = rooms.read('voice', 'a').game!;
+        if (view.phase === 'finished') return view;
+        const own = rooms.read('voice', view.currentPlayerId!).game!;
+        const playable = own.hand.find(c => (!own.drawnCardId || c.id === own.drawnCardId)
+          && canPlayJuno(c, own.hand, own.topCard!, own.color!));
+        send(own.currentPlayerId!, playable ? { type: 'play', cardId: playable.id, color: 'mint', announce: true }
+          : { type: own.drawnCardId ? 'pass' : 'draw' });
+      }
+      throw new Error('round did not finish');
+    };
+    return { rooms, present, settle, send, finish, fail: (value: boolean) => { failing = value; }, advance: () => { now += 1000; } };
+  }
+  it('keeps a pre-finish departed starter as abandoned and final standings immutable', () => {
+    const { rooms, present, settle, send, finish } = setup();
+    send('d', { type: 'leave' }); const done = finish();
+    expect(done.scoreboard?.status).toBe('credited');
+    expect(done.scoreboard?.standings.find(p => p.userId === 'd')).toMatchObject({ place: null, cardCount: null, xp: 0, outcome: 'abandoned' });
+    const frozen = JSON.stringify(done.scoreboard);
+    present.delete(done.winnerId!); rooms.tick();
+    for (let i = 0; i < 100; i++) expect(JSON.stringify(rooms.read('voice', 'watcher').game!.scoreboard)).toBe(frozen);
+    expect(settle).toHaveBeenCalledTimes(1);
+  });
+  it('retains pending final state after the last person leaves and retries without replay', () => {
+    const { rooms, present, settle, send, finish, fail, advance } = setup();
+    fail(true); const done = finish();
+    expect(done.scoreboard?.status).toBe('pending');
+    expect(() => send(done.hostId, { type: 'rematch' })).toThrow('juno_invalid_move');
+    const frozen = JSON.stringify(done.scoreboard?.standings);
+    present.clear(); advance(); rooms.tick();
+    expect(rooms.read('voice', 'watcher').game?.scoreboard?.status).toBe('pending');
+    fail(false); advance(); rooms.tick();
+    expect(settle.mock.calls.at(-1)?.[0].standings).toEqual(JSON.parse(frozen));
+    expect(rooms.read('voice', 'watcher').game).toBeNull();
+  });
+  it('redirects chained pending recipients without changing the frozen placements or transferring a seat', () => {
+    const { rooms, settle, finish, fail, advance } = setup();
+    fail(true); const done = finish(); const frozen = JSON.stringify(done.scoreboard!.standings);
+    rooms.remapPendingRecipient(done.winnerId!, 'intermediate');
+    rooms.remapPendingRecipient('intermediate', 'retained');
+    expect(JSON.stringify(rooms.read('voice', 'watcher').game!.scoreboard!.standings)).toBe(frozen);
+    expect(rooms.read('voice', 'retained').game!.hand).toEqual([]);
+    fail(false); advance(); rooms.tick();
+    expect(settle.mock.calls.at(-1)?.[0].recipientIds?.get(done.winnerId!)).toBe('retained');
+    expect(rooms.read('voice', 'watcher').game!.winnerId).toBe('retained');
   });
 });

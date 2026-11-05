@@ -13,6 +13,15 @@ revision (409 `juno_stale` on conflict). No opponent hands or draw order leave
 the server. Five creates and 60 commands/minute/account, plus the existing HTTP
 limit. Full rules, payloads and lifetime limits: [juno.md](juno.md).
 
+Game people include current sanitized user/nickname data. Optional `scoreboard`
+adds immutable final places/counts/XP and `pending|credited|unranked` status; clients
+never submit awards. GET `/spaces/:spaceId/juno/ranking?limit=25&offset=0` returns
+`JunoRankingPage` (`spaceId`, `limit`, `offset`, `total`, `entries`, `me`). Current
+non-banned, non-deleted human membership is required; voice is not. Limit 1–50,
+offset 0–1,000,000, integers only; unknown fields are refused. Ranks are shared by
+equal total XP before pagination; own summary is returned even off-page. All Juno
+reads are no-store, contain no opponent faces or historical channel details.
+
 ## Diagnostics
 
 `POST /diagnostics` accepts 1–10 privacy-normalized fault events without credentials

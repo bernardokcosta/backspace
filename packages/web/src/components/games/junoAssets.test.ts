@@ -1,0 +1,30 @@
+import { describe, expect, it } from 'vitest';
+import { readFileSync, existsSync } from 'node:fs';
+import path from 'node:path';
+import { createHash } from 'node:crypto';
+import { JUNO_COLORS, type JunoFace } from '@backspace/shared/src/juno';
+import { junoCardUrl } from './junoAssets';
+
+const root = path.resolve(import.meta.dirname, '../../../public/games/juno');
+interface Manifest { files: { path: string; sha256: string; bytes: number }[] }
+describe('supplied Juno asset inventory', () => {
+  it('covers every legal face independently of opaque runtime ids', () => {
+    const faces: JunoFace[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'skip', 'reverse', 'draw2'];
+    for (const color of JUNO_COLORS) for (const face of faces) expect(existsSync(path.join(root, junoCardUrl({ id: 'not-a-path', color, face }).replace('/games/juno/', '')))).toBe(true);
+    for (const face of ['wild', 'draw4'] as const) expect(existsSync(path.join(root, junoCardUrl({ id: 'opaque', color: null, face }).replace('/games/juno/', '')))).toBe(true);
+    expect(junoCardUrl()).toBe('/games/juno/cards/back.webp');
+  });
+  it('ships 54 original faces and one back, all hashed and passive', () => {
+    const manifest = JSON.parse(readFileSync(path.join(root, 'manifest.json'), 'utf8')) as Manifest;
+    const cards = manifest.files.filter(file => file.path.startsWith('cards/'));
+    expect(cards).toHaveLength(55); expect(cards.some(f => f.path === 'cards/back.webp')).toBe(true);
+    expect(new Set(manifest.files.map(f => f.path)).size).toBe(manifest.files.length);
+    for (const file of manifest.files) {
+      expect(file.path).not.toMatch(/\.\.|preview|previa|demo|\.png$/i);
+      expect(existsSync(path.join(root, file.path))).toBe(true);
+      const data = readFileSync(path.join(root, file.path));
+      expect(data.length).toBe(file.bytes); expect(createHash('sha256').update(data).digest('hex')).toBe(file.sha256);
+      if (file.path.endsWith('.svg')) expect(data.toString()).not.toMatch(/<script|\bon\w+\s*=|(?:href|src)=["'](?:https?:|data:|javascript:)/i);
+    }
+  });
+});

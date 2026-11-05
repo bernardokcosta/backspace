@@ -2,7 +2,7 @@ import type { ChatCommandsResponse, CreateInteractionRequest, CreateInteractionR
 import type { PersonalSticker, StickerPackSummary, StickerPackDetail, StickerPackItem } from '@backspace/shared/src/stickers';
 import type { SoundboardDocument, SoundboardSettings, SoundboardSound } from '@backspace/shared/src/soundboard';
 import type { GameIconUpload } from '@backspace/shared/src/gameIcons';
-import type { JunoCommand, JunoSnapshot } from '@backspace/shared/src/juno';
+import type { JunoCommand, JunoSnapshot, JunoRankingPage } from '@backspace/shared/src/juno';
 import { isErrorCode, type ErrorCode, type ErrorDetails } from '@backspace/shared/src/errors';
 import type {
   NotificationSetting,
@@ -494,6 +494,7 @@ export class BackspaceApiClient {
   juno: {
     get: (channelId: string) => Promise<JunoSnapshot>;
     command: (channelId: string, command: JunoCommand) => Promise<JunoSnapshot>;
+    ranking: (spaceId: string, query?: { limit?: number; offset?: number }) => Promise<JunoRankingPage>;
   };
   soundboard: {
     list: (spaceId: string) => Promise<SoundboardDocument>;
@@ -620,6 +621,12 @@ export class BackspaceApiClient {
     this.juno = {
       get: (channelId) => request<JunoSnapshot>('GET', `/channels/${encodeURIComponent(channelId)}/juno`),
       command: (channelId, command) => request<JunoSnapshot>('POST', `/channels/${encodeURIComponent(channelId)}/juno`, command),
+      ranking: (spaceId, query = {}) => {
+        const params = new URLSearchParams();
+        if (query.limit !== undefined) params.set('limit', String(query.limit));
+        if (query.offset !== undefined) params.set('offset', String(query.offset));
+        return request<JunoRankingPage>('GET', `/spaces/${encodeURIComponent(spaceId)}/juno/ranking${params.size ? `?${params}` : ''}`);
+      },
     };
     this.soundboard = {
       list: (spaceId) => request<SoundboardDocument>('GET', `/spaces/${encodeURIComponent(spaceId)}/soundboard`),

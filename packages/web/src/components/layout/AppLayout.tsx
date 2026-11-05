@@ -25,6 +25,7 @@ import { GroupDmSettings } from '../modals/GroupDmSettings';
 import { UserProfileModal } from '../modals/UserProfileModal';
 import { MemberRolesModal } from '../modals/MemberRolesModal';
 import { IncomingCallModal } from '../voice/IncomingCallModal';
+import { GamesPicker } from '../games/GamesPicker';
 import { PictureInPicture } from '../voice/PictureInPicture';
 import { SoundController } from '../voice/SoundController';
 import { GlobalAudioRenderer } from '../voice/GlobalAudioRenderer';
@@ -434,6 +435,7 @@ export function AppLayout() {
         {/* MemberRolesModal is desktop-only: it opens from the profile card's
             Edit Roles, and its two-pane layout has no mobile form. */}
         <IncomingCallModal />
+        <GamesPicker />
         <ImagePreview />
         {/* PictureInPicture is desktop-only. Mobile has its own purpose-built
             voice chrome (MobileVoiceMiniBar + MobileVoiceFullScreen) mounted
@@ -491,6 +493,7 @@ export function AppLayout() {
       <UserProfileModal />
       <MemberRolesModal />
       <IncomingCallModal />
+      <GamesPicker />
       <ImagePreview />
       <PictureInPicture />
       <SoundController />

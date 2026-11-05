@@ -106,6 +106,22 @@ PK: (spaceId, userId)
 | categoryId | text | | Soft FK → channel_categories |
 | createdAt | integer NOT NULL | | |
 
+### Juno progression (0048)
+
+`juno_round_results`: `roundId` text PK, `spaceId` FK/cascade/index, nullable
+`channelId` FK/set-null, `finishedAt` integer, `scoringVersion` integer.
+`juno_round_participants`: PK (`roundId`, `userId`), round/user FKs with cascade,
+nullable place/count, nonnegative XP and completed/abandoned/unranked outcome;
+user lookup index. `juno_player_stats`: PK (`spaceId`, `userId`), space/user FKs
+with cascade, total XP/wins/completed rounds (nonnegative; rounds ≥ wins), space
+ranking index and user lookup index. No profile or private-card snapshots.
+
+The unique round marker, participant rows and arithmetic aggregate increments
+commit together in an immediate transaction. Member leave/rejoin keeps totals;
+channel deletion keeps XP; space deletion cascades it. Soft tombstones explicitly
+delete personal Juno rows; proof-authorized reattachment deduplicates participant
+awards by round and rebuilds aggregates before deleting a stub. See [juno.md](juno.md).
+
 ### messages
 | Column | Type | Notes |
 |--------|------|-------|

@@ -337,6 +337,13 @@
       "when": 1793132328667,
       "tag": "0047_game_icons",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "6",
+      "when": 1793900727944,
+      "tag": "0048_nasty_kinsey_walden",
+      "breakpoints": true
     }
   ]
 }

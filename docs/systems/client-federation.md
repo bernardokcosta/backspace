@@ -55,6 +55,12 @@ channel's hosting instance, like the soundboard. The client uses its existing
 API/WS connection and host-issued row id, never a home id or a new S2S relay.
 `ready.supportsJuno` gates the Games control per origin on mixed-version hosts.
 Private game snapshots are account/origin/channel scoped and never persisted.
+Juno XP/ranking is durable only on that host, keyed by its space and user row,
+with no global merge or S2S score relay. Ranking reads use that origin's API and
+an account/origin/space request generation; logout/target changes discard them.
+Current profiles use the canonical user view and origin-aware upload URL helpers,
+never another origin's same-id roster row. Old hosts may omit scoreboards and
+return 404 for ranking; this displays unavailable, not invented zero progression.
 
 ---
 

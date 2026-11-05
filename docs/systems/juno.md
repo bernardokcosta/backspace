@@ -2,20 +2,26 @@
 
 Juno is an original, self-hosted 2–4 player shedding-card game for **space voice
 channels**. It works in client-federated spaces through the hosting instance's
-existing authenticated connection. DMs, bots, ranking and persistence are not
-supported. No external game, card pack, image service or new dependency is used.
+existing authenticated connection. DMs and bots are not supported. Active tables
+are ephemeral; completed-round XP is durable and belongs to its hosting space.
+Supplied original artwork is served locally; no external game/image service or
+new dependency is used.
 
 ## Ownership and files
 
 - `packages/shared/src/juno.ts`: public cards, command/snapshot contracts and
   legal-card highlighting helper. It contains no hidden match state.
 - `packages/server/src/games/juno.ts`: authoritative rules and ephemeral rooms.
+- `junoStandings.ts` / `junoProgression.ts`: pure placements, atomic XP awards,
+  ranking, current sanitized profiles and proof-authorized account merges.
 - `packages/server/src/routes/juno.ts`: authenticated transport, limits, audience
   and one-second lifecycle sweep; disposed on Fastify close.
 - `packages/web/src/stores/junoStore.ts`: account/origin/channel-scoped state,
   revision and request-generation guards, pending-action/error handling.
 - `packages/web/src/components/games/`: session lifecycle, table, tile, Games
-  button, original inline SVG artwork and container-responsive styling.
+  button, focused lobby/match/result/ranking views and container-responsive styling.
+- `packages/web/public/games/juno/`: 54 distinct fronts, one back and separate
+  cosmic UI assets; hashes/source entries in `manifest.json`, provenance in README.
 
 ## Rules
 
@@ -36,6 +42,51 @@ draws two: there is no reaction-speed penalty/catching mechanic. First empty
 hand wins. The draw pile recycles the discard except its top card. If a complete
 cycle cannot draw or play anything, the round ends in a draw.
 
+## Space XP and ranking
+
+At start, the room freezes its starter roster and round UUID. On `emptyHand`,
+the winner is first and the other finishers rank by remaining count **after**
+final-card draw penalties. Places 1–4 award 120/80/40/20 XP. Ties share place/XP
+with competition ranks (`1,2,2,4`); abandoned starters have no place or XP, and do
+not reserve a rank. Spectators never receive awards. Only eligible finishers
+increment completed rounds; only the winner increments wins. `playersLeft`,
+`stalemate` and `expired` never award or increment counters.
+
+The room freezes the result before departure cleanup. One immediate SQLite
+transaction inserts the unique round marker/participant awards and increments
+space totals arithmetically. Repeated settlement returns stored awards, without
+another increment. A failure retains the same pending proposal for one-second
+retries, even after the last person leaves; rematch stays blocked until resolved.
+Pending UI never claims earned XP. A crash can lose an unconfirmed ephemeral
+result, but not a committed credit. No hands, draw order or profile snapshots are
+persisted. Generated migration `0048_nasty_kinsey_walden` adds the three Juno tables.
+
+XP combines all channels in one space, never other spaces/instances. Channel
+deletion sets the history channel FK to null; space deletion cascades history and
+totals. Leaving/kicking hides the member without deleting their progression;
+rejoining the same account restores visibility. `tombstoneUser` explicitly erases
+personal stats/participant rows, retaining the nonpersonal round key. Authorized
+reattachment merges existing awards once per round (higher award if both rows
+participated), rebuilds totals, then deletes the source stub in the same existing
+transaction. Detachment retains the host user id and therefore its progression.
+
+If credit is still pending during an authorized reattachment, the committed merge
+emits `juno:account-merged` **only on the application's HTTP-server emitter**, not
+on WebSocket or S2S. The existing Juno route redirects that round's private award
+recipients after commit; original places/counts remain frozen. Retries consolidate
+two merged starters into their higher award with one counter increment, while
+still excluding an erased target. Rolled-back merges redirect nothing. This never
+transfers a live seat/private hand; the listener is removed with the room owner.
+
+`GET /api/spaces/:spaceId/juno/ranking?limit=25&offset=0` requires a current human,
+non-deleted, non-banned member, not voice presence. Limit is 1–50; offset is an
+integer 0–1,000,000. The response is `JunoRankingPage`: `spaceId`, pagination,
+`total`, current sanitized profile/nickname rows and an independent `me` summary
+even off-page. Only members with credited completed rounds occupy rows. Equal
+total XP shares SQL `rank()` before pagination; wins descending then user id
+stabilize ties without changing rank. No-games self has rank null and zero totals.
+Responses are no-store and expose no channel participation history.
+
 Turns last 45 seconds. Expiry draws one and passes, or only passes if the player
 already drew. Responses carry `remainingMs`; the client anchors it to its local
 receipt time so client/server clock skew does not affect the countdown. The
@@ -52,7 +103,10 @@ no-store`.
 
 GET returns `{revision, game}`. A game view contains phase, host, public player
 names/counts, top card, color, direction, turn, remaining time, last public move,
-result and **only the viewer's hand**. Spectators receive `hand: []`. Neither the
+result and **only the viewer's hand**. Optional `scoreboard` has the round id,
+`pending|credited|unranked` status and final standings (`place`, count, XP, outcome).
+People include current sanitized profiles and space nicknames, not demo identities.
+Spectators receive `hand: []`. Neither the
 draw order nor opponent hands are serialized. Cards use opaque random ids.
 
 POST accepts `{type:'create'}` or a command with `gameId` and expected `revision`:
@@ -71,7 +125,10 @@ The client rejects old request generations, old revisions and responses for
 previous accounts/rooms. Five-second visible-page refresh and visibility resume
 recover missed invalidations. `ready.supportsJuno` gates support per origin;
 reconnect ready invalidates the previous snapshot, including after server restart.
-Logout and voice room changes discard private client state. Nothing is persisted.
+Logout and voice room changes discard private client state. Ranking reads are
+separately account/origin/space scoped, generation guarded and refreshed on entry
+or confirmed settlement. Permission loss clears cached ranking. An old host's
+404 means unavailable, not a fabricated empty ranking or earned XP.
 
 Per-account budgets: five creates/minute and 60 commands/minute, in addition to
 the unchanged global HTTP address budget. At most 1,000 tables. Lobby/result
@@ -86,17 +143,35 @@ membership/VIEW_CHANNEL/CONNECT removes the player on the next sweep or read/act
 Their cards return to the shuffled draw pile, and turn order is preserved in
 both directions. The first remaining player inherits hosting. Below two players
 a running round finishes without a winner. The last player leaving removes the
-table; server restart loses all tables.
+table, except a pending settlement retained for retry; server restart loses active
+tables, not committed XP.
 
-**Games** in the desktop/mobile call controls opens Juno. While a table exists,
+**Games** in the voice sidebar, desktop mosaic controls and mobile call controls
+opens the same glass game picker (currently Juno only), not the table directly.
+Opening/canceling the picker never creates/joins/leaves a game or changes the
+focused participant/table. Choosing Juno opens its existing lobby/table in the
+connected voice channel, even when viewing another text channel or DM; on mobile
+it uses the existing `voice-full` screen without duplicating the top stack entry.
+The picker validates account, origin, channel, per-origin identity and connection
+before selection and dismisses if that context changes. It contains keyboard
+focus, returns focus to the launcher on close, and consumes Escape without exiting
+the voice fullscreen view. It reuses the shared Modal fullscreen portal.
+While a table exists,
 the shared voice mosaic includes its native tile; focusing it shows the table
 with the existing participant strip. Returning to the mosaic is not leaving the
 game. Leaving a game asks for confirmation and never disconnects voice. Wild
 color choice is explicit, keyboard reachable and canceled by Escape. Legal cards
-are highlighted, colors have distinct shape marks and names, the hand scrolls
+are highlighted, active color has a written name as well as a swatch, the hand scrolls
 horizontally, and the table scrolls vertically when the call view is short.
 Container queries adapt to the actual table width, including interface scaling.
-Original coral/amber/mint/sky SVG cards use no UNO artwork or marks. Copy and
+The supplied 720:1056 card art maps coral/amber/mint/sky to red/yellow/green/blue
+without changing wire enums or card ids. Opponent fans show only backs (at most
+10 images; the exact count stays visible). The single cosmic background keeps
+all four colored corners on narrow screens. Localized real buttons overlay the
+separate supplied button art. The game palette is scoped to Juno, not app chrome.
+Winner-only victory, neutral other-player results, pending credit and space
+ranking compose inside the same table. Ranking/back/mosaic never send game moves.
+Copy and
 stable `juno_*` errors ship in all five languages under voice/errors catalogs.
 
 ## Validation
@@ -106,11 +181,16 @@ conservation across randomized rounds, private projections, stale commands,
 capacity, host succession and timeout/departure/idle cleanup. Route tests cover
 auth, membership, permissions, live voice, bots and schema refusals. Store/UI
 tests cover origin routing, response races, reset, concurrent submissions,
-spectators, wild selection and minimizing without leaving.
+spectators, wild selection, minimizing without leaving and picker navigation,
+session invalidation, focus/keyboard behavior and side-effect-free cancellation.
 
 `test/juno-e2e.test.ts` boots the actual server against unique temporary storage,
 opens five authenticated WS voice sessions, and plays a complete four-player
-round with a spectator while checking private-hand isolation. It tests real game
+round with a spectator while checking private-hand isolation, then a second voice
+channel, restart durability and independent space. The progression federation
+suite verifies host-issued identities and separate instance totals. SQLite suites
+cover rollback/retry, duplicate credits, paging/ties, erasure, merges and upgrades.
+It tests real game
 HTTP/WS and signaling, **not** LiveKit media or a four-device call. Browser visual
 checks use the actual React table with controlled fixture state; they are not
 evidence of a live media session. Acceptance details are in the Juno progress

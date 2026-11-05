@@ -30,11 +30,21 @@ Cross-references:
 ## Native games in calls
 
 `MobileVoiceFullScreen` adds the shared Games control for supported space voice
-sessions. Juno uses the same `VoiceGrid` tile/focus pipeline and interactive
+sessions. It opens the shared glass game picker as a bottom sheet (currently
+Juno only); opening/canceling does not enter a game. Choosing Juno uses the
+existing `voice-full` screen without duplicating its top stack entry. The picker
+dismisses on call/account/origin changes. Juno uses the same `VoiceGrid` tile/focus
+pipeline and interactive
 `JunoTable` as desktop, not an iframe or a new mobile screen stack. The table's
 container queries adapt player rows and cards to its available width; hand and
 table scrolling stay inside the call view. Minimizing the call/game leaves the
 global JunoSession sync active. DM calls do not expose Games. See [juno.md](juno.md).
+The cosmic Juno views retain the supplied background's four corners, stack the
+table seats/piles for narrow containers and cap opponent back fans without hiding
+counts. The face-up hand scrolls horizontally, short tables vertically; ranking
+and results reuse the same surface and do not add mobile navigation entries or
+leave voice. Wild-color/leave confirmation consume Escape locally and restore
+focus. Large hands and interface scaling use container, not window, breakpoints.
 
 ---
 
