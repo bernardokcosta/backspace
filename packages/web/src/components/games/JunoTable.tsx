@@ -28,7 +28,8 @@ export function JunoTable() {
         <details className="juno-rules" onKeyDown={event => { if (event.key === 'Escape') {
           event.preventDefault(); event.stopPropagation(); event.currentTarget.open = false; event.currentTarget.querySelector('summary')?.focus();
         } }}><summary title={t('juno.rules')}><span aria-hidden="true">?</span><span className="sr-only">{t('juno.rules')}</span></summary>
-          <div className="juno-rules-content glass"><p>{t('juno.rulesText')}</p><p>{t('juno.scoreRules')}</p><p>{t('juno.practiceHint')}</p></div>
+          <div className="juno-rules-content glass"><p>{t('juno.rulesText')}</p>
+            <p>{t(game?.supportsReports ? 'juno.reportRules' : 'juno.legacyJunoRules')}</p><p>{t('juno.scoreRules')}</p><p>{t('juno.practiceHint')}</p></div>
         </details>
         {!rankingOpen && game && game.phase !== 'lobby' && <button type="button" className="juno-text-button" aria-label={t('juno.rankingTitle')} title={t('juno.rankingTitle')} onClick={() => setRankingContext(context)}>
           <svg className="juno-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M4 20V12h4v8m2 0V5h4v15m2 0v-9h4v9" /></svg><span className="juno-action-label">{t('juno.rankingTitle')}</span></button>}

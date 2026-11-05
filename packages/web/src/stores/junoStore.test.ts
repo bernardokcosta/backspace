@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { JunoRankingPage, JunoSnapshot } from '@backspace/shared/src/juno';
-import { junoRanking } from '../components/games/junoTestFixtures';
+import { junoGame, junoRanking } from '../components/games/junoTestFixtures';
 import { HttpError } from '../api/client';
 const api = vi.hoisted(() => ({ get: vi.fn(), command: vi.fn(), ranking: vi.fn() }));
 const resolve = vi.hoisted(() => vi.fn(() => ({ juno: api })));
@@ -55,6 +55,20 @@ describe('Juno session state', () => {
   it('does not act while the voice connection is reconnecting', async () => {
     useJunoStore.getState().bind(target, false); await useJunoStore.getState().command({ type: 'create' });
     expect(api.command).not.toHaveBeenCalled();
+  });
+  it('routes a stale report to its origin once and reconciles without replaying the accusation', async () => {
+    const game = junoGame('playing'); game.supportsReports = true;
+    game.reportOpportunities = [{ id: 'miss-1', targetUserId: 'host-opponent', remainingMs: 1000 }];
+    useJunoStore.setState({ snapshot: { revision: 4, game } });
+    api.command.mockRejectedValueOnce(new HttpError(409, 'stale'));
+    api.get.mockResolvedValueOnce({ revision: 5, game: { ...game, reportOpportunities: [] } });
+    await useJunoStore.getState().command({ type: 'report', targetUserId: 'host-opponent', opportunityId: 'miss-1' });
+    expect(resolve).toHaveBeenCalledWith(target.origin);
+    expect(api.command).toHaveBeenCalledTimes(1);
+    expect(api.command).toHaveBeenCalledWith('voice', { type: 'report', targetUserId: 'host-opponent', opportunityId: 'miss-1', gameId: game.id, revision: 4 });
+    expect(api.get).toHaveBeenCalledTimes(1); expect(useJunoStore.getState().snapshot?.revision).toBe(5);
+    expect(useJunoStore.getState().snapshot?.game?.reportOpportunities).toEqual([]);
+    expect(useJunoStore.getState().pending).toBe(false);
   });
   it('still clears a confirmed view when a subsequent current read is refused', async () => {
     const denied = new Error('Permission revoked');

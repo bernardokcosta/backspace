@@ -7,6 +7,10 @@ Juno result/XP/ranking/loading/unavailable text and win/round plurals use the sa
 five catalogs. Wire colors stay coral/amber/mint/sky, but their translated labels
 are red/yellow/green/blue to match the supplied original art. Button/score labels
 are real localized DOM text, not baked-in Portuguese preview text.
+Missed-JUNO reports use the same catalogs for action/target, relative remaining
+seconds and confirmed reporter/target/actual draw. Rules select reporting versus
+legacy automatic-penalty text from the hosting game's optional supportsReports
+capability; translations must not claim a rule that the remote host lacks.
 
 Soundboard playback refusals distinguish missing/reconnecting voice ownership,
 moderation/permission mute and deafen with three stable error codes and text in

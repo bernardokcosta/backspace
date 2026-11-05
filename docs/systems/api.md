@@ -8,7 +8,8 @@ Source files: `packages/server/src/routes/*.ts`
 GET/POST `/channels/:channelId/juno` return a private `JunoSnapshot`. They require
 an authenticated human member with VIEW_CHANNEL + CONNECT and a live voice-owning
 socket in that space channel. Commands are `create`, `join`, `leave`, `start`,
-`rematch`, `draw`, `pass`, `play`, `announce`, `addBot`, `removeBot` (`botId` required);
+`rematch`, `draw`, `pass`, `play`, `announce`, `addBot`, `removeBot` (`botId` required),
+`report` (`targetUserId`, `opportunityId` required);
 non-create commands name the table and expected
 revision (409 `juno_stale` on conflict). No opponent hands or draw order leave
 the server. Five creates and 60 commands/minute/account, plus the existing HTTP
@@ -30,6 +31,16 @@ wins or completed-round increments for everyone. A private computer hand is neve
 returned even when its id is used as viewer. `announce` confirms a two-card JUNO
 call on the actor's turn without extending time; existing play.announce still works.
 Optional lastMove.id remains stable across polls for non-replaying visual effects.
+`supportsReports` advertises explicit missed-JUNO reporting. Public
+`reportOpportunities: {id,targetUserId,remainingMs}[]` expose at most one window
+per seated player, never hands/deck. Other seated humans may report out of turn
+before ten seconds elapse; the first valid report draws two (or available cards),
+without moving/extending the turn. Self/spectator/computer reporters and stale/
+duplicate/expired ids are refused. Silence expires without a penalty. Cards gained,
+departure or immediate round completion cancel the window. Reporter identity is
+the authenticated host row, not request data; normal voice/revision/budget gates
+apply. Confirmed report moves add targetUserId and actual amount. Older hosts omit
+the capability and keep their legacy automatic-penalty rule/UI copy.
 
 ## Diagnostics
 

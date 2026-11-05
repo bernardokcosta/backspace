@@ -60,6 +60,11 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
 .juno-orbit { position: absolute; width: 84%; height: 64%; left: 8%; bottom: 3%; object-fit: fill; pointer-events: none; opacity: .7; }
 .juno-seat { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
 .juno-seat > .juno-player-badge { width: min(200px, 100%); }
+.juno-arena:has(.juno-report) { grid-template-rows: minmax(80px, 29%) minmax(0, 1fr); }
+.juno-report { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 28px; max-width: 100%; padding: 3px 8px; border-radius: 12px; color: #ffce29; font-size: 11px; font-weight: 700; }
+.juno-report:hover:not(:disabled) { color: #fff; background: #754427; }
+.juno-report svg { flex-shrink: 0; }
+.juno-report-time { font-variant-numeric: tabular-nums; }
 .juno-seat-top { grid-column: 2; grid-row: 1; }
 .juno-seat-left { grid-column: 1; grid-row: 2; }
 .juno-seat-right { grid-column: 3; grid-row: 2; }
@@ -154,6 +159,7 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
 @container juno-focus (max-height: 500px) { .juno-focus-strip { height: 64px; min-height: 48px; } }
 @container juno-focus (max-height: 340px) { .juno-focus-strip, .juno-focus-toggle { display: none; } }
 @container (max-width: 540px) {
+  .juno-report-label { display: none; }
   .juno-header-logo { width: 48px; }
   .juno-text-button { padding: 5px 7px; font-size: 11px; }
   .juno-header, .juno-header-actions { gap: 3px; }
@@ -192,6 +198,11 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
   .juno-action-label { display: none; }
 }
 @container (max-height: 340px) {
+  .juno-report-label { display: none; }
+  .juno-report { padding: 2px 5px; gap: 3px; }
+  .juno-seat:has(> .juno-report) { flex-direction: row; gap: 4px; }
+  .juno-seat:has(> .juno-report) > .juno-player-badge { width: auto; flex: 1; }
+  .juno-seat > .juno-report { flex-shrink: 0; }
   .juno-main-logo { display: none; }
   .juno-lobby { gap: 4px; }
   .juno-seat-empty { min-height: 44px; }
@@ -205,6 +216,7 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
   .juno-player-copy > span { font-size: 10px; }
   .juno-match { display: grid; grid-template-columns: minmax(0, 1fr) minmax(110px, 40%); grid-template-rows: minmax(0, 1fr) 64px; gap: 4px; }
   .juno-arena { grid-column: 1 / -1; grid-row: 1; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: 32px minmax(0, 1fr); gap: 4px; }
+  .juno-arena:has(.juno-report) { grid-template-rows: 32px minmax(0, 1fr); }
   .juno-seat-left { grid-column: 1; grid-row: 1; }
   .juno-seat-top { grid-column: 2; grid-row: 1; }
   .juno-seat-right { grid-column: 3; grid-row: 1; }
@@ -242,6 +254,11 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
   .juno-place img { height: 22px; width: 20px; }
   .juno-result-actions button, .juno-menu-actions button { min-height: 34px; padding: 5px 10px; }
   .juno-rules-content { top: 40px; }
+}
+@container (max-height: 340px) and (max-width: 420px) {
+  .juno-arena:has(.juno-report) { grid-template-rows: 64px minmax(0, 1fr); }
+  .juno-seat:has(> .juno-report) { flex-direction: column; gap: 2px; }
+  .juno-seat:has(> .juno-report) > .juno-player-badge { width: 100%; flex: initial; }
 }
 @keyframes juno-turn-beacon { 50% { opacity: .35; } }
 @keyframes juno-card-flight { from { opacity: .1; transform: translate(calc(-50% + var(--from-x)), calc(-50% + var(--from-y))) rotate(-25deg) scale(.6); } 75% { opacity: 1; } to { opacity: 0; transform: translate(-50%, -50%) rotate(-5deg); } }

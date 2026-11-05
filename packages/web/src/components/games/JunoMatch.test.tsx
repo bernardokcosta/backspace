@@ -1,11 +1,12 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useJunoStore } from '../../stores/junoStore';
 import { JunoMatch } from './JunoMatch';
 import { junoGame } from './junoTestFixtures';
 vi.mock('../../audio/AudioManager', () => ({ AudioManager: { getInstance: () => ({}) } }));
 const command = vi.fn(async () => {});
+afterEach(() => vi.useRealTimers());
 beforeEach(() => {
   command.mockClear(); useJunoStore.getState().reset();
   useJunoStore.getState().bind({ accountId: 'a', selfId: 'a', origin: '', channelId: 'voice' }, true);
@@ -65,5 +66,45 @@ describe('Juno cosmic interactive match', () => {
     render(<JunoMatch />); expect(screen.queryByRole('group', { name: 'Your hand' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Draw pile' })).not.toBeInTheDocument();
     expect(screen.getByText(/you’re watching/i)).toBeInTheDocument();
+  });
+  it('reports another player outside its own turn without optimistic penalty feedback', async () => {
+    const game = junoGame('playing'); game.supportsReports = true; game.currentPlayerId = 'b'; game.players[1]!.cardCount = 1;
+    game.reportOpportunities = [{ id: 'miss-1', targetUserId: 'b', remainingMs: 10_000 }];
+    useJunoStore.setState({ snapshot: { revision: 2, game } });
+    const { container } = render(<JunoMatch />);
+    const button = screen.getByRole('button', { name: /report bo/i });
+    expect(button).toHaveTextContent('10'); await userEvent.click(button);
+    expect(command).toHaveBeenCalledWith({ type: 'report', targetUserId: 'b', opportunityId: 'miss-1' });
+    expect(container.querySelector('.juno-effect-draw')).toBeNull();
+    expect(screen.getByText('1 card')).toBeInTheDocument();
+  });
+  it('anchors the report countdown to receipt time and disables expired or pending actions', () => {
+    vi.useFakeTimers(); vi.setSystemTime(900_000);
+    const game = junoGame('playing'); game.supportsReports = true; game.players[1]!.cardCount = 1;
+    game.reportOpportunities = [{ id: 'miss-2', targetUserId: 'b', remainingMs: 3000 }];
+    useJunoStore.setState({ snapshot: { revision: 3, game }, observedAt: Date.now() }); render(<JunoMatch />);
+    const button = screen.getByRole('button', { name: /report bo/i }); expect(button).toBeEnabled();
+    act(() => vi.advanceTimersByTime(2000)); expect(button).toHaveTextContent('1');
+    act(() => useJunoStore.setState({ pending: true })); expect(button).toBeDisabled();
+    act(() => useJunoStore.setState({ pending: false }));
+    act(() => vi.advanceTimersByTime(1000)); expect(button).toBeDisabled();
+    fireEvent.click(button); expect(command).not.toHaveBeenCalled();
+  });
+  it.each(['old-host', 'self', 'spectator', 'disconnected'])('does not allow reporting as %s', mode => {
+    const game = junoGame('playing'); game.supportsReports = mode !== 'old-host'; game.players[1]!.cardCount = 1;
+    game.reportOpportunities = [{ id: 'miss', targetUserId: mode === 'self' ? 'a' : 'b', remainingMs: 1000 }];
+    useJunoStore.setState({ snapshot: { revision: 4, game }, connected: mode !== 'disconnected',
+      ...(mode === 'spectator' ? { target: { accountId: 'w', selfId: 'w', origin: '', channelId: 'voice' } } : {}) });
+    render(<JunoMatch />);
+    if (mode === 'disconnected') expect(screen.getByRole('button', { name: /report bo/i })).toBeDisabled();
+    else expect(screen.queryByRole('button', { name: /report .*juno/i })).not.toBeInTheDocument();
+  });
+  it('announces a confirmed report with both names and anchors drawing to its target', () => {
+    const game = junoGame('playing'); useJunoStore.setState({ snapshot: { revision: 4, game } });
+    const { container } = render(<JunoMatch />);
+    act(() => useJunoStore.setState({ snapshot: { revision: 5, game: { ...game,
+      lastMove: { id: 'report-1', type: 'report', userId: 'a', targetUserId: 'b', amount: 2 } } } }));
+    expect(screen.getByRole('status', { name: /report/i })).toHaveTextContent(/ada.*bo.*2/i);
+    expect(container.querySelector('.juno-effect-draw')).toHaveAttribute('data-from', 'top');
   });
 });

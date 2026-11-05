@@ -53,4 +53,12 @@ describe('Juno native table', () => {
     render(<JunoTable />); expect(screen.getByText(/you’re watching/i)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^draw one/i })).not.toBeInTheDocument();
   });
+  it('shows report rules only for a capable host, retaining legacy host rules', async () => {
+    const current = game('playing');
+    useJunoStore.setState({ snapshot: { revision: 1, game: current } }); render(<JunoTable />);
+    expect(screen.getByText(/otherwise you draw two/i)).toBeInTheDocument();
+    useJunoStore.setState({ snapshot: { revision: 2, game: { ...current, supportsReports: true } } });
+    expect(await screen.findByText(/another player.*10 seconds/i)).toBeInTheDocument();
+    expect(screen.queryByText(/otherwise you draw two/i)).not.toBeInTheDocument();
+  });
 });

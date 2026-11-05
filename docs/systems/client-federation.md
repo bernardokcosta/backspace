@@ -66,6 +66,12 @@ actions on mixed-version hosts. Missing bot support hides those controls; missin
 announcement support retains the existing play.announce path behind the JUNO
 button. Computer seats are host-owned ephemeral game ids, never federated user
 identities; their practice rounds cannot affect any instance's ranking.
+Optional `supportsReports` similarly gates reporting and matching rules. Commands
+carry host-issued `targetUserId` and an opaque opportunity id through the existing
+origin client; the authenticated host row supplies the reporter. Report time is
+relative to snapshot receipt, not a home/client absolute timestamp. Missing
+capability preserves older hosts' automatic-penalty rule without unsupported
+commands. Reports introduce no S2S event or global identity.
 
 ---
 

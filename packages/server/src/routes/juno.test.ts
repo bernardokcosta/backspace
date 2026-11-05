@@ -62,6 +62,10 @@ describe('Juno authorized transport', () => {
       { type: 'join' }, { type: 'create', xp: 999 }, { type: 'create', userId: 'fake' },
       { type: 'create', recipientIds: { 'remote-row': 'someone-else' } },
       { type: 'create', computer: 1 }, { type: 'removeBot', gameId: 'x', revision: 1 },
+      { type: 'report', gameId: 'x', revision: 1, targetUserId: 'someone' },
+      { type: 'report', gameId: 'x', revision: 1, opportunityId: 'window' },
+      { type: 'report', gameId: 'x', revision: 1, targetUserId: 'someone', opportunityId: 'x'.repeat(65) },
+      { type: 'report', gameId: 'x', revision: 1, targetUserId: 'someone', opportunityId: 'window', reporterId: 'fake' },
       { type: 'play', gameId: 'x', revision: 1, cardId: 'x', color: 'purple' }]) {
       expect((await app.inject({ method: 'POST', url, headers, payload })).statusCode).toBe(400);
     }
@@ -79,5 +83,16 @@ describe('Juno authorized transport', () => {
     state.socket = 3; expect((await send({ type: 'removeBot', botId: bot.userId })).statusCode).toBe(403); state.socket = 1;
     snapshot = (await send({ type: 'removeBot', botId: bot.userId })).json<JunoSnapshot>();
     expect(snapshot.game!.players).toHaveLength(1); expect(snapshot.game!.practice).toBe(false);
+  });
+  it('accepts bounded report ids using only the authenticated host-instance reporter', async () => {
+    const snapshot = (await create()).json<JunoSnapshot>();
+    const command = vi.spyOn(JunoRooms.prototype, 'command').mockReturnValue(snapshot);
+    try {
+      const payload = { type: 'report', gameId: snapshot.game!.id, revision: snapshot.revision, targetUserId: 'opponent', opportunityId: 'miss-1' };
+      expect((await app.inject({ method: 'POST', url, headers, payload })).statusCode).toBe(200);
+      expect(command).toHaveBeenCalledWith('voice', { userId: 'remote-row', name: 'Alice' }, payload);
+      state.room = 'other'; expect((await app.inject({ method: 'POST', url, headers, payload })).statusCode).toBe(403);
+      expect(command).toHaveBeenCalledTimes(1);
+    } finally { command.mockRestore(); }
   });
 });

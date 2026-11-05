@@ -1,5 +1,5 @@
 import { randomInt, randomUUID } from 'node:crypto';
-import { JUNO_COLORS, JUNO_TURN_MS, canPlayJuno, type JunoAction, type JunoCard,
+import { JUNO_COLORS, JUNO_TURN_MS, JUNO_REPORT_MS, canPlayJuno, type JunoAction, type JunoCard,
   type JunoColor, type JunoCommand, type JunoMove, type JunoPerson, type JunoSnapshot, type JunoView, type JunoScoreboard } from '@backspace/shared/src/juno.js';
 import { buildJunoStandings } from './junoStandings.js';
 import type { JunoSettlement } from './junoProgression.js';
@@ -38,6 +38,7 @@ export interface JunoRound {
   result: JunoView['result'];
   lastMove: JunoMove | null;
   blockedTurns: number;
+  reportWindows: { id: string; targetUserId: string; deadline: number }[];
 }
 export function startRound(people: JunoPerson[], now: number): JunoRound {
   const deck = createJunoDeck(); shuffle(deck);
@@ -46,7 +47,13 @@ export function startRound(people: JunoPerson[], now: number): JunoRound {
   const top = deck.splice(first, 1)[0]!;
   return { players, drawPile: deck, discard: [top], color: top.color!, direction: 1, turn: 0,
     drawnCardId: null, deadline: now + JUNO_TURN_MS, winnerId: null, result: null,
-    lastMove: { type: 'start', userId: players[0]!.userId }, blockedTurns: 0 };
+    lastMove: { type: 'start', userId: players[0]!.userId }, blockedTurns: 0, reportWindows: [] };
+}
+function pruneReports(round: JunoRound, now: number): boolean {
+  const before = round.reportWindows.length;
+  round.reportWindows = round.reportWindows.filter(window => !round.result && now < window.deadline
+    && round.players.some(p => p.userId === window.targetUserId && p.hand.length === 1 && !p.announced));
+  return before !== round.reportWindows.length;
 }
 function nextIndex(round: JunoRound, steps = 1): number {
   return ((round.turn + round.direction * steps) % round.players.length + round.players.length) % round.players.length;
@@ -63,11 +70,26 @@ function drawCards(round: JunoRound, player: Player, amount: number): JunoCard[]
     const card = round.drawPile.pop(); if (!card) break;
     player.hand.push(card); drawn.push(card);
   }
-  if (drawn.length) { player.announced = false; round.blockedTurns = 0; }
+  if (drawn.length) {
+    player.announced = false; round.blockedTurns = 0;
+    round.reportWindows = round.reportWindows.filter(window => window.targetUserId !== player.userId);
+  }
   return drawn;
 }
 export function actInRound(round: JunoRound, userId: string, action: JunoAction, now: number): void {
   if (round.result) refuse('juno_invalid_move');
+  if (action.type === 'report') {
+    const reporter = round.players.find(p => p.userId === userId);
+    if (!reporter || reporter.computer) refuse('juno_player_required');
+    const window = round.reportWindows.find(w => w.id === action.opportunityId && w.targetUserId === action.targetUserId);
+    const target = round.players.find(p => p.userId === action.targetUserId);
+    if (userId === action.targetUserId || !window || now >= window.deadline || !target
+      || target.hand.length !== 1 || target.announced) refuse('juno_invalid_move');
+    round.reportWindows = round.reportWindows.filter(w => w.id !== window.id);
+    const amount = drawCards(round, target, 2).length;
+    round.lastMove = { type: 'report', userId, targetUserId: target.userId, amount };
+    pruneReports(round, now); return;
+  }
   const player = round.players[round.turn]!;
   if (player.userId !== userId) refuse('juno_not_your_turn');
   if (action.type === 'announce') {
@@ -85,11 +107,11 @@ export function actInRound(round: JunoRound, userId: string, action: JunoAction,
     }
     if (drawn && canPlayJuno(drawn, player.hand, top, round.color)) round.drawnCardId = drawn.id;
     else advance(round, now);
-    return;
+    pruneReports(round, now); return;
   }
   if (action.type === 'pass') {
     if (!round.drawnCardId) refuse('juno_invalid_move');
-    round.lastMove = { type: 'pass', userId }; advance(round, now); return;
+    round.lastMove = { type: 'pass', userId }; advance(round, now); pruneReports(round, now); return;
   }
   if (action.type !== 'play') refuse('juno_invalid_move');
   const index = player.hand.findIndex(card => card.id === action.cardId);
@@ -100,17 +122,20 @@ export function actInRound(round: JunoRound, userId: string, action: JunoAction,
   player.hand.splice(index, 1); round.discard.push(card);
   round.color = card.color ?? action.color!; round.blockedTurns = 0;
   player.announced = player.hand.length === 1 && (action.announce === true || player.announced);
-  let penalty = 0;
-  if (player.hand.length === 1 && !player.announced) penalty = drawCards(round, player, 2).length;
+  round.reportWindows = round.reportWindows.filter(w => w.targetUserId !== userId);
+  if (player.hand.length === 1 && !player.announced) {
+    round.reportWindows.push({ id: randomUUID(), targetUserId: userId, deadline: now + JUNO_REPORT_MS });
+  }
   let steps = 1;
   if (card.face === 'reverse') { round.direction = round.direction === 1 ? -1 : 1; if (round.players.length === 2) steps = 2; }
   if (card.face === 'skip') steps = 2;
   if (card.face === 'draw2' || card.face === 'draw4') {
     drawCards(round, round.players[nextIndex(round)]!, card.face === 'draw2' ? 2 : 4); steps = 2;
   }
-  round.lastMove = { type: 'play', userId, card: { ...card }, amount: penalty, announced: player.announced };
+  round.lastMove = { type: 'play', userId, card: { ...card }, announced: player.announced };
   if (player.hand.length === 0) { round.winnerId = userId; round.result = 'emptyHand'; }
   advance(round, now, steps);
+  pruneReports(round, now);
 }
 
 interface Table {
@@ -143,6 +168,7 @@ export class JunoRooms {
   }
   private complete(channelId: string, table: Table): void {
     const round = table.round;
+    if (round?.result) round.reportWindows = [];
     if (round?.result && table.starters.some(p => p.computer)) {
       if (!table.scoreboard) table.scoreboard = { roundId: table.id, status: 'unranked',
         standings: buildJunoStandings(table.starters, round.players.map(p => ({ userId: p.userId, cardCount: p.hand.length })), round.winnerId, round.result)
@@ -187,6 +213,7 @@ export class JunoRooms {
         round.blockedTurns = 0;
         round.lastMove = { type: 'leave', userId };
         if (!round.result && round.players.length < 2) { round.result = 'playersLeft'; round.winnerId = null; }
+        pruneReports(round, this.now());
       }
     }
     this.complete(channelId, table);
@@ -195,6 +222,7 @@ export class JunoRooms {
   private settle(channelId: string): void {
     const table = this.tables.get(channelId); if (!table) return;
     const now = this.now();
+    if (table.round && pruneReports(table.round, now)) this.changed(channelId, table);
     this.complete(channelId, table);
     for (const person of [...table.people]) {
       if (!person.computer && !this.options.present(channelId, person.userId)) this.remove(channelId, table, person.userId);
@@ -267,6 +295,8 @@ export class JunoRooms {
       winnerId: round?.winnerId ? table.settlement?.recipientIds?.get(round.winnerId) ?? round.winnerId : null, result: round?.result ?? null,
       lastMove: round?.lastMove ? { ...round.lastMove, ...(round.lastMove.card ? { card: { ...round.lastMove.card } } : {}) } : null,
       supportsBots: true, supportsAnnounce: true, practice: (round ? table.starters : table.people).some(p => !!p.computer),
+      supportsReports: true, reportOpportunities: round?.reportWindows.map(window => ({ id: window.id,
+        targetUserId: window.targetUserId, remainingMs: Math.max(0, window.deadline - this.now()) })) ?? [],
       ...(table.scoreboard ? { scoreboard: { ...table.scoreboard, standings: table.scoreboard.standings.map(p => ({ ...p })) } } : {}),
     } };
   }

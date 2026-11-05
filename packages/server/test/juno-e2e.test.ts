@@ -29,14 +29,35 @@ async function act(user: TestUser, action: JunoAction | { type: 'create' }): Pro
   const res = await call(user, 'POST', `/api/channels/${channelId}/juno`, body);
   expect(res.status, await res.clone().text()).toBe(200); return res.json() as Promise<JunoSnapshot>;
 }
-async function finishRound(snapshot: JunoSnapshot): Promise<JunoSnapshot> {
+async function finishRound(snapshot: JunoSnapshot, testReport = false): Promise<JunoSnapshot> {
+  let reported = false;
   for (let step = 0; step < 1_000 && snapshot.game!.phase === 'playing'; step++) {
     const user = users.find(u => u.id === snapshot.game!.currentPlayerId)!;
     const own = (await read(user)).game!;
     const playable = own.hand.find(card => (!own.drawnCardId || own.drawnCardId === card.id) && canPlayJuno(card, own.hand, own.topCard!, own.color!));
-    snapshot = await act(user, playable ? { type: 'play', cardId: playable.id, color: 'mint', announce: true }
+    const miss = testReport && !reported && own.hand.length === 2 && !!playable;
+    snapshot = await act(user, playable ? { type: 'play', cardId: playable.id, color: 'mint', announce: !miss }
       : { type: own.drawnCardId ? 'pass' : 'draw' });
+    if (miss) {
+      const opportunity = snapshot.game!.reportOpportunities!.find(w => w.targetUserId === user.id)!;
+      expect(opportunity).toBeTruthy(); expect(snapshot.game!.hand).toHaveLength(1);
+      const reporter = users.find(u => u.id !== user.id && u.id !== snapshot.game!.currentPlayerId && snapshot.game!.players.some(p => p.userId === u.id))!;
+      const before = (await read(reporter)).game!;
+      const action: JunoAction = { type: 'report', targetUserId: user.id, opportunityId: opportunity.id };
+      const spectator = await read(users[4]!);
+      expect((await call(users[4]!, 'POST', `/api/channels/${channelId}/juno`, { ...action, gameId: spectator.game!.id, revision: spectator.revision })).status).toBe(400);
+      snapshot = await act(reporter, action);
+      expect((await read(user)).game!.hand).toHaveLength(3);
+      expect(snapshot.game!.lastMove).toMatchObject({ type: 'report', userId: reporter.id, targetUserId: user.id, amount: 2 });
+      expect(snapshot.game!.currentPlayerId).toBe(before.currentPlayerId);
+      expect(snapshot.game!.remainingMs).toBeLessThanOrEqual(before.remainingMs);
+      const privateCards = (await read(user)).game!.hand;
+      for (const card of privateCards) expect(JSON.stringify(snapshot)).not.toContain(card.id);
+      expect((await call(reporter, 'POST', `/api/channels/${channelId}/juno`, { ...action, gameId: snapshot.game!.id, revision: snapshot.revision })).status).toBe(400);
+      reported = true;
+    }
   }
+  if (testReport) expect(reported).toBe(true);
   return snapshot;
 }
 beforeAll(async () => {
@@ -77,7 +98,7 @@ describe('real Juno server with four independently authenticated voice sockets',
       expect(views[i]!.game!.hand).toHaveLength(7);
       for (let j = 0; j < 5; j++) if (i !== j) for (const card of views[i]!.game!.hand) expect(JSON.stringify(views[j])).not.toContain(card.id);
     }
-    const snapshot = await finishRound(views[0]!);
+    const snapshot = await finishRound(views[0]!, true);
     expect(snapshot.game!.phase).toBe('finished'); expect(snapshot.game!.winnerId).toBeTruthy();
     expect(sockets.every(ws => ws.events.some(e => e.type === 'juno_updated'))).toBe(true);
     for (const ws of sockets) for (const event of ws.events.filter(e => e.type === 'juno_updated')) expect(Object.keys(event).sort()).toEqual(['channelId', 'type']);

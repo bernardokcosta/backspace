@@ -26,4 +26,13 @@ describe('confirmed Juno feedback', () => {
     expect(container.querySelector('.juno-effect-card img')).toHaveAttribute('src', '/games/juno/cards/draw4.webp');
     expect(container.querySelector('.juno-effect-special')).toHaveTextContent('+4');
   });
+  it('animates only a confirmed report with the actual positive draw amount', () => {
+    const { container, rerender } = render(<JunoEffects move={null} position="left" name="Bo" />);
+    const move = { id: 'report', type: 'report' as const, userId: 'a', targetUserId: 'b', amount: 2 };
+    rerender(<JunoEffects move={move} position="left" name="Bo" />);
+    expect(container.querySelector('.juno-effect-draw')).toHaveAttribute('data-from', 'left');
+    expect(container.querySelector('.juno-effect-special')).toHaveTextContent('+2');
+    rerender(<JunoEffects move={{ ...move, id: 'empty', amount: 0 }} position="left" name="Bo" />);
+    expect(container.querySelector('.juno-effect-draw')).toBeNull();
+  });
 });

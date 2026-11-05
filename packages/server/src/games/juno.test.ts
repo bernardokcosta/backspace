@@ -9,7 +9,7 @@ function round(count = 3): JunoRound {
     players: Array.from({ length: count }, (_, i) => ({ userId: String(i), name: String(i), hand: [card(`a${i}`), card(`b${i}`, '5', 'sky'), card(`c${i}`, '8', 'mint')], announced: false })),
     drawPile: Array.from({ length: 30 }, (_, i) => card(`d${i}`, '9', 'amber')),
     discard: [card('top')], color: 'coral', direction: 1, turn: 0, drawnCardId: null,
-    deadline: 45_000, winnerId: null, result: null, lastMove: null, blockedTurns: 0,
+    deadline: 45_000, winnerId: null, result: null, lastMove: null, blockedTurns: 0, reportWindows: [],
   };
 }
 describe('Juno authoritative rules', () => {
@@ -58,10 +58,10 @@ describe('Juno authoritative rules', () => {
   it('automatically passes after drawing an unplayable card', () => {
     const state = round(); actInRound(state, '0', { type: 'draw' }, 0); expect(state.turn).toBe(1);
   });
-  it.each([true, false])('announcing Juno = %s controls the two-card penalty', announce => {
+  it.each([true, false])('announcing Juno = %s never automatically draws a missed-call penalty', announce => {
     const state = round(); state.players[0]!.hand.pop();
     actInRound(state, '0', { type: 'play', cardId: 'a0', announce }, 0);
-    expect(state.players[0]!.hand).toHaveLength(announce ? 1 : 3);
+    expect(state.players[0]!.hand).toHaveLength(1);
     expect(state.players[0]!.announced).toBe(announce);
   });
   it('confirms an explicit JUNO call without extending the turn and honors it on the next play', () => {

@@ -3,6 +3,10 @@
     "addBot": "Computergegner hinzufügen", "removeBot": "Computergegner {{name}} entfernen", "botName": "Juno-Bot {{number}}",
     "practice": "Training", "practiceHint": "Runden mit Computergegnern sind Training: keine XP, Siege oder Ranglistenrunden.",
     "nextTurn": "Nächster Spieler", "turnTime": "Verbleibende Zugzeit", "announcedBy": "{{name}} ruft JUNO!",
+    "report": "Melden", "reportPlayer": "{{name}} wegen fehlendem JUNO melden", "reportTime": "Noch {{seconds}} Sekunden zum Melden",
+    "reportConfirmed": "{{reporter}} hat {{target}} wegen fehlendem JUNO gemeldet: +{{amount}}.",
+    "legacyJunoRules": "Mit zwei Karten vor dem Ablegen die JUNO-Taste drücken, sonst zwei Strafkarten ziehen.",
+    "reportRules": "Mit zwei Karten vor dem Ablegen auf eine Karte JUNO drücken. Wer es vergisst, kann innerhalb von 10 Sekunden von einem anderen Mitspieler gemeldet werden und zieht dann zwei Karten. Ohne Meldung keine Strafe. Das Spiel läuft weiter; zusätzliche Karten, Verlassen oder Rundenende schließen das Zeitfenster. Computer melden nicht automatisch.",
     "rankingTitle": "Bereichsrangliste", "spaceRanking": "Rangliste · {{space}}", "roundResults": "Rundenergebnis", "victory": "Sieg!",
     "xpEarned": "+{{xp}} XP erhalten", "totalXp": "Gesamte XP", "rank": "Platz", "noRank": "Noch nicht platziert", "yourStats": "Dein Fortschritt",
     "winsLabel": "Siege", "roundsLabel": "Runden", "wins_one": "{{count}} Sieg", "wins_other": "{{count}} Siege",
@@ -29,7 +33,7 @@
     "cardCount_one": "{{count}} Karte", "cardCount_other": "{{count}} Karten",
     "colors": { "coral": "Rot", "amber": "Gelb", "mint": "Grün", "sky": "Blau" },
     "faces": { "skip": "Aussetzen", "reverse": "Richtungswechsel", "draw2": "Zieh zwei", "wild": "Farbwahl", "draw4": "Farbwahl zieh vier" },
-    "rules": "Spielregeln", "rulesText": "Jeder erhält 7 Karten. Lege die gleiche Farbe oder das gleiche Symbol wie die letzte Karte ab, oder spiele eine Farbwahlkarte. Wer zuerst keine Karten mehr hat, gewinnt.\nAussetzen überspringt den Nächsten; Richtungswechsel ändert die Richtung (zu zweit überspringt er den Gegner). +2 und +4 lassen den Nächsten sofort ziehen und aussetzen. Kein Stapeln. +4 ist nur ohne Karte der aktiven Farbe erlaubt; keine Herausforderungen.\nZiehe eine Karte: Nur diese darf noch gespielt werden, wenn sie passt; sonst passe. Eine unpassende gezogene Karte beendet den Zug automatisch. Mit zwei Karten vor dem Ablegen die JUNO-Taste drücken, sonst zwei Strafkarten ziehen.\n45 Sekunden pro Zug. Nach Ablauf wird eine Karte gezogen und gepasst; nach dem Ziehen wird nur gepasst. Wer geht, gibt seine Karten in den Stapel zurück. Bei weniger als zwei Spielern endet die Runde ohne Gewinner. Kurze Sprach-Wiederverbindungen behalten den Platz. Ein Serverneustart beendet Spiele."
+    "rules": "Spielregeln", "rulesText": "Jeder erhält 7 Karten. Lege die gleiche Farbe oder das gleiche Symbol wie die letzte Karte ab, oder spiele eine Farbwahlkarte. Wer zuerst keine Karten mehr hat, gewinnt.\nAussetzen überspringt den Nächsten; Richtungswechsel ändert die Richtung (zu zweit überspringt er den Gegner). +2 und +4 lassen den Nächsten sofort ziehen und aussetzen. Kein Stapeln. +4 ist nur ohne Karte der aktiven Farbe erlaubt; keine Herausforderungen.\nZiehe eine Karte: Nur diese darf noch gespielt werden, wenn sie passt; sonst passe. Eine unpassende gezogene Karte beendet den Zug automatisch.\n45 Sekunden pro Zug. Nach Ablauf wird eine Karte gezogen und gepasst; nach dem Ziehen wird nur gepasst. Wer geht, gibt seine Karten in den Stapel zurück. Bei weniger als zwei Spielern endet die Runde ohne Gewinner. Kurze Sprach-Wiederverbindungen behalten den Platz. Ein Serverneustart beendet Spiele."
   },
   "soundboard": {
     "title": "Klangtafel", "description": "Spiele einen Klang für alle in deinem Sprachkanal. Die Vorschau hörst nur du.",

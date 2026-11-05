@@ -37,13 +37,15 @@ export interface JunoRankingPage {
 }
 export type JunoAction = { type: 'join' | 'leave' | 'start' | 'rematch' | 'draw' | 'pass' | 'announce' | 'addBot' }
   | { type: 'removeBot'; botId: string }
+  | { type: 'report'; targetUserId: string; opportunityId: string }
   | { type: 'play'; cardId: string; color?: JunoColor; announce?: boolean };
 export type JunoCommand = { type: 'create' } | (JunoAction & { gameId: string; revision: number });
 export interface JunoMove {
-  type: 'start' | 'play' | 'draw' | 'pass' | 'timeout' | 'leave' | 'announce';
+  type: 'start' | 'play' | 'draw' | 'pass' | 'timeout' | 'leave' | 'announce' | 'report';
   /** Stable across refreshes; presentation must not replay the same action. */
   id?: string;
   userId: string;
+  targetUserId?: string;
   card?: JunoCard;
   amount?: number;
   announced?: boolean;
@@ -66,10 +68,14 @@ export interface JunoView {
   scoreboard?: JunoScoreboard | null;
   supportsBots?: boolean;
   supportsAnnounce?: boolean;
+  supportsReports?: boolean;
+  reportOpportunities?: JunoReportOpportunity[];
   practice?: boolean;
 }
 export interface JunoSnapshot { revision: number; game: JunoView | null }
 export const JUNO_TURN_MS = 45_000;
+export const JUNO_REPORT_MS = 10_000;
+export interface JunoReportOpportunity { id: string; targetUserId: string; remainingMs: number }
 
 /** Presentation may highlight legal cards; the server rechecks every play. */
 export function canPlayJuno(card: JunoCard, hand: readonly JunoCard[], top: JunoCard, color: JunoColor): boolean {

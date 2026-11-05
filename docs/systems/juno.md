@@ -40,9 +40,17 @@ is no draw-until-playable. A player may pass after drawing a playable card.
 
 With two cards on your turn, press the **JUNO** logo button before playing down to
 one. The server confirms the call without extending the timer; drawing clears it.
-Forgetting automatically
-draws two: there is no reaction-speed penalty/catching mechanic. First empty
-hand wins. The draw pile recycles the discard except its top card. If a complete
+Forgetting opens a **ten-second report window** starting with the play down to
+one; it never draws automatically. Another seated human may report outside their
+own turn: the first valid report draws two without moving the turn or resetting
+its timer. At exactly ten seconds a report is late, even between sweep ticks.
+Without a report there is no penalty. Computers never report automatically;
+spectators and the accused cannot report. Gaining cards, leaving or ending the
+round closes the opportunity; separate misses have different ids and multiple
+players can have independent windows. Late JUNO calls do not repair a miss.
+First empty hand still wins immediately, closing all windows; reports never
+reopen a result or change frozen XP. The draw pile recycles the discard except
+its top card. If a complete
 cycle cannot draw or play anything, the round ends in a draw.
 
 ## Space XP and ranking
@@ -115,7 +123,14 @@ draw order nor opponent hands are serialized. Cards use opaque random ids.
 POST accepts `{type:'create'}` or a command with `gameId` and expected `revision`:
 `join`, `leave`, `start`, `rematch`, `draw`, `pass`, `announce`, `addBot`, `removeBot`
 (`botId` required), or `play` (`cardId`, optional
-wild `color`, optional `announce`). Schemas bound ids, revisions, colors and
+wild `color`, optional `announce`), plus `report` (`targetUserId`, `opportunityId`
+required). The reporter is the authenticated host-instance identity, never a
+submitted id. Optional `supportsReports` gates this action; `reportOpportunities`
+contain public `id`, `targetUserId` and server-derived `remainingMs` only. Expected
+revision and the unique miss id reject stale/duplicate reports; no mutation is
+retried automatically. Confirmed `lastMove.type: 'report'` names reporter `userId`,
+accused `targetUserId` and actual drawn `amount` (existing deck scarcity rules
+apply). Schemas bound ids, revisions, colors and
 payload size (2 KiB). All state changes are synchronous; stale commands get 409
 `juno_stale`, never an automatic mutation retry. Only the host starts/rematches;
 a new lobby keeps only that host, requiring everyone else to join explicitly.
@@ -129,6 +144,9 @@ not platform accounts, voice seats or external AI. Only the human host may add/
 remove them, only in the lobby; capacity remains four. An absent capability on an
 old host hides bot management; the JUNO button uses legacy play.announce there.
 Current human auth/voice/permissions and revision gates are unchanged.
+On older hosts without `supportsReports`, clients hide reporting and show that
+host's legacy automatic-penalty rule. Reports do not change computer decisions,
+private-hand projection, practice eligibility or settlement.
 
 The existing one-second room sweep paces computers (at least 900ms, at most one
 action per sweep), reusing the ordinary engine. Their strategy receives only
@@ -206,6 +224,11 @@ the actual announcing avatar center, using interface-scale-aware geometry.
 Effects are pointer-transparent and expire; reduced motion removes travel/pulsing
 while keeping static feedback. No sound capture, synthesized voice or new audio
 asset is used for a call of JUNO.
+Eligible opponent seats add a separate accessible report button/countdown, never
+replace the real profile action. Disconnected/pending/expired controls are disabled;
+the server remains the deadline authority. Confirmed reports identify both players
+and animate the actual draw from the accused seat, not the reporter. Compact
+height-aware rows retain reachable controls without pausing the game.
 Winner-only victory, neutral other-player results, pending credit and space
 ranking compose inside the same table. Ranking/back/mosaic never send game moves.
 Copy and
@@ -220,6 +243,10 @@ auth, membership, permissions, live voice, bots and schema refusals. Store/UI
 tests cover origin routing, response races, reset, concurrent submissions,
 spectators, wild selection, minimizing without leaving and picker navigation,
 session invalidation, focus/keyboard behavior and side-effect-free cancellation.
+Reporting tests cover no automatic draw, 9,999/10,000ms boundaries without ticks,
+out-of-turn/self/spectator/computer reports, concurrent/old ids, multiple windows,
+conservation/recycling, unchanged turn/drawn restrictions, departure/immediate
+victory/XP stability, receipt-anchored countdowns and older hosts.
 
 `test/juno-e2e.test.ts` boots the actual server against unique temporary storage,
 opens five authenticated WS voice sessions, and plays a complete four-player
