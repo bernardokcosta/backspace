@@ -3,6 +3,7 @@ import { JUNO_COLORS, JUNO_TURN_MS, canPlayJuno, type JunoAction, type JunoCard,
   type JunoColor, type JunoCommand, type JunoMove, type JunoPerson, type JunoSnapshot, type JunoView, type JunoScoreboard } from '@backspace/shared/src/juno.js';
 import { buildJunoStandings } from './junoStandings.js';
 import type { JunoSettlement } from './junoProgression.js';
+import { chooseJunoBotAction } from './junoBot.js';
 
 export class JunoError extends Error {}
 function refuse(code: string): never { throw new JunoError(code); }
@@ -69,6 +70,10 @@ export function actInRound(round: JunoRound, userId: string, action: JunoAction,
   if (round.result) refuse('juno_invalid_move');
   const player = round.players[round.turn]!;
   if (player.userId !== userId) refuse('juno_not_your_turn');
+  if (action.type === 'announce') {
+    if (player.hand.length !== 2 || player.announced) refuse('juno_invalid_move');
+    player.announced = true; round.lastMove = { type: 'announce', userId, announced: true }; return;
+  }
   const top = round.discard[round.discard.length - 1]!;
   if (action.type === 'draw') {
     if (round.drawnCardId) refuse('juno_invalid_move');
@@ -94,7 +99,7 @@ export function actInRound(round: JunoRound, userId: string, action: JunoAction,
       || (card.color === null && (!action.color || !JUNO_COLORS.includes(action.color)))) refuse('juno_invalid_move');
   player.hand.splice(index, 1); round.discard.push(card);
   round.color = card.color ?? action.color!; round.blockedTurns = 0;
-  player.announced = player.hand.length === 1 && action.announce === true;
+  player.announced = player.hand.length === 1 && (action.announce === true || player.announced);
   let penalty = 0;
   if (player.hand.length === 1 && !player.announced) penalty = drawCards(round, player, 2).length;
   let steps = 1;
@@ -113,6 +118,7 @@ interface Table {
   revision: number; createdAt: number; updatedAt: number;
   spaceId: string | null; starters: JunoPerson[];
   settlement?: JunoSettlement; scoreboard?: JunoScoreboard; retryAt: number;
+  botTurn?: { userId: string; drawnCardId: string | null; due: number };
 }
 interface RoomOptions {
   present: (channelId: string, userId: string) => boolean;
@@ -129,11 +135,20 @@ export class JunoRooms {
   constructor(private options: RoomOptions) { this.now = options.now ?? Date.now; }
   private changed(channelId: string, table?: Table): void {
     const revision = ++this.revision;
-    if (table) { table.revision = revision; table.updatedAt = this.now(); }
+    if (table) {
+      table.revision = revision; table.updatedAt = this.now();
+      if (table.round?.lastMove && !table.round.lastMove.id) table.round.lastMove.id = randomUUID();
+    }
     this.options.changed(channelId);
   }
   private complete(channelId: string, table: Table): void {
     const round = table.round;
+    if (round?.result && table.starters.some(p => p.computer)) {
+      if (!table.scoreboard) table.scoreboard = { roundId: table.id, status: 'unranked',
+        standings: buildJunoStandings(table.starters, round.players.map(p => ({ userId: p.userId, cardCount: p.hand.length })), round.winnerId, round.result)
+          .map(p => ({ ...p, xp: 0 })) };
+      return;
+    }
     if (!round?.result || !this.options.settle || !table.spaceId) return;
     if (!table.settlement) {
       table.settlement = { roundId: table.id, spaceId: table.spaceId, channelId, finishedAt: this.now(),
@@ -153,11 +168,11 @@ export class JunoRooms {
   }
   private remove(channelId: string, table: Table, userId: string): void {
     table.people = table.people.filter(person => person.userId !== userId);
-    if (!table.people.length) {
+    if (!table.people.some(person => !person.computer)) {
       if (table.scoreboard?.status === 'pending') { this.changed(channelId, table); return; }
       this.tables.delete(channelId); this.changed(channelId); return;
     }
-    if (table.hostId === userId) table.hostId = table.people[0]!.userId;
+    if (table.hostId === userId) table.hostId = table.people.find(person => !person.computer)!.userId;
     const round = table.round;
     if (round && !round.result) {
       const index = round.players.findIndex(p => p.userId === userId);
@@ -182,7 +197,7 @@ export class JunoRooms {
     const now = this.now();
     this.complete(channelId, table);
     for (const person of [...table.people]) {
-      if (!this.options.present(channelId, person.userId)) this.remove(channelId, table, person.userId);
+      if (!person.computer && !this.options.present(channelId, person.userId)) this.remove(channelId, table, person.userId);
     }
     if (!this.tables.has(channelId)) return;
     if (!table.people.length && table.scoreboard?.status !== 'pending') {
@@ -207,6 +222,16 @@ export class JunoRooms {
       round.lastMove = { type: 'timeout', userId: player.userId, amount: drawn.length };
       advance(round, now); this.complete(channelId, table); this.changed(channelId, table);
     }
+    if (round.result) return;
+    const player = round.players[round.turn]!;
+    if (!player.computer) { table.botTurn = undefined; return; }
+    if (!table.botTurn || table.botTurn.userId !== player.userId || table.botTurn.drawnCardId !== round.drawnCardId) {
+      table.botTurn = { userId: player.userId, drawnCardId: round.drawnCardId, due: now + 900 }; return;
+    }
+    if (now < table.botTurn.due) return;
+    table.botTurn = undefined;
+    actInRound(round, player.userId, chooseJunoBotAction(player.hand, round.discard.at(-1)!, round.color, round.drawnCardId), now);
+    this.complete(channelId, table); this.changed(channelId, table);
   }
   tick(): void { for (const channelId of this.tables.keys()) this.settle(channelId); }
   /** Only the committed, proof-authorized merge may redirect a pending award. */
@@ -227,7 +252,7 @@ export class JunoRooms {
     const table = this.tables.get(channelId);
     if (!table) return { revision: this.revision, game: null };
     const round = table.round;
-    const self = table.people.some(person => person.userId === userId) ? round?.players.find(person => person.userId === userId) : undefined;
+    const self = table.people.some(person => person.userId === userId && !person.computer) ? round?.players.find(person => person.userId === userId) : undefined;
     return { revision: table.revision, game: {
       id: table.id, phase: !round ? 'lobby' : round.result ? 'finished' : 'playing', hostId: table.hostId,
       players: table.people.map(person => {
@@ -241,12 +266,14 @@ export class JunoRooms {
       remainingMs: round && !round.result ? Math.max(0, round.deadline - this.now()) : 0,
       winnerId: round?.winnerId ? table.settlement?.recipientIds?.get(round.winnerId) ?? round.winnerId : null, result: round?.result ?? null,
       lastMove: round?.lastMove ? { ...round.lastMove, ...(round.lastMove.card ? { card: { ...round.lastMove.card } } : {}) } : null,
+      supportsBots: true, supportsAnnounce: true, practice: (round ? table.starters : table.people).some(p => !!p.computer),
       ...(table.scoreboard ? { scoreboard: { ...table.scoreboard, standings: table.scoreboard.standings.map(p => ({ ...p })) } } : {}),
     } };
   }
   command(channelId: string, person: JunoPerson, command: JunoCommand): JunoSnapshot {
     this.settle(channelId);
     let table = this.tables.get(channelId);
+    if (person.computer || table?.people.some(p => p.userId === person.userId && p.computer)) refuse('juno_player_required');
     if (command.type === 'create') {
       if (table) refuse('juno_exists');
       if (this.tables.size >= 1_000) refuse('juno_capacity');
@@ -263,6 +290,18 @@ export class JunoRooms {
         if (table.people.length >= 4) refuse('juno_full');
         table.people.push({ ...person });
       }
+    } else if (command.type === 'addBot' || command.type === 'removeBot') {
+      if (table.hostId !== person.userId) refuse('juno_host_required');
+      if (table.round) refuse('juno_in_progress');
+      if (command.type === 'addBot') {
+        if (table.people.length >= 4) refuse('juno_full');
+        const computer = ([1, 2, 3] as const).find(n => !table!.people.some(p => p.computer === n))!;
+        table.people.push({ userId: `juno-bot:${randomUUID()}`, name: `Juno Bot ${computer}`, computer });
+      } else if (command.type === 'removeBot') {
+        const botId = command.botId;
+        if (!table.people.some(p => p.userId === botId && p.computer)) refuse('juno_invalid_move');
+        table.people = table.people.filter(p => p.userId !== botId);
+      }
     } else if (command.type === 'leave') {
       if (!seated) refuse('juno_player_required');
       this.remove(channelId, table, person.userId); return this.read(channelId, person.userId);
@@ -273,11 +312,11 @@ export class JunoRooms {
         if (command.type === 'rematch') {
           if (!table.round?.result || table.scoreboard?.status === 'pending') refuse('juno_invalid_move');
           table.id = randomUUID(); table.round = null; table.people = [{ ...person }]; table.createdAt = this.now();
-          table.starters = []; table.settlement = undefined; table.scoreboard = undefined; table.retryAt = 0;
+          table.starters = []; table.settlement = undefined; table.scoreboard = undefined; table.retryAt = 0; table.botTurn = undefined;
         } else {
           if (table.round || table.people.length < 2) refuse('juno_need_players');
           table.round = startRound(table.people, this.now()); table.createdAt = this.now();
-          table.starters = table.people.map(p => ({ userId: p.userId, name: p.name }));
+          table.starters = table.people.map(p => ({ userId: p.userId, name: p.name, ...(p.computer ? { computer: p.computer } : {}) }));
         }
       } else {
         if (!table.round) refuse('juno_invalid_move');

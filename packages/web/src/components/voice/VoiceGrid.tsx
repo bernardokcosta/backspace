@@ -106,10 +106,10 @@ export function VoiceGrid({ participants }: VoiceGridProps) {
   if (focusedTile) {
     const otherTiles = tiles.filter((t) => t.key !== focusedTile.key);
     return (
-      <div className="flex-1 flex flex-col overflow-hidden relative">
+      <div className={`flex-1 min-h-0 flex flex-col overflow-hidden relative${focusedTile.kind === 'game' ? ' juno-focus-layout' : ''}`}>
         {/* Main focused view */}
         <div
-          className={`flex-1 p-2 min-h-0 relative ${focusedTile.kind === 'game' ? '' : 'cursor-pointer'}`}
+          className={`flex-1 p-2 min-h-0 relative ${focusedTile.kind === 'game' ? 'flex flex-col' : 'cursor-pointer'}`}
           onClick={focusedTile.kind === 'game' ? undefined : () => setFocusedParticipant(null)}
           title={focusedTile.kind === 'game' ? undefined : t('voice:grid.returnToGridHint')}
         >
@@ -137,7 +137,7 @@ export function VoiceGrid({ participants }: VoiceGridProps) {
 
         {/* Centered Hide/Show Members button — divider between focused tile and strip */}
         {otherTiles.length > 0 && (
-          <div className="flex justify-center flex-shrink-0 py-1">
+          <div className="juno-focus-toggle flex justify-center flex-shrink-0 py-1">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -162,7 +162,7 @@ export function VoiceGrid({ participants }: VoiceGridProps) {
 
         {/* Bottom strip of other tiles */}
         {!stripHidden && otherTiles.length > 0 && (
-          <div className="h-[120px] max-h-[calc(20*var(--app-vh))] min-h-[80px] flex-shrink-0 flex items-center justify-center gap-2 p-2 bg-surface-base/50 overflow-x-auto no-scrollbar">
+          <div className="juno-focus-strip h-[120px] max-h-[calc(20*var(--app-vh))] min-h-[80px] flex-shrink-0 flex items-center justify-center gap-2 p-2 bg-surface-base/50 overflow-x-auto no-scrollbar">
             {otherTiles.map((t) => (
               <div
                 key={t.key}

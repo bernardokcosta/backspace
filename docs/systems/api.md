@@ -8,7 +8,8 @@ Source files: `packages/server/src/routes/*.ts`
 GET/POST `/channels/:channelId/juno` return a private `JunoSnapshot`. They require
 an authenticated human member with VIEW_CHANNEL + CONNECT and a live voice-owning
 socket in that space channel. Commands are `create`, `join`, `leave`, `start`,
-`rematch`, `draw`, `pass`, `play`; non-create commands name the table and expected
+`rematch`, `draw`, `pass`, `play`, `announce`, `addBot`, `removeBot` (`botId` required);
+non-create commands name the table and expected
 revision (409 `juno_stale` on conflict). No opponent hands or draw order leave
 the server. Five creates and 60 commands/minute/account, plus the existing HTTP
 limit. Full rules, payloads and lifetime limits: [juno.md](juno.md).
@@ -21,6 +22,14 @@ non-banned, non-deleted human membership is required; voice is not. Limit 1–50
 offset 0–1,000,000, integers only; unknown fields are refused. Ranks are shared by
 equal total XP before pagination; own summary is returned even off-page. All Juno
 reads are no-store, contain no opponent faces or historical channel details.
+`addBot`/`removeBot` are host-only lobby actions for ephemeral computer opponents,
+not account/voice bots. Optional `supportsBots`/`supportsAnnounce` advertise these
+actions; absent on older hosts. Computer participants carry `computer: 1|2|3`
+without a user profile. `practice` freezes true for computer rounds: zero XP,
+wins or completed-round increments for everyone. A private computer hand is never
+returned even when its id is used as viewer. `announce` confirms a two-card JUNO
+call on the actor's turn without extending time; existing play.announce still works.
+Optional lastMove.id remains stable across polls for non-replaying visual effects.
 
 ## Diagnostics
 

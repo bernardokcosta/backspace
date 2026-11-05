@@ -88,6 +88,27 @@ describe('real Juno server with four independently authenticated voice sockets',
     for (const row of board.standings) expect(ranking.entries.find(r => r.user.id === row.userId)?.totalXp).toBe(row.xp);
     for (let i = 0; i < 10; i++) expect((await read(users[0]!)).game!.scoreboard).toEqual(board);
   });
+  it('adds a private-hand computer through HTTP, observes a paced server move and leaves rankings unchanged', async () => {
+    const owner = users[0]!;
+    const rankingUrl = `/api/spaces/${spaceId}/juno/ranking`;
+    const before = await (await call(owner, 'GET', rankingUrl)).json() as JunoRankingPage;
+    await act(owner, { type: 'rematch' });
+    const lobby = await act(owner, { type: 'addBot' });
+    const bot = lobby.game!.players.find(p => p.computer)!;
+    expect(bot.name).not.toBe('Deleted User'); expect(bot.user).toBeUndefined();
+    const snapshot = await act(owner, { type: 'start' });
+    expect(snapshot.game!.practice).toBe(true); expect(snapshot.game!.hand).toHaveLength(7);
+    let own = snapshot;
+    for (let n = 0; n < 2 && own.game!.currentPlayerId === owner.id; n++) own = await act(owner, { type: own.game!.drawnCardId ? 'pass' : 'draw' });
+    await waitUntil(async () => (await read(owner)).game!.lastMove?.userId === bot.userId, { timeoutMs: 6000 });
+    const move = (await read(owner)).game!.lastMove!;
+    expect(move.id).toBeTruthy(); expect((await read(owner)).game!.lastMove!.id).toBe(move.id);
+    expect((await read(users[4]!)).game!.hand).toEqual([]);
+    await act(owner, { type: 'leave' });
+    expect((await read(owner)).game).toBeNull();
+    const after = await (await call(owner, 'GET', rankingUrl)).json() as JunoRankingPage;
+    expect(after.entries.map(r => [r.user.id, r.totalXp, r.wins, r.completedRounds])).toEqual(before.entries.map(r => [r.user.id, r.totalXp, r.wins, r.completedRounds]));
+  });
   it('combines another channel, survives host restart and isolates another space', async () => {
     const channel = await call(users[0]!, 'POST', `/api/spaces/${spaceId}/channels`, { name: 'second-table', type: 'voice' });
     channelId = ((await channel.json()) as { id: string }).id;

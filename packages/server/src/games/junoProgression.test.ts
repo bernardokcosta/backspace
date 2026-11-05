@@ -10,6 +10,13 @@ let fixture: ReturnType<typeof createJunoTestDb>;
 beforeEach(() => { fixture = createJunoTestDb(); seedJunoTestDb(fixture.db); });
 afterEach(() => fixture.sqlite.close());
 describe('durable Juno progression', () => {
+  it('never writes any progression for a computer practice settlement', () => {
+    const input = settlement(); input.standings[1]!.computer = 1;
+    expect(settleJunoRound(input, fixture.db)).toMatchObject({ status: 'unranked' });
+    expect(fixture.db.select().from(schema.junoRoundResults).all()).toEqual([]);
+    expect(fixture.db.select().from(schema.junoRoundParticipants).all()).toEqual([]);
+    expect(fixture.db.select().from(schema.junoPlayerStats).all()).toEqual([]);
+  });
   it('deduplicates authorized pending recipients only after validating frozen awards', () => {
     const input = { ...settlement(), recipientIds: new Map([['a', 'b']]) };
     const result = settleJunoRound(input, fixture.db);

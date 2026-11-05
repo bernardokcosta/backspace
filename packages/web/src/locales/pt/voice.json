@@ -1,5 +1,8 @@
 {
   "juno": {
+    "addBot": "Adicionar jogador bot", "removeBot": "Remover jogador bot {{name}}", "botName": "Bot Juno {{number}}",
+    "practice": "Treino", "practiceHint": "Partidas com bots são de treino: não dão XP, vitórias ou rodadas no ranking.",
+    "nextTurn": "Próximo jogador", "turnTime": "Tempo restante do turno", "announcedBy": "{{name}} gritou JUNO!",
     "rankingTitle": "Ranking do espaço", "spaceRanking": "Ranking de {{space}}", "roundResults": "Resultado da rodada", "victory": "Vitória!",
     "xpEarned": "+{{xp}} XP ganhos", "totalXp": "XP total", "rank": "Posição", "noRank": "Ainda sem posição", "yourStats": "Seu progresso",
     "winsLabel": "Vitórias", "roundsLabel": "Rodadas", "wins_one": "{{count}} vitória", "wins_many": "{{count}} vitórias", "wins_other": "{{count}} vitórias",
@@ -26,7 +29,7 @@
     "cardCount_one": "{{count}} carta", "cardCount_many": "{{count}} cartas", "cardCount_other": "{{count}} cartas",
     "colors": { "coral": "Vermelho", "amber": "Amarelo", "mint": "Verde", "sky": "Azul" },
     "faces": { "skip": "Bloqueio", "reverse": "Inverter", "draw2": "Comprar duas", "wild": "Coringa", "draw4": "Coringa comprar quatro" },
-    "rules": "Como jogar", "rulesText": "Cada jogador recebe 7 cartas. Combine a cor ou o símbolo da última carta, ou jogue um coringa e escolha a cor. Fique sem cartas para vencer.\nBloqueio pula o próximo jogador; inverter muda o sentido (com dois jogadores, pula o adversário). +2 e +4 fazem o próximo comprar e perder a vez. Não acumulam. +4 só pode ser jogado sem nenhuma carta da cor ativa; não há desafios.\nCompre uma: só pode jogar essa nova carta, se combinar, ou passar. Se ela não combinar, a vez passa automaticamente. Antes de ficar com uma carta, marque ‘Dizer Juno’; caso contrário, compre duas.\nSão 45 segundos por turno. Ao acabar o tempo, compre uma e passe; se já comprou, apenas passe. Ao sair, suas cartas voltam ao baralho; com menos de dois jogadores a rodada termina sem vencedor. Uma reconexão rápida da voz mantém seu lugar. Reiniciar o servidor encerra os jogos."
+    "rules": "Como jogar", "rulesText": "Cada jogador recebe 7 cartas. Combine a cor ou o símbolo da última carta, ou jogue um coringa e escolha a cor. Fique sem cartas para vencer.\nBloqueio pula o próximo jogador; inverter muda o sentido (com dois jogadores, pula o adversário). +2 e +4 fazem o próximo comprar e perder a vez. Não acumulam. +4 só pode ser jogado sem nenhuma carta da cor ativa; não há desafios.\nCompre uma: só pode jogar essa nova carta, se combinar, ou passar. Se ela não combinar, a vez passa automaticamente. Com duas cartas, aperte o botão JUNO antes de jogar e ficar com uma; caso contrário, compre duas.\nSão 45 segundos por turno. Ao acabar o tempo, compre uma e passe; se já comprou, apenas passe. Ao sair, suas cartas voltam ao baralho; com menos de dois jogadores a rodada termina sem vencedor. Uma reconexão rápida da voz mantém seu lugar. Reiniciar o servidor encerra os jogos."
   },
   "soundboard": {
     "title": "Painel de áudios", "description": "Reproduza um áudio para todos no seu canal de voz. A prévia toca só para você.",

@@ -23,10 +23,19 @@ export function JunoTable() {
   return <section className="juno-table" aria-label={t('juno.name')}>
     <header className="juno-header">
       <img className="juno-header-logo" src={JUNO_ASSETS.logo} alt={t('juno.name')} />
+      {game?.practice && <span className="juno-practice" title={t('juno.practiceHint')}>{t('juno.practice')}</span>}
       <div className="juno-header-actions">
-        {!rankingOpen && game && game.phase !== 'lobby' && <button type="button" className="juno-text-button" onClick={() => setRankingContext(context)}>{t('juno.rankingTitle')}</button>}
-        {isPlayer && <button ref={leaveTrigger} type="button" className="juno-text-button" onClick={() => setLeaveKey(leaveContext)}>{t('juno.leave')}</button>}
-        <button type="button" className="juno-text-button" onClick={() => useJunoStore.getState().setOpen(false)}>{t('juno.mosaic')}</button>
+        <details className="juno-rules" onKeyDown={event => { if (event.key === 'Escape') {
+          event.preventDefault(); event.stopPropagation(); event.currentTarget.open = false; event.currentTarget.querySelector('summary')?.focus();
+        } }}><summary title={t('juno.rules')}><span aria-hidden="true">?</span><span className="sr-only">{t('juno.rules')}</span></summary>
+          <div className="juno-rules-content glass"><p>{t('juno.rulesText')}</p><p>{t('juno.scoreRules')}</p><p>{t('juno.practiceHint')}</p></div>
+        </details>
+        {!rankingOpen && game && game.phase !== 'lobby' && <button type="button" className="juno-text-button" aria-label={t('juno.rankingTitle')} title={t('juno.rankingTitle')} onClick={() => setRankingContext(context)}>
+          <svg className="juno-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M4 20V12h4v8m2 0V5h4v15m2 0v-9h4v9" /></svg><span className="juno-action-label">{t('juno.rankingTitle')}</span></button>}
+        {isPlayer && <button ref={leaveTrigger} type="button" className="juno-text-button" aria-label={t('juno.leave')} title={t('juno.leave')} onClick={() => setLeaveKey(leaveContext)}>
+          <svg className="juno-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M10 4H4v16h6m4-12 4 4-4 4m-6-4h12" /></svg><span className="juno-action-label">{t('juno.leave')}</span></button>}
+        <button type="button" className="juno-text-button" aria-label={t('juno.mosaic')} title={t('juno.mosaic')} onClick={() => useJunoStore.getState().setOpen(false)}>
+          <svg className="juno-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg><span className="juno-action-label">{t('juno.mosaic')}</span></button>
       </div>
     </header>
     {!connected && <p className="juno-notice" role="status">{t('juno.reconnecting')}</p>}
@@ -42,9 +51,8 @@ export function JunoTable() {
       }}>{t('juno.leave')}</button>
       <button type="button" autoFocus className="juno-text-button" onClick={() => { setLeaveKey(null); leaveTrigger.current?.focus(); }}>{t('common:actions.cancel')}</button>
     </div>}
-    {rankingOpen ? <JunoRanking key={context} onBack={() => setRankingContext(null)} />
+    <div className="juno-content">{rankingOpen ? <JunoRanking key={context} onBack={() => setRankingContext(null)} />
       : !game || game.phase === 'lobby' ? <JunoLobby onRanking={() => setRankingContext(context)} />
-        : game.phase === 'finished' ? <JunoResult /> : <JunoMatch key={`${context}:${game.id}`} />}
-    <details className="juno-rules"><summary>{t('juno.rules')}</summary><p>{t('juno.rulesText')}</p><p>{t('juno.scoreRules')}</p></details>
+        : game.phase === 'finished' ? <JunoResult /> : <JunoMatch key={`${context}:${game.id}`} />}</div>
   </section>;
 }

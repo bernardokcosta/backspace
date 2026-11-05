@@ -64,6 +64,22 @@ describe('Juno authoritative rules', () => {
     expect(state.players[0]!.hand).toHaveLength(announce ? 1 : 3);
     expect(state.players[0]!.announced).toBe(announce);
   });
+  it('confirms an explicit JUNO call without extending the turn and honors it on the next play', () => {
+    const state = round(); state.players[0]!.hand.pop();
+    actInRound(state, '0', { type: 'announce' }, 1000);
+    expect(state.lastMove).toMatchObject({ type: 'announce', userId: '0', announced: true });
+    expect(state.deadline).toBe(45_000);
+    expect(() => actInRound(state, '0', { type: 'announce' }, 1001)).toThrow('juno_invalid_move');
+    actInRound(state, '0', { type: 'play', cardId: 'a0' }, 1002);
+    expect(state.players[0]!.hand).toHaveLength(1); expect(state.players[0]!.announced).toBe(true);
+  });
+  it('rejects premature/out-of-turn JUNO calls and clears a call when drawing', () => {
+    const state = round();
+    expect(() => actInRound(state, '0', { type: 'announce' }, 0)).toThrow('juno_invalid_move');
+    expect(() => actInRound(state, '1', { type: 'announce' }, 0)).toThrow('juno_not_your_turn');
+    state.players[0]!.hand.pop(); actInRound(state, '0', { type: 'announce' }, 0);
+    actInRound(state, '0', { type: 'draw' }, 1); expect(state.players[0]!.announced).toBe(false);
+  });
   it('applies final-card penalties before recording a winner', () => {
     const state = round(); state.players[0]!.hand = [card('last', 'draw2')];
     actInRound(state, '0', { type: 'play', cardId: 'last' }, 0);

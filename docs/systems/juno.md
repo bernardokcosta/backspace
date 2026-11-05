@@ -2,7 +2,8 @@
 
 Juno is an original, self-hosted 2–4 player shedding-card game for **space voice
 channels**. It works in client-federated spaces through the hosting instance's
-existing authenticated connection. DMs and bots are not supported. Active tables
+existing authenticated connection. DMs and platform bot accounts are not supported.
+The host can add built-in computer opponents for practice. Active tables
 are ephemeral; completed-round XP is durable and belongs to its hosting space.
 Supplied original artwork is served locally; no external game/image service or
 new dependency is used.
@@ -37,7 +38,9 @@ turn; final-card penalties still apply before recording victory. A voluntary
 draw offers only that drawn card if legal, otherwise passes immediately. There
 is no draw-until-playable. A player may pass after drawing a playable card.
 
-Before playing down to one card, check **Say Juno**. Forgetting automatically
+With two cards on your turn, press the **JUNO** logo button before playing down to
+one. The server confirms the call without extending the timer; drawing clears it.
+Forgetting automatically
 draws two: there is no reaction-speed penalty/catching mechanic. First empty
 hand wins. The draw pile recycles the discard except its top card. If a complete
 cycle cannot draw or play anything, the round ends in a draw.
@@ -105,17 +108,38 @@ GET returns `{revision, game}`. A game view contains phase, host, public player
 names/counts, top card, color, direction, turn, remaining time, last public move,
 result and **only the viewer's hand**. Optional `scoreboard` has the round id,
 `pending|credited|unranked` status and final standings (`place`, count, XP, outcome).
-People include current sanitized profiles and space nicknames, not demo identities.
+Human people include current sanitized profiles and space nicknames, not demo identities.
 Spectators receive `hand: []`. Neither the
 draw order nor opponent hands are serialized. Cards use opaque random ids.
 
 POST accepts `{type:'create'}` or a command with `gameId` and expected `revision`:
-`join`, `leave`, `start`, `rematch`, `draw`, `pass`, or `play` (`cardId`, optional
+`join`, `leave`, `start`, `rematch`, `draw`, `pass`, `announce`, `addBot`, `removeBot`
+(`botId` required), or `play` (`cardId`, optional
 wild `color`, optional `announce`). Schemas bound ids, revisions, colors and
 payload size (2 KiB). All state changes are synchronous; stale commands get 409
 `juno_stale`, never an automatic mutation retry. Only the host starts/rematches;
 a new lobby keeps only that host, requiring everyone else to join explicitly.
 Late joiners can spectate a running/finished round but cannot take a seat.
+
+### Built-in computer opponents
+
+`supportsBots` and `supportsAnnounce` are optional per-view capability flags.
+Computer seats are ephemeral `computer: 1|2|3` people with server-generated ids,
+not platform accounts, voice seats or external AI. Only the human host may add/
+remove them, only in the lobby; capacity remains four. An absent capability on an
+old host hides bot management; the JUNO button uses legacy play.announce there.
+Current human auth/voice/permissions and revision gates are unchanged.
+
+The existing one-second room sweep paces computers (at least 900ms, at most one
+action per sweep), reusing the ordinary engine. Their strategy receives only
+their hand, public top/color and own drawn-card restriction, never other hands or
+draw order. Computer ids can neither submit human commands nor read their hand.
+Only humans can inherit hosting; the last human leaving removes the table.
+
+Any computer starter freezes `practice: true`. Results keep placements/counts but
+zero XP and unranked status for everybody, without invoking persistence or adding
+wins/completed-round counters. Human-only progression is unchanged. The separate
+settlement boundary also refuses to credit computer proposals defensively.
 
 After changes, `juno_updated {channelId}` travels through existing
 VIEW_CHANNEL-filtered `sendToChannel`. This is a non-secret invalidation, not a
@@ -161,14 +185,27 @@ the shared voice mosaic includes its native tile; focusing it shows the table
 with the existing participant strip. Returning to the mosaic is not leaving the
 game. Leaving a game asks for confirmation and never disconnects voice. Wild
 color choice is explicit, keyboard reachable and canceled by Escape. Legal cards
-are highlighted, active color has a written name as well as a swatch, the hand scrolls
-horizontally, and the table scrolls vertically when the call view is short.
-Container queries adapt to the actual table width, including interface scaling.
+are highlighted. Active color/direction have accessible names and tooltips.
+The hand scrolls horizontally; lobby, game and result fit the actual call mosaic
+without vertical scrolling. Size-container queries adapt to width AND height,
+including interface scaling, the real MainContent/MobileVoiceFullScreen chrome
+and participant strip. Very short focused games compact/hide the strip without
+changing voice state; ranking/rules scroll only in their own bounded panels.
+Avatar and aura share one center/geometry, overriding image max-width shrinkage.
+Active-player halo, next-player marker and timer replace narrative turn hints;
+screen-reader announcements remain. Empty seats use a plus action rather than
+visible placeholder text. Host clicks add/remove computers directly in the lobby.
 The supplied 720:1056 card art maps coral/amber/mint/sky to red/yellow/green/blue
 without changing wire enums or card ids. Opponent fans show only backs (at most
 10 images; the exact count stays visible). The single cosmic background keeps
 all four colored corners on narrow screens. Localized real buttons overlay the
 separate supplied button art. The game palette is scoped to Juno, not app chrome.
+Stable optional lastMove.id keys drive short confirmed play/draw/special/JUNO
+effects; polls and initial mounts do not replay them. The JUNO logo flies from
+the actual announcing avatar center, using interface-scale-aware geometry.
+Effects are pointer-transparent and expire; reduced motion removes travel/pulsing
+while keeping static feedback. No sound capture, synthesized voice or new audio
+asset is used for a call of JUNO.
 Winner-only victory, neutral other-player results, pending credit and space
 ranking compose inside the same table. Ranking/back/mosaic never send game moves.
 Copy and

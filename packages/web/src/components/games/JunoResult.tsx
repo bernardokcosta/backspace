@@ -18,10 +18,10 @@ export function JunoResult() {
   const won = !!game.winnerId && game.winnerId === target?.selfId;
   return <div className="juno-result">
     {game.winnerId && <img className="juno-crown" src={JUNO_ASSETS.crown} alt="" aria-hidden="true" />}
-    <h2>{won ? t('juno.victory') : t('juno.roundResults')}</h2>
-    <p role="status">{winner ? t('juno.winner', { name: winner.name }) : t('juno.finished')}</p>
+    <h2>{won ? t('juno.victory') : t('juno.roundResults')}{saving && <span className="juno-saving" title={t('juno.creditPending')} aria-hidden="true">◌</span>}</h2>
+    <p role="status">{winner ? t('juno.winner', { name: winner.computer ? t('juno.botName', { number: winner.computer }) : winner.name }) : t('juno.finished')}</p>
     {game.result && !winner && <p>{t(RESULT_KEYS[game.result])}</p>}
-    {saving && <p className="juno-notice" role="status">{t('juno.creditPending')}</p>}
+    {saving && <p className="sr-only" role="status">{t('juno.creditPending')}</p>}
     {board && <ol className="juno-score-list" aria-label={t('juno.roundResults')}>
       {board.standings.map(row => <li key={row.userId} className={`juno-score-row${row.place === 1 ? ' juno-first-place' : ''}`}>
         <span className="juno-place" aria-label={t('juno.rank')}>
@@ -30,7 +30,7 @@ export function JunoResult() {
         </span>
         <JunoPlayerBadge person={row} origin={target?.origin ?? ''} spaceId={spaceId} self={row.userId === target?.selfId}
           detail={row.outcome === 'abandoned' ? t('juno.abandoned') : row.cardCount !== null ? t('juno.cardCount', { count: row.cardCount }) : undefined} />
-        <span className="juno-earned">{saving ? t('common:states.loading') : board.status === 'credited' && row.outcome === 'completed'
+        <span className="juno-earned">{game.practice ? t('juno.practice') : saving ? t('common:states.loading') : board.status === 'credited' && row.outcome === 'completed'
           ? t('juno.xpEarned', { xp: formatNumber(row.xp) }) : t('juno.unranked')}</span>
       </li>)}
     </ol>}

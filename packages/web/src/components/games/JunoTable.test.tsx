@@ -42,7 +42,7 @@ describe('Juno native table', () => {
   });
   it('requires an explicit wild color and includes the Juno declaration', async () => {
     useJunoStore.setState({ snapshot: { revision: 1, game: game('playing') } }); render(<JunoTable />);
-    await userEvent.click(screen.getByRole('checkbox', { name: /say juno/i }));
+    await userEvent.click(screen.getByRole('button', { name: /say juno/i }));
     await userEvent.click(screen.getByRole('button', { name: /play.*wild/i })); expect(command).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('button', { name: 'Green' }));
     expect(command).toHaveBeenCalledWith({ type: 'play', cardId: 'wild', color: 'mint', announce: true });

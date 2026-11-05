@@ -2,6 +2,11 @@
 
 A bot is an ordinary account that a program controls with a token. The server gives a bot exactly what it gives any member (events, REST, permissions) and applies **no behavioural policy of its own**: what a bot answers, when it reacts and whether it needs a mention is decided by the bot's code.
 
+Juno's built-in computer opponents are **not** these accounts: they are ephemeral
+game-only participants with no token, membership or voice connection, and their
+rounds are unranked practice. They reuse Juno's server rules, not these account
+management APIs. See [juno.md](juno.md).
+
 Source files:
 - `packages/server/src/routes/bots.ts` -- owner endpoints (create, edit, token, delete, add to a space)
 - `packages/server/src/routes/reactions.ts` -- REST reactions, the twin of the WS events

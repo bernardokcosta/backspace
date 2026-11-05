@@ -39,6 +39,7 @@ function storedScoreboard(db: DBHandle, roundId: string): JunoScoreboard {
 
 /** The round key, all awards and arithmetic counters commit together, or not at all. */
 export function settleJunoRound(input: JunoSettlement, database?: DB): JunoScoreboard {
+  if (input.standings.some(row => row.computer)) return { roundId: input.roundId, status: 'unranked', standings: input.standings.map(row => ({ ...row, xp: 0 })) };
   if (input.result !== 'emptyHand') return unranked(input);
   const db = database ?? getDb();
   return db.transaction(tx => {
@@ -134,6 +135,7 @@ export function hydrateJunoSnapshot(snapshot: JunoSnapshot, spaceId: string, dat
     .leftJoin(schema.spaceMembers, and(eq(schema.spaceMembers.userId, schema.users.id), eq(schema.spaceMembers.spaceId, spaceId)))
     .where(inArray(schema.users.id, ids)).all();
   const hydrate = <T extends JunoPerson>(person: T): T => {
+    if (person.computer) return person;
     const profile = profiles.find(p => p.user.id === person.userId);
     if (!profile || profile.user.isDeleted) return { ...person, name: 'Deleted User', user: profile ? sanitizeUser(profile.user) : undefined, nickname: null };
     return { ...person, name: profile.nickname ?? profile.user.displayName ?? profile.user.username,

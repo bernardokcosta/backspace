@@ -61,6 +61,11 @@ an account/origin/space request generation; logout/target changes discard them.
 Current profiles use the canonical user view and origin-aware upload URL helpers,
 never another origin's same-id roster row. Old hosts may omit scoreboards and
 return 404 for ranking; this displays unavailable, not invented zero progression.
+Optional game-view `supportsBots`/`supportsAnnounce` separately gate new table
+actions on mixed-version hosts. Missing bot support hides those controls; missing
+announcement support retains the existing play.announce path behind the JUNO
+button. Computer seats are host-owned ephemeral game ids, never federated user
+identities; their practice rounds cannot affect any instance's ranking.
 
 ---
 

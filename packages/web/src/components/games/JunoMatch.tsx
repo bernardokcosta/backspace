@@ -9,6 +9,7 @@ import { JunoCard, JUNO_PALETTE } from './JunoCard';
 import { JunoPlayerBadge } from './JunoPlayerBadge';
 import { JUNO_ASSETS } from './junoAssets';
 import { junoSeats } from './junoSeats';
+import { JunoEffects } from './JunoEffects';
 
 const COLOR_KEYS = { coral: 'juno.colors.coral', amber: 'juno.colors.amber', mint: 'juno.colors.mint', sky: 'juno.colors.sky' } as const;
 const FACE_KEYS = { skip: 'juno.faces.skip', reverse: 'juno.faces.reverse', draw2: 'juno.faces.draw2', wild: 'juno.faces.wild', draw4: 'juno.faces.draw4' } as const;
@@ -27,7 +28,9 @@ export function JunoMatch() {
   const isPlayer = game.players.some(p => p.userId === selfId);
   const current = game.players.find(p => p.userId === game.currentPlayerId);
   const seats = junoSeats(game.players, selfId);
-  const sayJuno = announceRevision === revision;
+  const self = game.players.find(p => p.userId === selfId);
+  const sayJuno = game.supportsAnnounce ? self?.announced === true : announceRevision === revision;
+  const next = game.players[(game.players.findIndex(p => p.userId === game.currentPlayerId) + game.direction + game.players.length) % game.players.length];
   const chosen = colorChoice?.revision === revision && colorChoice.gameId === game.id && myTurn ? colorChoice.card : null;
   const seconds = Math.ceil(Math.max(0, game.remainingMs - Math.max(0, now - observedAt)) / 1000);
   const faceLabel = (card: Card) => /^\d$/.test(card.face) ? formatNumber(Number(card.face)) : t(FACE_KEYS[card.face as keyof typeof FACE_KEYS]);
@@ -45,17 +48,20 @@ export function JunoMatch() {
     return <div key={position} data-seat={position} className={`juno-seat juno-seat-${position}`}>
       {person ? <>
         <JunoPlayerBadge person={person} origin={target?.origin ?? ''} spaceId={spaceId} self={person.userId === selfId}
-          active={person.userId === game.currentPlayerId} detail={t('juno.cardCount', { count: person.cardCount })} />
+          active={person.userId === game.currentPlayerId} next={person.userId === next?.userId} detail={t('juno.cardCount', { count: person.cardCount })} />
         {person.userId !== selfId && <div className={`juno-opponent-cards${side ? ' juno-side-hand' : ''}`} aria-hidden="true">
           {Array.from({ length: visibleCards }, (_, i) => side
             ? <span key={i} className="juno-side-card" style={{ '--juno-card-tilt': `${(i - (visibleCards - 1) / 2) * 3}deg` } as CSSProperties}><JunoCard back /></span>
             : <JunoCard back key={i} />)}
         </div>}
         {person.announced && <span className="juno-called">{t('juno.name')}</span>}
-      </> : <span className="juno-empty-position">{t('juno.emptySeat')}</span>}
+      </> : <span className="juno-empty-position" aria-label={t('juno.emptySeat')} />}
     </div>;
   };
-  return <div className="juno-match">
+  const movePlayer = game.players.find(p => p.userId === game.lastMove?.userId);
+  const movePosition = Object.entries(seats).find(([, person]) => person?.userId === game.lastMove?.userId)?.[0] ?? 'top';
+  return <div className={`juno-match${myTurn ? ' juno-my-turn' : ''}`}>
+    <JunoEffects move={game.lastMove} position={movePosition} name={movePlayer?.computer ? t('juno.botName', { number: movePlayer.computer }) : movePlayer?.name ?? ''} />
     <div className="juno-arena">
       <img className="juno-orbit" src={JUNO_ASSETS.orbit} alt="" aria-hidden="true" />
       {seat('top')}{seat('left')}{seat('right')}
@@ -64,16 +70,14 @@ export function JunoMatch() {
         <div className="juno-pile">{isPlayer ? <button type="button" className="juno-draw-art" aria-label={t('juno.drawPile')}
           disabled={disabled || !myTurn || !!game.drawnCardId} onClick={() => void command({ type: 'draw' })}><JunoCard back /></button>
           : <div className="juno-draw-art"><JunoCard back /></div>}<span>{t('juno.drawPile')}</span></div>
+      </div><div className="juno-table-info">
+        {game.color && <span className="juno-active-color" title={t('juno.activeColor', { color: t(COLOR_KEYS[game.color]) })} aria-label={t('juno.activeColor', { color: t(COLOR_KEYS[game.color]) })}><i style={{ backgroundColor: JUNO_PALETTE[game.color] }} /></span>}
+        <span className="juno-direction" title={game.direction === 1 ? t('juno.clockwise') : t('juno.counterclockwise')}><b aria-hidden="true">{game.direction === 1 ? '↻' : '↺'}</b></span>
+        <span className="juno-timer" aria-label={t('juno.turnTime')}>{formatDuration(seconds)}</span>
       </div></div>
     </div>
-    <div className="juno-turn" role="status" aria-live="polite"><strong>{myTurn ? t('juno.yourTurn') : t('juno.theirTurn', { name: current?.name ?? '' })}</strong>
-      <span aria-hidden="true">{formatDuration(seconds)}</span></div>
-    <div className="juno-table-info">
-      {game.color && <span className="juno-active-color"><i style={{ backgroundColor: JUNO_PALETTE[game.color] }} />{t('juno.activeColor', { color: t(COLOR_KEYS[game.color]) })}</span>}
-      <span className="juno-direction"><b aria-hidden="true">{game.direction === 1 ? '↻' : '↺'}</b>{game.direction === 1 ? t('juno.clockwise') : t('juno.counterclockwise')}</span>
-    </div>
+    <div className="sr-only" role="status" aria-live="polite">{myTurn ? t('juno.yourTurn') : t('juno.theirTurn', { name: current?.name ?? '' })}</div>
     {isPlayer ? <>
-      <div className="juno-hand-header"><span>{t('juno.yourHand')}</span><span>{game.drawnCardId ? t('juno.drawnHint') : myTurn ? t('juno.playHint') : t('juno.waitHint')}</span></div>
       <div className="juno-hand" role="group" aria-label={t('juno.yourHand')}>
         {game.hand.map(card => <button key={card.id} type="button" className={`juno-hand-card${canPlay(card) ? ' juno-card-legal' : ''}`}
           disabled={disabled || !canPlay(card)} aria-label={t('juno.playCard', { card: cardLabel(card) })} title={cardLabel(card)}
@@ -86,13 +90,17 @@ export function JunoMatch() {
         <button type="button" className="juno-text-button" onClick={cancelColor}>{t('common:actions.cancel')}</button>
       </fieldset>}
     </> : <p className="juno-spectator">{t('juno.spectating')}</p>}
-    <div className="juno-local-player">{seat('bottom')}</div>
-    {isPlayer && <div className="juno-hand-actions">
-      <button type="button" className="juno-primary" disabled={disabled || !myTurn} onClick={() => void command({ type: game.drawnCardId ? 'pass' : 'draw' })}>{game.drawnCardId ? t('juno.pass') : t('juno.draw')}</button>
-      {game.hand.length === 2 && <label className="juno-announce"><input type="checkbox" disabled={disabled || !myTurn} checked={sayJuno}
-        onChange={event => setAnnounceRevision(event.target.checked ? revision : null)} />{t('juno.sayJuno')}</label>}
-    </div>}
-    {game.lastMove?.type === 'play' && <p className="juno-last-move" role="status">{t('juno.lastPlay', { name: game.players.find(p => p.userId === game.lastMove!.userId)?.name ?? '', card: game.lastMove.card ? cardLabel(game.lastMove.card) : '' })}
+    <div className="juno-hand-actions"><div className="juno-local-player">{seat('bottom')}</div>
+      {isPlayer && <>
+        {game.drawnCardId && <button type="button" className="juno-text-button juno-pass" aria-label={t('juno.pass')} title={t('juno.pass')} disabled={disabled || !myTurn} onClick={() => void command({ type: 'pass' })}>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m5 5 7 7-7 7m7-14 7 7-7 7" /></svg></button>}
+        <button type="button" className={`juno-announce${sayJuno ? ' juno-announce-ready' : ''}`} aria-label={t('juno.sayJuno')} title={t('juno.sayJuno')}
+          aria-pressed={sayJuno} disabled={disabled || !myTurn || game.hand.length !== 2 || game.supportsAnnounce && sayJuno}
+          onClick={() => { if (game.supportsAnnounce) void command({ type: 'announce' }); else setAnnounceRevision(sayJuno ? null : revision); }}><img src={JUNO_ASSETS.logo} alt="" aria-hidden="true" /></button>
+      </>}
+    </div>
+    {game.lastMove?.type === 'play' && <p className="sr-only" role="status">{t('juno.lastPlay', { name: movePlayer?.name ?? '', card: game.lastMove.card ? cardLabel(game.lastMove.card) : '' })}
       {!!game.lastMove.amount && <span> {t('juno.missedJuno')}</span>}</p>}
+    {game.lastMove?.type === 'announce' && <p className="sr-only" role="status">{t('juno.announcedBy', { name: movePlayer?.name ?? '' })}</p>}
   </div>;
 }

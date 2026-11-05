@@ -20,12 +20,19 @@ export function JunoLobby({ onRanking }: { onRanking: () => void }) {
       user: { ...self, avatar: uploadUrlOn(self.avatar, '') } }} origin={target?.origin ?? ''} spaceId={spaceId} self /></div>}
     <img className="juno-main-logo" src={JUNO_ASSETS.logo} alt={t('juno.name')} />
     <h2>{game ? t('juno.lobbyTitle') : t('juno.invitation')}</h2>
-    <p>{game ? t('juno.lobbyHint') : t('juno.description')}</p>
+    <p className="sr-only">{game ? t('juno.lobbyHint') : t('juno.description')}</p>
     {game && <div className="juno-lobby-players" aria-label={t('juno.players')}>
-      {game.players.map(player => <JunoPlayerBadge key={player.userId} person={player} origin={target?.origin ?? ''} spaceId={spaceId}
-        self={player.userId === target?.selfId} detail={player.userId === game.hostId ? t('juno.host') : t('juno.ready')} />)}
-      {Array.from({ length: Math.max(0, 4 - game.players.length) }, (_, i) => <div className="juno-seat-empty" key={i}>
-        <span aria-hidden="true">+</span>{t('juno.emptySeat')}</div>)}
+      {game.players.map(player => <div className="juno-lobby-seat" key={player.userId}>
+        <JunoPlayerBadge person={player} origin={target?.origin ?? ''} spaceId={spaceId}
+          self={player.userId === target?.selfId} detail={player.userId === game.hostId ? t('juno.host') : player.computer ? undefined : t('juno.ready')} />
+        {player.computer && target?.selfId === game.hostId && game.supportsBots && <button type="button" className="juno-remove-bot"
+          aria-label={t('juno.removeBot', { name: t('juno.botName', { number: player.computer }) })} disabled={disabled}
+          onClick={() => void command({ type: 'removeBot', botId: player.userId })}>×</button>}
+      </div>)}
+      {Array.from({ length: Math.max(0, 4 - game.players.length) }, (_, i) => game.supportsBots && target?.selfId === game.hostId
+        ? <button type="button" className="juno-seat-empty" key={i} aria-label={t('juno.addBot')} title={t('juno.addBot')}
+          disabled={disabled} onClick={() => void command({ type: 'addBot' })}><span aria-hidden="true">＋</span></button>
+        : <div className="juno-seat-empty" key={i} aria-label={t('juno.emptySeat')}><span aria-hidden="true">＋</span></div>)}
     </div>}
     <div className="juno-menu-actions">
       {!game ? loading && !snapshot ? <p role="status">{t('common:states.loading')}</p>
@@ -35,7 +42,7 @@ export function JunoLobby({ onRanking }: { onRanking: () => void }) {
             : <p role="status">{t('juno.waitingHost')}</p>}
       <button type="button" className="juno-secondary" onClick={onRanking}>{t('juno.rankingTitle')}</button>
     </div>
-    {game && <p className="juno-seat-count">{t('juno.seats', { occupied: game.players.length, max: 4 })}</p>}
+    {game && <p className="sr-only">{t('juno.seats', { occupied: game.players.length, max: 4 })}</p>}
     <div className="juno-lobby-cards" aria-hidden="true"><JunoCard card={{ id: 'decoration', color: 'coral', face: '5' }} />
       <JunoCard card={{ id: 'decoration', color: 'mint', face: '2' }} /><JunoCard card={{ id: 'decoration', color: 'sky', face: '4' }} />
       <JunoCard card={{ id: 'decoration', color: null, face: 'draw4' }} /></div>

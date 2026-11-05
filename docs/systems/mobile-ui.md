@@ -37,14 +37,19 @@ dismisses on call/account/origin changes. Juno uses the same `VoiceGrid` tile/fo
 pipeline and interactive
 `JunoTable` as desktop, not an iframe or a new mobile screen stack. The table's
 container queries adapt player rows and cards to its available width; hand and
-table scrolling stay inside the call view. Minimizing the call/game leaves the
+ranking/rules scrolling stay inside the call view. Lobby, play and results fit
+its width and height without vertical table scrolling. Minimizing the call/game leaves the
 global JunoSession sync active. DM calls do not expose Games. See [juno.md](juno.md).
 The cosmic Juno views retain the supplied background's four corners, stack the
 table seats/piles for narrow containers and cap opponent back fans without hiding
-counts. The face-up hand scrolls horizontally, short tables vertically; ranking
+counts. The face-up hand scrolls horizontally; short games reduce decoration and
+compact/hide the participant strip rather than forcing vertical table scroll. Ranking
 and results reuse the same surface and do not add mobile navigation entries or
 leave voice. Wild-color/leave confirmation consume Escape locally and restore
 focus. Large hands and interface scaling use container, not window, breakpoints.
+The host may fill empty lobby seats with built-in computers (practice, no XP),
+and the logo JUNO button replaces the checkbox. Confirmed-action effects respect
+reduced motion and never consume touch input. See [juno.md](juno.md).
 
 ---
 

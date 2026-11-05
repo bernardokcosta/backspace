@@ -46,4 +46,12 @@ describe('Juno authoritative result view', () => {
     useJunoStore.setState({ snapshot: { revision: 2, game } }); render(<JunoResult />);
     expect(screen.queryByText(/XP earned/)).not.toBeInTheDocument(); expect(screen.getByText('Bo wins!')).toBeInTheDocument();
   });
+  it('labels computer results as practice rather than earned XP', () => {
+    const snapshot = useJunoStore.getState().snapshot!;
+    const game = { ...snapshot.game!, practice: true };
+    game.scoreboard = { ...game.scoreboard!, status: 'unranked', standings: game.scoreboard!.standings.map(p => ({ ...p, xp: 0 })) };
+    useJunoStore.setState({ snapshot: { ...snapshot, game } }); render(<JunoResult />);
+    expect(screen.getAllByText('Practice')).toHaveLength(2);
+    expect(screen.queryByText(/XP earned/)).not.toBeInTheDocument();
+  });
 });

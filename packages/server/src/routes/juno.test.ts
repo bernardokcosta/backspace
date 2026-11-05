@@ -61,9 +61,23 @@ describe('Juno authorized transport', () => {
     for (const payload of [{ type: 'cheat' }, { type: 'play', gameId: 'x', revision: -1, cardId: 'a' },
       { type: 'join' }, { type: 'create', xp: 999 }, { type: 'create', userId: 'fake' },
       { type: 'create', recipientIds: { 'remote-row': 'someone-else' } },
+      { type: 'create', computer: 1 }, { type: 'removeBot', gameId: 'x', revision: 1 },
       { type: 'play', gameId: 'x', revision: 1, cardId: 'x', color: 'purple' }]) {
       expect((await app.inject({ method: 'POST', url, headers, payload })).statusCode).toBe(400);
     }
     expect((await app.inject({ method: 'GET', url, headers })).json().game).toBeNull();
+  });
+  it('uses the existing revision/voice/host gate to manage only ephemeral computer seats', async () => {
+    let snapshot = (await create()).json<JunoSnapshot>();
+    const send = (payload: object, authorization = 'remote-row') => app.inject({ method: 'POST', url, headers: { authorization },
+      payload: { gameId: snapshot.game!.id, revision: snapshot.revision, ...payload } });
+    expect((await send({ type: 'addBot' }, 'visitor')).json().code).toBe('juno_host_required');
+    snapshot = (await send({ type: 'addBot' })).json<JunoSnapshot>();
+    const bot = snapshot.game!.players.find(p => p.computer)!;
+    expect(bot.computer).toBe(1); expect(snapshot.game!.supportsBots).toBe(true);
+    expect((await send({ type: 'removeBot', botId: 'remote-row' })).json().code).toBe('juno_invalid_move');
+    state.socket = 3; expect((await send({ type: 'removeBot', botId: bot.userId })).statusCode).toBe(403); state.socket = 1;
+    snapshot = (await send({ type: 'removeBot', botId: bot.userId })).json<JunoSnapshot>();
+    expect(snapshot.game!.players).toHaveLength(1); expect(snapshot.game!.practice).toBe(false);
   });
 });

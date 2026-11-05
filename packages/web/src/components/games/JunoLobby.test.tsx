@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useJunoStore } from '../../stores/junoStore';
 import { useAuthStore } from '../../stores/authStore';
@@ -24,6 +24,25 @@ describe('Juno cosmic lobby', () => {
     const game = junoGame(); game.players = game.players.slice(0, 1);
     useJunoStore.setState({ snapshot: { revision: 2, game } }); render(<JunoLobby onRanking={() => {}} />);
     expect(screen.getByRole('button', { name: 'Start round' })).toBeDisabled();
-    expect(screen.getAllByText('Seat available')).toHaveLength(3);
+    expect(screen.queryByText('Seat available')).not.toBeInTheDocument();
+    expect(screen.getAllByLabelText('Seat available')).toHaveLength(3);
+  });
+  it('lets only the capable host add/remove a computer from a real lobby seat', async () => {
+    const game = junoGame(); game.supportsBots = true;
+    game.players = [game.players[0]!, { userId: 'cpu', name: 'Juno Bot 1', computer: 1, cardCount: 0, announced: false }];
+    useJunoStore.setState({ snapshot: { revision: 2, game } }); render(<JunoLobby onRanking={() => {}} />);
+    await userEvent.click(screen.getAllByRole('button', { name: 'Add computer player' })[0]!);
+    expect(command).toHaveBeenCalledWith({ type: 'addBot' });
+    await userEvent.click(screen.getByRole('button', { name: /remove.*computer/i }));
+    expect(command).toHaveBeenCalledWith({ type: 'removeBot', botId: 'cpu' });
+  });
+  it('does not advertise computer management to visitors or old hosts', () => {
+    const game = junoGame(); game.supportsBots = true;
+    useJunoStore.setState({ target: { accountId: 'b', selfId: 'b', origin: '', channelId: 'voice' }, snapshot: { revision: 2, game } });
+    const { rerender } = render(<JunoLobby onRanking={() => {}} />);
+    expect(screen.queryByRole('button', { name: 'Add computer player' })).not.toBeInTheDocument();
+    act(() => useJunoStore.setState({ target: { accountId: 'a', selfId: 'a', origin: '', channelId: 'voice' }, snapshot: { revision: 3, game: { ...game, supportsBots: undefined } } }));
+    rerender(<JunoLobby onRanking={() => {}} />);
+    expect(screen.queryByRole('button', { name: 'Add computer player' })).not.toBeInTheDocument();
   });
 });

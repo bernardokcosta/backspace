@@ -12,7 +12,7 @@ export function buildJunoStandings(
   const ranked = result === 'emptyHand' && winnerId !== null;
   const rows: JunoStanding[] = starters.map(person => {
     const finisher = finishers.find(p => p.userId === person.userId);
-    return { userId: person.userId, name: person.name, place: null, xp: 0,
+    return { userId: person.userId, name: person.name, ...(person.computer ? { computer: person.computer } : {}), place: null, xp: 0,
       cardCount: finisher?.cardCount ?? null,
       outcome: !finisher ? 'abandoned' : ranked ? 'completed' : 'unranked' };
   });

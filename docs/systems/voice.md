@@ -31,6 +31,10 @@ voice sidebar and desktop/mobile call controls that open a shared game list,
 and a tile/focused table in the existing voice mosaic. The game
 reuses voice membership and reconnect grace, never a screen-share publication;
 minimizing the game does not leave it. This release does not support DM games.
+Juno's focused table is bounded by actual mosaic width/height. Short focused games
+compact/hide only the visual participant strip; no voice/LiveKit state changes.
+Built-in computer seats are game-only practice participants, not voice bots; their
+rounds award no XP, wins or ranked-round counters. Human-only
 Juno XP aggregates completed rounds across the hosting space's voice channels;
 the ranking view requires space membership but not voice. Active tables still
 reuse the same media/signaling owner. Navigating ranking/results changes no

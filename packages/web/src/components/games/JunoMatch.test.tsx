@@ -30,10 +30,20 @@ describe('Juno cosmic interactive match', () => {
     const { container } = render(<JunoMatch />);
     expect(container.querySelector('[data-seat="bottom"]')).toHaveTextContent('Ada');
     expect(screen.getByRole('button', { name: 'Draw pile' })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('checkbox', { name: /say juno/i }));
+    await userEvent.click(screen.getByRole('button', { name: /say juno/i }));
     await userEvent.click(screen.getByRole('button', { name: /play.*wild/i })); expect(command).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('button', { name: 'Green' }));
     expect(command).toHaveBeenCalledWith({ type: 'play', cardId: 'wild', color: 'mint', announce: true });
+  });
+  it('announces immediately on capable hosts and never invents an effect before confirmation', async () => {
+    const game = junoGame('playing'); game.supportsAnnounce = true;
+    useJunoStore.setState({ snapshot: { revision: 2, game } });
+    const { container } = render(<JunoMatch />);
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+    expect(screen.queryByText('Seat available')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /say juno/i }));
+    expect(command).toHaveBeenCalledWith({ type: 'announce' });
+    expect(container.querySelector('.juno-effect-announce')).not.toBeInTheDocument();
   });
   it('cancels wild color selection with Escape without playing a card', async () => {
     render(<JunoMatch />); const wild = screen.getByRole('button', { name: /play.*wild/i });

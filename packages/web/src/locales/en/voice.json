@@ -1,5 +1,8 @@
 {
   "juno": {
+    "addBot": "Add computer player", "removeBot": "Remove {{name}} computer player", "botName": "Juno Bot {{number}}",
+    "practice": "Practice", "practiceHint": "Rounds with computer players are practice: no XP, wins or ranked rounds are awarded.",
+    "nextTurn": "Next player", "turnTime": "Time left in this turn", "announcedBy": "{{name}} called JUNO!",
     "rankingTitle": "Space ranking", "spaceRanking": "Ranking · {{space}}", "roundResults": "Round results", "victory": "Victory!",
     "xpEarned": "+{{xp}} XP earned", "totalXp": "Total XP", "rank": "Position", "noRank": "Not ranked yet", "yourStats": "Your progress",
     "winsLabel": "Wins", "roundsLabel": "Rounds", "wins_one": "{{count}} win", "wins_other": "{{count}} wins",
@@ -26,7 +29,7 @@
     "cardCount_one": "{{count}} card", "cardCount_other": "{{count}} cards",
     "colors": { "coral": "Red", "amber": "Yellow", "mint": "Green", "sky": "Blue" },
     "faces": { "skip": "Skip", "reverse": "Reverse", "draw2": "Draw two", "wild": "Wild", "draw4": "Wild draw four" },
-    "rules": "How to play", "rulesText": "Each player gets 7 cards. Match the last card’s color or symbol, or play a wild and choose a color. Empty your hand to win.\nSkip skips the next player; reverse changes direction (with two players, it skips). +2 and +4 immediately draw cards for the next player and skip their turn. No stacking. +4 is only allowed when you have no card of the active color; no challenges.\nDraw one: play only that new card if it matches, or pass. An unplayable draw passes automatically. Before playing down to one card, check ‘Say Juno’; otherwise you draw two.\nYou have 45 seconds per turn. Time running out draws one and passes; after drawing it just passes. If someone leaves, their cards return to the deck; fewer than two players ends the round without a winner. A short voice reconnect keeps your seat. Restarting the server ends games."
+    "rules": "How to play", "rulesText": "Each player gets 7 cards. Match the last card’s color or symbol, or play a wild and choose a color. Empty your hand to win.\nSkip skips the next player; reverse changes direction (with two players, it skips). +2 and +4 immediately draw cards for the next player and skip their turn. No stacking. +4 is only allowed when you have no card of the active color; no challenges.\nDraw one: play only that new card if it matches, or pass. An unplayable draw passes automatically. With two cards, press the JUNO button before playing down to one; otherwise you draw two.\nYou have 45 seconds per turn. Time running out draws one and passes; after drawing it just passes. If someone leaves, their cards return to the deck; fewer than two players ends the round without a winner. A short voice reconnect keeps your seat. Restarting the server ends games."
   },
   "soundboard": {
     "title": "Soundboard", "description": "Play a sound for everyone in your voice channel. Preview is only for you.",
