@@ -7,6 +7,9 @@ import { deriveGridTiles } from '../../hooks/useLiveKit';
 import { useGridLayout } from '../../hooks/useGridLayout';
 import type { ParticipantInfo, GridTile } from '../../hooks/useLiveKit';
 import { useTrackStats } from '../../hooks/useTrackStats';
+import { useJunoStore } from '../../stores/junoStore';
+import { JunoTile } from '../games/JunoTile';
+import { JunoTable } from '../games/JunoTable';
 
 interface VoiceGridProps {
   participants: ParticipantInfo[];
@@ -18,8 +21,15 @@ export function VoiceGrid({ participants }: VoiceGridProps) {
   const setFocusedParticipant = useVoiceStore((s) => s.setFocusedParticipant);
   const watchingStreams = useVoiceStore((s) => s.watchingStreams);
   const [stripHidden, setStripHidden] = useState(false);
+  const channelId = useVoiceStore(s => s.currentVoiceChannelId);
+  const gameOpen = useJunoStore(s => s.open);
+  const gameExists = useJunoStore(s => !!s.snapshot?.game);
+  const gameChannelId = useJunoStore(s => s.target?.channelId);
+  const showGame = !!channelId && gameChannelId === channelId && (gameExists || gameOpen);
 
-  const tiles = useMemo(() => deriveGridTiles(participants), [participants]);
+  const tiles = useMemo<(GridTile | { kind: 'game'; key: string })[]>(() => [
+    ...deriveGridTiles(participants), ...(showGame ? [{ kind: 'game' as const, key: 'juno:game' }] : []),
+  ], [participants, showGame]);
   const shouldCollectStreamStats = tiles.some((tile) =>
     tile.kind === 'stream'
     && (tile.participant.isLocal || watchingStreams.has(tile.participant.userId)),
@@ -33,7 +43,7 @@ export function VoiceGrid({ participants }: VoiceGridProps) {
   // Reset strip visibility when focus target changes
   useEffect(() => {
     setStripHidden(false);
-  }, [focusedParticipantId]);
+  }, [focusedParticipantId, gameOpen]);
 
   // Unfocus if the focused stream tile no longer exists
   useEffect(() => {
@@ -76,32 +86,36 @@ export function VoiceGrid({ participants }: VoiceGridProps) {
     );
   }
 
-  const focusedTile = focusedParticipantId
+  const focusedTile = showGame && gameOpen ? tiles.find(t => t.kind === 'game') : focusedParticipantId
     ? tiles.find((t) => t.key === focusedParticipantId)
     : null;
 
   // Render a single tile polymorphically
-  const renderTile = (tile: GridTile, large?: boolean) =>
-    tile.kind === 'user' ? (
+  const renderTile = (tile: GridTile | { kind: 'game'; key: string }, large?: boolean) =>
+    tile.kind === 'game' ? (large ? <JunoTable /> : <JunoTile />) : tile.kind === 'user' ? (
       <VoiceUser tile={tile} large={large} />
     ) : (
       <StreamTile tile={tile} large={large} stats={streamStats} />
     );
+  const focusTile = (tile: GridTile | { kind: 'game'; key: string }) => {
+    useJunoStore.getState().setOpen(tile.kind === 'game');
+    setFocusedParticipant(tile.kind === 'game' ? null : tile.key);
+  };
 
   // Focus mode: one large tile + bottom strip
   if (focusedTile) {
-    const otherTiles = tiles.filter((t) => t.key !== focusedParticipantId);
+    const otherTiles = tiles.filter((t) => t.key !== focusedTile.key);
     return (
       <div className="flex-1 flex flex-col overflow-hidden relative">
         {/* Main focused view */}
         <div
-          className="flex-1 p-2 min-h-0 cursor-pointer relative"
-          onClick={() => setFocusedParticipant(null)}
-          title={t('voice:grid.returnToGridHint')}
+          className={`flex-1 p-2 min-h-0 relative ${focusedTile.kind === 'game' ? '' : 'cursor-pointer'}`}
+          onClick={focusedTile.kind === 'game' ? undefined : () => setFocusedParticipant(null)}
+          title={focusedTile.kind === 'game' ? undefined : t('voice:grid.returnToGridHint')}
         >
           {renderTile(focusedTile, true)}
           {/* Grid button — top-right */}
-          <button
+          {focusedTile.kind !== 'game' && <button
             onClick={(e) => {
               e.stopPropagation();
               setFocusedParticipant(null);
@@ -118,7 +132,7 @@ export function VoiceGrid({ participants }: VoiceGridProps) {
               <path d="M3 3h8v8H3V3zm0 10h8v8H3v-8zm10-10h8v8h-8V3zm0 10h8v8h-8v-8z" />
             </svg>
             <span className="text-xs font-medium">{t('voice:grid.gridButton')}</span>
-          </button>
+          </button>}
         </div>
 
         {/* Centered Hide/Show Members button — divider between focused tile and strip */}
@@ -152,7 +166,7 @@ export function VoiceGrid({ participants }: VoiceGridProps) {
             {otherTiles.map((t) => (
               <div
                 key={t.key}
-                onClick={() => setFocusedParticipant(t.key)}
+                onClick={() => focusTile(t)}
                 className="h-full aspect-video flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
               >
                 {renderTile(t)}
@@ -180,7 +194,7 @@ export function VoiceGrid({ participants }: VoiceGridProps) {
         {tiles.map((t) => (
           <div
             key={t.key}
-            onClick={() => setFocusedParticipant(t.key)}
+            onClick={() => focusTile(t)}
             className="cursor-pointer hover:opacity-90 transition-opacity"
           >
             {renderTile(t)}

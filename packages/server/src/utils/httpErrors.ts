@@ -11,6 +11,17 @@ import type { ErrorCode, ErrorDetails } from '@backspace/shared/src/errors';
  * details a route passes.
  */
 export const ERROR_MESSAGES: Record<ErrorCode, string> = {
+  juno_voice_required: 'Connect to this voice channel before opening Juno',
+  juno_exists: 'There is already a Juno table in this channel',
+  juno_capacity: 'This instance has reached its active game limit',
+  juno_stale: 'The table has changed. Check the current turn and try again',
+  juno_full: 'All four seats are occupied',
+  juno_in_progress: 'This round has started. You can watch or join the next lobby',
+  juno_player_required: 'Join the table first',
+  juno_host_required: 'Only the table host can do this',
+  juno_need_players: 'Start from the lobby with at least two players',
+  juno_invalid_move: 'That move is not allowed',
+  juno_not_your_turn: 'Wait for your turn',
   soundboard_disabled: 'The soundboard is disabled in this space',
   soundboard_invalid_audio: 'Invalid audio or file size exceeds the upload limit',
   soundboard_duration_limit: 'Audio must be at most {{max}} seconds long',

@@ -39,6 +39,12 @@ Soundboard commands use REST. Server events: `soundboard_updated {spaceId}` to
 space members and `soundboard_play {channelId, spaceId, sound}` only to eligible
 participants' voice-owning sockets. See [soundboard.md](soundboard.md).
 
+Juno commands also use REST. `ready.supportsJuno` is an optional per-origin
+capability (true on this server). `juno_updated {channelId}` uses the ordinary
+VIEW_CHANNEL-filtered channel audience and contains no cards; only the active
+voice session refetches its private view. Server restart ends ephemeral tables;
+reconnect ready invalidates the client's previous view. See [juno.md](juno.md).
+
 ### Messages
 | type | fields | notes |
 |------|--------|-------|

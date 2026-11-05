@@ -335,6 +335,16 @@ Any new card list uses this class rather than its own template.
 
 ## Primitives
 
+### Native game tables
+
+Juno keeps Aether Drift matte content/glass floating controls and DM Sans. Its
+original SVG cards use coral, amber, mint and sky with distinct shape marks, so
+color alone never identifies a card. Container queries respond to table width
+instead of raw viewport breakpoints; large hands scroll without shrinking text.
+The game table participates in the existing voice mosaic/focus and participant
+strip. It is not a decorative dashboard or a third-party embedded surface.
+See [juno.md](juno.md) for rules, state ownership and accessibility behavior.
+
 ### Radial Progress Ring
 
 Used in `AttachmentProgress` overlays inside the optimistic bubble and the staged-files row. Implementation:

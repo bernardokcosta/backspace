@@ -7,6 +7,7 @@ import { JoinPage } from './components/JoinPage';
 import { SwAutoUpdate } from './components/ui/SwUpdatePrompt';
 import { ScreenShareSetup } from './components/voice/ScreenShareSetup';
 import { SoundboardController } from './components/voice/SoundboardController';
+import { JunoSession } from './components/games/JunoSession';
 import { useAuthStore } from './stores/authStore';
 import { isElectron } from './platform/platform';
 import { startPendingMessageOrchestrator } from './stores/pendingMessageRehydrate';
@@ -62,6 +63,7 @@ export function App() {
         <SwAutoUpdate />
         <ScreenShareSetup />
         <SoundboardController />
+        <JunoSession />
         <Routes>
           <Route
             path="/login"

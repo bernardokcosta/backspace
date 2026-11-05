@@ -3,6 +3,16 @@
 Base: `/api`. Auth via `Authorization: Bearer <jwt>`. All responses JSON.
 Source files: `packages/server/src/routes/*.ts`
 
+## Native voice game (Juno)
+
+GET/POST `/channels/:channelId/juno` return a private `JunoSnapshot`. They require
+an authenticated human member with VIEW_CHANNEL + CONNECT and a live voice-owning
+socket in that space channel. Commands are `create`, `join`, `leave`, `start`,
+`rematch`, `draw`, `pass`, `play`; non-create commands name the table and expected
+revision (409 `juno_stale` on conflict). No opponent hands or draw order leave
+the server. Five creates and 60 commands/minute/account, plus the existing HTTP
+limit. Full rules, payloads and lifetime limits: [juno.md](juno.md).
+
 ## Diagnostics
 
 `POST /diagnostics` accepts 1–10 privacy-normalized fault events without credentials

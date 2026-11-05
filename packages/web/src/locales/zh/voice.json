@@ -1,4 +1,22 @@
 {
+  "juno": {
+    "name": "Juno", "games": "游戏", "open": "打开 Juno", "tagline": "来一场友好的较量",
+    "invitation": "下一轮从这里开始", "description": "匹配颜色、扭转局势，率先出完手牌。这是为语音频道中 2–4 人打造的原创纸牌游戏。",
+    "create": "创建牌桌", "lobbyTitle": "请入座", "lobbyHint": "通话中的每个人都能加入。准备好后由房主开始。",
+    "join": "加入牌桌", "leave": "离开游戏", "leaveConfirm": "离开这局游戏？你的座位和手牌将被释放，但仍会留在通话中。",
+    "start": "开始本轮", "rematch": "创建新大厅", "waitingHost": "等待房主开始…", "seats": "{{occupied}} / {{max}} 个座位", "emptySeat": "空位", "full": "牌桌已满",
+    "host": "房主", "ready": "已就绪", "you": "（你）", "players": "玩家", "inProgress": "本轮进行中", "mosaic": "返回网格",
+    "reconnecting": "正在重新连接通话。在语音重连宽限期内会保留你的座位。", "yourTurn": "轮到你了", "theirTurn": "轮到 {{name}}",
+    "yourHand": "你的手牌", "playHint": "选择高亮的牌或摸一张", "waitHint": "计划你的下一步", "drawnHint": "打出刚摸到的牌或跳过回合",
+    "draw": "摸一张", "pass": "跳过回合", "drawPile": "牌堆", "discardPile": "上一张牌", "playCard": "打出 {{card}}", "card": "{{color}} {{face}}",
+    "chooseColor": "选择下一个颜色", "sayJuno": "出牌前喊 Juno", "missedJuno": "没有喊 Juno：罚摸两张。", "lastPlay": "{{name}} 打出了 {{card}}。",
+    "activeColor": "颜色：{{color}}", "clockwise": "顺时针", "counterclockwise": "逆时针", "spectating": "你正在观战。加入下一个大厅即可游戏。",
+    "winner": "{{name}} 获胜！", "finished": "本轮结束", "results": { "playersLeft": "玩家不足，无法继续。本轮没有获胜者。", "stalemate": "无法摸牌或出牌。本轮平局。", "expired": "此牌桌已达到两小时上限。请创建新大厅。" },
+    "cardCount_other": "{{count}} 张牌",
+    "colors": { "coral": "珊瑚红", "amber": "琥珀黄", "mint": "薄荷绿", "sky": "天空蓝" },
+    "faces": { "skip": "跳过", "reverse": "反转", "draw2": "加二", "wild": "变色牌", "draw4": "变色加四" },
+    "rules": "游戏规则", "rulesText": "每人获得 7 张牌。打出与上一张相同颜色或符号的牌，或打出变色牌并选择颜色。率先出完手牌即可获胜。\n跳过牌让下家跳过回合；反转牌改变顺序（两人时跳过对手）。+2 和 +4 让下家立即摸牌并跳过回合。不可叠加。手中没有当前颜色的牌时才能打 +4；无质疑机制。\n摸一张牌后，只能打出刚摸到的牌或跳过。摸到的牌不能出时自动跳过。出牌后只剩一张时，必须先勾选‘喊 Juno’，否则罚摸两张。\n每回合 45 秒。超时摸一张并跳过；如果已经摸过则只跳过。玩家离开后手牌放回牌堆，少于两人时本轮无胜者结束。短暂语音重连会保留座位。重启服务器会结束所有游戏。"
+  },
   "soundboard": {
     "title": "音效面板", "description": "向语音频道中的所有人播放音效。试听只有你能听到。",
     "manageDescription": "管理此空间的共享音效。成员可以删除自己上传的音效。",

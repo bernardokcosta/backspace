@@ -1,4 +1,22 @@
 {
+  "juno": {
+    "name": "Juno", "games": "Spiele", "open": "Juno öffnen", "tagline": "Ein freundschaftliches Kräftemessen",
+    "invitation": "Die nächste Runde beginnt hier", "description": "Kombiniere Farben, wende das Blatt und werde zuerst alle Karten los. Ein eigenes Kartenspiel für 2–4 Personen in diesem Sprachkanal.",
+    "create": "Tisch erstellen", "lobbyTitle": "Nimm Platz", "lobbyHint": "Alle im Anruf können mitspielen. Der Gastgeber startet, wenn der Tisch bereit ist.",
+    "join": "Platz nehmen", "leave": "Spiel verlassen", "leaveConfirm": "Dieses Spiel verlassen? Dein Platz und deine Karten werden freigegeben. Du bleibst im Anruf.",
+    "start": "Runde starten", "rematch": "Neue Lobby öffnen", "waitingHost": "Warte auf den Gastgeber…", "seats": "{{occupied}} / {{max}} Plätze", "emptySeat": "Platz frei", "full": "Tisch voll",
+    "host": "Gastgeber", "ready": "Bereit", "you": "(du)", "players": "Spieler", "inProgress": "Runde läuft", "mosaic": "Zurück zur Kachelansicht",
+    "reconnecting": "Verbindung zum Anruf wird wiederhergestellt. Dein Platz bleibt während der Wiederverbindungsfrist erhalten.", "yourTurn": "Du bist dran", "theirTurn": "{{name}} ist dran",
+    "yourHand": "Deine Karten", "playHint": "Spiele eine hervorgehobene Karte oder ziehe eine", "waitHint": "Plane deinen nächsten Zug", "drawnHint": "Spiele die gerade gezogene Karte oder passe",
+    "draw": "Eine ziehen", "pass": "Passen", "drawPile": "Ziehstapel", "discardPile": "Letzte Karte", "playCard": "{{card}} spielen", "card": "{{color}} {{face}}",
+    "chooseColor": "Wähle die nächste Farbe", "sayJuno": "Vor dem Spielen Juno sagen", "missedJuno": "Kein Juno gesagt: zwei Strafkarten.", "lastPlay": "{{name}} hat {{card}} gespielt.",
+    "activeColor": "Farbe: {{color}}", "clockwise": "Im Uhrzeigersinn", "counterclockwise": "Gegen den Uhrzeigersinn", "spectating": "Du schaust zu. Spiele in der nächsten Lobby mit.",
+    "winner": "{{name}} gewinnt!", "finished": "Runde beendet", "results": { "playersLeft": "Nicht genug Spieler zum Fortsetzen. Diese Runde hat keinen Gewinner.", "stalemate": "Keine Karte kann gezogen oder gespielt werden. Die Runde endet unentschieden.", "expired": "Dieser Tisch hat das Limit von zwei Stunden erreicht. Öffne eine neue Lobby." },
+    "cardCount_one": "{{count}} Karte", "cardCount_other": "{{count}} Karten",
+    "colors": { "coral": "Koralle", "amber": "Bernstein", "mint": "Minze", "sky": "Himmelblau" },
+    "faces": { "skip": "Aussetzen", "reverse": "Richtungswechsel", "draw2": "Zieh zwei", "wild": "Farbwahl", "draw4": "Farbwahl zieh vier" },
+    "rules": "Spielregeln", "rulesText": "Jeder erhält 7 Karten. Lege die gleiche Farbe oder das gleiche Symbol wie die letzte Karte ab, oder spiele eine Farbwahlkarte. Wer zuerst keine Karten mehr hat, gewinnt.\nAussetzen überspringt den Nächsten; Richtungswechsel ändert die Richtung (zu zweit überspringt er den Gegner). +2 und +4 lassen den Nächsten sofort ziehen und aussetzen. Kein Stapeln. +4 ist nur ohne Karte der aktiven Farbe erlaubt; keine Herausforderungen.\nZiehe eine Karte: Nur diese darf noch gespielt werden, wenn sie passt; sonst passe. Eine unpassende gezogene Karte beendet den Zug automatisch. Vor der vorletzten Karte ‘Juno sagen’ markieren, sonst zwei Strafkarten ziehen.\n45 Sekunden pro Zug. Nach Ablauf wird eine Karte gezogen und gepasst; nach dem Ziehen wird nur gepasst. Wer geht, gibt seine Karten in den Stapel zurück. Bei weniger als zwei Spielern endet die Runde ohne Gewinner. Kurze Sprach-Wiederverbindungen behalten den Platz. Ein Serverneustart beendet Spiele."
+  },
   "soundboard": {
     "title": "Klangtafel", "description": "Spiele einen Klang für alle in deinem Sprachkanal. Die Vorschau hörst nur du.",
     "manageDescription": "Verwalte die gemeinsamen Klänge dieses Raums. Mitglieder können eigene Uploads entfernen.",

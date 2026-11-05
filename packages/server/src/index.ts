@@ -16,6 +16,7 @@ import { messageRoutes } from './routes/messages.js';
 import { pinRoutes } from './routes/pins.js';
 import { stickerRoutes } from './routes/stickers.js';
 import { soundboardRoutes } from './routes/soundboard.js';
+import { junoRoutes } from './routes/juno.js';
 import { stickerStoreRoutes } from './routes/stickerStore.js';
 import { gameIconRoutes } from './routes/gameIcons.js';
 import { uploadRoutes } from './routes/uploads.js';
@@ -259,6 +260,7 @@ async function main(): Promise<void> {
   await app.register(uploadRoutes);
   await app.register(stickerRoutes);
   await app.register(soundboardRoutes);
+  await app.register(junoRoutes);
   await app.register(stickerStoreRoutes);
   await app.register(gameIconRoutes);
   await app.register(filesRoutes);

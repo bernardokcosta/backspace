@@ -1,6 +1,7 @@
 import { useChannelPokeStore } from './channelPokeStore';
 import { useEphemeralReplyStore } from './ephemeralReplyStore';
 import { useSoundboardStore } from './soundboardStore';
+import { useJunoStore } from './junoStore';
 import { useUnreadCountStore } from './unreadCountStore';
 import { useMemo } from 'react';
 import { create } from 'zustand';
@@ -68,6 +69,7 @@ function resetUserStores() {
   useChannelPokeStore.getState().reset();
   useEphemeralReplyStore.getState().reset();
   useSoundboardStore.getState().reset();
+  useJunoStore.getState().reset();
   useUnreadCountStore.getState().reset();
   useSocialStore.getState().reset();
   useVoiceStore.getState().resetSession();

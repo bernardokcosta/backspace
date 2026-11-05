@@ -17,6 +17,17 @@
  * fails when a code has no catalog entry.
  */
 export const ERROR_CODES = [
+  'juno_voice_required',
+  'juno_exists',
+  'juno_capacity',
+  'juno_stale',
+  'juno_full',
+  'juno_in_progress',
+  'juno_player_required',
+  'juno_host_required',
+  'juno_need_players',
+  'juno_invalid_move',
+  'juno_not_your_turn',
   'soundboard_disabled',
   'soundboard_invalid_audio',
   'soundboard_duration_limit',

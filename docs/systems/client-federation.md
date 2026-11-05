@@ -50,6 +50,12 @@ Backspace supports **client-side federation**: a single app session (web or desk
 - Its own WebSocket connection (heartbeat, events)
 - Its own user identity (different Snowflake ID per instance)
 
+Native [Juno games](juno.md) in space voice channels live entirely on that
+channel's hosting instance, like the soundboard. The client uses its existing
+API/WS connection and host-issued row id, never a home id or a new S2S relay.
+`ready.supportsJuno` gates the Games control per origin on mixed-version hosts.
+Private game snapshots are account/origin/channel scoped and never persisted.
+
 ---
 
 ## 1. Federated Account Creation

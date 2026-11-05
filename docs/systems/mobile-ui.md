@@ -27,6 +27,15 @@ Cross-references:
 - Desktop three-column layout (AppLayout): see `docs/systems/design-system.md`
 - Interface scale, the coordinate model, `layoutPixels` / `visualPixels`: see `docs/systems/design-system.md`
 
+## Native games in calls
+
+`MobileVoiceFullScreen` adds the shared Games control for supported space voice
+sessions. Juno uses the same `VoiceGrid` tile/focus pipeline and interactive
+`JunoTable` as desktop, not an iframe or a new mobile screen stack. The table's
+container queries adapt player rows and cards to its available width; hand and
+table scrolling stay inside the call view. Minimizing the call/game leaves the
+global JunoSession sync active. DM calls do not expose Games. See [juno.md](juno.md).
+
 ---
 
 ## Responsive Breakpoint

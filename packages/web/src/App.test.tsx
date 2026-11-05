@@ -13,6 +13,7 @@ vi.mock('./components/JoinPage', () => ({ JoinPage: () => null }));
 vi.mock('./components/ui/SwUpdatePrompt', () => ({ SwAutoUpdate: () => null }));
 vi.mock('./components/voice/ScreenShareSetup', () => ({ ScreenShareSetup: () => null }));
 vi.mock('./components/voice/SoundboardController', () => ({ SoundboardController: () => null }));
+vi.mock('./components/games/JunoSession', () => ({ JunoSession: () => null }));
 import { App } from './App';
 
 beforeEach(() => {

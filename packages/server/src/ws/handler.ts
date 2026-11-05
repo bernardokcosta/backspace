@@ -1709,6 +1709,7 @@ export function buildReadyPayload(userId: string): {
   voiceUserStates: Record<string, { isMuted: boolean; isDeafened: boolean; isCameraOn: boolean; isScreenSharing: boolean }>;
   spaceVoiceStates: Record<string, { spaceMuted: boolean; spaceDeafened: boolean; permissionMuted: boolean }>;
   supportsPoke: boolean;
+  supportsJuno: boolean;
   unreadCounts: Record<string, number>;
   readStates: ReadState[];
   activeCalls: ActiveCallInfo[];
@@ -2192,7 +2193,7 @@ export function buildReadyPayload(userId: string): {
     dmChannels.map(dm => dm.id),
     new Map(readStateRows.map(rs => [rs.channelId, rs.lastReadMessageId])),
   );
-  return { supportsPoke: true, unreadCounts, user, spaces, dmChannels, folders, spaceLayout, layoutUpdatedAt, voiceStates, voiceChannelElapsedSeconds, voiceUserStates, spaceVoiceStates, readStates, activeCalls, userActivities, userActivityIdentities, rejectedPeerOrigins, awaitingApprovalPeerOrigins, activePeerOrigins, pendingApprovalCount };
+  return { supportsJuno: true, supportsPoke: true, unreadCounts, user, spaces, dmChannels, folders, spaceLayout, layoutUpdatedAt, voiceStates, voiceChannelElapsedSeconds, voiceUserStates, spaceVoiceStates, readStates, activeCalls, userActivities, userActivityIdentities, rejectedPeerOrigins, awaitingApprovalPeerOrigins, activePeerOrigins, pendingApprovalCount };
 }
 
 export async function registerWebSocket(app: FastifyInstance): Promise<void> {

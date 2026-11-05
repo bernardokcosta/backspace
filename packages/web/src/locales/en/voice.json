@@ -1,4 +1,22 @@
 {
+  "juno": {
+    "name": "Juno", "games": "Games", "open": "Open Juno", "tagline": "A little friendly rivalry",
+    "invitation": "Your next round starts here", "description": "Match colors, turn the tables, and be the first to empty your hand. An original card game for 2–4 people in this voice channel.",
+    "create": "Create a table", "lobbyTitle": "Pull up a seat", "lobbyHint": "Everyone in the call can join. The host starts when the table is ready.",
+    "join": "Join the table", "leave": "Leave game", "leaveConfirm": "Leave this game? Your seat and hand will be released. You’ll stay in the call.",
+    "start": "Start round", "rematch": "Open a new lobby", "waitingHost": "Waiting for the host to start…", "seats": "{{occupied}} / {{max}} seats", "emptySeat": "Seat available", "full": "Table full",
+    "host": "Host", "ready": "Ready", "you": "(you)", "players": "Players", "inProgress": "Round in progress", "mosaic": "Back to mosaic",
+    "reconnecting": "Reconnecting to the call. Your seat is kept during the voice reconnect grace period.", "yourTurn": "Your turn", "theirTurn": "{{name}}’s turn",
+    "yourHand": "Your hand", "playHint": "Choose a highlighted card or draw one", "waitHint": "Plan your next move", "drawnHint": "Play the card you just drew or pass",
+    "draw": "Draw one", "pass": "Pass turn", "drawPile": "Draw pile", "discardPile": "Last card", "playCard": "Play {{card}}", "card": "{{color}} {{face}}",
+    "chooseColor": "Choose the next color", "sayJuno": "Say Juno before playing", "missedJuno": "No Juno call: two-card penalty.", "lastPlay": "{{name}} played {{card}}.",
+    "activeColor": "Color: {{color}}", "clockwise": "Clockwise", "counterclockwise": "Counterclockwise", "spectating": "You’re watching. Join the next lobby to play.",
+    "winner": "{{name}} wins!", "finished": "Round finished", "results": { "playersLeft": "Not enough players to continue. No winner this round.", "stalemate": "No cards can be drawn or played. This round is a draw.", "expired": "This table reached its two-hour limit. Open a fresh lobby." },
+    "cardCount_one": "{{count}} card", "cardCount_other": "{{count}} cards",
+    "colors": { "coral": "Coral", "amber": "Amber", "mint": "Mint", "sky": "Sky" },
+    "faces": { "skip": "Skip", "reverse": "Reverse", "draw2": "Draw two", "wild": "Wild", "draw4": "Wild draw four" },
+    "rules": "How to play", "rulesText": "Each player gets 7 cards. Match the last card’s color or symbol, or play a wild and choose a color. Empty your hand to win.\nSkip skips the next player; reverse changes direction (with two players, it skips). +2 and +4 immediately draw cards for the next player and skip their turn. No stacking. +4 is only allowed when you have no card of the active color; no challenges.\nDraw one: play only that new card if it matches, or pass. An unplayable draw passes automatically. Before playing down to one card, check ‘Say Juno’; otherwise you draw two.\nYou have 45 seconds per turn. Time running out draws one and passes; after drawing it just passes. If someone leaves, their cards return to the deck; fewer than two players ends the round without a winner. A short voice reconnect keeps your seat. Restarting the server ends games."
+  },
   "soundboard": {
     "title": "Soundboard", "description": "Play a sound for everyone in your voice channel. Preview is only for you.",
     "manageDescription": "Manage this space's shared sounds. Members can remove their own uploads.",

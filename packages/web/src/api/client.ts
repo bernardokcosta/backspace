@@ -2,6 +2,7 @@ import type { ChatCommandsResponse, CreateInteractionRequest, CreateInteractionR
 import type { PersonalSticker, StickerPackSummary, StickerPackDetail, StickerPackItem } from '@backspace/shared/src/stickers';
 import type { SoundboardDocument, SoundboardSettings, SoundboardSound } from '@backspace/shared/src/soundboard';
 import type { GameIconUpload } from '@backspace/shared/src/gameIcons';
+import type { JunoCommand, JunoSnapshot } from '@backspace/shared/src/juno';
 import { isErrorCode, type ErrorCode, type ErrorDetails } from '@backspace/shared/src/errors';
 import type {
   NotificationSetting,
@@ -490,6 +491,10 @@ export class BackspaceApiClient {
     remove: (id: string) => Promise<{ success: boolean }>;
   };
 
+  juno: {
+    get: (channelId: string) => Promise<JunoSnapshot>;
+    command: (channelId: string, command: JunoCommand) => Promise<JunoSnapshot>;
+  };
   soundboard: {
     list: (spaceId: string) => Promise<SoundboardDocument>;
     settings: (spaceId: string, data: SoundboardSettings) => Promise<SoundboardSettings>;
@@ -612,6 +617,10 @@ export class BackspaceApiClient {
       const messages = await response.json() as T[];
       return { messages, forward };
     }
+    this.juno = {
+      get: (channelId) => request<JunoSnapshot>('GET', `/channels/${encodeURIComponent(channelId)}/juno`),
+      command: (channelId, command) => request<JunoSnapshot>('POST', `/channels/${encodeURIComponent(channelId)}/juno`, command),
+    };
     this.soundboard = {
       list: (spaceId) => request<SoundboardDocument>('GET', `/spaces/${encodeURIComponent(spaceId)}/soundboard`),
       settings: (spaceId, data) => request<SoundboardSettings>('PATCH', `/spaces/${encodeURIComponent(spaceId)}/soundboard/settings`, data),

@@ -1,4 +1,22 @@
 {
+  "juno": {
+    "name": "Juno", "games": "Jogos", "open": "Abrir Juno", "tagline": "Uma boa rivalidade entre amigos",
+    "invitation": "A próxima rodada começa aqui", "description": "Combine cores, vire o jogo e seja o primeiro a ficar sem cartas. Um jogo original para 2 a 4 pessoas neste canal de voz.",
+    "create": "Criar uma mesa", "lobbyTitle": "Puxe uma cadeira", "lobbyHint": "Quem está na chamada pode entrar. O anfitrião começa quando a mesa estiver pronta.",
+    "join": "Entrar na mesa", "leave": "Sair do jogo", "leaveConfirm": "Sair deste jogo? Seu lugar e suas cartas serão liberados. Você continua na chamada.",
+    "start": "Iniciar rodada", "rematch": "Abrir uma nova mesa", "waitingHost": "Esperando o anfitrião começar…", "seats": "{{occupied}} / {{max}} lugares", "emptySeat": "Lugar disponível", "full": "Mesa cheia",
+    "host": "Anfitrião", "ready": "Pronto", "you": "(você)", "players": "Jogadores", "inProgress": "Rodada em andamento", "mosaic": "Voltar ao mosaico",
+    "reconnecting": "Reconectando à chamada. Seu lugar é mantido durante o período de reconexão da voz.", "yourTurn": "Sua vez", "theirTurn": "Vez de {{name}}",
+    "yourHand": "Suas cartas", "playHint": "Escolha uma carta destacada ou compre uma", "waitHint": "Prepare sua próxima jogada", "drawnHint": "Jogue a carta que acabou de comprar ou passe",
+    "draw": "Comprar uma", "pass": "Passar a vez", "drawPile": "Comprar", "discardPile": "Última carta", "playCard": "Jogar {{card}}", "card": "{{face}} {{color}}",
+    "chooseColor": "Escolha a próxima cor", "sayJuno": "Dizer Juno antes de jogar", "missedJuno": "Não disse Juno: compre duas cartas.", "lastPlay": "{{name}} jogou {{card}}.",
+    "activeColor": "Cor: {{color}}", "clockwise": "Sentido horário", "counterclockwise": "Sentido anti-horário", "spectating": "Você está assistindo. Entre na próxima mesa para jogar.",
+    "winner": "{{name}} venceu!", "finished": "Rodada encerrada", "results": { "playersLeft": "Não há jogadores suficientes para continuar. Esta rodada não tem vencedor.", "stalemate": "Não é possível comprar nem jogar cartas. A rodada empatou.", "expired": "Esta mesa atingiu o limite de duas horas. Abra uma nova mesa." },
+    "cardCount_one": "{{count}} carta", "cardCount_many": "{{count}} cartas", "cardCount_other": "{{count}} cartas",
+    "colors": { "coral": "Coral", "amber": "Âmbar", "mint": "Menta", "sky": "Azul" },
+    "faces": { "skip": "Bloqueio", "reverse": "Inverter", "draw2": "Comprar duas", "wild": "Coringa", "draw4": "Coringa comprar quatro" },
+    "rules": "Como jogar", "rulesText": "Cada jogador recebe 7 cartas. Combine a cor ou o símbolo da última carta, ou jogue um coringa e escolha a cor. Fique sem cartas para vencer.\nBloqueio pula o próximo jogador; inverter muda o sentido (com dois jogadores, pula o adversário). +2 e +4 fazem o próximo comprar e perder a vez. Não acumulam. +4 só pode ser jogado sem nenhuma carta da cor ativa; não há desafios.\nCompre uma: só pode jogar essa nova carta, se combinar, ou passar. Se ela não combinar, a vez passa automaticamente. Antes de ficar com uma carta, marque ‘Dizer Juno’; caso contrário, compre duas.\nSão 45 segundos por turno. Ao acabar o tempo, compre uma e passe; se já comprou, apenas passe. Ao sair, suas cartas voltam ao baralho; com menos de dois jogadores a rodada termina sem vencedor. Uma reconexão rápida da voz mantém seu lugar. Reiniciar o servidor encerra os jogos."
+  },
   "soundboard": {
     "title": "Painel de áudios", "description": "Reproduza um áudio para todos no seu canal de voz. A prévia toca só para você.",
     "manageDescription": "Gerencie os áudios compartilhados deste espaço. Membros podem excluir os próprios envios.",

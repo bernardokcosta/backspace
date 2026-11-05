@@ -1,6 +1,6 @@
 {
   "name": "@backspace/shared",
-  "version": "1.16.1",
+  "version": "1.16.2",
   "private": true,
   "license": "AGPL-3.0-only",
   "author": "Jannis Braun",
@@ -8,6 +8,8 @@
   "main": "./src/types.ts",
   "types": "./src/types.ts",
   "exports": {
+    "./src/juno": "./src/juno.ts",
+    "./src/juno.js": "./src/juno.ts",
     ".": "./src/types.ts",
     "./src/permissions": "./src/permissions.ts",
     "./src/permissions.js": "./src/permissions.ts",

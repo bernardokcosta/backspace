@@ -1,5 +1,9 @@
 # Localization
 
+Native Juno UI/rules/card names live under `voice:juno`; `juno_*` error codes
+have entries in all five error catalogs. The invariant game name "Juno" follows
+the existing brand-name allowlist convention; its surrounding copy is translated.
+
 Soundboard playback refusals distinguish missing/reconnecting voice ownership,
 moderation/permission mute and deafen with three stable error codes and text in
 all five catalogs. Ordinary self microphone mute remains allowed.

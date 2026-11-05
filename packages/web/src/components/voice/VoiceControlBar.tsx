@@ -6,6 +6,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { useSpaceStore, getChannelOrigin, getMyUserIdForOrigin } from '../../stores/spaceStore';
 import { ScreenShareSettingsPopover } from './ScreenShareSettingsPopover';
 import { SoundboardButton } from './SoundboardButton';
+import { GamesButton } from '../games/GamesButton';
 import { hasPermissionBit, PermissionBits } from '../../utils/permissions';
 import { handleMuteAction, handleDeafenAction, handleCameraAction, handleScreenShareAction, handleDisconnectAction } from '../../utils/voiceActions';
 import { VOICE_CHROME_ATTR } from '../../hooks/usePointerReveal';
@@ -196,6 +197,7 @@ export function VoiceControlBar({ revealed = false }: { revealed?: boolean }) {
 
         {/* Separator */}
         <SoundboardButton />
+        <GamesButton />
         <div className="w-[1px] h-6 bg-white/10 mx-0.5" />
 
         {/* Chat Toggle */}

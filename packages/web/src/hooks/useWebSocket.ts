@@ -1,5 +1,6 @@
 import { receiveChannelPoke } from '../components/chat/channelPoke';
 import { receiveSoundboardPlay } from '../audio/soundboardPlayback';
+import { useJunoStore } from '../stores/junoStore';
 import { soundboardKey, useSoundboardStore } from '../stores/soundboardStore';
 import { useChannelPokeStore } from '../stores/channelPokeStore';
 import { useEphemeralReplyStore } from '../stores/ephemeralReplyStore';
@@ -285,6 +286,7 @@ function handleEvent(origin: string, event: ServerEvent, readyAlreadyDelivered =
       useUnreadCountStore.getState().updateCounts(origin, event.counts);
       break;
     case 'ready':
+      useJunoStore.getState().setHost(origin, event.supportsJuno === true);
       useChannelPokeStore.getState().setHost(origin, event.supportsPoke === true);
       // This instance names the signed-in user's row there (the home's is the
       // session row itself, set below). The one record of "my ids".
@@ -780,6 +782,9 @@ function handleEvent(origin: string, event: ServerEvent, readyAlreadyDelivered =
       break;
     }
 
+    case 'juno_updated':
+      useJunoStore.getState().invalidate(origin, event.channelId);
+      break;
     case 'soundboard_updated': {
       const store = useSoundboardStore.getState();
       if (store.entries[soundboardKey(origin, event.spaceId)]) void store.load(origin, event.spaceId);
