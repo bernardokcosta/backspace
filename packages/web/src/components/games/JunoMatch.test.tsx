@@ -73,7 +73,12 @@ describe('Juno cosmic interactive match', () => {
     useJunoStore.setState({ snapshot: { revision: 2, game } });
     const { container } = render(<JunoMatch />);
     const button = screen.getByRole('button', { name: /report bo/i });
-    expect(button).toHaveTextContent('10'); await userEvent.click(button);
+    expect(button.textContent).toBe('');
+    expect(button.querySelector('img')).toHaveAttribute('src', '/games/juno/ui/hammer-still.webp');
+    expect(button).toHaveAccessibleDescription('10 seconds left to report');
+    expect(container.querySelector('.juno-report-time,.juno-report-label')).toBeNull();
+    expect(container.querySelector('[data-seat="top"] .juno-opponent-cards img')).toBeInTheDocument();
+    await userEvent.click(button);
     expect(command).toHaveBeenCalledWith({ type: 'report', targetUserId: 'b', opportunityId: 'miss-1' });
     expect(container.querySelector('.juno-effect-draw')).toBeNull();
     expect(screen.getByText('1 card')).toBeInTheDocument();
@@ -84,7 +89,7 @@ describe('Juno cosmic interactive match', () => {
     game.reportOpportunities = [{ id: 'miss-2', targetUserId: 'b', remainingMs: 3000 }];
     useJunoStore.setState({ snapshot: { revision: 3, game }, observedAt: Date.now() }); render(<JunoMatch />);
     const button = screen.getByRole('button', { name: /report bo/i }); expect(button).toBeEnabled();
-    act(() => vi.advanceTimersByTime(2000)); expect(button).toHaveTextContent('1');
+    act(() => vi.advanceTimersByTime(2000)); expect(button).toHaveAccessibleDescription('1 seconds left to report');
     act(() => useJunoStore.setState({ pending: true })); expect(button).toBeDisabled();
     act(() => useJunoStore.setState({ pending: false }));
     act(() => vi.advanceTimersByTime(1000)); expect(button).toBeDisabled();
@@ -105,6 +110,26 @@ describe('Juno cosmic interactive match', () => {
     act(() => useJunoStore.setState({ snapshot: { revision: 5, game: { ...game,
       lastMove: { id: 'report-1', type: 'report', userId: 'a', targetUserId: 'b', amount: 2 } } } }));
     expect(screen.getByRole('status', { name: /report/i })).toHaveTextContent(/ada.*bo.*2/i);
-    expect(container.querySelector('.juno-effect-draw')).toHaveAttribute('data-from', 'top');
+    expect(container.querySelector('.juno-effect-report')).toHaveAttribute('data-from', 'top');
+    expect(container.querySelector('.juno-effect-draw,.juno-effect-special')).toBeNull();
+  });
+  it('retains seat anchors and existing backs through confirmation and the next ordinary move', () => {
+    const game = junoGame('playing'); game.supportsReports = true; game.players[1]!.cardCount = 1;
+    game.reportOpportunities = [{ id: 'stable-miss', targetUserId: 'b', remainingMs: 10_000 }];
+    useJunoStore.setState({ snapshot: { revision: 2, game } });
+    const { container } = render(<JunoMatch />);
+    const anchor = container.querySelector('[data-seat="top"] .juno-report-anchor');
+    const back = container.querySelector('[data-seat="top"] .juno-opponent-cards img');
+    expect(anchor).toBeInTheDocument(); expect(back).toBeInTheDocument();
+    const reported = { ...game, reportOpportunities: [], players: game.players.map(p => p.userId === 'b' ? { ...p, cardCount: 3 } : p),
+      lastMove: { id: 'stable-report', type: 'report' as const, userId: 'a', targetUserId: 'b', amount: 2 } };
+    act(() => useJunoStore.setState({ snapshot: { revision: 3, game: reported } }));
+    expect(container.querySelector('[data-seat="top"] .juno-report-anchor')).toBe(anchor);
+    expect(container.querySelector('[data-seat="top"] .juno-opponent-cards img')).toBe(back);
+    expect(container.querySelectorAll('[data-seat="top"] .juno-opponent-cards img')).toHaveLength(3);
+    act(() => useJunoStore.setState({ snapshot: { revision: 4, game: { ...reported,
+      lastMove: { id: 'next-turn', type: 'draw', userId: 'a', amount: 1 } } } }));
+    expect(container.querySelector('[data-seat="top"] .juno-report-anchor')).toBe(anchor);
+    expect(container.querySelector('[data-seat="top"] .juno-opponent-cards img')).toBe(back);
   });
 });

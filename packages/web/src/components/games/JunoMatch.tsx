@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties } from 'react';
+import { useId, useRef, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { JUNO_COLORS, canPlayJuno, type JunoCard as Card, type JunoColor, type JunoPerson } from '@backspace/shared/src/juno';
 import { useJunoStore } from '../../stores/junoStore';
@@ -21,6 +21,7 @@ export function JunoMatch() {
   const [colorChoice, setColorChoice] = useState<{ card: Card; revision: number; gameId: string } | null>(null);
   const [announceRevision, setAnnounceRevision] = useState<number | null>(null);
   const colorTrigger = useRef<HTMLButtonElement | null>(null);
+  const reportDescriptionId = useId();
   const game = snapshot?.game;
   if (!game || game.phase !== 'playing') return null;
   const revision = snapshot.revision; const selfId = target?.selfId;
@@ -49,20 +50,19 @@ export function JunoMatch() {
     const opportunity = game.supportsReports && isPlayer && person?.userId !== selfId && person?.cardCount === 1 && !person.announced
       ? game.reportOpportunities?.find(window => window.targetUserId === person?.userId) : undefined;
     const reportSeconds = Math.ceil(Math.max(0, (opportunity?.remainingMs ?? 0) - Math.max(0, now - observedAt)) / 1000);
+    const reportControl = game.supportsReports && person && <div className="juno-report-anchor">{opportunity && <><button type="button" className="juno-report" aria-label={t('juno.reportPlayer', { name: playerName(person) })}
+      aria-describedby={`${reportDescriptionId}-${position}`} title={t('juno.reportPlayer', { name: playerName(person) })} disabled={disabled || reportSeconds <= 0}
+      onClick={() => { if (opportunity.remainingMs > Math.max(0, Date.now() - observedAt)) void command({ type: 'report', targetUserId: opportunity.targetUserId, opportunityId: opportunity.id }); }}>
+      <img src={JUNO_ASSETS.hammerStill} alt="" aria-hidden="true" draggable={false} />
+    </button><span id={`${reportDescriptionId}-${position}`} className="sr-only">{t('juno.reportTime', { seconds: formatNumber(reportSeconds) })}</span></>}</div>;
     return <div key={position} data-seat={position} className={`juno-seat juno-seat-${position}`}>
       {person ? <>
-        <JunoPlayerBadge person={person} origin={target?.origin ?? ''} spaceId={spaceId} self={person.userId === selfId}
-          active={person.userId === game.currentPlayerId} next={person.userId === next?.userId} detail={t('juno.cardCount', { count: person.cardCount })} />
-        {opportunity && <button type="button" className="juno-report glass" aria-label={t('juno.reportPlayer', { name: playerName(person) })}
-          title={t('juno.reportPlayer', { name: playerName(person) })} disabled={disabled || reportSeconds <= 0}
-          onClick={() => { if (opportunity.remainingMs > Math.max(0, Date.now() - observedAt)) void command({ type: 'report', targetUserId: person.userId, opportunityId: opportunity.id }); }}>
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M5 21V4m0 0c4-3 8 3 14 0v10c-6 3-10-3-14 0" /></svg>
-          <span className="juno-report-label">{t('juno.report')}</span>
-          <span className="juno-report-time" aria-label={t('juno.reportTime', { seconds: formatNumber(reportSeconds) })}>{formatNumber(reportSeconds)}</span>
-        </button>}
-        {person.userId !== selfId && !opportunity && <div className={`juno-opponent-cards${side ? ' juno-side-hand' : ''}`} aria-hidden="true">
+        <div className="juno-player-controls"><JunoPlayerBadge person={person} origin={target?.origin ?? ''} spaceId={spaceId} self={person.userId === selfId}
+          active={person.userId === game.currentPlayerId} next={person.userId === next?.userId} detail={t('juno.cardCount', { count: person.cardCount })} reportControl={reportControl} />
+        </div>
+        {person.userId !== selfId && <div className={`juno-opponent-cards${side ? ' juno-side-hand' : ''}`} aria-hidden="true">
           {Array.from({ length: visibleCards }, (_, i) => side
-            ? <span key={i} className="juno-side-card" style={{ '--juno-card-tilt': `${(i - (visibleCards - 1) / 2) * 3}deg` } as CSSProperties}><JunoCard back /></span>
+            ? <span key={i} className="juno-side-card" style={{ '--juno-card-tilt': `${(i - 3) * 3}deg` } as CSSProperties}><JunoCard back /></span>
             : <JunoCard back key={i} />)}
         </div>}
         {person.announced && <span className="juno-called">{t('juno.name')}</span>}
@@ -73,7 +73,7 @@ export function JunoMatch() {
   const moveTarget = game.players.find(p => p.userId === game.lastMove?.targetUserId);
   const effectPlayer = game.lastMove?.type === 'report' ? moveTarget : movePlayer;
   const movePosition = Object.entries(seats).find(([, person]) => person?.userId === effectPlayer?.userId)?.[0] ?? 'top';
-  return <div className={`juno-match${myTurn ? ' juno-my-turn' : ''}`}>
+  return <div className={`juno-match${game.supportsReports ? ' juno-reports' : ''}${myTurn ? ' juno-my-turn' : ''}`}>
     <JunoEffects move={game.lastMove} position={movePosition} name={playerName(effectPlayer)} />
     <div className="juno-arena">
       <img className="juno-orbit" src={JUNO_ASSETS.orbit} alt="" aria-hidden="true" />

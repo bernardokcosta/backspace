@@ -8,6 +8,7 @@ export const JUNO_ASSETS = {
   primary: `${ROOT}/ui/button-primary.svg`, secondary: `${ROOT}/ui/button-secondary.svg`,
   crown: `${ROOT}/ui/crown.svg`, gold: `${ROOT}/ui/medal-gold.svg`, silver: `${ROOT}/ui/medal-silver.svg`,
   bronze: `${ROOT}/ui/medal-bronze.svg`, rankingRow: `${ROOT}/ui/ranking-row.svg`,
+  hammer: `${ROOT}/ui/hammer.gif`, hammerStill: `${ROOT}/ui/hammer-still.webp`,
 };
 
 /** Opaque runtime ids are never artwork paths; opponents always use the same back. */

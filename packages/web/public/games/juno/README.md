@@ -11,6 +11,11 @@ original back. Byte-identical repeated card faces deliberately share an image,
 not a runtime card id. Wire colors coral/amber/mint/sky map to red/yellow/green/
 blue, and actions skip/reverse/draw2/wild/draw4 retain their existing rules.
 
-Only separate approved WebP/SVG components were imported. Demo avatars, composed
+The transparent `Animação de martelo de juiz neon.gif` was supplied separately
+and approved for implementation/publication on 2026-11-06. `ui/hammer.gif` keeps
+its exact nine-frame bytes; `ui/hammer-still.webp` is the tightly cropped first
+frame for the resting report control. The manifest records source/crop/hashes.
+
+Only separate approved WebP/SVG/GIF components were imported. Demo avatars, composed
 previews, duplicate PNGs and the original archives are not shipped. Text, people,
 interaction and rankings are actual application elements, not painted previews.

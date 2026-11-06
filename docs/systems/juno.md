@@ -216,19 +216,28 @@ visible placeholder text. Host clicks add/remove computers directly in the lobby
 The supplied 720:1056 card art maps coral/amber/mint/sky to red/yellow/green/blue
 without changing wire enums or card ids. Opponent fans show only backs (at most
 10 images; the exact count stays visible). The single cosmic background keeps
-all four colored corners on narrow screens. Localized real buttons overlay the
-separate supplied button art. The game palette is scoped to Juno, not app chrome.
+all four colored corners on narrow screens. Localized real buttons retain rounded
+green/cyan gradients, borders and focus/disabled states without depending on
+background artwork loading. The game palette is scoped to Juno, not app chrome.
 Stable optional lastMove.id keys drive short confirmed play/draw/special/JUNO
 effects; polls and initial mounts do not replay them. The JUNO logo flies from
 the actual announcing avatar center, using interface-scale-aware geometry.
 Effects are pointer-transparent and expire; reduced motion removes travel/pulsing
 while keeping static feedback. No sound capture, synthesized voice or new audio
 asset is used for a call of JUNO.
-Eligible opponent seats add a separate accessible report button/countdown, never
-replace the real profile action. Disconnected/pending/expired controls are disabled;
-the server remains the deadline authority. Confirmed reports identify both players
-and animate the actual draw from the accused seat, not the reporter. Compact
-height-aware rows retain reachable controls without pausing the game.
+Eligible opponent seats add a separate accessible hammer report button, never
+replace the real profile action. Its striking base aligns with the avatar center;
+the target and remaining deadline remain accessible without a visible countdown.
+Disconnected/pending/expired controls are disabled; the server remains the deadline
+authority. Persistent seat anchors and fixed fan space keep cards, avatars, piles
+and the own hand stationary across opportunities, confirmations and effect cleanup.
+Cards are never temporarily hidden by a report effect; existing responsive hiding
+in compact layouts remains. Confirmed positive-amount reports replay the supplied
+transparent hammer and a short flash/ring/12 particles above the accused seat,
+without a card flight or central +2 overlay. Only new confirmed ids animate; the
+report effect expires after 1.05 seconds and is hidden with reduced motion. Exact
+counts and the localized confirmation naming both players/actual amount remain.
+Compact height-aware rows retain reachable controls without pausing the game.
 Winner-only victory, neutral other-player results, pending credit and space
 ranking compose inside the same table. Ranking/back/mosaic never send game moves.
 Copy and

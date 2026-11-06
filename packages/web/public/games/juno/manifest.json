@@ -703,6 +703,22 @@
       "sourceEntry": "JUNO_UI_ESTILO_APROVADO/assets/ui/linha_ranking.svg",
       "bytes": 188,
       "sha256": "1e223643c57af0c5e459d5e60552ffec710735552fee3b57b8a92ac5017862c4"
+    },
+    {
+      "path": "ui/hammer.gif",
+      "sourceEntry": "Animação de martelo de juiz neon.gif",
+      "bytes": 167565,
+      "sha256": "782e92bc0e255568f8001b0af6eb6f542a7d849d4390ea117daeacd3e4f25db2",
+      "dimensions": [724, 241],
+      "frames": 9
+    },
+    {
+      "path": "ui/hammer-still.webp",
+      "sourceEntry": "Animação de martelo de juiz neon.gif, first frame crop (254,5,284,236), resized to 180×150",
+      "sourceSha256": "782e92bc0e255568f8001b0af6eb6f542a7d849d4390ea117daeacd3e4f25db2",
+      "bytes": 27024,
+      "sha256": "c9e97999e94233b50b03954c8496a24b189a9e040cd5dbe8fe788d6f1c3ba006",
+      "dimensions": [180, 150]
     }
   ]
 }

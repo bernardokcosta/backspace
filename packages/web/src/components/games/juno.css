@@ -16,8 +16,8 @@
 .juno-action-icon { display: none; width: 20px; height: 20px; }
 .juno-text-button { min-height: 36px; padding: 6px 10px; border-radius: 20px; font-size: 12px; color: #e0eaff; background: #090f29e6; }
 .juno-text-button:hover:not(:disabled) { color: #fff; background-color: #20355b; }
-.juno-primary, .juno-secondary { min-height: 44px; padding: 10px 18px; border-radius: 28px; color: #fff; background: url('/games/juno/ui/button-primary.svg') center / 100% 100% no-repeat; font-size: 14px; font-weight: 700; text-align: center; line-height: 1.3; }
-.juno-secondary { background-image: url('/games/juno/ui/button-secondary.svg'); }
+.juno-table .juno-primary, .juno-table .juno-secondary { min-height: 46px; padding: 10px 20px; border: 2px solid #54f179; border-radius: 999px; color: #fff; background: linear-gradient(180deg,#12513a,#082b37); box-shadow: inset 0 1px 0 #bdffc83b,0 0 14px #31e43c21; font-size: 14px; font-weight: 750; text-shadow: 0 1px 3px #0008; text-align: center; line-height: 1.3; }
+.juno-table .juno-secondary { border-color: #34cbff; background: linear-gradient(180deg,#1b3264,#0b1538); box-shadow: inset 0 1px 0 #a8eaff3b,0 0 14px #1297ff21; }
 .juno-primary:hover:not(:disabled), .juno-secondary:hover:not(:disabled) { filter: brightness(1.25); }
 .juno-practice { border: 1px solid #56bafe66; border-radius: 16px; padding: 3px 8px; font-size: 11px; color: #b9e5ff; white-space: nowrap; }
 .juno-player-badge { position: relative; display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 48px; padding: 6px 12px; border: 1px solid #56bafe; border-radius: 18px; background: #09122be8; }
@@ -55,16 +55,20 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
 .juno-lobby-cards > img:nth-child(2) { transform: translateX(-20px) rotate(-7deg); }
 .juno-lobby-cards > img:nth-child(3) { transform: translateX(20px) rotate(7deg); }
 .juno-lobby-cards > img:nth-child(4) { transform: translate(60px, 4px) rotate(20deg); }
-.juno-match { position: relative; display: flex; flex-direction: column; height: 100%; min-height: 0; max-width: 1120px; margin: auto; gap: 4px; }
+.juno-match { --juno-hammer-width: 56px; --juno-hammer-height: 48px; --juno-hammer-gap: 7px; position: relative; display: flex; flex-direction: column; height: 100%; min-height: 0; max-width: 1120px; margin: auto; gap: 4px; }
 .juno-arena { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(115px, 1.7fr) minmax(0, 1fr); grid-template-rows: minmax(48px, 29%) minmax(0, 1fr); align-items: center; flex: 1; min-height: 0; }
 .juno-orbit { position: absolute; width: 84%; height: 64%; left: 8%; bottom: 3%; object-fit: fill; pointer-events: none; opacity: .7; }
 .juno-seat { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
-.juno-seat > .juno-player-badge { width: min(200px, 100%); }
-.juno-arena:has(.juno-report) { grid-template-rows: minmax(80px, 29%) minmax(0, 1fr); }
-.juno-report { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 28px; max-width: 100%; padding: 3px 8px; border-radius: 12px; color: #ffce29; font-size: 11px; font-weight: 700; }
-.juno-report:hover:not(:disabled) { color: #fff; background: #754427; }
-.juno-report svg { flex-shrink: 0; }
-.juno-report-time { font-variant-numeric: tabular-nums; }
+.juno-player-controls { position: relative; width: min(200px,100%); min-width: 0; }
+.juno-player-controls > .juno-player-badge { width: 100%; }
+.juno-reports .juno-arena { grid-template-rows: minmax(106px,31%) minmax(0,1fr); }
+.juno-reports .juno-seat-top { padding-top: var(--juno-hammer-height); }
+.juno-report-anchor { position: absolute; bottom: calc(100% + var(--juno-hammer-gap)); left: calc(50% - var(--juno-hammer-width) * 119 / 360); width: var(--juno-hammer-width); height: var(--juno-hammer-height); pointer-events: none; z-index: 3; }
+.juno-report { display: block; width: 100%; height: 100%; min-height: 0; padding: 0; border: 0; border-radius: 9px; background: none; box-shadow: none; color: inherit; pointer-events: auto; transform-origin: 33.055556% 79%; }
+.juno-report img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 6px #000b); }
+.juno-report:hover:not(:disabled) { background: none; transform: rotate(-9deg) scale(1.09); }
+.juno-table .juno-report:focus-visible { outline: 2px solid #ffce29; outline-offset: 2px; }
+.juno-table .juno-report:disabled { opacity: .32; }
 .juno-seat-top { grid-column: 2; grid-row: 1; }
 .juno-seat-left { grid-column: 1; grid-row: 2; }
 .juno-seat-right { grid-column: 3; grid-row: 2; }
@@ -72,7 +76,10 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
 .juno-opponent-cards { display: flex; justify-content: center; padding: 2px 6px; max-width: 100%; }
 .juno-opponent-cards > img { flex-shrink: 0; width: clamp(20px, 4.5cqh, 36px); height: auto; transform: rotate(5deg); }
 .juno-opponent-cards > img + img { margin-left: clamp(-20px, -2.7cqh, -10px); }
+.juno-reports .juno-seat-top > .juno-opponent-cards { position: absolute; top: 2px; left: calc(50% + 4px); width: min(90px,calc(50% - 6px)); justify-content: flex-start; }
+.juno-reports .juno-seat-top > .juno-opponent-cards > img { width: clamp(20px,4.5cqh,28px); }
 .juno-side-hand { display: grid; grid-auto-rows: clamp(4px, 1.2cqh, 10px); justify-items: center; width: 90px; padding: 5px 8px clamp(16px, 4cqh, 30px); }
+.juno-reports .juno-side-hand { --juno-fan-step: clamp(2px,.7cqh,5px); height: calc(clamp(22px,5.5cqh,40px) + 9 * var(--juno-fan-step) + 10px); grid-auto-rows: var(--juno-fan-step); padding-top: 5px; padding-bottom: 5px; }
 .juno-side-card { position: relative; display: block; width: clamp(36px, 9cqh, 65px); height: clamp(22px, 5.5cqh, 40px); transform: rotate(var(--juno-card-tilt)); }
 .juno-side-card > img { position: absolute; max-width: none; width: clamp(24px, 6cqh, 44px); height: auto; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(90deg); }
 .juno-seat-right .juno-side-card > img { transform: translate(-50%, -50%) rotate(-90deg); }
@@ -88,7 +95,7 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
 .juno-table-info { display: flex; align-items: center; justify-content: center; gap: 12px; color: var(--juno-muted); font-size: 11px; }
 .juno-active-color i { display: block; width: 13px; height: 13px; border-radius: 50%; box-shadow: 0 0 0 1px #ffffff55, 0 0 12px currentColor; }
 .juno-direction b { font-size: 24px; font-weight: 400; }
-.juno-timer { font-variant-numeric: tabular-nums; min-width: 30px; }
+.juno-timer { font-variant-numeric: tabular-nums; width: 5ch; min-width: 5ch; flex-shrink: 0; text-align: center; }
 .juno-hand { display: flex; align-items: center; flex-shrink: 0; gap: 8px; overflow-x: auto; overflow-y: hidden; min-height: 0; height: clamp(76px, 23cqh, 160px); padding: 8px 8px 4px; scrollbar-width: thin; scrollbar-color: #53658b #090f29; }
 .juno-hand-card { width: clamp(40px, 13cqh, 88px); flex-shrink: 0; border-radius: 7px; transform-origin: center bottom; transition: transform .15s ease; }
 .juno-hand-card:first-child { margin-left: auto; }
@@ -155,11 +162,19 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
 .juno-effect-announce { position: absolute; top: 40%; left: 50%; width: min(230px, 40cqw); text-align: center; filter: drop-shadow(0 0 18px #ffce29); animation: juno-call-burst 1.3s ease-out both; }
 .juno-effect-announce span { display: block; font-size: 12px; color: #fff; text-shadow: 0 1px 4px #060a27; }
 .juno-effect-special { position: absolute; top: 28%; left: 50%; color: #ffce29; font-size: clamp(36px, 12cqh, 90px); text-shadow: 0 0 24px #ff346d; animation: juno-impact 1s ease-out both; }
+.juno-effect-report { position: absolute; inset: 0; }
+.juno-hammer-replay { position: absolute; overflow: hidden; animation: juno-hammer-fade 1.05s ease-out both; }
+.juno-hammer-replay img { position: absolute; max-width: none; }
+.juno-report-impact { position: absolute; width: 0; height: 0; }
+.juno-report-flash { position: absolute; width: 66px; height: 66px; left: -33px; top: -33px; border-radius: 50%; background: radial-gradient(circle,#fff7c9c9,#ffce2938 40%,transparent 72%); animation: juno-report-flash .48s .3s ease-out both; }
+.juno-report-ring { position: absolute; width: 34px; height: 34px; left: -17px; top: -17px; border: 2px solid #ffdf72; border-radius: 50%; box-shadow: 0 0 10px #ffce2966; animation: juno-report-ring .5s .3s ease-out both; }
+.juno-report-impact i { position: absolute; left: -3px; top: -3px; width: 6px; height: 6px; border-radius: 2px; background: #ffdf72; box-shadow: 0 0 7px #ffce2988; animation: juno-report-spark .54s .3s ease-out both; }
+.juno-report-impact i:nth-of-type(3n) { background: #74e7ff; box-shadow: 0 0 7px #11b4ff88; }
 .juno-focus-layout { container: juno-focus / size; }
 @container juno-focus (max-height: 500px) { .juno-focus-strip { height: 64px; min-height: 48px; } }
 @container juno-focus (max-height: 340px) { .juno-focus-strip, .juno-focus-toggle { display: none; } }
 @container (max-width: 540px) {
-  .juno-report-label { display: none; }
+  .juno-match { --juno-hammer-width: 45px; --juno-hammer-height: 40px; --juno-hammer-gap: 5px; }
   .juno-header-logo { width: 48px; }
   .juno-text-button { padding: 5px 7px; font-size: 11px; }
   .juno-header, .juno-header-actions { gap: 3px; }
@@ -181,7 +196,7 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
   .juno-score-row { grid-template-columns: 30px minmax(0, 1fr) auto; gap: 4px; padding-right: 8px; }
   .juno-earned { font-size: 11px; max-width: 11ch; }
   .juno-result-actions { gap: 8px; }
-  .juno-result-actions button, .juno-menu-actions button { padding: 8px 10px; font-size: 12px; }
+  .juno-table .juno-result-actions button, .juno-table .juno-menu-actions button { padding: 8px 10px; font-size: 12px; }
   .juno-your-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @container (max-height: 430px) {
@@ -197,12 +212,10 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
   .juno-action-icon { display: block; }
   .juno-action-label { display: none; }
 }
-@container (max-height: 340px) {
-  .juno-report-label { display: none; }
-  .juno-report { padding: 2px 5px; gap: 3px; }
-  .juno-seat:has(> .juno-report) { flex-direction: row; gap: 4px; }
-  .juno-seat:has(> .juno-report) > .juno-player-badge { width: auto; flex: 1; }
-  .juno-seat > .juno-report { flex-shrink: 0; }
+@container (max-height: 430px) {
+  .juno-match { --juno-hammer-width: 32px; --juno-hammer-height: 28px; --juno-hammer-gap: 3px; }
+  .juno-reports .juno-seat { padding-top: var(--juno-hammer-height); }
+  .juno-reports .juno-local-player .juno-seat { padding-top: 0; }
   .juno-main-logo { display: none; }
   .juno-lobby { gap: 4px; }
   .juno-seat-empty { min-height: 44px; }
@@ -212,15 +225,16 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
   .juno-player-badge { min-height: 32px; padding-top: 2px; padding-bottom: 2px; }
   .juno-avatar-frame { width: 28px; height: 28px; flex-basis: 28px; }
   .juno-avatar-frame > [data-avatar], .juno-computer-icon { width: 22px !important; height: 22px !important; }
-  .juno-player-copy strong { font-size: 11px; }
-  .juno-player-copy > span { font-size: 10px; }
+  .juno-player-copy strong { font-size: 11px; line-height: 1.2; }
+  .juno-player-copy > span { font-size: 10px; line-height: 1.2; }
+  .juno-next-marker { font-size: 18px; line-height: 1; }
   .juno-match { display: grid; grid-template-columns: minmax(0, 1fr) minmax(110px, 40%); grid-template-rows: minmax(0, 1fr) 64px; gap: 4px; }
   .juno-arena { grid-column: 1 / -1; grid-row: 1; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: 32px minmax(0, 1fr); gap: 4px; }
-  .juno-arena:has(.juno-report) { grid-template-rows: 32px minmax(0, 1fr); }
+  .juno-reports .juno-arena { grid-template-rows: 64px minmax(0,1fr); }
   .juno-seat-left { grid-column: 1; grid-row: 1; }
   .juno-seat-top { grid-column: 2; grid-row: 1; }
   .juno-seat-right { grid-column: 3; grid-row: 1; }
-  .juno-seat > .juno-player-badge { width: 100%; min-height: 32px; flex-direction: row; padding: 2px 4px; gap: 4px; }
+  .juno-seat .juno-player-controls > .juno-player-badge { width: 100%; min-height: 32px; flex-direction: row; padding: 2px 4px; gap: 4px; }
   .juno-seat-left .juno-player-copy, .juno-seat-right .juno-player-copy { text-align: left; width: auto; }
   .juno-seat-left .juno-player-copy > span, .juno-seat-right .juno-player-copy > span { font-size: 10px; }
   .juno-opponent-cards { display: none; }
@@ -237,7 +251,7 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
   .juno-hand-actions > .juno-text-button { grid-column: 1; grid-row: 2; padding: 3px; }
   .juno-announce { grid-column: 1 / -1; grid-row: 2; justify-self: center; height: 28px; width: 85px; }
   .juno-hand-actions:has(> .juno-text-button) .juno-announce { grid-column: 2; width: 100%; max-width: 85px; }
-  .juno-spectator { grid-column: 1; grid-row: 2; align-self: center; }
+  .juno-spectator { grid-column: 1; grid-row: 2; align-self: center; padding: 2px; font-size: 11px; line-height: 1.25; }
   .juno-color-picker { bottom: 68px; }
   .juno-crown { display: none; }
   .juno-result { display: grid; grid-template-columns: 1fr 1fr; align-content: center; gap: 2px; }
@@ -252,14 +266,29 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
   .juno-result .juno-avatar-frame > [data-avatar], .juno-result .juno-computer-icon { width: 17px !important; height: 17px !important; }
   .juno-place { height: 22px; font-size: 14px; }
   .juno-place img { height: 22px; width: 20px; }
-  .juno-result-actions button, .juno-menu-actions button { min-height: 34px; padding: 5px 10px; }
+  .juno-table .juno-result-actions button, .juno-table .juno-menu-actions button { min-height: 34px; padding: 5px 10px; }
   .juno-rules-content { top: 40px; }
 }
-@container (max-height: 340px) and (max-width: 420px) {
-  .juno-arena:has(.juno-report) { grid-template-rows: 64px minmax(0, 1fr); }
-  .juno-seat:has(> .juno-report) { flex-direction: column; gap: 2px; }
-  .juno-seat:has(> .juno-report) > .juno-player-badge { width: 100%; flex: initial; }
+@container (max-height: 260px) {
+  .juno-match { --juno-hammer-width: 26px; --juno-hammer-height: 22px; grid-template-rows: minmax(0,1fr) 54px; }
+  .juno-header { min-height: 24px; }
+  .juno-header-logo { height: 20px; }
+  .juno-header .juno-text-button, .juno-rules summary { min-height: 24px; height: 24px; padding-top: 2px; padding-bottom: 2px; line-height: 20px; }
+  .juno-reports .juno-arena { grid-template-rows: 56px minmax(0,1fr); }
+  .juno-hand { height: 54px; }
+  .juno-hand-card { width: 28px; }
+  .juno-hand-actions .juno-player-badge { min-height: 28px; }
+  .juno-hand-actions .juno-player-copy { display: flex; align-items: center; gap: 4px; overflow: hidden; }
+  .juno-hand-actions .juno-player-copy > span { white-space: nowrap; }
+  .juno-hand-actions .juno-avatar-frame { width: 22px; height: 22px; flex-basis: 22px; }
+  .juno-hand-actions .juno-avatar-frame > [data-avatar], .juno-hand-actions .juno-computer-icon { width: 17px !important; height: 17px !important; }
+  .juno-announce { height: 24px; }
+  .juno-hand-actions > .juno-text-button { min-height: 24px; height: 24px; padding: 2px; }
 }
+@keyframes juno-hammer-fade { 0%,85% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes juno-report-flash { from { opacity: 0; transform: scale(.3); } 20% { opacity: 1; } to { opacity: 0; transform: scale(1.25); } }
+@keyframes juno-report-ring { from { opacity: .9; transform: scale(.2); } to { opacity: 0; transform: scale(2.4); } }
+@keyframes juno-report-spark { from { opacity: 0; transform: translate(0,0) scale(.2); } 12% { opacity: 1; } to { opacity: 0; transform: translate(var(--dx),var(--dy)) rotate(var(--turn)) scale(.2); } }
 @keyframes juno-turn-beacon { 50% { opacity: .35; } }
 @keyframes juno-card-flight { from { opacity: .1; transform: translate(calc(-50% + var(--from-x)), calc(-50% + var(--from-y))) rotate(-25deg) scale(.6); } 75% { opacity: 1; } to { opacity: 0; transform: translate(-50%, -50%) rotate(-5deg); } }
 @keyframes juno-call-burst { 0% { opacity: 0; transform: translate(calc(-50% + var(--from-x)), calc(-50% + var(--from-y))) scale(.2) rotate(-14deg); } 30%, 65% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(3deg); } 100% { opacity: 0; transform: translate(-50%, -80%) scale(1.35); } }
@@ -268,6 +297,8 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
 @media (prefers-reduced-motion: reduce) {
   .juno-table *, .juno-table *::after { animation: none !important; transition: none !important; }
   .juno-effect-card, .juno-effect-draw { display: none; }
+  .juno-effect-report { display: none; }
+  .juno-report:hover:not(:disabled) { transform: none; }
   .juno-effect-announce { transform: translate(-50%, -50%); }
   .juno-effect-special { transform: translateX(-50%); }
   .juno-card-legal:hover:not(:disabled), .juno-card-legal:focus-visible { transform: translateY(-3px); }

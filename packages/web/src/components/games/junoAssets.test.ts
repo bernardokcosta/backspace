@@ -3,7 +3,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { JUNO_COLORS, type JunoFace } from '@backspace/shared/src/juno';
-import { junoCardUrl } from './junoAssets';
+import { junoCardUrl, JUNO_ASSETS } from './junoAssets';
 
 const root = path.resolve(import.meta.dirname, '../../../public/games/juno');
 interface Manifest { files: { path: string; sha256: string; bytes: number }[] }
@@ -13,6 +13,11 @@ describe('supplied Juno asset inventory', () => {
     for (const color of JUNO_COLORS) for (const face of faces) expect(existsSync(path.join(root, junoCardUrl({ id: 'not-a-path', color, face }).replace('/games/juno/', '')))).toBe(true);
     for (const face of ['wild', 'draw4'] as const) expect(existsSync(path.join(root, junoCardUrl({ id: 'opaque', color: null, face }).replace('/games/juno/', '')))).toBe(true);
     expect(junoCardUrl()).toBe('/games/juno/cards/back.webp');
+  });
+  it('ships the approved original hammer and its separate resting crop', () => {
+    const original = readFileSync(path.join(root, JUNO_ASSETS.hammer.replace('/games/juno/', '')));
+    expect(createHash('sha256').update(original).digest('hex')).toBe('782e92bc0e255568f8001b0af6eb6f542a7d849d4390ea117daeacd3e4f25db2');
+    expect(existsSync(path.join(root, JUNO_ASSETS.hammerStill.replace('/games/juno/', '')))).toBe(true);
   });
   it('ships 54 original faces and one back, all hashed and passive', () => {
     const manifest = JSON.parse(readFileSync(path.join(root, 'manifest.json'), 'utf8')) as Manifest;
