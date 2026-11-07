@@ -9,12 +9,12 @@ import { JUNO_ASSETS } from './junoAssets';
 
 export function JunoLobby({ onRanking }: { onRanking: () => void }) {
   const { t } = useTranslation(['voice', 'common']);
-  const { snapshot, target, connected, pending, loading, command } = useJunoStore();
+  const { snapshot, target, connected, pending, stale, loading, command } = useJunoStore();
   const self = useMyRowForOrigin(target?.origin ?? '');
   const spaceId = useSpaceStore(s => target ? s.spaceChannelIndex.get(target.channelId)?.spaceId ?? '' : '');
   const game = snapshot?.game;
   const isPlayer = !!game?.players.some(p => p.userId === target?.selfId);
-  const disabled = !connected || pending || !snapshot;
+  const disabled = !connected || pending || stale || !snapshot;
   return <div className="juno-lobby">
     {!game && self && <div className="juno-lobby-identity"><JunoPlayerBadge person={{ userId: self.id, name: self.displayName ?? self.username,
       user: { ...self, avatar: uploadUrlOn(self.avatar, '') } }} origin={target?.origin ?? ''} spaceId={spaceId} self /></div>}

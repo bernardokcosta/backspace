@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
+import rateLimit from '@fastify/rate-limit';
 import type { JunoSnapshot } from '@backspace/shared/src/juno.js';
 
 const state = vi.hoisted(() => ({ member: true, permission: true, room: 'voice', socket: 1, bot: false, changed: vi.fn() }));
@@ -30,6 +31,26 @@ beforeEach(async () => {
 afterEach(async () => { await app.close(); });
 const create = () => app.inject({ method: 'POST', url, headers, payload: { type: 'create' } });
 describe('Juno authorized transport', () => {
+  it('supports four players and four spectators sharing an IP without spending the ordinary HTTP budget', async () => {
+    await app.close(); app = Fastify();
+    await app.register(rateLimit, { max: 200, timeWindow: '1 minute', keyGenerator: request => request.ip,
+      allowList: () => false });
+    app.get('/ordinary-request', async () => ({ ok: true }));
+    await app.register(junoRoutes);
+    // 60 public moves + 12 fallback polls per viewer in one minute = 576 reads.
+    for (let viewer = 0; viewer < 8; viewer++) {
+      for (let read = 0; read < 72; read++) {
+        const reply = await app.inject({ method: 'GET', url, headers: { authorization: `viewer-${viewer}` } });
+        expect(reply.statusCode).toBe(200);
+      }
+    }
+    expect((await app.inject({ method: 'GET', url: '/ordinary-request' })).statusCode).toBe(200);
+    for (let read = 576; read < 600; read++) expect((await app.inject({ method: 'GET', url, headers })).statusCode).toBe(200);
+    expect((await app.inject({ method: 'GET', url, headers })).statusCode).toBe(429);
+    // Authentication and command budgets are not relaxed with the read budget.
+    expect((await create()).statusCode).toBe(200);
+    expect((await app.inject({ method: 'GET', url, headers: { authorization: 'different-address' }, remoteAddress: '192.0.2.45' })).statusCode).toBe(200);
+  });
   it('routes committed application-local identity merges to its rooms and removes the listener on close', async () => {
     const remap = vi.spyOn(JunoRooms.prototype, 'remapPendingRecipient');
     try {

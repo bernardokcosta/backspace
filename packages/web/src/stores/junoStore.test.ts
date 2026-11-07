@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { JunoRankingPage, JunoSnapshot } from '@backspace/shared/src/juno';
 import { junoGame, junoRanking } from '../components/games/junoTestFixtures';
-import { HttpError } from '../api/client';
+import { HttpError, RateLimitError } from '../api/client';
 const api = vi.hoisted(() => ({ get: vi.fn(), command: vi.fn(), ranking: vi.fn() }));
 const resolve = vi.hoisted(() => vi.fn(() => ({ juno: api })));
 vi.mock('../utils/crossStoreResolvers', () => ({ getApiForOrigin: resolve }));
@@ -15,7 +15,8 @@ function deferred<T>() {
   const promise = new Promise<T>((res, rej) => { resolve = res; reject = rej; });
   return { promise, resolve, reject };
 }
-beforeEach(() => { vi.clearAllMocks(); useJunoStore.getState().reset(); useJunoStore.getState().bind(target, true); });
+beforeEach(() => { vi.clearAllMocks(); api.get.mockReset(); api.command.mockReset(); api.ranking.mockReset(); useJunoStore.getState().reset(); useJunoStore.getState().bind(target, true); });
+afterEach(() => { useJunoStore.getState().reset(); vi.useRealTimers(); });
 describe('Juno session state', () => {
   it('routes to the channel origin and drops a late response after room/account changes', async () => {
     const response = deferred<JunoSnapshot>(); api.get.mockReturnValueOnce(response.promise);
@@ -25,10 +26,13 @@ describe('Juno session state', () => {
     expect(resolve).toHaveBeenCalledWith(target.origin); expect(api.get).toHaveBeenCalledWith('voice');
     expect(useJunoStore.getState().snapshot).toBeNull();
   });
-  it('invalidates earlier fetches and ignores older revisions', async () => {
+  it('coalesces concurrent reads and ignores older revisions', async () => {
     const old = deferred<JunoSnapshot>(); api.get.mockReturnValueOnce(old.promise).mockResolvedValueOnce(snapshot(3));
-    const first = useJunoStore.getState().load(); await useJunoStore.getState().load();
+    useJunoStore.setState({ snapshot: snapshot(3) });
+    const first = useJunoStore.getState().load(); const duplicate = useJunoStore.getState().load();
+    expect(api.get).toHaveBeenCalledTimes(1);
     old.resolve(snapshot(2)); await first;
+    await duplicate;
     expect(useJunoStore.getState().snapshot?.revision).toBe(3);
   });
   it('never replays actions, blocks concurrent submission, and clears on reset', async () => {
@@ -70,11 +74,117 @@ describe('Juno session state', () => {
     expect(useJunoStore.getState().snapshot?.game?.reportOpportunities).toEqual([]);
     expect(useJunoStore.getState().pending).toBe(false);
   });
-  it('still clears a confirmed view when a subsequent current read is refused', async () => {
-    const denied = new Error('Permission revoked');
+  it.each([401, 403, 404])('clears private state when a current read is refused with %i', async status => {
+    const denied = new HttpError(status, 'Access lost');
     useJunoStore.setState({ snapshot: snapshot(2) }); api.get.mockRejectedValueOnce(denied);
     await useJunoStore.getState().load();
     expect(useJunoStore.getState().snapshot).toBeNull(); expect(useJunoStore.getState().error).toBe(denied);
+  });
+});
+
+describe('Juno transient recovery', () => {
+  it.each([new TypeError('Offline'), new HttpError(500, 'Temporary failure')])('retains the confirmed game on a transient read failure', async error => {
+    const confirmed = { revision: 4, game: junoGame('playing') };
+    useJunoStore.setState({ snapshot: confirmed, observedAt: 123 }); api.get.mockRejectedValueOnce(error);
+    await useJunoStore.getState().load();
+    expect(useJunoStore.getState().snapshot).toBe(confirmed);
+    expect(useJunoStore.getState().observedAt).toBe(123);
+    expect(useJunoStore.getState().stale).toBe(true);
+    await useJunoStore.getState().command({ type: 'draw' });
+    expect(api.command).not.toHaveBeenCalled();
+    api.get.mockResolvedValueOnce({ ...confirmed, revision: 5 }); await useJunoStore.getState().load();
+    expect(useJunoStore.getState().stale).toBe(false); expect(useJunoStore.getState().error).toBeNull();
+  });
+  it('pauses polling, invalidations, manual retry, ranking and commands until Retry-After', async () => {
+    vi.useFakeTimers();
+    const confirmed = { revision: 4, game: junoGame('playing') };
+    useJunoStore.setState({ snapshot: confirmed });
+    api.get.mockRejectedValueOnce(new RateLimitError(10)).mockResolvedValueOnce({ ...confirmed, revision: 5 });
+    await useJunoStore.getState().load();
+    for (let i = 0; i < 20; i++) {
+      useJunoStore.getState().invalidate(target.origin, target.channelId);
+      await useJunoStore.getState().load();
+    }
+    await useJunoStore.getState().command({ type: 'draw' });
+    await useJunoStore.getState().loadRanking({ ...target, spaceId: 'space' });
+    expect(api.get).toHaveBeenCalledTimes(1); expect(api.command).not.toHaveBeenCalled(); expect(api.ranking).not.toHaveBeenCalled();
+    expect(useJunoStore.getState().snapshot).toBe(confirmed);
+    await vi.advanceTimersByTimeAsync(9_999); expect(api.get).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1); expect(api.get).toHaveBeenCalledTimes(2);
+    expect(useJunoStore.getState().snapshot?.revision).toBe(5); expect(useJunoStore.getState().stale).toBe(false);
+  });
+  it('does not replay a rate-limited action or immediately reconcile against the exhausted bucket', async () => {
+    vi.useFakeTimers(); useJunoStore.setState({ snapshot: { revision: 4, game: junoGame('playing') } });
+    api.command.mockRejectedValueOnce(new RateLimitError(3)); api.get.mockResolvedValueOnce(snapshot(5));
+    await useJunoStore.getState().command({ type: 'draw' });
+    expect(api.command).toHaveBeenCalledTimes(1); expect(api.get).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(3_000);
+    expect(api.get).toHaveBeenCalledTimes(1); expect(api.command).toHaveBeenCalledTimes(1);
+  });
+  it('does not clear a newer command cooldown when an older GET succeeds', async () => {
+    vi.useFakeTimers(); const response = deferred<JunoSnapshot>();
+    useJunoStore.setState({ snapshot: { revision: 4, game: junoGame('playing') } });
+    api.get.mockReturnValueOnce(response.promise); const load = useJunoStore.getState().load();
+    const limited = new RateLimitError(10); api.command.mockRejectedValueOnce(limited);
+    await useJunoStore.getState().command({ type: 'draw' });
+    response.resolve({ revision: 4, game: junoGame('playing') }); await load;
+    expect(useJunoStore.getState().stale).toBe(true); expect(useJunoStore.getState().error).toBe(limited);
+    await useJunoStore.getState().command({ type: 'draw' }); expect(api.command).toHaveBeenCalledTimes(1);
+  });
+  it('honors an older GET rate limit without erasing a newer confirmed command', async () => {
+    vi.useFakeTimers(); const response = deferred<JunoSnapshot>();
+    useJunoStore.setState({ snapshot: { revision: 4, game: junoGame('playing') } });
+    api.get.mockReturnValueOnce(response.promise); const load = useJunoStore.getState().load();
+    const confirmed = { revision: 5, game: junoGame('playing') };
+    api.command.mockResolvedValueOnce(confirmed); await useJunoStore.getState().command({ type: 'draw' });
+    const limited = new RateLimitError(60); response.reject(limited); await load;
+    expect(useJunoStore.getState().snapshot).toBe(confirmed); expect(useJunoStore.getState().stale).toBe(true);
+    expect(useJunoStore.getState().error).toBe(limited);
+    await useJunoStore.getState().load(); await useJunoStore.getState().command({ type: 'pass' });
+    expect(api.get).toHaveBeenCalledTimes(1); expect(api.command).toHaveBeenCalledTimes(1);
+  });
+  it('collapses a burst during an active read into exactly one trailing refresh', async () => {
+    const first = deferred<JunoSnapshot>(); const next = deferred<JunoSnapshot>();
+    api.get.mockReturnValueOnce(first.promise).mockReturnValueOnce(next.promise);
+    const load = useJunoStore.getState().load();
+    for (let i = 0; i < 30; i++) useJunoStore.getState().invalidate(target.origin, target.channelId);
+    expect(api.get).toHaveBeenCalledTimes(1);
+    first.resolve(snapshot(4)); await load; await Promise.resolve();
+    expect(api.get).toHaveBeenCalledTimes(2);
+    next.resolve(snapshot(5)); await Promise.resolve(); await Promise.resolve();
+    expect(useJunoStore.getState().snapshot?.revision).toBe(5);
+  });
+  it('does not let an old room flight block or overwrite the new room', async () => {
+    const old = deferred<JunoSnapshot>(); api.get.mockReturnValueOnce(old.promise).mockResolvedValueOnce(snapshot(2));
+    const first = useJunoStore.getState().load(); useJunoStore.getState().invalidate(target.origin, target.channelId);
+    useJunoStore.getState().bind({ ...target, channelId: 'new-room' }, true);
+    await useJunoStore.getState().load(); old.resolve(snapshot(99)); await first;
+    expect(api.get).toHaveBeenCalledTimes(2); expect(useJunoStore.getState().snapshot?.revision).toBe(2);
+  });
+  it('does not let an older command restore private state after a current access refusal', async () => {
+    useJunoStore.setState({ snapshot: { revision: 4, game: junoGame('playing') } });
+    const response = deferred<JunoSnapshot>(); api.command.mockReturnValueOnce(response.promise);
+    const command = useJunoStore.getState().command({ type: 'draw' });
+    api.get.mockRejectedValueOnce(new HttpError(403, 'Access lost')); await useJunoStore.getState().load();
+    response.resolve({ revision: 5, game: junoGame('playing') }); await command;
+    expect(useJunoStore.getState().snapshot).toBeNull(); expect(useJunoStore.getState().pending).toBe(false);
+  });
+  it('shares a ranking rate-limit cooldown with table reads and recovers after its deadline', async () => {
+    vi.useFakeTimers(); useJunoStore.setState({ snapshot: { revision: 4, game: junoGame('playing') } });
+    const limited = new RateLimitError(2); api.ranking.mockRejectedValueOnce(limited);
+    await useJunoStore.getState().loadRanking({ ...target, spaceId: 'space' });
+    await useJunoStore.getState().load(); expect(api.get).not.toHaveBeenCalled();
+    expect(useJunoStore.getState().error).toBe(limited);
+    api.get.mockResolvedValueOnce(snapshot(5)); await vi.advanceTimersByTimeAsync(2_000);
+    expect(useJunoStore.getState().snapshot?.revision).toBe(5);
+  });
+  it.each(['reset', 'switch', 'reconnect'])('cancels a previous cooldown on %s', async mode => {
+    vi.useFakeTimers(); api.get.mockRejectedValueOnce(new RateLimitError(10)); await useJunoStore.getState().load();
+    if (mode === 'reset') useJunoStore.getState().reset();
+    else if (mode === 'switch') useJunoStore.getState().bind({ ...target, accountId: 'new-account' }, true);
+    else useJunoStore.getState().setHost(target.origin, false);
+    await vi.advanceTimersByTimeAsync(10_000); expect(api.get).toHaveBeenCalledTimes(1);
+    expect(useJunoStore.getState().snapshot).toBeNull();
   });
 });
 

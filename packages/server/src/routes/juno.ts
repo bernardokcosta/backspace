@@ -84,7 +84,12 @@ export async function junoRoutes(app: FastifyInstance): Promise<void> {
     reply.header('Cache-Control', 'no-store');
     return readJunoRanking(spaceId, request.userId, { limit: request.query.limit ?? 25, offset: request.query.offset ?? 0 });
   });
-  app.get<{ Params: Params }>(root, { preHandler: authenticate }, async (request, reply) => {
+  app.get<{ Params: Params }>(root, {
+    preHandler: authenticate,
+    // Live updates fan out to every player/spectator, plus fallback polls.
+    // Keep this bounded read budget separate from ordinary HTTP and commands.
+    config: { rateLimit: { max: 600, timeWindow: '1 minute' } },
+  }, async (request, reply) => {
     if (!gate(request.params.channelId, request.userId, reply)) return;
     const user = getDb().select().from(schema.users).where(eq(schema.users.id, request.userId)).get();
     if (!user || user.isDeleted || user.isBot) return sendError(reply, 403, 'forbidden');

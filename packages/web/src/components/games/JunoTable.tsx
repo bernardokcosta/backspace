@@ -11,7 +11,7 @@ import './juno.css';
 
 export function JunoTable() {
   const { t } = useTranslation(['voice', 'common']);
-  const { snapshot, target, connected, pending, error, command } = useJunoStore();
+  const { snapshot, target, connected, pending, stale, error, command } = useJunoStore();
   const game = snapshot?.game; const revision = snapshot?.revision ?? -1;
   const context = target ? `${target.accountId}:${target.origin}:${target.channelId}` : '';
   const leaveContext = `${context}:${game?.id ?? ''}:${revision}`;
@@ -45,7 +45,7 @@ export function JunoTable() {
     {leaveKey === leaveContext && isPlayer && <div className="juno-notice glass" role="group" aria-label={t('juno.leaveConfirm')}
       onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); event.preventDefault(); setLeaveKey(null); leaveTrigger.current?.focus(); } }}>
       <span>{t('juno.leaveConfirm')}</span>
-      <button type="button" className="juno-text-button" disabled={!connected || pending} onClick={() => {
+      <button type="button" className="juno-text-button" disabled={!connected || pending || stale} onClick={() => {
         const current = useJunoStore.getState();
         if (current.target === target && current.snapshot?.revision === revision && current.snapshot.game?.id === game?.id) void command({ type: 'leave' });
         setLeaveKey(null);

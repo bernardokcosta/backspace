@@ -172,8 +172,21 @@ separately account/origin/space scoped, generation guarded and refreshed on entr
 or confirmed settlement. Permission loss clears cached ranking. An old host's
 404 means unavailable, not a fabricated empty ranking or earned XP.
 
+State reads are single-flight per session. Invalidations received during a read
+collapse into one trailing refresh; concurrent polls reuse the in-flight read.
+A transient HTTP/network error retains the last confirmed table and hand, with
+mutation controls disabled until a successful refresh. A current 401/403/404 still
+clears inaccessible private state. A 429 respects the existing numeric Retry-After:
+polls, invalidations, manual retries, ranking reads and commands pause until the
+deadline, then one state refresh runs. Failed commands are never replayed. Account,
+origin, channel changes and reconnect-ready invalidate reads and cancel recovery.
+
 Per-account budgets: five creates/minute and 60 commands/minute, in addition to
-the unchanged global HTTP address budget. At most 1,000 tables. Lobby/result
+the unchanged global HTTP address budget. State GETs instead use a separate bounded
+600/minute/address route budget, so four players plus four spectators behind one
+NAT can follow 60 moves/minute and their 12 fallback polls each (576 reads) without
+spending the ordinary HTTP budget. Auth, voice and permission gates are unchanged;
+ranking and POST command routes retain their existing limits. At most 1,000 tables. Lobby/result
 idle expiry is 15 minutes; a running round has an absolute two-hour limit.
 
 ## Voice lifecycle and UI

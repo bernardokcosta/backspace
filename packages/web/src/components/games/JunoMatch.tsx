@@ -15,7 +15,7 @@ const COLOR_KEYS = { coral: 'juno.colors.coral', amber: 'juno.colors.amber', min
 const FACE_KEYS = { skip: 'juno.faces.skip', reverse: 'juno.faces.reverse', draw2: 'juno.faces.draw2', wild: 'juno.faces.wild', draw4: 'juno.faces.draw4' } as const;
 export function JunoMatch() {
   const { t } = useTranslation(['voice', 'common']); const { formatNumber, formatDuration } = useFormatters();
-  const { snapshot, target, connected, pending, command, observedAt } = useJunoStore();
+  const { snapshot, target, connected, pending, stale, command, observedAt } = useJunoStore();
   const spaceId = useSpaceStore(s => target ? s.spaceChannelIndex.get(target.channelId)?.spaceId ?? '' : '');
   const now = useSharedSecondBeat();
   const [colorChoice, setColorChoice] = useState<{ card: Card; revision: number; gameId: string } | null>(null);
@@ -25,7 +25,7 @@ export function JunoMatch() {
   const game = snapshot?.game;
   if (!game || game.phase !== 'playing') return null;
   const revision = snapshot.revision; const selfId = target?.selfId;
-  const disabled = !connected || pending; const myTurn = game.currentPlayerId === selfId;
+  const disabled = !connected || pending || stale; const myTurn = game.currentPlayerId === selfId;
   const isPlayer = game.players.some(p => p.userId === selfId);
   const current = game.players.find(p => p.userId === game.currentPlayerId);
   const seats = junoSeats(game.players, selfId);

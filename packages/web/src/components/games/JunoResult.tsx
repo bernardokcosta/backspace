@@ -9,7 +9,7 @@ const RESULT_KEYS = { emptyHand: 'juno.finished', playersLeft: 'juno.results.pla
 export function JunoResult() {
   const { t } = useTranslation(['voice', 'common']);
   const { formatNumber } = useFormatters();
-  const { snapshot, target, pending, connected, command } = useJunoStore();
+  const { snapshot, target, pending, connected, stale, command } = useJunoStore();
   const spaceId = useSpaceStore(s => target ? s.spaceChannelIndex.get(target.channelId)?.spaceId ?? '' : '');
   const game = snapshot?.game;
   if (!game || game.phase !== 'finished') return null;
@@ -35,7 +35,7 @@ export function JunoResult() {
       </li>)}
     </ol>}
     <div className="juno-result-actions">
-      {target?.selfId === game.hostId ? <button type="button" className="juno-primary" disabled={!connected || pending || saving}
+      {target?.selfId === game.hostId ? <button type="button" className="juno-primary" disabled={!connected || pending || stale || saving}
         onClick={() => void command({ type: 'rematch' })}>{t('juno.rematch')}</button>
         : <p role="status">{t('juno.waitingHost')}</p>}
       <button type="button" className="juno-secondary" onClick={() => useJunoStore.getState().setOpen(false)}>{t('juno.mosaic')}</button>

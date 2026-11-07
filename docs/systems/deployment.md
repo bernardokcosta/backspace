@@ -125,6 +125,32 @@ One is correct for all three modes as shipped: the bundled Caddy, an operator's 
 
 Too low costs a shared bucket; too high hands the key back to the client. **Your proxy config needs no change for this:** appending to `X-Forwarded-For` (nginx's `$proxy_add_x_forwarded_for`, which the snippet this installer prints uses) is exactly what the hop count expects, and Caddy's overwrite is fine too. An evaded rate limit was never an authentication bypass, since every route still authenticates and authorizes; what it cost was the brake on brute force and flooding. See [web-security.md](web-security.md) section 9.
 
+**Custom Cloudflare Tunnel → Nginx → app.** This is not the shipped single-proxy
+topology: Nginx normally sees the local tunnel's `127.0.0.1`, and appending that
+address with the default one-hop app policy incorrectly puts all visitors into
+one HTTP bucket. When Nginx listens **only on loopback** for the local cloudflared
+connector, it can normalize Cloudflare's visitor address before forwarding:
+
+```nginx
+listen 127.0.0.1:8090;
+set_real_ip_from 127.0.0.1;
+real_ip_header CF-Connecting-IP;
+real_ip_recursive off;
+# In the application's proxy location:
+proxy_set_header X-Real-IP $remote_addr;
+proxy_set_header X-Forwarded-For $remote_addr;
+```
+
+Keep the app's `TRUSTED_PROXY_HOPS=1` in this normalized topology. Never copy the
+loopback trust rule to a public listener or trust arbitrary incoming client IP
+headers. Cloudflare must supply CF-Connecting-IP through the trusted tunnel;
+missing/invalid values fail closed to the connector's shared bucket. Validate
+with `nginx -t`, use a graceful reload rather than restarting voice/application
+containers, and check that two different visitor addresses have independent
+remaining budgets while changing a visitor-supplied XFF does not change one.
+Keep a private configuration backup for rollback. This incident correction does
+not disable rate limits or change credentials, user data or the application image.
+
 **Custom public port.** When the public port is not 443, it goes into `DOMAIN` itself (`DOMAIN=chat.example.com:1443`). `DOMAIN` is the host clients type, and everything the instance advertises (`getOurOrigin()`, invite links, the generated `LIVEKIT_URL`) is built from it, so the port propagates with no second variable. Only `proxy` mode supports it: install.sh rejects a port in `allinone` (Caddy needs 80/443 for issuance; `docker-compose.yml` publishes only those) and in `tunnel` (the provider's edge answers on 443). The installer splits `DOMAIN_HOST` / `DOMAIN_PORT` for the DNS check and the printed snippets (`listen <port> ssl`, `server_name <host>`). The proxy must pass the `Host` header through unchanged: the nginx snippets use `$http_host`, because `$host` strips the port. The server itself never builds a URL from the request host (the tus `Location` is relative for exactly this reason, see uploads.md), so a proxy that mangles `Host` can only break what it terminates. Federation with a port in `DOMAIN` is not supported (see Known Limitations).
 
 **Voice per mode.** LiveKit media is WebRTC over UDP and never flows through the HTTP proxy/tunnel — the media ports (`3478/udp` TURN, `7881/tcp` fallback, `50000-60000/udp` media) must be reachable from clients directly. All-in-One proxies LiveKit *signaling* through Caddy (`/livekit` → `host.docker.internal:7880`); a reverse-proxy operator must replicate that route (`/livekit` → `127.0.0.1:7880`, prefix stripped) **and** open the media ports. Over a tunnel, voice is unavailable and install.sh force-disables it. See `docs/systems/voice.md` for LiveKit tuning.

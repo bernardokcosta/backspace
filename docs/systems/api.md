@@ -13,7 +13,9 @@ socket in that space channel. Commands are `create`, `join`, `leave`, `start`,
 non-create commands name the table and expected
 revision (409 `juno_stale` on conflict). No opponent hands or draw order leave
 the server. Five creates and 60 commands/minute/account, plus the existing HTTP
-limit. Full rules, payloads and lifetime limits: [juno.md](juno.md).
+limit. State GETs have a separate bounded 600/minute/address route budget for
+live-update fanout and fallback polling; this does not relax POST, account, auth,
+voice or permission gates. Full rules, payloads and lifetime limits: [juno.md](juno.md).
 
 Game people include current sanitized user/nickname data. Optional `scoreboard`
 adds immutable final places/counts/XP and `pending|credited|unranked` status; clients

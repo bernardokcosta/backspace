@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { JunoView } from '@backspace/shared/src/juno';
 import { useJunoStore } from '../../stores/junoStore';
+import { RateLimitError } from '../../api/client';
 import { JunoTable } from './JunoTable';
 vi.mock('../../audio/AudioManager', () => ({ AudioManager: { getInstance: () => ({}) } }));
 
@@ -52,6 +53,14 @@ describe('Juno native table', () => {
     useJunoStore.setState({ target: { accountId: 'c', selfId: 'c', origin: '', channelId: 'voice' }, snapshot: { revision: 1, game: { ...game('playing'), hand: [] } } });
     render(<JunoTable />); expect(screen.getByText(/you’re watching/i)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^draw one/i })).not.toBeInTheDocument();
+  });
+  it('keeps the hand visible but disables moves while the confirmed view is stale', () => {
+    useJunoStore.setState({ snapshot: { revision: 4, game: game('playing') }, stale: true, error: new RateLimitError(10) });
+    render(<JunoTable />);
+    expect(screen.getByRole('group', { name: 'Your hand' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /play.*wild/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /say juno/i })).toBeDisabled();
+    expect(screen.getByRole('alert')).toBeInTheDocument(); expect(command).not.toHaveBeenCalled();
   });
   it('shows report rules only for a capable host, retaining legacy host rules', async () => {
     const current = game('playing');
