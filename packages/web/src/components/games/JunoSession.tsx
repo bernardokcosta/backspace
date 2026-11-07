@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAuthStore, getMyUserIdForOrigin } from '../../stores/authStore';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useVoiceStore } from '../../stores/voiceStore';
 import { useJunoStore } from '../../stores/junoStore';
+import { JunoMemorySound } from './JunoMemorySound';
 
 /** One lifecycle owner, also while viewing text or a minimized mobile call. */
 export function JunoSession() {
@@ -13,10 +14,10 @@ export function JunoSession() {
   const origin = channel?.origin ?? '';
   const selfId = useAuthStore(() => getMyUserIdForOrigin(origin));
   const supported = useJunoStore(s => s.hosts[origin] === true);
+  const target = useMemo(() => accountId && selfId && channelId && channel?.type === 'voice' && supported
+    ? { accountId, selfId, channelId, origin } : null, [accountId, selfId, channelId, channel?.type, origin, supported]);
   useEffect(() => {
     const store = useJunoStore.getState();
-    const target = accountId && selfId && channelId && channel?.type === 'voice' && supported
-      ? { accountId, selfId, channelId, origin } : null;
     store.bind(target, connected);
     if (!target || !connected) return;
     void store.load();
@@ -26,6 +27,6 @@ export function JunoSession() {
     const resume = () => { if (document.visibilityState === 'visible') void useJunoStore.getState().load(); };
     document.addEventListener('visibilitychange', resume);
     return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', resume); };
-  }, [accountId, selfId, channelId, channel?.type, origin, connected, supported]);
-  return null;
+  }, [target, connected]);
+  return <JunoMemorySound target={target} connected={connected} />;
 }

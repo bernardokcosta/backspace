@@ -3,7 +3,7 @@ import { JUNO_COLORS, JUNO_TURN_MS, JUNO_REPORT_MS, canPlayJuno, type JunoAction
   type JunoColor, type JunoCommand, type JunoMove, type JunoPerson, type JunoSnapshot, type JunoView, type JunoScoreboard } from '@backspace/shared/src/juno.js';
 import { buildJunoStandings } from './junoStandings.js';
 import type { JunoSettlement } from './junoProgression.js';
-import { chooseJunoBotAction } from './junoBot.js';
+import { chooseJunoBlindCard, chooseJunoBotAction } from './junoBot.js';
 
 export class JunoError extends Error {}
 function refuse(code: string): never { throw new JunoError(code); }
@@ -12,7 +12,7 @@ function shuffle<T>(cards: T[]): void {
     const j = randomInt(i + 1); [cards[i], cards[j]] = [cards[j]!, cards[i]!];
   }
 }
-export function createJunoDeck(): JunoCard[] {
+export function createJunoDeck(memory = false): JunoCard[] {
   const cards: JunoCard[] = [];
   const add = (color: JunoColor | null, face: JunoCard['face']) => cards.push({ id: randomUUID(), color, face });
   for (const color of JUNO_COLORS) {
@@ -22,6 +22,7 @@ export function createJunoDeck(): JunoCard[] {
     }
   }
   for (let i = 0; i < 4; i++) { add(null, 'wild'); add(null, 'draw4'); }
+  if (memory) add(null, 'memory');
   return cards;
 }
 interface Player extends JunoPerson { hand: JunoCard[]; announced: boolean }
@@ -39,15 +40,17 @@ export interface JunoRound {
   lastMove: JunoMove | null;
   blockedTurns: number;
   reportWindows: { id: string; targetUserId: string; deadline: number }[];
+  memoryEnabled?: boolean;
+  memoryCurse?: { id: string; targetUserId: string };
 }
-export function startRound(people: JunoPerson[], now: number): JunoRound {
-  const deck = createJunoDeck(); shuffle(deck);
+export function startRound(people: JunoPerson[], now: number, memory = false): JunoRound {
+  const deck = createJunoDeck(memory); shuffle(deck);
   const players = people.map(person => ({ ...person, hand: deck.splice(0, 7), announced: false }));
   const first = deck.findIndex(card => /^\d$/.test(card.face));
   const top = deck.splice(first, 1)[0]!;
   return { players, drawPile: deck, discard: [top], color: top.color!, direction: 1, turn: 0,
     drawnCardId: null, deadline: now + JUNO_TURN_MS, winnerId: null, result: null,
-    lastMove: { type: 'start', userId: players[0]!.userId }, blockedTurns: 0, reportWindows: [] };
+    lastMove: { type: 'start', userId: players[0]!.userId }, blockedTurns: 0, reportWindows: [], memoryEnabled: memory };
 }
 function pruneReports(round: JunoRound, now: number): boolean {
   const before = round.reportWindows.length;
@@ -76,6 +79,12 @@ function drawCards(round: JunoRound, player: Player, amount: number): JunoCard[]
   }
   return drawn;
 }
+function missMemory(round: JunoRound, player: Player, now: number, type: 'memory_miss' | 'timeout'): void {
+  round.memoryCurse = undefined;
+  const amount = drawCards(round, player, 2).length;
+  round.lastMove = { type, userId: player.userId, amount };
+  advance(round, now); pruneReports(round, now);
+}
 export function actInRound(round: JunoRound, userId: string, action: JunoAction, now: number): void {
   if (round.result) refuse('juno_invalid_move');
   if (action.type === 'report') {
@@ -97,6 +106,8 @@ export function actInRound(round: JunoRound, userId: string, action: JunoAction,
     player.announced = true; round.lastMove = { type: 'announce', userId, announced: true }; return;
   }
   const top = round.discard[round.discard.length - 1]!;
+  const blind = round.memoryCurse?.targetUserId === userId;
+  if (blind && (action.type === 'draw' || action.type === 'pass')) refuse('juno_invalid_move');
   if (action.type === 'draw') {
     if (round.drawnCardId) refuse('juno_invalid_move');
     const drawn = drawCards(round, player, 1)[0];
@@ -116,11 +127,15 @@ export function actInRound(round: JunoRound, userId: string, action: JunoAction,
   if (action.type !== 'play') refuse('juno_invalid_move');
   const index = player.hand.findIndex(card => card.id === action.cardId);
   const card = player.hand[index];
-  if (!card || (round.drawnCardId && card.id !== round.drawnCardId)
-      || !canPlayJuno(card, player.hand, top, round.color)
-      || (card.color === null && (!action.color || !JUNO_COLORS.includes(action.color)))) refuse('juno_invalid_move');
+  if (!card || (round.drawnCardId && card.id !== round.drawnCardId)) refuse('juno_invalid_move');
+  const legal = canPlayJuno(card, player.hand, top, round.color);
+  if (blind && !legal) { missMemory(round, player, now, 'memory_miss'); return; }
+  if (!legal || (card.color === null && card.face !== 'memory' && !blind
+      && (!action.color || !JUNO_COLORS.includes(action.color)))) refuse('juno_invalid_move');
+  if (blind) round.memoryCurse = undefined;
   player.hand.splice(index, 1); round.discard.push(card);
-  round.color = card.color ?? action.color!; round.blockedTurns = 0;
+  if (card.face !== 'memory') round.color = card.color ?? (blind ? round.color : action.color!);
+  round.blockedTurns = 0;
   player.announced = player.hand.length === 1 && (action.announce === true || player.announced);
   round.reportWindows = round.reportWindows.filter(w => w.targetUserId !== userId);
   if (player.hand.length === 1 && !player.announced) {
@@ -135,6 +150,12 @@ export function actInRound(round: JunoRound, userId: string, action: JunoAction,
   round.lastMove = { type: 'play', userId, card: { ...card }, announced: player.announced };
   if (player.hand.length === 0) { round.winnerId = userId; round.result = 'emptyHand'; }
   advance(round, now, steps);
+  if (card.face === 'memory') {
+    const id = randomUUID(), targetUserId = round.players[round.turn]!.userId;
+    round.lastMove = { ...round.lastMove, id, targetUserId };
+    if (!round.result) round.memoryCurse = { id, targetUserId };
+  }
+  if (round.result) round.memoryCurse = undefined;
   pruneReports(round, now);
 }
 
@@ -144,6 +165,7 @@ interface Table {
   spaceId: string | null; starters: JunoPerson[];
   settlement?: JunoSettlement; scoreboard?: JunoScoreboard; retryAt: number;
   botTurn?: { userId: string; drawnCardId: string | null; due: number };
+  memoryClients: Set<string>;
 }
 interface RoomOptions {
   present: (channelId: string, userId: string) => boolean;
@@ -168,7 +190,7 @@ export class JunoRooms {
   }
   private complete(channelId: string, table: Table): void {
     const round = table.round;
-    if (round?.result) round.reportWindows = [];
+    if (round?.result) { round.reportWindows = []; round.memoryCurse = undefined; }
     if (round?.result && table.starters.some(p => p.computer)) {
       if (!table.scoreboard) table.scoreboard = { roundId: table.id, status: 'unranked',
         standings: buildJunoStandings(table.starters, round.players.map(p => ({ userId: p.userId, cardCount: p.hand.length })), round.winnerId, round.result)
@@ -194,6 +216,8 @@ export class JunoRooms {
   }
   private remove(channelId: string, table: Table, userId: string): void {
     table.people = table.people.filter(person => person.userId !== userId);
+    table.memoryClients.delete(userId);
+    if (table.round?.memoryCurse?.targetUserId === userId) table.round.memoryCurse = undefined;
     if (!table.people.some(person => !person.computer)) {
       if (table.scoreboard?.status === 'pending') { this.changed(channelId, table); return; }
       this.tables.delete(channelId); this.changed(channelId); return;
@@ -241,14 +265,19 @@ export class JunoRooms {
     }
     if (now >= round.deadline) {
       const player = round.players[round.turn]!;
-      const drawn = round.drawnCardId ? [] : drawCards(round, player, 1);
-      if (!round.drawnCardId && !drawn.length) {
-        const top = round.discard[round.discard.length - 1]!;
-        round.blockedTurns = player.hand.some(card => canPlayJuno(card, player.hand, top, round.color)) ? 0 : round.blockedTurns + 1;
-        if (round.blockedTurns >= round.players.length) round.result = 'stalemate';
+      if (round.memoryCurse?.targetUserId === player.userId) {
+        missMemory(round, player, now, 'timeout');
+      } else {
+        const drawn = round.drawnCardId ? [] : drawCards(round, player, 1);
+        if (!round.drawnCardId && !drawn.length) {
+          const top = round.discard[round.discard.length - 1]!;
+          round.blockedTurns = player.hand.some(card => canPlayJuno(card, player.hand, top, round.color)) ? 0 : round.blockedTurns + 1;
+          if (round.blockedTurns >= round.players.length) round.result = 'stalemate';
+        }
+        round.lastMove = { type: 'timeout', userId: player.userId, amount: drawn.length };
+        advance(round, now);
       }
-      round.lastMove = { type: 'timeout', userId: player.userId, amount: drawn.length };
-      advance(round, now); this.complete(channelId, table); this.changed(channelId, table);
+      this.complete(channelId, table); this.changed(channelId, table);
     }
     if (round.result) return;
     const player = round.players[round.turn]!;
@@ -258,7 +287,10 @@ export class JunoRooms {
     }
     if (now < table.botTurn.due) return;
     table.botTurn = undefined;
-    actInRound(round, player.userId, chooseJunoBotAction(player.hand, round.discard.at(-1)!, round.color, round.drawnCardId), now);
+    const action = round.memoryCurse?.targetUserId === player.userId
+      ? { type: 'play' as const, cardId: chooseJunoBlindCard(player.hand.map(card => card.id)), announce: true }
+      : chooseJunoBotAction(player.hand, round.discard.at(-1)!, round.color, round.drawnCardId);
+    actInRound(round, player.userId, action, now);
     this.complete(channelId, table); this.changed(channelId, table);
   }
   tick(): void { for (const channelId of this.tables.keys()) this.settle(channelId); }
@@ -275,32 +307,40 @@ export class JunoRooms {
     }
   }
   dispose(): void { this.tables.clear(); }
-  read(channelId: string, userId: string): JunoSnapshot {
+  read(channelId: string, userId: string, supportsMemory = false): JunoSnapshot {
     this.settle(channelId);
     const table = this.tables.get(channelId);
-    if (!table) return { revision: this.revision, game: null };
+    if (!table) return { revision: this.revision, game: null, supportsMemory: true };
     const round = table.round;
+    if (round?.memoryEnabled && !supportsMemory) refuse('juno_update_required');
+    if (!round && table.people.some(person => person.userId === userId && !person.computer)) {
+      if (supportsMemory) table.memoryClients.add(userId); else table.memoryClients.delete(userId);
+    }
     const self = table.people.some(person => person.userId === userId && !person.computer) ? round?.players.find(person => person.userId === userId) : undefined;
-    return { revision: table.revision, game: {
+    const blind = !!self && round?.memoryCurse?.targetUserId === userId;
+    return { revision: table.revision, supportsMemory: true, game: {
       id: table.id, phase: !round ? 'lobby' : round.result ? 'finished' : 'playing', hostId: table.hostId,
       players: table.people.map(person => {
         const player = round?.players.find(p => p.userId === person.userId);
         return { ...person, cardCount: player?.hand.length ?? 0, announced: player?.announced ?? false };
-      }), hand: self?.hand.map(card => ({ ...card })) ?? [],
-      topCard: round ? { ...round.discard[round.discard.length - 1]! } : null,
-      color: round?.color ?? null, direction: round?.direction ?? 1,
+      }), hand: blind ? [] : self?.hand.map(card => ({ ...card })) ?? [],
+      ...(blind ? { maskedHand: self!.hand.map(card => ({ id: card.id })) } : {}),
+      topCard: round && !blind ? { ...round.discard[round.discard.length - 1]! } : null,
+      color: blind ? null : round?.color ?? null, direction: round?.direction ?? 1,
       currentPlayerId: round && !round.result ? round.players[round.turn]!.userId : null,
-      drawnCardId: self && round?.players[round.turn]?.userId === userId ? round.drawnCardId : null,
+      drawnCardId: self && !blind && round?.players[round.turn]?.userId === userId ? round.drawnCardId : null,
       remainingMs: round && !round.result ? Math.max(0, round.deadline - this.now()) : 0,
       winnerId: round?.winnerId ? table.settlement?.recipientIds?.get(round.winnerId) ?? round.winnerId : null, result: round?.result ?? null,
       lastMove: round?.lastMove ? { ...round.lastMove, ...(round.lastMove.card ? { card: { ...round.lastMove.card } } : {}) } : null,
       supportsBots: true, supportsAnnounce: true, practice: (round ? table.starters : table.people).some(p => !!p.computer),
       supportsReports: true, reportOpportunities: round?.reportWindows.map(window => ({ id: window.id,
         targetUserId: window.targetUserId, remainingMs: Math.max(0, window.deadline - this.now()) })) ?? [],
+      memoryEnabled: round?.memoryEnabled ?? false,
+      ...(round?.memoryCurse ? { memoryCurse: { ...round.memoryCurse } } : {}),
       ...(table.scoreboard ? { scoreboard: { ...table.scoreboard, standings: table.scoreboard.standings.map(p => ({ ...p })) } } : {}),
     } };
   }
-  command(channelId: string, person: JunoPerson, command: JunoCommand): JunoSnapshot {
+  command(channelId: string, person: JunoPerson, command: JunoCommand, supportsMemory = false): JunoSnapshot {
     this.settle(channelId);
     let table = this.tables.get(channelId);
     if (person.computer || table?.people.some(p => p.userId === person.userId && p.computer)) refuse('juno_player_required');
@@ -309,9 +349,11 @@ export class JunoRooms {
       if (this.tables.size >= 1_000) refuse('juno_capacity');
       table = { id: randomUUID(), hostId: person.userId, people: [{ ...person }], round: null,
         revision: 0, createdAt: this.now(), updatedAt: this.now(),
-        spaceId: this.options.spaceIdForChannel?.(channelId) ?? null, starters: [], retryAt: 0 };
-      this.tables.set(channelId, table); this.changed(channelId, table); return this.read(channelId, person.userId);
+        spaceId: this.options.spaceIdForChannel?.(channelId) ?? null, starters: [], retryAt: 0,
+        memoryClients: new Set(supportsMemory ? [person.userId] : []) };
+      this.tables.set(channelId, table); this.changed(channelId, table); return this.read(channelId, person.userId, supportsMemory);
     }
+    if (table?.round?.memoryEnabled && !supportsMemory && command.type !== 'leave') refuse('juno_update_required');
     if (!table || command.gameId !== table.id || command.revision !== table.revision) refuse('juno_stale');
     const seated = table.people.some(p => p.userId === person.userId);
     if (command.type === 'join') {
@@ -334,7 +376,9 @@ export class JunoRooms {
       }
     } else if (command.type === 'leave') {
       if (!seated) refuse('juno_player_required');
-      this.remove(channelId, table, person.userId); return this.read(channelId, person.userId);
+      this.remove(channelId, table, person.userId);
+      return !supportsMemory && table.round?.memoryEnabled
+        ? { revision: this.revision, game: null, supportsMemory: true } : this.read(channelId, person.userId, supportsMemory);
     } else {
       if (!seated) refuse('juno_player_required');
       if (command.type === 'start' || command.type === 'rematch') {
@@ -343,9 +387,11 @@ export class JunoRooms {
           if (!table.round?.result || table.scoreboard?.status === 'pending') refuse('juno_invalid_move');
           table.id = randomUUID(); table.round = null; table.people = [{ ...person }]; table.createdAt = this.now();
           table.starters = []; table.settlement = undefined; table.scoreboard = undefined; table.retryAt = 0; table.botTurn = undefined;
+          table.memoryClients = new Set(supportsMemory ? [person.userId] : []);
         } else {
           if (table.round || table.people.length < 2) refuse('juno_need_players');
-          table.round = startRound(table.people, this.now()); table.createdAt = this.now();
+          if (supportsMemory) table.memoryClients.add(person.userId); else table.memoryClients.delete(person.userId);
+          table.round = startRound(table.people, this.now(), table.people.every(p => p.computer || table!.memoryClients.has(p.userId))); table.createdAt = this.now();
           table.starters = table.people.map(p => ({ userId: p.userId, name: p.name, ...(p.computer ? { computer: p.computer } : {}) }));
         }
       } else {
@@ -354,6 +400,6 @@ export class JunoRooms {
       }
     }
     this.complete(channelId, table);
-    this.changed(channelId, table); return this.read(channelId, person.userId);
+    this.changed(channelId, table); return this.read(channelId, person.userId, supportsMemory);
   }
 }

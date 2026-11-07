@@ -11,6 +11,12 @@ Missed-JUNO reports use the same catalogs for action/target, relative remaining
 seconds and confirmed reporter/target/actual draw. Rules select reporting versus
 legacy automatic-penalty text from the hosting game's optional supportsReports
 capability; translations must not claim a rule that the remote host lacks.
+Memory-curse card names, neutral hidden-slot labels/instructions, affected-player
+and actual-draw miss feedback, plus enhanced-only rules use `voice:juno.memory`
+and `juno.faces.memory` in all five catalogs. Hidden slots never name color/face;
+`errors:juno_update_required` explains incompatible enhanced rounds without
+retaining the old private view. The supplied card artwork/clip is not translated
+or regenerated; its provenance is recorded in the Juno asset manifest.
 
 Soundboard playback refusals distinguish missing/reconnecting voice ownership,
 moderation/permission mute and deafen with three stable error codes and text in

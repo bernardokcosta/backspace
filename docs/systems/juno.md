@@ -21,7 +21,7 @@ new dependency is used.
   revision and request-generation guards, pending-action/error handling.
 - `packages/web/src/components/games/`: session lifecycle, table, tile, Games
   button, focused lobby/match/result/ranking views and container-responsive styling.
-- `packages/web/public/games/juno/`: 54 distinct fronts, one back and separate
+- `packages/web/public/games/juno/`: 55 distinct fronts, one back and separate
   cosmic UI assets; hashes/source entries in `manifest.json`, provenance in README.
 
 ## Rules
@@ -52,6 +52,31 @@ First empty hand still wins immediately, closing all windows; reports never
 reopen a result or change frozen XP. The draw pile recycles the discard except
 its top card. If a complete
 cycle cannot draw or play anything, the round ends in a draw.
+
+### Rare memory card
+
+Capable cohorts use 109 cards: the classic 108 plus exactly one `memory` card
+(supplied Alzheimer artwork). It plays over any face/color without choosing or
+changing the active color and cannot be the numeric initial discard. The next
+player in the current direction receives `memoryCurse: {id,targetUserId}`.
+Only that player's hand, middle pile and active color are concealed.
+
+The affected player selects an owned opaque slot blind. A matching color or
+legal wild clears the curse and plays normally, including skip/reverse/draw/JUNO/
+victory effects; a blind wild retains the active color. +4 still requires no
+active-color card in hand. A wrong choice retains the attempted private card,
+draws up to two, clears the curse and passes once. `lastMove.type: memory_miss`
+contains only actor, actual amount and confirmed id, not the attempted card.
+Ordinary draw/pass are refused during the curse. The same 45-second deadline
+draws two/passes on expiry; no automatic mutation retry. Invalid/unowned ids,
+stale revisions and out-of-turn requests never become extra penalties.
+
+Two-card JUNO calls and independent valid reports remain available; reports do
+not clear the curse or reset the turn timer. An affected player leaving clears
+it without transferring it; ending/expiring the round also clears it. A last-card
+memory play wins normally without cursing a finished round. Cursed computers
+choose a fair random opaque slot; their selector cannot receive faces or color.
+Practice/XP/settlement rules are unchanged.
 
 ## Space XP and ranking
 
@@ -119,6 +144,24 @@ result and **only the viewer's hand**. Optional `scoreboard` has the round id,
 Human people include current sanitized profiles and space nicknames, not demo identities.
 Spectators receive `hand: []`. Neither the
 draw order nor opponent hands are serialized. Cards use opaque random ids.
+
+State/command clients declare `?memory=1`; only this optional query is accepted,
+with exact value `1` (duplicates/unknown keys are invalid). Snapshots advertise
+root `supportsMemory: true`. Seated humans refresh their declaration in the lobby;
+at start every human must support it to freeze `memoryEnabled: true`. Computers
+support it internally. Mixed/legacy cohorts keep the unchanged 108-card deck;
+later declarations cannot change an active deck. Rematch creates a fresh lobby.
+Older hosts ignore the query; ranking URLs are unchanged. GET query variants
+share the same existing 600/minute/address read budget.
+
+Enhanced-round viewers without support receive 409 `juno_update_required` with
+no view, even if omitting the query or spectating. Normal authentication/access
+gates run before compatibility. Existing `leave` remains allowed. A masked
+viewer receives `hand: []`, `maskedHand: {id}[]` in stable hand order and null
+`topCard`, `color`, `drawnCardId`. Other viewers retain ordinary projections;
+computer hands are never returned. Client update-required errors clear cached
+private state, and old unmasked reads cannot replace a newer masked revision.
+The rule does not erase previously seen cards or prevent memory/collusion.
 
 POST accepts `{type:'create'}` or a command with `gameId` and expected `revision`:
 `join`, `leave`, `start`, `rematch`, `draw`, `pass`, `announce`, `addBot`, `removeBot`
@@ -238,6 +281,15 @@ the actual announcing avatar center, using interface-scale-aware geometry.
 Effects are pointer-transparent and expire; reduced motion removes travel/pulsing
 while keeping static feedback. No sound capture, synthesized voice or new audio
 asset is used for a call of JUNO.
+The memory curse uses identical neutral fog placeholders, not CSS-blurred fronts:
+no face URLs, color labels or legality highlights remain in the affected hand.
+All slots have localized “hidden card N” labels and equal selection behavior;
+draw/pass are disabled/hidden. A brief violet/cyan arrival settles into static
+fog, with no geometry changes; reduced motion skips arrival. Confirmed misses
+show localized actual-amount feedback without exposing the selected card.
+`JunoMemorySound`, owned once by `JunoSession` even while minimized, plays the
+supplied local `juno_memory.ogg` for a new confirmed memory move (see sounds.md).
+No LiveKit/microphone publication or additional audio bus is involved.
 Eligible opponent seats add a separate accessible hammer report button, never
 replace the real profile action. Its striking base aligns with the avatar center;
 the target and remaining deadline remain accessible without a visible countdown.

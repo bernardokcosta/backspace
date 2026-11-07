@@ -10,6 +10,7 @@
   "juno_need_players": "至少两名玩家在大厅中才能开始。",
   "juno_invalid_move": "此操作不符合规则。",
   "juno_not_your_turn": "请等待你的回合。",
+  "juno_update_required": "请重新加载或更新客户端，以游玩这场特殊的 Juno 对局。",
   "soundboard_disabled": "此空间已禁用音效面板。",
   "soundboard_invalid_audio": "音频无效或超过文件大小限制。",
   "soundboard_duration_limit": "音频时长不得超过 {{max}} 秒。",

@@ -83,6 +83,19 @@ describe('Juno session state', () => {
 });
 
 describe('Juno transient recovery', () => {
+  it('clears an incompatible view when an enhanced host requires a client update', async () => {
+    useJunoStore.setState({ snapshot: { revision: 4, game: junoGame('playing') } });
+    api.get.mockRejectedValueOnce(new HttpError(409, 'Update required', undefined, 'juno_update_required'));
+    await useJunoStore.getState().load(); expect(useJunoStore.getState().snapshot).toBeNull();
+  });
+  it('cannot replace a newer masked view with an older unmasked response', async () => {
+    const old = deferred<JunoSnapshot>(); api.get.mockReturnValueOnce(old.promise);
+    const load = useJunoStore.getState().load();
+    const masked: JunoSnapshot = { revision: 5, game: { ...junoGame('playing'), hand: [], color: null, topCard: null,
+      memoryCurse: { id: 'curse', targetUserId: target.selfId }, maskedHand: [{ id: 'secret-slot' }] } };
+    useJunoStore.setState({ snapshot: masked }); old.resolve({ revision: 4, game: junoGame('playing') }); await load;
+    expect(useJunoStore.getState().snapshot).toBe(masked);
+  });
   it.each([new TypeError('Offline'), new HttpError(500, 'Temporary failure')])('retains the confirmed game on a transient read failure', async error => {
     const confirmed = { revision: 4, game: junoGame('playing') };
     useJunoStore.setState({ snapshot: confirmed, observedAt: 123 }); api.get.mockRejectedValueOnce(error);

@@ -1,5 +1,6 @@
 {
   "juno": {
+    "memory": { "title": "Nebliges Gedächtnis", "hiddenCard": "Verdeckte Karte {{number}}", "hiddenPile": "Verdeckte letzte Karte", "instruction": "Blind spielen. Falsch: +2 und aussetzen.", "affected": "{{name}} steht unter dem Gedächtnisfluch.", "miss": "{{name}} verfehlte die Farbe und zog {{amount}}.", "rules": "Eine seltene Alzheimer-Karte behält die aktuelle Farbe und verbirgt Hand und Farbe vor der nächsten Person. Spiele blind: die richtige Farbe oder eine erlaubte Farbwahlkarte beendet den Fluch. Bei einem Fehler bleibt die Karte auf der Hand, du ziehst zwei und setzt aus. Ziehen oder Passen umgeht den Fluch nicht; Zeitablauf zieht ebenfalls zwei. Eine blind gespielte Farbwahlkarte behält die Farbe. Rundenende oder Verlassen der betroffenen Person beendet den Effekt." },
     "addBot": "Computergegner hinzufügen", "removeBot": "Computergegner {{name}} entfernen", "botName": "Juno-Bot {{number}}",
     "practice": "Training", "practiceHint": "Runden mit Computergegnern sind Training: keine XP, Siege oder Ranglistenrunden.",
     "nextTurn": "Nächster Spieler", "turnTime": "Verbleibende Zugzeit", "announcedBy": "{{name}} ruft JUNO!",
@@ -32,7 +33,7 @@
     "winner": "{{name}} gewinnt!", "finished": "Runde beendet", "results": { "playersLeft": "Nicht genug Spieler zum Fortsetzen. Diese Runde hat keinen Gewinner.", "stalemate": "Keine Karte kann gezogen oder gespielt werden. Die Runde endet unentschieden.", "expired": "Dieser Tisch hat das Limit von zwei Stunden erreicht. Öffne eine neue Lobby." },
     "cardCount_one": "{{count}} Karte", "cardCount_other": "{{count}} Karten",
     "colors": { "coral": "Rot", "amber": "Gelb", "mint": "Grün", "sky": "Blau" },
-    "faces": { "skip": "Aussetzen", "reverse": "Richtungswechsel", "draw2": "Zieh zwei", "wild": "Farbwahl", "draw4": "Farbwahl zieh vier" },
+    "faces": { "skip": "Aussetzen", "reverse": "Richtungswechsel", "draw2": "Zieh zwei", "wild": "Farbwahl", "draw4": "Farbwahl zieh vier", "memory": "Alzheimer-Karte" },
     "rules": "Spielregeln", "rulesText": "Jeder erhält 7 Karten. Lege die gleiche Farbe oder das gleiche Symbol wie die letzte Karte ab, oder spiele eine Farbwahlkarte. Wer zuerst keine Karten mehr hat, gewinnt.\nAussetzen überspringt den Nächsten; Richtungswechsel ändert die Richtung (zu zweit überspringt er den Gegner). +2 und +4 lassen den Nächsten sofort ziehen und aussetzen. Kein Stapeln. +4 ist nur ohne Karte der aktiven Farbe erlaubt; keine Herausforderungen.\nZiehe eine Karte: Nur diese darf noch gespielt werden, wenn sie passt; sonst passe. Eine unpassende gezogene Karte beendet den Zug automatisch.\n45 Sekunden pro Zug. Nach Ablauf wird eine Karte gezogen und gepasst; nach dem Ziehen wird nur gepasst. Wer geht, gibt seine Karten in den Stapel zurück. Bei weniger als zwei Spielern endet die Runde ohne Gewinner. Kurze Sprach-Wiederverbindungen behalten den Platz. Ein Serverneustart beendet Spiele."
   },
   "soundboard": {

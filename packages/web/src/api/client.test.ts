@@ -25,6 +25,16 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
+it('advertises memory support for Juno state and command on the selected origin only', async () => {
+  answer(200, JSON.stringify({ revision: 1, game: null }));
+  const client = createApiClient('https://remote.test', () => 'remote-token');
+  await client.juno.get('remote voice');
+  vi.mocked(globalThis.fetch).mockResolvedValueOnce(new Response(JSON.stringify({ revision: 2, game: null }), { status: 200 }));
+  await client.juno.command('remote voice', { type: 'create' });
+  expect(globalThis.fetch).toHaveBeenNthCalledWith(1, 'https://remote.test/api/channels/remote%20voice/juno?memory=1', expect.objectContaining({ method: 'GET' }));
+  expect(globalThis.fetch).toHaveBeenNthCalledWith(2, 'https://remote.test/api/channels/remote%20voice/juno?memory=1', expect.objectContaining({ method: 'POST', body: JSON.stringify({ type: 'create' }) }));
+});
+
 it('routes Juno ranking through the selected origin with encoded space and pagination', async () => {
   answer(200, JSON.stringify({ spaceId: 'remote space', entries: [] }));
   const client = createApiClient('https://remote.test', () => 'remote-token');

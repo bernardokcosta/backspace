@@ -1,5 +1,6 @@
 {
   "juno": {
+    "memory": { "title": "Nebulous memory", "hiddenCard": "Hidden card {{number}}", "hiddenPile": "Hidden last card", "instruction": "Play blind. A miss draws two and passes.", "affected": "{{name}} is under the memory curse.", "miss": "{{name}} missed the color and drew {{amount}}.", "rules": "One rare Alzheimer card keeps the current color and obscures the next player's hand and color. Play one card blind: a correct color or legal wild lifts the curse; a miss keeps that card in your hand, draws two and passes. You cannot draw or pass to escape; time running out also draws two. A blind wild keeps the current color. The effect ends when the round or affected player's participation ends." },
     "addBot": "Add computer player", "removeBot": "Remove {{name}} computer player", "botName": "Juno Bot {{number}}",
     "practice": "Practice", "practiceHint": "Rounds with computer players are practice: no XP, wins or ranked rounds are awarded.",
     "nextTurn": "Next player", "turnTime": "Time left in this turn", "announcedBy": "{{name}} called JUNO!",
@@ -32,7 +33,7 @@
     "winner": "{{name}} wins!", "finished": "Round finished", "results": { "playersLeft": "Not enough players to continue. No winner this round.", "stalemate": "No cards can be drawn or played. This round is a draw.", "expired": "This table reached its two-hour limit. Open a fresh lobby." },
     "cardCount_one": "{{count}} card", "cardCount_other": "{{count}} cards",
     "colors": { "coral": "Red", "amber": "Yellow", "mint": "Green", "sky": "Blue" },
-    "faces": { "skip": "Skip", "reverse": "Reverse", "draw2": "Draw two", "wild": "Wild", "draw4": "Wild draw four" },
+    "faces": { "skip": "Skip", "reverse": "Reverse", "draw2": "Draw two", "wild": "Wild", "draw4": "Wild draw four", "memory": "Alzheimer" },
     "rules": "How to play", "rulesText": "Each player gets 7 cards. Match the last card’s color or symbol, or play a wild and choose a color. Empty your hand to win.\nSkip skips the next player; reverse changes direction (with two players, it skips). +2 and +4 immediately draw cards for the next player and skip their turn. No stacking. +4 is only allowed when you have no card of the active color; no challenges.\nDraw one: play only that new card if it matches, or pass. An unplayable draw passes automatically.\nYou have 45 seconds per turn. Time running out draws one and passes; after drawing it just passes. If someone leaves, their cards return to the deck; fewer than two players ends the round without a winner. A short voice reconnect keeps your seat. Restarting the server ends games."
   },
   "soundboard": {

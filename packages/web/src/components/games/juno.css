@@ -171,9 +171,23 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
 .juno-report-impact i { position: absolute; left: -3px; top: -3px; width: 6px; height: 6px; border-radius: 2px; background: #ffdf72; box-shadow: 0 0 7px #ffce2988; animation: juno-report-spark .54s .3s ease-out both; }
 .juno-report-impact i:nth-of-type(3n) { background: #74e7ff; box-shadow: 0 0 7px #11b4ff88; }
 .juno-focus-layout { container: juno-focus / size; }
+.juno-hidden-face { position: relative; display: block; width: 100%; aspect-ratio: 720 / 1056; border-radius: 9px; overflow: hidden; background: #171035; box-shadow: inset 0 0 0 1px #a78bfa80,0 0 15px #7c6cf633; }
+.juno-hidden-face::before { content: ''; position: absolute; inset: 5%; border-radius: inherit; background: radial-gradient(ellipse at 25% 30%,#67e8f9b3,transparent 55%),radial-gradient(ellipse at 70% 70%,#a78bfacc,transparent 60%),linear-gradient(150deg,#292052,#eee9ff70,#21133e); filter: blur(10px); transform: scale(1.12); }
+.juno-hidden-face::after { content: ''; position: absolute; inset: 0; background: linear-gradient(125deg,transparent 20%,#eee9ff26 48%,transparent 75%); }
+.juno-hidden-card:not(:disabled):hover { transform: translateY(-3px); box-shadow: 0 0 0 2px #a78bfa,0 0 20px #67e8f933; }
+.juno-memory-pile { filter: drop-shadow(0 0 16px #a78bfa77); }
+.juno-memory-indicator { width: 13px; height: 13px; flex-shrink: 0; border-radius: 50%; background: radial-gradient(circle at 30% 30%,#eee9ff,#a78bfa 50%,#171035); box-shadow: 0 0 13px #a78bfacc; }
+.juno-effect-memory-miss { position: absolute; top: 40%; left: 50%; transform: translate(-50%,-50%); width: min(230px,70%); padding: 10px 14px; border-radius: 14px; background: #171035f5; color: #eee9ff; box-shadow: 0 0 24px #a78bfa55; text-align: center; font-size: clamp(11px,2.3cqh,15px); line-height: 1.4; }
+.juno-memory-message { position: absolute; bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%); width: max-content; max-width: min(37cqw,230px); text-align: center; color: #eee9ff; background: #171035e6; border-radius: 10px; padding: 5px 8px; font-size: clamp(9px,1.8cqh,11px); line-height: 1.35; pointer-events: none; z-index: 2; }
+.juno-memory-active .juno-hand { position: relative; }
+.juno-memory-active .juno-hidden-face { animation: juno-memory-arrival .7s ease-out both; }
+.juno-seat-memory .juno-avatar-frame { filter: drop-shadow(0 0 10px #a78bfacc); }
+@keyframes juno-memory-arrival { from { filter: brightness(1.7) blur(3px); } to { filter: brightness(1) blur(0); } }
+@media (prefers-reduced-motion: reduce) { .juno-memory-active .juno-hidden-face { animation: none; } }
 @container juno-focus (max-height: 500px) { .juno-focus-strip { height: 64px; min-height: 48px; } }
 @container juno-focus (max-height: 340px) { .juno-focus-strip, .juno-focus-toggle { display: none; } }
 @container (max-width: 540px) {
+  .juno-memory-message { top: calc(100% + 2px); bottom: auto; max-width: calc(100cqw - 32px); padding: 2px 5px; font-size: 9px; line-height: 1.2; }
   .juno-match { --juno-hammer-width: 45px; --juno-hammer-height: 40px; --juno-hammer-gap: 5px; }
   .juno-header-logo { width: 48px; }
   .juno-text-button { padding: 5px 7px; font-size: 11px; }
@@ -198,6 +212,9 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
   .juno-result-actions { gap: 8px; }
   .juno-table .juno-result-actions button, .juno-table .juno-menu-actions button { padding: 8px 10px; font-size: 12px; }
   .juno-your-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@container (max-width: 540px) and (min-height: 431px) {
+  .juno-center { transform: translateY(-6px); }
 }
 @container (max-height: 430px) {
   .juno-main-logo { height: 17cqh; }
@@ -239,6 +256,7 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
   .juno-seat-left .juno-player-copy > span, .juno-seat-right .juno-player-copy > span { font-size: 10px; }
   .juno-opponent-cards { display: none; }
   .juno-center { grid-column: 1 / -1; grid-row: 2; flex-direction: row; gap: 12px; }
+  .juno-memory-message { top: calc(100% + 2px); bottom: auto; max-width: calc(100cqw - 32px); padding: 2px 5px; font-size: 9px; line-height: 1.2; }
   .juno-piles { gap: 14px; }
   .juno-pile > span { display: none; }
   .juno-table-info { gap: 8px; }
@@ -268,6 +286,9 @@ button.juno-seat-empty:hover:not(:disabled) { border-color: #27ef7d; color: #27e
   .juno-place img { height: 22px; width: 20px; }
   .juno-table .juno-result-actions button, .juno-table .juno-menu-actions button { min-height: 34px; padding: 5px 10px; }
   .juno-rules-content { top: 40px; }
+}
+@container (min-width: 541px) and (max-height: 430px) {
+  .juno-memory-message { top: 50%; left: 4px; transform: translateY(-50%); max-width: calc(50cqw - 120px); }
 }
 @container (max-height: 260px) {
   .juno-match { --juno-hammer-width: 26px; --juno-hammer-height: 22px; grid-template-rows: minmax(0,1fr) 54px; }

@@ -619,8 +619,8 @@ export class BackspaceApiClient {
       return { messages, forward };
     }
     this.juno = {
-      get: (channelId) => request<JunoSnapshot>('GET', `/channels/${encodeURIComponent(channelId)}/juno`),
-      command: (channelId, command) => request<JunoSnapshot>('POST', `/channels/${encodeURIComponent(channelId)}/juno`, command),
+      get: (channelId) => request<JunoSnapshot>('GET', `/channels/${encodeURIComponent(channelId)}/juno?memory=1`),
+      command: (channelId, command) => request<JunoSnapshot>('POST', `/channels/${encodeURIComponent(channelId)}/juno?memory=1`, command),
       ranking: (spaceId, query = {}) => {
         const params = new URLSearchParams();
         if (query.limit !== undefined) params.set('limit', String(query.limit));

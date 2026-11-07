@@ -41,7 +41,7 @@ function cancelRecovery(): void {
   retryAt = 0; readFlight = null;
 }
 function inaccessible(error: unknown): boolean {
-  return error instanceof HttpError && (error.status === 401 || error.status === 403 || error.status === 404);
+  return error instanceof HttpError && (error.status === 401 || error.status === 403 || error.status === 404 || error.code === 'juno_update_required');
 }
 function discardPrivateState(): void {
   epoch++; readRun++; cancelRecovery();

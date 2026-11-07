@@ -55,6 +55,14 @@ channel's hosting instance, like the soundboard. The client uses its existing
 API/WS connection and host-issued row id, never a home id or a new S2S relay.
 `ready.supportsJuno` gates the Games control per origin on mixed-version hosts.
 Private game snapshots are account/origin/channel scoped and never persisted.
+State/command requests advertise Juno-local `?memory=1` on the selected origin's
+API (ranking unchanged); old hosts ignore it. Root `supportsMemory` and a frozen
+per-round `memoryEnabled` negotiate one rare memory card only when every human
+seat supports it. Mixed cohorts stay classic. A downgrade cannot retrieve an
+unmasked view: enhanced-round 409 `juno_update_required` clears cached private
+state, and older unmasked responses cannot replace newer masked snapshots. The
+affected host-issued identity receives only opaque owned slots and no color/pile
+faces; other origins' same-id accounts never gain access. No S2S change is needed.
 Juno XP/ranking is durable only on that host, keyed by its space and user row,
 with no global merge or S2S score relay. Ranking reads use that origin's API and
 an account/origin/space request generation; logout/target changes discard them.

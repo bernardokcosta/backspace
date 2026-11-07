@@ -22,6 +22,7 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   juno_need_players: 'Start from the lobby with at least two players',
   juno_invalid_move: 'That move is not allowed',
   juno_not_your_turn: 'Wait for your turn',
+  juno_update_required: 'Reload or update your client to play this enhanced Juno round',
   soundboard_disabled: 'The soundboard is disabled in this space',
   soundboard_invalid_audio: 'Invalid audio or file size exceeds the upload limit',
   soundboard_duration_limit: 'Audio must be at most {{max}} seconds long',

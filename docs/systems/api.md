@@ -17,6 +17,17 @@ limit. State GETs have a separate bounded 600/minute/address route budget for
 live-update fanout and fallback polling; this does not relax POST, account, auth,
 voice or permission gates. Full rules, payloads and lifetime limits: [juno.md](juno.md).
 
+Optional `?memory=1` on state/command URLs declares rare-card support; root
+`supportsMemory` advertises host support. Only exact `1` is valid, unknown/duplicate
+query keys are refused, and GET variants share one read budget. The lobby enables
+a frozen 109-card `memoryEnabled` round only for fully capable human cohorts;
+otherwise it remains 108. Unsupported enhanced-round reads/commands return 409
+`juno_update_required` without a snapshot (existing `leave` is still allowed).
+During `memoryCurse: {id,targetUserId}`, only the victim receives `hand: []`,
+`maskedHand: {id}[]` and null `topCard`, `color`, `drawnCardId`. A blind attempt
+uses ordinary `play/cardId`; no new endpoint/event. `memory_miss` confirms only
+actor/id/actual draw amount, never the attempted card. Ranking URLs are unchanged.
+
 Game people include current sanitized user/nickname data. Optional `scoreboard`
 adds immutable final places/counts/XP and `pending|credited|unranked` status; clients
 never submit awards. GET `/spaces/:spaceId/juno/ranking?limit=25&offset=0` returns

@@ -10,6 +10,7 @@
   "juno_need_players": "Starte aus der Lobby mit mindestens zwei Spielern.",
   "juno_invalid_move": "Dieser Zug ist nicht erlaubt.",
   "juno_not_your_turn": "Warte, bis du dran bist.",
+  "juno_update_required": "Lade die Seite neu oder aktualisiere die App für diese erweiterte Juno-Runde.",
   "soundboard_disabled": "Die Klangtafel ist in diesem Raum deaktiviert.",
   "soundboard_invalid_audio": "Das Audio ist ungültig oder überschreitet die Dateigrößenbegrenzung.",
   "soundboard_duration_limit": "Das Audio darf höchstens {{max}} Sekunden lang sein.",

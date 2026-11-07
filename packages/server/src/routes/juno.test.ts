@@ -31,6 +31,29 @@ beforeEach(async () => {
 afterEach(async () => { await app.close(); });
 const create = () => app.inject({ method: 'POST', url, headers, payload: { type: 'create' } });
 describe('Juno authorized transport', () => {
+  it('enables the enhanced deck, refuses unsupported views without leaking data and still allows leave', async () => {
+    let view = (await app.inject({ method: 'POST', url: url + '?memory=1', headers, payload: { type: 'create' } })).json<JunoSnapshot>();
+    const send = async (type: 'join' | 'start' | 'leave', who: string, memory = true) => app.inject({ method: 'POST', url: url + (memory ? '?memory=1' : ''),
+      headers: { authorization: who }, payload: { type, gameId: view.game!.id, revision: view.revision } });
+    view = (await send('join', 'guest')).json<JunoSnapshot>(); view = (await send('start', 'remote-row')).json<JunoSnapshot>();
+    expect(view.game?.memoryEnabled).toBe(true);
+    const old = await app.inject({ method: 'GET', url, headers });
+    expect(old.statusCode).toBe(409); expect(old.json().code).toBe('juno_update_required');
+    expect(old.json().game).toBeUndefined(); expect(old.json().hand).toBeUndefined();
+    state.permission = false;
+    expect((await app.inject({ method: 'GET', url, headers })).statusCode).toBe(403); state.permission = true;
+    const left = await send('leave', 'guest', false); expect(left.statusCode).toBe(200); expect(left.json().game).toBeNull();
+  });
+  it('keeps a mixed cohort classic and validates capability queries', async () => {
+    let view = (await app.inject({ method: 'POST', url: url + '?memory=1', headers, payload: { type: 'create' } })).json<JunoSnapshot>();
+    view = (await app.inject({ method: 'POST', url, headers: { authorization: 'legacy' }, payload: { type: 'join', gameId: view.game!.id, revision: view.revision } })).json<JunoSnapshot>();
+    view = (await app.inject({ method: 'POST', url: url + '?memory=1', headers, payload: { type: 'start', gameId: view.game!.id, revision: view.revision } })).json<JunoSnapshot>();
+    expect(view.game?.memoryEnabled).toBe(false);
+    expect((await app.inject({ method: 'GET', url, headers })).statusCode).toBe(200);
+    for (const query of ['?memory=0', '?memory=1&memory=1', '?memory=anything', '?memory=1&secret=1']) {
+      expect((await app.inject({ method: 'GET', url: url + query, headers })).statusCode).toBe(400);
+    }
+  });
   it('supports four players and four spectators sharing an IP without spending the ordinary HTTP budget', async () => {
     await app.close(); app = Fastify();
     await app.register(rateLimit, { max: 200, timeWindow: '1 minute', keyGenerator: request => request.ip,
@@ -40,7 +63,7 @@ describe('Juno authorized transport', () => {
     // 60 public moves + 12 fallback polls per viewer in one minute = 576 reads.
     for (let viewer = 0; viewer < 8; viewer++) {
       for (let read = 0; read < 72; read++) {
-        const reply = await app.inject({ method: 'GET', url, headers: { authorization: `viewer-${viewer}` } });
+        const reply = await app.inject({ method: 'GET', url: url + (read % 2 ? '?memory=1' : ''), headers: { authorization: `viewer-${viewer}` } });
         expect(reply.statusCode).toBe(200);
       }
     }
@@ -111,7 +134,7 @@ describe('Juno authorized transport', () => {
     try {
       const payload = { type: 'report', gameId: snapshot.game!.id, revision: snapshot.revision, targetUserId: 'opponent', opportunityId: 'miss-1' };
       expect((await app.inject({ method: 'POST', url, headers, payload })).statusCode).toBe(200);
-      expect(command).toHaveBeenCalledWith('voice', { userId: 'remote-row', name: 'Alice' }, payload);
+      expect(command).toHaveBeenCalledWith('voice', { userId: 'remote-row', name: 'Alice' }, payload, false);
       state.room = 'other'; expect((await app.inject({ method: 'POST', url, headers, payload })).statusCode).toBe(403);
       expect(command).toHaveBeenCalledTimes(1);
     } finally { command.mockRestore(); }

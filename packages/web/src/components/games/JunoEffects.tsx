@@ -17,7 +17,7 @@ export function JunoEffects({ move, position, name }: { move: JunoMove | null; p
   useEffect(() => {
     if (!id || id === seen.current) return;
     seen.current = id;
-    if (!move || !['play', 'draw', 'announce', 'timeout', 'report'].includes(move.type)) return;
+    if (!move || !['play', 'draw', 'announce', 'timeout', 'report', 'memory_miss'].includes(move.type)) return;
     const box = layer.current?.getBoundingClientRect();
     const avatar = layer.current?.parentElement?.querySelector(`[data-seat="${position}"] .juno-avatar-frame`)?.getBoundingClientRect();
     const anchor = layer.current?.parentElement?.querySelector(`[data-seat="${position}"] .juno-report-anchor`)?.getBoundingClientRect();
@@ -38,7 +38,8 @@ export function JunoEffects({ move, position, name }: { move: JunoMove | null; p
   const special = cue?.move.card?.face;
   const symbol = special === 'draw2' ? '+2' : special === 'draw4' ? '+4' : special === 'reverse' ? '↺' : special === 'skip' ? '⊘' : null;
   return <div ref={layer} className="juno-effects" aria-hidden="true" style={cue ? { '--from-x': `${cue.fromX}px`, '--from-y': `${cue.fromY}px` } as CSSProperties : undefined}>{cue && (cue.move.type === 'report'
-    ? (cue.move.amount ?? 0) > 0 && <ReportImpact key={cue.id} id={cue.id} position={cue.position} anchor={cue.report} /> : <>
+    ? (cue.move.amount ?? 0) > 0 && <ReportImpact key={cue.id} id={cue.id} position={cue.position} anchor={cue.report} />
+    : cue.move.type === 'memory_miss' ? <div key={cue.id} className="juno-effect-memory-miss">{t('juno.memory.miss', { name: cue.name, amount: cue.move.amount ?? 0 })}</div> : <>
     {cue.move.card && <div key={`${cue.move.id}:card`} className="juno-effect-card" data-from={cue.position}><JunoCard card={cue.move.card} /></div>}
     {!cue.move.card && !announcement && <div key={`${cue.move.id}:draw`} className="juno-effect-draw" data-from={cue.position}><JunoCard back /></div>}
     {symbol && <strong key={`${cue.move.id}:special`} className="juno-effect-special">{symbol}</strong>}

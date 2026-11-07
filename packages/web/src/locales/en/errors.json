@@ -10,6 +10,7 @@
   "juno_need_players": "Start from the lobby with at least two players.",
   "juno_invalid_move": "That move is not allowed.",
   "juno_not_your_turn": "Wait for your turn.",
+  "juno_update_required": "Reload or update your client to play this enhanced Juno round.",
   "soundboard_disabled": "The soundboard is disabled in this space.",
   "soundboard_invalid_audio": "The audio is invalid or exceeds the file size limit.",
   "soundboard_duration_limit": "The audio must be at most {{max}} seconds long.",

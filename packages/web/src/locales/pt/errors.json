@@ -10,6 +10,7 @@
   "juno_need_players": "Inicie na sala de espera com pelo menos dois jogadores.",
   "juno_invalid_move": "Essa jogada não é permitida.",
   "juno_not_your_turn": "Espere a sua vez.",
+  "juno_update_required": "Recarregue ou atualize seu aplicativo para jogar esta rodada especial de Juno.",
   "soundboard_disabled": "O painel de áudios está desativado neste espaço.",
   "soundboard_invalid_audio": "O áudio é inválido ou excede o limite de tamanho do arquivo.",
   "soundboard_duration_limit": "O áudio deve ter no máximo {{max}} segundos.",

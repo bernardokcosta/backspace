@@ -14,6 +14,6 @@ export const JUNO_ASSETS = {
 /** Opaque runtime ids are never artwork paths; opponents always use the same back. */
 export function junoCardUrl(card?: JunoCard, back = false): string {
   if (back || !card) return `${ROOT}/cards/back.webp`;
-  if (card.face === 'wild' || card.face === 'draw4') return `${ROOT}/cards/${card.face}.webp`;
+  if (card.face === 'wild' || card.face === 'draw4' || card.face === 'memory') return `${ROOT}/cards/${card.face}.webp`;
   return `${ROOT}/cards/${card.color}-${card.face}.webp`;
 }

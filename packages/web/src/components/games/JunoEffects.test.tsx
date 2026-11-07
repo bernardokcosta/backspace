@@ -4,6 +4,17 @@ import { JunoEffects } from './JunoEffects';
 
 afterEach(() => vi.useRealTimers());
 describe('confirmed Juno feedback', () => {
+  it('shows a confirmed blind miss without revealing or flying the attempted card', () => {
+    vi.useFakeTimers();
+    const { container, rerender } = render(<JunoEffects move={null} position="bottom" name="Ada" />);
+    const move = { id: 'miss', type: 'memory_miss' as const, userId: 'a', amount: 2 };
+    rerender(<JunoEffects move={move} position="bottom" name="Ada" />);
+    expect(container.querySelector('.juno-effect-memory-miss')).toHaveTextContent('Ada missed the color and drew 2.');
+    expect(container.querySelector('.juno-effect-card,.juno-effect-draw,img')).toBeNull();
+    act(() => vi.advanceTimersByTime(1400));
+    rerender(<JunoEffects move={{ ...move }} position="bottom" name="Ada" />);
+    expect(container.querySelector('.juno-effect-memory-miss')).toBeNull();
+  });
   it('does not replay on mount or polling, anchors confirmed calls and always expires', () => {
     vi.useFakeTimers();
     const old = { id: 'old', type: 'announce' as const, userId: 'a', announced: true };

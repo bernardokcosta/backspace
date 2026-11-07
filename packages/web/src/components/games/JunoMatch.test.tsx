@@ -13,6 +13,36 @@ beforeEach(() => {
   useJunoStore.setState({ snapshot: { revision: 1, game: junoGame('playing') }, observedAt: Date.now(), command });
 });
 describe('Juno cosmic interactive match', () => {
+  it('masks the victim without front URLs, color labels, legal highlights or a wildcard picker', async () => {
+    const game = junoGame('playing'); game.hand = []; game.color = null; game.topCard = null;
+    game.memoryEnabled = true; game.memoryCurse = { id: 'curse', targetUserId: 'a' };
+    game.maskedHand = [{ id: 'hidden-1' }, { id: 'hidden-2' }]; game.supportsAnnounce = true;
+    useJunoStore.setState({ snapshot: { revision: 2, game } }); const { container } = render(<JunoMatch />);
+    const hidden = screen.getByRole('button', { name: 'Hidden card 1' });
+    expect(hidden).toBeEnabled(); expect(hidden).toHaveAttribute('title', 'Hidden card 1');
+    expect(container.querySelector('.juno-hand img,.juno-active-color,.juno-card-legal')).toBeNull();
+    expect(screen.queryByLabelText(/color:/i)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Draw pile' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /say juno/i })).toBeEnabled();
+    await userEvent.click(hidden);
+    expect(command).toHaveBeenCalledWith({ type: 'play', cardId: 'hidden-1', announce: false });
+    expect(screen.queryByRole('button', { name: 'Green' })).not.toBeInTheDocument();
+  });
+  it('plays the memory card over any color without opening color selection', async () => {
+    const game = junoGame('playing'); game.hand = [{ id: 'rare', face: 'memory', color: null }];
+    useJunoStore.setState({ snapshot: { revision: 2, game } }); render(<JunoMatch />);
+    await userEvent.click(screen.getByRole('button', { name: /play.*alzheimer/i }));
+    expect(command).toHaveBeenCalledWith({ type: 'play', cardId: 'rare', announce: false });
+    expect(screen.queryByRole('button', { name: 'Green' })).not.toBeInTheDocument();
+  });
+  it('does not mask an unaffected player and disables hidden actions for stale views', () => {
+    const game = junoGame('playing'); game.memoryCurse = { id: 'curse', targetUserId: 'b' };
+    useJunoStore.setState({ snapshot: { revision: 2, game } }); const { container } = render(<JunoMatch />);
+    expect(container.querySelectorAll('.juno-hand img')).toHaveLength(2);
+    act(() => useJunoStore.setState({ stale: true, snapshot: { revision: 3, game: { ...game, hand: [], color: null, topCard: null,
+      memoryCurse: { id: 'curse-2', targetUserId: 'a' }, maskedHand: [{ id: 'hidden-1' }] } } }));
+    expect(screen.getByRole('button', { name: 'Hidden card 1' })).toBeDisabled();
+  });
   it('spreads each lateral back separately while preserving its exact public count', () => {
     const game = junoGame('playing');
     game.players.push({ ...game.players[1]!, userId: 'c', name: 'Eli' }, { ...game.players[1]!, userId: 'd', name: 'Noor' });

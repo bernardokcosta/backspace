@@ -10,7 +10,26 @@
       "sha256": "79cddf091378c79851fd04111fcab7d9572acab675132402c662d09fe99a772c"
     }
   },
+  "memoryAudio": {
+    "path": "/sounds/juno_memory.ogg",
+    "sourceFile": "hf_20261107_042622_ad7a3a7a-cf99-44a5-a4f0-10ae662cee54.wav",
+    "sourceSha256": "77980fab39415557371636d3bd81c27d6fc3ad7f3361d325bc42eac022584240",
+    "format": "Ogg Vorbis",
+    "durationSeconds": 2.7875,
+    "bytes": 26515,
+    "sha256": "a4b06a1b82153c7f0f133435a6c7361671e307fac524028dc298bb69d598fc99"
+  },
   "files": [
+    {
+      "path": "cards/memory.webp",
+      "sourceFile": "Carta cósmica da memória nebulosa.png",
+      "sourceSha256": "3c8c19c8ff6a0d4a234645993ce35aac5289d12b83eb06135e24a09b97be2f09",
+      "crop": { "left": 80, "top": 76, "width": 904, "height": 1326 },
+      "roundedMaskRadius": 66,
+      "dimensions": [720, 1056],
+      "bytes": 160244,
+      "sha256": "fe0bca91a30d77bac43bd64e289244ca3772a5b9af1beea4790f4f10fa33d878"
+    },
     {
       "path": "cards/coral-0.webp",
       "sourceArchive": "Juno_Kit_Completo_108_Cartas.zip",

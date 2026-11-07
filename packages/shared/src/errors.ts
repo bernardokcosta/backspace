@@ -28,6 +28,7 @@ export const ERROR_CODES = [
   'juno_need_players',
   'juno_invalid_move',
   'juno_not_your_turn',
+  'juno_update_required',
   'soundboard_disabled',
   'soundboard_invalid_audio',
   'soundboard_duration_limit',

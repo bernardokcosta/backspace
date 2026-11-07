@@ -19,3 +19,12 @@ frame for the resting report control. The manifest records source/crop/hashes.
 Only separate approved WebP/SVG/GIF components were imported. Demo avatars, composed
 previews, duplicate PNGs and the original archives are not shipped. Text, people,
 interaction and rankings are actual application elements, not painted previews.
+
+The memory-curse card and 2.79-second clip were supplied and approved for source
+implementation/preview on 2026-11-07. `cards/memory.webp` crops the outer white
+canvas at (80,76), 904×1326, scales to 720×1056 and masks the existing rounded
+corners at radius 66. No replacement artwork was generated. The user's original
+PNG and PCM WAV hashes, derived file hashes and crop are recorded in the manifest;
+`memoryAudio` records the separately served `/sounds/juno_memory.ogg` (Ogg Vorbis).
+Original source files remain untouched. No authorship/license claim or release/
+deployment authorization is inferred from their provision.

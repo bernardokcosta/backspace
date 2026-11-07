@@ -13,6 +13,14 @@ import { JunoRooms, JunoError } from '../games/juno.js';
 import { JUNO_ACCOUNT_MERGED_EVENT, hydrateJunoSnapshot, readJunoRanking, settleJunoRound } from '../games/junoProgression.js';
 
 type Params = { channelId: string };
+type MemoryQuery = { memory?: string };
+function invalidMemoryQuery(query: MemoryQuery): boolean {
+  return Object.keys(query).some(key => key !== 'memory') || (query.memory !== undefined && query.memory !== '1');
+}
+function gameError(error: unknown, reply: FastifyReply) {
+  if (!(error instanceof JunoError) || !isErrorCode(error.message)) throw error;
+  return sendError(reply, ['juno_stale', 'juno_exists', 'juno_update_required'].includes(error.message) ? 409 : 400, error.message);
+}
 function accessible(channelId: string, userId: string): boolean {
   const channel = getDb().select().from(schema.channels).where(eq(schema.channels.id, channelId)).get();
   return !!channel && channel.type === 'voice' && isMember(channel.spaceId, userId)
@@ -84,8 +92,11 @@ export async function junoRoutes(app: FastifyInstance): Promise<void> {
     reply.header('Cache-Control', 'no-store');
     return readJunoRanking(spaceId, request.userId, { limit: request.query.limit ?? 25, offset: request.query.offset ?? 0 });
   });
-  app.get<{ Params: Params }>(root, {
+  app.get<{ Params: Params; Querystring: MemoryQuery }>(root, {
     preHandler: authenticate,
+    preValidation: async (request, reply) => {
+      if (invalidMemoryQuery(request.query)) return sendError(reply, 400, 'invalid_body');
+    },
     // Live updates fan out to every player/spectator, plus fallback polls.
     // Keep this bounded read budget separate from ordinary HTTP and commands.
     config: { rateLimit: { max: 600, timeWindow: '1 minute' } },
@@ -95,11 +106,13 @@ export async function junoRoutes(app: FastifyInstance): Promise<void> {
     if (!user || user.isDeleted || user.isBot) return sendError(reply, 403, 'forbidden');
     reply.header('Cache-Control', 'no-store');
     const spaceId = getDb().select().from(schema.channels).where(eq(schema.channels.id, request.params.channelId)).get()!.spaceId;
-    return hydrateJunoSnapshot(rooms.read(request.params.channelId, request.userId), spaceId);
+    try { return hydrateJunoSnapshot(rooms.read(request.params.channelId, request.userId, request.query.memory === '1'), spaceId); }
+    catch (error) { return gameError(error, reply); }
   });
-  app.post<{ Params: Params; Body: JunoCommand }>(root, {
+  app.post<{ Params: Params; Body: JunoCommand; Querystring: MemoryQuery }>(root, {
     preHandler: authenticate, bodyLimit: 2048, schema: { body: commandSchema },
     preValidation: async (request, reply) => {
+      if (invalidMemoryQuery(request.query)) return sendError(reply, 400, 'invalid_body');
       if (request.body && typeof request.body === 'object'
         && Object.keys(request.body).some(key => !Object.hasOwn(commandSchema.properties, key))) return sendError(reply, 400, 'invalid_body');
     },
@@ -114,10 +127,9 @@ export async function junoRoutes(app: FastifyInstance): Promise<void> {
     reply.header('Cache-Control', 'no-store');
     try {
       const spaceId = getDb().select().from(schema.channels).where(eq(schema.channels.id, channelId)).get()!.spaceId;
-      return hydrateJunoSnapshot(rooms.command(channelId, { userId: request.userId, name: user.displayName ?? user.username }, request.body), spaceId);
+      return hydrateJunoSnapshot(rooms.command(channelId, { userId: request.userId, name: user.displayName ?? user.username }, request.body, request.query.memory === '1'), spaceId);
     } catch (error) {
-      if (!(error instanceof JunoError) || !isErrorCode(error.message)) throw error;
-      return sendError(reply, error.message === 'juno_stale' || error.message === 'juno_exists' ? 409 : 400, error.message);
+      return gameError(error, reply);
     }
   });
 }

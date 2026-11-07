@@ -3,7 +3,9 @@
 Single source of truth for the in-app audio cue layer. Files live in
 `packages/web/public/sounds/` as **Ogg Vorbis** (`.ogg`). Most cues are wired
 to exactly one event; the two `stream_user_*` cues are dual-audience (see
-their rows). All cues are self-authored (no third-party/Discord audio).
+their rows). Ordinary cues are self-authored (no third-party/Discord audio).
+The Juno memory clip is separately user-supplied; no authorship/license claim
+is inferred (source/output hashes in `public/games/juno/manifest.json`).
 
 Source files:
 - Controller: `packages/web/src/components/voice/SoundController.tsx`
@@ -54,6 +56,18 @@ limiter, but have an independent panel volume and voice-scoped lifecycle.
 | `stream_user_joined.ogg` | (a) a viewer started watching **my** stream; (b) **I** started watching someone's stream | streamer **and** the acting viewer | (a) streamer-side: `streamWatchers[own LiveKit identity]` gains a watcher identity. (b) viewer-side: local feedback played by `handleViewerWatchToggle(_, true)` on the explicit "Watch Stream" action. |
 | `stream_user_left.ogg` | (a) a viewer stopped watching **my** stream; (b) **I** stopped watching someone's stream | streamer **and** the acting viewer | (a) streamer-side: `streamWatchers[own LiveKit identity]` loses a watcher identity (suppressed for the whole set when self-stream-end fires — see Mechanism Notes). (b) viewer-side: local feedback played by `handleViewerWatchToggle(_, false)` on the explicit "Stop Watching" action. |
 | `message.ogg` | new chat message arrived | self | The message is a `message` alert (see "Which messages alert" below). User can flip `messageSoundAllChannels` to fire on every channel. Alert: withheld on Do Not Disturb (see below). |
+| `juno_memory.ogg` | confirmed rare memory-card play | supported clients following the voice table, including spectators | `JunoSession` owns one `JunoMemorySound`; a new confirmed memory `lastMove.id` plays the user-supplied 2.79s clip through AudioManager/SFX output only. |
+
+The memory cue is not a message/notification alert and is never published to
+LiveKit or microphone capture. It obeys existing SFX volume, self deafen and
+space deafen for the host-issued identity (microphone mute does not suppress
+local playback). Seen ids are consumed even while silent. Mount/initial read,
+same-id polling and reconnect do not replay history; state with less than 42s
+remaining of a 45s turn is considered stale for audio. Loads older than three
+seconds are stopped on completion. Pending and playing cues are canceled on
+scope/account/room exit, disconnection, deafen or zero SFX volume. Audio/autoplay
+failure never rejects a game update. Browser validation proves decode/output
+playback, not the clip's spoken content or a live multi-device voice session.
 
 ---
 
