@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Backspace — Connect</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
-
     :root {
       --primary: #7c6cf6;
       --primary-hover: #6b5ce0;
@@ -314,7 +312,348 @@
     // language as ?lang= when it loads this page; before the renderer has ever
     // run, that is the OS locale. Keep in step with packages/desktop/src/l10n.ts.
     const STRINGS = {
+      fr: {
+        windowTitle: 'Backspace — Connexion',
+        welcomeTitle: 'Bienvenue sur Backspace',
+        welcomeSubtitle: 'Connecte-toi à ton instance',
+        switchTitle: 'Changer d’instance',
+        switchSubtitle: 'Connecte-toi à une autre instance de Backspace, ou annule pour rester ici.',
+        urlLabel: 'URL de l’instance',
+        connect: 'Se connecter',
+        cancel: 'Annuler',
+        connecting: 'Connexion…',
+        errorEmpty: 'Saisis l’URL d’une instance',
+        errorTimeout: 'La connexion a expiré. Vérifie l’URL et réessaie.',
+        errorUnreachable: 'Impossible de se connecter. Vérifie l’URL et réessaie.',
+        errorStatus: 'Impossible de se connecter. Le serveur a répondu avec le statut {status}.',
+        errorNotBackspace: 'Cette adresse ne correspond pas à une instance de Backspace.',
+        errorOther: 'Impossible de se connecter : {message}',
+      },
+      es: {
+        windowTitle: 'Backspace — Conectar',
+        welcomeTitle: 'Te damos la bienvenida a Backspace',
+        welcomeSubtitle: 'Conecta con tu instancia',
+        switchTitle: 'Cambiar de instancia',
+        switchSubtitle: 'Conecta con otra instancia de Backspace o cancela para seguir en la actual.',
+        urlLabel: 'URL de la instancia',
+        connect: 'Conectar',
+        cancel: 'Cancelar',
+        connecting: 'Conectando…',
+        errorEmpty: 'Introduce la URL de una instancia',
+        errorTimeout: 'La conexión ha agotado el tiempo de espera. Comprueba la URL e inténtalo de nuevo.',
+        errorUnreachable: 'No se pudo conectar. Comprueba la URL e inténtalo de nuevo.',
+        errorStatus: 'No se pudo conectar. El servidor ha respondido con el estado {status}.',
+        errorNotBackspace: 'Esa dirección no es una instancia de Backspace.',
+        errorOther: 'No se pudo conectar: {message}',
+      },
+      it: {
+        windowTitle: 'Backspace — Connessione',
+        welcomeTitle: 'Benvenuto in Backspace',
+        welcomeSubtitle: 'Collegati alla tua istanza',
+        switchTitle: 'Cambia istanza',
+        switchSubtitle: 'Collegati a un’altra istanza di Backspace oppure annulla per restare.',
+        urlLabel: 'URL dell’istanza',
+        connect: 'Collega',
+        cancel: 'Annulla',
+        connecting: 'Collegamento…',
+        errorEmpty: 'Inserisci l’URL di un’istanza',
+        errorTimeout: 'Connessione scaduta. Controlla l’URL e riprova.',
+        errorUnreachable: 'Impossibile connettersi. Controlla l’URL e riprova.',
+        errorStatus: 'Impossibile connettersi. Il server ha risposto con lo stato {status}.',
+        errorNotBackspace: 'Quell’indirizzo non è un’istanza di Backspace.',
+        errorOther: 'Impossibile connettersi: {message}',
+      },
+      ro: {
+        windowTitle: 'Backspace — Conectare',
+        welcomeTitle: 'Bun venit în Backspace',
+        welcomeSubtitle: 'Conectează-te la instanța ta',
+        switchTitle: 'Schimbă instanța',
+        switchSubtitle: 'Conectează-te la altă instanță Backspace sau anulează pentru a rămâne.',
+        urlLabel: 'Adresa instanței',
+        connect: 'Conectează-te',
+        cancel: 'Anulează',
+        connecting: 'Se conectează…',
+        errorEmpty: 'Introdu adresa unei instanțe',
+        errorTimeout: 'Conectarea a expirat. Verifică adresa și încearcă din nou.',
+        errorUnreachable: 'Conectarea a eșuat. Verifică adresa și încearcă din nou.',
+        errorStatus: 'Conectarea a eșuat. Serverul a răspuns cu starea {status}.',
+        errorNotBackspace: 'Acea adresă nu este o instanță Backspace.',
+        errorOther: 'Conectarea a eșuat: {message}',
+      },
+      tr: {
+        windowTitle: 'Backspace — Bağlan',
+        welcomeTitle: "Backspace'e hoş geldin",
+        welcomeSubtitle: 'Örneğine bağlan',
+        switchTitle: 'Örneği değiştir',
+        switchSubtitle: 'Başka bir Backspace örneğine bağlan veya kalmak için iptal et.',
+        urlLabel: 'Örnek adresi',
+        connect: 'Bağlan',
+        cancel: 'İptal',
+        connecting: 'Bağlanılıyor…',
+        errorEmpty: 'Lütfen bir örnek adresi gir',
+        errorTimeout: 'Bağlantı zaman aşımına uğradı. Adresi kontrol et ve tekrar dene.',
+        errorUnreachable: 'Bağlanılamadı. Adresi kontrol et ve tekrar dene.',
+        errorStatus: 'Bağlanılamadı. Sunucu {status} durumuyla yanıt verdi.',
+        errorNotBackspace: 'Bu adres bir Backspace örneği değil.',
+        errorOther: 'Bağlanılamadı: {message}',
+      },
+      uk: {
+        windowTitle: 'Backspace — Підключення',
+        welcomeTitle: 'Ласкаво просимо до Backspace',
+        welcomeSubtitle: 'Підключіться до своєї інстанції',
+        switchTitle: 'Змінити інстанцію',
+        switchSubtitle: 'Підключіться до іншої інстанції Backspace або скасуйте, щоб залишитися.',
+        urlLabel: 'Адреса інстанції',
+        connect: 'Підключитися',
+        cancel: 'Скасувати',
+        connecting: 'Підключення…',
+        errorEmpty: 'Введіть адресу інстанції',
+        errorTimeout: 'Час очікування з’єднання минув. Перевірте адресу й спробуйте знову.',
+        errorUnreachable: 'Не вдалося підключитися. Перевірте адресу й спробуйте знову.',
+        errorStatus: 'Не вдалося підключитися. Сервер відповів статусом {status}.',
+        errorNotBackspace: 'За цією адресою немає інстанції Backspace.',
+        errorOther: 'Не вдалося підключитися: {message}',
+      },
+      pl: {
+        windowTitle: 'Backspace — Połącz',
+        welcomeTitle: 'Witaj w Backspace',
+        welcomeSubtitle: 'Połącz ze swoją instancją',
+        switchTitle: 'Zmień instancję',
+        switchSubtitle: 'Połącz z inną instancją Backspace albo anuluj, aby zostać.',
+        urlLabel: 'Adres instancji',
+        connect: 'Połącz',
+        cancel: 'Anuluj',
+        connecting: 'Łączenie…',
+        errorEmpty: 'Podaj adres instancji',
+        errorTimeout: 'Połączenie przekroczyło limit czasu. Sprawdź adres i spróbuj ponownie.',
+        errorUnreachable: 'Nie udało się połączyć. Sprawdź adres i spróbuj ponownie.',
+        errorStatus: 'Nie udało się połączyć. Serwer odpowiedział statusem {status}.',
+        errorNotBackspace: 'Ten adres to nie instancja Backspace.',
+        errorOther: 'Nie udało się połączyć: {message}',
+      },
+      cs: {
+        windowTitle: 'Backspace — Připojit',
+        welcomeTitle: 'Vítej v Backspace',
+        welcomeSubtitle: 'Připoj se ke své instanci',
+        switchTitle: 'Změnit instanci',
+        switchSubtitle: 'Připoj se k jiné instanci Backspace, nebo zrušením zůstaň.',
+        urlLabel: 'Adresa instance',
+        connect: 'Připojit',
+        cancel: 'Zrušit',
+        connecting: 'Připojování…',
+        errorEmpty: 'Zadej adresu instance',
+        errorTimeout: 'Spojení vypršelo. Zkontroluj adresu a zkus to znovu.',
+        errorUnreachable: 'Nepodařilo se připojit. Zkontroluj adresu a zkus to znovu.',
+        errorStatus: 'Nepodařilo se připojit. Server odpověděl stavem {status}.',
+        errorNotBackspace: 'Tato adresa není instancí Backspace.',
+        errorOther: 'Nepodařilo se připojit: {message}',
+      },
+      nl: {
+        windowTitle: 'Backspace — Verbinden',
+        welcomeTitle: 'Welkom bij Backspace',
+        welcomeSubtitle: 'Verbind met je instantie',
+        switchTitle: 'Instantie wisselen',
+        switchSubtitle: 'Verbind met een andere Backspace-instantie, of annuleer om te blijven.',
+        urlLabel: 'Instantie-URL',
+        connect: 'Verbinden',
+        cancel: 'Annuleren',
+        connecting: 'Verbinden…',
+        errorEmpty: 'Voer een instantie-URL in',
+        errorTimeout: 'Verbinding timed out. Controleer de URL en probeer opnieuw.',
+        errorUnreachable: 'Kon niet verbinden. Controleer de URL en probeer opnieuw.',
+        errorStatus: 'Kon niet verbinden. De server antwoordde met status {status}.',
+        errorNotBackspace: 'Dat adres is geen Backspace-instantie.',
+        errorOther: 'Kon niet verbinden: {message}',
+      },
+      sv: {
+        windowTitle: 'Backspace — Anslut',
+        welcomeTitle: 'Välkommen till Backspace',
+        welcomeSubtitle: 'Anslut till din instans',
+        switchTitle: 'Byt instans',
+        switchSubtitle: 'Anslut till en annan Backspace-instans, eller avbryt för att stanna.',
+        urlLabel: 'Instans-URL',
+        connect: 'Anslut',
+        cancel: 'Avbryt',
+        connecting: 'Ansluter…',
+        errorEmpty: 'Ange en instans-URL',
+        errorTimeout: 'Anslutningen tog för lång tid. Kontrollera URL och försök igen.',
+        errorUnreachable: 'Kunde inte ansluta. Kontrollera URL och försök igen.',
+        errorStatus: 'Kunde inte ansluta. Servern svarade med status {status}.',
+        errorNotBackspace: 'Den adressen är ingen Backspace-instans.',
+        errorOther: 'Kunde inte ansluta: {message}',
+      },
+      da: {
+        windowTitle: 'Backspace — Forbind',
+        welcomeTitle: 'Velkommen til Backspace',
+        welcomeSubtitle: 'Forbind til din instans',
+        switchTitle: 'Skift instans',
+        switchSubtitle: 'Forbind til en anden Backspace-instans, eller annullér for at blive.',
+        urlLabel: 'Instans-URL',
+        connect: 'Forbind',
+        cancel: 'Annuller',
+        connecting: 'Forbinder…',
+        errorEmpty: 'Angiv en instans-URL',
+        errorTimeout: 'Forbindelsen tog for lang tid. Tjek URL og prøv igen.',
+        errorUnreachable: 'Kunne ikke forbinde. Tjek URL og prøv igen.',
+        errorStatus: 'Kunne ikke forbinde. Serveren svarede med status {status}.',
+        errorNotBackspace: 'Den adresse er ikke en Backspace-instans.',
+        errorOther: 'Kunne ikke forbinde: {message}',
+      },
+      nb: {
+        windowTitle: 'Backspace — Koble til',
+        welcomeTitle: 'Velkommen til Backspace',
+        welcomeSubtitle: 'Koble til instansen din',
+        switchTitle: 'Bytt instans',
+        switchSubtitle: 'Koble til en annen Backspace-instans, eller avbryt for å bli.',
+        urlLabel: 'Instans-URL',
+        connect: 'Koble til',
+        cancel: 'Avbryt',
+        connecting: 'Kobler til…',
+        errorEmpty: 'Oppgi en instans-URL',
+        errorTimeout: 'Tilkoblingen tok for lang tid. Sjekk URL-en og prøv igjen.',
+        errorUnreachable: 'Kunne ikke koble til. Sjekk URL-en og prøv igjen.',
+        errorStatus: 'Kunne ikke koble til. Serveren svarte med status {status}.',
+        errorNotBackspace: 'Den adressen er ikke en Backspace-instans.',
+        errorOther: 'Kunne ikke koble til: {message}',
+      },
+      fi: {
+        windowTitle: 'Backspace — Yhdistä',
+        welcomeTitle: 'Tervetuloa Backspaceen',
+        welcomeSubtitle: 'Yhdistä instanssiisi',
+        switchTitle: 'Vaihda instanssi',
+        switchSubtitle: 'Yhdistä toiseen Backspace-instanssiin tai peru pysyäksesi.',
+        urlLabel: 'Instanssin URL',
+        connect: 'Yhdistä',
+        cancel: 'Peruuta',
+        connecting: 'Yhdistetään…',
+        errorEmpty: 'Anna instanssin URL',
+        errorTimeout: 'Yhteys aikakatkaistiin. Tarkista URL ja yritä uudelleen.',
+        errorUnreachable: 'Yhteyttä ei saatu. Tarkista URL ja yritä uudelleen.',
+        errorStatus: 'Yhteyttä ei saatu. Palvelin vastasi tilalla {status}.',
+        errorNotBackspace: 'Tämä osoite ei ole Backspace-instanssi.',
+        errorOther: 'Yhteyttä ei saatu: {message}',
+      },
+      ar: {
+        windowTitle: 'Backspace — اتصال',
+        welcomeTitle: 'مرحبًا بك في Backspace',
+        welcomeSubtitle: 'اتصل بنسختك',
+        switchTitle: 'تبديل النسخة',
+        switchSubtitle: 'اتصل بنسخة Backspace أخرى، أو ألغِ للبقاء.',
+        urlLabel: 'URL النسخة',
+        connect: 'اتصال',
+        cancel: 'إلغاء',
+        connecting: 'جارٍ الاتصال…',
+        errorEmpty: 'أدخل URL نسخة',
+        errorTimeout: 'انتهت مهلة الاتصال. تحقق من URL وحاول مجددًا.',
+        errorUnreachable: 'تعذّر الاتصال. تحقق من URL وحاول مجددًا.',
+        errorStatus: 'تعذّر الاتصال. أجاب الخادم بالحالة {status}.',
+        errorNotBackspace: 'هذا العنوان ليس نسخة Backspace.',
+        errorOther: 'تعذّر الاتصال: {message}',
+      },
+      hi: {
+        windowTitle: 'Backspace — कनेक्ट करें',
+        welcomeTitle: 'Backspace में स्वागत',
+        welcomeSubtitle: 'अपने इंस्टेंस से कनेक्ट करें',
+        switchTitle: 'इंस्टेंस बदलें',
+        switchSubtitle: 'दूसरे Backspace इंस्टेंस से कनेक्ट करें, या रहने हेतु रद्द करें।',
+        urlLabel: 'इंस्टेंस URL',
+        connect: 'कनेक्ट करें',
+        cancel: 'रद्द करें',
+        connecting: 'कनेक्ट हो रहा…',
+        errorEmpty: 'इंस्टेंस URL डालें',
+        errorTimeout: 'कनेक्शन समय समाप्त। URL जांचें और पुनः प्रयास करें।',
+        errorUnreachable: 'कनेक्ट नहीं हो सका। URL जांचें और पुनः प्रयास करें।',
+        errorStatus: 'कनेक्ट नहीं हो सका। सर्वर ने स्थिति {status} से उत्तर दिया।',
+        errorNotBackspace: 'वह पता Backspace इंस्टेंस नहीं।',
+        errorOther: 'कनेक्ट नहीं हो सका: {message}',
+      },
+      id: {
+        windowTitle: 'Backspace — Hubungkan',
+        welcomeTitle: 'Selamat Datang di Backspace',
+        welcomeSubtitle: 'Hubungkan ke instans Anda',
+        switchTitle: 'Ubah Instans',
+        switchSubtitle: 'Hubungkan ke instans Backspace lain, atau batalkan untuk tetap di sini.',
+        urlLabel: 'URL Instans',
+        connect: 'Hubungkan',
+        cancel: 'Batal',
+        connecting: 'Menghubungkan…',
+        errorEmpty: 'Masukkan URL instans',
+        errorTimeout: 'Koneksi kedaluwarsa. Periksa URL dan coba lagi.',
+        errorUnreachable: 'Tidak dapat terhubung. Periksa URL dan coba lagi.',
+        errorStatus: 'Tidak dapat terhubung. Server menjawab dengan status {status}.',
+        errorNotBackspace: 'Alamat itu bukan instans Backspace.',
+        errorOther: 'Tidak dapat terhubung: {message}',
+      },
+      vi: {
+        windowTitle: 'Backspace — Kết nối',
+        welcomeTitle: 'Chào mừng tới Backspace',
+        welcomeSubtitle: 'Kết nối tới máy chủ của bạn',
+        switchTitle: 'Đổi máy chủ',
+        switchSubtitle: 'Kết nối tới máy chủ Backspace khác, hoặc hủy để ở lại.',
+        urlLabel: 'URL máy chủ',
+        connect: 'Kết nối',
+        cancel: 'Hủy',
+        connecting: 'Đang kết nối…',
+        errorEmpty: 'Nhập URL máy chủ',
+        errorTimeout: 'Kết nối hết thời gian. Kiểm tra URL và thử lại.',
+        errorUnreachable: 'Không thể kết nối. Kiểm tra URL và thử lại.',
+        errorStatus: 'Không thể kết nối. Máy chủ trả trạng thái {status}.',
+        errorNotBackspace: 'Địa chỉ đó không phải máy chủ Backspace.',
+        errorOther: 'Không thể kết nối: {message}',
+      },
+      th: {
+        windowTitle: 'Backspace — เชื่อมต่อ',
+        welcomeTitle: 'ยินดีต้อนรับสู่ Backspace',
+        welcomeSubtitle: 'เชื่อมกับอินสแตนซ์ของคุณ',
+        switchTitle: 'เปลี่ยนอินสแตนซ์',
+        switchSubtitle: 'เชื่อมกับอินสแตนซ์ Backspace อื่น หรือยกเลิกเพื่ออยู่ต่อ',
+        urlLabel: 'URL อินสแตนซ์',
+        connect: 'เชื่อม',
+        cancel: 'ยกเลิก',
+        connecting: 'กำลังเชื่อม…',
+        errorEmpty: 'กรอก URL อินสแตนซ์',
+        errorTimeout: 'เชื่อมหมดเวลา ตรวจ URL แล้วลองใหม่',
+        errorUnreachable: 'เชื่อมไม่ได้ ตรวจ URL แล้วลองใหม่',
+        errorStatus: 'เชื่อมไม่ได้ เซิร์ฟเวอร์ตอบสถานะ {status}',
+        errorNotBackspace: 'ที่อยู่นั้นไม่ใช่อินสแตนซ์ Backspace',
+        errorOther: 'เชื่อมไม่ได้: {message}',
+      },
+      ja: {
+        windowTitle: 'Backspace — 接続',
+        welcomeTitle: 'Backspaceへようこそ',
+        welcomeSubtitle: 'インスタンスに接続',
+        switchTitle: 'インスタンス切替',
+        switchSubtitle: '別のBackspaceインスタンスに接続、またはキャンセルして留まる。',
+        urlLabel: 'インスタンスURL',
+        connect: '接続',
+        cancel: 'キャンセル',
+        connecting: '接続中…',
+        errorEmpty: 'インスタンスURLを入力',
+        errorTimeout: '接続がタイムアウト。URLを確認し再試行。',
+        errorUnreachable: '接続不可。URLを確認し再試行。',
+        errorStatus: '接続不可。サーバーは状態 {status} で応答。',
+        errorNotBackspace: 'そのアドレスはBackspaceインスタンスではありません。',
+        errorOther: '接続不可: {message}',
+      },
+      ko: {
+        windowTitle: 'Backspace — 연결',
+        welcomeTitle: 'Backspace에 오신 것을 환영합니다',
+        welcomeSubtitle: '인스턴스에 연결',
+        switchTitle: '인스턴스 전환',
+        switchSubtitle: '다른 Backspace 인스턴스에 연결하거나 취소하고 남으세요.',
+        urlLabel: '인스턴스 URL',
+        connect: '연결',
+        cancel: '취소',
+        connecting: '연결 중…',
+        errorEmpty: '인스턴스 URL을 입력하세요',
+        errorTimeout: '연결 시간 초과. URL을 확인하고 다시 시도하세요.',
+        errorUnreachable: '연결할 수 없습니다. URL을 확인하고 다시 시도하세요.',
+        errorStatus: '연결할 수 없습니다. 서버가 상태 {status}(으)로 응답했습니다.',
+        errorNotBackspace: '그 주소는 Backspace 인스턴스가 아닙니다.',
+        errorOther: '연결할 수 없습니다: {message}',
+      },
       en: {
+        windowTitle: 'Backspace — Connect',
         welcomeTitle: 'Welcome to Backspace',
         welcomeSubtitle: 'Connect to your instance',
         switchTitle: 'Switch instance',
@@ -331,6 +670,7 @@
         errorOther: 'Could not connect: {message}',
       },
       ru: {
+        windowTitle: 'Backspace — Подключение',
         welcomeTitle: 'Добро пожаловать в Backspace',
         welcomeSubtitle: 'Подключитесь к своему серверу',
         switchTitle: 'Сменить сервер',
@@ -347,6 +687,7 @@
         errorOther: 'Не удалось подключиться: {message}',
       },
       de: {
+        windowTitle: 'Backspace — Verbinden',
         welcomeTitle: 'Willkommen bei Backspace',
         welcomeSubtitle: 'Verbinde dich mit deiner Instanz',
         switchTitle: 'Instanz wechseln',
@@ -363,6 +704,7 @@
         errorOther: 'Verbindung nicht möglich: {message}',
       },
       pt: {
+        windowTitle: 'Backspace — Conectar',
         welcomeTitle: 'Boas-vindas ao Backspace',
         welcomeSubtitle: 'Conecte-se à sua instância',
         switchTitle: 'Mudar instância',
@@ -379,6 +721,7 @@
         errorOther: 'Não foi possível conectar: {message}',
       },
       zh: {
+        windowTitle: 'Backspace — 连接',
         welcomeTitle: '欢迎使用 Backspace',
         welcomeSubtitle: '连接到您的实例',
         switchTitle: '切换实例',
@@ -395,15 +738,14 @@
         errorOther: '无法连接：{message}',
       },
     };
-    const LANG = new URLSearchParams(window.location.search).get('lang');
-    const T = STRINGS[LANG] || STRINGS.en;
-    document.documentElement.lang = STRINGS[LANG] ? LANG : 'en';
+    const languageQuery = new URLSearchParams(window.location.search);
+    let language = Object.hasOwn(STRINGS, languageQuery.get('lang')) ? languageQuery.get('lang') : 'en';
+    const languagePreference = languageQuery.get('preference') || language;
+    const releasedLanguages = new Set((languageQuery.get('released') || Object.keys(STRINGS).join(',')).split(','));
+    let languageRequest = 0;
     function t(key, vars) {
-      const text = T[key] || STRINGS.en[key] || key;
+      const text = STRINGS[language][key] || STRINGS.en[key] || key;
       return vars ? text.replace(/\{(\w+)\}/g, (m, name) => (name in vars ? vars[name] : m)) : text;
-    }
-    for (const el of document.querySelectorAll('[data-i18n]')) {
-      el.textContent = t(el.getAttribute('data-i18n'));
     }
 
     const form = document.getElementById('picker-form');
@@ -416,6 +758,38 @@
     const versionEl = document.getElementById('instance-version');
     const cancelBtn = document.getElementById('cancel-btn');
     let savedUrl = null;
+    let currentError = null;
+
+    function applyLanguage(next) {
+      language = Object.hasOwn(STRINGS, next) ? next : 'en';
+      document.documentElement.lang = language;
+      document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+      document.title = t('windowTitle');
+      for (const el of document.querySelectorAll('[data-i18n]')) el.textContent = t(el.getAttribute('data-i18n'));
+      if (savedUrl) {
+        document.querySelector('.header h1').textContent = t('switchTitle');
+        document.querySelector('.header p').textContent = t('switchSubtitle');
+      }
+      if (currentError) errorBox.textContent = t(currentError.key, currentError.vars);
+    }
+
+    async function refreshLanguage() {
+      if (languagePreference !== 'auto' || typeof window.backspace?.getSystemLanguages !== 'function') return;
+      const request = ++languageRequest;
+      try {
+        const tags = await window.backspace.getSystemLanguages();
+        if (request !== languageRequest || !Array.isArray(tags) || !tags.every(tag => typeof tag === 'string')) return;
+        let next = 'en';
+        for (const tag of tags) {
+          const base = tag.trim().toLowerCase().split('-')[0];
+          const candidate = base === 'no' ? 'nb' : base;
+          if (releasedLanguages.has(candidate) && Object.hasOwn(STRINGS, candidate)) { next = candidate; break; }
+        }
+        applyLanguage(next);
+      } catch { /* The initial native query remains usable with an older bridge. */ }
+    }
+    window.addEventListener('focus', refreshLanguage);
+    window.addEventListener('pagehide', () => { languageRequest += 1; });
 
     function normalizeUrl(raw) {
       let url = raw.trim();
@@ -429,13 +803,15 @@
       return url;
     }
 
-    function showError(text) {
-      errorBox.textContent = text;
+    function showError(key, vars) {
+      currentError = { key, vars };
+      errorBox.textContent = t(key, vars);
       errorBox.style.display = 'block';
       loadingEl.style.display = 'none';
     }
 
     function hideError() {
+      currentError = null;
       errorBox.style.display = 'none';
     }
 
@@ -464,7 +840,9 @@
         document.querySelector('.header p').textContent = t('switchSubtitle');
       }
     }
+    applyLanguage(language);
     init();
+    refreshLanguage();
 
     cancelBtn.addEventListener('click', async () => {
       if (!savedUrl) return;
@@ -480,7 +858,7 @@
 
       const url = normalizeUrl(input.value);
       if (!url) {
-        showError(t('errorEmpty'));
+        showError('errorEmpty');
         return;
       }
 
@@ -517,15 +895,15 @@
         setLoading(false);
         infoEl.style.display = 'none';
         if (err.name === 'TimeoutError' || err.name === 'AbortError') {
-          showError(t('errorTimeout'));
+          showError('errorTimeout');
         } else if (err.pickerReason === 'status') {
-          showError(t('errorStatus', { status: String(err.status) }));
+          showError('errorStatus', { status: String(err.status) });
         } else if (err.pickerReason === 'not-backspace') {
-          showError(t('errorNotBackspace'));
+          showError('errorNotBackspace');
         } else if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
-          showError(t('errorUnreachable'));
+          showError('errorUnreachable');
         } else {
-          showError(t('errorOther', { message: err.message }));
+          showError('errorOther', { message: err.message });
         }
       }
     });

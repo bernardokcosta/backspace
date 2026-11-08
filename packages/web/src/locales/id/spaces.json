@@ -1,0 +1,632 @@
+{
+  "soundboardTab": "Papan suara",
+  "create": {
+    "title": "Buat Ruang",
+    "icon": {
+      "upload": "Unggah",
+      "previewAlt": "Pratinjau ikon",
+      "colorLabel": "Warna Ikon",
+      "cropTitle": "Pangkas Ikon Ruang",
+      "uploadFailed": "Gagal mengunggah ikon"
+    },
+    "name": {
+      "label": "Nama Ruang",
+      "placeholder": "Ruang Keren Saya",
+      "required": "Nama ruang wajib"
+    },
+    "visibilityLabel": "Visibilitas",
+    "description": {
+      "label": "Deskripsi",
+      "placeholder": "Deskripsi singkat untuk ruang Anda…",
+      "counter": "{{length}}/{{max}}"
+    },
+    "submit": "Buat",
+    "submitting": "Membuat…"
+  },
+  "channel": {
+    "create": {
+      "title": "Buat Kanal",
+      "typeLabel": "Tipe Kanal",
+      "types": {
+        "text": {
+          "name": "Teks",
+          "description": "Kirim pesan, gambar, dan berkas"
+        },
+        "voice": {
+          "name": "Suara",
+          "description": "Nongkrong dengan voice dan video"
+        }
+      },
+      "nameLabel": "Nama Kanal",
+      "namePlaceholder": "kanal-baru",
+      "topicLabel": "Topik (opsional)",
+      "topicPlaceholder": "Kanal ini tentang apa?",
+      "categoryLabel": "Kategori",
+      "noCategory": "Tanpa Kategori",
+      "nameRequired": "Nama kanal wajib",
+      "noSpaceSelected": "Tidak ada ruang dipilih",
+      "submit": "Buat Kanal",
+      "submitting": "Membuat…"
+    },
+    "settings": {
+      "title": "Pengaturan Kanal",
+      "rename": "Ganti Nama Kanal",
+      "nameLabel": "Nama Kanal",
+      "channelLabel": "Kanal",
+      "topic": {
+        "label": "Topik",
+        "placeholder": "Kanal ini tentang apa?",
+        "hint": "Tampil di header kanal. Siapa pun dapat membuka teks penuh dari sana.",
+        "counter": "{{used}}/{{max}}",
+        "tooLong": "Pendekkan topik hingga {{max}} karakter atau kurang untuk menyimpan.",
+        "empty": "Tidak ada topik diset.",
+        "reset": "Buang Perubahan"
+      },
+      "private": {
+        "label": "Kanal Privat",
+        "description": "Hanya anggota dan peran terpilih yang dapat melihat kanal ini.",
+        "note": "Kanal ini tersembunyi dari anggota tanpa akses eksplisit. Pengguna dengan izin administrator atau pemilik ruang selalu melihat semua kanal.",
+        "unhideOnSave": "Menyimpan membuat kanal ini terlihat oleh tiap anggota."
+      },
+      "deleteButton": "Hapus Kanal"
+    },
+    "delete": {
+      "title": "Hapus #{{name}}?",
+      "description": "Ini menghapus permanen <strong>#{{name}}</strong> dan semua pesannya. Ini tak dapat dibatalkan.",
+      "descriptionVoice": "Ini menghapus permanen <strong>#{{name}}</strong> dan semua pesannya. Semua di kanal voice ini akan terputus. Ini tak dapat dibatalkan.",
+      "confirm": "Hapus Kanal"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "Buat Kategori",
+      "nameLabel": "Nama Kategori",
+      "namePlaceholder": "kategori-baru",
+      "nameRequired": "Nama kategori wajib",
+      "noSpaceSelected": "Tidak ada ruang dipilih",
+      "submit": "Buat Kategori",
+      "submitting": "Membuat…"
+    },
+    "settings": {
+      "title": "Pengaturan Kategori",
+      "rename": "Ganti Nama Kategori",
+      "nameLabel": "Nama Kategori",
+      "categoryLabel": "Kategori",
+      "private": {
+        "label": "Kategori Privat",
+        "description": "Hanya anggota dan peran terpilih yang dapat melihat kanal di kategori ini.",
+        "note": "Kategori ini tersembunyi dari anggota tanpa akses eksplisit. Kanal di dalamnya mewarisi batasan ini kecuali menimpanya eksplisit.",
+        "unhideOnSave": "Menyimpan membuat kategori ini dan kanalnya tanpa batasan visibilitas terpisah terlihat oleh semua."
+      },
+      "deleteButton": "Hapus Kategori"
+    },
+    "delete": {
+      "title": "Hapus “{{name}}”?",
+      "description": "Ini menghapus permanen kategori <strong>{{name}}</strong>. Kanal di dalamnya pindah ke tingkat atas. Ini tak dapat dibatalkan.",
+      "confirm": "Hapus Kategori"
+    }
+  },
+  "invite": {
+    "title": "Undang Teman",
+    "intro": "Kirim ke teman, atau bagikan tautan.",
+    "introRequest": "Kirim ke teman, atau bagikan tautan. Yang membukanya meminta bergabung, dan manajer menyetujui tiap permintaan.",
+    "searchPlaceholder": "Cari teman…",
+    "noMatches": "Tidak ada teman cocok pencarian",
+    "noFriends": "Belum ada teman",
+    "alreadyMember": "Sudah di ruang",
+    "removeSelected": "Hapus {{name}}",
+    "selectFriends": "Pilih Teman",
+    "send_one": "Kirim {{count}} Undangan",
+    "send_other": "Kirim {{count}} Undangan",
+    "sending": "Mengirim…",
+    "retryFailed": "Coba lagi undangan gagal",
+    "status": {
+      "sent": "✓ Terkirim",
+      "failed": "✗ {{reason}}"
+    },
+    "shareLink": "Atau bagikan tautan",
+    "generating": "Menghasilkan…",
+    "generateFailed": "Gagal menghasilkan tautan undangan",
+    "failure": {
+      "inviteInvalid": "Tautan undangan tak valid lagi",
+      "notAFriend": "Bukan teman",
+      "userNotFound": "Pengguna tidak ditemukan",
+      "alreadyMember": "Sudah anggota",
+      "upstream": "Tidak dapat memverifikasi undangan, coba lagi",
+      "cannotInviteSelf": "Anda tidak dapat mengundang diri",
+      "invalidBody": "Permintaan tidak valid",
+      "invalidTarget": "Target tidak valid",
+      "unreachable": "Tidak dapat menjangkau instans Anda",
+      "serverError": "Tidak dapat mengirim (galat server)"
+    }
+  },
+  "inviteFriend": {
+    "title": "Undang {{name}} ke Ruang",
+    "intro": "Pilih salah satu Ruang Anda untuk mengirim undangan.",
+    "noSpaces": "Anda belum di Ruang mana pun",
+    "contextMenu": "Undang ke Ruang"
+  },
+  "join": {
+    "validation": {
+      "required": "Kode undangan wajib",
+      "invalidLink": "Tautan undangan tidak valid",
+      "linkFormat": "Tautan undangan tidak valid — format yang diharapkan: https://instance/join/CODE",
+      "qualifiedFormat": "Format undangan tidak valid — diharapkan: CODE@domain",
+      "invalidDomain": "Domain tidak valid dalam undangan"
+    },
+    "title": "Bergabung Ruang",
+    "invitePlaceholder": "mis. abc123 atau https://instance.com/join/abc123",
+    "submit": "Bergabung Ruang",
+    "submitting": "Bergabung…",
+    "connect": {
+      "intro": "Hubungkan ke <host>{{host}}</host> untuk bergabung ruang ini.",
+      "passwordLabel": "Masukkan kata sandi untuk menghubungkan",
+      "passwordPlaceholder": "Kata sandi akun Anda",
+      "passwordNote": "Kata sandi Anda diperiksa instans utama dan tidak pernah dikirim ke {{host}}. Instans itu mendapat kredensial unik yang dibuat hanya untuknya.",
+      "submit": "Hubungkan & Bergabung",
+      "submitting": "Menghubungkan…"
+    },
+    "fallback": {
+      "usernamePlaceholder": "Nama pengguna Anda di instans ini",
+      "passwordLabel": "Kata sandi instans ini",
+      "passwordPlaceholder": "Kata sandi di instans remote",
+      "submit": "Masuk & Bergabung",
+      "submitting": "Masuk…"
+    },
+    "request": {
+      "messagePlaceholder": "Mengapa ingin bergabung? (opsional)",
+      "send": "Kirim Permintaan",
+      "sending": "Mengirim…",
+      "notice": "Ruang ini menerima permintaan bergabung. Kirim satu dan manajer akan meninjaunya.",
+      "messageLabel": "Catatan pada permintaan",
+      "sent": "Permintaan terkirim. Manajer akan meninjaunya, dan ruang tampil di daftar Anda setelah disetujui.",
+      "pending": "Anda sudah meminta bergabung ruang ini. Permintaan Anda menunggu manajer."
+    }
+  },
+  "settings": {
+    "title": "Pengaturan Ruang",
+    "backAria": "Kembali ke menu pengaturan ruang",
+    "nav": {
+      "general": "Umum",
+      "management": "Manajemen",
+      "tabs": {
+        "overview": "Ringkasan",
+        "roles": "Peran",
+        "bans": "Blokir"
+      }
+    },
+    "discardChanges": "Buang",
+    "overview": {
+      "identity": "Identitas Ruang",
+      "iconLabel": "Ikon Ruang",
+      "iconAlt": "Ikon ruang",
+      "colorLabel": "Warna Ikon",
+      "bannerLabel": "Banner Ruang",
+      "bannerAlt": "Banner ruang",
+      "uploadBanner": "Unggah banner (16:9)",
+      "removeBanner": "Hapus banner",
+      "nameLabel": "Nama Ruang",
+      "iconUploadFailed": "Gagal mengunggah ikon",
+      "bannerUploadFailed": "Gagal mengunggah banner",
+      "cropIconTitle": "Pangkas Ikon Ruang",
+      "cropBannerTitle": "Pangkas Banner Ruang",
+      "transfer": {
+        "description": "Transfer kepemilikan ke anggota lain. Anda menjadi anggota biasa.",
+        "prompt": "Transfer kepemilikan ke <strong>{{name}}</strong>?",
+        "button": "Transfer Kepemilikan",
+        "confirm": "Alihkan",
+        "transferring": "Mentransfer…",
+        "success": "Kepemilikan ditransfer ke {{name}}",
+        "failed": "Gagal mentransfer kepemilikan"
+      },
+      "delete": {
+        "description": "Hapus permanen ruang ini dan semua datanya. Ini tak dapat dibatalkan.",
+        "button": "Hapus Ruang",
+        "confirmAgain": "Klik lagi untuk konfirmasi hapus",
+        "failed": "Gagal menghapus ruang"
+      }
+    },
+    "access": {
+      "title": "Akses dan deskripsi",
+      "visibility": {
+        "label": "Visibilitas",
+        "hint": "Kontrol bagaimana orang dengan undangan memasuki ruang ini.",
+        "options": {
+          "private": {
+            "label": "Privat",
+            "description": "Hanya orang dengan tautan undangan yang dapat bergabung"
+          },
+          "request": {
+            "label": "Atas permintaan",
+            "description": "Undangan mengarah ke permintaan yang harus disetujui manajer"
+          },
+          "public": {
+            "label": "Publik",
+            "description": "Orang dengan undangan dapat langsung bergabung"
+          }
+        }
+      },
+      "description": {
+        "label": "Deskripsi",
+        "hint": "Ringkasan singkat yang tampil dengan undangan ke ruang ini.",
+        "placeholder": "Deskripsi singkat ruang ini…",
+        "counter": "{{length}}/{{max}}"
+      },
+      "requests": {
+        "title": "Permintaan Bergabung Tertunda",
+        "empty": "Tidak ada permintaan bergabung tertunda",
+        "actionFailed": "Aksi gagal"
+      }
+    },
+    "members": {
+      "description": "Kelola anggota ruang ini. Klik anggota untuk mengedit perannya.",
+      "listHeading": "Anggota ({{total}})",
+      "owner": "Pemilik",
+      "noRoles": "Tidak ada peran",
+      "ban": "Blokir",
+      "kick": "Keluarkan",
+      "confirm": {
+        "banTitle": "Blokir {{name}}",
+        "kickTitle": "Keluarkan {{name}}",
+        "banDescription": "Orang ini akan diblokir permanen dari ruang ini hingga blokir dibuka.",
+        "kickDescription": "Orang ini dapat bergabung lagi dengan tautan undangan."
+      },
+      "updateRolesFailed": "Gagal memperbarui peran",
+      "kickFailed": "Gagal mengeluarkan anggota",
+      "banFailed": "Gagal memblokir anggota",
+      "rolesAboveYou": "Peran pada atau di atas peran tertinggi Anda terkunci.",
+      "rolesUnheld": "Peran dengan izin yang tak Anda miliki tak dapat diberikan.",
+      "rolesManagedByBot": "Peran sendiri bot tetap pada bot.",
+      "botInvite": {
+        "warning": "Bot menjadi anggota ruang ini dan menerima pesan dan event tiap kanal yang izinnya mengizinkan. Tambah hanya bot yang Anda percaya.",
+        "owner": "Pemilik: @{{owner}}",
+        "button": "Tambah Bot",
+        "title": "Tambah Bot",
+        "searchPlaceholder": "Cari bot berdasar nama…",
+        "searching": "Mencari…",
+        "noResults": "Tidak ada bot ditemukan",
+        "add": "Tambah",
+        "adding": "Menambah…",
+        "permissionsTitle": "Izin untuk {{name}}",
+        "permissionsIntro": "Bot meminta izin ini. Mereka masuk ke peran bernama bot; hapus centang yang tak ingin diberikan.",
+        "permissionsUnheld": "Izin yang tak Anda miliki sendiri tak dapat diberikan.",
+        "permissionsNone": "Tak ada dicentang: bot bergabung tanpa peran.",
+        "back": "Kembali"
+      }
+    },
+    "afk": {
+      "title": "Kanal AFK",
+      "channelLabel": "Pindah anggota diam ke",
+      "disabled": "Dinonaktifkan",
+      "timeoutLabel": "Setelah diam selama",
+      "minutes": "mnt",
+      "hint": "Anggota tanpa aktivitas voice selama waktu terpilih otomatis dipindah ke kanal voice ini."
+    }
+  },
+  "bans": {
+    "title": "Blokir",
+    "description": "Pengguna diblokir tak dapat bergabung lagi hingga blokir dibuka.",
+    "loading": "Memuat blokir…",
+    "empty": "Tidak ada pengguna diblokir",
+    "listHeading": "Blokir ({{total}})",
+    "bannedBy": "Diblokir oleh {{moderator}} pada {{date}}",
+    "bannedByWithReason": "Diblokir oleh {{moderator}} pada {{date}}: {{reason}}",
+    "unban": "Buka blokir",
+    "loadFailed": "Gagal memuat blokir",
+    "unbanFailed": "Gagal membuka blokir pengguna"
+  },
+  "roles": {
+    "title": "Peran",
+    "create": "Buat Peran",
+    "creating": "Membuat…",
+    "listHeading": "Peran",
+    "description": "Peran menentukan izin apa yang dimiliki anggota.",
+    "hierarchyHint": "Peran lebih tinggi di daftar berdiri di atas yang di bawah.",
+    "defaultName": "peran baru",
+    "copyName": "Salinan {{name}}",
+    "backToList": "Kembali ke peran",
+    "created": "Peran dibuat. Siapkan di bawah.",
+    "aboveYou": "Peran ini pada atau di atas peran tertinggi Anda. Anda dapat melihatnya tetapi tidak mengubahnya.",
+    "managedByBot": "Peran ini dikelola bot dan dihapus saat bot keluar ruang. Tidak dapat ditetapkan ke orang lain atau dihapus manual. Izinnya dapat diubah.",
+    "reorder": {
+      "handle": "Pindah {{name}}",
+      "handleHint": "Seret, atau gunakan panah atas dan bawah",
+      "up": "Pindah {{name}} ke atas",
+      "down": "Pindah {{name}} ke bawah",
+      "locked": "{{name}} pada atau di atas peran tertinggi Anda",
+      "moved": "{{name}} dipindah ke posisi {{position}} dari {{total}}"
+    },
+    "identity": "Identitas",
+    "nameLabel": "Nama Peran",
+    "colorLabel": "Warna Peran",
+    "nameEmpty": "Nama peran tak boleh kosong",
+    "nameDuplicate": "Peran bernama itu sudah ada",
+    "groups": {
+      "general": "Umum",
+      "text": "Teks",
+      "voice": "Suara"
+    },
+    "saved": "Peran tersimpan",
+    "copy": "Salin Peran",
+    "copying": "Menyalin…",
+    "delete": "Hapus Peran",
+    "deleting": "Menghapus…",
+    "confirmDelete": "Konfirmasi?",
+    "createFailed": "Gagal membuat peran",
+    "saveFailed": "Gagal menyimpan peran",
+    "deleteFailed": "Gagal menghapus peran",
+    "copyFailed": "Gagal menyalin peran",
+    "unheldLocked": "Anda hanya dapat mengalihkan izin yang Anda miliki. Sisanya terkunci.",
+    "unheldPermission": "Anda tidak punya izin ini",
+    "copyUnheld": "Peran ini punya izin yang tak Anda miliki, jadi Anda tak dapat menyalinnya.",
+    "copyDeleteUnheld": "Peran ini punya izin yang tak Anda miliki, jadi Anda tak dapat menyalin atau menghapusnya."
+  },
+  "memberRoles": {
+    "title": "Edit peran untuk {{name}}",
+    "viewProfile": "Lihat Profil",
+    "affectsAll": "Perubahan izin berlaku untuk tiap anggota dengan peran ini.",
+    "selectRole": "Pilih peran untuk mengedit izinnya.",
+    "saved": "Perubahan tersimpan"
+  },
+  "permissions": {
+    "title": "Izin",
+    "names": {
+      "administrator": "Administrator",
+      "viewChannel": "Lihat Kanal",
+      "manageChannels": "Kelola Kanal",
+      "manageRoles": "Kelola Peran",
+      "manageSpace": "Kelola Ruang",
+      "createInvite": "Buat Undangan",
+      "kickMembers": "Keluarkan Anggota",
+      "banMembers": "Blokir Anggota",
+      "sendMessages": "Kirim Pesan",
+      "manageMessages": "Kelola Pesan",
+      "attachFiles": "Lampirkan Berkas",
+      "readMessageHistory": "Baca Riwayat Pesan",
+      "addReactions": "Tambah Reaksi",
+      "connect": "Hubungkan",
+      "speak": "Bicara",
+      "muteMembers": "Bisukan Anggota",
+      "deafenMembers": "Tulikan Anggota",
+      "moveMembers": "Pindah Anggota",
+      "stream": "Siaran",
+      "disconnectMembers": "Putuskan Anggota",
+      "mentionEveryone": "Sebut @everyone, @here, dan Peran"
+    },
+    "tristate": {
+      "deny": "Tolak",
+      "neutral": "Netral (warisi)",
+      "allow": "Izinkan"
+    },
+    "overrideCount_one": "{{count}} pengecualian",
+    "overrideCount_other": "{{count}} pengecualian",
+    "removeOverride": "Hapus override",
+    "removeOverrideFor": "Hapus override untuk {{name}}",
+    "removeOverrideHint": "Tanpanya, izin ruang-lebar berlaku di sini.",
+    "noRoleOverrides": "Tidak ada override peran. Tiap peran memakai izin ruang-lebarnya di sini.",
+    "noMemberOverrides": "Tidak ada override anggota.",
+    "roleOverrides": "Override Peran",
+    "memberOverrides": "Override Anggota",
+    "addRole": "Tambah Peran",
+    "addMember": "Tambah Anggota",
+    "noMoreRoles": "Tidak ada peran lagi untuk ditambah",
+    "loadFailed": "Gagal memuat override",
+    "saveFailed": "Gagal menyimpan override",
+    "partialFailure_one": "{{count}} override gagal disimpan",
+    "partialFailure_other": "{{count}} override gagal disimpan",
+    "unheldLocked": "Anda hanya dapat mengalihkan izin yang Anda miliki. Sisanya terkunci.",
+    "unheldPermission": "Anda tidak punya izin ini",
+    "removeUnheld": "Override ini menyetel izin yang tak Anda miliki. Hanya yang memilikinya yang dapat menghapusnya.",
+    "removeUnheldShort": "Hanya yang punya izin ini yang dapat menghapusnya",
+    "aboveYouRole": "Peran ini pada atau di atas peran tertinggi Anda. Anda dapat melihat override-nya tetapi tidak mengubah atau menghapusnya.",
+    "aboveYouMember": "Anggota ini pada atau di atas Anda. Anda dapat melihat override-nya tetapi tidak mengubah atau menghapusnya.",
+    "aboveYouShort": "Pada atau di atas peran tertinggi Anda"
+  },
+  "sidebar": {
+    "directMessages": "Pesan Langsung",
+    "addSpace": "Tambah Ruang",
+    "joinSpace": "Bergabung Ruang",
+    "folder": {
+      "tooltip_one": "Map ({{count}})",
+      "tooltip_other": "Map ({{count}})",
+      "spaceCount_one": "{{count}} ruang",
+      "spaceCount_other": "{{count}} ruang",
+      "unnamed": "Folder Tanpa Nama",
+      "rename": "Ganti Nama Folder",
+      "color": "Warna Folder",
+      "create": "Buat Folder",
+      "moveTo": "Pindah ke Folder",
+      "removeFrom": "Hapus dari Folder",
+      "ungroup": "Urai grup",
+      "created": "Folder dibuat",
+      "moved": "Dipindah ke folder",
+      "removed": "Dihapus dari folder",
+      "ungrouped": "Folder diurai"
+    },
+    "space": {
+      "inviteCopied": "Tautan undangan disalin ke papan klip",
+      "inviteCopiedRequest": "Tautan undangan disalin. Yang membukanya dapat meminta bergabung.",
+      "inviteFailed": "Gagal menghasilkan undangan",
+      "transferOwnership": "Transfer Kepemilikan",
+      "settings": "Pengaturan Ruang",
+      "leave": "Keluar Ruang",
+      "reconnecting": "Menyambung ulang ke {{instance}}…",
+      "remoteInstance": "instans remote",
+      "leaveConfirm": {
+        "title": "Keluar Ruang",
+        "titleNamed": "Keluar {{name}}",
+        "description": "Yakin ingin keluar ruang ini? Untuk bergabung lagi Anda butuh undangan."
+      },
+      "left": "Keluar ruang",
+      "leaveFailed": "Gagal keluar ruang",
+      "unreadMessages_one": "{{count}} pesan belum dibaca",
+      "unreadMessages_other": "{{count}} pesan belum dibaca",
+      "unreadMessagesOver99": "Lebih dari 99 pesan belum dibaca"
+    },
+    "dmList": {
+      "newDm": "Pesan Langsung Baru",
+      "empty": "Belum ada percakapan.",
+      "leaveGroup": "Keluar Grup",
+      "leaveGroupConfirm": {
+        "title": "Keluar DM Grup",
+        "description": "Yakin ingin pergi? Anda tak dapat bergabung lagi kecuali seseorang menambah Anda kembali."
+      }
+    },
+    "userArea": {
+      "inputDevice": "Perangkat Input",
+      "outputDevice": "Perangkat Output",
+      "inputDevices": "Perangkat Input",
+      "outputDevices": "Perangkat Output",
+      "inputVolume": "Volume Input",
+      "outputVolume": "Volume Output",
+      "systemDefault": "Bawaan Sistem",
+      "microphonePermission": "Izin mikrofon diperlukan.",
+      "audioPermission": "Izin audio diperlukan.",
+      "enable": "Aktifkan",
+      "voiceSettings": "Pengaturan Voice",
+      "mute": "Bisukan",
+      "unmute": "Bunyikan",
+      "deafen": "Tulikan",
+      "undeafen": "Dengarkan",
+      "spaceMuted": "Dibisukan di ruang",
+      "spaceDeafened": "Ditulikan di ruang",
+      "permissionMuted": "Dibisukan (tanpa Izin Bicara)"
+    },
+    "dmUnreadMessages_one": "{{count}} DM belum dibaca",
+    "dmUnreadMessages_other": "{{count}} DM belum dibaca",
+    "dmUnreadMessagesOver99": "Lebih dari 99 DM belum dibaca"
+  },
+  "channels": {
+    "resizeHandle": "Ubah ukuran daftar kanal",
+    "loading": "Memuat kanal",
+    "create": "Buat Kanal",
+    "createCategory": "Buat Kategori",
+    "settings": "Pengaturan Kanal",
+    "categorySettings": "Pengaturan Kategori",
+    "delete": "Hapus Kanal",
+    "deleteCategory": "Hapus Kategori",
+    "emptyCategory": "Tidak ada kanal",
+    "empty": "Belum ada kanal.",
+    "deleteConfirm": {
+      "title": "Hapus Kanal",
+      "description": "Yakin? Ini menghapus permanen kanal dan semua pesannya."
+    },
+    "deleteCategoryConfirm": {
+      "title": "Hapus Kategori",
+      "description": "Yakin ingin menghapus kategori ini? Kanal di dalamnya pindah ke tak berkategori — tidak ada kanal dihapus."
+    },
+    "deleted": "Kanal dihapus",
+    "deleteFailed": "Gagal menghapus kanal",
+    "categoryDeleted": "Kategori dihapus",
+    "categoryDeleteFailed": "Gagal menghapus kategori"
+  },
+  "members": {
+    "titleWithCount_one": "Anggota — {{count}}",
+    "titleWithCount_other": "Anggota — {{count}}",
+    "loading": "Memuat anggota",
+    "resizeHandle": "Ubah ukuran daftar anggota",
+    "groups": {
+      "owner": "Pemilik"
+    },
+    "ownerTitle": {
+      "edit": "Edit judul pemilik",
+      "label": "Judul pemilik",
+      "hint": "Terlihat oleh semua anggota di ruang ini. Gunakan 1–{{max}} karakter; ini tidak mengubah izin.",
+      "reset": "Atur ulang ke bawaan"
+    },
+    "menu": {
+      "profile": "Lihat profil",
+      "nickname": "Ubah nama panggilan ruang…",
+      "roles": "Peran"
+    },
+    "nickname": {
+      "title": "Ubah nama panggilan ruang",
+      "label": "Nama panggilan ruang",
+      "descriptionSelf": "Hanya berlaku di ruang ini. Nama akun dan nama panggilan Anda di ruang lain tetap. Kosongkan untuk menampilkan nama akun.",
+      "descriptionOther": "Hanya berlaku di ruang ini. Nama akun {{name}} tetap. Kosongkan untuk menampilkan nama akun.",
+      "reset": "Atur ulang ke nama akun",
+      "shownAs": "Nama panggilan di ruang ini: {{nickname}}"
+    }
+  },
+  "mobile": {
+    "addSheet": {
+      "createSpace": "Buat Ruang",
+      "joinSpace": "Bergabung Ruang"
+    },
+    "muteUser": "Bisukan Pengguna"
+  },
+  "main": {
+    "selectChannel": "Pilih kanal",
+    "selectChannelHint": "Pilih kanal teks atau voice untuk memulai",
+    "notificationSettings": "Pengaturan Notifikasi",
+    "topic": {
+      "show": "Tampilkan topik penuh",
+      "dialogTitle": "#{{name}}"
+    },
+    "voice": {
+      "connectionFailed": "Koneksi Gagal",
+      "connected": "Terhubung",
+      "connecting": "Menghubungkan…",
+      "participants_one": "{{count}} terhubung",
+      "participants_other": "{{count}} terhubung",
+      "inCall_one": "{{count}} dalam panggilan",
+      "inCall_other": "{{count}} dalam panggilan",
+      "empty": "Tidak ada di kanal voice ini saat ini.",
+      "join": "Gabung Voice"
+    },
+    "dm": {
+      "fallbackName": "Pesan Langsung",
+      "composerPlaceholder": "Pesan {{target}}",
+      "calling": "Menelepon {{name}}…",
+      "groupSettings": "Pengaturan Grup",
+      "openGroupSettings": "Buka pengaturan grup",
+      "memberCount_one": "({{count}} anggota)",
+      "memberCount_other": "({{count}} anggota)",
+      "startVoiceCall": "Mulai Panggilan Voice",
+      "joinCall": "Gabung Panggilan",
+      "startVideoCall": "Mulai Panggilan Video",
+      "addFriends": "Tambah Teman ke DM"
+    }
+  },
+  "ownership": {
+    "title": "Transfer Kepemilikan",
+    "description": "Pilih anggota menjadi pemilik baru <name>{{name}}</name>",
+    "confirmQuestion": "Transfer kepemilikan <name>{{space}}</name> ke <name>{{member}}</name>?",
+    "regularMember": "Anda menjadi anggota biasa.",
+    "transferring": "Mentransfer…",
+    "confirm": "Alihkan",
+    "loading": "Memuat anggota…",
+    "success": "Kepemilikan ditransfer ke {{name}}",
+    "failed": "Gagal mentransfer kepemilikan"
+  },
+  "notifications": {
+    "open": "Pengaturan notifikasi",
+    "channelTitle": "Notifikasi untuk #{{channel}}",
+    "spaceTitle": "Notifikasi untuk {{space}}",
+    "levelHeading": "Beri tahu saya tentang",
+    "level": {
+      "all": "Semua pesan",
+      "mentions": "Hanya @sebutan",
+      "nothing": "Tidak ada",
+      "inherit": "Bawaan ruang ({{level}})"
+    },
+    "dmNote": "Pesan langsung selalu memberi tahu Anda.",
+    "muteHeading": "Bisukan",
+    "mute": {
+      "oneHour": "Selama 1 jam",
+      "eightHours": "Selama 8 jam",
+      "oneDay": "Selama 24 jam",
+      "indefinite": "Hingga saya nyalakan"
+    },
+    "unmute": "Bunyikan",
+    "mutedUntil": "Dibisukan hingga {{time}}",
+    "mutedIndefinitely": "Dibisukan hingga Anda menyalakan",
+    "spaceMuted": "Ruang ini dibisukan, jadi kanalnya juga.",
+    "mutedIndicator": "Dibisukan",
+    "saveFailed": "Gagal menyimpan pengaturan notifikasi",
+    "suppressEveryone": "Tekan @everyone dan @here",
+    "suppressRoles": "Tekan sebutan peran",
+    "massHeading": "Sebutan grup",
+    "massNote": "@here menjangkau anggota yang sama dengan @everyone. Sebutan Anda berdasar nama selalu memberi tahu Anda."
+  }
+}

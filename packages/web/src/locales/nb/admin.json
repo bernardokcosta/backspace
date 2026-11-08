@@ -1,0 +1,431 @@
+{
+  "general": {
+    "title": "Generelt",
+    "description": "Konfigurer Backspace-instansen din. Disse innstillingene gjelder alle brukere.",
+    "instanceName": {
+      "label": "Instansnavn",
+      "description": "Navnet som vises på påloggingssiden og overfor fødererte instanser.",
+      "counter": "{{length}}/{{max}}"
+    },
+    "gif": {
+      "label": "GIF-søk",
+      "description": "Aktiver GIF-søk via Klipy. Hent en gratis API-nøkkel fra Klipys utviklerportal.",
+      "placeholderSaved": "Nøkkel lagret — skriv inn ny nøkkel for å erstatte",
+      "placeholderKey": "Klipy API-nøkkel",
+      "enabled": "Aktivert",
+      "notConfigured": "Ikke satt opp",
+      "clearKey": "Fjern nøkkel"
+    }
+  },
+  "registration": {
+    "title": "Registrering",
+    "description": "Bestem hvem som kan opprette kontoer på denne instansen. Offentlig registrering dekker lokale registreringer; føderert registrering dekker brukere fra sammenkoblede instanser som oppretter konto her.",
+    "public": {
+      "label": "Offentlig registrering",
+      "toggleLabel": "Tillat nye lokale kontoer",
+      "toggleDescription": "Alle kan opprette en lokal konto på registreringssiden. Når av, opprettes nye lokale kontoer bare via invitasjonslenke."
+    },
+    "federated": {
+      "label": "Føderert registrering",
+      "toggleLabel": "Tillat nye fødererte kontoer",
+      "toggleDescription": "Brukere fra andre instanser kan opprette en føderert konto her via tilkoblingsinnstillingene sine. Eksisterende fødererte kontoer kan alltid logge inn, uavhengig av denne innstillingen."
+    },
+    "spaceCreation": {
+      "label": "Oppretting av rom",
+      "toggleLabel": "Tillat nye rom",
+      "toggleDescription": "Brukere kan opprette nye rom på denne instansen. Når av, kan bare instansadministratorer opprette rom, og vanlige brukere kan bare bli med i eksisterende."
+    },
+    "saved": "Registreringsinnstillinger lagret",
+    "saveFailed": "Kunne ikke oppdatere registreringsinnstillinger"
+  },
+  "invites": {
+    "label": "Invitasjonslenker",
+    "create": "+ Opprett lenke",
+    "tabs": {
+      "active": "Aktive",
+      "archived": "Arkiverte"
+    },
+    "loadFailed": "Kunne ikke laste invitasjoner",
+    "emptyActive": "Ingen aktive invitasjonslenker.",
+    "emptyArchived": "Ingen arkiverte invitasjonslenker.",
+    "noMatch": "Ingen invitasjon matcher filteret.",
+    "filter": {
+      "status": "Status",
+      "sort": {
+        "recent": "Nyeste først",
+        "oldest": "Eldste først",
+        "name": "Navn (A–Å)",
+        "mostUsed": "Mest brukte",
+        "expiringSoonest": "Utløper raskest"
+      }
+    },
+    "status": {
+      "active": "Aktive",
+      "expired": "Utløpte",
+      "exhausted": "Oppbrukte",
+      "revoked": "Tilbakekalte"
+    },
+    "expiry": {
+      "preset": {
+        "hour1": "1 time",
+        "hours24": "24 timer",
+        "days7": "7 dager",
+        "days30": "30 dager",
+        "custom": "Egendefinert…"
+      },
+      "keepCurrent": "Behold gjeldende",
+      "invalidFuture": "Velg dato og tid i fremtiden",
+      "invalidSelection": "Ugyldig utløpsvalg",
+      "revokedOn": "Tilbakekalt {{date}}",
+      "expiredOn": "Utløpt {{date}}",
+      "exhausted": "Oppbrukt",
+      "noExpiration": "Intet utløp",
+      "inDays_one": "Utløper om {{count}} dag",
+      "inDays_other": "Utløper om {{count}} dager",
+      "inHours_one": "Utløper om {{count}} time",
+      "inHours_other": "Utløper om {{count}} timer"
+    },
+    "form": {
+      "name": "Navn",
+      "namePlaceholder": "f.eks. Venner, gjeng 1",
+      "maxUses": "Maks bruk",
+      "unlimited": "Ubegrenset",
+      "uses": "bruk",
+      "expires": "Utløper",
+      "nameLength": "Navnet må være 1 til 64 tegn",
+      "maxUsesInteger": "Maksimal bruk må være et positivt heltall"
+    },
+    "createModal": {
+      "title": "Opprett invitasjonslenke",
+      "description": "Generer en lenke å dele, slik at folk kan registrere seg på denne instansen. Du angir hvor mange ganger den kan brukes og når den utløper.",
+      "submit": "Opprett lenke",
+      "submitting": "Oppretter…",
+      "createdCopied": "Lenke opprettet. Kopiert til utklippstavlen.",
+      "createdManual": "Lenke opprettet. Kopier manuelt fra raden.",
+      "failed": "Kunne ikke opprette invitasjon: {{message}}"
+    },
+    "editModal": {
+      "title": "Rediger “{{name}}”",
+      "description": "Juster grensene for denne lenken. URL-en forblir den samme — alle med den kan fortsette å bruke den på nye vilkår.",
+      "used": "(brukt {{used}})",
+      "maxUsesBelowUsed": "Maksimal bruk kan ikke være lavere enn gjeldende bruk ({{used}})",
+      "noChanges": "Ingen endringer å lagre",
+      "updated": "Invitasjon oppdatert",
+      "failed": "Kunne ikke oppdatere invitasjon: {{message}}",
+      "submit": "Lagre endringer",
+      "submitting": "Lagrer…"
+    },
+    "reinstateModal": {
+      "title": "Gjenopprett “{{name}}”",
+      "descriptionRevoked": "Denne invitasjonen ble tilbakekalt. Gjenoppretting oppretter en ny lenke med en annen URL — den gamle URL-en forblir inaktiv.",
+      "descriptionLapsed": "Denne invitasjonen er utløpt. Gjenoppretting aktiverer den samme URL-en igjen — alle som lagret den kan bruke den igjen.",
+      "newLinkWarning": "Det opprettes en ny lenke. De med den gamle URL-en kan ikke lenger bruke den.",
+      "maxUsesMeta": "(nå: {{max}}, brukt: {{used}})",
+      "maxUsesMin": "Maksimal bruk må være minst {{min}} (gjeldende: {{used}})",
+      "submit": "Gjenopprett",
+      "submitNewLink": "Gjenopprett med ny lenke",
+      "submitting": "Gjenoppretter…",
+      "doneCopied": "Gjenopprettet med ny lenke. Kopiert til utklippstavlen.",
+      "doneManual": "Gjenopprettet med ny lenke. Kopier manuelt fra raden.",
+      "doneSameLink": "Gjenopprettet. Samme lenke er aktiv igjen.",
+      "failed": "Gjenoppretting mislyktes: {{message}}"
+    },
+    "redemptions": {
+      "title": "Innøsninger av “{{name}}”",
+      "description": "Brukere som registrerte seg via denne lenken, i registreringsrekkefølge.",
+      "revokedNotice": "Denne invitasjonen ble tilbakekalt. Innløsningene nedenfor er fra brukere som registrerte seg før tilbakekallingen.",
+      "revokedNoticeDated": "Denne invitasjonen ble tilbakekalt {{date}}. Innløsningene nedenfor er fra brukere som registrerte seg før tilbakekallingen.",
+      "usesOfMax_one": "{{count}} av {{max}} brukt",
+      "usesOfMax_other": "{{count}} av {{max}} brukt",
+      "uses_one": "{{count}} brukt",
+      "uses_other": "{{count}} brukt",
+      "loadFailed": "Kunne ikke laste innløsninger",
+      "loadFailedInline": "Kunne ikke laste innløsninger.",
+      "empty": "Ingen innløsninger ennå.",
+      "now": "(nå {{name}})",
+      "deletedUser": "Slettet bruker"
+    },
+    "row": {
+      "usage": "Bruk: {{usage}}",
+      "createdBy": "Av: {{name}}",
+      "unknownCreator": "Ukjent",
+      "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
+      "subtitleArchived": "{{usage}} · {{expiry}} · {{when}}",
+      "used": "Brukt",
+      "expires": "Utløper",
+      "expiredAt": "Utløpt",
+      "revokedAt": "Tilbakekalt",
+      "exhausted": "Oppbrukt",
+      "created": "Opprettet",
+      "createdByLabel": "Av",
+      "token": "Token",
+      "lastRedeemed": "Sist brukt",
+      "copyLink": "Kopiér lenke",
+      "revoke": "Tilbakekall",
+      "viewRedemptions": "Se innløsninger",
+      "reinstate": "Gjenopprett",
+      "deletePermanently": "Slett permanent",
+      "copied": "Invitasjonslenke kopiert",
+      "copyFailed": "Kunne ikke kopiere lenke",
+      "revoked": "Invitasjon tilbakekalt",
+      "revokeFailed": "Tilbakekalling mislyktes: {{message}}",
+      "deleted": "Invitasjon slettet",
+      "deleteFailed": "Sletting mislyktes: {{message}}",
+      "revokeDialog": {
+        "title": "Tilbakekalle “{{name}}”?",
+        "description": "Lenken slutter straks å virke. Ingen med URL-en kan lenger bruke den.<br/><br/>Ombestemmer du deg, lager <strong>Gjenopprett</strong> en ny lenke i dette punktet — den opprinnelige URL-en forblir inaktiv.",
+        "confirm": "Tilbakekall lenke"
+      },
+      "deleteDialog": {
+        "title": "Slette “{{name}}” permanent?",
+        "description": "Dette kan ikke angres. Innløsningshistorikken for denne lenken slettes også. Vil du bare stoppe lenken, så bruk <strong>Tilbakekall</strong> — da bevares historikken.",
+        "confirm": "Slett permanent"
+      }
+    }
+  },
+  "storage": {
+    "title": "Lagring",
+    "description": "Følg diskbruk og rydd foreldreløse filer fra slettet innhold eller erstattede avatarer og bannere.",
+    "loading": "Laster lagringsstatistikk…",
+    "loadFailed": "Kunne ikke laste lagringsstatistikk",
+    "refresh": "Oppdater statistikk",
+    "overview": {
+      "label": "Lagringsoversikt",
+      "totalFiles": "Filer totalt",
+      "referenced": "Med referanser",
+      "orphanedFiles": "Foreldreløse filer",
+      "unlinkedUploads": "Ukoblede opplastinger",
+      "danglingRecords": "Hengende poster",
+      "staleUploads": "Gamle opplastinger"
+    },
+    "breakdown": {
+      "label": "Fordeling per filtype",
+      "entry_one": "{{count}} fil — {{size}}",
+      "entry_other": "{{count}} filer — {{size}}"
+    },
+    "uploadLimit": {
+      "label": "Opplastingsgrense",
+      "maxFileSize": "Maksimal filstørrelse",
+      "maxStickerSize": "Maksimal klistremerkestørrelse",
+      "saved": "Opplastingsgrense satt til {{limit}}",
+      "saveFailed": "Kunne ikke oppdatere opplastingsgrense",
+      "stickerSaved": "Klistremerkegrense satt til {{limit}}",
+      "stickerSaveFailed": "Kunne ikke oppdatere klistremerkegrense"
+    },
+    "cleanup": {
+      "label": "Opprydding",
+      "nothingFound": "Ingen foreldreløse filer, gamle opplastinger eller hengende poster funnet.",
+      "preview": "Forhåndsvis opprydding",
+      "run": "Rydd opp nå",
+      "running": "Rydder opp…",
+      "previewResult": "Forhåndsvisning — ingen fil slettet",
+      "complete": "Opprydding fullført",
+      "orphanedFiles_one": "{{count}} foreldreløs fil ({{size}})",
+      "orphanedFiles_other": "{{count}} foreldreløse filer ({{size}})",
+      "staleRecords_one": ", {{count}} gammel opplastingspost",
+      "staleRecords_other": ", {{count}} gamle opplastingsposter",
+      "errors_one": "{{count}} feil: {{first}}",
+      "errors_other": "{{count}} feil: {{first}}",
+      "cleanedToast_one": "Ryddet {{count}} fil ({{size}})",
+      "cleanedToast_other": "Ryddet {{count}} filer ({{size}})",
+      "failed": "Opprydding mislyktes"
+    },
+    "stale": {
+      "label": "Gamle opplastinger",
+      "description": "Etterlatte tus-opplastingssesjoner i <code>.tus/</code> (pausede eller krasjede uten DELETE). Automatisk opprydding kjører hver 24. time; her rydder du tidligere opp.",
+      "maxAge": "Maksimal alder (timer)",
+      "sessionFiles_one": "{{count}} sesjonsfil ({{size}})",
+      "sessionFiles_other": "{{count}} sesjonsfiler ({{size}})",
+      "cleanedToast_one": "Ryddet {{count}} gammel opplastingssesjon ({{size}})",
+      "cleanedToast_other": "Ryddet {{count}} gamle opplastingssesjoner ({{size}})",
+      "failed": "Opprydding av gamle opplastinger mislyktes"
+    },
+    "media": {
+      "label": "Medielagring",
+      "olderThan": "Slett chatmedier eldre enn",
+      "days": "dager",
+      "run": "Slett nå",
+      "running": "Sletter…",
+      "files_one": "{{count}} fil ({{size}})",
+      "files_other": "{{count}} filer ({{size}})",
+      "deletedToast_one": "Slettet {{count}} fil ({{size}})",
+      "deletedToast_other": "Slettet {{count}} filer ({{size}})",
+      "failed": "Medieopprydding mislyktes"
+    }
+  },
+  "streaming": {
+    "title": "Strømming",
+    "description": "Disse grensene gjelder alle brukere på denne instansen. Brukere kan velge verdier innenfor disse grensene.",
+    "units": {
+      "fps": "{{value}} fps",
+      "kbpsLabel": "kb/s"
+    },
+    "bandwidth": {
+      "label": "Båndbredde",
+      "description": "Minimums- og maksimumsgrenser for bitrate samt trinnet for kvalitetsglidebryteren.",
+      "customBitrate": {
+        "label": "Tillat egendefinert bitrate",
+        "description": "La brukere stille inn egen bitrate i stedet for matrisestandardene"
+      },
+      "range": "Bitrateområde",
+      "min": "Minimum",
+      "max": "Maks",
+      "step": "Glidebrytertrinn"
+    },
+    "quality": {
+      "label": "Kvalitet",
+      "description": "Tilgjengelige oppløsnings- og bildefrekvensvalg for skjermdeling.",
+      "resolutions": "Tillatte oppløsninger",
+      "framerates": "Tillatte bildefrekvenser"
+    },
+    "highEndWarning": {
+      "title": "Krevende innstillinger aktivert.",
+      "description": "Strømming over 1080p eller 60 fps krever betydelig kodingskraft fra CPU/GPU på klienten og kan mette serverens båndbredde, særlig når strømmer går via TURN. Krevende konfigurasjoner (f.eks. 4K med 120 fps) kan kreve opptil 45 Mbps per aktiv strøm. Sørg for at infrastrukturen din klarer belastningen før du aktiverer dette for alle brukere."
+    },
+    "matrix": {
+      "label": "Bitratematrise",
+      "description": "Standardbitrater for hver oppløsning og bildefrekvens. Rediger enkeltceller eller skaler alle verdier samtidig.",
+      "scaleAll": "Skaler alle",
+      "scaleHint": "Dra for å skalere alle bitrater. Finjustering av enkeltceller — nedenfor.",
+      "cellDefault": "Standard: {{value}} (klikk × for å nullstille)",
+      "cellEdit": "Klikk for å redigere",
+      "resetAll": "Nullstill alle til standard"
+    },
+    "capWarning": {
+      "title": "Matriseverdier overskrider den globale grensen.",
+      "description": "Noen bitrater overskrider maksimumet ditt {{max}}. Strømmer med disse kombinasjonene senkes til grensen din."
+    }
+  },
+  "updates": {
+    "title": "Oppdateringer",
+    "badge": {
+      "settingsAriaLabel": "Innstillinger, instansoppdatering tilgjengelig",
+      "toast": "Backspace {{version}} er tilgjengelig for denne instansen",
+      "toastAction": "Vis"
+    },
+    "description": "Hvilken versjon som kjører på denne instansen og hvordan du oppdaterer den.",
+    "loading": "Laster oppdateringsstatus…",
+    "loadFailed": "Kunne ikke laste oppdateringsstatus.",
+    "copyFailed": "Kunne ikke kopiere. Marker kommandoen og kopier manuelt.",
+    "running": {
+      "label": "Kjører",
+      "commit": "commit {{commit}} · ",
+      "channel": {
+        "prebuilt": "ferdig image",
+        "source": "bygd fra kildekode",
+        "unknown": "installasjonsmetode ikke registrert"
+      }
+    },
+    "available": {
+      "label": "Tilgjengelig",
+      "version": "Backspace {{version}} tilgjengelig",
+      "released": "Utgitt {{date}} · ",
+      "releaseNotes": "Utgivelsesnotater",
+      "fromInstallDir": "Fra installasjonsmappen din:",
+      "scriptDescription": "Oppretter et øyeblikksbilde av databasen, laster ned det nye imaget og starter bare Backspace-containeren på nytt. Hvis den nye versjonen ikke starter ordentlig eller starter med gammel kode, ruller den den gjeldende versjonen tilbake.",
+      "noScript": "Jeg har ingen update.sh",
+      "manualIntro": "update.sh følger med fra 1.0.5. I en git-kopi legger <code>git pull</code> den til. Gjør ellers trinnene manuelt etter øyeblikksbilde med <code>./backup.sh</code>.",
+      "prebuiltInstall": "Ferdig installasjon:",
+      "sourceInstall": "Installasjon fra kildekode:",
+      "manualWarning": "Nevn tjenesten <code>backspace</code> eksplisitt og ikke ta med <code>--remove-orphans</code>. Compose foreslår det hvis andre containere kjører i dette prosjektet, og fjerner dem da."
+    },
+    "upToDate": "Du har den nyeste versjonen.",
+    "disabled": {
+      "title": "Oppdateringskontroll slått av",
+      "description": "Denne instansen kontakter ikke GitHub. Sett <code>BACKSPACE_UPDATE_CHECK=true</code> i <code>.env</code> for å tillate kontroll, eller gå gjennom releasesiden selv."
+    },
+    "rateLimited": {
+      "title": "GitHub hastighetsbegrenset",
+      "description": "Dette sier ingenting om oppdatering finnes eller ikke. Prøv senere."
+    },
+    "unreachable": {
+      "title": "Kunne ikke kontrollere oppdateringer",
+      "description": "GitHub kunne ikke nås, så dette sier ingenting om oppdatering finnes eller ikke. Instansen din er upåvirket."
+    },
+    "lastChecked": "Sist kontrollert: {{when}}",
+    "noLookups": "Ingen oppslag kjøres",
+    "checkAgain": "Kontroller igjen",
+    "checking": "Kontrollerer…"
+  },
+  "users": {
+    "title": "Brukere",
+    "description": "Se og håndter kontoer på denne instansen.",
+    "searchPlaceholder": "Søk brukere…",
+    "loading": "Laster brukere…",
+    "loadFailed": "Kunne ikke laste brukere",
+    "empty": "Ingen brukere funnet",
+    "filters": {
+      "allInstances": "Alle instanser",
+      "localOnly": "Bare lokale",
+      "allRoles": "Alle roller",
+      "admin": "Administrator",
+      "nonAdmin": "Ikke-administrator",
+      "joinedAfter": "Ble med etter",
+      "joinedBefore": "Ble med før",
+      "newest": "Nyeste først",
+      "oldest": "Eldste først",
+      "nameDesc": "Navn Å-A",
+      "deleted": "Slettede",
+      "clear": "Tøm filtre",
+      "bot": "Boter"
+    },
+    "badge": {
+      "admin": "Administrator",
+      "deleted": "Slettet"
+    },
+    "actions": {
+      "demote": "Fjern administratorrettigheter",
+      "promote": "Gi administratorrettigheter",
+      "federatedNoAdmin": "Fødererte brukere kan ikke være administratorer",
+      "resetPassword": "Nullstill passord",
+      "federatedNoReset": "Fødererte brukere logger inn via hjeminstansen sin",
+      "delete": "Slett bruker",
+      "selfDelete": "Bruk innstillinger for å slette din egen konto"
+    },
+    "tempPassword": {
+      "label": "Midlertidig passord:",
+      "note": "Vist én gang. Brukeren er frakoblet; vedkommende må logge inn igjen."
+    },
+    "pagination": "Side {{page}} av {{total}} ({{users}})",
+    "count_one": "{{count}} bruker",
+    "count_other": "{{count}} brukere",
+    "roleFailed": "Kunne ikke oppdatere rolle",
+    "resetFailed": "Kunne ikke nullstille passord",
+    "actionFailed": "Handlingen mislyktes",
+    "resetDialog": {
+      "title": "Nullstill passord",
+      "description": "Nullstille passordet for <strong>{{username}}</strong>? Brukeren kobles straks fra og må logge inn med det nye midlertidige passordet.",
+      "confirm": "Nullstill passord"
+    },
+    "demoteDialog": {
+      "title": "Fjern administratorrettigheter",
+      "description": "Fjerne <strong>{{username}}</strong> administratorrettigheter? Brukeren mister tilgang til instansinnstillinger.",
+      "confirm": "Fjern rettigheter"
+    },
+    "deleteDialog": {
+      "title": "Slett bruker",
+      "description": "Slette <strong>{{username}}</strong> permanent? Brukeren fjernes fra alle rom, direktemeldinger og vennelister. Dette kan ikke angres.",
+      "confirm": "Slett bruker",
+      "blockBot": "Ikke la denne boten registrere seg igjen",
+      "blockBotHint": "Når hjeminstansen dens er tilbake, kan boten ikke opprette konto her. Opphev blokkeringen under brukerlisten."
+    },
+    "blockedBots": {
+      "title": "Blokkerte boter",
+      "description": "Boter fra andre instanser som ikke får registrere seg her. Opphev blokkeringen for å gi tilgang igjen.",
+      "blockedAt": "Blokkert {{date}}",
+      "unblock": "Opphev blokkering"
+    }
+  },
+  "mobile": {
+    "title": "Instans",
+    "sections": {
+      "general": "Generelt",
+      "registration": "Registrering",
+      "federation": "Føderasjon",
+      "streaming": "Strømming",
+      "storage": "Lagring",
+      "updates": "Oppdateringer",
+      "users": "Brukere"
+    }
+  }
+}

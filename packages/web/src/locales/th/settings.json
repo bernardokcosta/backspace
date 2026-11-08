@@ -1,0 +1,571 @@
+{
+  "interfaceScale": {
+    "label": "ขนาดอินเทอร์เฟซ",
+    "description": "เปลี่ยนขนาดข้อความ ปุ่ม และแผง บันทึกในเบราว์เซอร์หรือแอปนี้บนอุปกรณ์นี้",
+    "reset": "รีเซ็ตเป็น 100%"
+  },
+  "voice": {
+    "input": {
+      "title": "อุปกรณ์ป้อน",
+      "checkingAccess": "กำลังตรวจสิทธิ์ไมค์…",
+      "accessDenied": {
+        "title": "ปฏิเสธสิทธิ์ไมค์",
+        "description": "ให้สิทธิ์ไมค์เพื่อเลือกอุปกรณ์ป้อน",
+        "retry": "ลองใหม่"
+      },
+      "permissionPrompt": {
+        "description": "ต้องสิทธิ์ไมค์เพื่อแสดงและเลือกอุปกรณ์ป้อน",
+        "enable": "เปิดสิทธิ์ไมค์"
+      },
+      "device": {
+        "systemDefault": "ค่าเริ่มต้นระบบ",
+        "currentlyUsing": "กำลังใช้: {{label}}",
+        "none": "ไม่พบไมค์"
+      },
+      "volume": {
+        "label": "ระดับเสียงเข้า"
+      },
+      "meter": {
+        "hint": "มิเตอร์ระดับทำงานเมื่อเข้าร่วมช่องเสียง"
+      }
+    },
+    "output": {
+      "title": "อุปกรณ์ออก",
+      "checkingAccess": "กำลังตรวจสิทธิ์เสียง…",
+      "device": {
+        "systemDefault": "ค่าเริ่มต้นระบบ",
+        "unsupported": "เบราว์เซอร์นี้เลือกอุปกรณ์ออกไม่ได้ เสียงออกค่าเริ่มต้นระบบ"
+      },
+      "permissionPrompt": {
+        "description": "ให้สิทธิ์ไมค์เพื่อแสดงอุปกรณ์ออก (เบราว์เซอร์ซ่อนชื่อออกหลังสิทธิ์ไมค์)",
+        "enable": "เปิดสิทธิ์เสียง"
+      },
+      "volume": {
+        "label": "ระดับเสียงออก"
+      },
+      "testSound": "เล่นเสียงทดสอบ"
+    },
+    "video": {
+      "title": "วิดีโอ",
+      "checkingAccess": "กำลังตรวจสิทธิ์กล้อง…",
+      "accessDenied": {
+        "title": "ปฏิเสธสิทธิ์กล้อง",
+        "description": "ให้สิทธิ์กล้องเพื่อเลือกกล้อง",
+        "retry": "ลองใหม่"
+      },
+      "blocked": {
+        "browser": "กล้องถูกบล็อกระดับเบราว์เซอร์ คลิกไอคอนกล้องในแถบที่อยู่ รีเซ็ตสิทธิ์แล้วกดลองใหม่",
+        "mac": "ให้สิทธิ์กล้องในตั้งค่าระบบ → ความเป็นส่วนตัว & ความปลอดภัย → กล้อง แล้วรีสตาร์ทแอป",
+        "windows": "ให้สิทธิ์กล้องในตั้งค่า → ความเป็นส่วนตัว & ความปลอดภัย → กล้อง แล้วรีสตาร์ทแอป",
+        "other": "ปฏิเสธสิทธิ์กล้อง รีเซ็ตในพรอมต์เบราว์เซอร์/Chromium แล้วลองใหม่"
+      },
+      "permissionPrompt": {
+        "description": "ต้องสิทธิ์กล้องเพื่อเลือกกล้องและดูตัวอย่าง",
+        "enable": "เปิดดูตัวอย่างกล้อง"
+      },
+      "camera": {
+        "label": "กล้อง",
+        "auto": "อัตโนมัติ (ค่าเริ่มต้นระบบ)",
+        "fallbackName": "กล้อง {{number}}",
+        "detectedFallback": "กล้องที่พบ",
+        "currentlyUsing": "กำลังใช้: {{label}}",
+        "none": "ไม่พบกล้อง"
+      },
+      "preview": {
+        "testAria": "ทดสอบกล้อง",
+        "testHint": "คลิกเพื่อทดสอบกล้อง",
+        "stop": "หยุดดูตัวอย่าง",
+        "retry": "ลองใหม่"
+      },
+      "previewError": {
+        "inUse": "กล้องถูกใช้โดยแอปอื่น",
+        "unavailable": "กล้องที่เลือกไม่พร้อม",
+        "notFound": "ไม่พบกล้อง",
+        "generic": "เริ่มดูตัวอย่างกล้องไม่ได้"
+      }
+    },
+    "title": "เสียง & วิดีโอ",
+    "volume": {
+      "sectionTitle": "ระดับเสียง",
+      "soundEffects": {
+        "label": "ระดับเสียงเอฟเฟกต์"
+      },
+      "messageSound": {
+        "label": "เล่นเสียงทุกข้อความ",
+        "description": "ปิด (ค่าเริ่มต้น): เฉพาะ DM และข้อความที่เอ่ยถึงคุณ เปิด: ทุกช่อง"
+      }
+    },
+    "pip": {
+      "sectionTitle": "หน้าต่างลอย",
+      "showOnSwitch": {
+        "label": "แสดงหน้าต่างลอยระหว่างโทร",
+        "description": "ขณะอยู่ในช่องเสียงหรือสายและมองที่อื่น หน้าต่างเล็กคงสายให้เห็น"
+      }
+    },
+    "processing": {
+      "sectionTitle": "ประมวลเสียง",
+      "noiseSuppression": {
+        "label": "ตัดเสียงรบกวน AI",
+        "description": "ตัดเสียงรบกวนด้วย ML (RNNoise) กรองคีย์บอร์ด พัดลม และเสียงพื้น"
+      },
+      "echoCancellation": {
+        "label": "ตัดเสียงสะท้อน",
+        "description": "ตัดเสียงสะท้อนจากลำโพงเข้ากไมค์ เปิดเสมอสำหรับช่องเสียงและสาย"
+      },
+      "autoGain": {
+        "label": "ควบคุมเกนอัตโนมัติ",
+        "description": "ปรับระดับไมค์อัตโนมัติ อาจทำให้เสียงดักขณะสตรีม"
+      }
+    }
+  },
+  "nav": {
+    "userSettings": "ตั้งค่าผู้ใช้",
+    "appSettings": "ตั้งค่าแอป",
+    "administration": "ดูแลระบบ",
+    "tabs": {
+      "account": "บัญชี",
+      "appearance": "รูปลักษณ์",
+      "voice": "เสียง & วิดีโอ",
+      "privacy": "ความเป็นส่วนตัว",
+      "connections": "การเชื่อม",
+      "keybinds": "ปุ่มลัด",
+      "desktop": "เดสก์ท็อป",
+      "instance": "อินสแตนซ์",
+      "bots": "บอท",
+      "developer": "นักพัฒนา"
+    },
+    "logOut": "ออกจากระบบ",
+    "backToMenu": "กลับเมนูตั้งค่า"
+  },
+  "appearance": {
+    "title": "รูปลักษณ์"
+  },
+  "account": {
+    "title": "บัญชีของฉัน",
+    "detached": {
+      "notice": "บัญชีนี้แยกจากอินสแตนซ์หลัก",
+      "explanation": "{{homeInstance}} ถูกรีเซ็ตหรือไม่พร้อมแล้ว บัญชีนี้จึงรันท้องถิ่นบนอินสแตนซ์นี้ โปรไฟล์และรหัสผ่านจัดการที่นี่",
+      "reattachHint": "เป็น {{username}} บน {{homeInstance}} คุณสามารถผูกบัญชีนี้ใหม่ โปรไฟล์และการปรากฏจะซิงก์จากนั้นอีก",
+      "reattachButton": "ผูกใหม่กับ {{homeInstance}}",
+      "reattachConfirm": "ยืนยันผูกใหม่เป็น {{username}}",
+      "reattaching": "กำลังผูกใหม่…",
+      "reattachFailed": "ผูกใหม่ล้มเหลว",
+      "reattached": "ผูกบัญชีกับ {{username}} ใหม่แล้ว"
+    },
+    "profile": {
+      "sectionTitle": "ปรับโปรไฟล์",
+      "avatar": {
+        "label": "อวาตาร์",
+        "alt": "อวาตาร์ของคุณ",
+        "change": "เปลี่ยนอวาตาร์",
+        "uploadFailed": "อัปโหลดอวาตาร์ไม่ได้",
+        "cropTitle": "ครอบอวาตาร์"
+      },
+      "banner": {
+        "label": "แบนเนอร์",
+        "change": "เปลี่ยนแบนเนอร์",
+        "uploadFailed": "อัปโหลดแบนเนอร์ไม่ได้",
+        "cropTitle": "ครอบแบนเนอร์"
+      },
+      "avatarColor": {
+        "label": "สีอวาตาร์"
+      },
+      "bannerColor": {
+        "label": "สีแบนเนอร์",
+        "hexPlaceholder": "#hex"
+      },
+      "bio": {
+        "label": "เกี่ยวกับฉัน",
+        "placeholder": "เล่าเรื่องคุณให้โลกรู้…",
+        "counter": "{{used}}/{{max}}"
+      }
+    },
+    "details": {
+      "sectionTitle": "บัญชี",
+      "status": {
+        "label": "สถานะ",
+        "homeUnavailable": "สถานะของคุณอยู่บน {{host}} เชื่อม {{host}} เพื่อเปลี่ยน"
+      },
+      "customStatus": {
+        "label": "สถานะกำหนดเอง",
+        "placeholder": "กำลังทำอะไร?"
+      }
+    },
+    "password": {
+      "current": {
+        "label": "รหัสผ่านปัจจุบัน",
+        "placeholder": "กรอกรหัสผ่านปัจจุบัน"
+      },
+      "new": {
+        "label": "รหัสผ่านใหม่",
+        "placeholder": "อย่างน้อย {{min}} อักขระ"
+      },
+      "confirm": {
+        "label": "ยืนยันรหัสผ่านใหม่",
+        "placeholder": "ยืนยันรหัสผ่านใหม่"
+      },
+      "show": "แสดงรหัสผ่าน",
+      "hide": "ซ่อนรหัสผ่าน",
+      "tooShort": "รหัสผ่านใหม่อย่างน้อย {{min}} อักขระ",
+      "mismatch": "รหัสผ่านไม่ตรงกัน",
+      "changed": "เปลี่ยนรหัสผ่านแล้ว",
+      "changeFailed": "เปลี่ยนรหัสผ่านไม่ได้",
+      "submit": "เปลี่ยนรหัสผ่าน",
+      "submitting": "กำลังเปลี่ยน…"
+    },
+    "danger": {
+      "description": "ลบบัญชีแล้วไม่มีทางกลับ ข้อความคงอยู่แต่ยกให้ “ผู้ใช้ที่ลบ”",
+      "deleteButton": "ลบบัญชี"
+    },
+    "save": {
+      "updated": "อัปเดตโปรไฟล์แล้ว",
+      "failed": "อัปเดตโปรไฟล์ไม่ได้"
+    },
+    "deletion": {
+      "title": "ลบบัญชี",
+      "warning": {
+        "headline": "สิ่งนี้ลบบัญชีของคุณถาวร",
+        "spaces": "ลบสมาชิกสเปซทั้งหมด",
+        "friends": "ลบเพื่อนทั้งหมด",
+        "dms": "ลบสมาชิก DM ทั้งหมด",
+        "messages": "ข้อความคงอยู่แต่ยกให้ “ผู้ใช้ที่ลบ”"
+      },
+      "ownedSpaces": {
+        "prompt_other": "คุณเป็นเจ้าของ {{count}} สเปซ จัดการก่อนต่อ:",
+        "transfer": "โอน",
+        "delete": "ลบสเปซ",
+        "selectOwner": "เลือกเจ้าของใหม่…"
+      },
+      "processing": "กำลังประมวล…",
+      "confirm": {
+        "permanent": "การกระทำนี้ถาวรและย้อนไม่ได้",
+        "usernamePrompt": "พิมพ์ชื่อผู้ใช้ <username>{{username}}</username> เพื่อยืนยัน",
+        "passwordPlaceholder": "กรอกรหัสผ่านของคุณ",
+        "submit": "ลบบัญชีของฉัน",
+        "deleting": "กำลังลบ…"
+      },
+      "federation": {
+        "removing": "กำลังลบบัญชีคุณจากอินสแตนซ์ที่เชื่อม…",
+        "deleteAnyway": "ลบบัญชีเลย"
+      },
+      "complete": {
+        "title": "ลบบัญชีแล้ว",
+        "redirecting": "กำลังเปลี่ยนไปเข้าสู่ระบบ…"
+      },
+      "errors": {
+        "usernameMismatch": "ชื่อผู้ใช้ไม่ตรง",
+        "spacesFailed": "จัดการสเปซไม่ได้",
+        "deleteFailed": "ลบบัญชีไม่ได้"
+      }
+    }
+  },
+  "privacy": {
+    "title": "ความเป็นส่วนตัว",
+    "discovery": {
+      "sectionTitle": "ค้นพบ",
+      "label": "ให้คนอื่นพบโปรไฟล์ฉัน",
+      "description": "เมื่อเปิด โปรไฟล์คุณแสดงในค้นพบผู้คน คนอื่นเพิ่มคุณด้วยชื่อตรงได้เสมอ"
+    },
+    "activity": {
+      "sectionTitle": "สถานะกิจกรรม",
+      "label": "แชร์สถานะกิจกรรม",
+      "description": "ให้คนอื่นเห็นว่าคุณทำอะไร เช่นเล่นเกมอะไรหรือฟังเพลงอะไร",
+      "game": {
+        "label": "สร้างเอง",
+        "description": "เพิ่มเกมที่ไม่พบ แสดงจนกว่าคุณลบ",
+        "placeholder": "ชื่อเกม",
+        "set": "ตั้ง",
+        "detectedLabel": "พบตอนนี้",
+        "detectedDescription": "แสดงเกมที่พบด้วยชื่ออื่น จำครั้งหน้า",
+        "renamePlaceholder": "แสดงเป็น…",
+        "renameLabel": "แสดง {{name}} เป็น",
+        "renamedLabel": "เกมเปลี่ยนชื่อ",
+        "renamedItem": "{{detected}} → {{chosen}}",
+        "restore": "คืน",
+        "descriptionBound": "เพิ่มเกมที่ไม่พบ: เลือกโปรแกรมและตั้งชื่อ แสดงเมื่อโปรแกรมนั้นรัน",
+        "programLabel": "โปรแกรม",
+        "programPlaceholder": "เลือกโปรแกรมที่รัน…",
+        "programHint": "เริ่มเกมก่อน แล้วเลือกโปรแกรมจากรายการ",
+        "clearRename": "ล้าง",
+        "unknownLabel": "โปรแกรม Wine ไม่ทราบ",
+        "unknownDescription": "มันรันแต่ไม่ตรงเกมรู้จัก หากหนึ่งคือเกมคุณ แสดงเป็นเกมที่คุณเล่น",
+        "unknownUse": "เพิ่มในเกมของฉัน",
+        "gamesLabel": "เกมของคุณ",
+        "gamesDescription": "เกมแรกคือสิ่งที่รายการแสดง; ย้ายเกมเพื่อจัดลำดับ เกมซ่อนไม่แสดงต่อคนอื่น",
+        "moveUp": "ย้าย {{name}} ขึ้น",
+        "moveDown": "ย้าย {{name}} ลง",
+        "hide": "ซ่อน",
+        "show": "แสดง",
+        "hideGame": "ซ่อน {{name}}",
+        "showGame": "แสดง {{name}}",
+        "add": "เพิ่ม",
+        "remove": "ลบ",
+        "statusName": "แสดงตามชื่อ",
+        "statusRunning": "กำลังรัน",
+        "statusWaiting": "รอ {{program}}",
+        "dragHandle": "ลาก {{name}} เพื่อเปลี่ยนลำดับ",
+        "manualNameLabel": "ชื่อของ {{name}}",
+        "save": "บันทึก"
+      }
+    }
+  },
+  "connections": {
+    "title": "การเชื่อม"
+  },
+  "instance": {
+    "tabs": {
+      "general": "ทั่วไป",
+      "registration": "ลงทะเบียน",
+      "federation": "สหพันธ์",
+      "streaming": "สตรีม",
+      "storage": "ที่เก็บ",
+      "users": "ผู้ใช้",
+      "updates": "อัปเดต"
+    }
+  },
+  "keybinds": {
+    "portal": {
+      "description": "บน Wayland คอมพิวเตอร์จัดการช็อตคัต Backspace ทั้งหมด กำหนด เปลี่ยน หรือลบปุ่มในตั้งค่าช็อตคัตคีย์บอร์ดระบบ ใต้ Backspace ไม่ใช้ผูกเบราว์เซอร์/X11 ท้องถิ่นที่นี่",
+      "idle": "เตรียมลงทะเบียนแรกทุกการกระทำที่มี",
+      "pending": "กำลังเชื่อมพอร์ทัลเดสก์ท็อป หากมีหน้าต่างระบบ เลือกช็อตคัตสำหรับการกระทำที่ต้องการ",
+      "ready": "ลงทะเบียน Backspace แล้ว เปิดตั้งค่าช็อตคัตคีย์บอร์ดระบบเพื่อเปลี่ยนหรือลบกำหนด รายการด้านล่างอ่านอย่างเดียวและรีเฟรชเมื่อกลับ Backspace",
+      "unavailable": "พอร์ทัลไม่พร้อม สิทธิ์ปฏิเสธ หรือเซสชันจบ ต้องมีแบ็กเอนด์พอร์ทัล Global Shortcuts ผูกท้องถิ่นปิดบน Wayland",
+      "retry": "ลงทะเบียนหรือเชื่อมช็อตคัตใหม่",
+      "assigned": "ช็อตคัตระบบ: {{shortcut}}",
+      "notAssigned": "ไม่มีกำหนดระบบใช้งาน"
+    },
+    "title": "ปุ่มลัด",
+    "note": {
+      "webOnly": "ช็อตคัตทำงานเมื่อแท็บนี้โฟกัส สำหรับช็อตคัตโกลบอลที่ใช้ในแอปอื่น ใช้แอปเดสก์ท็อป"
+    },
+    "section": {
+      "voice": "ช็อตคัตเสียง"
+    },
+    "action": {
+      "toggleMute": "สลับปิดเสียง",
+      "toggleDeafen": "สลับหูหนวก",
+      "pushToTalk": "กดเพื่อพูด",
+      "toggleCamera": "สลับกล้อง",
+      "toggleScreenShare": "สลับแชร์จอ",
+      "disconnect": "ตัด"
+    },
+    "row": {
+      "recordingPrompt": "กดชุดปุ่ม…",
+      "notBound": "ไม่ผูก",
+      "record": "อัด",
+      "escToCancel": "ESC เพื่อยกเลิก"
+    },
+    "key": {
+      "shift": "Shift",
+      "ctrl": "Ctrl",
+      "alt": "Alt",
+      "option": "Option",
+      "cmd": "Cmd",
+      "win": "Win",
+      "space": "ช่องว่าง",
+      "middleClick": "คลิกกลาง",
+      "mouse4": "เมาส์ 4",
+      "mouse5": "เมาส์ 5",
+      "mouseGeneric": "เมาส์ {{button}}"
+    },
+    "accessibility": {
+      "title": "ต้องสิทธิ์เข้าถึง",
+      "description": "Backspace ต้องการสิทธิ์เข้าถึงเพื่อให้ช็อตคัตโกลบอลทำงานนอกแอป",
+      "grant": "ให้สิทธิ์"
+    },
+    "hookError": {
+      "title": "ช็อตคัตโกลบอลไม่พร้อม",
+      "description": "เริ่มตัวฟังอินพุตไม่ได้ บน Linux ผู้ใช้อาจต้องอยู่กลุ่ม <code>input</code>"
+    },
+    "conflict": {
+      "message": "<strong>{{combo}}</strong> ผูกกับ <strong>{{action}}</strong> แล้ว เขียนทับ?",
+      "overwrite": "เขียนทับ"
+    }
+  },
+  "desktop": {
+    "title": "เดสก์ท็อป",
+    "autoLaunch": {
+      "openAtLogin": {
+        "label": "เริ่มเมื่อเข้าสู่ระบบ",
+        "description": "เปิด Backspace อัตโนมัติเมื่อคุณเข้าสู่ระบบ"
+      },
+      "startMinimized": {
+        "label": "เริ่มย่อ",
+        "description": "เริ่มซ่อนในถาดระบบแทนแสดงหน้าต่าง"
+      }
+    },
+    "updates": {
+      "appName": "Backspace Desktop",
+      "versionLabel": "เวอร์ชัน {{version}}",
+      "checking": "กำลังตรวจอัปเดต…",
+      "checkingShort": "กำลังตรวจ…",
+      "checkNow": "ตรวจอัปเดต",
+      "downloading": "กำลังดาวน์โหลด {{version}}, {{percent}}%",
+      "downloadingWithRate": "กำลังดาวน์โหลด {{version}}, {{percent}}% ที่ {{rate}}",
+      "rateMegabytes": "{{value}} MB/s",
+      "rateKilobytes": "{{value}} KB/s",
+      "upToDate": "คุณใหม่สุดแล้ว",
+      "available": "มีเวอร์ชัน {{version}}",
+      "readyToInstall": "เวอร์ชัน {{version}} พร้อมติดตั้ง",
+      "installFailed": "ติดตั้งเวอร์ชัน {{version}} ไม่ได้",
+      "checkFailed": "ตรวจอัปเดตล่าสุดล้มเหลว",
+      "idle": "ตรวจเวอร์ชันใหม่ของแอปเดสก์ท็อป",
+      "external": "อัปเดตติดตั้งผ่านตัวจัดการซอฟต์แวร์ Flatpak",
+      "download": "ดาวน์โหลด",
+      "restart": "รีสตาร์ท",
+      "manualNote": "บิลด์นี้ไม่ติดตั้งอัปเดตเอง ดาวน์โหลดเวอร์ชันใหม่จาก GitHub และแทนแอปเอง ดูบันทึกปล่อยสำหรับขั้นตอนบนแพลตฟอร์มคุณ",
+      "externalNote": "Flatpak ใช้อัปเดตอะตอมมิกนอกแอป ใช้ตัวจัดการซอฟต์แวร์หรือคำสั่ง <code>flatpak update</code> เพื่ออัปเดต Backspace"
+    },
+    "instance": {
+      "current": "อินสแตนซ์ที่เชื่อมขณะนี้",
+      "change": "เปลี่ยนอินสแตนซ์"
+    }
+  },
+  "desktopDownload": {
+    "title": "เดสก์ท็อป",
+    "intro": "ช็อตคัตโกลบอล เริ่มเมื่อบูต และไอคอนถาดระบบ",
+    "unsupported": "แอปเดสก์ท็อปรันบน Windows Linux และ macOS",
+    "name": {
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux"
+    },
+    "tag": {
+      "windows": "PC นี้",
+      "mac": "Mac นี้",
+      "linux": "เครื่องนี้"
+    },
+    "covers": {
+      "windows": "x64 หรือ arm64",
+      "mac": "รันบน Apple Silicon และ Intel Mac",
+      "linux": "แพ็กเกจ AppImage หรือ deb, x64 หรือ arm64"
+    },
+    "download": {
+      "windows": "ดาวน์โหลดสำหรับ Windows",
+      "mac": "ดาวน์โหลดสำหรับ macOS",
+      "linux": "ดาวน์โหลดสำหรับ Linux"
+    },
+    "picker": {
+      "architecture": "สถาปัตย์",
+      "format": "รูปแบบแพ็กเกจ"
+    },
+    "arch": {
+      "appleSilicon": "Apple Silicon",
+      "intel": "Intel",
+      "x64": "x64",
+      "arm64": "arm64"
+    },
+    "kind": {
+      "appimage": "AppImage",
+      "deb": "deb"
+    },
+    "archGuessed": {
+      "windows": "เบราว์เซอร์ไม่บอกว่า PC นี้ใช้โปรเซสเซอร์อะไร จึงเลือก x64 ล่วงหน้า",
+      "mac": "เบราว์เซอร์ไม่บอกว่า Mac นี้ใช้ชิปอะไร จึงเลือก Apple Silicon ล่วงหน้า",
+      "linux": "เบราว์เซอร์ไม่บอกว่าเครื่องนี้ใช้โปรเซสเซอร์อะไร จึงเลือก x64 ล่วงหน้า"
+    },
+    "version": "เวอร์ชัน {{version}}",
+    "allReleases": "รุ่นทั้งหมดบน GitHub"
+  },
+  "bots": {
+    "title": "บอท",
+    "description": "บอทคือบัญชีที่โปรแกรมควบคุมด้วยโทเคน สร้างหนึ่ง คัดลอกโทเคนและเชื่อมโปรแกรม บอทตอบในข้อความตรง",
+    "create": {
+      "sectionTitle": "สร้างบอท",
+      "nameLabel": "ชื่อผู้ใช้บอท",
+      "submit": "สร้างบอท",
+      "hint": "{{min}} ถึง {{max}} อักขระ: อักษรละตินเล็ก (a–z) ตัวเลข (0–9) และขีดล่าง (_) สร้างได้สูงสุด {{limit}} บอท"
+    },
+    "list": {
+      "sectionTitle": "บอทของคุณ",
+      "empty": "ยังไม่มีบอท",
+      "createdOn": "สร้าง {{date}}"
+    },
+    "token": {
+      "title": "โทเคนสำหรับ {{name}}",
+      "warning": "คัดลอกโทเคนเลย แสดงครั้งเดียว ใครมีควบคุมบอท",
+      "copy": "คัดลอกโทเคน",
+      "copied": "คัดลอกแล้ว",
+      "dismiss": "ฉันบันทึกแล้ว"
+    },
+    "tokens": {
+      "title": "โทเคนเข้าถึง",
+      "loading": "กำลังโหลดโทเคน",
+      "legacy": "บอทนี้ยังรันบนโทเคนยืนยาวเก่า สร้างโทเคนเพื่อสลับ: เก่าหยุดทันที",
+      "empty": "บอทนี้ไม่มีโทเคน",
+      "unnamed": "โทเคนไร้ชื่อ",
+      "createdOn": "สร้าง {{date}}",
+      "neverUsed": "ไม่เคยใช้",
+      "lastUsed": "ใช้ล่าสุด {{time}}",
+      "revoke": "เพิกถอน",
+      "confirmRevoke": "ยืนยันเพิกถอน",
+      "nameLabel": "ป้ายโทเคน",
+      "namePlaceholder": "ป้าย (ไม่บังคับ)",
+      "create": "สร้างโทเคน",
+      "limitHint": "สูงสุด {{max}} โทเคนต่อบอท เพิกถอนโทเคนตัดบอท; โทเคนอื่นยังทำงาน"
+    },
+    "actions": {
+      "regenerate": "รีเซ็ตโทเคนทั้งหมด",
+      "delete": "ลบ",
+      "confirmDelete": "ยืนยันลบ",
+      "cancel": "ยกเลิก",
+      "edit": "แก้ไข",
+      "save": "บันทึก",
+      "addToServer": "เพิ่มในสเปซ",
+      "tokens": "โทเคน"
+    },
+    "edit": {
+      "nameLabel": "ชื่อแสดง",
+      "hint": "ชื่อผู้ใช้ @{{username}} เปลี่ยนไม่ได้ ถึง {{max}} อักขระ",
+      "bioLabel": "เกี่ยวกับบอท",
+      "bioPlaceholder": "บอททำอะไร คำสั่งอะไร ขอความช่วยเหลือที่ไหน",
+      "bioCounter": "{{used}}/{{max}}"
+    },
+    "status": {
+      "label": "สถานะ",
+      "none": "ไม่มีสถานะ",
+      "textLabel": "ข้อความสถานะ",
+      "placeholder": "บอทแสดงอะไรข้างชื่อ",
+      "hint": "แสดงขณะบอทเชื่อม โค้ดบอทแทนได้จนเชื่อมครั้งหน้า",
+      "types": {
+        "custom": "กำหนดเอง",
+        "playing": "กำลังเล่น",
+        "listening": "กำลังฟัง",
+        "watching": "กำลังดู"
+      },
+      "display": {
+        "custom": "{{name}}",
+        "playing": "กำลังเล่น {{name}}",
+        "listening": "กำลังฟัง {{name}}",
+        "watching": "กำลังดู {{name}}"
+      }
+    },
+    "permissions": {
+      "label": "สิทธิ์ที่บอทขอ",
+      "hint": "ผู้ดูแลเพิ่มบอทเข้าสเปซเห็นติ๊กและติ๊กออกได้ เข้าบทบาทชื่อบอท เปลี่ยนภายหลังไม่แตะบทบาทที่สร้างแล้ว"
+    },
+    "avatar": {
+      "change": "เปลี่ยนอวาตาร์",
+      "remove": "ลบอวาตาร์",
+      "cropTitle": "ครอบอวาตาร์บอท",
+      "uploadFailed": "อัปโหลดอวาตาร์ไม่ได้",
+      "notImage": "เลือกไฟล์รูป"
+    },
+    "spaces": {
+      "title": "เพิ่มในสเปซ",
+      "loading": "กำลังโหลดสเปซ",
+      "empty": "ยังไม่จัดการสเปซ เพิ่มบอทต้องสิทธิ์จัดการสเปซ",
+      "add": "เพิ่ม",
+      "added": "เพิ่มแล้ว",
+      "remove": "ลบ"
+    }
+  },
+  "developer": {
+    "title": "นักพัฒนา",
+    "mode": {
+      "label": "โหมดนักพัฒนา",
+      "description": "แสดงเครื่องมือนักพัฒนา เช่นแท็บบอท ในการตั้งค่า ปิดแค่ซ่อน; บอทคุณยังรัน",
+      "saveFailed": "บันทึกตั้งค่าไม่ได้ ลองใหม่"
+    }
+  }
+}

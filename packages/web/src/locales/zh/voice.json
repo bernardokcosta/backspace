@@ -1,6 +1,75 @@
 {
+  "feedback": {
+    "micDeniedListener": "麦克风访问被拒绝，您已以仅收听模式加入。点击“允许麦克风权限”以授予权限。",
+    "micRestoreFailed": "无法恢复麦克风",
+    "micPermissionRevoked": "麦克风权限已被撤销",
+    "micDisconnectedDefault": "麦克风已断开，已切换到系统默认设备",
+    "micDisconnected": "麦克风已断开",
+    "cameraSwitchFailed": "无法切换摄像头",
+    "cameraUnavailable": "摄像头不可用",
+    "cameraPermissionRevoked": "摄像头权限已被撤销",
+    "cameraDisconnected": "摄像头已断开",
+    "joinedOtherSession": "语音连接已断开：您已从另一个会话加入"
+  },
   "juno": {
-    "memory": { "title": "星云失忆", "hiddenCard": "隐藏牌 {{number}}", "hiddenPile": "隐藏的上一张牌", "instruction": "盲选一张牌，选错则加二并跳过。", "affected": "{{name}} 受到了失忆诅咒。", "miss": "{{name}} 没猜中颜色，摸了 {{amount}} 张牌。", "rules": "一张稀有的 Alzheimer 牌会保留当前颜色，并向下一位玩家隐藏手牌和颜色。盲选一张：颜色匹配或合法万能牌会解除诅咒；选错时原牌留在手中，摸两张并跳过回合。不能用摸牌或跳过来逃避；超时也会摸两张。盲打万能牌保留当前颜色。回合结束或受影响玩家退出时，效果结束。" },
+    "guide": {
+      "subtitle": "熟悉牌桌、读懂卡牌，准备好下一步。", "contents": "规则目录",
+      "sections": { "start": "开始游戏", "turn": "轮到你了", "special": "功能牌", "juno": "喊出 JUNO", "memory": "特殊牌", "score": "结果与经验", "table": "牌桌须知" },
+      "start": {
+        "goal": "最先出完手牌的人获胜。",
+        "deal": "每人起手七张牌，共有四种颜色；经典牌组有 108 张。第一张明牌一定是数字牌，游戏最初按顺时针进行。",
+        "setup": "Juno 在空间的语音频道中提供二至四个座位。房主创建牌桌，等玩家入座后开始本轮。"
+      },
+      "turn": {
+        "match": "打出与当前颜色相同，或与上一张牌数字、符号相同的牌，也可以打出符合条件的万能牌。下面这些牌都能接在蓝色 5 后面：",
+        "draw": "你可以摸一张牌，但不能一直摸到能出的牌。如果新摸的牌可以出，可以打出这张牌或跳过；摸牌后不能改出手里的其他牌。如果新牌不能出，回合自动结束。没有先摸到可出的牌，就不能直接选择跳过。",
+        "clock": "整个回合有 {{seconds}} 秒，包括摸牌后的决定时间。超时则摸一张并跳过；若已经摸过，只跳过。喊 JUNO 不会重置计时。记忆诅咒的超时惩罚另有规则。"
+      },
+      "examples": { "top": "蓝色 5 · 上一张牌", "color": "蓝色 9 · 同色", "number": "红色 5 · 同数字", "wild": "万能牌 · 选择颜色" },
+      "effects": {
+        "skip": "下一位玩家跳过回合。只有两人时，你会再次出牌。",
+        "reverse": "反转出牌方向。只有两人时，相当于跳过对手，你会再次出牌。",
+        "draw2": "下一位玩家摸两张并跳过回合，不能再用罚摸牌回应。",
+        "wild": "可接在任何颜色或符号后面，并选择下一个有效颜色。",
+        "draw4": "选择颜色；下一位玩家摸四张并跳过。只有手里没有当前颜色的牌时才能出，即使手中其他颜色的数字或符号能接上也一样。",
+        "limits": "不能叠加罚摸，也没有 +4 质疑。如果你的最后一张是 +2 或 +4，仍会先执行罚摸，再计算最终名次。"
+      },
+      "announce": "剩两张牌时，在出牌变为一张之前按下 JUNO 标志按钮。这是按钮操作，不是语音识别。事后补喊不能弥补漏喊；获得新牌也会清除之前的声明。",
+      "reporting": {
+        "unknown": "这取决于牌桌：新服务器由玩家举报，旧服务器使用下述自动惩罚。有可用牌桌后，才能确认当前适用的规则。",
+        "detail": "第一个有效举报会让被举报者摸两张，不改变当前轮到谁，也不重置计时。不必等到自己的回合才能举报，但不能举报自己，旁观者也不能举报。十秒结束、被举报者获得新牌或离开、或本轮结束时，举报机会消失。举报不能推翻已经产生的胜利。"
+      },
+      "memory": {
+        "intro": "增强牌组会在经典的 108 张之外，恰好加入一张稀有的 Alzheimer 记忆牌。它可接在任何牌后，不改变当前颜色，让当前方向的下一位玩家盲打。只有该玩家的手牌、中间牌和当前颜色会被隐藏。",
+        "play": "不能偷看，直接选一张隐藏手牌尝试打出。合法的牌或符合条件的万能牌会解除诅咒，并正常执行该牌的效果。盲打万能牌不选择新颜色，而是保留原颜色；+4 的限制仍然有效。",
+        "miss": "选错时，尝试的牌仍隐藏留在手里，你摸两张，诅咒解除，回合只向后传递一次。超时同样会摸两张、解除诅咒并跳过。",
+        "limits": "不能靠摸牌或跳过回避盲打。举报不会解除诅咒。如果记忆牌是你的最后一张，你直接获胜，不会给其他人留下诅咒。",
+        "inactive": "本轮未启用：当前经典牌组不含稀有记忆牌。",
+        "lobby": "只有所有真人玩家的客户端都支持时，才会加入稀有牌。混合版本的牌桌可能使用经典牌组；本轮开始后牌组不会变化。"
+      },
+      "score": {
+        "ranking": "最先出完手牌的人获胜。其余完成者按剩余牌数排名，包括最后一张牌带来的罚摸。",
+        "award": "获得经验",
+        "ties": "并列者共享名次与对应经验：两人并列第二时各得 80 XP，下一名为第四。只统计有胜者且全程按真人对局计分的已完成轮次；只有胜者增加胜场。提前离开没有名次或经验。",
+        "practice": "开局时有机器人，本轮就一直是练习，即使机器人后来离开也一样：不计经验、胜场或排名轮次。经验归当前空间所有，合并其语音频道，不跨其他空间。",
+        "pending": "结果保存期间，经验仍在等待入账，不能视为已获得。结果处理完毕后，才可以开新桌。"
+      },
+      "table": {
+        "seats": "可以旁观进行中的轮次，但不能中途入座。结果出来后，房主开启新大厅，其他人需要明确加入这张新桌。",
+        "leave": "退出游戏会释放座位，并把你的牌放回摸牌堆，但这个操作本身不会断开语音。返回网格只会隐藏牌桌，不是退出游戏。剩余玩家不足两人时，本轮无胜者结束。",
+        "deck": "摸牌堆用完后，会把弃牌洗回去，但保留最上面的一张。如果不足以执行全部罚摸，就只摸现有的牌。整整一圈既无法摸牌也没有合法出牌时，本轮平局结束，不发经验。",
+        "connection": "短暂重连语音只会在现有重连宽限期内保留座位。进行中的牌桌是临时状态，重启服务器会结束它们。",
+        "expiry": "一轮进行两小时后也会到期，无胜者，也无经验。因玩家离开或没有可行操作而结束的轮次，同样不发经验。"
+      }
+    },
+    "settings": {
+      "title": "Juno 设置",
+      "languageGroup": "语言", "language": "游戏语言", "automatic": "自动（跟随 Backspace）", "automaticDubbing": "自动（跟随 Backspace）",
+      "dubbing": "配音与卡牌文字", "brazilianPortuguese": "葡萄牙语（巴西）",
+      "audioGroup": "音频", "effects": "音效", "music": "背景音乐",
+      "autoplayBlocked": "浏览器已暂停音乐。请点击播放以启用。", "musicFailed": "无法播放音乐，你可以重试。", "playMusic": "播放音乐"
+    },
+    "memory": { "title": "模糊记忆", "hiddenCard": "隐藏牌 {{number}}", "hiddenPile": "隐藏的上一张牌", "instruction": "盲选一张牌，选错则加二并跳过。", "affected": "{{name}} 受到了失忆诅咒。", "miss": "{{name}} 盲打失败，摸了 {{amount}} 张牌。", "rules": "一张稀有的 Alzheimer 牌会保留当前颜色，并向下一位玩家隐藏手牌和颜色。盲选一张：颜色匹配或合法万能牌会解除诅咒；选错时原牌留在手中，摸两张并跳过回合。不能用摸牌或跳过来逃避；超时也会摸两张。盲打万能牌保留当前颜色。回合结束或受影响玩家退出时，效果结束。" },
     "addBot": "添加电脑玩家", "removeBot": "移除电脑玩家 {{name}}", "botName": "Juno 电脑 {{number}}",
     "practice": "练习", "practiceHint": "有电脑玩家的对局为练习模式，不计经验、胜场或排名场次。",
     "nextTurn": "下一位玩家", "turnTime": "本回合剩余时间", "announcedBy": "{{name}} 喊出了 JUNO！",
@@ -32,17 +101,17 @@
     "winner": "{{name}} 获胜！", "finished": "本轮结束", "results": { "playersLeft": "玩家不足，无法继续。本轮没有获胜者。", "stalemate": "无法摸牌或出牌。本轮平局。", "expired": "此牌桌已达到两小时上限。请创建新大厅。" },
     "cardCount_other": "{{count}} 张牌",
     "colors": { "coral": "红色", "amber": "黄色", "mint": "绿色", "sky": "蓝色" },
-    "faces": { "skip": "跳过", "reverse": "反转", "draw2": "加二", "wild": "变色牌", "draw4": "变色加四", "memory": "失忆牌" },
+    "faces": { "skip": "跳过", "reverse": "反转", "draw2": "加二", "wild": "变色牌", "draw4": "变色加四", "memory": "Alzheimer 失忆牌" },
     "rules": "游戏规则", "rulesText": "每人获得 7 张牌。打出与上一张相同颜色或符号的牌，或打出变色牌并选择颜色。率先出完手牌即可获胜。\n跳过牌让下家跳过回合；反转牌改变顺序（两人时跳过对手）。+2 和 +4 让下家立即摸牌并跳过回合。不可叠加。手中没有当前颜色的牌时才能打 +4；无质疑机制。\n摸一张牌后，只能打出刚摸到的牌或跳过。摸到的牌不能出时自动跳过。\n每回合 45 秒。超时摸一张并跳过；如果已经摸过则只跳过。玩家离开后手牌放回牌堆，少于两人时本轮无胜者结束。短暂语音重连会保留座位。重启服务器会结束所有游戏。"
   },
   "soundboard": {
-    "title": "音效面板", "description": "向语音频道中的所有人播放音效。试听只有你能听到。",
+    "title": "音效面板", "description": "向语音频道中的所有人播放音效。试听只有您能听到。",
     "manageDescription": "管理此空间的共享音效。成员可以删除自己上传的音效。",
     "add": "添加音效", "chooseFile": "选择音频", "uploadHint": "上传前裁剪。支持浏览器可解码的音频，最大 {{max}}。确认之前不会发送文件。",
     "fileTooLarge": "请选择小于 {{max}} 的文件。", "decodeFailed": "此音频无法在这里解码或过大。请尝试更短的 MP3、WAV 或 Ogg 文件。",
     "name": "名称", "emoji": "图标", "start": "开始（秒）", "end": "结束（秒）", "selection": "{{duration}} 秒", "limit": "最多 {{max}} 秒", "resetSelection": "使用完整音频", "dragHint": "在波形上拖动以选择", "maxDurationHint": "最多 30 秒", 
     "preview": "试听", "stop": "停止", "playFailed": "无法播放此音效。请检查音频输出并重试。",
-    "search": "搜索音效", "disabled": "此空间已禁用音效面板。", "cannotPlay": "播放音效需要发言权限，且不能被服务器静音或关闭收听。",
+    "search": "搜索音效", "disabled": "此空间已禁用音效面板。", "cannotPlay": "播放音效需要发言权限，且不能被服务器静音或处于禁听状态。",
     "playNamed": "播放 {{name}}", "overLimit": "超过当前时长限制", "shortcut": "设置快捷键", "shortcutNamed": "{{name}} 的快捷键", "pressKey": "请按键…",
     "shortcutConflict": "此快捷键已被其他音效或语音控制使用。", "clearShortcut": "清除快捷键", "shortcutHint": "快捷键仅属于此账户和设备，在应用获得焦点时生效，输入文字时不会触发。退格键可清除快捷键。",
     "deleteConfirm": "为所有人删除此音效？", "noResults": "没有匹配的音效。", "empty": "还没有音效。添加第一个吧！", "volume": "音效音量",
@@ -56,8 +125,8 @@
   "badges": {
     "mutedNoPermission": "已静音（无发言权限）",
     "spaceMuted": "已被空间静音",
-    "mutedSpaceDeafened": "已静音（空间拒听）",
-    "spaceDeafened": "已被空间拒听",
+    "mutedSpaceDeafened": "已静音（空间禁听）",
+    "spaceDeafened": "已被空间禁听",
     "locallyMuted": "本地静音",
     "live": "LIVE",
     "you": "(您)"
@@ -65,8 +134,8 @@
   "moderation": {
     "spaceMute": "空间静音",
     "spaceUnmute": "解除空间静音",
-    "spaceDeafen": "空间拒听",
-    "spaceUndeafen": "解除空间拒听",
+    "spaceDeafen": "空间禁听",
+    "spaceUndeafen": "解除空间禁听",
     "disconnect": "断开连接",
     "moveTo": "移动至"
   },
@@ -127,7 +196,7 @@
       "deniedUser": "未获准在没有 Windows 捕获边框的情况下共享。共享已被阻止。",
       "deniedSystem": "Windows 或管理员阻止了无边框捕获。请先允许访问，再重试。",
       "notDeclared": "当前安装无法请求无边框捕获。请更新或修复桌面应用。",
-      "unsupported": "此应用或 Windows 版本不支持无边框 SDR 捕获。使用强制 SDR 共享前请先更新。",
+      "unsupported": "此应用或 Windows 版本无法保证无边框 SDR 捕获。使用强制 SDR 共享前请先更新。",
       "cancelled": "无边框捕获请求已取消。未开始直播。",
       "timeout": "Windows 未及时完成权限请求。未开始直播。",
       "failed": "无法确认无边框捕获权限。共享仍被阻止。",
@@ -201,8 +270,8 @@
     "electronMacAudioNote": "macOS 13+ 需要“屏幕与系统音频录制”权限",
     "electronLinuxAudioNote": "Linux 需要 PulseAudio 兼容性；Backspace 音频也可能会被捕获",
     "systemAudioNote": {
-      "excluded": "观看者能听到你电脑的声音，但听不到语音聊天和其他 Backspace 音频。",
-      "excludedMac": "观看者能听到你 Mac 的声音，但听不到语音聊天和其他 Backspace 音频。macOS 会请求“屏幕与系统音频录制”权限。",
+      "excluded": "观看者能听到您电脑的声音，但听不到语音聊天和其他 Backspace 音频。",
+      "excludedMac": "观看者能听到您 Mac 的声音，但听不到语音聊天和其他 Backspace 音频。macOS 会请求“屏幕与系统音频录制”权限。",
       "includedWindows": "此 Windows 版本会共享全部声音，包括语音聊天：观看者会听到自己的声音。在 Windows 11 上，Backspace 自身的音频会被排除。",
       "includedMac": "此 macOS 版本会共享全部声音，包括语音聊天：观看者会听到自己的声音。在 macOS 14.2 及更高版本上，Backspace 自身的音频会被排除。macOS 会请求“屏幕与系统音频录制”权限。",
       "includedLinux": "Linux 会共享全部声音，包括语音聊天：观看者会听到自己的声音。需要 PulseAudio，或带 pipewire-pulse 的 PipeWire。",
@@ -222,7 +291,7 @@
   },
   "stream": {
     "quality": "推流画质",
-    "qualityValue": "{{height}}p {{fps}} 帧",
+    "qualityValue": "{{height}}p {{fps}} 帧/秒",
     "volume": "直播音量",
     "attenuation": "声音衰减",
     "attenuationStrength": "衰减强度",
@@ -246,17 +315,17 @@
     "participantNetwork": "{{name}} 的网络连接不稳定",
     "reconnecting": "与语音服务器的连接中断 — 正在重新连接…"
   },
-  "channelDuration": "频道已激活 {{duration}}",
+  "channelDuration": "频道已持续通话 {{duration}}",
   "controls": {
     "spaceMutedSelfMuted": "空间静音（自身已静音）",
     "unmuteShortcut": "取消静音 (M)",
     "muteShortcut": "静音 (M)",
-    "undeafenShortcut": "取消拒听 (D)",
-    "deafenShortcut": "拒听 (D)",
+    "undeafenShortcut": "取消禁听 (D)",
+    "deafenShortcut": "禁听 (D)",
     "unmute": "取消静音",
     "mute": "静音",
-    "undeafen": "取消拒听",
-    "deafen": "拒听",
+    "undeafen": "取消禁听",
+    "deafen": "禁听",
     "cameraOff": "关闭摄像头",
     "cameraOn": "开启摄像头",
     "stopSharing": "停止共享",

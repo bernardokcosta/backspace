@@ -1,0 +1,187 @@
+{
+  "callDelivery": {
+    "remoteInstance": "віддалена інстанція",
+    "hostInstance": "інстанція-хост",
+    "acceptDropped": "Не вдалося підтвердити вашу згоду з {{instance}} — дзвінок перервано.",
+    "rejectFailed": "Не вдалося повідомити {{instances}}, що ви відхилили. Абонент може ще деякий час бачити виклик.",
+    "endFailed": "Не вдалося повідомити {{instances}}, що ви завершили дзвінок. Віддалені учасники можуть бачити дзвінок до 60 секунд.",
+    "hostUnreachable": "Дзвінок завершено — інстанція-хост стала недоступною.",
+    "peeringLost": "Дзвінок завершено — ця інстанція більше не з'єднана з {{instance}}.",
+    "instanceUnreachable": "Дзвінок завершено — {{instance}} стала недоступною.",
+    "someUnreachable": "Деякі учасники недоступні: {{instances}}.",
+    "multipleUnreachable_one": "Не вдалося зв'язатися з {{count}} інстанцією: {{instances}}.",
+    "multipleUnreachable_few": "Не вдалося зв'язатися з {{count}} інстанціями: {{instances}}.",
+    "multipleUnreachable_many": "Не вдалося зв'язатися з {{count}} інстанціями: {{instances}}.",
+    "multipleUnreachable_other": "Не вдалося зв'язатися з {{count}} інстанції: {{instances}}.",
+    "callFailed": "Не вдалося здійснити дзвінок.",
+    "manualApproval": "Не вдалося зв'язатися з {{instance}} — ця інстанція вимагає ручного схвалення з'єднання.",
+    "awaitingApproval": "Очікування, поки адміністратор {{instance}} схвалить вашу інстанцію. Дзвінки працюватимуть після схвалення.",
+    "transientFailure": "Не вдалося зв'язатися з {{instance}}. Спробуйте за мить.",
+    "voiceUnavailable": "Голос не налаштовано на цій інстанції.",
+    "noRecipient": "{{instance}} нікому не зателефонувала.",
+    "targetCallFailed": "Не вдалося зателефонувати до {{instance}}."
+  },
+  "feedback": {
+    "relayDenied": "Не вдалося передати повідомлення — їхній сервер відхилив з'єднання. Зверніться до їхнього адміністратора.",
+    "awaitingPeering": "Повідомлення буде доставлено, щойно їхній адміністратор схвалить запит на з'єднання."
+  },
+  "names": {
+    "group": "Група",
+    "directMessage": "Особисте повідомлення",
+    "theGroup": "група",
+    "unknownHandle": "невідомо",
+    "groupFallback": "Груповий чат",
+    "emptyGroup": "Порожня група"
+  },
+  "preview": {
+    "image": "Зображення",
+    "video": "Відео",
+    "audio": "Аудіо",
+    "files_one": "📎 {{count}} файл",
+    "files_few": "📎 {{count}} файли",
+    "files_many": "📎 {{count}} файлів",
+    "files_other": "📎 {{count}} файлу",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 Надіслано запрошення до {{spaceName}}",
+    "memberAdded": "{{actor}} додає {{target}}",
+    "memberAddedToGroup": "{{actor}} додає {{target}} до групи",
+    "memberLeft": "{{target}} виходить з групи",
+    "memberRemoved": "{{actor}} прибирає {{target}}",
+    "memberRemovedFromGroup": "{{actor}} прибирає {{target}} з групи",
+    "ownerChanged": "{{newOwner}} тепер власник групи",
+    "renamed": "{{actor}} перейменовує групу",
+    "renamedTo": "{{actor}} перейменовує групу на «{{name}}»",
+    "nameCleared": "{{actor}} очищає назву групи",
+    "iconChanged": "{{actor}} оновлює значок групи",
+    "generic": "Системне повідомлення"
+  },
+  "deletedNotice": {
+    "accountDeleted": "Обліковий запис цього користувача видалено"
+  },
+  "memberRow": {
+    "viewProfile": "Переглянути профіль",
+    "transferOwnership": "Передати власність",
+    "removeFromGroup": "Прибрати з групи",
+    "removeFriend": "Видалити друга",
+    "ownerTooltip": "Власник групи",
+    "actions": "Дії з учасником"
+  },
+  "roster": {
+    "owner": "Власник",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "Змінити розмір списку учасників"
+  },
+  "kick": {
+    "title": "Прибрати з групи",
+    "description": "Прибрати {{name}} з цієї групи? Ця людина не бачитиме нових повідомлень.",
+    "success": "{{name}} прибрано з групи",
+    "failed": "Не вдалося прибрати учасника"
+  },
+  "transfer": {
+    "title": "Передати власність",
+    "description": "Передати власність {{name}}? Ви втратите права власника.",
+    "confirm": "Передати",
+    "success": "Власність передано {{name}}",
+    "failed": "Не вдалося передати власність"
+  },
+  "removeFriend": {
+    "failed": "Не вдалося видалити друга"
+  },
+  "leave": {
+    "title": "Вийти з групи",
+    "description": "Вийти з «{{name}}»? Ви більше не отримуватимете повідомлень із цієї розмови.",
+    "inProgress": "Вихід…",
+    "failed": "Не вдалося вийти з групи",
+    "explanation": "Ви більше не отримуватимете повідомлень із цієї розмови. Інші учасники побачать системне повідомлення."
+  },
+  "search": {
+    "trigger": "Знайти або почати розмову",
+    "placeholder": "Пошук…",
+    "emptyHint": "Знайдіть користувача, щоб почати спілкування",
+    "conversations": "Розмови",
+    "users": "Користувачі",
+    "searching": "Пошук…",
+    "noResults": "Нічого не знайдено",
+    "createFailed": "Не вдалося створити особисте повідомлення"
+  },
+  "list": {
+    "resizeHandle": "Змінити розмір списку особистих повідомлень",
+    "title": "Повідомлення",
+    "empty": "Розмов ще немає.",
+    "leaveGroup": "Вийти з групи",
+    "justNow": "зараз",
+    "minutesShort_one": "{{count}} хв",
+    "minutesShort_few": "{{count}} хв",
+    "minutesShort_many": "{{count}} хв",
+    "minutesShort_other": "{{count}} хв",
+    "hoursShort_one": "{{count}} год",
+    "hoursShort_few": "{{count}} год",
+    "hoursShort_many": "{{count}} год",
+    "hoursShort_other": "{{count}} год",
+    "daysShort_one": "{{count}} дн",
+    "daysShort_few": "{{count}} дн",
+    "daysShort_many": "{{count}} дн",
+    "daysShort_other": "{{count}} дн",
+    "close": "Закрити особисте повідомлення"
+  },
+  "newDm": {
+    "title": "Нове особисте повідомлення",
+    "searchPlaceholder": "Знайти користувача…",
+    "noUsers": "Користувачів не знайдено"
+  },
+  "addMember": {
+    "title": "Додати друзів до особистого повідомлення",
+    "description": "Виберіть друзів, щоб додати їх до цієї розмови.",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "Пошук друзів…",
+    "limitReached": "Це групове особисте повідомлення досягло ліміту {{max}} учасників.",
+    "alreadyInDm": "Уже в цьому повідомленні",
+    "noMatch": "Немає друзів, що відповідають пошуку",
+    "noFriends": "Друзів ще немає",
+    "selectFriends": "Виберіть друзів",
+    "addCount_one": "Додати {{count}} друга",
+    "addCount_few": "Додати {{count}} друзів",
+    "addCount_many": "Додати {{count}} друзів",
+    "addCount_other": "Додати {{count}} друга",
+    "adding": "Додавання…",
+    "noOtherMember": "Не вдалося визначити іншого учасника цієї розмови.",
+    "failed": "Не вдалося додати учасників",
+    "yourBots": "Ваші боти"
+  },
+  "groupSettings": {
+    "title": "Налаштування групи",
+    "general": "Загальні",
+    "overview": "Огляд",
+    "backToMenu": "Назад до меню налаштувань групового повідомлення",
+    "changeIcon": "Змінити значок групи",
+    "icon": "Значок групи",
+    "clickToUpload": "Натисніть, щоб завантажити",
+    "removeIcon": "Прибрати значок групи",
+    "nameLabel": "Назва групи",
+    "nameAria": "Назва групи",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "Додати учасника",
+    "groupFull": "Група заповнена",
+    "groupFullSuffix": "— Група заповнена",
+    "cropTitle": "Обрізати значок групи",
+    "saveFailed": "Не вдалося зберегти налаштування"
+  },
+  "groupInfo": {
+    "title": "Інформація про групу",
+    "plainTitle": "Інформація",
+    "notFound": "Розмову не знайдено.",
+    "notGroup": "Ця розмова не має інформації про групу.",
+    "cancelEdit": "Скасувати редагування",
+    "federated": "Федеративна група",
+    "memberCount_one": "{{count}} учасник",
+    "memberCount_few": "{{count}} учасники",
+    "memberCount_many": "{{count}} учасників",
+    "memberCount_other": "{{count}} учасника"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "Ця група керується на {{host}}. Підключіться до цієї інстанції, щоб змінити її.",
+    "ownerNotListed": "{{host}} ще не показує вам цю групу. Спробуйте за мить."
+  }
+}

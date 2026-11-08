@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { createInstance } from 'i18next';
 import {
   checkParity,
   checkPlaceholders,
@@ -39,7 +40,7 @@ describe('parity', () => {
       [locale('en', 'common')]: { a: 'A', b: 'B' },
       [locale('ru', 'common')]: { a: 'А', c: 'В' },
     });
-    const findings = checkParity(root) as Finding[];
+    const findings = checkParity(root, { strict: true }) as Finding[];
     expect(findings.map((f) => f.message)).toEqual(expect.arrayContaining([
       expect.stringContaining('b'),
       expect.stringContaining('c'),
@@ -61,7 +62,7 @@ describe('parity', () => {
       [locale('en', 'errors')]: { generic: 'x' },
       [locale('ru', 'common')]: { a: 'А' },
     });
-    const findings = checkParity(root) as Finding[];
+    const findings = checkParity(root, { strict: true }) as Finding[];
     expect(findings).toHaveLength(1);
     expect(findings[0]!.message).toContain('errors');
   });
@@ -85,6 +86,128 @@ describe('placeholders', () => {
       [locale('ru', 'common')]: { n_one: '{{count}} а', n_few: '{{count}} б', n_many: '{{count}} в', n_other: '{{count}} г' },
     });
     expect(checkPlaceholders(root)).toEqual([]);
+  });
+
+  it('does not hide a broken form behind the union of a family', () => {
+    const root = makeRoot({
+      [locale('en', 'common')]: { n_one: '{{name}} has {{count}} file', n_other: '{{name}} has {{count}} files' },
+      [locale('de', 'common')]: { n_one: '{{name}}', n_other: '{{count}} Dateien' },
+    });
+    expect(checkPlaceholders(root)).not.toEqual([]);
+  });
+});
+
+describe('future-safe validation and explicit completion', () => {
+  function fixture(extra: Record<string, string | object> = {}) {
+    return makeRoot({
+      [locale('en', 'common')]: { added: 'A new feature' },
+      [locale('en', 'errors')]: { generic: 'Something went wrong' },
+      [locale('de', 'common')]: {},
+      ...extra,
+    });
+  }
+
+  it('allows English-only keys and namespaces normally but reports strict coverage debt', () => {
+    const root = fixture();
+    expect(runAllChecks(root)).toEqual([]);
+    expect(runAllChecks(root, { strict: true })).toEqual(expect.arrayContaining([expect.objectContaining({ rule: 'parity' })]));
+  });
+
+  it('finds a registered language missing its entire directory', () => {
+    const root = fixture({ 'packages/web/src/i18n/languages.ts': "export const supportedLanguages = [{code:'en',nativeName:'English',dir:'ltr',released:true},{code:'de',nativeName:'Deutsch',dir:'ltr',released:true},{code:'fr',nativeName:'Français',dir:'ltr',released:false}] as const;" });
+    expect(runAllChecks(root, { strict: true }).some((f: Finding) => f.file.includes('/fr/'))).toBe(true);
+  });
+
+  it('never hides invalid supplied data behind a locale filter', () => {
+    const root = fixture({ [locale('fr', 'common')]: { added: '{{wrong}}' } });
+    expect(runAllChecks(root, { strict: true, locales: ['en', 'de'] })).toEqual(expect.arrayContaining([expect.objectContaining({ rule: 'placeholders', file: locale('fr', 'common') })]));
+  });
+
+  it.each([null, 12, ['a'], '   '])('rejects invalid catalog leaf %j', value => {
+    const root = fixture({ [locale('en', 'common')]: { added: value } });
+    expect(runAllChecks(root).some((f: Finding) => f.rule === 'catalog-value')).toBe(true);
+  });
+
+  it.each([{}, { actions: {} }])('allows omitted copy in an empty target namespace or branch: %j', async target => {
+    const source = { actions: { save: 'Save changes' } };
+    const root = fixture({ [locale('en', 'common')]: source, [locale('pt', 'common')]: target });
+    expect(runAllChecks(root)).toEqual([]);
+    const instance = createInstance();
+    await instance.init({ lng: 'pt', fallbackLng: 'en', ns: ['common'], defaultNS: 'common', resources: { en: { common: source }, pt: { common: target } } });
+    expect(instance.t('actions.save')).toBe('Save changes');
+  });
+
+  it('rejects a provided empty object that blocks the real English string fallback', async () => {
+    const source = { actions: { save: 'Save changes' } };
+    const target = { actions: { save: {} } };
+    const root = fixture({ [locale('en', 'common')]: source, [locale('pt', 'common')]: target });
+    const instance = createInstance();
+    await instance.init({ lng: 'pt', fallbackLng: 'en', ns: ['common'], defaultNS: 'common', resources: { en: { common: source }, pt: { common: target } } });
+    expect(instance.t('actions.save')).not.toBe('Save changes');
+    expect(runAllChecks(root)).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rule: 'catalog-value', file: locale('pt', 'common'), message: expect.stringContaining('actions.save') }),
+    ]));
+  });
+
+  it('rejects a supplied empty plural form even when English has no matching category', () => {
+    const root = fixture({
+      [locale('en', 'common')]: { files_one: '{{count}} file', files_other: '{{count}} files' },
+      [locale('ar', 'common')]: { files_two: {} },
+    });
+    expect(runAllChecks(root)).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rule: 'catalog-value', file: locale('ar', 'common'), message: expect.stringContaining('files_two') }),
+    ]));
+  });
+
+  it('does not hide an invalid object leaf behind empty descendants', () => {
+    const root = fixture({
+      [locale('en', 'common')]: { actions: { save: 'Save changes' } },
+      [locale('pt', 'common')]: { actions: { save: { unused: {} } } },
+    });
+    expect(runAllChecks(root)).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rule: 'catalog-value', file: locale('pt', 'common'), message: expect.stringContaining('actions.save') }),
+    ]));
+  });
+
+  it('rejects empty nested English copy while allowing a genuinely empty namespace', () => {
+    const root = fixture({ [locale('en', 'common')]: { actions: { save: {} } } });
+    expect(runAllChecks(root)).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rule: 'catalog-value', file: locale('en', 'common') }),
+    ]));
+    expect(runAllChecks(fixture({ [locale('en', 'common')]: {} }))).toEqual([]);
+  });
+
+  it('reports malformed JSON without hiding other findings or throwing', () => {
+    const root = fixture({ [locale('de', 'common')]: '{broken' });
+    expect(runAllChecks(root)).toEqual(expect.arrayContaining([expect.objectContaining({ rule: 'catalog-value', file: locale('de', 'common') })]));
+  });
+
+  it('rejects duplicate JSON keys instead of silently losing catalog values', () => {
+    const root = fixture({ [locale('en', 'common')]: '{"app":{"description":"Description"},"app":{"loading":"Loading"}}' });
+    expect(runAllChecks(root)).toEqual(expect.arrayContaining([expect.objectContaining({ rule: 'catalog-value' })]));
+  });
+
+  it('keeps target-only keys and missing English error codes fatal', () => {
+    const root = fixture({ [locale('de', 'common')]: { extra: 'Zusatz' }, 'packages/shared/src/errors.ts': "export const ERROR_CODES = ['new_error'] as const;" });
+    expect(runAllChecks(root)).toEqual(expect.arrayContaining([expect.objectContaining({ rule: 'parity' }), expect.objectContaining({ rule: 'error-code-missing' })]));
+  });
+
+  it('rejects mixed plain/plural shapes and a broken wrapper in one form', () => {
+    const root = fixture({
+      [locale('en', 'common')]: { n: 'Plain', n_one: '<actionLink>One</actionLink>', n_other: '<actionLink>Many</actionLink>' },
+      [locale('de', 'common')]: { n_one: 'Eins', n_other: '<actionLink>Viele</actionLink>' },
+    });
+    expect(runAllChecks(root)).toEqual(expect.arrayContaining([expect.objectContaining({ rule: 'plural-forms' }), expect.objectContaining({ rule: 'markup' })]));
+  });
+
+  it('allows only an exact scoped shared term, never another key with the same prose', () => {
+    const root = makeRoot({
+      [locale('en', 'common')]: { version: 'Version', elsewhere: 'Version' },
+      [locale('de', 'common')]: { version: 'Version', elsewhere: 'Version' },
+    });
+    const findings = checkUntranslated(root, { allowlist: [{ language: 'de', namespace: 'common', key: 'version', value: 'Version', reason: 'Same German term' }] });
+    expect(findings).toHaveLength(1);
+    expect(findings[0]!.message).toContain('elsewhere');
   });
 });
 
@@ -262,6 +385,20 @@ describe('literal-string', () => {
     '  );',
     '}',
   ].join('\n');
+
+  it('checks TypeScript hook/helper toasts and custom Tooltip content too', () => {
+    const root = makeRoot({
+      'packages/web/src/utils/feedback.ts': "useUIStore.getState().addToast('Copied image link', 'info');",
+      'packages/web/src/components/Hint.tsx': 'export function Hint(){ return <Tooltip content="Cannot relay messages" />; }',
+    });
+    const findings = checkLiteralStrings(root, { pending: [] }) as Finding[];
+    expect(findings.map(f => f.file).sort()).toEqual(['packages/web/src/components/Hint.tsx', 'packages/web/src/utils/feedback.ts']);
+  });
+
+  it('checks literal labels in discriminated context-menu entries', () => {
+    const root = makeRoot({ 'packages/web/src/utils/menu.ts': "const entries = [{ type: 'checkbox', key: 'mute-user', label: 'Mute User' }];" });
+    expect(checkLiteralStrings(root, { pending: [] })).toEqual(expect.arrayContaining([expect.objectContaining({ rule: 'literal-string' })]));
+  });
 
   it('reports JSX text, attribute strings and toast literals, honouring the allow comment', () => {
     const root = makeRoot({ 'packages/web/src/components/P.tsx': dirty });

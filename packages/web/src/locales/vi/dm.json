@@ -1,0 +1,173 @@
+{
+  "callDelivery": {
+    "remoteInstance": "máy chủ xa",
+    "hostInstance": "máy chủ chủ",
+    "acceptDropped": "Không thể xác nhận chấp nhận với {{instance}} — cuộc gọi rớt.",
+    "rejectFailed": "Không thể báo {{instances}} rằng bạn từ chối. Người gọi có thể vẫn thấy bạn đổ chuông trong chốc lát.",
+    "endFailed": "Không thể báo {{instances}} rằng bạn cúp máy. Người tham gia xa có thể thấy cuộc gọi tới 60 giây.",
+    "hostUnreachable": "Cuộc gọi kết thúc — máy chủ chủ không thể tới được.",
+    "peeringLost": "Cuộc gọi kết thúc — máy chủ này không còn ghép với {{instance}}.",
+    "instanceUnreachable": "Cuộc gọi kết thúc — {{instance}} không thể tới được.",
+    "someUnreachable": "Không thể tới một số người tham gia: {{instances}}.",
+    "multipleUnreachable_one": "Không thể tới {{count}} máy chủ: {{instances}}.",
+    "multipleUnreachable_other": "Không thể tới {{count}} máy chủ: {{instances}}.",
+    "callFailed": "Không thể thực hiện cuộc gọi.",
+    "manualApproval": "Không thể tới {{instance}} — máy chủ này yêu cầu duyệt ghép thủ công.",
+    "awaitingApproval": "Đang chờ quản trị {{instance}} duyệt máy chủ của bạn. Cuộc gọi hoạt động sau duyệt.",
+    "transientFailure": "Không thể tới {{instance}}. Thử lại chốc lát.",
+    "voiceUnavailable": "Voice chưa thiết lập trên máy chủ này.",
+    "noRecipient": "{{instance}} không gọi ai.",
+    "targetCallFailed": "Không thể gọi tới {{instance}}."
+  },
+  "feedback": {
+    "relayDenied": "Không thể chuyển tiếp tin nhắn — máy chủ họ từ chối ghép. Hãy liên hệ quản trị của họ.",
+    "awaitingPeering": "Tin nhắn sẽ được gửi khi quản trị của họ duyệt yêu cầu ghép."
+  },
+  "names": {
+    "group": "Nhóm",
+    "directMessage": "Tin nhắn trực tiếp",
+    "theGroup": "nhóm",
+    "unknownHandle": "không rõ",
+    "groupFallback": "DM nhóm",
+    "emptyGroup": "Nhóm trống"
+  },
+  "preview": {
+    "image": "Hình ảnh",
+    "video": "Video",
+    "audio": "Âm thanh",
+    "files_one": "📎 {{count}} tệp",
+    "files_other": "📎 {{count}} tệp",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 Đã gửi thư mời tới {{spaceName}}",
+    "memberAdded": "{{actor}} đã thêm {{target}}",
+    "memberAddedToGroup": "{{actor}} đã thêm {{target}} vào nhóm",
+    "memberLeft": "{{target}} đã rời nhóm",
+    "memberRemoved": "{{actor}} đã xóa {{target}}",
+    "memberRemovedFromGroup": "{{actor}} đã xóa {{target}} khỏi nhóm",
+    "ownerChanged": "{{newOwner}} giờ là chủ nhóm",
+    "renamed": "{{actor}} đã đổi tên nhóm",
+    "renamedTo": "{{actor}} đã đổi tên nhóm thành \"{{name}}\"",
+    "nameCleared": "{{actor}} đã xóa tên nhóm",
+    "iconChanged": "{{actor}} đã cập nhật biểu tượng nhóm",
+    "generic": "Tin nhắn hệ thống"
+  },
+  "deletedNotice": {
+    "accountDeleted": "Tài khoản người dùng này đã bị xóa"
+  },
+  "memberRow": {
+    "viewProfile": "Xem hồ sơ",
+    "transferOwnership": "Chuyển quyền sở hữu",
+    "removeFromGroup": "Xóa khỏi nhóm",
+    "removeFriend": "Xóa bạn",
+    "ownerTooltip": "Chủ nhóm",
+    "actions": "Hành động thành viên"
+  },
+  "roster": {
+    "owner": "Chủ",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "Đổi cỡ danh sách thành viên"
+  },
+  "kick": {
+    "title": "Xóa khỏi nhóm",
+    "description": "Xóa {{name}} khỏi nhóm này? Họ sẽ không thấy tin nhắn mới.",
+    "success": "Đã xóa {{name}} khỏi nhóm",
+    "failed": "Không thể xóa thành viên"
+  },
+  "transfer": {
+    "title": "Chuyển quyền sở hữu",
+    "description": "Chuyển quyền sở hữu cho {{name}}? Bạn sẽ mất quyền chủ.",
+    "confirm": "Chuyển",
+    "success": "Đã chuyển quyền sở hữu cho {{name}}",
+    "failed": "Không thể chuyển quyền sở hữu"
+  },
+  "removeFriend": {
+    "failed": "Không thể xóa bạn"
+  },
+  "leave": {
+    "title": "Rời nhóm",
+    "description": "Rời “{{name}}”? Bạn sẽ ngừng nhận tin nhắn từ cuộc trò chuyện này.",
+    "inProgress": "Đang rời…",
+    "failed": "Không thể rời nhóm",
+    "explanation": "Bạn sẽ ngừng nhận tin nhắn từ cuộc trò chuyện này. Thành viên khác sẽ thấy tin nhắn hệ thống."
+  },
+  "search": {
+    "trigger": "Tìm hoặc bắt đầu cuộc trò chuyện",
+    "placeholder": "Tìm…",
+    "emptyHint": "Tìm người dùng để trò chuyện",
+    "conversations": "Cuộc trò chuyện",
+    "users": "Người dùng",
+    "searching": "Đang tìm…",
+    "noResults": "Không có kết quả",
+    "createFailed": "Không thể tạo DM"
+  },
+  "list": {
+    "resizeHandle": "Đổi cỡ tin nhắn trực tiếp",
+    "title": "Tin nhắn",
+    "empty": "Chưa có cuộc trò chuyện.",
+    "leaveGroup": "Rời nhóm",
+    "justNow": "bây giờ",
+    "minutesShort_one": "{{count}} ph",
+    "minutesShort_other": "{{count}} ph",
+    "hoursShort_one": "{{count}} giờ",
+    "hoursShort_other": "{{count}} giờ",
+    "daysShort_one": "{{count}} ngày",
+    "daysShort_other": "{{count}} ngày",
+    "close": "Đóng DM"
+  },
+  "newDm": {
+    "title": "Tin nhắn trực tiếp mới",
+    "searchPlaceholder": "Tìm người dùng…",
+    "noUsers": "Không tìm thấy người dùng"
+  },
+  "addMember": {
+    "title": "Thêm bạn vào DM",
+    "description": "Chọn bạn để thêm vào cuộc trò chuyện này.",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "Tìm bạn…",
+    "limitReached": "DM nhóm này đã đạt giới hạn {{max}} thành viên.",
+    "alreadyInDm": "Đã trong DM này",
+    "noMatch": "Không có bạn khớp tìm kiếm",
+    "noFriends": "Chưa có bạn",
+    "selectFriends": "Chọn bạn",
+    "addCount_one": "Thêm {{count}} bạn",
+    "addCount_other": "Thêm {{count}} bạn",
+    "adding": "Đang thêm…",
+    "noOtherMember": "Không thể xác định thành viên kia của cuộc trò chuyện này.",
+    "failed": "Không thể thêm thành viên",
+    "yourBots": "Bot của bạn"
+  },
+  "groupSettings": {
+    "title": "Cài đặt nhóm",
+    "general": "Chung",
+    "overview": "Tổng quan",
+    "backToMenu": "Về menu cài đặt DM nhóm",
+    "changeIcon": "Đổi biểu tượng nhóm",
+    "icon": "Biểu tượng nhóm",
+    "clickToUpload": "Nhấn để tải lên",
+    "removeIcon": "Xóa biểu tượng nhóm",
+    "nameLabel": "Tên nhóm",
+    "nameAria": "Tên nhóm",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "Thêm thành viên",
+    "groupFull": "Nhóm đầy",
+    "groupFullSuffix": "— Nhóm đầy",
+    "cropTitle": "Cắt biểu tượng nhóm",
+    "saveFailed": "Không thể lưu cài đặt"
+  },
+  "groupInfo": {
+    "title": "Thông tin nhóm",
+    "plainTitle": "Thông tin",
+    "notFound": "Không tìm thấy cuộc trò chuyện.",
+    "notGroup": "Cuộc trò chuyện này không có thông tin nhóm.",
+    "cancelEdit": "Hủy sửa",
+    "federated": "Nhóm liên hợp",
+    "memberCount_one": "{{count}} thành viên",
+    "memberCount_other": "{{count}} thành viên"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "Nhóm này quản lý trên {{host}}. Hãy kết nối tới máy chủ đó để đổi.",
+    "ownerNotListed": "{{host}} chưa liệt kê nhóm này cho bạn. Thử lại chốc lát."
+  }
+}

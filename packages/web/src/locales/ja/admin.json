@@ -1,0 +1,417 @@
+{
+  "general": {
+    "title": "一般",
+    "description": "Backspaceインスタンスを設定。これらの設定は全ユーザーに適用。",
+    "instanceName": {
+      "label": "インスタンス名",
+      "description": "ログイン画面と連合インスタンスに表示される名。",
+      "counter": "{{length}}/{{max}}"
+    },
+    "gif": {
+      "label": "GIF検索",
+      "description": "KlipyによるGIF検索を有効化。Klipy開発者ポータルから無料APIキー取得。",
+      "placeholderSaved": "キー保存済 — 置換は新キーを入力",
+      "placeholderKey": "Klipy APIキー",
+      "enabled": "有効",
+      "notConfigured": "未設定",
+      "clearKey": "キー消去"
+    }
+  },
+  "registration": {
+    "title": "登録",
+    "description": "このインスタンスで誰がアカウント作成できるか制御。公開登録はローカル登録を対象; 連合登録はここでアカウントを作るピアードインスタンスのユーザーを対象。",
+    "public": {
+      "label": "公開登録",
+      "toggleLabel": "新規ローカルアカウントを許可",
+      "toggleDescription": "誰でも登録画面でローカルアカウントを作成可能。オフ時は新規ローカルは招待リンクのみ。"
+    },
+    "federated": {
+      "label": "連合登録",
+      "toggleLabel": "新規連合アカウントを許可",
+      "toggleDescription": "他インスタンスのユーザーは接続設定からここで連合アカウントを作成可能。既存連合アカウントは設定に関わらず常にサインイン可能。"
+    },
+    "spaceCreation": {
+      "label": "スペース作成",
+      "toggleLabel": "新規スペースを許可",
+      "toggleDescription": "ユーザーはこのインスタンスで新規スペースを作成可能。オフ時はインスタンス管理者のみ作成可能で一般ユーザーは既存に参加のみ。"
+    },
+    "saved": "登録設定を保存",
+    "saveFailed": "登録設定を更新できません"
+  },
+  "invites": {
+    "label": "招待リンク",
+    "create": "+ リンク作成",
+    "tabs": {
+      "active": "有効",
+      "archived": "保管済み"
+    },
+    "loadFailed": "招待を読み込めません",
+    "emptyActive": "有効な招待リンクなし。",
+    "emptyArchived": "保管済み招待リンクなし。",
+    "noMatch": "現在のフィルターに合う招待なし。",
+    "filter": {
+      "status": "状態",
+      "sort": {
+        "recent": "新しい順",
+        "oldest": "古い順",
+        "name": "名前 (A-Z)",
+        "mostUsed": "使用多順",
+        "expiringSoonest": "期限が早い順"
+      }
+    },
+    "status": {
+      "active": "有効",
+      "expired": "期限切れ",
+      "exhausted": "使い切り",
+      "revoked": "取消済み"
+    },
+    "expiry": {
+      "preset": {
+        "hour1": "1時間",
+        "hours24": "24時間",
+        "days7": "7日",
+        "days30": "30日",
+        "custom": "カスタム…"
+      },
+      "keepCurrent": "現状維持",
+      "invalidFuture": "未来日時を選択",
+      "invalidSelection": "無効な期限選択",
+      "revokedOn": "{{date}} 取消",
+      "expiredOn": "{{date}} 期限切れ",
+      "exhausted": "使い切り",
+      "noExpiration": "期限なし",
+      "inDays_other": "{{count}} 日後に期限切れ",
+      "inHours_other": "{{count}} 時間後に期限切れ"
+    },
+    "form": {
+      "name": "名前",
+      "namePlaceholder": "例 友達 パーティ1",
+      "maxUses": "最大使用",
+      "unlimited": "無制限",
+      "uses": "使用",
+      "expires": "期限切れ",
+      "nameLength": "名前は1〜64文字",
+      "maxUsesInteger": "最大使用は正の整数"
+    },
+    "createModal": {
+      "title": "招待リンク作成",
+      "description": "人がこのインスタンスに登録できる共有リンクを生成。何回使えるかいつ期限かを設定。",
+      "submit": "リンク作成",
+      "submitting": "作成中…",
+      "createdCopied": "リンク作成。クリップボードにコピー。",
+      "createdManual": "リンク作成。行から手動コピー。",
+      "failed": "招待を作成できません: {{message}}"
+    },
+    "editModal": {
+      "title": "「{{name}}」を編集",
+      "description": "このリンクの制限を調整。URLは同じ — 持つ人は新条件で使い続けられます。",
+      "used": "(使用 {{used}})",
+      "maxUsesBelowUsed": "最大使用は現使用 ({{used}}) 未満不可",
+      "noChanges": "保存する変更なし",
+      "updated": "招待を更新",
+      "failed": "招待を更新できません: {{message}}",
+      "submit": "変更を保存",
+      "submitting": "保存中…"
+    },
+    "reinstateModal": {
+      "title": "「{{name}}」を復活",
+      "descriptionRevoked": "この招待は取消済み。復活は別URLの新規リンクを作成 — 元URLは非活性のまま。",
+      "descriptionLapsed": "この招待は期限切れ。復活は同一URLを再有効化 — 保存者は再利用可能。",
+      "newLinkWarning": "新規リンクが作られます。旧URL保持者は使用不可。",
+      "maxUsesMeta": "(現在: {{max}}、使用: {{used}})",
+      "maxUsesMin": "最大使用は最低 {{min}} (現在: {{used}})",
+      "submit": "復活",
+      "submitNewLink": "新リンクで復活",
+      "submitting": "復活中…",
+      "doneCopied": "新リンクで復活。クリップボードにコピー。",
+      "doneManual": "新リンクで復活。行から手動コピー。",
+      "doneSameLink": "復活。同一リンクが再有効。",
+      "failed": "復活不可: {{message}}"
+    },
+    "redemptions": {
+      "title": "「{{name}}」の使用",
+      "description": "このリンクで登録したユーザー、登録順。",
+      "revokedNotice": "この招待は取消済み。以下使用は取消前登録ユーザー。",
+      "revokedNoticeDated": "この招待は {{date}} 取消済み。以下使用は取消前登録ユーザー。",
+      "usesOfMax_other": "{{max}} 中 {{count}} 使用",
+      "uses_other": "{{count}} 使用",
+      "loadFailed": "使用を読み込めません",
+      "loadFailedInline": "使用を読み込めません。",
+      "empty": "使用はまだありません。",
+      "now": "(現在 {{name}})",
+      "deletedUser": "削除済みユーザー"
+    },
+    "row": {
+      "usage": "使用: {{usage}}",
+      "createdBy": "作成: {{name}}",
+      "unknownCreator": "不明",
+      "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
+      "subtitleArchived": "{{usage}} · {{expiry}} · {{when}}",
+      "used": "使用済み",
+      "expires": "期限切れ",
+      "expiredAt": "期限切れ",
+      "revokedAt": "取消済み",
+      "exhausted": "使い切り",
+      "created": "作成",
+      "createdByLabel": "作成者",
+      "token": "トークン",
+      "lastRedeemed": "最終使用",
+      "copyLink": "リンクをコピー",
+      "revoke": "取消",
+      "viewRedemptions": "使用を表示",
+      "reinstate": "復活",
+      "deletePermanently": "完全削除",
+      "copied": "招待リンクをコピー",
+      "copyFailed": "リンクをコピー不可",
+      "revoked": "招待を取消",
+      "revokeFailed": "取消不可: {{message}}",
+      "deleted": "招待を削除",
+      "deleteFailed": "削除不可: {{message}}",
+      "revokeDialog": {
+        "title": "「{{name}}」を取消?",
+        "description": "リンクは即無効化。URL保持者は誰も使用不可。<br/><br/>気が変われば <strong>復活</strong> はこの項目に新規リンク発行 — 元URLは非活性のまま。",
+        "confirm": "リンク取消"
+      },
+      "deleteDialog": {
+        "title": "「{{name}}」を完全削除?",
+        "description": "元に戻せません。このリンクの使用履歴も削除。停止だけなら <strong>取消</strong> を使用 — 履歴は残ります。",
+        "confirm": "完全削除"
+      }
+    }
+  },
+  "storage": {
+    "title": "ストレージ",
+    "description": "ディスク使用を追跡し削除済み内容や置換アバター・バナーの孤児ファイルを整理。",
+    "loading": "ストレージ統計を読み込み中…",
+    "loadFailed": "ストレージ統計を読み込めません",
+    "refresh": "統計を更新",
+    "overview": {
+      "label": "ストレージ概要",
+      "totalFiles": "総ファイル",
+      "referenced": "参照あり",
+      "orphanedFiles": "孤児ファイル",
+      "unlinkedUploads": "未リンクアップロード",
+      "danglingRecords": "宙ぶらレコード",
+      "staleUploads": "古いアップロード"
+    },
+    "breakdown": {
+      "label": "種類別内訳",
+      "entry_other": "{{count}} ファイル — {{size}}"
+    },
+    "uploadLimit": {
+      "label": "アップロード上限",
+      "maxFileSize": "最大ファイルサイズ",
+      "maxStickerSize": "最大ステッカーサイズ",
+      "saved": "アップロード上限を {{limit}} に設定",
+      "saveFailed": "アップロード上限を更新できません",
+      "stickerSaved": "ステッカー上限を {{limit}} に設定",
+      "stickerSaveFailed": "ステッカー上限を更新できません"
+    },
+    "cleanup": {
+      "label": "整理",
+      "nothingFound": "孤児ファイル・古いアップロード・宙ぶらレコードなし。",
+      "preview": "整理をプレビュー",
+      "run": "今すぐ整理",
+      "running": "整理中…",
+      "previewResult": "プレビュー — ファイル削除なし",
+      "complete": "整理完了",
+      "orphanedFiles_other": "孤児ファイル {{count}} ({{size}})",
+      "staleRecords_other": "、古いアップロードレコード {{count}}",
+      "errors_other": "エラー {{count}}: {{first}}",
+      "cleanedToast_other": "{{count}} ファイルを整理 ({{size}})",
+      "failed": "整理失敗"
+    },
+    "stale": {
+      "label": "古いアップロード",
+      "description": "<code>.tus/</code> に残されたtusアップロードセッション (DELETEなし中断・異常終了)。自動整理は24時間毎; ここで早めに整理。",
+      "maxAge": "最大経過 (時間)",
+      "sessionFiles_other": "セッションファイル {{count}} ({{size}})",
+      "cleanedToast_other": "古いアップロードセッション {{count}} を整理 ({{size}})",
+      "failed": "古いアップロード整理失敗"
+    },
+    "media": {
+      "label": "メディア保存",
+      "olderThan": "これより古いチャットメディアを削除",
+      "days": "日",
+      "run": "今すぐ削除",
+      "running": "削除中…",
+      "files_other": "ファイル {{count}} ({{size}})",
+      "deletedToast_other": "ファイル {{count}} を削除 ({{size}})",
+      "failed": "メディア整理失敗"
+    }
+  },
+  "streaming": {
+    "title": "配信",
+    "description": "この制限はこのインスタンスの全ユーザーに適用。ユーザーはこの範囲で値を選択。",
+    "units": {
+      "fps": "{{value}} fps",
+      "kbpsLabel": "kbps"
+    },
+    "bandwidth": {
+      "label": "帯域",
+      "description": "ビットレート最小・最大制限と品質スライダー刻み。",
+      "customBitrate": {
+        "label": "カスタムビットレートを許可",
+        "description": "行列既定の代わりに独自ビットレート設定を許可"
+      },
+      "range": "ビットレート範囲",
+      "min": "最小",
+      "max": "最大",
+      "step": "スライダー刻み"
+    },
+    "quality": {
+      "label": "品質",
+      "description": "画面共有の利用可能な解像度・フレームレート選択肢。",
+      "resolutions": "許可解像度",
+      "framerates": "許可フレームレート"
+    },
+    "highEndWarning": {
+      "title": "高負荷設定が有効。",
+      "description": "1080p超や60fps超の配信はクライアントのCPU/GPUエンコード能力を要しサーバー帯域を飽和させる可能性、特にTURN経由時。高構成 (例4K 120fps) は稼働ストリーム毎最大45Mbpsの可能性。 全ユーザー有効化前に負荷に耐えられるか確認。"
+    },
+    "matrix": {
+      "label": "ビットレート行列",
+      "description": "各解像度・フレームレートの既定ビットレート。個別セル編集か全値一括スケール。",
+      "scaleAll": "すべてスケール",
+      "scaleHint": "ドラッグですべてのビットレートをスケール。個別セルの微調整 — 下。",
+      "cellDefault": "既定: {{value}} (×でリセット)",
+      "cellEdit": "クリックで編集",
+      "resetAll": "すべて既定にリセット"
+    },
+    "capWarning": {
+      "title": "行列値が全体上限超過。",
+      "description": "一部ビットレートが最大 {{max}} 超過。その組合せのストリームは上限に下げられます。"
+    }
+  },
+  "updates": {
+    "title": "更新",
+    "badge": {
+      "settingsAriaLabel": "設定、インスタンス更新あり",
+      "toast": "このインスタンスに Backspace {{version}} あり",
+      "toastAction": "表示"
+    },
+    "description": "このインスタンスで動作中のバージョンと更新方法。",
+    "loading": "更新状態を読み込み中…",
+    "loadFailed": "更新状態を読み込めません。",
+    "copyFailed": "コピー不可。コマンドを選択し手動コピー。",
+    "running": {
+      "label": "実行中",
+      "commit": "commit {{commit}} · ",
+      "channel": {
+        "prebuilt": "プリビルドイメージ",
+        "source": "ソースから構築",
+        "unknown": "インストール方法未記録"
+      }
+    },
+    "available": {
+      "label": "利用可能",
+      "version": "Backspace {{version}} あり",
+      "released": "リリース {{date}} · ",
+      "releaseNotes": "リリースノート",
+      "fromInstallDir": "インストールディレクトリから:",
+      "scriptDescription": "データベースのスナップショットを作成し新イメージをダウンロードしBackspaceコンテナのみ再起動。新版が正常起動しないか旧コードで起動すれば現行版に戻します。",
+      "noScript": "update.shなし",
+      "manualIntro": "update.shは1.0.5以降付属。gitコピーでは <code>git pull</code> が追加。そうでなければ <code>./backup.sh</code> でスナップショット後に手動実施。",
+      "prebuiltInstall": "プリビルドインストール:",
+      "sourceInstall": "ソースからインストール:",
+      "manualWarning": "<code>backspace</code> サービスを明示し <code>--remove-orphans</code> を渡さないこと。他コンテナがこのプロジェクトで動く場合Composeが提案し削除します。"
+    },
+    "upToDate": "最新です。",
+    "disabled": {
+      "title": "更新チェック無効",
+      "description": "このインスタンスはGitHubに問い合わせません。<code>BACKSPACE_UPDATE_CHECK=true</code> を <code>.env</code> に設定して許可するか、リリースページを自分で確認。"
+    },
+    "rateLimited": {
+      "title": "GitHub制限",
+      "description": "更新の有無を示しません。後で試行。"
+    },
+    "unreachable": {
+      "title": "更新を確認できません",
+      "description": "GitHubに到達不可のため更新の有無を示しません。インスタンスに影響なし。"
+    },
+    "lastChecked": "最終確認: {{when}}",
+    "noLookups": "照会なし",
+    "checkAgain": "再確認",
+    "checking": "確認中…"
+  },
+  "users": {
+    "title": "ユーザー",
+    "description": "このインスタンスのアカウントを表示・管理。",
+    "searchPlaceholder": "ユーザーを検索…",
+    "loading": "ユーザーを読み込み中…",
+    "loadFailed": "ユーザーを読み込めません",
+    "empty": "ユーザーなし",
+    "filters": {
+      "allInstances": "全インスタンス",
+      "localOnly": "ローカルのみ",
+      "allRoles": "全ロール",
+      "admin": "管理者",
+      "nonAdmin": "非管理者",
+      "joinedAfter": "以降に参加",
+      "joinedBefore": "以前に参加",
+      "newest": "新しい順",
+      "oldest": "古い順",
+      "nameDesc": "名前 Z-A",
+      "deleted": "削除済み",
+      "clear": "フィルターをクリア",
+      "bot": "ボット"
+    },
+    "badge": {
+      "admin": "管理者",
+      "deleted": "削除済み"
+    },
+    "actions": {
+      "demote": "管理者権限を剥奪",
+      "promote": "管理者権限を付与",
+      "federatedNoAdmin": "連合ユーザーは管理者不可",
+      "resetPassword": "パスワードリセット",
+      "federatedNoReset": "連合ユーザーはホームインスタンスでサインイン",
+      "delete": "ユーザー削除",
+      "selfDelete": "自分の削除は設定を使用"
+    },
+    "tempPassword": {
+      "label": "一時パスワード:",
+      "note": "一度表示。ユーザーは切断; 再サインインが必要。"
+    },
+    "pagination": "ページ {{page}} / {{total}} ({{users}})",
+    "count_other": "ユーザー {{count}} 人",
+    "roleFailed": "ロールを更新できません",
+    "resetFailed": "パスワードをリセットできません",
+    "actionFailed": "操作失敗",
+    "resetDialog": {
+      "title": "パスワードリセット",
+      "description": "<strong>{{username}}</strong> のパスワードをリセット? ユーザーは即切断され新一時パスワードで再サインインが必要。",
+      "confirm": "パスワードリセット"
+    },
+    "demoteDialog": {
+      "title": "管理者権限を剥奪",
+      "description": "<strong>{{username}}</strong> の管理者権限を剥奪? インスタンス設定へのアクセスを失います。",
+      "confirm": "権限剥奪"
+    },
+    "deleteDialog": {
+      "title": "ユーザー削除",
+      "description": "<strong>{{username}}</strong> を完全削除? 全スペース・DM・フレンドリストから除外。元に戻せません。",
+      "confirm": "ユーザー削除",
+      "blockBot": "このボットの再登録を禁止",
+      "blockBotHint": "ホームインスタンス復帰時、ボットはここでアカウント作成不可。ユーザーリスト下で解除。"
+    },
+    "blockedBots": {
+      "title": "ブロック済みボット",
+      "description": "ここに登録不可の他インスタンスのボット。解除で再びアクセス許可。",
+      "blockedAt": "ブロック {{date}}",
+      "unblock": "ブロック解除"
+    }
+  },
+  "mobile": {
+    "title": "インスタンス",
+    "sections": {
+      "general": "一般",
+      "registration": "登録",
+      "federation": "連合",
+      "streaming": "配信",
+      "storage": "ストレージ",
+      "users": "ユーザー",
+      "updates": "更新"
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "mediaSetup": {
+    "neteaseSmtc": {
+      "title": "Bật SMTC trong NetEase Cloud Music",
+      "body": "Mở NetEase Cloud Music → Cài đặt → Hệ thống → bật SMTC, rồi khởi động lại ứng dụng. Backspace cần điều này để nhận biết phát, tạm dừng và tiến trình chính xác.",
+      "gotIt": "Hiểu rồi",
+      "dontRemind": "Đừng nhắc lại",
+      "dismiss": "Đóng gợi ý này"
+    }
+  },
+  "update": {
+    "laterHint": "Bạn có thể cài sau trong Cài đặt, Máy tính",
+    "dismiss": "Đóng bản cập nhật này",
+    "failed": {
+      "title": "Không thể cài bản cập nhật",
+      "body": "Đã tải Backspace {{version}}, nhưng cài đặt thất bại. Bạn có thể cài thủ công."
+    },
+    "ready": {
+      "title": "Bản cập nhật sẵn sàng",
+      "body": "Backspace {{version}} đã tải xong và sẵn sàng cài."
+    },
+    "available": {
+      "title": "Có Backspace {{version}}",
+      "body": "Bản build này không tự cập nhật, nên tải bản mới để tiếp tục.",
+      "bodyWithCurrent": "Bạn đang dùng {{currentVersion}}. Bản build này không tự cập nhật, nên tải bản mới để tiếp tục."
+    },
+    "restartNow": "Khởi động lại ngay",
+    "download": "Tải xuống",
+    "later": "Để sau"
+  }
+}

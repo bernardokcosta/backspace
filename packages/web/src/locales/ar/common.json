@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "delete": "حذف",
+    "bot": "بوت",
+    "confirm": "تأكيد",
+    "copy": "نسخ",
+    "copied": "تم النسخ",
+    "retry": "إعادة المحاولة",
+    "back": "رجوع",
+    "done": "تم",
+    "edit": "تعديل",
+    "remove": "إزالة",
+    "add": "إضافة",
+    "apply": "تطبيق",
+    "reset": "إعادة ضبط",
+    "continue": "متابعة",
+    "dismiss": "إغلاق",
+    "ok": "حسنًا",
+    "search": "بحث",
+    "clear": "مسح",
+    "change": "تغيير",
+    "refresh": "تحديث",
+    "openLink": "فتح الرابط",
+    "tryAgain": "حاول مجددًا",
+    "reply": "رد",
+    "addReaction": "إضافة تفاعل",
+    "share": "مشاركة",
+    "accept": "قبول",
+    "decline": "رفض",
+    "pause": "إيقاف مؤقت",
+    "resume": "استئناف",
+    "abort": "إجهاض",
+    "dismissAll": "إغلاق الكل",
+    "filter": "تصفية",
+    "sort": "ترتيب",
+    "sortBy": "ترتيب حسب",
+    "leave": "مغادرة",
+    "invitePeople": "دعوة الأشخاص",
+    "previous": "السابق",
+    "next": "التالي",
+    "preview": "معاينة",
+    "logIn": "تسجيل الدخول"
+  },
+  "states": {
+    "loading": "جارٍ التحميل…",
+    "saving": "جارٍ الحفظ…",
+    "saved": "تم الحفظ",
+    "unknown": "غير معروف",
+    "none": "لا شيء",
+    "enabled": "مفعّل",
+    "disabled": "معطّل",
+    "on": "تشغيل",
+    "off": "إيقاف",
+    "yes": "نعم",
+    "no": "لا",
+    "optional": "اختياري",
+    "required": "مطلوب",
+    "default": "افتراضي",
+    "recommended": "موصى به",
+    "online": "متصل",
+    "idle": "خامل",
+    "doNotDisturb": "عدم الإزعاج",
+    "offline": "غير متصل",
+    "loadingSettings": "جارٍ تحميل الإعدادات…",
+    "loadSettingsFailed": "تعذّر تحميل الإعدادات.",
+    "settingsSaved": "تم حفظ الإعدادات",
+    "saveFailed": "فشل الحفظ",
+    "scanning": "جارٍ الفحص…",
+    "pleaseWait": "يرجى الانتظار…"
+  },
+  "labels": {
+    "username": "اسم المستخدم",
+    "password": "كلمة المرور",
+    "displayName": "الاسم المعروض",
+    "friends": "الأصدقاء",
+    "members": "الأعضاء",
+    "settings": "الإعدادات",
+    "dangerZone": "منطقة الخطر",
+    "searchMembers": "ابحث عن الأعضاء…",
+    "noMembersFound": "لم يتم العثور على أعضاء",
+    "or": "أو",
+    "nameAZ": "الاسم (أ–ي)"
+  },
+  "time": {
+    "today": "اليوم {{time}}",
+    "yesterday": "أمس {{time}}",
+    "never": "أبدًا",
+    "justNow": "الآن",
+    "minutesShort": "{{minutes}} د",
+    "hoursMinutesShort": "{{hours}} س {{minutes}} د",
+    "elapsed": "انقضى {{duration}}",
+    "left": "متبقٍّ {{duration}}"
+  },
+  "units": {
+    "ms": "{{value}} مللي ث",
+    "percent": "{{value}}٪",
+    "kbps": "{{value}} كب/ث",
+    "mbps": "{{value}} مب/ث"
+  },
+  "colors": {
+    "mint": "نعناعي",
+    "sky": "سماوي",
+    "lavender": "خزامى",
+    "coral": "مرجاني",
+    "rose": "وردي",
+    "teal": "مزرق مخضر",
+    "amber": "كهرماني",
+    "peach": "خوخي"
+  },
+  "language": {
+    "label": "اللغة",
+    "automatic": "تلقائي (النظام)",
+    "description": "اختر لغة القوائم والأزرار ورسائل النظام. التلقائي يتبع تفضيلات لغات النظام أو المتصفح. تبقى رسائل الآخرين كما كُتبت."
+  },
+  "crash": {
+    "title": "حدث خطأ ما",
+    "reload": "إعادة تحميل الصفحة",
+    "details": "تفاصيل الخطأ"
+  },
+  "app": {
+    "description": "البديل المستضاف ذاتيًا لـ Discord وTeamSpeak. صوت عالي الدقة وفيديو ومشاركة شاشة — مفتوح المصدر ومجاني (AGPL-3.0).",
+    "loading": "جارٍ تحميل Backspace"
+  },
+  "chrome": {
+    "toggleMemberList": "إظهار قائمة الأعضاء أو إخفاؤها",
+    "closeSettings": "إغلاق الإعدادات"
+  },
+  "sourceCode": {
+    "label": "الشيفرة المصدرية (AGPL)",
+    "labelWithBuild": "الشيفرة المصدرية (AGPL) · {{build}}",
+    "title": "عرض الشيفرة المصدرية للنسخة العاملة على هذه النسخة (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "تم اكتشاف {{label}}. اختره في إعدادات الصوت للتبديل إليه.",
+    "unnamedAudioInput": "جهاز صوتي جديد"
+  }
+}

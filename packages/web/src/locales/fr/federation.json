@@ -1,0 +1,171 @@
+{
+  "validation": {
+    "invalidUrl": "URL invalide", "selfInstance": "Tu es déjà connecté à cette instance", "alreadyConnected": "Cette instance est déjà connectée",
+    "notLoggedIn": "Non connecté", "connectHomeFirst": "Connecte-toi d’abord à ton instance d’origine ({{home}}) : elle émet l’identifiant d’authentification pour {{target}}",
+    "incorrectPassword": "Mot de passe incorrect", "authenticationFailed": "Échec de l’authentification sur l’instance distante"
+  },
+  "feedback": {
+    "connectionLost": "Connexion à {{instance}} perdue : reconnexion…", "connectionRestored": "Connexion à {{instance}} rétablie",
+    "pendingRequests_one": "Tu as {{count}} demande d’appairage en attente", "pendingRequests_many": "Tu as {{count}} demandes d’appairage en attente", "pendingRequests_other": "Tu as {{count}} demandes d’appairage en attente",
+    "requestApproved": "Ta demande d’appairage a été approuvée", "requestDenied": "Ta demande d’appairage a été refusée", "requestExpired": "Ta demande d’appairage a expiré",
+    "friendRequestDeliveryFailed": "Impossible de transmettre la demande d’ami à {{username}} : {{reason}}", "accountRelinked": "Compte rattaché à {{instance}}"
+  },
+  "connections": {
+    "title": "Instances connectées", "description": "Lie tes comptes entre les instances fédérées de Backspace.",
+    "empty": "Aucune instance distante connectée. Ajoutes-en une pour utiliser la fédération.", "addButton": "+ Ajouter une instance",
+    "home": { "title": "Instance d’origine", "asUser": "en tant que {{username}}", "local": "Locale" },
+    "status": { "connected": "Connectée", "disconnected": "Déconnectée", "unreachable": "Injoignable", "authExpired": "Authentification expirée" },
+    "add": {
+      "title": "Ajouter une instance distante", "urlPlaceholder": "https://instance.example.com", "probing": "Vérification de l’instance…", "connect": "Se connecter", "connecting": "Connexion…",
+      "registrationClosed": "Cette instance a désactivé les nouvelles inscriptions fédérées. Les comptes existants peuvent toujours se connecter.",
+      "passwordLabel": "Saisis ton mot de passe pour te connecter à {{host}}", "passwordPlaceholder": "Celui que tu utilises pour te connecter",
+      "passwordHint": "Ton mot de passe est vérifié par ton instance d’origine et n’est jamais envoyé à {{host}}. Cette instance reçoit un identifiant d’authentification unique généré uniquement pour elle.",
+      "fallbackNotice": {
+        "credentialRefused": "Un compte existe déjà sur {{host}} et n’accepte pas l’identifiant d’authentification émis par ton instance d’origine. Connecte-toi avec le mot de passe défini sur cette instance. Il sera ensuite remplacé par l’identifiant émis.",
+        "registrationClosed": "{{host}} n’accepte pas de nouveaux comptes d’autres instances ; aucun compte n’a donc pu y être créé pour toi. Si tu as déjà un compte sur {{host}}, connecte-toi à ce compte ci-dessous."
+      },
+      "usernamePlaceholder": "Ton nom d’utilisateur sur cette instance", "remotePasswordLabel": "Mot de passe de cette instance",
+      "remotePasswordPlaceholder": "Mot de passe sur l’instance distante", "loggingIn": "Connexion…", "loginAndConnect": "S’authentifier et se connecter"
+    },
+    "filter": { "all": "Toutes", "connected": "Connectées", "disconnected": "Déconnectées", "issues": "Avec des problèmes", "noMatch": "Aucune instance ne correspond au filtre actuel." },
+    "sort": { "dateAdded": "Date d’ajout", "lastConnected": "Dernière connexion" },
+    "row": {
+      "asUser": "en tant que {{username}}", "added": "Ajoutée le {{date}}", "connectedAgo": "Connectée {{time}}", "disconnectedAgo": "Déconnectée {{time}}", "lastConnectedAgo": "Dernière connexion : {{time}}",
+      "remoteUserId": "ID utilisateur distant", "addedLabel": "Ajoutée", "disconnectedLabel": "Déconnectée", "lastConnectedLabel": "Dernière connexion",
+      "homePasswordLabel": "Mot de passe de ton compte d’origine", "disconnect": "Déconnecter", "reconnect": "Reconnecter", "reauthenticate": "S’authentifier à nouveau",
+      "forceRemove": "Forcer le retrait", "deleteIdentity": "Supprimer l’identité", "deleteIdentityDisabled": "Déconnecte d’abord l’instance pour supprimer l’identité",
+      "reason": {
+        "unreachable": "Cette instance est injoignable.", "sessionExpired": "La session enregistrée a expiré. Authentifie-toi à nouveau pour te reconnecter.",
+        "reauthenticate": "Authentifie-toi à nouveau pour te connecter.", "authenticateHome": "Authentifie-toi pour te connecter à ton instance d’origine."
+      }
+    },
+    "forceRemove": {
+      "title": "Forcer le retrait de l’entrée", "description": "L’entrée de {{name}} sera retirée du registre. L’instance distante ne sera pas avertie. Utilise cette option uniquement si l’instance est définitivement injoignable.", "confirm": "Forcer le retrait"
+    },
+    "deleteIdentity": {
+      "title": "Supprimer l’identité", "description": "Supprime ton identité fédérée sur <name>{{name}}</name>. Choisis quoi faire de tes données.",
+      "leave": { "title": "Partir discrètement", "description": "Déconnecte cette instance. Ton compte et toutes tes données sont conservés." },
+      "soft": { "title": "Supprimer l’utilisateur", "description": "Supprime ton compte, mais conserve tes messages. Tu apparaîtras sous le nom « Utilisateur supprimé »." },
+      "full": { "title": "Tout supprimer", "description": "Supprime ton compte et tous tes messages, messages privés, réactions et fichiers. Il ne restera rien." },
+      "scope": { "heading": "Portée", "this": "Cette instance uniquement", "select": "Sélectionner des instances…", "all": "Toutes les instances distantes" },
+      "deleting": "Suppression…", "disconnect": "Déconnecter", "confirm": "Supprimer l’identité",
+      "toast": {
+        "disconnected": "Déconnexion réussie", "deleted_one": "Identité supprimée", "deleted_many": "Identité supprimée sur {{count}} instances", "deleted_other": "Identité supprimée sur {{count}} instances",
+        "ownsSpaces": "{{host}} : transfère d’abord la propriété des espaces", "failed": "{{host}} : {{error}}", "failedGeneric": "Échec"
+      }
+    },
+    "action": {
+      "friendRequest": "demande d’ami", "spaceJoin": "accès à un espace", "directMessage": "message privé", "friendRequestTo": "Demande d’ami à {{target}}",
+      "joinSpace": "Rejoindre {{target}}", "directMessageTo": "Message privé à {{target}}", "instanceConnect": "connexion", "connectTo": "Se connecter à {{target}}"
+    },
+    "pending": {
+      "title": "Appairages en attente d’approbation", "description": "Ton administrateur doit donner son accord avant que ces demandes puissent aboutir.", "onPeer": "sur <peer>{{peer}}</peer>",
+      "cancelling": "Annulation…", "cancelled": "Demande d’appairage annulée", "cancelFailed": "Impossible d’annuler : {{error}}"
+    },
+    "outcomes": {
+      "title": "Résultats récents des appairages", "approved": "Ton administrateur a approuvé ta demande d’appairage avec {{host}}.",
+      "denied": "Ton administrateur a refusé ta demande d’appairage avec {{host}}.", "expired": "Ta demande d’appairage avec {{host}} a expiré sans intervention de l’administrateur.",
+      "originalAction": "Action d’origine : {{action}}", "retry": "Réessayer : {{action}}", "dismissing": "Fermeture…", "dismissFailed": "Impossible d’ignorer : {{error}}", "dismissAllFailed": "Impossible de tout ignorer : {{error}}"
+    },
+    "peering": {
+      "unavailable": "Les messages avec les personnes sur {{name}} ne peuvent pas être relayés tant qu’un administrateur n’a pas approuvé l’appairage.",
+      "inProgress": "Configuration de l’appairage avec {{name}}. Les messages avec les personnes de cette instance seront bientôt relayés."
+    }
+  },
+  "admin": {
+    "title": "Fédération", "description": "Configure le relais fédéré, la rotation des secrets et les instances appairées.",
+    "relay": {
+      "title": "Paramètres du relais", "description": "Contrôle le relais des messages privés entre instances fédérées. Une fois activé, les messages privés avec les utilisateurs d’instances appairées sont relayés de serveur à serveur.",
+      "enable": { "label": "Activer le relais des messages privés", "description": "Relayer les messages privés vers et depuis les instances appairées" },
+      "autoAccept": { "label": "Accepter automatiquement les appairages", "description": "Accepter automatiquement les demandes d’appairage d’autres instances. Si cette option est désactivée, seuls les appairages lancés manuellement sont autorisés." },
+      "ttl": { "label": "Rétention du relais (jours)", "description": "Durée de conservation des messages relayés dans la boîte d’envoi avant nettoyage" },
+      "rotation": { "label": "Rotation des secrets par défaut (jours)", "description": "Intervalle de rotation automatique pour les nouveaux appairages. Les appairages existants conservent leur réglage actuel." }
+    },
+    "status": { "active": "Actif", "pending": "En attente", "unreachable": "Injoignable", "rejectedShort": "Refusé", "revoked": "Révoqué", "awaitingApproval": "En attente d’approbation", "needsAttention": "Intervention requise" },
+    "filter": { "statusHeading": "État", "sort": { "domain": "Domaine (A-Z)", "lastSeen": "Dernier contact", "dateAdded": "Date d’ajout", "failures": "Échecs", "revokedDate": "Date de révocation" } },
+    "views": { "active": "Actifs", "revoked": "Révoqués" },
+    "peer": {
+      "instanceName": "Nom de l’instance", "revokedMeta": "Révoqué : {{revoked}} · Appairé : {{peered}}", "unreachableMeta": "Dernier contact : {{lastSeen}} · {{failures}}", "activeMeta": "Dernier contact : {{lastSeen}} · Synchronisé : {{synced}}",
+      "failures_one": "{{count}} échec", "failures_many": "{{count}} échecs", "failures_other": "{{count}} échecs", "reinitiate": "Relancer l’appairage", "deletePermanently": "Supprimer définitivement",
+      "consecutiveFailures": "Échecs consécutifs", "authFailures": "Échecs d’authentification", "lastFailure": "Dernier échec", "peeredSince": "Appairé depuis", "secretRotated": "Dernière rotation du secret",
+      "autoRotate": "Rotation automatique", "rotationStatus": "État de la rotation", "rotateEvery_one": "Intervalle : {{count}} jour", "rotateEvery_many": "Intervalle : {{count}} jours", "rotateEvery_other": "Intervalle : {{count}} jours",
+      "defaultTag": "(par défaut)", "inProgress": "En cours", "idle": "Inactive", "intervalRange": "Doit être compris entre 1 et 365", "intervalUpdated": "Intervalle de rotation modifié",
+      "checking": "Vérification…", "checkNow": "Vérifier maintenant", "resetPeering": "Réinitialiser l’appairage", "rotateSecret": "Renouveler le secret", "rotationInProgress": "Une rotation est déjà en cours", "revoke": "Révoquer", "editInterval": "Modifier l’intervalle de rotation",
+      "reason": {
+        "auth_failures": "Les transmissions signées échouent à répétition", "peer_reset_detected": "Réinstallée avec une nouvelle identité", "repeer_incomplete": "Nouvel appairage non vérifié",
+        "denied_by_local_admin": "Refusé par ton administrateur", "denied_by_remote": "Refusé par son administrateur", "revoked_by_remote": "Révoqué par son administrateur",
+        "expired_on_remote": "Demande expirée du côté distant", "stale_peering_on_remote": "L’instance distante conserve un ancien appairage"
+      },
+      "reasonDetail": {
+        "auth_failures": "{{host}} a refusé cinq transmissions signées consécutives. Les deux instances ne partagent donc plus le même secret. Réinitialise l’appairage, puis appaire-les à nouveau.",
+        "peer_reset_detected": "{{host}} a été réinstallée et annonce une identité d’instance différente de la précédente. Utilise Réappairer dans la bannière ci-dessus pour te connecter à la nouvelle instance et nettoyer les comptes de l’ancienne.",
+        "repeer_incomplete": "{{host}} a accepté l’échange initial, mais une vérification signée avec le nouveau secret a échoué. L’appairage n’est donc pas utilisé. Réinitialise-le et réessaie. Si l’échec se répète, son administrateur doit le réinitialiser de son côté.",
+        "denied_by_local_admin": "Un administrateur de cette instance a refusé la demande d’appairage de {{host}}. Ses demandes seront refusées jusqu’à ce que tu relances l’appairage ou supprimes cette entrée.",
+        "denied_by_remote": "L’administrateur de {{host}} a refusé l’appairage avec cette instance. Relance-le quand il aura donné son accord.",
+        "revoked_by_remote": "L’administrateur de {{host}} a révoqué l’appairage avec cette instance. Il sera rétabli quand cet administrateur le relancera.",
+        "expired_on_remote": "L’administrateur de {{host}} n’a pas répondu à la demande d’appairage dans les 30 jours. Relance-la pour redemander.",
+        "stale_peering_on_remote": "{{host}} conserve un ancien appairage avec cette instance et refuse un nouvel appairage tant que son administrateur ne l’a pas réinitialisé. Cette instance vérifie toutes les 15 minutes et se connecte dès que cela est fait."
+      }
+    },
+    "approvals": {
+      "title": "Demandes en attente d’approbation", "outboundTitle_one": "{{name}} — {{count}} utilisateur demande cet appairage", "outboundTitle_many": "{{name}} — {{count}} utilisateurs demandent cet appairage", "outboundTitle_other": "{{name}} — {{count}} utilisateurs demandent cet appairage",
+      "requested": "Demandé {{time}}", "subscriber": { "friendAdd": "demande d’ami à {{target}}", "spaceJoin": "veut rejoindre {{target}}", "directMessage": "veut écrire en privé à {{target}}", "instanceConnect": "a connecté un compte sur {{target}}" },
+      "approve": "Approuver", "deny": "Refuser", "established": "Appairage établi avec {{name}}", "deniedToast": "Demande d’appairage de {{name}} refusée",
+      "confirm": {
+        "approveTitle": "Approuver la demande d’appairage", "denyTitle": "Refuser la demande d’appairage",
+        "approveOutbound_one": "Un échange d’authentification sera lancé avec {{name}} pour le compte de {{count}} utilisateur demandeur. L’instance distante doit être joignable.",
+        "approveOutbound_many": "Un échange d’authentification sera lancé avec {{name}} pour le compte de {{count}} utilisateurs demandeurs. L’instance distante doit être joignable.",
+        "approveOutbound_other": "Un échange d’authentification sera lancé avec {{name}} pour le compte de {{count}} utilisateurs demandeurs. L’instance distante doit être joignable.",
+        "approveInbound": "Un échange d’authentification sera lancé avec {{name}}. L’instance distante doit être joignable.",
+        "denyOutbound_one": "La demande d’appairage sortante sera refusée et l’utilisateur demandeur sera averti. Il pourra redemander en répétant son action initiale.",
+        "denyOutbound_many": "La demande d’appairage sortante sera refusée et les utilisateurs demandeurs seront avertis. Ils pourront redemander en répétant leur action initiale.",
+        "denyOutbound_other": "La demande d’appairage sortante sera refusée et les utilisateurs demandeurs seront avertis. Ils pourront redemander en répétant leur action initiale.",
+        "denyInbound": "La demande sera refusée et les futures demandes d’appairage automatique de {{name}} seront bloquées. Tu pourras les débloquer depuis la liste des appairages refusés.",
+        "approveAndPeer": "Approuver et appairer", "approve": "Approuver", "denyAndNotify": "Refuser et avertir", "deny": "Refuser"
+      }
+    },
+    "resetCleanup": {
+      "title": "Nettoyage après réinitialisation", "peerReset": "{{name}} a été réinitialisée", "peerResetDescription": "Une nouvelle instance est exécutée sur ce domaine. Rétablis la fédération pour réparer les amitiés et conversations privées devenues obsolètes.",
+      "repeer": "Réappairer", "resetToast": "{{host}} a été réinitialisée : la fédération doit être rétablie",
+      "repeerIncomplete": "Réappairage incomplet : {{name}} conserve encore un ancien appairage te concernant. Son administrateur doit le réinitialiser de son côté, puis tu devras réappairer.",
+      "repeerInitiated": "Réappairage lancé avec {{name}}", "removed": "{{username}} et tout son contenu ont été supprimés",
+      "ownsSpaces": "{{username}} possède des espaces : transfère d’abord leur propriété (Paramètres de l’espace → Propriété).",
+      "staleRemote": "L’instance distante conserve encore un ancien appairage te concernant. Demande à son administrateur de le réinitialiser de son côté, puis réappaire.",
+      "eventSummary": "<host>{{host}}</host> a été réinitialisée. Nettoyage automatique : {{identities}} ; comptes avec du contenu local détachés : {{accounts}}. Les comptes détachés continuent de fonctionner localement ; leurs propriétaires gardent l’accès avec leur mot de passe actuel. Le propriétaire peut rattacher un compte détaché à sa nouvelle identité d’origine depuis les paramètres de ce compte (Compte → avis de détachement), en étant connecté aux deux.",
+      "identitiesCleaned_one": "{{count}} identité répliquée", "identitiesCleaned_many": "{{count}} identités répliquées", "identitiesCleaned_other": "{{count}} identités répliquées",
+      "accountsDetached_one": "{{count}} compte", "accountsDetached_many": "{{count}} comptes", "accountsDetached_other": "{{count}} comptes",
+      "memberships_one": "{{count}} appartenance à un espace", "memberships_many": "{{count}} appartenances à des espaces", "memberships_other": "{{count}} appartenances à des espaces",
+      "messages_one": "{{count}} message", "messages_many": "{{count}} messages", "messages_other": "{{count}} messages", "owns": "Possède : {{spaces}}", "dismissKeep": "Ignorer et conserver tous les comptes détachés",
+      "confirm": {
+        "repeerTitle": "Rétablir la fédération", "removeTitle": "Supprimer le compte détaché",
+        "repeerDescription": "L’enregistrement local de l’appairage sera supprimé et un nouvel échange authentifié sera lancé avec {{origin}}. L’instance distante doit être joignable et approuver la demande si elle ne l’accepte pas automatiquement.",
+        "removeDescription": "Supprimer définitivement {{username}} et tout son contenu sur cette instance ? Cette action est irréversible.", "repeerConfirm": "Réappairer et réparer", "removeConfirm": "Supprimer définitivement"
+      }
+    },
+    "peers": {
+      "title": "Instances appairées", "empty": "Aucun appairage fédéré configuré. Les appairages sont créés automatiquement quand des utilisateurs se connectent à des instances distantes.",
+      "noMatch": "Aucun appairage ne correspond au filtre actuel.", "noRevoked": "Aucun appairage révoqué.", "backOnline": "{{name}} est de nouveau en ligne", "stillUnreachable": "{{name}} est toujours injoignable",
+      "rotationInitiated": "Rotation du secret lancée : délai de grâce de 15 minutes", "revoked": "Appairage révoqué", "reinitiated": "Appairage relancé",
+      "reinitiateFailed": "L’enregistrement de l’appairage a été supprimé, mais l’échange initial a échoué : {{error}}. Réappaire manuellement avec {{origin}}",
+      "deleted": "Appairage définitivement supprimé", "resetDone": "Appairage avec {{name}} réinitialisé",
+      "confirm": {
+        "rotate": { "title": "Renouveler le secret HMAC", "description": "Un nouveau secret HMAC sera généré pour {{name}}. Les deux instances accepteront les anciens et nouveaux secrets pendant un délai de grâce de 15 minutes.", "confirm": "Renouveler" },
+        "revoke": { "title": "Révoquer l’appairage", "description": "Tout le trafic de relais fédéré avec {{name}} sera arrêté. Les entrées en attente dans la boîte d’envoi seront supprimées. Tu pourras relancer l’appairage plus tard.", "confirm": "Révoquer" },
+        "reinitiate": { "title": "Relancer l’appairage", "description": "L’enregistrement révoqué sera supprimé et un nouvel échange d’authentification sera lancé avec {{origin}}. L’instance distante doit être joignable.", "confirm": "Relancer" },
+        "delete": { "title": "Supprimer l’enregistrement d’appairage", "description": "L’enregistrement de l’appairage avec {{name}} sera définitivement supprimé. Cette action est irréversible.", "confirm": "Supprimer" },
+        "reset": { "title": "Réinitialiser l’appairage", "description": "Réinitialiser l’appairage avec {{name}} ? L’enregistrement local et toutes les entrées en attente dans la boîte d’envoi seront supprimés. Tu devras contacter l’administrateur distant par un autre moyen pour relancer l’appairage. Cette action est irréversible.", "confirm": "Réinitialiser" }
+      }
+    }
+  },
+  "peerRejected": {
+    "auth_failures": "Les messages à {{name}} ne sont pas transmis : le secret partagé de la connexion ne fonctionne plus. Un administrateur doit réinitialiser l’appairage.",
+    "peer_reset_detected": "Les messages à {{name}} ne sont pas transmis : cette instance a été réinstallée. Un administrateur doit la réappairer.",
+    "repeer_incomplete": "Les messages à {{name}} ne sont pas transmis : le nouvel appairage n’a pas pu être vérifié. Un administrateur doit réinitialiser l’appairage.",
+    "denied_by_local_admin": "Les messages à {{name}} ne peuvent pas être transmis : ton administrateur a refusé la fédération avec cette instance.",
+    "denied_by_remote": "Les messages à {{name}} ne peuvent pas être transmis : son administrateur a refusé la fédération avec cette instance.",
+    "revoked_by_remote": "Les messages à {{name}} ne peuvent pas être transmis : son administrateur a révoqué la fédération avec cette instance.",
+    "expired_on_remote": "Les messages à {{name}} ne peuvent pas être transmis : son administrateur n’a pas répondu à temps à la demande de fédération.",
+    "stale_peering_on_remote": "Les messages à {{name}} ne peuvent pas encore être transmis : cette instance conserve une ancienne connexion à celle-ci que son administrateur doit réinitialiser.",
+    "fallback": "Les messages à {{name}} ne peuvent pas être transmis : {{reason}}"
+  }
+}

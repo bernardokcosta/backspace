@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "spaces": "スペース",
+    "dms": "DM",
+    "you": "あなた"
+  },
+  "you": {
+    "editProfile": "プロフィールを編集",
+    "homeInstance": "ホームインスタンス: {{domain}}",
+    "logOutConfirm": "ログアウトしますか？"
+  },
+  "chat": {
+    "openCall": "通話を開く",
+    "cancelCall": "通話をキャンセル",
+    "unknownChannel": "チャンネル"
+  }
+}

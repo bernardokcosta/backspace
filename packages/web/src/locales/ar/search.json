@@ -1,0 +1,42 @@
+{
+  "input": {
+    "placeholder": "ابحث في الرسائل…"
+  },
+  "filters": {
+    "toggle": "عوامل التصفية",
+    "from": {
+      "label": "من",
+      "placeholder": "اسم المستخدم"
+    },
+    "has": {
+      "label": "يحتوي",
+      "any": "أي شيء",
+      "file": "ملف",
+      "image": "صورة",
+      "link": "رابط"
+    },
+    "before": {
+      "label": "قبل"
+    },
+    "after": {
+      "label": "بعد"
+    }
+  },
+  "results": {
+    "empty": "لا توجد نتائج",
+    "hint": "اكتب للبحث في رسائل هذه القناة",
+    "count_zero": "لا نتائج ({{count}})",
+    "count_one": "نتيجة {{count}}",
+    "count_two": "نتيجتان ({{count}})",
+    "count_few": "{{count}} نتائج",
+    "count_many": "{{count}} نتيجة",
+    "count_other": "{{count}} نتيجة",
+    "loadMore": "تحميل المزيد (متبقٍّ {{remaining}})",
+    "attachments_zero": "لا مرفقات ({{count}})",
+    "attachments_one": "مرفق {{count}}",
+    "attachments_two": "مرفقان ({{count}})",
+    "attachments_few": "{{count}} مرفقات",
+    "attachments_many": "{{count}} مرفقًا",
+    "attachments_other": "{{count}} مرفق"
+  }
+}

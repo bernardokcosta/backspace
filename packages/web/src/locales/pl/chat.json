@@ -1,0 +1,323 @@
+{
+  "feedback": {
+    "openedInNewTab": "Otwarto w nowej karcie",
+    "copiedGifLink": "Skopiowano link GIF",
+    "copiedImageLink": "Skopiowano link obrazu",
+    "uploadExpired": "Nie udało się wysłać „{{content}}” — wygasło przesyłanie.",
+    "attachmentOnly": "(tylko załącznik)"
+  },
+  "message": {
+    "edit": {
+      "hint": "escape, aby <cancel>anulować</cancel> • enter, aby <save>zapisać</save>"
+    },
+    "edited": "(edytowano)",
+    "rowLabel": "{{author}}, {{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "Przesyłanie nie powiodło się",
+      "discard": "Odrzuć"
+    },
+    "actions": {
+      "confirmDelete": "Potwierdź usunięcie"
+    },
+    "reply": {
+      "jump": "Przejdź do oryginalnej wiadomości"
+    },
+    "mention": {
+      "unknownUser": "Nieznany użytkownik",
+      "unknownRole": "Nieznana rola"
+    },
+    "reactions": {
+      "picker": "Wybór reakcji",
+      "you": "Ty",
+      "others_one": "{{count}} inna osoba",
+      "others_few": "{{count}} inne osoby",
+      "others_many": "{{count}} innych osób",
+      "others_other": "{{count}} innej osoby",
+      "bySelf": "Twoja reakcja",
+      "byOne": "Reakcja od {{name}}",
+      "byMany": "Reakcje: {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "Nie masz uprawnień do przeglądania historii wiadomości na tym kanale",
+    "loading": "Ładowanie wiadomości",
+    "loadingOlder": "Ładowanie starszych wiadomości",
+    "loadFailed": "Nie udało się wczytać wiadomości",
+    "jumpToPresent": "Przejdź do bieżących",
+    "jump": {
+      "unavailable": "Ta wiadomość nie jest już dostępna",
+      "failed": "Nie udało się wczytać tej wiadomości",
+      "presentFailed": "Nie udało się wczytać najnowszych wiadomości"
+    },
+    "unread": {
+      "label": "Nowe",
+      "divider": "Nowe wiadomości",
+      "dividerWithDate": "Nowe wiadomości, {{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "Witaj na kanale!",
+        "description": "To początek rozmowy."
+      },
+      "group": {
+        "intro": "To początek Waszej grupowej rozmowy.",
+        "owner": "Właściciel: <owner>@{{name}}</owner>",
+        "federatedNotice": "Wiadomości są przechowywane na Twojej instancji macierzystej i instancjach odbiorców. Nie są szyfrowane end-to-end.",
+        "openSettings": "Otwórz ustawienia grupy",
+        "leave": "Opuść grupę"
+      },
+      "dm": {
+        "fallbackName": "Wiadomość bezpośrednia",
+        "intro": "To początek Twojej historii wiadomości bezpośrednich z <strong>@{{name}}</strong>.",
+        "federatedNotice": "Wiadomości są przechowywane na Twojej instancji macierzystej i instancji odbiorcy. Nie są szyfrowane end-to-end.",
+        "removeFriend": "Usuń znajomego"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "Nie masz uprawnień do wysyłania wiadomości na tym kanale",
+    "placeholder": {
+      "channel": "Wiadomość na #{{name}}",
+      "dm": "Wiadomość do @{{name}}"
+    },
+    "replyingTo": "Odpowiedź do",
+    "cancelReply": "Anuluj odpowiedź",
+    "removeAttachment": "Usuń załącznik",
+    "attachFile": "Dołącz plik",
+    "dropTitle": "Prześlij plik",
+    "dropHint": "Upuść, aby dołączyć",
+    "uploading": "Przesyłanie…",
+    "uploadingLabel": "Przesyłanie",
+    "failedCount_one": "{{count}} nieudany",
+    "failedCount_few": "{{count}} nieudane",
+    "failedCount_many": "{{count}} nieudanych",
+    "failedCount_other": "{{count}} nieudanego",
+    "failedHint": "Usuń lub ponów nieudany załącznik, aby wysłać",
+    "gif": "GIF",
+    "gifPicker": "Wybór GIF",
+    "emoji": "Emoji",
+    "emojiPicker": "Wybór emoji",
+    "send": "Wyślij",
+    "sendMessage": "Wyślij wiadomość",
+    "uploadFailed": "Nie udało się przesłać {{file}}: {{reason}}",
+    "uploadFailedReason": "Przesyłanie nie powiodło się",
+    "typing": {
+      "named_one": "{{names}} pisze…",
+      "named_few": "{{names}} piszą…",
+      "named_many": "{{names}} piszą…",
+      "named_other": "{{names}} piszą…",
+      "several": "Kilka osób pisze"
+    }
+  },
+  "menu": {
+    "saveImage": "Zapisz obraz",
+    "copyImage": "Kopiuj obraz",
+    "openOriginal": "Otwórz oryginał",
+    "saveVideo": "Zapisz wideo",
+    "saveAudio": "Zapisz audio",
+    "copyLink": "Kopiuj link",
+    "openLink": "Otwórz link",
+    "copySelectedText": "Kopiuj zaznaczony tekst",
+    "copyText": "Kopiuj tekst",
+    "markUnread": "Oznacz jako nieprzeczytane",
+    "editMessage": "Edytuj wiadomość",
+    "deleteMessage": "Usuń wiadomość",
+    "linkCopied": "Skopiowano link",
+    "linkCopyFailed": "Nie udało się skopiować linku",
+    "pinMessage": "Przypnij wiadomość",
+    "unpinMessage": "Odepnij wiadomość"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "Wstrzymano — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "Nie można tu odtworzyć — pobierz",
+      "unsupportedFormat": "Nieobsługiwany format wideo",
+      "unsupportedBrowser": "Twoja przeglądarka nie obsługuje odtwarzania wideo."
+    },
+    "audio": {
+      "unsupportedBrowser": "Twoja przeglądarka nie obsługuje odtwarzania dźwięku."
+    },
+    "federation": {
+      "remoteNamed": "Hostowane na instancji użytkownika {{sender}}. Pobierz, aby zachować lokalną kopię.",
+      "remoteUnknown": "Hostowane na instancji nadawcy. Pobierz, aby zachować lokalną kopię.",
+      "partialGeneric": "Niektórzy odbiorcy nie mogą zapisać tego pliku lokalnie.",
+      "partialInstance": "Instancja użytkownika {{username}} (limit: {{limit}})",
+      "partialList": "Plik nie mógł zostać zapisany na: {{instances}}. Odbiorcy mogą go nadal oglądać z Twojej instancji.",
+      "listPair": "{{first}} i {{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "Szukaj GIF-ów",
+    "noResults": "Nie znaleziono GIF-ów",
+    "noTrending": "Brak popularnych GIF-ów",
+    "attribution": "Obsługiwane przez Klipy"
+  },
+  "preview": {
+    "save": "Zapisz obraz",
+    "copy": "Kopiuj obraz",
+    "alt": "Podgląd obrazu"
+  },
+  "invite": {
+    "sentBy": "{{name}} wysłał zaproszenie",
+    "memberCount_one": "{{count}} członek",
+    "memberCount_few": "{{count}} członkowie",
+    "memberCount_many": "{{count}} członków",
+    "memberCount_other": "{{count}} członka",
+    "revoked": "Zaproszenie straciło ważność",
+    "join": "Dołącz",
+    "joining": "Dołączanie…",
+    "joinFailed": "Nie udało się dołączyć",
+    "askToJoin": "Poproś o dołączenie",
+    "sendingRequest": "Wysyłanie…",
+    "requestSent": "Wysłano prośbę",
+    "requestPending": "Prośba oczekuje",
+    "requestNotice": "Ta przestrzeń przyjmuje dołączenia na prośbę. Menedżer zatwierdza każdą.",
+    "requestReview": "Menedżer rozpatrzy Twoją prośbę."
+  },
+  "notification": {
+    "unknownSender": "Ktoś",
+    "attachmentOnly": "Wysłano załącznik"
+  },
+  "commands": {
+    "title": "Komendy",
+    "failed": "Nie udało się wysłać komendy",
+    "extraText": "Ta komenda nie przyjmuje wolnego tekstu, a zostało „{{text}}”. Najpierw podaj opcje, tekst na końcu",
+    "invalidOption": "Wartość opcji {{option}} nie pasuje do tej komendy.",
+    "optionsTitle": "Parametry",
+    "required": "wymagane",
+    "subcommandsTitle": "Podkomendy",
+    "group": "grupa",
+    "chooseSubcommand": "Wybierz podkomendę: {{names}}",
+    "subcommandRefused": "Bot nie oferuje tej podkomendy. Wybierz z listy"
+  },
+  "ephemeral": {
+    "onlyYou": "Tylko Ty to widzisz",
+    "dismiss": "Odrzuć",
+    "rowLabel": "Odpowiedź widoczna tylko dla Ciebie od {{author}}, {{time}}"
+  },
+  "embed": {
+    "loadAction": "Kliknij, aby wczytać",
+    "loadNamed": "Wczytaj {{name}}",
+    "loadUnnamed": "Wczytaj osadzenie",
+    "frameTitle": "Osadzenie",
+    "playNamed": "Odtwórz {{title}}",
+    "playUnnamed": "Odtwórz wideo",
+    "videoTitle": "Wideo"
+  },
+  "stickers": {
+    "title": "Moje naklejki",
+    "upload": "Prześlij obraz",
+    "limits": "PNG, JPEG, WebP lub GIF · do 5 MB",
+    "loading": "Ładowanie…",
+    "empty": "Twoja kolekcja naklejek zaczyna się tutaj",
+    "remove": "Usuń",
+    "save": "Dodaj do moich naklejek",
+    "saved": "Dodano do moich naklejek",
+    "preview": "Podgląd naklejki",
+    "manage": "Zarządzaj",
+    "done": "Gotowe",
+    "collectionHint": "Wybierz naklejkę do wysłania. Uczyń tę przestrzeń swoją.",
+    "manageHint": "Zmień nazwę lub usuń naklejki w swojej kolekcji. Już wysłane wiadomości pozostają bez zmian.",
+    "emptyHint": "Zapisz ulubione chwile jako naklejki, gotowe na kolejną odpowiedź.",
+    "chooseImage": "Wybierz obraz",
+    "cancel": "Anuluj",
+    "replace": "Zastąp obraz",
+    "name": "Nazwa naklejki",
+    "dropImage": "Kliknij lub upuść tu obraz",
+    "pasteHint": "Możesz też wkleić obraz ze schowka",
+    "uploading": "Dodawanie naklejki…",
+    "singleImage": "Wybieraj po jednym obrazie.",
+    "invalidSize": "Wybierz niepusty obraz do 5 MB.",
+    "invalidType": "Obsługiwane są tylko obrazy PNG, JPEG, WebP i GIF.",
+    "invalidImage": "Nie można wyświetlić podglądu tego obrazu. Wybierz prawidłowy obraz.",
+    "removeNamed": "Usuń {{name}}",
+    "addMore": "Dodaj więcej",
+    "selectedCount_one": "Wybrano {{count}} naklejkę",
+    "selectedCount_few": "Wybrano {{count}} naklejki",
+    "selectedCount_many": "Wybrano {{count}} naklejek",
+    "selectedCount_other": "Wybrano {{count}} naklejki",
+    "dropMore": "Kliknij lub upuść tu więcej obrazów",
+    "sticker": "Naklejka",
+    "downloadFailed": "Nie udało się wczytać obrazu.",
+    "batchLimit_one": "Wybierz maksymalnie {{count}} obraz naraz.",
+    "batchLimit_few": "Wybierz maksymalnie {{count}} obrazy naraz.",
+    "batchLimit_many": "Wybierz maksymalnie {{count}} obrazów naraz.",
+    "batchLimit_other": "Wybierz maksymalnie {{count}} obrazu naraz.",
+    "capacityLimit_one": "Twoja kolekcja pomieści jeszcze {{count}} naklejkę.",
+    "capacityLimit_few": "Twoja kolekcja pomieści jeszcze {{count}} naklejki.",
+    "capacityLimit_many": "Twoja kolekcja pomieści jeszcze {{count}} naklejek.",
+    "capacityLimit_other": "Twoja kolekcja pomieści jeszcze {{count}} naklejki.",
+    "full": "Twoja kolekcja jest pełna. Usuń naklejkę, aby dodać kolejną.",
+    "batchFailed_one": "Nie udało się dodać {{count}} obrazu. Nadal znajduje się poniżej.",
+    "batchFailed_few": "Nie udało się dodać {{count}} obrazów. Nadal znajdują się poniżej.",
+    "batchFailed_many": "Nie udało się dodać {{count}} obrazów. Nadal znajdują się poniżej.",
+    "batchFailed_other": "Nie udało się dodać {{count}} obrazu. Nadal znajduje się poniżej.",
+    "uploadingProgress": "Dodawanie {{current}} z {{total}}…",
+    "rename": "Zmień nazwę",
+    "renameNamed": "Zmień nazwę: {{name}}",
+    "renameTitle": "Zmień nazwę naklejki",
+    "search": "Szukaj naklejek",
+    "noResults": "Nie znaleziono naklejek",
+    "store": "Sklep z naklejkami",
+    "myCollection": "Moje naklejki",
+    "packs": "Pakiety naklejek",
+    "explore": "Odkrywaj",
+    "myPacks": "Utworzone przeze mnie",
+    "install": "Dodaj",
+    "installed": "Dodano",
+    "uninstall": "Usuń",
+    "createPack": "Utwórz pakiet",
+    "editPack": "Edytuj pakiet",
+    "packName": "Nazwa pakietu",
+    "packDesc": "Opis (opcjonalnie)",
+    "submitReview": "Prześlij do recenzji",
+    "pendingReview": "Oczekuje na recenzję",
+    "approved": "Zatwierdzony",
+    "rejected": "Odrzucony",
+    "draft": "Szkic",
+    "newVersion": "Nowa wersja",
+    "deletePack": "Usuń pakiet",
+    "stickersCount_one": "{{count}} naklejka",
+    "stickersCount_few": "{{count}} naklejki",
+    "stickersCount_many": "{{count}} naklejek",
+    "stickersCount_other": "{{count}} naklejki",
+    "noPacks": "Nie znaleziono pakietów naklejek",
+    "replicaBadge": "Sfederowany",
+    "viewPack": "Zobacz pakiet",
+    "saveDraft": "Zapisz jako szkic",
+    "packCreated": "Pakiet utworzony pomyślnie",
+    "reviewSubmitted": "Przesłano do recenzji administratora",
+    "reviews": "Recenzja",
+    "noReviews": "Brak pakietów oczekujących na recenzję",
+    "approve": "Zatwierdź",
+    "reject": "Odrzuć",
+    "rejectTitle": "Odrzuć pakiet naklejek",
+    "rejectReason": "Powód odrzucenia",
+    "rejectPlaceholder": "Wpisz powód odrzucenia (np. nieodpowiednia treść, niska jakość)",
+    "rejectConfirm": "Potwierdź odrzucenie",
+    "approvedSuccess": "Pakiet naklejek zatwierdzony pomyślnie",
+    "rejectedSuccess": "Pakiet naklejek odrzucony",
+    "reviewNotes": "Powód odrzucenia",
+    "creator": "Twórca",
+    "sourceInstance": "Instancja",
+    "localInstance": "Lokalna instancja",
+    "viewStickers": "Zobacz naklejki",
+    "pendingReviewHint": "W trakcie recenzji administratora, po zatwierdzeniu pojawi się w Odkrywaj"
+  },
+  "poke": {
+    "action": "Szturchnij",
+    "received": "Szturchnięcie: {{actor}} → {{target}}",
+    "disconnected": "Rozłączono. Szturchnięcie nie zostało wysłane."
+  },
+  "pins": {
+    "title": "Przypięte wiadomości",
+    "empty": "Brak przypiętych wiadomości.",
+    "jump": "Przejdź do wiadomości",
+    "unpin": "Odepnij",
+    "deletedMessage": "Wiadomość usunięta",
+    "attachmentOnly": "Załącznik"
+  }
+}

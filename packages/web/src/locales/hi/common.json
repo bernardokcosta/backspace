@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "close": "बंद करें",
+    "delete": "हटाएं",
+    "bot": "बॉट",
+    "confirm": "पुष्टि करें",
+    "copy": "कॉपी करें",
+    "copied": "कॉपी हुआ",
+    "retry": "पुनः प्रयास",
+    "back": "पीछे",
+    "done": "पूर्ण",
+    "edit": "संपादित करें",
+    "remove": "हटाएं",
+    "add": "जोड़ें",
+    "apply": "लागू करें",
+    "reset": "रीसेट",
+    "continue": "जारी रखें",
+    "dismiss": "बंद करें",
+    "ok": "ठीक",
+    "search": "खोजें",
+    "clear": "साफ़ करें",
+    "change": "बदलें",
+    "refresh": "ताज़ा करें",
+    "openLink": "लिंक खोलें",
+    "tryAgain": "पुनः प्रयास करें",
+    "reply": "उत्तर दें",
+    "addReaction": "प्रतिक्रिया जोड़ें",
+    "share": "साझा करें",
+    "accept": "स्वीकारें",
+    "decline": "अस्वीकारें",
+    "pause": "रोकें",
+    "resume": "जारी रखें",
+    "abort": "निरस्त करें",
+    "dismissAll": "सभी बंद करें",
+    "filter": "फ़िल्टर",
+    "sort": "क्रमबद्ध करें",
+    "sortBy": "क्रमबद्ध आधार",
+    "leave": "छोड़ें",
+    "invitePeople": "लोगों को आमंत्रित करें",
+    "previous": "पिछला",
+    "next": "अगला",
+    "preview": "पूर्वावलोकन",
+    "logIn": "लॉग इन"
+  },
+  "states": {
+    "loading": "लोड हो रहा…",
+    "saving": "सहेजा जा रहा…",
+    "saved": "सहेजा गया",
+    "unknown": "अज्ञात",
+    "none": "कोई नहीं",
+    "enabled": "सक्षम",
+    "disabled": "अक्षम",
+    "on": "चालू",
+    "off": "बंद",
+    "yes": "हाँ",
+    "no": "नहीं",
+    "optional": "वैकल्पिक",
+    "required": "आवश्यक",
+    "default": "डिफ़ॉल्ट",
+    "recommended": "अनुशंसित",
+    "online": "ऑनलाइन",
+    "idle": "निष्क्रिय",
+    "doNotDisturb": "परेशान न करें",
+    "offline": "ऑफ़लाइन",
+    "loadingSettings": "सेटिंग्स लोड हो रही…",
+    "loadSettingsFailed": "सेटिंग्स लोड नहीं हो सकीं।",
+    "settingsSaved": "सेटिंग्स सहेजी गईं",
+    "saveFailed": "सहेजना विफल",
+    "scanning": "स्कैन हो रहा…",
+    "pleaseWait": "कृपया प्रतीक्षा करें…"
+  },
+  "labels": {
+    "username": "उपयोगकर्ता नाम",
+    "password": "पासवर्ड",
+    "displayName": "प्रदर्शन नाम",
+    "friends": "मित्र",
+    "members": "सदस्य",
+    "settings": "सेटिंग्स",
+    "dangerZone": "खतरा क्षेत्र",
+    "searchMembers": "सदस्य खोजें…",
+    "noMembersFound": "कोई सदस्य नहीं मिला",
+    "or": "या",
+    "nameAZ": "नाम (A-Z)"
+  },
+  "time": {
+    "today": "आज {{time}}",
+    "yesterday": "कल {{time}}",
+    "never": "कभी नहीं",
+    "justNow": "अभी",
+    "minutesShort": "{{minutes}} मि",
+    "hoursMinutesShort": "{{hours}} घं {{minutes}} मि",
+    "elapsed": "{{duration}} बीता",
+    "left": "{{duration}} शेष"
+  },
+  "units": {
+    "ms": "{{value}} मिसे",
+    "percent": "{{value}}%",
+    "kbps": "{{value}} kbps",
+    "mbps": "{{value}} Mbps"
+  },
+  "colors": {
+    "mint": "पुदीना",
+    "sky": "आसमानी",
+    "lavender": "लैवेंडर",
+    "coral": "मूंगा",
+    "rose": "गुलाबी",
+    "teal": "टील",
+    "amber": "अंबर",
+    "peach": "आड़ू"
+  },
+  "language": {
+    "label": "भाषा",
+    "automatic": "स्वचालित (सिस्टम)",
+    "description": "मेनू, बटन और सिस्टम संदेशों की भाषा चुनें। स्वचालित आपके सिस्टम या ब्राउज़र भाषा वरीयताओं का पालन करता है। दूसरों के संदेश जैसे लिखे हैं वैसे रहते हैं।"
+  },
+  "crash": {
+    "title": "कुछ गलत हुआ",
+    "reload": "पृष्ठ पुनः लोड करें",
+    "details": "त्रुटि विवरण"
+  },
+  "app": {
+    "description": "स्व-होस्टेड Discord और TeamSpeak विकल्प। HD वॉयस, वीडियो और स्क्रीन शेयर — ओपन सोर्स और मुफ्त (AGPL-3.0)।",
+    "loading": "Backspace लोड हो रहा"
+  },
+  "chrome": {
+    "toggleMemberList": "सदस्य सूची दिखाएं या छिपाएं",
+    "closeSettings": "सेटिंग्स बंद करें"
+  },
+  "sourceCode": {
+    "label": "स्रोत कोड (AGPL)",
+    "labelWithBuild": "स्रोत कोड (AGPL) · {{build}}",
+    "title": "इस इंस्टेंस पर चल रहे संस्करण का स्रोत कोड देखें (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "{{label}} मिला। बदलने के लिए इसे वॉयस सेटिंग्स में चुनें।",
+    "unnamedAudioInput": "नया ऑडियो डिवाइस"
+  }
+}

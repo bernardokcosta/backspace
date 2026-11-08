@@ -1,0 +1,201 @@
+{
+  "callDelivery": {
+    "remoteInstance": "النسخة البعيدة",
+    "hostInstance": "النسخة المضيفة",
+    "acceptDropped": "تعذّر تأكيد قبولك لدى {{instance}} — انقطعت المكالمة.",
+    "rejectFailed": "تعذّر إبلاغ {{instances}} أنك رفضت. قد يراك المتصل يرن لفترة وجيزة.",
+    "endFailed": "تعذّر إبلاغ {{instances}} أنك أنهيت. قد يرى المشاركون البعيدون المكالمة حتى 60 ثانية.",
+    "hostUnreachable": "انتهت المكالمة — أصبحت النسخة المضيفة غير قابلة للوصول.",
+    "peeringLost": "انتهت المكالمة — لم تعد هذه النسخة مترابطة مع {{instance}}.",
+    "instanceUnreachable": "انتهت المكالمة — أصبحت {{instance}} غير قابلة للوصول.",
+    "someUnreachable": "تعذّر الوصول إلى بعض المشاركين: {{instances}}.",
+    "multipleUnreachable_zero": "تعذّر الوصول إلى أي نسخة ({{count}}): {{instances}}.",
+    "multipleUnreachable_one": "تعذّر الوصول إلى نسخة {{count}}: {{instances}}.",
+    "multipleUnreachable_two": "تعذّر الوصول إلى نسختين ({{count}}): {{instances}}.",
+    "multipleUnreachable_few": "تعذّر الوصول إلى {{count}} نسخ: {{instances}}.",
+    "multipleUnreachable_many": "تعذّر الوصول إلى {{count}} نسخة: {{instances}}.",
+    "multipleUnreachable_other": "تعذّر الوصول إلى {{count}} نسخة: {{instances}}.",
+    "callFailed": "تعذّر إجراء المكالمة.",
+    "manualApproval": "تعذّر الوصول إلى {{instance}} — تتطلب هذه النسخة موافقة ترابط يدوية.",
+    "awaitingApproval": "في انتظار موافقة مسؤول {{instance}} على نسختك. ستعمل المكالمات بعد الموافقة.",
+    "transientFailure": "تعذّر الوصول إلى {{instance}}. حاول بعد لحظات.",
+    "voiceUnavailable": "الصوت غير معدّ في هذه النسخة.",
+    "noRecipient": "لم تتصل {{instance}} بأحد.",
+    "targetCallFailed": "تعذّر الاتصال بـ {{instance}}."
+  },
+  "feedback": {
+    "relayDenied": "تعذّر ترحيل الرسائل — رفض خادمهم الترابط. اتصل بمسؤولهم.",
+    "awaitingPeering": "ستُسلَّم الرسائل عندما يوافق مسؤولهم على طلب الترابط."
+  },
+  "names": {
+    "group": "مجموعة",
+    "directMessage": "رسالة مباشرة",
+    "theGroup": "المجموعة",
+    "unknownHandle": "غير معروف",
+    "groupFallback": "رسائل المجموعة",
+    "emptyGroup": "مجموعة فارغة"
+  },
+  "preview": {
+    "image": "صورة",
+    "video": "فيديو",
+    "audio": "صوت",
+    "files_zero": "لا ملفات ({{count}}) 📎",
+    "files_one": "📎 ملف {{count}}",
+    "files_two": "📎 ملفان ({{count}})",
+    "files_few": "📎 {{count}} ملفات",
+    "files_many": "📎 {{count}} ملفًا",
+    "files_other": "📎 {{count}} ملف",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 أُرسلت دعوة إلى {{spaceName}}",
+    "memberAdded": "أضاف {{actor}} {{target}}",
+    "memberAddedToGroup": "أضاف {{actor}} {{target}} إلى المجموعة",
+    "memberLeft": "غادر {{target}} المجموعة",
+    "memberRemoved": "أزال {{actor}} {{target}}",
+    "memberRemovedFromGroup": "أزال {{actor}} {{target}} من المجموعة",
+    "ownerChanged": "أصبح {{newOwner}} مالك المجموعة",
+    "renamed": "أعاد {{actor}} تسمية المجموعة",
+    "renamedTo": "أعاد {{actor}} تسمية المجموعة إلى \"{{name}}\"",
+    "nameCleared": "مسح {{actor}} اسم المجموعة",
+    "iconChanged": "حدّث {{actor}} أيقونة المجموعة",
+    "generic": "رسالة نظام"
+  },
+  "deletedNotice": {
+    "accountDeleted": "حُذف حساب هذا المستخدم"
+  },
+  "memberRow": {
+    "viewProfile": "عرض الملف",
+    "transferOwnership": "نقل الملكية",
+    "removeFromGroup": "إزالة من المجموعة",
+    "removeFriend": "إزالة الصديق",
+    "ownerTooltip": "مالك المجموعة",
+    "actions": "إجراءات العضو"
+  },
+  "roster": {
+    "owner": "المالك",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "تغيير حجم قائمة الأعضاء"
+  },
+  "kick": {
+    "title": "إزالة من المجموعة",
+    "description": "إزالة {{name}} من هذه المجموعة؟ لن يرى الرسائل الجديدة.",
+    "success": "أُزيل {{name}} من المجموعة",
+    "failed": "تعذّرت إزالة العضو"
+  },
+  "transfer": {
+    "title": "نقل الملكية",
+    "description": "نقل الملكية إلى {{name}}؟ ستفقد امتيازات المالك.",
+    "confirm": "نقل",
+    "success": "نُقلت الملكية إلى {{name}}",
+    "failed": "تعذّر نقل الملكية"
+  },
+  "removeFriend": {
+    "failed": "تعذّرت إزالة الصديق"
+  },
+  "leave": {
+    "title": "مغادرة المجموعة",
+    "description": "مغادرة “{{name}}”؟ ستتوقف عن تلقي الرسائل من هذه المحادثة.",
+    "inProgress": "جارٍ المغادرة…",
+    "failed": "تعذّرت مغادرة المجموعة",
+    "explanation": "ستتوقف عن تلقي الرسائل من هذه المحادثة. سيرى الأعضاء الآخرون رسالة نظام."
+  },
+  "search": {
+    "trigger": "ابحث أو ابدأ محادثة",
+    "placeholder": "ابحث…",
+    "emptyHint": "ابحث عن مستخدم لبدء الدردشة",
+    "conversations": "المحادثات",
+    "users": "المستخدمون",
+    "searching": "جارٍ البحث…",
+    "noResults": "لا نتائج",
+    "createFailed": "تعذّر إنشاء رسالة مباشرة"
+  },
+  "list": {
+    "resizeHandle": "تغيير حجم الرسائل المباشرة",
+    "title": "الرسائل",
+    "empty": "لا محادثات بعد.",
+    "leaveGroup": "مغادرة المجموعة",
+    "justNow": "الآن",
+    "minutesShort_zero": "{{count}} د (لا شيء)",
+    "minutesShort_one": "{{count}} د",
+    "minutesShort_two": "{{count}} د (اثنتان)",
+    "minutesShort_few": "{{count}} د",
+    "minutesShort_many": "{{count}} د",
+    "minutesShort_other": "{{count}} د",
+    "hoursShort_zero": "{{count}} س (لا شيء)",
+    "hoursShort_one": "{{count}} س",
+    "hoursShort_two": "{{count}} س (اثنتان)",
+    "hoursShort_few": "{{count}} س",
+    "hoursShort_many": "{{count}} س",
+    "hoursShort_other": "{{count}} س",
+    "daysShort_zero": "{{count}} يوم (لا شيء)",
+    "daysShort_one": "{{count}} يوم",
+    "daysShort_two": "{{count}} يومان",
+    "daysShort_few": "{{count}} أيام",
+    "daysShort_many": "{{count}} يومًا",
+    "daysShort_other": "{{count}} يوم",
+    "close": "إغلاق الرسالة المباشرة"
+  },
+  "newDm": {
+    "title": "رسالة مباشرة جديدة",
+    "searchPlaceholder": "ابحث عن مستخدم…",
+    "noUsers": "لم يتم العثور على مستخدمين"
+  },
+  "addMember": {
+    "title": "إضافة أصدقاء إلى المراسلة",
+    "description": "اختر أصدقاء لإضافتهم إلى هذه المحادثة.",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "ابحث عن الأصدقاء…",
+    "limitReached": "بلغت رسالة المجموعة هذه حد {{max}} عضو.",
+    "alreadyInDm": "في هذه المراسلة",
+    "noMatch": "لا أصدقاء يطابقون بحثك",
+    "noFriends": "لا أصدقاء بعد",
+    "selectFriends": "اختيار الأصدقاء",
+    "addCount_zero": "لا تضف أحدًا ({{count}})",
+    "addCount_one": "إضافة صديق {{count}}",
+    "addCount_two": "إضافة صديقين ({{count}})",
+    "addCount_few": "إضافة {{count}} أصدقاء",
+    "addCount_many": "إضافة {{count}} صديقًا",
+    "addCount_other": "إضافة {{count}} صديق",
+    "adding": "جارٍ الإضافة…",
+    "noOtherMember": "تعذّر تحديد العضو الآخر في هذه المحادثة.",
+    "failed": "تعذّرت إضافة الأعضاء",
+    "yourBots": "بوتاتك"
+  },
+  "groupSettings": {
+    "title": "إعدادات المجموعة",
+    "general": "عام",
+    "overview": "نظرة عامة",
+    "backToMenu": "عودة إلى قائمة إعدادات رسالة المجموعة",
+    "changeIcon": "تغيير أيقونة المجموعة",
+    "icon": "أيقونة المجموعة",
+    "clickToUpload": "انقر للرفع",
+    "removeIcon": "إزالة أيقونة المجموعة",
+    "nameLabel": "اسم المجموعة",
+    "nameAria": "اسم المجموعة",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "إضافة عضو",
+    "groupFull": "المجموعة ممتلئة",
+    "groupFullSuffix": "— المجموعة ممتلئة",
+    "cropTitle": "قص أيقونة المجموعة",
+    "saveFailed": "تعذّر حفظ الإعدادات"
+  },
+  "groupInfo": {
+    "title": "معلومات المجموعة",
+    "plainTitle": "معلومات",
+    "notFound": "لم يتم العثور على المحادثة.",
+    "notGroup": "لا معلومات مجموعة لهذه المحادثة.",
+    "cancelEdit": "إلغاء التعديل",
+    "federated": "مجموعة مفدرلة",
+    "memberCount_zero": "لا أعضاء ({{count}})",
+    "memberCount_one": "عضو {{count}}",
+    "memberCount_two": "عضوان ({{count}})",
+    "memberCount_few": "{{count}} أعضاء",
+    "memberCount_many": "{{count}} عضوًا",
+    "memberCount_other": "{{count}} عضو"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "تُدار هذه المجموعة على {{host}}. اتصل بتلك النسخة لتغييرها.",
+    "ownerNotListed": "لا تُظهر {{host}} هذه المجموعة لك بعد. حاول بعد لحظات."
+  }
+}

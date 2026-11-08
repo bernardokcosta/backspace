@@ -1,4 +1,28 @@
 {
+  "callDelivery": {
+    "remoteInstance": "die Remote-Instanz",
+    "hostInstance": "die Host-Instanz",
+    "acceptDropped": "{{instance}}: Deine Anrufannahme konnte nicht bestätigt werden. Der Anruf wurde beendet.",
+    "rejectFailed": "{{instances}}: Deine Ablehnung konnte nicht übermittelt werden. Für die anrufende Person klingelt es möglicherweise noch kurz weiter.",
+    "endFailed": "{{instances}}: Das Auflegen konnte nicht übermittelt werden. Bei entfernten Teilnehmenden kann der Anruf noch bis zu 60 Sekunden angezeigt werden.",
+    "hostUnreachable": "Anruf beendet: Die Host-Instanz ist nicht mehr erreichbar.",
+    "peeringLost": "Anruf beendet: Das Peering mit {{instance}} besteht nicht mehr.",
+    "instanceUnreachable": "Anruf beendet: {{instance}} ist nicht mehr erreichbar.",
+    "someUnreachable": "Einige Teilnehmende konnten nicht erreicht werden: {{instances}}.",
+    "multipleUnreachable_one": "{{count}} Instanz konnte nicht erreicht werden: {{instances}}.",
+    "multipleUnreachable_other": "{{count}} Instanzen konnten nicht erreicht werden: {{instances}}.",
+    "callFailed": "Der Anruf konnte nicht gestartet werden.",
+    "manualApproval": "{{instance}} ist nicht erreichbar: Diese Instanz erfordert eine manuelle Peering-Genehmigung.",
+    "awaitingApproval": "{{instance}}: Die Peering-Genehmigung der Administration steht noch aus. Nach der Genehmigung sind Anrufe möglich.",
+    "transientFailure": "{{instance}} konnte nicht erreicht werden. Versuche es gleich noch einmal.",
+    "voiceUnavailable": "Sprachverbindungen sind auf dieser Instanz nicht eingerichtet.",
+    "noRecipient": "{{instance}} konnte niemanden anrufen.",
+    "targetCallFailed": "{{instance}}: Der Anruf konnte nicht gestartet werden."
+  },
+  "feedback": {
+    "relayDenied": "Nachrichten können nicht weitergeleitet werden: Die andere Instanz hat das Peering abgelehnt. Wende dich an deren Administration.",
+    "awaitingPeering": "Nachrichten werden zugestellt, sobald die Administration der anderen Instanz die Peering-Anfrage genehmigt."
+  },
   "names": {
     "group": "Gruppe",
     "directMessage": "Direktnachricht",

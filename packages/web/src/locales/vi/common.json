@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "close": "Đóng",
+    "delete": "Xóa",
+    "bot": "BOT",
+    "confirm": "Xác nhận",
+    "copy": "Sao chép",
+    "copied": "Đã sao chép",
+    "retry": "Thử lại",
+    "back": "Quay lại",
+    "done": "Xong",
+    "edit": "Sửa",
+    "remove": "Gỡ",
+    "add": "Thêm",
+    "apply": "Áp dụng",
+    "reset": "Đặt lại",
+    "continue": "Tiếp tục",
+    "dismiss": "Đóng",
+    "ok": "OK",
+    "search": "Tìm",
+    "clear": "Xóa",
+    "change": "Đổi",
+    "refresh": "Làm mới",
+    "openLink": "Mở liên kết",
+    "tryAgain": "Thử lại",
+    "reply": "Trả lời",
+    "addReaction": "Thêm biểu tượng",
+    "share": "Chia sẻ",
+    "accept": "Chấp nhận",
+    "decline": "Từ chối",
+    "pause": "Tạm dừng",
+    "resume": "Tiếp tục",
+    "abort": "Hủy bỏ",
+    "dismissAll": "Đóng tất cả",
+    "filter": "Lọc",
+    "sort": "Sắp xếp",
+    "sortBy": "Sắp xếp theo",
+    "leave": "Rời",
+    "invitePeople": "Mời mọi người",
+    "previous": "Trước",
+    "next": "Tiếp",
+    "preview": "Xem trước",
+    "logIn": "Đăng nhập"
+  },
+  "states": {
+    "loading": "Đang tải…",
+    "saving": "Đang lưu…",
+    "saved": "Đã lưu",
+    "unknown": "Không rõ",
+    "none": "Không có",
+    "enabled": "Đã bật",
+    "disabled": "Đã tắt",
+    "on": "Bật",
+    "off": "Tắt",
+    "yes": "Có",
+    "no": "Không",
+    "optional": "Tùy chọn",
+    "required": "Bắt buộc",
+    "default": "Mặc định",
+    "recommended": "Nên dùng",
+    "online": "Trực tuyến",
+    "idle": "Rảnh",
+    "doNotDisturb": "Không làm phiền",
+    "offline": "Ngoại tuyến",
+    "loadingSettings": "Đang tải cài đặt…",
+    "loadSettingsFailed": "Không thể tải cài đặt.",
+    "settingsSaved": "Đã lưu cài đặt",
+    "saveFailed": "Lưu thất bại",
+    "scanning": "Đang quét…",
+    "pleaseWait": "Vui lòng chờ…"
+  },
+  "labels": {
+    "username": "Tên người dùng",
+    "password": "Mật khẩu",
+    "displayName": "Tên hiển thị",
+    "friends": "Bạn bè",
+    "members": "Thành viên",
+    "settings": "Cài đặt",
+    "dangerZone": "Vùng nguy hiểm",
+    "searchMembers": "Tìm thành viên…",
+    "noMembersFound": "Không tìm thấy thành viên",
+    "or": "hoặc",
+    "nameAZ": "Tên (A-Z)"
+  },
+  "time": {
+    "today": "Hôm nay lúc {{time}}",
+    "yesterday": "Hôm qua lúc {{time}}",
+    "never": "Không bao giờ",
+    "justNow": "Vừa xong",
+    "minutesShort": "{{minutes}} ph",
+    "hoursMinutesShort": "{{hours}} giờ {{minutes}} ph",
+    "elapsed": "đã qua {{duration}}",
+    "left": "còn {{duration}}"
+  },
+  "units": {
+    "ms": "{{value}} ms",
+    "percent": "{{value}}%",
+    "kbps": "{{value}} kbps",
+    "mbps": "{{value}} Mbps"
+  },
+  "colors": {
+    "mint": "Bạc hà",
+    "sky": "Xanh trời",
+    "lavender": "Oải hương",
+    "coral": "San hô",
+    "rose": "Hồng",
+    "teal": "Mòng két",
+    "amber": "Hổ phách",
+    "peach": "Đào"
+  },
+  "language": {
+    "label": "Ngôn ngữ",
+    "automatic": "Tự động (hệ thống)",
+    "description": "Chọn ngôn ngữ cho menu, nút và tin nhắn hệ thống. Tự động theo tùy chọn ngôn ngữ hệ thống hoặc trình duyệt. Tin nhắn của người khác giữ nguyên như đã viết."
+  },
+  "crash": {
+    "title": "Đã xảy ra lỗi",
+    "reload": "Tải lại trang",
+    "details": "Chi tiết lỗi"
+  },
+  "app": {
+    "description": "Giải pháp thay thế Discord và TeamSpeak tự lưu trữ. Giọng HD, video và chia sẻ màn hình — mã nguồn mở và miễn phí (AGPL-3.0).",
+    "loading": "Đang tải Backspace"
+  },
+  "chrome": {
+    "toggleMemberList": "Hiện hoặc ẩn danh sách thành viên",
+    "closeSettings": "Đóng cài đặt"
+  },
+  "sourceCode": {
+    "label": "Mã nguồn (AGPL)",
+    "labelWithBuild": "Mã nguồn (AGPL) · {{build}}",
+    "title": "Xem mã nguồn của bản đang chạy trên máy chủ này (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "Phát hiện {{label}}. Chọn trong cài đặt Voice để chuyển.",
+    "unnamedAudioInput": "Thiết bị âm thanh mới"
+  }
+}

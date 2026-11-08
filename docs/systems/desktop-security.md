@@ -22,6 +22,18 @@ Source files:
 
 This matters because the renderer loads a remote, federated, user-facing web app (arbitrary chat content, embeds, and — for federation — content served by third-party Backspace instances the user has connected to). The renderer is treated as untrusted; all privileged operations (notifications, tray, window controls, keybinds, auto-update) go through the `contextBridge`-exposed `window.backspace` API in `preload.ts`, never through direct Node/Electron access.
 
+## Read-only system language bridge
+
+`languageIpc.ts` exposes only the named `get-system-languages` getter and validates
+the existing `set-language` mode. Main checks both sender webContents and senderFrame
+against the current live main window/main frame before reading OS data or writing
+preference state. Foreign windows/subframes and destroyed owners are denied. The
+getter returns only preferred UI-language tag strings, never paths, Electron
+events, machine identifiers or a general-purpose IPC function. The optional
+preload operation permits older shells to degrade to browser language detection.
+No sandbox/contextIsolation/nodeIntegration, navigation policy or permission gate
+was weakened. Native HTML's language query is checked against own catalog entries.
+
 ## Electron fuses
 
 Three fuses are flipped on every packaged build (`RunAsNode`, `EnableNodeCliInspectArguments`, `OnlyLoadAppFromAsar`), via `@electron/fuses`' `flipFuses()` called from `scripts/afterPack.js` (electron-builder's single `afterPack` hook). This is *not* done via electron-builder's top-level `electronFuses:` config key.

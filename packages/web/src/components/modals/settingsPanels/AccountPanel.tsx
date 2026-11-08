@@ -368,7 +368,7 @@ export function AccountPanel() {
             >
               {effectiveDisplayName}
             </div>
-            <div className="text-[12px] text-txt-tertiary">@{user.username}</div>
+            <div className="text-[12px] text-txt-tertiary"><bdi dir="ltr">@{user.username}</bdi></div>
             {bio.trim() && (
               <div className="text-[12px] text-txt-secondary mt-1.5 whitespace-pre-wrap break-words line-clamp-3">
                 {bio.trim()}

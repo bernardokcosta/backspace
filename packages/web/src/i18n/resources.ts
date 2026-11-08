@@ -3,9 +3,9 @@
  * and so i18next's key typing (see i18next.d.ts) can derive the set of
  * valid keys from real files instead of a hand-maintained type.
  *
- * Adding a namespace: add the file under every `src/locales/<lng>/`, import
- * the English one here, and add it to `en`. The consistency check keeps the
- * other languages honest.
+ * Adding a namespace: the English file/import/entry here are mandatory.
+ * Target catalogs may follow later; absent keys/namespaces use English.
+ * Explicit strict coverage measures completeness separately from validity.
  */
 import admin from '../locales/en/admin.json';
 import auth from '../locales/en/auth.json';

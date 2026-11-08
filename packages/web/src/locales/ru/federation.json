@@ -1,4 +1,26 @@
 {
+  "validation": {
+    "invalidUrl": "Недопустимый URL",
+    "selfInstance": "Вы уже вошли на этот сервер.",
+    "alreadyConnected": "Этот сервер уже подключён.",
+    "notLoggedIn": "Вы не вошли в аккаунт.",
+    "connectHomeFirst": "Сначала подключитесь к домашнему серверу ({{home}}). Он выдаёт учётные данные для {{target}}.",
+    "incorrectPassword": "Неверный пароль",
+    "authenticationFailed": "Не удалось войти на удалённый сервер."
+  },
+  "feedback": {
+    "connectionLost": "Связь с {{instance}} потеряна. Повторное подключение...",
+    "connectionRestored": "Соединение с {{instance}} восстановлено",
+    "pendingRequests_one": "У вас {{count}} ожидающий запрос на пиринг",
+    "pendingRequests_few": "У вас {{count}} ожидающих запроса на пиринг",
+    "pendingRequests_many": "У вас {{count}} ожидающих запросов на пиринг",
+    "pendingRequests_other": "У вас {{count}} ожидающего запроса на пиринг",
+    "requestApproved": "Ваш запрос на пиринг одобрен",
+    "requestDenied": "Ваш запрос на пиринг отклонён",
+    "requestExpired": "Срок вашего запроса на пиринг истёк",
+    "friendRequestDeliveryFailed": "Не удалось доставить запрос дружбы пользователю {{username}}: {{reason}}",
+    "accountRelinked": "Аккаунт повторно привязан к {{instance}}"
+  },
   "connections": {
     "title": "Подключённые серверы",
     "description": "Свяжите учётные записи на разных федеративных серверах Backspace.",
@@ -208,10 +230,10 @@
       "secretRotated": "Секрет обновлён",
       "autoRotate": "Автоматическая ротация",
       "rotationStatus": "Статус ротации",
-      "rotateEvery_one": "Каждый {{count}} день",
-      "rotateEvery_few": "Каждые {{count}} дня",
-      "rotateEvery_many": "Каждые {{count}} дней",
-      "rotateEvery_other": "Каждые {{count}} дня",
+      "rotateEvery_one": "Раз в {{count}} день",
+      "rotateEvery_few": "Раз в {{count}} дня",
+      "rotateEvery_many": "Раз в {{count}} дней",
+      "rotateEvery_other": "Раз в {{count}} дня",
       "defaultTag": "(по умолчанию)",
       "inProgress": "Выполняется",
       "idle": "Не выполняется",

@@ -345,8 +345,8 @@
     },
     "action": {
       "toggleMute": "Alternar silenciamento do microfone",
-      "toggleDeafen": "Alternar ensurdecimento",
-      "pushToTalk": "Aperte para falar",
+      "toggleDeafen": "Ativar/desativar áudio",
+      "pushToTalk": "Pressionar para falar",
       "toggleCamera": "Alternar câmera",
       "toggleScreenShare": "Alternar compartilhamento de tela",
       "disconnect": "Desconectar"
@@ -415,7 +415,7 @@
       "external": "As atualizações são instaladas pelo seu gerenciador de software do Flatpak",
       "download": "Baixar",
       "restart": "Reiniciar",
-      "manualNote": "Esta versão não consegue instalar atualizações sozinha, então as novas versões são baixadas do GitHub e substituem o app manualmente. Consulte as notas de versão para ver os passos da sua plataforma.",
+      "manualNote": "Esta versão não consegue instalar atualizações sozinha. Baixe as novas versões do GitHub e substitua o app manualmente. Consulte as notas de versão para ver os passos da sua plataforma.",
       "externalNote": "O Flatpak aplica as atualizações de forma atômica, fora do app. Use seu gerenciador de software ou o comando <code>flatpak update</code> para atualizar o Backspace."
     },
     "instance": {
@@ -476,7 +476,7 @@
       "sectionTitle": "Criar um bot",
       "nameLabel": "Nome de usuário do bot",
       "submit": "Criar bot",
-      "hint": "De {{min}} a {{max}} caracteres: letras minúsculas, números e sublinhados. Você pode criar até {{limit}} bots."
+      "hint": "De {{min}} a {{max}} caracteres: letras latinas minúsculas (a–z), números (0–9) e sublinhados (_). Você pode criar até {{limit}} bots."
     },
     "list": {
       "sectionTitle": "Seus bots",
@@ -566,7 +566,7 @@
     "title": "Desenvolvedor",
     "mode": {
       "label": "Modo de desenvolvedor",
-      "description": "Mostra ferramentas de desenvolvedor, como a aba Bots, nas configurações. Desativar apenas as oculta; seus bots continuam funcionando.",
+      "description": "Mostra ferramentas de desenvolvedor, como a aba Contas de bot, nas configurações. Desativar apenas as oculta; seus bots continuam funcionando.",
       "saveFailed": "Não foi possível salvar a configuração. Tente novamente."
     }
   }

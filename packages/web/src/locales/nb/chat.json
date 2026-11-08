@@ -1,0 +1,305 @@
+{
+  "feedback": {
+    "openedInNewTab": "Åpnet i ny fane",
+    "copiedGifLink": "GIF-lenke kopiert",
+    "copiedImageLink": "Bildelenke kopiert",
+    "uploadExpired": "Kunne ikke sende \"{{content}}\" — opplastingen utløp.",
+    "attachmentOnly": "(bare vedlegg)"
+  },
+  "message": {
+    "edit": {
+      "hint": "escape for å <cancel>avbryte</cancel> • enter for å <save>lagre</save>"
+    },
+    "edited": "(redigert)",
+    "rowLabel": "{{author}}, {{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "Opplasting mislyktes",
+      "discard": "Forkast"
+    },
+    "actions": {
+      "confirmDelete": "Bekreft sletting"
+    },
+    "reply": {
+      "jump": "Hopp til den opprinnelige meldingen"
+    },
+    "mention": {
+      "unknownUser": "Ukjent bruker",
+      "unknownRole": "Ukjent rolle"
+    },
+    "reactions": {
+      "picker": "Reaksjonsvelger",
+      "you": "Deg",
+      "others_one": "{{count}} annen",
+      "others_other": "{{count}} andre",
+      "bySelf": "Du reagerte",
+      "byOne": "{{name}} reagerte",
+      "byMany": "Reaksjoner: {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "Du har ikke tillatelse til å se meldingshistorikk i denne kanalen",
+    "loading": "Laster meldinger",
+    "loadingOlder": "Laster eldre meldinger",
+    "loadFailed": "Kunne ikke laste meldinger",
+    "jumpToPresent": "Hopp til nåtiden",
+    "jump": {
+      "unavailable": "Den meldingen er ikke lenger tilgjengelig",
+      "failed": "Kunne ikke laste den meldingen",
+      "presentFailed": "Kunne ikke laste de nyeste meldingene"
+    },
+    "unread": {
+      "label": "Nye",
+      "divider": "Nye meldinger",
+      "dividerWithDate": "Nye meldinger, {{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "Velkommen til kanalen!",
+        "description": "Dette er begynnelsen på samtalen."
+      },
+      "group": {
+        "intro": "Dette er begynnelsen på gruppesamtalen din.",
+        "owner": "Eier: <owner>@{{name}}</owner>",
+        "federatedNotice": "Meldinger lagres på hjeminstansen din og mottakernes hjeminstanser. De er ikke end-to-end-krypterte.",
+        "openSettings": "Åpne gruppeinnstillinger",
+        "leave": "Forlat gruppen"
+      },
+      "dm": {
+        "fallbackName": "Direktemelding",
+        "intro": "Dette er begynnelsen på direktemeldingshistorikken din med <strong>@{{name}}</strong>.",
+        "federatedNotice": "Meldinger lagres på hjeminstansen din og mottakerens hjeminstans. De er ikke end-to-end-krypterte.",
+        "removeFriend": "Fjern venn"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "Du har ikke tillatelse til å sende meldinger i denne kanalen",
+    "placeholder": {
+      "channel": "Melding #{{name}}",
+      "dm": "Melding @{{name}}"
+    },
+    "replyingTo": "Svarer på",
+    "cancelReply": "Avbryt svar",
+    "removeAttachment": "Fjern vedlegg",
+    "attachFile": "Legg ved fil",
+    "dropTitle": "Last opp fil",
+    "dropHint": "Slipp for å legge ved",
+    "uploading": "Laster opp…",
+    "uploadingLabel": "Laster opp",
+    "failedCount_one": "{{count}} mislyktes",
+    "failedCount_other": "{{count}} mislyktes",
+    "failedHint": "Fjern eller prøv det mislykkede vedlegget igjen for å sende",
+    "gif": "GIF",
+    "gifPicker": "GIF-velger",
+    "emoji": "Emoji",
+    "emojiPicker": "Emojivelger",
+    "send": "Send inn",
+    "sendMessage": "Send melding",
+    "uploadFailed": "Kunne ikke laste opp {{file}}: {{reason}}",
+    "uploadFailedReason": "Opplasting mislyktes",
+    "typing": {
+      "named_one": "{{names}} skriver",
+      "named_other": "{{names}} skriver",
+      "several": "Flere personer skriver"
+    }
+  },
+  "menu": {
+    "saveImage": "Lagre bilde",
+    "copyImage": "Kopiér bilde",
+    "openOriginal": "Åpne original",
+    "saveVideo": "Lagre video",
+    "saveAudio": "Lagre lyd",
+    "copyLink": "Kopiér lenke",
+    "openLink": "Åpne lenke",
+    "copySelectedText": "Kopiér markert tekst",
+    "copyText": "Kopiér tekst",
+    "markUnread": "Marker som ulest",
+    "editMessage": "Rediger melding",
+    "deleteMessage": "Slett melding",
+    "linkCopied": "Lenke kopiert",
+    "linkCopyFailed": "Kunne ikke kopiere lenke",
+    "pinMessage": "Fest melding",
+    "unpinMessage": "Løsne melding"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "Satt på pause — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "Kan ikke spille her — last ned",
+      "unsupportedFormat": "Videformat som ikke støttes",
+      "unsupportedBrowser": "Nettleseren din støtter ikke videoavspilling."
+    },
+    "audio": {
+      "unsupportedBrowser": "Nettleseren din støtter ikke lydavspilling."
+    },
+    "federation": {
+      "remoteNamed": "Hostet på {{sender}} sin instans. Last ned for en lokal kopi.",
+      "remoteUnknown": "Hostet på avsenderens instans. Last ned for en lokal kopi.",
+      "partialGeneric": "Noen mottakere kan ikke mellomlagre denne filen lokalt.",
+      "partialInstance": "{{username}} sin instans (grense: {{limit}})",
+      "partialList": "Filen kunne ikke mellomlagres på {{instances}}. De kan fortsatt se den fra din.",
+      "listPair": "{{first}} og {{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "Søk GIF",
+    "noResults": "Ingen GIF-er funnet",
+    "noTrending": "Ingen trendende GIF-er",
+    "attribution": "Drevet av Klipy"
+  },
+  "preview": {
+    "save": "Lagre bilde",
+    "copy": "Kopiér bilde",
+    "alt": "Bildeforhåndsvisning"
+  },
+  "invite": {
+    "sentBy": "Invitasjon fra {{name}}",
+    "memberCount_one": "{{count}} medlem",
+    "memberCount_other": "{{count}} medlemmer",
+    "revoked": "Invitasjonen gjelder ikke lenger",
+    "join": "Bli med",
+    "joining": "Blir med…",
+    "joinFailed": "Kunne ikke bli med",
+    "askToJoin": "Be om å bli med",
+    "sendingRequest": "Sender…",
+    "requestSent": "Forespørsel sendt",
+    "requestPending": "Forespørsel venter",
+    "requestNotice": "Dette rommet tar imot forespørsler. En ansvarlig godkjenner hver enkelt.",
+    "requestReview": "En ansvarlig gjennomgår forespørselen din."
+  },
+  "notification": {
+    "unknownSender": "Noen",
+    "attachmentOnly": "Sendte et vedlegg"
+  },
+  "commands": {
+    "title": "Kommandoer",
+    "failed": "Kommandoen kunne ikke sendes",
+    "extraText": "Denne kommandoen tar ingen fritekst, men \"{{text}}\" ble til overs. Sett alternativene først, teksten sist",
+    "invalidOption": "Verdien for {{option}} passer ikke til denne kommandoen.",
+    "optionsTitle": "Parametere",
+    "required": "påkrevd",
+    "subcommandsTitle": "Underkommandoer",
+    "group": "gruppe",
+    "chooseSubcommand": "Velg en underkommando: {{names}}",
+    "subcommandRefused": "Boten tilbyr ikke denne underkommandoen. Velg en fra listen"
+  },
+  "ephemeral": {
+    "onlyYou": "Bare du kan se dette",
+    "dismiss": "Lukk",
+    "rowLabel": "Svar bare du kan se fra {{author}}, {{time}}"
+  },
+  "embed": {
+    "loadAction": "Klikk for å laste",
+    "loadNamed": "Last {{name}}",
+    "loadUnnamed": "Last innbygging",
+    "frameTitle": "Innbygging",
+    "playNamed": "Spill {{title}}",
+    "playUnnamed": "Spill video",
+    "videoTitle": "Video"
+  },
+  "stickers": {
+    "title": "Mine klistremerker",
+    "upload": "Last opp bilde",
+    "limits": "PNG, JPEG, WebP eller GIF · opptil 5 MB",
+    "loading": "Laster…",
+    "empty": "Klistremerkesamlingen din starter her",
+    "remove": "Fjern",
+    "save": "Legg til i mine klistremerker",
+    "saved": "Lagt til i mine klistremerker",
+    "preview": "Forhåndsvis klistremerke",
+    "manage": "Håndtér",
+    "done": "Ferdig",
+    "collectionHint": "Velg et klistremerke å sende. Gjør dette rommet til ditt.",
+    "manageHint": "Gi nytt navn til eller fjern klistremerker i samlingen. Allerede sendte meldinger endres ikke.",
+    "emptyHint": "Lagre favorittøyeblikkene dine som klistremerker, klare til neste svar.",
+    "chooseImage": "Velg bilde",
+    "cancel": "Avbryt",
+    "replace": "Erstatt bilde",
+    "name": "Klistremerkenavn",
+    "dropImage": "Klikk eller dra et bilde hit",
+    "pasteHint": "Du kan også lime inn et bilde fra utklippstavlen",
+    "uploading": "Legger til klistremerke…",
+    "singleImage": "Velg ett bilde om gangen.",
+    "invalidSize": "Velg et ikke-tomt bilde opptil 5 MB.",
+    "invalidType": "Bare PNG-, JPEG-, WebP- og GIF-bilder støttes.",
+    "invalidImage": "Dette bildet kan ikke forhåndsvises. Velg et gyldig bilde.",
+    "removeNamed": "Fjern {{name}}",
+    "addMore": "Legg til flere",
+    "selectedCount_one": "{{count}} klistremerke valgt",
+    "selectedCount_other": "{{count}} klistremerker valgt",
+    "dropMore": "Klikk eller dra flere bilder hit",
+    "sticker": "Klistremerke",
+    "downloadFailed": "Bildet kunne ikke lastes.",
+    "batchLimit_one": "Velg opptil {{count}} bilde om gangen.",
+    "batchLimit_other": "Velg opptil {{count}} bilder om gangen.",
+    "capacityLimit_one": "Samlingen din har plass til {{count}} klistremerke til.",
+    "capacityLimit_other": "Samlingen din har plass til {{count}} klistremerker til.",
+    "full": "Samlingen din er full. Fjern et klistremerke for å legge til et annet.",
+    "batchFailed_one": "{{count}} bilde kunne ikke legges til. Det står fortsatt nedenfor.",
+    "batchFailed_other": "{{count}} bilder kunne ikke legges til. De står fortsatt nedenfor.",
+    "uploadingProgress": "Legger til {{current}} av {{total}}…",
+    "rename": "Gi nytt navn",
+    "renameNamed": "Gi nytt navn til {{name}}",
+    "renameTitle": "Gi klistremerke nytt navn",
+    "search": "Søk klistremerker",
+    "noResults": "Ingen klistremerker funnet",
+    "store": "Klistremerkebutikk",
+    "myCollection": "Mine klistremerker",
+    "packs": "Klistremerkepakker",
+    "explore": "Utforsk",
+    "myPacks": "Laget av meg",
+    "install": "Legg til",
+    "installed": "Lagt til",
+    "uninstall": "Fjern",
+    "createPack": "Opprett pakke",
+    "editPack": "Rediger pakke",
+    "packName": "Pakkenavn",
+    "packDesc": "Beskrivelse (valgfri)",
+    "submitReview": "Send til gjennomgang",
+    "pendingReview": "Venter på gjennomgang",
+    "approved": "Godkjent",
+    "rejected": "Avvist",
+    "draft": "Utkast",
+    "newVersion": "Ny versjon",
+    "deletePack": "Slett pakke",
+    "stickersCount_one": "{{count}} klistremerke",
+    "stickersCount_other": "{{count}} klistremerker",
+    "noPacks": "Ingen klistremerkepakker funnet",
+    "replicaBadge": "Føderert",
+    "viewPack": "Se pakke",
+    "saveDraft": "Lagre som utkast",
+    "packCreated": "Pakke opprettet",
+    "reviewSubmitted": "Sendt til admin-gjennomgang",
+    "reviews": "Gjennomgang",
+    "noReviews": "Ingen klistremerkepakker venter på gjennomgang",
+    "approve": "Godkjenn",
+    "reject": "Avvis",
+    "rejectTitle": "Avvis klistremerkepakke",
+    "rejectReason": "Avvisningsårsak",
+    "rejectPlaceholder": "Oppgi årsak til avvisning (f.eks. upassende innhold, lav kvalitet)",
+    "rejectConfirm": "Bekreft avvisning",
+    "approvedSuccess": "Klistremerkepakke godkjent",
+    "rejectedSuccess": "Klistremerkepakke avvist",
+    "reviewNotes": "Avvisningsårsak",
+    "creator": "Skaper",
+    "sourceInstance": "Instans",
+    "localInstance": "Lokal instans",
+    "viewStickers": "Se klistremerker",
+    "pendingReviewHint": "Hos administrator til gjennomgang; vises i Utforsk etter godkjenning"
+  },
+  "poke": {
+    "action": "Dult",
+    "received": "{{actor}} dultet {{target}}",
+    "disconnected": "Tilkoblingen brøt. Dultet ble ikke sendt."
+  },
+  "pins": {
+    "title": "Festede meldinger",
+    "empty": "Ingen festede meldinger ennå.",
+    "jump": "Hopp til melding",
+    "unpin": "Løsne",
+    "deletedMessage": "Melding slettet",
+    "attachmentOnly": "Vedlegg"
+  }
+}

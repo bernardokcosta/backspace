@@ -1,0 +1,572 @@
+{
+  "interfaceScale": {
+    "label": "Arayüz ölçeği",
+    "description": "Metni, düğmeleri ve panelleri yeniden boyutlandır. Bu cihazdaki tarayıcıda veya uygulamada kaydedilir.",
+    "reset": "%100'e sıfırla"
+  },
+  "voice": {
+    "input": {
+      "title": "Giriş cihazı",
+      "checkingAccess": "Mikrofon erişimi kontrol ediliyor…",
+      "accessDenied": {
+        "title": "Mikrofon erişimi reddedildi",
+        "description": "Giriş cihazı seçmek için mikrofon iznini ver.",
+        "retry": "Tekrar dene"
+      },
+      "permissionPrompt": {
+        "description": "Giriş cihazlarını listelemek ve seçmek için mikrofon izni gerekiyor.",
+        "enable": "Mikrofon erişimini etkinleştir"
+      },
+      "device": {
+        "systemDefault": "Sistem varsayılanı",
+        "currentlyUsing": "Kullanılan: {{label}}",
+        "none": "Mikrofon bulunamadı."
+      },
+      "volume": {
+        "label": "Giriş ses düzeyi"
+      },
+      "meter": {
+        "hint": "Seviye ölçer bir ses kanalına katıldığında etkinleşir."
+      }
+    },
+    "output": {
+      "title": "Çıkış cihazı",
+      "checkingAccess": "Ses erişimi kontrol ediliyor…",
+      "device": {
+        "systemDefault": "Sistem varsayılanı",
+        "unsupported": "Bu tarayıcı çıkış cihazı seçmeyi desteklemiyor. Ses sistem varsayılanından çalınır."
+      },
+      "permissionPrompt": {
+        "description": "Çıkış cihazlarını listelemek için mikrofon iznini ver (tarayıcılar çıkış adlarını mikrofon erişiminin arkasında saklar).",
+        "enable": "Ses erişimini etkinleştir"
+      },
+      "volume": {
+        "label": "Çıkış ses düzeyi"
+      },
+      "testSound": "Test sesi çal"
+    },
+    "video": {
+      "title": "Video",
+      "checkingAccess": "Kamera erişimi kontrol ediliyor…",
+      "accessDenied": {
+        "title": "Kamera erişimi reddedildi",
+        "description": "Kamera seçmek için kamera iznini ver.",
+        "retry": "Tekrar dene"
+      },
+      "blocked": {
+        "browser": "Kamera tarayıcı düzeyinde engellenmiş. Adres çubuğundaki kamera simgesine tıkla, izni sıfırla, sonra Tekrar dene'ye tıkla.",
+        "mac": "Sistem Ayarları → Gizlilik ve Güvenlik → Kamera bölümünde kamera erişimini ver, sonra uygulamayı yeniden başlat.",
+        "windows": "Ayarlar → Gizlilik ve güvenlik → Kamera bölümünde kamera erişimini ver, sonra uygulamayı yeniden başlat.",
+        "other": "Kamera izni reddedildi. Tarayıcı/Chromium isteminde izni sıfırla ve tekrar dene."
+      },
+      "permissionPrompt": {
+        "description": "Kamera seçmek ve önizlemek için kamera izni gerekiyor.",
+        "enable": "Kamera önizlemesini etkinleştir"
+      },
+      "camera": {
+        "label": "Kamera",
+        "auto": "Otomatik (sistem varsayılanı)",
+        "fallbackName": "Kamera {{number}}",
+        "detectedFallback": "bulunan kamera",
+        "currentlyUsing": "Kullanılan: {{label}}",
+        "none": "Kamera bulunamadı."
+      },
+      "preview": {
+        "testAria": "Kamerayı test et",
+        "testHint": "Kamerayı test etmek için tıkla",
+        "stop": "Önizlemeyi durdur",
+        "retry": "Tekrar dene"
+      },
+      "previewError": {
+        "inUse": "Kamera başka bir uygulama tarafından kullanılıyor.",
+        "unavailable": "Seçilen kamera kullanılamıyor.",
+        "notFound": "Kamera bulunamadı.",
+        "generic": "Kamera önizlemesi başlatılamadı."
+      }
+    },
+    "title": "Ses ve video",
+    "volume": {
+      "sectionTitle": "Ses düzeyi",
+      "soundEffects": {
+        "label": "Ses efektleri düzeyi"
+      },
+      "messageSound": {
+        "label": "Her mesaj için ses çal",
+        "description": "Kapalı (varsayılan): yalnızca DM'ler ve senden bahseden mesajlar. Açık: her kanalda."
+      }
+    },
+    "pip": {
+      "sectionTitle": "Yüzen pencere",
+      "showOnSwitch": {
+        "label": "Aramalar sırasında yüzen pencereyi göster",
+        "description": "Bir ses kanalında veya aramada başka bir şeye bakarken küçük bir pencere aramayı görünür tutar."
+      }
+    },
+    "processing": {
+      "sectionTitle": "Ses işleme",
+      "noiseSuppression": {
+        "label": "Yapay zekâ gürültü bastırma",
+        "description": "Makine öğrenmesi tabanlı gürültü giderme (RNNoise). Klavye, fan ve arka plan gürültüsünü filtreler."
+      },
+      "echoCancellation": {
+        "label": "Yankı engelleme",
+        "description": "Hoparlörlerinden mikrofona geri dönen yankıyı engeller. Ses kanallarında ve aramalarda her zaman açıktır."
+      },
+      "autoGain": {
+        "label": "Otomatik kazanç denetimi",
+        "description": "Mikrofon sesini otomatik ayarlar. Yayınlar sırasında sesin kısılmasına yol açabilir."
+      }
+    }
+  },
+  "nav": {
+    "userSettings": "Kullanıcı ayarları",
+    "appSettings": "Uygulama ayarları",
+    "administration": "Yönetim",
+    "tabs": {
+      "account": "Hesap",
+      "appearance": "Görünüm",
+      "voice": "Ses ve video",
+      "privacy": "Gizlilik",
+      "connections": "Bağlantılar",
+      "keybinds": "Kısayollar",
+      "desktop": "Masaüstü",
+      "instance": "Örnek",
+      "bots": "Botlar",
+      "developer": "Geliştirici"
+    },
+    "logOut": "Çıkış yap",
+    "backToMenu": "Ayar menüsüne dön"
+  },
+  "appearance": {
+    "title": "Görünüm"
+  },
+  "account": {
+    "title": "Hesabım",
+    "detached": {
+      "notice": "Bu hesap ana örneğinden ayrıldı.",
+      "explanation": "{{homeInstance}} sıfırlandı veya artık kullanılamıyor, bu yüzden bu hesap şimdi bu örnekte yerel olarak çalışıyor. Profilin ve parolan burada yönetilir.",
+      "reattachHint": "{{homeInstance}} üzerinde {{username}} olarak bu hesabı yeniden bağlayabilirsin. Profil ve durum bilgisi yeniden oradan eşitlenecek.",
+      "reattachButton": "{{homeInstance}} ile yeniden bağla",
+      "reattachConfirm": "{{username}} olarak yeniden bağlamayı onayla",
+      "reattaching": "Yeniden bağlanılıyor…",
+      "reattachFailed": "Yeniden bağlama başarısız",
+      "reattached": "Hesap {{username}} ile yeniden bağlandı"
+    },
+    "profile": {
+      "sectionTitle": "Profil kişiselleştirme",
+      "avatar": {
+        "label": "Avatar",
+        "alt": "Avatarın",
+        "change": "Avatarı değiştir",
+        "uploadFailed": "Avatar yüklenemedi",
+        "cropTitle": "Avatarı kırp"
+      },
+      "banner": {
+        "label": "Banner",
+        "change": "Banner'ı değiştir",
+        "uploadFailed": "Banner yüklenemedi",
+        "cropTitle": "Banner'ı kırp"
+      },
+      "avatarColor": {
+        "label": "Avatar rengi"
+      },
+      "bannerColor": {
+        "label": "Banner rengi",
+        "hexPlaceholder": "#hex"
+      },
+      "bio": {
+        "label": "Hakkımda",
+        "placeholder": "Kendinden bahset…",
+        "counter": "{{used}}/{{max}}"
+      }
+    },
+    "details": {
+      "sectionTitle": "Hesap",
+      "status": {
+        "label": "Durum",
+        "homeUnavailable": "Durumun {{host}} üzerinde tutuluyor. Değiştirmek için {{host}} adresine bağlan."
+      },
+      "customStatus": {
+        "label": "Özel durum",
+        "placeholder": "Ne yapıyorsun?"
+      }
+    },
+    "password": {
+      "current": {
+        "label": "Mevcut parola",
+        "placeholder": "Mevcut parolanı gir"
+      },
+      "new": {
+        "label": "Yeni parola",
+        "placeholder": "En az {{min}} karakter"
+      },
+      "confirm": {
+        "label": "Yeni parolayı onayla",
+        "placeholder": "Yeni parolayı onayla"
+      },
+      "show": "Parolayı göster",
+      "hide": "Parolayı gizle",
+      "tooShort": "Yeni parola en az {{min}} karakter olmalı",
+      "mismatch": "Parolalar eşleşmiyor",
+      "changed": "Parola değiştirildi",
+      "changeFailed": "Parola değiştirilemedi",
+      "submit": "Parolayı değiştir",
+      "submitting": "Değiştiriliyor…"
+    },
+    "danger": {
+      "description": "Hesabını sildikten sonra geri dönüş yoktur. Mesajların kalır ama \"Silinmiş kullanıcı\" olarak gösterilir.",
+      "deleteButton": "Hesabı sil"
+    },
+    "save": {
+      "updated": "Profil güncellendi",
+      "failed": "Profil güncellenemedi"
+    },
+    "deletion": {
+      "title": "Hesabı sil",
+      "warning": {
+        "headline": "Bu, hesabını kalıcı olarak silecek.",
+        "spaces": "Tüm alan üyeliklerin kaldırılacak",
+        "friends": "Tüm arkadaş bağlantıların kaldırılacak",
+        "dms": "Tüm DM üyeliklerin kaldırılacak",
+        "messages": "Mesajların kalır ama \"Silinmiş kullanıcı\" olarak gösterilir"
+      },
+      "ownedSpaces": {
+        "prompt_one": "{{count}} alanın sahibisin. Devam etmeden önce onu ele al:",
+        "prompt_other": "{{count}} alanın sahibisin. Devam etmeden önce her birini ele al:",
+        "transfer": "Devret",
+        "delete": "Alanı sil",
+        "selectOwner": "Yeni sahip seç…"
+      },
+      "processing": "İşleniyor…",
+      "confirm": {
+        "permanent": "Bu işlem kalıcıdır ve geri alınamaz.",
+        "usernamePrompt": "Onaylamak için kullanıcı adını yaz: <username>{{username}}</username>",
+        "passwordPlaceholder": "Parolanı gir",
+        "submit": "Hesabımı sil",
+        "deleting": "Siliniyor…"
+      },
+      "federation": {
+        "removing": "Hesabın bağlı örneklerden kaldırılıyor…",
+        "deleteAnyway": "Hesabı şimdi sil"
+      },
+      "complete": {
+        "title": "Hesap silindi",
+        "redirecting": "Girişe yönlendiriliyor…"
+      },
+      "errors": {
+        "usernameMismatch": "Kullanıcı adı eşleşmiyor",
+        "spacesFailed": "Alanlar işlenemedi",
+        "deleteFailed": "Hesap silinemedi"
+      }
+    }
+  },
+  "privacy": {
+    "title": "Gizlilik",
+    "discovery": {
+      "sectionTitle": "Keşfetme",
+      "label": "Başkalarının profilimi bulmasına izin ver",
+      "description": "Etkinleştirildiğinde profilin Kişileri keşfet bölümünde görünür. Başkaları seni her zaman tam kullanıcı adınla ekleyebilir."
+    },
+    "activity": {
+      "sectionTitle": "Etkinlik durumu",
+      "label": "Etkinlik durumunu paylaş",
+      "description": "Başkalarının senin ne yaptığını görmelerine izin ver; oynadığın oyunlar veya dinlediğin müzik gibi.",
+      "game": {
+        "label": "Elle oluşturuldu",
+        "description": "Algılanmayan bir oyun ekle. Sen kaldırana kadar gösterilir.",
+        "placeholder": "Oyun adı",
+        "set": "Ayarla",
+        "detectedLabel": "Şu anda algılandı",
+        "detectedDescription": "Algılanan bir oyunu farklı bir adla göster. Bir sonraki sefer için hatırlanır.",
+        "renamePlaceholder": "Şu şekilde göster…",
+        "renameLabel": "{{name}} şu şekilde gösterilsin",
+        "renamedLabel": "Yeniden adlandırılan oyunlar",
+        "renamedItem": "{{detected}} → {{chosen}}",
+        "restore": "Geri yükle",
+        "descriptionBound": "Algılanmayan bir oyun ekle: programını seç ve adlandır. O program çalıştığı sürece gösterilir.",
+        "programLabel": "Uygulama",
+        "programPlaceholder": "Çalışan bir program seç…",
+        "programHint": "Önce oyunu başlat, sonra programını listeden seç.",
+        "clearRename": "Temizle",
+        "unknownLabel": "Tanınmayan Wine programları",
+        "unknownDescription": "Bunlar çalışıyor ama bilinen bir oyunla eşleşmiyor. Biri senin oyununsa onu oynadığın oyun olarak göster.",
+        "unknownUse": "Oyunlarıma ekle",
+        "gamesLabel": "Oyunların",
+        "gamesDescription": "İlk oyun listelerde gösterilir; önceliği belirlemek için oyunları taşı. Gizlenen oyun başkalarına gösterilmez.",
+        "moveUp": "{{name}} oyununu yukarı taşı",
+        "moveDown": "{{name}} oyununu aşağı taşı",
+        "hide": "Gizle",
+        "show": "Göster",
+        "hideGame": "{{name}} oyununu gizle",
+        "showGame": "{{name}} oyununu göster",
+        "add": "Ekle",
+        "remove": "Kaldır",
+        "statusName": "adıyla gösteriliyor",
+        "statusRunning": "çalışıyor",
+        "statusWaiting": "{{program}} bekleniyor",
+        "dragHandle": "Önceliğini değiştirmek için {{name}} oyununu sürükle",
+        "manualNameLabel": "{{name}} için ad",
+        "save": "Kaydet"
+      }
+    }
+  },
+  "connections": {
+    "title": "Bağlantılar"
+  },
+  "instance": {
+    "tabs": {
+      "general": "Genel",
+      "registration": "Kayıt",
+      "federation": "Federasyon",
+      "streaming": "Yayın",
+      "storage": "Depolama",
+      "users": "Kullanıcılar",
+      "updates": "Güncellemeler"
+    }
+  },
+  "keybinds": {
+    "portal": {
+      "description": "Wayland'de tüm Backspace kısayollarını masaüstü yönetir. Tuşları sistemin klavye kısayolu ayarlarında Backspace altında ata, değiştir veya kaldır. Tarayıcı/X11 yerel atamaları burada kullanılmaz.",
+      "idle": "Kullanılabilir tüm işlemler için ilk kayıt hazırlanıyor.",
+      "pending": "Masaüstü portalına bağlanılıyor. Bir sistem iletişim kutusu açılırsa kullanmak istediğin işlemler için kısayolları seç.",
+      "ready": "Backspace kaydedildi. Atamaları değiştirmek veya kaldırmak için sisteminin klavye kısayolu ayarlarını aç. Aşağıdaki liste salt okunurdur ve Backspace'e döndüğünde yenilenir.",
+      "unavailable": "Portal kullanılamıyor, izin reddedildi veya oturum sona erdi. Bir Global Shortcuts portal arka ucu gerekiyor. Wayland'de yerel atamalar devre dışıdır.",
+      "retry": "Kısayolları kaydet veya yeniden bağla",
+      "assigned": "Sistem kısayolu: {{shortcut}}",
+      "notAssigned": "Etkin sistem ataması yok"
+    },
+    "title": "Kısayollar",
+    "note": {
+      "webOnly": "Kısayollar bu sekme ön plandayken çalışır. Diğer uygulamalarda çalışan genel kısayollar için masaüstü uygulamasını kullan."
+    },
+    "section": {
+      "voice": "Ses kısayolları"
+    },
+    "action": {
+      "toggleMute": "Sessize almayı aç/kapat",
+      "toggleDeafen": "Sağırlaştırmayı aç/kapat",
+      "pushToTalk": "Bas-konuş",
+      "toggleCamera": "Kamerayı aç/kapat",
+      "toggleScreenShare": "Ekran paylaşımını aç/kapat",
+      "disconnect": "Bağlantıyı kes"
+    },
+    "row": {
+      "recordingPrompt": "Bir tuş kombinasyonuna bas…",
+      "notBound": "Atanmamış",
+      "record": "Kaydet",
+      "escToCancel": "İptal için ESC"
+    },
+    "key": {
+      "shift": "Shift",
+      "ctrl": "Ctrl",
+      "alt": "Alt",
+      "option": "Option",
+      "cmd": "Cmd",
+      "win": "Win",
+      "space": "Boşluk",
+      "middleClick": "Orta tık",
+      "mouse4": "Fare 4",
+      "mouse5": "Fare 5",
+      "mouseGeneric": "Fare {{button}}"
+    },
+    "accessibility": {
+      "title": "Erişilebilirlik izni gerekiyor",
+      "description": "Genel kısayolların uygulama dışında çalışması için Backspace'in erişilebilirlik iznine ihtiyacı var.",
+      "grant": "İzin ver"
+    },
+    "hookError": {
+      "title": "Genel kısayollar kullanılamıyor",
+      "description": "Giriş dinleyicisi başlatılamadı. Linux'ta kullanıcının <code>input</code> grubunda olması gerekebilir."
+    },
+    "conflict": {
+      "message": "<strong>{{combo}}</strong> zaten <strong>{{action}}</strong> işlemine atanmış. Üzerine yazılsın mı?",
+      "overwrite": "Üzerine yaz"
+    }
+  },
+  "desktop": {
+    "title": "Masaüstü",
+    "autoLaunch": {
+      "openAtLogin": {
+        "label": "Açılışta başlat",
+        "description": "Oturum açtığında Backspace'i otomatik başlat"
+      },
+      "startMinimized": {
+        "label": "Simge durumunda başlat",
+        "description": "Pencereyi göstermek yerine sistem tepsisinde gizli başlat"
+      }
+    },
+    "updates": {
+      "appName": "Backspace Desktop",
+      "versionLabel": "Sürüm {{version}}",
+      "checking": "Güncellemeler kontrol ediliyor…",
+      "checkingShort": "Kontrol ediliyor…",
+      "checkNow": "Güncellemeleri kontrol et",
+      "downloading": "{{version}} indiriliyor, %{{percent}}",
+      "downloadingWithRate": "{{version}} indiriliyor, %{{percent}} (hız: {{rate}})",
+      "rateMegabytes": "{{value}} MB/s",
+      "rateKilobytes": "{{value}} KB/s",
+      "upToDate": "En son sürümdesin",
+      "available": "{{version}} sürümü kullanılabilir",
+      "readyToInstall": "{{version}} sürümü kurulmaya hazır",
+      "installFailed": "{{version}} sürümü kurulamadı",
+      "checkFailed": "Son güncelleme kontrolü başarısız oldu",
+      "idle": "Masaüstü uygulamasının yeni sürümlerini kontrol et",
+      "external": "Güncellemeler Flatpak yazılım yöneticin aracılığıyla kurulur",
+      "download": "İndir",
+      "restart": "Yeniden başlat",
+      "manualNote": "Bu derleme güncellemeleri kendisi kuramaz. Yeni sürümleri GitHub'dan indir ve uygulamayı elle değiştir. Platformundaki adımlar için sürüm notlarına bak.",
+      "externalNote": "Flatpak güncellemeleri uygulamanın dışında atomik olarak uygular. Backspace'i güncellemek için yazılım yöneticini veya <code>flatpak update</code> komutunu kullan."
+    },
+    "instance": {
+      "current": "Şu anda bağlı örnek",
+      "change": "Örneği değiştir"
+    }
+  },
+  "desktopDownload": {
+    "title": "Masaüstü",
+    "intro": "Genel kısayollar, açılışta başlatma ve sistem tepsisi simgesi.",
+    "unsupported": "Masaüstü uygulaması Windows, Linux ve macOS üzerinde çalışır.",
+    "name": {
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux"
+    },
+    "tag": {
+      "windows": "Bu bilgisayar",
+      "mac": "Bu Mac",
+      "linux": "Bu makine"
+    },
+    "covers": {
+      "windows": "x64 veya arm64",
+      "mac": "Apple Silicon ve Intel Mac'lerde çalışır",
+      "linux": "AppImage veya deb paketi, x64 veya arm64"
+    },
+    "download": {
+      "windows": "Windows için indir",
+      "mac": "macOS için indir",
+      "linux": "Linux için indir"
+    },
+    "picker": {
+      "architecture": "Mimari",
+      "format": "Paket biçimi"
+    },
+    "arch": {
+      "appleSilicon": "Apple Silicon",
+      "intel": "Intel",
+      "x64": "x64",
+      "arm64": "arm64"
+    },
+    "kind": {
+      "appimage": "AppImage",
+      "deb": "deb"
+    },
+    "archGuessed": {
+      "windows": "Tarayıcın bu bilgisayarın hangi işlemciye sahip olduğunu bildirmedi, bu yüzden x64 önceden seçildi.",
+      "mac": "Tarayıcın bu Mac'in hangi yonga setine sahip olduğunu bildirmedi, bu yüzden Apple Silicon önceden seçildi.",
+      "linux": "Tarayıcın bu makinenin hangi işlemciye sahip olduğunu bildirmedi, bu yüzden x64 önceden seçildi."
+    },
+    "version": "Sürüm {{version}}",
+    "allReleases": "GitHub'daki tüm sürümler"
+  },
+  "bots": {
+    "title": "Botlar",
+    "description": "Bot, bir programın token ile kontrol ettiği hesaptır. Bir tane oluştur, tokenını kopyala ve programını bağla. Botlar doğrudan mesajlarda yanıt verir.",
+    "create": {
+      "sectionTitle": "Bot oluştur",
+      "nameLabel": "Bot kullanıcı adı",
+      "submit": "Botu oluştur",
+      "hint": "{{min}} ile {{max}} karakter: küçük Latin harfleri (a–z), rakamlar (0–9) ve alt çizgi (_). En fazla {{limit}} bot oluşturabilirsin."
+    },
+    "list": {
+      "sectionTitle": "Botların",
+      "empty": "Henüz botun yok.",
+      "createdOn": "{{date}} tarihinde oluşturuldu"
+    },
+    "token": {
+      "title": "{{name}} için token",
+      "warning": "Tokenı şimdi kopyala. Yalnızca bir kez gösterilir ve ona sahip olan herkes botu kontrol eder.",
+      "copy": "Tokenı kopyala",
+      "copied": "Kopyalandı",
+      "dismiss": "Kaydettim"
+    },
+    "tokens": {
+      "title": "Erişim tokenları",
+      "loading": "Tokenlar yükleniyor",
+      "legacy": "Bu bot hâlâ eski uzun ömürlü tokenıyla çalışıyor. Geçiş yapmak için bir token oluştur: oluşturduğun anda eskisi çalışmayı durdurur.",
+      "empty": "Bu botun tokenı yok.",
+      "unnamed": "Adsız token",
+      "createdOn": "{{date}} tarihinde oluşturuldu",
+      "neverUsed": "hiç kullanılmadı",
+      "lastUsed": "son kullanım {{time}}",
+      "revoke": "İptal et",
+      "confirmRevoke": "İptali onayla",
+      "nameLabel": "Token etiketi",
+      "namePlaceholder": "Etiket (isteğe bağlı)",
+      "create": "Token oluştur",
+      "limitHint": "Bot başına en fazla {{max}} token. Bir tokenı iptal etmek botun bağlantısını keser; diğer tokenlar çalışmaya devam eder."
+    },
+    "actions": {
+      "regenerate": "Tüm tokenları sıfırla",
+      "delete": "Sil",
+      "confirmDelete": "Silmeyi onayla",
+      "cancel": "İptal",
+      "edit": "Düzenle",
+      "save": "Kaydet",
+      "addToServer": "Bir alana ekle",
+      "tokens": "Tokenlar"
+    },
+    "edit": {
+      "nameLabel": "Görünen ad",
+      "hint": "@{{username}} kullanıcı adı değiştirilemez. En fazla {{max}} karakter.",
+      "bioLabel": "Hakkında",
+      "bioPlaceholder": "Botun ne yaptığı, komutları, nereden yardım alınacağı",
+      "bioCounter": "{{used}}/{{max}}"
+    },
+    "status": {
+      "label": "Durum",
+      "none": "Durum yok",
+      "textLabel": "Durum metni",
+      "placeholder": "Botun adının yanında gösterdiği şey",
+      "hint": "Bot bağlıyken gösterilir. Botun kodu, bir sonraki bağlantıya kadar bunu değiştirebilir.",
+      "types": {
+        "custom": "Özel",
+        "playing": "Oynuyor",
+        "listening": "Dinliyor",
+        "watching": "İzliyor"
+      },
+      "display": {
+        "custom": "{{name}}",
+        "playing": "{{name}} oynuyor",
+        "listening": "{{name}} dinliyor",
+        "watching": "{{name}} izliyor"
+      }
+    },
+    "permissions": {
+      "label": "Botun istediği izinler",
+      "hint": "Botu bir alana ekleyen yönetici bunları işaretli görür ve istediğini kaldırabilir. Botun adını taşıyan bir role eklenirler. Sonradan değiştirmek, zaten oluşturulmuş rollere dokunmaz."
+    },
+    "avatar": {
+      "change": "Avatarı değiştir",
+      "remove": "Avatarı kaldır",
+      "cropTitle": "Bot avatarını kırp",
+      "uploadFailed": "Avatar yüklenemedi",
+      "notImage": "Bir görsel dosyası seç"
+    },
+    "spaces": {
+      "title": "Bir alana ekle",
+      "loading": "Alanlar yükleniyor",
+      "empty": "Henüz yönettiğin alan yok. Bot eklemek alanı yönetme izni gerektirir.",
+      "add": "Ekle",
+      "added": "Eklendi",
+      "remove": "Kaldır"
+    }
+  },
+  "developer": {
+    "title": "Geliştirici",
+    "mode": {
+      "label": "Geliştirici modu",
+      "description": "Ayarlarda Botlar sekmesi gibi geliştirici araçlarını göster. Kapatmak yalnızca onları gizler; botların çalışmaya devam eder.",
+      "saveFailed": "Ayar kaydedilemedi. Tekrar dene."
+    }
+  }
+}

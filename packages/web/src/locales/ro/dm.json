@@ -1,0 +1,180 @@
+{
+  "callDelivery": {
+    "remoteInstance": "instanța la distanță",
+    "hostInstance": "instanța gazdă",
+    "acceptDropped": "Acceptarea nu a putut fi confirmată cu {{instance}} — apelul a fost întrerupt.",
+    "rejectFailed": "Nu am putut anunța {{instances}} că ai refuzat. Cel care a sunat te poate vedea încă ca „sună” pentru scurt timp.",
+    "endFailed": "Nu am putut anunța {{instances}} că ai închis. Participanții la distanță pot vedea apelul până la 60 de secunde.",
+    "hostUnreachable": "Apel încheiat — instanța gazdă nu mai este accesibilă.",
+    "peeringLost": "Apel încheiat — această instanță nu mai este în peering cu {{instance}}.",
+    "instanceUnreachable": "Apel încheiat — {{instance}} nu mai este accesibilă.",
+    "someUnreachable": "Unii participanți nu au putut fi contactați: {{instances}}.",
+    "multipleUnreachable_one": "Nu s-a putut contacta {{count}} instanță: {{instances}}.",
+    "multipleUnreachable_few": "Nu s-au putut contacta {{count}} instanțe: {{instances}}.",
+    "multipleUnreachable_other": "Nu s-au putut contacta {{count}} de instanțe: {{instances}}.",
+    "callFailed": "Apelul nu a putut fi inițiat.",
+    "manualApproval": "Nu se poate contacta {{instance}} — această instanță necesită aprobarea manuală a peeringului.",
+    "awaitingApproval": "Se așteaptă ca administratorul {{instance}} să aprobe instanța ta. Apelurile vor funcționa după aprobare.",
+    "transientFailure": "Nu s-a putut contacta {{instance}}. Încearcă din nou imediat.",
+    "voiceUnavailable": "Vocea nu este configurată pe această instanță.",
+    "noRecipient": "{{instance}} nu a putut suna pe nimeni.",
+    "targetCallFailed": "Apelul către {{instance}} nu a putut fi inițiat."
+  },
+  "feedback": {
+    "relayDenied": "Mesajele nu pot fi retransmise — serverul lor a refuzat peeringul. Contactează administratorul.",
+    "awaitingPeering": "Mesajele vor fi livrate după ce administratorul lor aprobă cererea de peering."
+  },
+  "names": {
+    "group": "Grup",
+    "directMessage": "Mesaj direct",
+    "theGroup": "grupul",
+    "unknownHandle": "necunoscut",
+    "groupFallback": "DM de grup",
+    "emptyGroup": "Grup gol"
+  },
+  "preview": {
+    "image": "Imagine",
+    "video": "Video",
+    "audio": "Audio",
+    "files_one": "📎 {{count}} fișier",
+    "files_few": "📎 {{count}} fișiere",
+    "files_other": "📎 {{count}} de fișiere",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 Invitație trimisă către {{spaceName}}",
+    "memberAdded": "{{actor}} a adăugat membrul {{target}}",
+    "memberAddedToGroup": "{{actor}} a adăugat membrul {{target}} în grup",
+    "memberLeft": "{{target}} a părăsit grupul",
+    "memberRemoved": "{{actor}} a eliminat membrul {{target}}",
+    "memberRemovedFromGroup": "{{actor}} a eliminat membrul {{target}} din grup",
+    "ownerChanged": "{{newOwner}} este acum proprietarul grupului",
+    "renamed": "{{actor}} a redenumit grupul",
+    "renamedTo": "{{actor}} a redenumit grupul în „{{name}}”",
+    "nameCleared": "{{actor}} a șters numele grupului",
+    "iconChanged": "{{actor}} a actualizat pictograma grupului",
+    "generic": "Mesaj de sistem"
+  },
+  "deletedNotice": {
+    "accountDeleted": "Contul acestui utilizator a fost șters"
+  },
+  "memberRow": {
+    "viewProfile": "Vezi profilul",
+    "transferOwnership": "Transferă proprietatea",
+    "removeFromGroup": "Elimină din grup",
+    "removeFriend": "Elimină prietenul",
+    "ownerTooltip": "Proprietarul grupului",
+    "actions": "Acțiuni pentru membri"
+  },
+  "roster": {
+    "owner": "Proprietar",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "Redimensionează lista de membri"
+  },
+  "kick": {
+    "title": "Elimină din grup",
+    "description": "Elimini {{name}} din acest grup? Nu va mai putea vedea mesajele noi.",
+    "success": "{{name}} a fost eliminat din grup",
+    "failed": "Eliminarea membrului a eșuat"
+  },
+  "transfer": {
+    "title": "Transferă proprietatea",
+    "description": "Transferi proprietatea către {{name}}? Vei pierde privilegiile de proprietar.",
+    "confirm": "Transferă",
+    "success": "Proprietatea a fost transferată către {{name}}",
+    "failed": "Transferul proprietății a eșuat"
+  },
+  "removeFriend": {
+    "failed": "Eliminarea prietenului a eșuat"
+  },
+  "leave": {
+    "title": "Părăsește grupul",
+    "description": "Părăsești „{{name}}”? Nu vei mai primi mesaje din această conversație.",
+    "inProgress": "Se părăsește…",
+    "failed": "Părăsirea grupului a eșuat",
+    "explanation": "Nu vei mai primi mesaje din această conversație. Ceilalți membri vor vedea un mesaj de sistem."
+  },
+  "search": {
+    "trigger": "Găsește sau începe o conversație",
+    "placeholder": "Caută…",
+    "emptyHint": "Caută un utilizator pentru a începe o conversație",
+    "conversations": "Conversații",
+    "users": "Utilizatori",
+    "searching": "Se caută…",
+    "noResults": "Niciun rezultat găsit",
+    "createFailed": "Crearea DM-ului a eșuat"
+  },
+  "list": {
+    "resizeHandle": "Redimensionează mesajele directe",
+    "title": "Mesaje",
+    "empty": "Nicio conversație încă.",
+    "leaveGroup": "Părăsește grupul",
+    "justNow": "acum",
+    "minutesShort_one": "{{count}} min",
+    "minutesShort_few": "{{count}} min",
+    "minutesShort_other": "{{count}} min",
+    "hoursShort_one": "{{count}} h",
+    "hoursShort_few": "{{count}} h",
+    "hoursShort_other": "{{count}} h",
+    "daysShort_one": "{{count}} z",
+    "daysShort_few": "{{count}} z",
+    "daysShort_other": "{{count}} z",
+    "close": "Închide DM-ul"
+  },
+  "newDm": {
+    "title": "Mesaj direct nou",
+    "searchPlaceholder": "Caută un utilizator…",
+    "noUsers": "Niciun utilizator găsit"
+  },
+  "addMember": {
+    "title": "Adaugă prieteni în DM",
+    "description": "Selectează prietenii de adăugat în această conversație.",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "Caută prieteni…",
+    "limitReached": "Acest DM de grup a atins limita de {{max}} membri.",
+    "alreadyInDm": "Deja în acest DM",
+    "noMatch": "Niciun prieten nu corespunde căutării",
+    "noFriends": "Nu ai încă prieteni",
+    "selectFriends": "Selectează prieteni",
+    "addCount_one": "Adaugă {{count}} prieten",
+    "addCount_few": "Adaugă {{count}} prieteni",
+    "addCount_other": "Adaugă {{count}} de prieteni",
+    "adding": "Se adaugă…",
+    "noOtherMember": "Celălalt membru al acestei conversații nu a putut fi identificat.",
+    "failed": "Adăugarea membrilor a eșuat",
+    "yourBots": "Boții tăi"
+  },
+  "groupSettings": {
+    "title": "Setările grupului",
+    "general": "General",
+    "overview": "Prezentare generală",
+    "backToMenu": "Înapoi la meniul setărilor DM-ului de grup",
+    "changeIcon": "Schimbă pictograma grupului",
+    "icon": "Pictograma grupului",
+    "clickToUpload": "Fă clic pentru a încărca",
+    "removeIcon": "Elimină pictograma grupului",
+    "nameLabel": "Numele grupului",
+    "nameAria": "Numele grupului",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "Adaugă membru",
+    "groupFull": "Grupul este plin",
+    "groupFullSuffix": "— Grupul este plin",
+    "cropTitle": "Decupează pictograma grupului",
+    "saveFailed": "Salvarea setărilor a eșuat"
+  },
+  "groupInfo": {
+    "title": "Informații despre grup",
+    "plainTitle": "Info",
+    "notFound": "Conversația nu a fost găsită.",
+    "notGroup": "Această conversație nu are informații de grup.",
+    "cancelEdit": "Anulează editarea",
+    "federated": "Grup federat",
+    "memberCount_one": "{{count}} membru",
+    "memberCount_few": "{{count}} membri",
+    "memberCount_other": "{{count}} de membri"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "Acest grup este gestionat pe {{host}}. Conectează-te la acea instanță pentru a-l modifica.",
+    "ownerNotListed": "{{host}} nu îți afișează încă acest grup. Încearcă din nou imediat."
+  }
+}

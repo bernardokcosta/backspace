@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "spaces": "Espacios",
+    "dms": "Mensajes directos",
+    "you": "Tú"
+  },
+  "you": {
+    "editProfile": "Editar perfil",
+    "homeInstance": "Instancia de origen: {{domain}}",
+    "logOutConfirm": "¿Seguro que quieres cerrar sesión?"
+  },
+  "chat": {
+    "openCall": "Abrir llamada",
+    "cancelCall": "Cancelar llamada",
+    "unknownChannel": "canal"
+  }
+}

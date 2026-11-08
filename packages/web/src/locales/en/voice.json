@@ -1,6 +1,75 @@
 {
+  "feedback": {
+    "micDeniedListener": "Microphone access denied. You joined as a listener — tap \"Allow microphone\" to grant access.",
+    "micRestoreFailed": "Microphone could not be restored",
+    "micPermissionRevoked": "Microphone permission was revoked",
+    "micDisconnectedDefault": "Microphone disconnected — switched to system default",
+    "micDisconnected": "Microphone disconnected",
+    "cameraSwitchFailed": "Could not switch camera",
+    "cameraUnavailable": "Camera unavailable",
+    "cameraPermissionRevoked": "Camera permission was revoked",
+    "cameraDisconnected": "Camera disconnected",
+    "joinedOtherSession": "Voice disconnected — joined from another session"
+  },
   "juno": {
-    "memory": { "title": "Nebulous memory", "hiddenCard": "Hidden card {{number}}", "hiddenPile": "Hidden last card", "instruction": "Play blind. A miss draws two and passes.", "affected": "{{name}} is under the memory curse.", "miss": "{{name}} missed the color and drew {{amount}}.", "rules": "One rare Alzheimer card keeps the current color and obscures the next player's hand and color. Play one card blind: a correct color or legal wild lifts the curse; a miss keeps that card in your hand, draws two and passes. You cannot draw or pass to escape; time running out also draws two. A blind wild keeps the current color. The effect ends when the round or affected player's participation ends." },
+    "guide": {
+      "subtitle": "Learn the table, read the cards, make your next move.", "contents": "Guide contents",
+      "sections": { "start": "Getting started", "turn": "Your turn", "special": "Action cards", "juno": "Call JUNO", "memory": "Special cards", "score": "Results and XP", "table": "Around the table" },
+      "start": {
+        "goal": "Be the first player to have no cards left.",
+        "deal": "Everyone starts with seven cards. There are four colors; the classic deck has 108 cards. The first face-up card is a number, and play begins clockwise.",
+        "setup": "Juno has two to four seats in a space voice channel. The host creates the table and starts the round once the players have joined."
+      },
+      "turn": {
+        "match": "Match the active color or the last card's number or symbol. A permitted wild is another way to play. These examples all fit a blue 5:",
+        "draw": "You may draw one card, not keep drawing until something fits. If the new card is playable, play that card or pass; you cannot play another card from your hand after drawing. If it does not fit, your turn ends automatically. You cannot simply pass before drawing a playable card.",
+        "clock": "You have {{seconds}} seconds for the whole turn, including the choice after a draw. When time runs out, draw one and pass; if you already drew, only pass. Calling JUNO does not restart the clock. The memory curse has a different timeout penalty."
+      },
+      "examples": { "top": "Blue 5 · last card", "color": "Blue 9 · same color", "number": "Red 5 · same number", "wild": "Wild · choose a color" },
+      "effects": {
+        "skip": "The next player loses their turn. With two players, you play again.",
+        "reverse": "Reverse the direction of play. With two players, this skips your opponent, so you play again.",
+        "draw2": "The next player draws two cards and loses their turn. They cannot answer with another draw card.",
+        "wild": "Play over any color or symbol and choose the next active color.",
+        "draw4": "Choose a color; the next player draws four and loses their turn. You may play this only if you have no card of the active color, even if a different-colored number or symbol would fit.",
+        "limits": "No stacking and no +4 challenges. If your final card is +2 or +4, the draw penalty still applies before the final standings are calculated."
+      },
+      "announce": "With two cards, press the JUNO logo before playing down to one. This is a button, not voice recognition. A late call does not fix a missed announcement, and gaining cards clears your previous call.",
+      "reporting": {
+        "unknown": "This depends on the table: newer hosts use player reports, while older hosts use the automatic penalty described below. The active rule is confirmed when a table is available.",
+        "detail": "The first valid report makes the accused draw two without changing the current turn or resetting its clock. You can report outside your own turn, but cannot report yourself. Spectators cannot report. The opportunity ends at ten seconds, when the accused gains cards or leaves, or when the round ends. A win is never reopened by a report."
+      },
+      "memory": {
+        "intro": "An enhanced deck adds exactly one rare Alzheimer card to the classic 108. Play it over any card: it keeps the active color and makes the next player in the current direction play blind. Only that player's hand, middle card and active color are concealed.",
+        "play": "Choose one of your hidden cards without previewing it. A legal match or allowed wild clears the curse and applies that card's normal effect. A blind wild keeps the inherited color without a color picker; the +4 restriction still applies.",
+        "miss": "A wrong choice keeps the attempted card hidden in your hand, draws two, clears the curse and passes once. Running out of time also draws two, clears the curse and passes.",
+        "limits": "You cannot draw or pass to avoid the blind attempt. Reports do not cure the curse. If the memory card is your last card, you win without leaving another player cursed.",
+        "inactive": "Not active in this round: its classic deck does not contain the rare memory card.",
+        "lobby": "The rare card is enabled only when all human players' clients support it. A mixed-version table may use the classic deck; its deck stays fixed for that round."
+      },
+      "score": {
+        "ranking": "The first empty hand wins. Other finishers are ranked by their remaining card counts, including any final-card draw penalty.",
+        "award": "XP awarded",
+        "ties": "Ties share the same place and XP: two players tied for second both receive 80 XP, and the next place is fourth. Only completed human-only rounds with a winner count; only the winner gains a win. Leaving early earns no place or XP.",
+        "practice": "A round started with a bot remains practice, even if the bot later leaves: no XP, wins or ranked rounds are credited. XP belongs to this space and combines its voice channels, not other spaces.",
+        "pending": "While results are being saved, XP is still pending, not already earned. A new table becomes available once that result has been resolved."
+      },
+      "table": {
+        "seats": "A running round can be watched, but new players cannot take a seat midway. After the result, the host opens a fresh lobby; everyone else joins that new table explicitly.",
+        "leave": "Leaving the game releases your seat and returns your cards to the draw pile, but does not itself disconnect you from voice. Returning to the mosaic only hides the table: it does not leave the game. With fewer than two players, the round ends without a winner.",
+        "deck": "When the draw pile runs out, discards are shuffled back in, except the top card. A penalty draws only the cards available if the full amount cannot be supplied. If a full cycle has neither an available draw nor a legal play, the round ends in a draw, without XP.",
+        "connection": "A brief voice reconnection keeps your seat only while the existing reconnection grace remains valid. Live tables are temporary: restarting the server ends them.",
+        "expiry": "A round also expires after two hours, without a winner or XP. Rounds ending because players left or no moves remain do not award XP either."
+      }
+    },
+    "settings": {
+      "title": "Juno settings",
+      "languageGroup": "Language", "language": "Game language", "automatic": "Automatic (Backspace)", "automaticDubbing": "Automatic (Backspace)",
+      "dubbing": "Dubbing and card text", "brazilianPortuguese": "Portuguese (Brazil)",
+      "audioGroup": "Audio", "effects": "Sound effects", "music": "Background music",
+      "autoplayBlocked": "The browser paused the music. Press play to enable it.", "musicFailed": "Music could not play. You can try again.", "playMusic": "Play music"
+    },
+    "memory": { "title": "Nebulous memory", "hiddenCard": "Hidden card {{number}}", "hiddenPile": "Hidden last card", "instruction": "Play blind. A miss draws two and passes.", "affected": "{{name}} is under the memory curse.", "miss": "{{name}} made an invalid blind attempt and drew {{amount}}.", "rules": "One rare Alzheimer card keeps the current color and obscures the next player's hand and color. Play one card blind: a correct color or legal wild lifts the curse; a miss keeps that card in your hand, draws two and passes. You cannot draw or pass to escape; time running out also draws two. A blind wild keeps the current color. The effect ends when the round or affected player's participation ends." },
     "addBot": "Add computer player", "removeBot": "Remove {{name}} computer player", "botName": "Juno Bot {{number}}",
     "practice": "Practice", "practiceHint": "Rounds with computer players are practice: no XP, wins or ranked rounds are awarded.",
     "nextTurn": "Next player", "turnTime": "Time left in this turn", "announcedBy": "{{name}} called JUNO!",

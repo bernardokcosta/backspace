@@ -1,0 +1,654 @@
+{
+  "soundboardTab": "Zvuková tabule",
+  "create": {
+    "title": "Vytvořit prostor",
+    "icon": {
+      "upload": "Nahrát",
+      "previewAlt": "Náhled ikony",
+      "colorLabel": "Barva ikony",
+      "cropTitle": "Oříznout ikonu prostoru",
+      "uploadFailed": "Ikonu se nepodařilo nahrát"
+    },
+    "name": {
+      "label": "Název prostoru",
+      "placeholder": "Můj skvělý prostor",
+      "required": "Název prostoru je vyžadován"
+    },
+    "visibilityLabel": "Viditelnost",
+    "description": {
+      "label": "Popis",
+      "placeholder": "Krátký popis tvého prostoru…",
+      "counter": "{{length}}/{{max}}"
+    },
+    "submit": "Vytvořit",
+    "submitting": "Vytváření…"
+  },
+  "channel": {
+    "create": {
+      "title": "Vytvořit kanál",
+      "typeLabel": "Typ kanálu",
+      "types": {
+        "text": {
+          "name": "Textový",
+          "description": "Posílej zprávy, obrázky a soubory"
+        },
+        "voice": {
+          "name": "Hlasový",
+          "description": "Poseď na hlase a videu"
+        }
+      },
+      "nameLabel": "Název kanálu",
+      "namePlaceholder": "novy-kanal",
+      "topicLabel": "Téma (volitelné)",
+      "topicPlaceholder": "O čem je tento kanál?",
+      "categoryLabel": "Kategorie",
+      "noCategory": "Bez kategorie",
+      "nameRequired": "Název kanálu je vyžadován",
+      "noSpaceSelected": "Prostor nevybrán",
+      "submit": "Vytvořit kanál",
+      "submitting": "Vytváření…"
+    },
+    "settings": {
+      "title": "Nastavení kanálu",
+      "rename": "Přejmenovat kanál",
+      "nameLabel": "Název kanálu",
+      "channelLabel": "Kanál",
+      "topic": {
+        "label": "Téma",
+        "placeholder": "O čem je tento kanál?",
+        "hint": "Ukazuje se v záhlaví kanálu. Odtamtud si každý může otevřít plný text.",
+        "counter": "{{used}}/{{max}}",
+        "tooLong": "Zkrať téma na {{max}} znaků či méně pro uložení.",
+        "empty": "Téma nenastaveno.",
+        "reset": "Zahodit změny"
+      },
+      "private": {
+        "label": "Soukromý kanál",
+        "description": "Jen vybraní členové a role tento kanál uvidí.",
+        "note": "Tento kanál je skryt členům bez výslovného přístupu. Uživatelé s oprávněním správce či vlastníci prostoru vždy vidí všechny kanály.",
+        "unhideOnSave": "Uložení zpřístupní kanál všem členům."
+      },
+      "deleteButton": "Smazat kanál"
+    },
+    "delete": {
+      "title": "Smazat #{{name}}?",
+      "description": "Tím se <strong>#{{name}}</strong> trvale smaže i se všemi zprávami. Nelze vrátit.",
+      "descriptionVoice": "Tím se <strong>#{{name}}</strong> trvale smaže i se všemi zprávami. Všichni na tomto hlasovém kanálu budou odpojeni. Nelze vrátit.",
+      "confirm": "Smazat kanál"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "Vytvořit kategorii",
+      "nameLabel": "Název kategorie",
+      "namePlaceholder": "nova-kategorie",
+      "nameRequired": "Název kategorie je vyžadován",
+      "noSpaceSelected": "Prostor nevybrán",
+      "submit": "Vytvořit kategorii",
+      "submitting": "Vytváření…"
+    },
+    "settings": {
+      "title": "Nastavení kategorie",
+      "rename": "Přejmenovat kategorii",
+      "nameLabel": "Název kategorie",
+      "categoryLabel": "Kategorie",
+      "private": {
+        "label": "Soukromá kategorie",
+        "description": "Jen vybraní členové a role uvidí kanály v této kategorii.",
+        "note": "Tato kategorie je skryta členům bez výslovného přístupu. Kanály uvnitř dědí toto omezení, pokud jej výslovně nepřepíší.",
+        "unhideOnSave": "Uložení zpřístupní kategorii i její kanály bez vlastního omezení všem členům."
+      },
+      "deleteButton": "Smazat kategorii"
+    },
+    "delete": {
+      "title": "Smazat „{{name}}”?",
+      "description": "Tím se kategorie <strong>{{name}}</strong> trvale smaže. Kanály uvnitř se přesunou na nejvyšší úroveň. Nelze vrátit.",
+      "confirm": "Smazat kategorii"
+    }
+  },
+  "invite": {
+    "title": "Pozvat přátele",
+    "intro": "Pošli přátelům či nasdílej odkaz.",
+    "introRequest": "Pošli přátelům či nasdílej odkaz. Kdo jej otevře, požádá o vstup a správce každou žádost schválí.",
+    "searchPlaceholder": "Hledat přátele…",
+    "noMatches": "Hledání neodpovídají žádní přátelé",
+    "noFriends": "Zatím žádní přátelé",
+    "alreadyMember": "Už v prostoru",
+    "removeSelected": "Odebrat {{name}}",
+    "selectFriends": "Vybrat přátele",
+    "send_one": "Poslat {{count}} pozvánku",
+    "send_few": "Poslat {{count}} pozvánky",
+    "send_many": "Poslat {{count}} pozvánek",
+    "send_other": "Poslat {{count}} pozvánky",
+    "sending": "Posílání…",
+    "retryFailed": "Zopakovat neúspěšné pozvánky",
+    "status": {
+      "sent": "✓ Odesláno",
+      "failed": "✗ {{reason}}"
+    },
+    "shareLink": "Nebo nasdílej odkaz",
+    "generating": "Generování…",
+    "generateFailed": "Odkaz se nepodařilo vygenerovat",
+    "failure": {
+      "inviteInvalid": "Odkaz už neplatí",
+      "notAFriend": "Není přítel",
+      "userNotFound": "Uživatel nenalezen",
+      "alreadyMember": "Už člen",
+      "upstream": "Pozvánku se nepodařilo ověřit, zkus to znovu",
+      "cannotInviteSelf": "Nemůžeš pozvat sebe",
+      "invalidBody": "Neplatný požadavek",
+      "invalidTarget": "Neplatný cíl",
+      "unreachable": "K tvé instanci se nepodařilo dovolat",
+      "serverError": "Nepodařilo se poslat (chyba serveru)"
+    }
+  },
+  "inviteFriend": {
+    "title": "Pozvat {{name}} do prostoru",
+    "intro": "Vyber jeden ze svých prostorů k odeslání pozvánky.",
+    "noSpaces": "Zatím nejsi v žádných prostorech",
+    "contextMenu": "Pozvat do prostoru"
+  },
+  "join": {
+    "validation": {
+      "required": "Kód pozvánky je vyžadován",
+      "invalidLink": "Neplatný odkaz s pozvánkou",
+      "linkFormat": "Neplatný odkaz — očekávaný formát: https://instance/join/CODE",
+      "qualifiedFormat": "Neplatný formát pozvánky — očekáváno: CODE@domain",
+      "invalidDomain": "Neplatná doména v pozvánce"
+    },
+    "title": "Vstoupit do prostoru",
+    "invitePlaceholder": "např. abc123 či https://instance.com/join/abc123",
+    "submit": "Vstoupit do prostoru",
+    "submitting": "Vstupování…",
+    "connect": {
+      "intro": "Připoj se k <host>{{host}}</host> pro vstup do tohoto prostoru.",
+      "passwordLabel": "Zadej heslo pro připojení",
+      "passwordPlaceholder": "Heslo tvého účtu",
+      "passwordNote": "Heslo ověřuje domovská instance a nikdy se neposílá do {{host}}. Ta instance dostane jedinečné pověření vytvořené jen pro ni.",
+      "submit": "Připojit a vstoupit",
+      "submitting": "Připojování…"
+    },
+    "fallback": {
+      "usernamePlaceholder": "Tvé uživatelské jméno na této instanci",
+      "passwordLabel": "Heslo k této instanci",
+      "passwordPlaceholder": "Heslo na vzdálené instanci",
+      "submit": "Přihlásit a vstoupit",
+      "submitting": "Přihlašování…"
+    },
+    "request": {
+      "messagePlaceholder": "Proč se chceš přidat? (volitelné)",
+      "send": "Poslat žádost",
+      "sending": "Posílání…",
+      "notice": "Tento prostor přijímá žádosti o vstup. Pošli žádost a správce ji posoudí.",
+      "messageLabel": "Vzkaz k žádosti",
+      "sent": "Žádost odeslána. Správce ji posoudí a prostor se ti po schválení objeví v seznamu.",
+      "pending": "O vstup do tohoto prostoru jsi už požádal. Tvá žádost čeká na správce."
+    }
+  },
+  "settings": {
+    "title": "Nastavení prostoru",
+    "backAria": "Zpět do nabídky nastavení prostoru",
+    "nav": {
+      "general": "Obecné",
+      "management": "Správa",
+      "tabs": {
+        "overview": "Přehled",
+        "roles": "Role",
+        "bans": "Bany"
+      }
+    },
+    "discardChanges": "Zahodit",
+    "overview": {
+      "identity": "Identita prostoru",
+      "iconLabel": "Ikona prostoru",
+      "iconAlt": "Ikona prostoru",
+      "colorLabel": "Barva ikony",
+      "bannerLabel": "Banner prostoru",
+      "bannerAlt": "Banner prostoru",
+      "uploadBanner": "Nahrát banner (16:9)",
+      "removeBanner": "Odebrat banner",
+      "nameLabel": "Název prostoru",
+      "iconUploadFailed": "Ikonu se nepodařilo nahrát",
+      "bannerUploadFailed": "Banner se nepodařilo nahrát",
+      "cropIconTitle": "Oříznout ikonu prostoru",
+      "cropBannerTitle": "Oříznout banner prostoru",
+      "transfer": {
+        "description": "Předej vlastnictví jinému členovi. Staneš se běžným členem.",
+        "prompt": "Předat vlastnictví <strong>{{name}}</strong>?",
+        "button": "Předat vlastnictví",
+        "confirm": "Předat",
+        "transferring": "Předávání…",
+        "success": "Vlastnictví předáno {{name}}",
+        "failed": "Vlastnictví se nepodařilo předat"
+      },
+      "delete": {
+        "description": "Trvale smazat tento prostor i všechna jeho data. Nelze vrátit.",
+        "button": "Smazat prostor",
+        "confirmAgain": "Klikni znovu pro potvrzení smazání",
+        "failed": "Prostor se nepodařilo smazat"
+      }
+    },
+    "access": {
+      "title": "Přístup a popis",
+      "visibility": {
+        "label": "Viditelnost",
+        "hint": "Urči, jak lidé s pozvánkou do tohoto prostoru vstupují.",
+        "options": {
+          "private": {
+            "label": "Soukromý",
+            "description": "Vstoupit smějí jen lidé s odkazem"
+          },
+          "request": {
+            "label": "Na žádost",
+            "description": "Pozvánka vede k žádosti, kterou musí schválit správce"
+          },
+          "public": {
+            "label": "Veřejný",
+            "description": "Lidé s pozvánkou vstoupí hned"
+          }
+        }
+      },
+      "description": {
+        "label": "Popis",
+        "hint": "Krátký popis ukazovaný s pozvánkami do tohoto prostoru.",
+        "placeholder": "Krátký popis tohoto prostoru…",
+        "counter": "{{length}}/{{max}}"
+      },
+      "requests": {
+        "title": "Čekající žádosti o vstup",
+        "empty": "Žádné čekající žádosti",
+        "actionFailed": "Akce selhala"
+      }
+    },
+    "members": {
+      "description": "Spravuj členy tohoto prostoru. Kliknutím na člena upravíš jeho role.",
+      "listHeading": "Členové ({{total}})",
+      "owner": "Vlastník",
+      "noRoles": "Žádné role",
+      "ban": "Zabanovat",
+      "kick": "Vyhodit",
+      "confirm": {
+        "banTitle": "Zabanovat {{name}}",
+        "kickTitle": "Vyhodit {{name}}",
+        "banDescription": "Tento člověk bude v tomto prostoru trvale zabanován, dokud ban nesundáš.",
+        "kickDescription": "Tento člověk se může vrátit s odkazem."
+      },
+      "updateRolesFailed": "Role se nepodařilo aktualizovat",
+      "kickFailed": "Člena se nepodařilo vyhodit",
+      "banFailed": "Člena se nepodařilo zabanovat",
+      "rolesAboveYou": "Role na úrovni tvé nejvyšší či výše jsou zamčeny.",
+      "rolesUnheld": "Role s oprávněními, která nemáš, dát nelze.",
+      "rolesManagedByBot": "Vlastní role bota zůstává botovi.",
+      "botInvite": {
+        "warning": "Bot se stane členem tohoto prostoru a dostává zprávy a události každého kanálu, kam sahají jeho oprávnění. Přidávej jen boty, kterým věříš.",
+        "owner": "Vlastník: @{{owner}}",
+        "button": "Přidat bota",
+        "title": "Přidat bota",
+        "searchPlaceholder": "Hledat boty podle jména…",
+        "searching": "Hledání…",
+        "noResults": "Nenalezeni žádní boti",
+        "add": "Přidat",
+        "adding": "Přidávání…",
+        "permissionsTitle": "Oprávnění pro {{name}}",
+        "permissionsIntro": "Bot žádá tato oprávnění. Putují do role pojmenované po botovi; odškrtni ta, která dát nechceš.",
+        "permissionsUnheld": "Oprávnění, která sám nemáš, dát nelze.",
+        "permissionsNone": "Nic nezaškrtnuto: bot se přidá bez role.",
+        "back": "Zpět"
+      }
+    },
+    "afk": {
+      "title": "AFK kanál",
+      "channelLabel": "Přesouvat nečinné členy do",
+      "disabled": "Vypnuto",
+      "timeoutLabel": "Po nečinnosti",
+      "minutes": "min",
+      "hint": "Členové bez hlasové aktivity po zvolený čas jsou automaticky přesunuti do tohoto hlasového kanálu."
+    }
+  },
+  "bans": {
+    "title": "Bany",
+    "description": "Zabanovaní uživatelé se do tohoto prostoru nesmějí vrátit, dokud ban nesundáš.",
+    "loading": "Načítání banů…",
+    "empty": "Žádní zabanovaní uživatelé",
+    "listHeading": "Bany ({{total}})",
+    "bannedBy": "Zabanoval {{moderator}} dne {{date}}",
+    "bannedByWithReason": "Zabanoval {{moderator}} dne {{date}}: {{reason}}",
+    "unban": "Odbanovat",
+    "loadFailed": "Bany se nepodařilo načíst",
+    "unbanFailed": "Uživatele se nepodařilo odbanovat"
+  },
+  "roles": {
+    "title": "Role",
+    "create": "Vytvořit roli",
+    "creating": "Vytváření…",
+    "listHeading": "Role",
+    "description": "Role určují, jaká oprávnění členové mají.",
+    "hierarchyHint": "Role výše v seznamu stojí nad těmi níže.",
+    "defaultName": "nová role",
+    "copyName": "Kopie {{name}}",
+    "backToList": "Zpět k rolím",
+    "created": "Role vytvořena. Uprav ji níže.",
+    "aboveYou": "Tato role je na úrovni tvé nejvyšší či výše. Můžeš si ji prohlédnout, ale ne změnit.",
+    "managedByBot": "Tuto roli spravuje bot a maže se, když bot prostor opustí. Nelze ji nikomu přiřadit ani ručně smazat. Její oprávnění měnit lze.",
+    "reorder": {
+      "handle": "Přesunout {{name}}",
+      "handleHint": "Přetáhni, či použij šipky nahoru a dolů",
+      "up": "Přesunout {{name}} nahoru",
+      "down": "Přesunout {{name}} dolů",
+      "locked": "{{name}} je na úrovni tvé nejvyšší role či výše",
+      "moved": "{{name}} přesunuta na pozici {{position}} z {{total}}"
+    },
+    "identity": "Identita",
+    "nameLabel": "Název role",
+    "colorLabel": "Barva role",
+    "nameEmpty": "Název role nesmí být prázdný",
+    "nameDuplicate": "Role s tímto názvem už existuje",
+    "groups": {
+      "general": "Obecné",
+      "text": "Text",
+      "voice": "Hlas"
+    },
+    "saved": "Role uložena",
+    "copy": "Kopírovat roli",
+    "copying": "Kopírování…",
+    "delete": "Smazat roli",
+    "deleting": "Mazání…",
+    "confirmDelete": "Potvrdit?",
+    "createFailed": "Roli se nepodařilo vytvořit",
+    "saveFailed": "Roli se nepodařilo uložit",
+    "deleteFailed": "Roli se nepodařilo smazat",
+    "copyFailed": "Roli se nepodařilo zkopírovat",
+    "unheldLocked": "Přepínat smíš jen oprávnění, která sám máš. Ostatní jsou zamčena.",
+    "unheldPermission": "Toto oprávnění nemáš",
+    "copyUnheld": "Tato role má oprávnění, která nemáš, takže ji zkopírovat nelze.",
+    "copyDeleteUnheld": "Tato role má oprávnění, která nemáš, takže ji zkopírovat ani smazat nelze."
+  },
+  "memberRoles": {
+    "title": "Upravit role pro {{name}}",
+    "viewProfile": "Zobrazit profil",
+    "affectsAll": "Změny oprávnění platí pro každého člena s touto rolí.",
+    "selectRole": "Vyber roli pro úpravu jejích oprávnění.",
+    "saved": "Změny uloženy"
+  },
+  "permissions": {
+    "title": "Oprávnění",
+    "names": {
+      "administrator": "Správce",
+      "viewChannel": "Prohlížení kanálů",
+      "manageChannels": "Správa kanálů",
+      "manageRoles": "Správa rolí",
+      "manageSpace": "Správa prostoru",
+      "createInvite": "Vytváření pozvánek",
+      "kickMembers": "Vyhazování členů",
+      "banMembers": "Banování členů",
+      "sendMessages": "Posílání zpráv",
+      "manageMessages": "Správa zpráv",
+      "attachFiles": "Přikládání souborů",
+      "readMessageHistory": "Čtení historie zpráv",
+      "addReactions": "Přidávání reakcí",
+      "connect": "Připojování",
+      "speak": "Mluvení",
+      "muteMembers": "Ztlumování členů",
+      "deafenMembers": "Ohluchování členů",
+      "moveMembers": "Přesouvání členů",
+      "stream": "Streamování",
+      "disconnectMembers": "Odpojování členů",
+      "mentionEveryone": "Zmiňování @everyone, @here a rolí"
+    },
+    "tristate": {
+      "deny": "Odepřít",
+      "neutral": "Neutrálně (dědit)",
+      "allow": "Povolit"
+    },
+    "overrideCount_one": "{{count}} přepsání",
+    "overrideCount_few": "{{count}} přepsání",
+    "overrideCount_many": "{{count}} přepsání",
+    "overrideCount_other": "{{count}} přepsání",
+    "removeOverride": "Odebrat přepsání",
+    "removeOverrideFor": "Odebrat přepsání pro {{name}}",
+    "removeOverrideHint": "Bez něj tu platí oprávnění celého prostoru.",
+    "noRoleOverrides": "Žádná přepsání rolí. Každá role tu používá svá oprávnění prostoru.",
+    "noMemberOverrides": "Žádná přepsání členů.",
+    "roleOverrides": "Přepsání rolí",
+    "memberOverrides": "Přepsání členů",
+    "addRole": "Přidat roli",
+    "addMember": "Přidat člena",
+    "noMoreRoles": "Žádné další role k přidání",
+    "loadFailed": "Přepsání se nepodařilo načíst",
+    "saveFailed": "Přepsání se nepodařilo uložit",
+    "partialFailure_one": "{{count}} přepsání se nepodařilo uložit",
+    "partialFailure_few": "{{count}} přepsání se nepodařilo uložit",
+    "partialFailure_many": "{{count}} přepsání se nepodařilo uložit",
+    "partialFailure_other": "{{count}} přepsání se nepodařilo uložit",
+    "unheldLocked": "Přepínat smíš jen oprávnění, která sám máš. Ostatní jsou zamčena.",
+    "unheldPermission": "Toto oprávnění nemáš",
+    "removeUnheld": "Toto přepsání nastavuje oprávnění, která nemáš. Odebrat je smí jen ten, kdo je má.",
+    "removeUnheldShort": "Odebrat smí jen ten, kdo tato oprávnění má",
+    "aboveYouRole": "Tato role je na úrovni tvé nejvyšší či výše. Její přepsání si smíš prohlédnout, ale ne změnit či odebrat.",
+    "aboveYouMember": "Tento člen je na tvé úrovni či výše. Jeho přepsání si smíš prohlédnout, ale ne změnit či odebrat.",
+    "aboveYouShort": "Na úrovni tvé nejvyšší role či výše"
+  },
+  "sidebar": {
+    "directMessages": "Přímé zprávy",
+    "addSpace": "Přidat prostor",
+    "joinSpace": "Vstoupit do prostoru",
+    "folder": {
+      "tooltip_one": "Složka ({{count}})",
+      "tooltip_few": "Složka ({{count}})",
+      "tooltip_many": "Složka ({{count}})",
+      "tooltip_other": "Složka ({{count}})",
+      "spaceCount_one": "{{count}} prostor",
+      "spaceCount_few": "{{count}} prostory",
+      "spaceCount_many": "{{count}} prostorů",
+      "spaceCount_other": "{{count}} prostoru",
+      "unnamed": "Složka beze jména",
+      "rename": "Přejmenovat složku",
+      "color": "Barva složky",
+      "create": "Vytvořit složku",
+      "moveTo": "Přesunout do složky",
+      "removeFrom": "Odebrat ze složky",
+      "ungroup": "Zrušit skupinu",
+      "created": "Složka vytvořena",
+      "moved": "Přesunuto do složky",
+      "removed": "Odebráno ze složky",
+      "ungrouped": "Skupina zrušena"
+    },
+    "space": {
+      "inviteCopied": "Odkaz zkopírován do schránky",
+      "inviteCopiedRequest": "Odkaz zkopírován. Kdo jej otevře, může požádat o vstup.",
+      "inviteFailed": "Pozvánku se nepodařilo vygenerovat",
+      "transferOwnership": "Předat vlastnictví",
+      "settings": "Nastavení prostoru",
+      "leave": "Opustit prostor",
+      "reconnecting": "Nové připojování k {{instance}}…",
+      "remoteInstance": "vzdálená instance",
+      "leaveConfirm": {
+        "title": "Opustit prostor",
+        "titleNamed": "Opustit {{name}}",
+        "description": "Opravdu chceš opustit tento prostor? K novému vstupu budeš potřebovat pozvánku."
+      },
+      "left": "Prostor opuštěn",
+      "leaveFailed": "Prostor se nepodařilo opustit",
+      "unreadMessages_one": "{{count}} nepřečtená zpráva",
+      "unreadMessages_few": "{{count}} nepřečtené zprávy",
+      "unreadMessages_many": "{{count}} nepřečtených zpráv",
+      "unreadMessages_other": "{{count}} nepřečtené zprávy",
+      "unreadMessagesOver99": "Více než 99 nepřečtených zpráv"
+    },
+    "dmList": {
+      "newDm": "Nová přímá zpráva",
+      "empty": "Zatím žádné konverzace.",
+      "leaveGroup": "Opustit skupinu",
+      "leaveGroupConfirm": {
+        "title": "Opustit skupinovou zprávu",
+        "description": "Opravdu chceš odejít? Znovu se přidáš, až tě někdo přidá zpět."
+      }
+    },
+    "userArea": {
+      "inputDevice": "Vstupní zařízení",
+      "outputDevice": "Výstupní zařízení",
+      "inputDevices": "Vstupní zařízení",
+      "outputDevices": "Výstupní zařízení",
+      "inputVolume": "Hlasitost vstupu",
+      "outputVolume": "Hlasitost výstupu",
+      "systemDefault": "Systémové výchozí",
+      "microphonePermission": "Potřeba povolení mikrofonu.",
+      "audioPermission": "Potřeba povolení zvuku.",
+      "enable": "Povolit",
+      "voiceSettings": "Nastavení hlasu",
+      "mute": "Ztlumit",
+      "unmute": "Zrušit ztlumení",
+      "deafen": "Ohluchnout",
+      "undeafen": "Zrušit ohluchnutí",
+      "spaceMuted": "Ztlumen v prostoru",
+      "spaceDeafened": "Ohluchlý v prostoru",
+      "permissionMuted": "Ztlumen (bez oprávnění mluvit)"
+    },
+    "dmUnreadMessages_one": "{{count}} nepřečtená přímá zpráva",
+    "dmUnreadMessages_few": "{{count}} nepřečtené přímé zprávy",
+    "dmUnreadMessages_many": "{{count}} nepřečtených přímých zpráv",
+    "dmUnreadMessages_other": "{{count}} nepřečtené přímé zprávy",
+    "dmUnreadMessagesOver99": "Více než 99 nepřečtených přímých zpráv"
+  },
+  "channels": {
+    "resizeHandle": "Změnit velikost seznamu kanálů",
+    "loading": "Načítání kanálů",
+    "create": "Vytvořit kanál",
+    "createCategory": "Vytvořit kategorii",
+    "settings": "Nastavení kanálu",
+    "categorySettings": "Nastavení kategorie",
+    "delete": "Smazat kanál",
+    "deleteCategory": "Smazat kategorii",
+    "emptyCategory": "Žádné kanály",
+    "empty": "Zatím žádné kanály.",
+    "deleteConfirm": {
+      "title": "Smazat kanál",
+      "description": "Opravdu? Tím se kanál i všechny jeho zprávy trvale smažou."
+    },
+    "deleteCategoryConfirm": {
+      "title": "Smazat kategorii",
+      "description": "Opravdu chceš smazat tuto kategorii? Kanály v ní se přesunou mezi nezařazené — žádný kanál se nesmaže."
+    },
+    "deleted": "Kanál smazán",
+    "deleteFailed": "Kanál se nepodařilo smazat",
+    "categoryDeleted": "Kategorie smazána",
+    "categoryDeleteFailed": "Kategorii se nepodařilo smazat"
+  },
+  "members": {
+    "titleWithCount_one": "Členové — {{count}}",
+    "titleWithCount_few": "Členové — {{count}}",
+    "titleWithCount_many": "Členové — {{count}}",
+    "titleWithCount_other": "Členové — {{count}}",
+    "loading": "Načítání členů",
+    "resizeHandle": "Změnit velikost seznamu členů",
+    "groups": {
+      "owner": "Vlastník"
+    },
+    "ownerTitle": {
+      "edit": "Upravit titul vlastníka",
+      "label": "Titul vlastníka",
+      "hint": "Viditelný všem členům tohoto prostoru. Použij 1–{{max}} znaků; oprávnění to nemění.",
+      "reset": "Resetovat na výchozí"
+    },
+    "menu": {
+      "profile": "Zobrazit profil",
+      "nickname": "Změnit přezdívku v prostoru…",
+      "roles": "Role"
+    },
+    "nickname": {
+      "title": "Změnit přezdívku v prostoru",
+      "label": "Přezdívka v prostoru",
+      "descriptionSelf": "Platí jen v tomto prostoru. Jméno tvého účtu ani přezdívky v jiných prostorech se nemění. Nech prázdné pro zobrazení jména účtu.",
+      "descriptionOther": "Platí jen v tomto prostoru. Jméno účtu {{name}} se nemění. Nech prázdné pro zobrazení jména účtu.",
+      "reset": "Resetovat na jméno účtu",
+      "shownAs": "Přezdívka v tomto prostoru: {{nickname}}"
+    }
+  },
+  "mobile": {
+    "addSheet": {
+      "createSpace": "Vytvořit prostor",
+      "joinSpace": "Vstoupit do prostoru"
+    },
+    "muteUser": "Ztlumit uživatele"
+  },
+  "main": {
+    "selectChannel": "Vyber kanál",
+    "selectChannelHint": "Vyber textový či hlasový kanál pro začátek",
+    "notificationSettings": "Nastavení oznámení",
+    "topic": {
+      "show": "Zobrazit celé téma",
+      "dialogTitle": "#{{name}}"
+    },
+    "voice": {
+      "connectionFailed": "Připojení selhalo",
+      "connected": "Připojeno",
+      "connecting": "Připojování…",
+      "participants_one": "{{count}} připojen",
+      "participants_few": "{{count}} připojeni",
+      "participants_many": "{{count}} připojených",
+      "participants_other": "{{count}} připojen",
+      "inCall_one": "{{count}} v hovoru",
+      "inCall_few": "{{count}} v hovoru",
+      "inCall_many": "{{count}} v hovoru",
+      "inCall_other": "{{count}} v hovoru",
+      "empty": "Na tomto hlasovém kanálu teď nikdo není.",
+      "join": "Připojit k hlasu"
+    },
+    "dm": {
+      "fallbackName": "Přímá zpráva",
+      "composerPlaceholder": "Zpráva pro {{target}}",
+      "calling": "Volání {{name}}…",
+      "groupSettings": "Nastavení skupiny",
+      "openGroupSettings": "Otevřít nastavení skupiny",
+      "memberCount_one": "({{count}} člen)",
+      "memberCount_few": "({{count}} členové)",
+      "memberCount_many": "({{count}} členů)",
+      "memberCount_other": "({{count}} člena)",
+      "startVoiceCall": "Zahájit hlasový hovor",
+      "joinCall": "Připojit k hovoru",
+      "startVideoCall": "Zahájit videohovor",
+      "addFriends": "Přidat přátele do přímé zprávy"
+    }
+  },
+  "ownership": {
+    "title": "Předat vlastnictví",
+    "description": "Vyber člena, který se stane novým vlastníkem <name>{{name}}</name>",
+    "confirmQuestion": "Předat vlastnictví <name>{{space}}</name> pro <name>{{member}}</name>?",
+    "regularMember": "Staneš se běžným členem.",
+    "transferring": "Předávání…",
+    "confirm": "Předat",
+    "loading": "Načítání členů…",
+    "success": "Vlastnictví předáno {{name}}",
+    "failed": "Vlastnictví se nepodařilo předat"
+  },
+  "notifications": {
+    "open": "Nastavení oznámení",
+    "channelTitle": "Oznámení pro #{{channel}}",
+    "spaceTitle": "Oznámení pro {{space}}",
+    "levelHeading": "Upozorňovat mě na",
+    "level": {
+      "all": "Všechny zprávy",
+      "mentions": "Jen @zmínky",
+      "nothing": "Nic",
+      "inherit": "Výchozí prostoru ({{level}})"
+    },
+    "dmNote": "Přímé zprávy tě vždy upozorní.",
+    "muteHeading": "Ztlumení",
+    "mute": {
+      "oneHour": "Na 1 hodinu",
+      "eightHours": "Na 8 hodin",
+      "oneDay": "Na 24 hodin",
+      "indefinite": "Než zase zapnu"
+    },
+    "unmute": "Zrušit ztlumení",
+    "mutedUntil": "Ztlumeno do {{time}}",
+    "mutedIndefinitely": "Ztlumeno, dokud nezapneš",
+    "spaceMuted": "Tento prostor je ztlumen, takže i jeho kanály.",
+    "mutedIndicator": "Ztlumeno",
+    "saveFailed": "Nastavení oznámení se nepodařilo uložit",
+    "suppressEveryone": "Potlačit @everyone a @here",
+    "suppressRoles": "Potlačit zmínky o rolích",
+    "massHeading": "Skupinové zmínky",
+    "massNote": "@here sahá ke stejným členům jako @everyone. Zmínky o tobě jménem tě upozorní vždy."
+  }
+}

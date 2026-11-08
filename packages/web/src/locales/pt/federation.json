@@ -1,4 +1,25 @@
 {
+  "validation": {
+    "invalidUrl": "URL inválida",
+    "selfInstance": "Você já está conectado a esta instância.",
+    "alreadyConnected": "Esta instância já está conectada.",
+    "notLoggedIn": "Você não está conectado à sua conta.",
+    "connectHomeFirst": "Conecte-se primeiro à sua instância de origem ({{home}}). Ela emite a credencial de acesso a {{target}}.",
+    "incorrectPassword": "Senha incorreta",
+    "authenticationFailed": "Não foi possível autenticar na instância remota."
+  },
+  "feedback": {
+    "connectionLost": "A conexão com {{instance}} foi perdida. Reconectando...",
+    "connectionRestored": "Conexão com {{instance}} restabelecida",
+    "pendingRequests_one": "Você tem {{count}} solicitação de peering pendente",
+    "pendingRequests_many": "Você tem {{count}} solicitações de peering pendentes",
+    "pendingRequests_other": "Você tem {{count}} solicitações de peering pendentes",
+    "requestApproved": "Sua solicitação de peering foi aprovada",
+    "requestDenied": "Sua solicitação de peering foi negada",
+    "requestExpired": "Sua solicitação de peering expirou",
+    "friendRequestDeliveryFailed": "Não foi possível entregar a solicitação de amizade para {{username}}: {{reason}}",
+    "accountRelinked": "Conta vinculada novamente a {{instance}}"
+  },
   "connections": {
     "title": "Instâncias conectadas",
     "description": "Vincule contas entre instâncias federadas do Backspace.",

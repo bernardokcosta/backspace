@@ -1,0 +1,459 @@
+{
+  "general": {
+    "title": "Ogólne",
+    "description": "Skonfiguruj swoją instancję Backspace. Te ustawienia dotyczą wszystkich użytkowników.",
+    "instanceName": {
+      "label": "Nazwa instancji",
+      "description": "Nazwa pokazywana na stronie logowania i instancjom sfederowanym.",
+      "counter": "{{length}}/{{max}}"
+    },
+    "gif": {
+      "label": "Wyszukiwanie GIF-ów",
+      "description": "Włącz wyszukiwanie GIF-ów obsługiwane przez Klipy. Darmowy klucz API zdobędziesz w portalu dewelopera Klipy.",
+      "placeholderSaved": "Klucz zapisany — wpisz nowy, aby zastąpić",
+      "placeholderKey": "Klucz API Klipy",
+      "enabled": "Włączone",
+      "notConfigured": "Nieskonfigurowane",
+      "clearKey": "Wyczyść klucz"
+    }
+  },
+  "registration": {
+    "title": "Rejestracja",
+    "description": "Określ, kto może tworzyć konta na tej instancji. Publiczna rejestracja obejmuje lokalne zapisy; sfederowana rejestracja obejmuje użytkowników z instancji partnerskich tworzących tu konto.",
+    "public": {
+      "label": "Publiczna rejestracja",
+      "toggleLabel": "Zezwalaj na nowe lokalne konta",
+      "toggleDescription": "Każdy może utworzyć lokalne konto ze strony rejestracji. Po wyłączeniu nowe lokalne konta tworzą tylko linki z zaproszeniami."
+    },
+    "federated": {
+      "label": "Sfederowana rejestracja",
+      "toggleLabel": "Zezwalaj na nowe sfederowane konta",
+      "toggleDescription": "Użytkownicy z innych instancji mogą utworzyć tu sfederowane konto w ustawieniach Połączeń. Istniejące sfederowane konta mogą się logować niezależnie od tego ustawienia."
+    },
+    "spaceCreation": {
+      "label": "Tworzenie przestrzeni",
+      "toggleLabel": "Zezwalaj na tworzenie nowych przestrzeni",
+      "toggleDescription": "Użytkownicy mogą tworzyć nowe przestrzenie na tej instancji. Po wyłączeniu przestrzenie tworzą tylko administratorzy instancji, a zwykli użytkownicy mogą tylko dołączać do istniejących."
+    },
+    "saved": "Zapisano ustawienia rejestracji",
+    "saveFailed": "Nie udało się zaktualizować ustawień rejestracji"
+  },
+  "invites": {
+    "label": "Linki z zaproszeniami",
+    "create": "+ Utwórz link",
+    "tabs": {
+      "active": "Aktywne",
+      "archived": "Zarchiwizowane"
+    },
+    "loadFailed": "Nie udało się wczytać zaproszeń",
+    "emptyActive": "Brak aktywnych linków z zaproszeniami.",
+    "emptyArchived": "Brak zarchiwizowanych linków z zaproszeniami.",
+    "noMatch": "Brak zaproszeń pasujących do filtra.",
+    "filter": {
+      "status": "Status",
+      "sort": {
+        "recent": "Najnowsze",
+        "oldest": "Najstarsze",
+        "name": "Nazwa (A–Z)",
+        "mostUsed": "Najczęściej używane",
+        "expiringSoonest": "Wygasające najszybciej"
+      }
+    },
+    "status": {
+      "active": "Aktywne",
+      "expired": "Wygasłe",
+      "exhausted": "Wyczerpane",
+      "revoked": "Cofnięte"
+    },
+    "expiry": {
+      "preset": {
+        "hour1": "1 godzina",
+        "hours24": "24 godziny",
+        "days7": "7 dni",
+        "days30": "30 dni",
+        "custom": "Niestandardowe…"
+      },
+      "keepCurrent": "Zachowaj bieżące",
+      "invalidFuture": "Wybierz przyszłą datę i godzinę",
+      "invalidSelection": "Nieprawidłowy wybór wygaśnięcia",
+      "revokedOn": "Cofnięto {{date}}",
+      "expiredOn": "Wygasło {{date}}",
+      "exhausted": "Wyczerpane",
+      "noExpiration": "Bez wygaśnięcia",
+      "inDays_one": "Wygasa za {{count}} dzień",
+      "inDays_few": "Wygasa za {{count}} dni",
+      "inDays_many": "Wygasa za {{count}} dni",
+      "inDays_other": "Wygasa za {{count}} dnia",
+      "inHours_one": "Wygasa za {{count}} godzinę",
+      "inHours_few": "Wygasa za {{count}} godziny",
+      "inHours_many": "Wygasa za {{count}} godzin",
+      "inHours_other": "Wygasa za {{count}} godziny"
+    },
+    "form": {
+      "name": "Nazwa",
+      "namePlaceholder": "np. Znajomi partia 1",
+      "maxUses": "Maks. użyć",
+      "unlimited": "Bez limitu",
+      "uses": "użyć",
+      "expires": "Wygasa",
+      "nameLength": "Nazwa musi mieć 1–64 znaki",
+      "maxUsesInteger": "Maks. użyć musi być dodatnią liczbą całkowitą"
+    },
+    "createModal": {
+      "title": "Utwórz link z zaproszeniem",
+      "description": "Wygeneruj link do udostępnienia, który pozwala rejestrować się na tej instancji. Ustawisz, ile razy można go użyć i kiedy wygasa.",
+      "submit": "Utwórz link",
+      "submitting": "Tworzenie…",
+      "createdCopied": "Utworzono link. Skopiowano do schowka.",
+      "createdManual": "Utworzono link. Skopiuj ręcznie z wiersza.",
+      "failed": "Nie udało się utworzyć zaproszenia: {{message}}"
+    },
+    "editModal": {
+      "title": "Edytuj „{{name}}”",
+      "description": "Dostosuj limity tego linku. URL zostaje ten sam — każdy, kto go ma, wciąż może go użyć w nowych granicach.",
+      "used": "(użyto {{used}})",
+      "maxUsesBelowUsed": "Maks. użyć nie może być mniejsze od bieżących użyć ({{used}})",
+      "noChanges": "Brak zmian do zapisania",
+      "updated": "Zaktualizowano zaproszenie",
+      "failed": "Nie udało się zaktualizować zaproszenia: {{message}}",
+      "submit": "Zapisz zmiany",
+      "submitting": "Zapisywanie…"
+    },
+    "reinstateModal": {
+      "title": "Przywróć „{{name}}”",
+      "descriptionRevoked": "To zaproszenie zostało cofnięte. Przywrócenie generuje nowy link z innym adresem URL — stary URL pozostaje nieaktywny.",
+      "descriptionLapsed": "To zaproszenie wygasło. Przywrócenie reaktywuje ten sam URL — każdy, kto go zapisał, będzie mógł go znowu użyć.",
+      "newLinkWarning": "Zostanie wygenerowany nowy link. Każdy, kto miał stary URL, nie będzie mógł go użyć.",
+      "maxUsesMeta": "(bieżące: {{max}}, użyto: {{used}})",
+      "maxUsesMin": "Maks. użyć musi wynosić co najmniej {{min}} (bieżące użycia: {{used}})",
+      "submit": "Przywróć",
+      "submitNewLink": "Przywróć z nowym linkiem",
+      "submitting": "Przywracanie…",
+      "doneCopied": "Przywrócono z nowym linkiem. Skopiowano do schowka.",
+      "doneManual": "Przywrócono z nowym linkiem. Skopiuj ręcznie z wiersza.",
+      "doneSameLink": "Przywrócono. Ten sam link znów działa.",
+      "failed": "Nie udało się przywrócić: {{message}}"
+    },
+    "redemptions": {
+      "title": "Wykorzystania „{{name}}”",
+      "description": "Użytkownicy, którzy zarejestrowali się tym linkiem, w kolejności zapisów.",
+      "revokedNotice": "To zaproszenie zostało cofnięte. Wykorzystania poniżej dotyczą użytkowników zarejestrowanych przed cofnięciem.",
+      "revokedNoticeDated": "To zaproszenie cofnięto {{date}}. Wykorzystania poniżej dotyczą użytkowników zarejestrowanych przed cofnięciem.",
+      "usesOfMax_one": "{{count}} z {{max}} użyć",
+      "usesOfMax_few": "{{count}} z {{max}} użyć",
+      "usesOfMax_many": "{{count}} z {{max}} użyć",
+      "usesOfMax_other": "{{count}} z {{max}} użyć",
+      "uses_one": "{{count}} użycie",
+      "uses_few": "{{count}} użycia",
+      "uses_many": "{{count}} użyć",
+      "uses_other": "{{count}} użycia",
+      "loadFailed": "Nie udało się wczytać wykorzystań",
+      "loadFailedInline": "Nie udało się wczytać wykorzystań.",
+      "empty": "Brak wykorzystań.",
+      "now": "(teraz {{name}})",
+      "deletedUser": "Usunięty użytkownik"
+    },
+    "row": {
+      "usage": "Użycia: {{usage}}",
+      "createdBy": "Utworzone przez {{name}}",
+      "unknownCreator": "Nieznany",
+      "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
+      "subtitleArchived": "{{usage}} · {{expiry}} · {{when}}",
+      "used": "Użyto",
+      "expires": "Wygasa",
+      "expiredAt": "Wygasło",
+      "revokedAt": "Cofnięto",
+      "exhausted": "Wyczerpane",
+      "created": "Utworzono",
+      "createdByLabel": "Utworzone przez",
+      "token": "Token",
+      "lastRedeemed": "Ostatnio wykorzystane",
+      "copyLink": "Kopiuj link",
+      "revoke": "Cofnij",
+      "viewRedemptions": "Zobacz wykorzystania",
+      "reinstate": "Przywróć",
+      "deletePermanently": "Usuń trwale",
+      "copied": "Skopiowano link z zaproszeniem",
+      "copyFailed": "Nie udało się skopiować linku",
+      "revoked": "Cofnięto zaproszenie",
+      "revokeFailed": "Nie udało się cofnąć: {{message}}",
+      "deleted": "Usunięto zaproszenie",
+      "deleteFailed": "Nie udało się usunąć: {{message}}",
+      "revokeDialog": {
+        "title": "Cofnąć „{{name}}”?",
+        "description": "Link natychmiast przestaje działać. Każdy, kto ma URL, nie będzie mógł go już użyć.<br/><br/>Jeśli zmienisz zdanie, <strong>Przywróć</strong> wystawi świeży link w tym wpisie — pierwotny URL pozostanie nieaktywny.",
+        "confirm": "Cofnij link"
+      },
+      "deleteDialog": {
+        "title": "Usunąć trwale „{{name}}”?",
+        "description": "Nie można tego cofnąć. Historia wykorzystań tego linku też zostanie usunięta. Jeśli chcesz tylko zatrzymać link, użyj zamiast tego <strong>Cofnij</strong> — zachowa to rekord wykorzystań.",
+        "confirm": "Usuń trwale"
+      }
+    }
+  },
+  "storage": {
+    "title": "Dysk",
+    "description": "Monitoruj użycie dysku i sprzątaj osierocone pliki po usuniętych treściach lub zastąpionych awatarach/banerach.",
+    "loading": "Ładowanie statystyk dysku…",
+    "loadFailed": "Nie udało się wczytać statystyk dysku",
+    "refresh": "Odśwież statystyki",
+    "overview": {
+      "label": "Przegląd dysku",
+      "totalFiles": "Wszystkie pliki",
+      "referenced": "Powiązane",
+      "orphanedFiles": "Osierocone pliki",
+      "unlinkedUploads": "Odłączone przesłania",
+      "danglingRecords": "Wiszące rekordy",
+      "staleUploads": "Nieaktualne przesłania"
+    },
+    "breakdown": {
+      "label": "Podział typów plików",
+      "entry_one": "{{count}} plik — {{size}}",
+      "entry_few": "{{count}} pliki — {{size}}",
+      "entry_many": "{{count}} plików — {{size}}",
+      "entry_other": "{{count}} pliku — {{size}}"
+    },
+    "uploadLimit": {
+      "label": "Limit przesyłania",
+      "maxFileSize": "Maks. rozmiar pliku",
+      "maxStickerSize": "Maks. rozmiar naklejki",
+      "saved": "Ustawiono limit przesyłania na {{limit}}",
+      "saveFailed": "Nie udało się zaktualizować limitu przesyłania",
+      "stickerSaved": "Ustawiono limit rozmiaru naklejek na {{limit}}",
+      "stickerSaveFailed": "Nie udało się zaktualizować limitu rozmiaru naklejek"
+    },
+    "cleanup": {
+      "label": "Sprzątanie",
+      "nothingFound": "Nie znaleziono osieroconych plików, nieaktualnych przesłań ani wiszących rekordów.",
+      "preview": "Podgląd sprzątania",
+      "run": "Posprzątaj teraz",
+      "running": "Sprzątanie…",
+      "previewResult": "Podgląd — nic nie usunięto",
+      "complete": "Sprzątanie ukończone",
+      "orphanedFiles_one": "{{count}} osierocony plik ({{size}})",
+      "orphanedFiles_few": "{{count}} osierocone pliki ({{size}})",
+      "orphanedFiles_many": "{{count}} osieroconych plików ({{size}})",
+      "orphanedFiles_other": "{{count}} osieroconego pliku ({{size}})",
+      "staleRecords_one": ", {{count}} nieaktualny rekord przesyłania",
+      "staleRecords_few": ", {{count}} nieaktualne rekordy przesyłania",
+      "staleRecords_many": ", {{count}} nieaktualnych rekordów przesyłania",
+      "staleRecords_other": ", {{count}} nieaktualnego rekordu przesyłania",
+      "errors_one": "{{count}} błąd: {{first}}",
+      "errors_few": "{{count}} błędy: {{first}}",
+      "errors_many": "{{count}} błędów: {{first}}",
+      "errors_other": "{{count}} błędu: {{first}}",
+      "cleanedToast_one": "Posprzątano {{count}} plik ({{size}})",
+      "cleanedToast_few": "Posprzątano {{count}} pliki ({{size}})",
+      "cleanedToast_many": "Posprzątano {{count}} plików ({{size}})",
+      "cleanedToast_other": "Posprzątano {{count}} pliku ({{size}})",
+      "failed": "Sprzątanie nie powiodło się"
+    },
+    "stale": {
+      "label": "Nieaktualne przesłania",
+      "description": "Porzucone sesje przesyłania tus w <code>.tus/</code> (wstrzymane/awaryjne bez DELETE). Auto-wygasanie działa co 24 godziny; tutaj możesz posprzątać od razu.",
+      "maxAge": "Maks. wiek (godziny)",
+      "sessionFiles_one": "{{count}} plik sesji ({{size}})",
+      "sessionFiles_few": "{{count}} pliki sesji ({{size}})",
+      "sessionFiles_many": "{{count}} plików sesji ({{size}})",
+      "sessionFiles_other": "{{count}} pliku sesji ({{size}})",
+      "cleanedToast_one": "Posprzątano {{count}} nieaktywną sesję przesyłania ({{size}})",
+      "cleanedToast_few": "Posprzątano {{count}} nieaktywne sesje przesyłania ({{size}})",
+      "cleanedToast_many": "Posprzątano {{count}} nieaktywnych sesji przesyłania ({{size}})",
+      "cleanedToast_other": "Posprzątano {{count}} nieaktywnej sesji przesyłania ({{size}})",
+      "failed": "Sprzątanie nieaktualnych przesłań nie powiodło się"
+    },
+    "media": {
+      "label": "Retencja multimediów",
+      "olderThan": "Usuń multimedia czatu starsze niż",
+      "days": "dni",
+      "run": "Usuń teraz",
+      "running": "Usuwanie…",
+      "files_one": "{{count}} plik ({{size}})",
+      "files_few": "{{count}} pliki ({{size}})",
+      "files_many": "{{count}} plików ({{size}})",
+      "files_other": "{{count}} pliku ({{size}})",
+      "deletedToast_one": "Usunięto {{count}} plik ({{size}})",
+      "deletedToast_few": "Usunięto {{count}} pliki ({{size}})",
+      "deletedToast_many": "Usunięto {{count}} plików ({{size}})",
+      "deletedToast_other": "Usunięto {{count}} pliku ({{size}})",
+      "failed": "Sprzątanie multimediów nie powiodło się"
+    }
+  },
+  "streaming": {
+    "title": "Streamowanie",
+    "description": "Te limity dotyczą wszystkich użytkowników tej instancji. Użytkownicy wybierają wartości w tych granicach.",
+    "units": {
+      "fps": "{{value}} fps",
+      "kbpsLabel": "kbps"
+    },
+    "bandwidth": {
+      "label": "Szybkość transmisji",
+      "description": "Dolne i górne granice szybkości oraz krok suwaka jakości.",
+      "customBitrate": {
+        "label": "Zezwalaj na własną szybkość transmisji",
+        "description": "Pozwól użytkownikom ustawiać własną szybkość zamiast domyślnych z macierzy"
+      },
+      "range": "Zakres szybkości",
+      "min": "Minimum",
+      "max": "Maks",
+      "step": "Krok suwaka"
+    },
+    "quality": {
+      "label": "Jakość",
+      "description": "Dostępne opcje rozdzielczości i liczby klatek dla udostępniania ekranu.",
+      "resolutions": "Dozwolone rozdzielczości",
+      "framerates": "Dozwolone liczby klatek"
+    },
+    "highEndWarning": {
+      "title": "Włączone ustawienia wysokiej wydajności.",
+      "description": "Streamowanie powyżej 1080p lub 60 fps wymaga sporej mocy CPU/GPU po stronie klienta i może nasycić przepustowość serwera, zwłaszcza gdy streamy idą przez TURN. Konfiguracje z najwyższej półki (np. 4K przy 120 fps) mogą wymagać do 45 Mbps na aktywny stream. Upewnij się, że Twoja infrastruktura udźwignie to obciążenie, zanim włączysz te opcje wszystkim użytkownikom."
+    },
+    "matrix": {
+      "label": "Macierz szybkości",
+      "description": "Domyślne szybkości na rozdzielczość i liczbę klatek. Edytuj pojedyncze komórki albo skaluj wszystkie wartości naraz.",
+      "scaleAll": "Skaluj wszystkie",
+      "scaleHint": "Przeciągnij, aby przeskalować wszystkie szybkości. Dopracuj pojedyncze komórki poniżej.",
+      "cellDefault": "Domyślnie: {{value}} (kliknij ×, aby zresetować)",
+      "cellEdit": "Kliknij, aby edytować",
+      "resetAll": "Zresetuj wszystkie do domyślnych"
+    },
+    "capWarning": {
+      "title": "Wartości macierzy przekraczają globalny limit.",
+      "description": "Niektóre szybkości przekraczają Twoje maksimum {{max}}. Streamy w tych kombinacjach będą miały obniżoną jakość do limitu."
+    }
+  },
+  "updates": {
+    "title": "Aktualizacje",
+    "badge": {
+      "settingsAriaLabel": "Ustawienia, dostępna aktualizacja instancji",
+      "toast": "Backspace {{version}} jest dostępny dla tej instancji",
+      "toastAction": "Zobacz"
+    },
+    "description": "Co działa na tej instancji i jak ruszyć dalej.",
+    "loading": "Ładowanie statusu aktualizacji…",
+    "loadFailed": "Nie udało się wczytać statusu aktualizacji.",
+    "copyFailed": "Nie udało się skopiować. Zaznacz komendę i skopiuj ją ręcznie.",
+    "running": {
+      "label": "Działa",
+      "commit": "commit {{commit}} · ",
+      "channel": {
+        "prebuilt": "obraz prebuilt",
+        "source": "zbudowane ze źródeł",
+        "unknown": "nie zarejestrowano metody instalacji"
+      }
+    },
+    "available": {
+      "label": "Dostępne",
+      "version": "Backspace {{version}} jest dostępny",
+      "released": "Wydano {{date}} · ",
+      "releaseNotes": "Uwagi do wydania",
+      "fromInstallDir": "Z katalogu instalacji:",
+      "scriptDescription": "Robi migawkę bazy, pobiera nowy obraz i restartuje tylko kontener Backspace. Jeśli nowa wersja nie wstanie zdrowa albo wciąż działa stary kod, przywraca wersję, na której jesteś.",
+      "noScript": "Nie mam update.sh",
+      "manualIntro": "update.sh jest od 1.0.5. Na klonie gita <code>git pull</code> go dociągnie. W przeciwnym razie wykonaj kroki ręcznie, po migawce komendą <code>./backup.sh</code>.",
+      "prebuiltInstall": "Instalacja z obrazu prebuilt:",
+      "sourceInstall": "Instalacja ze źródeł:",
+      "manualWarning": "Nazwij usługę <code>backspace</code> jawnie i nie przekazuj <code>--remove-orphans</code>. Compose zasugeruje to, gdy uruchamiasz inne kontenery w tym projekcie, a usunęłoby je."
+    },
+    "upToDate": "Masz najnowsze wydanie.",
+    "disabled": {
+      "title": "Sprawdzanie aktualizacji jest wyłączone",
+      "description": "Ta instancja nie będzie kontaktować się z GitHub. Ustaw <code>BACKSPACE_UPDATE_CHECK=true</code> w <code>.env</code>, aby zezwolić na sprawdzanie, albo sprawdzaj stronę wydań sam."
+    },
+    "rateLimited": {
+      "title": "GitHub ograniczył liczbę zapytań",
+      "description": "To nic nie mówi o tym, czy aktualizacja istnieje. Spróbuj później."
+    },
+    "unreachable": {
+      "title": "Nie udało się sprawdzić aktualizacji",
+      "description": "Nie udało się połączyć z GitHub, więc to nic nie mówi o tym, czy aktualizacja istnieje. Twoja instancja działa bez zmian."
+    },
+    "lastChecked": "Ostatnio sprawdzono {{when}}",
+    "noLookups": "Brak zapytań",
+    "checkAgain": "Sprawdź ponownie",
+    "checking": "Sprawdzanie…"
+  },
+  "users": {
+    "title": "Użytkownicy",
+    "description": "Przeglądaj i zarządzaj kontami użytkowników na tej instancji.",
+    "searchPlaceholder": "Szukaj użytkowników…",
+    "loading": "Ładowanie użytkowników…",
+    "loadFailed": "Nie udało się wczytać użytkowników",
+    "empty": "Nie znaleziono użytkowników",
+    "filters": {
+      "allInstances": "Wszystkie instancje",
+      "localOnly": "Tylko lokalne",
+      "allRoles": "Wszystkie role",
+      "admin": "Administrator",
+      "nonAdmin": "Nie administrator",
+      "joinedAfter": "Dołączył po",
+      "joinedBefore": "Dołączył przed",
+      "newest": "Najpierw najnowsze",
+      "oldest": "Najpierw najstarsze",
+      "nameDesc": "Nazwa Z-A",
+      "deleted": "Usunięte",
+      "clear": "Wyczyść filtry",
+      "bot": "Boty"
+    },
+    "badge": {
+      "admin": "Administrator",
+      "deleted": "Usunięty"
+    },
+    "actions": {
+      "demote": "Degraduj z administratora",
+      "promote": "Mianuj administratorem",
+      "federatedNoAdmin": "Sfederowani użytkownicy nie mogą być administratorami",
+      "resetPassword": "Zresetuj hasło",
+      "federatedNoReset": "Sfederowani użytkownicy uwierzytelniają się przez instancję macierzystą",
+      "delete": "Usuń użytkownika",
+      "selfDelete": "Użyj ustawień konta, aby usunąć własne konto"
+    },
+    "tempPassword": {
+      "label": "Hasło tymczasowe:",
+      "note": "Pokazane raz. Użytkownik został rozłączony i musi zalogować się ponownie."
+    },
+    "pagination": "Strona {{page}} z {{total}} ({{users}})",
+    "count_one": "{{count}} użytkownik",
+    "count_few": "{{count}} użytkownicy",
+    "count_many": "{{count}} użytkowników",
+    "count_other": "{{count}} użytkownika",
+    "roleFailed": "Nie udało się zaktualizować roli",
+    "resetFailed": "Nie udało się zresetować hasła",
+    "actionFailed": "Akcja nie powiodła się",
+    "resetDialog": {
+      "title": "Zresetuj hasło",
+      "description": "Zresetować hasło dla <strong>{{username}}</strong>? Użytkownik zostanie natychmiast rozłączony i musi zalogować się nowym hasłem tymczasowym.",
+      "confirm": "Zresetuj hasło"
+    },
+    "demoteDialog": {
+      "title": "Degraduj administratora",
+      "description": "Odebrać uprawnienia administratora użytkownikowi <strong>{{username}}</strong>? Straci dostęp do ustawień instancji.",
+      "confirm": "Degraduj"
+    },
+    "deleteDialog": {
+      "title": "Usuń użytkownika",
+      "description": "Trwale usunąć <strong>{{username}}</strong>? Usunie go to ze wszystkich przestrzeni, DM i list znajomych. Nie można tego cofnąć.",
+      "confirm": "Usuń użytkownika",
+      "blockBot": "Nie pozwalaj temu botowi rejestrować się ponownie",
+      "blockBotHint": "Gdy jego instancja macierzysta wróci, bot nie będzie mógł utworzyć tu konta. Możesz go odblokować poniżej listy użytkowników."
+    },
+    "blockedBots": {
+      "title": "Zablokowane boty",
+      "description": "Boty innych instancji, które nie mogą się tu rejestrować. Odblokuj, aby wpuścić z powrotem.",
+      "blockedAt": "Zablokowano {{date}}",
+      "unblock": "Odblokuj"
+    }
+  },
+  "mobile": {
+    "title": "Instancja",
+    "sections": {
+      "general": "Ogólne",
+      "registration": "Rejestracja",
+      "federation": "Federacja",
+      "streaming": "Streamowanie",
+      "storage": "Dysk",
+      "updates": "Aktualizacje",
+      "users": "Użytkownicy"
+    }
+  }
+}

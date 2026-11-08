@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "บันทึก",
+    "cancel": "ยกเลิก",
+    "close": "ปิด",
+    "delete": "ลบ",
+    "bot": "บอท",
+    "confirm": "ยืนยัน",
+    "copy": "คัดลอก",
+    "copied": "คัดลอกแล้ว",
+    "retry": "ลองใหม่",
+    "back": "กลับ",
+    "done": "เสร็จ",
+    "edit": "แก้ไข",
+    "remove": "ลบออก",
+    "add": "เพิ่ม",
+    "apply": "ใช้",
+    "reset": "รีเซ็ต",
+    "continue": "ต่อ",
+    "dismiss": "ปิด",
+    "ok": "ตกลง",
+    "search": "ค้นหา",
+    "clear": "ล้าง",
+    "change": "เปลี่ยน",
+    "refresh": "รีเฟรช",
+    "openLink": "เปิดลิงก์",
+    "tryAgain": "ลองใหม่",
+    "reply": "ตอบ",
+    "addReaction": "เพิ่มรีแอ็กชัน",
+    "share": "แชร์",
+    "accept": "ยอมรับ",
+    "decline": "ปฏิเสธ",
+    "pause": "หยุดชั่วคราว",
+    "resume": "ต่อ",
+    "abort": "ยกเลิก",
+    "dismissAll": "ปิดทั้งหมด",
+    "filter": "กรอง",
+    "sort": "เรียง",
+    "sortBy": "เรียงตาม",
+    "leave": "ออก",
+    "invitePeople": "เชิญผู้คน",
+    "previous": "ก่อนหน้า",
+    "next": "ถัดไป",
+    "preview": "ดูตัวอย่าง",
+    "logIn": "เข้าสู่ระบบ"
+  },
+  "states": {
+    "loading": "กำลังโหลด…",
+    "saving": "กำลังบันทึก…",
+    "saved": "บันทึกแล้ว",
+    "unknown": "ไม่ทราบ",
+    "none": "ไม่มี",
+    "enabled": "เปิด",
+    "disabled": "ปิด",
+    "on": "เปิด",
+    "off": "ปิด",
+    "yes": "ใช่",
+    "no": "ไม่",
+    "optional": "ไม่บังคับ",
+    "required": "จำเป็น",
+    "default": "ค่าเริ่มต้น",
+    "recommended": "แนะนำ",
+    "online": "ออนไลน์",
+    "idle": "ว่าง",
+    "doNotDisturb": "ห้ามรบกวน",
+    "offline": "ออฟไลน์",
+    "loadingSettings": "กำลังโหลดการตั้งค่า…",
+    "loadSettingsFailed": "โหลดการตั้งค่าไม่ได้",
+    "settingsSaved": "บันทึกการตั้งค่าแล้ว",
+    "saveFailed": "บันทึกล้มเหลว",
+    "scanning": "กำลังสแกน…",
+    "pleaseWait": "โปรดรอ…"
+  },
+  "labels": {
+    "username": "ชื่อผู้ใช้",
+    "password": "รหัสผ่าน",
+    "displayName": "ชื่อแสดง",
+    "friends": "เพื่อน",
+    "members": "สมาชิก",
+    "settings": "การตั้งค่า",
+    "dangerZone": "โซนอันตราย",
+    "searchMembers": "ค้นหาสมาชิก…",
+    "noMembersFound": "ไม่พบสมาชิก",
+    "or": "หรือ",
+    "nameAZ": "ชื่อ (A-Z)"
+  },
+  "time": {
+    "today": "วันนี้ {{time}}",
+    "yesterday": "เมื่อวาน {{time}}",
+    "never": "ไม่เคย",
+    "justNow": "เมื่อกี้",
+    "minutesShort": "{{minutes}} น",
+    "hoursMinutesShort": "{{hours}} ชม {{minutes}} น",
+    "elapsed": "ผ่านไป {{duration}}",
+    "left": "เหลือ {{duration}}"
+  },
+  "units": {
+    "ms": "{{value}} มส",
+    "percent": "{{value}}%",
+    "kbps": "{{value}} kbps",
+    "mbps": "{{value}} Mbps"
+  },
+  "colors": {
+    "mint": "มิ้นต์",
+    "sky": "ฟ้า",
+    "lavender": "ลาเวนเดอร์",
+    "coral": "ปะการัง",
+    "rose": "กุหลาบ",
+    "teal": "เขียวเป็ด",
+    "amber": "อำพัน",
+    "peach": "พีช"
+  },
+  "language": {
+    "label": "ภาษา",
+    "automatic": "อัตโนมัติ (ระบบ)",
+    "description": "เลือกภาษาสำหรับเมนู ปุ่ม และข้อความระบบ อัตโนมัติตามภาษาระบบหรือเบราว์เซอร์ ข้อความคนอื่นคงตามที่เขียน"
+  },
+  "crash": {
+    "title": "เกิดข้อผิดพลาด",
+    "reload": "โหลดหน้าใหม่",
+    "details": "รายละเอียดข้อผิดพลาด"
+  },
+  "app": {
+    "description": "ทางเลือก Discord และ TeamSpeak แบบโฮสต์เอง เสียง HD วิดีโอ และแชร์จอ — โอเพนซอร์สฟรี (AGPL-3.0)",
+    "loading": "กำลังโหลด Backspace"
+  },
+  "chrome": {
+    "toggleMemberList": "แสดงหรือซ่อนรายชื่อสมาชิก",
+    "closeSettings": "ปิดการตั้งค่า"
+  },
+  "sourceCode": {
+    "label": "ซอร์สโค้ด (AGPL)",
+    "labelWithBuild": "ซอร์สโค้ด (AGPL) · {{build}}",
+    "title": "ดูซอร์สโค้ดเวอร์ชันที่รันบนอินสแตนซ์นี้ (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "พบ {{label}} เลือกในตั้งค่าเสียงเพื่อสลับ",
+    "unnamedAudioInput": "อุปกรณ์เสียงใหม่"
+  }
+}

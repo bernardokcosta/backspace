@@ -1,0 +1,488 @@
+{
+  "interfaceScale": {
+    "label": "Escala de la interfaz",
+    "description": "Cambia el tamaño del texto, los botones y los paneles. Se guarda en este navegador o aplicación de este dispositivo.",
+    "reset": "Restablecer al 100 %"
+  },
+  "voice": {
+    "input": {
+      "title": "Dispositivo de entrada",
+      "checkingAccess": "Comprobando el acceso al micrófono…",
+      "accessDenied": {
+        "title": "Acceso al micrófono denegado",
+        "description": "Concede permiso para usar el micrófono y poder elegir un dispositivo de entrada.",
+        "retry": "Volver a intentar"
+      },
+      "permissionPrompt": {
+        "description": "Se necesita permiso para usar el micrófono para listar y elegir dispositivos de entrada.",
+        "enable": "Permitir acceso al micrófono"
+      },
+      "device": {
+        "systemDefault": "Predeterminado del sistema",
+        "currentlyUsing": "En uso: {{label}}",
+        "none": "No se han detectado micrófonos."
+      },
+      "volume": { "label": "Volumen de entrada" },
+      "meter": { "hint": "El indicador de nivel se activa cuando entras en un canal de voz." }
+    },
+    "output": {
+      "title": "Dispositivo de salida",
+      "checkingAccess": "Comprobando el acceso al audio…",
+      "device": {
+        "systemDefault": "Predeterminado del sistema",
+        "unsupported": "Este navegador no permite elegir un dispositivo de salida. El audio se reproduce por el predeterminado del sistema."
+      },
+      "permissionPrompt": {
+        "description": "Concede permiso para usar el micrófono y poder listar los dispositivos de salida. Los navegadores exigen ese permiso para mostrar sus nombres.",
+        "enable": "Permitir acceso al audio"
+      },
+      "volume": { "label": "Volumen de salida" },
+      "testSound": "Reproducir sonido de prueba"
+    },
+    "video": {
+      "title": "Vídeo",
+      "checkingAccess": "Comprobando el acceso a la cámara…",
+      "accessDenied": {
+        "title": "Acceso a la cámara denegado",
+        "description": "Concede permiso para usar la cámara y poder elegir una.",
+        "retry": "Volver a intentar"
+      },
+      "blocked": {
+        "browser": "El navegador ha bloqueado la cámara. Haz clic en el icono de cámara de la barra de direcciones, restablece el permiso y pulsa Volver a intentar.",
+        "mac": "Concede acceso a la cámara en Ajustes del Sistema → Privacidad y seguridad → Cámara y reinicia la aplicación.",
+        "windows": "Concede acceso a la cámara en Configuración → Privacidad y seguridad → Cámara y reinicia la aplicación.",
+        "other": "Se ha denegado el permiso de cámara. Restablécelo en el aviso del navegador o de Chromium y vuelve a intentarlo."
+      },
+      "permissionPrompt": {
+        "description": "Se necesita permiso para elegir una cámara y ver su imagen.",
+        "enable": "Activar vista previa de la cámara"
+      },
+      "camera": {
+        "label": "Cámara",
+        "auto": "Automática (predeterminada del sistema)",
+        "fallbackName": "Cámara {{number}}",
+        "detectedFallback": "cámara detectada",
+        "currentlyUsing": "En uso: {{label}}",
+        "none": "No se han detectado cámaras."
+      },
+      "preview": {
+        "testAria": "Probar cámara",
+        "testHint": "Haz clic para probar la cámara",
+        "stop": "Detener vista previa",
+        "retry": "Volver a intentar"
+      },
+      "previewError": {
+        "inUse": "Otra aplicación está usando la cámara.",
+        "unavailable": "La cámara seleccionada no está disponible.",
+        "notFound": "No se ha detectado ninguna cámara.",
+        "generic": "No se pudo iniciar la vista previa de la cámara."
+      }
+    },
+    "title": "Voz y vídeo",
+    "volume": {
+      "sectionTitle": "Volumen",
+      "soundEffects": { "label": "Volumen de los efectos de sonido" },
+      "messageSound": {
+        "label": "Reproducir un sonido con cada mensaje",
+        "description": "Desactivado (predeterminado): solo mensajes directos y menciones. Activado: todos los canales."
+      }
+    },
+    "pip": {
+      "sectionTitle": "Ventana flotante",
+      "showOnSwitch": {
+        "label": "Mostrar ventana flotante durante las llamadas",
+        "description": "Si estás en un canal de voz o una llamada y miras otra cosa, una ventana pequeña mantiene la llamada a la vista."
+      }
+    },
+    "processing": {
+      "sectionTitle": "Procesamiento de voz",
+      "noiseSuppression": {
+        "label": "Supresión de ruido con IA",
+        "description": "Eliminación de ruido mediante aprendizaje automático (RNNoise). Filtra el teclado, los ventiladores y el ruido de fondo."
+      },
+      "echoCancellation": {
+        "label": "Cancelación de eco",
+        "description": "Elimina el eco que se produce cuando el micrófono recoge el sonido de los altavoces. Siempre está activa en canales de voz y llamadas."
+      },
+      "autoGain": {
+        "label": "Control automático de ganancia",
+        "description": "Ajusta automáticamente el volumen del micrófono. Puede reducir la voz durante las transmisiones."
+      }
+    }
+  },
+  "nav": {
+    "userSettings": "Ajustes de usuario",
+    "appSettings": "Ajustes de la aplicación",
+    "administration": "Administración",
+    "tabs": {
+      "account": "Cuenta",
+      "appearance": "Apariencia",
+      "voice": "Voz y vídeo",
+      "privacy": "Privacidad",
+      "connections": "Conexiones",
+      "keybinds": "Atajos de teclado",
+      "desktop": "Escritorio",
+      "instance": "Instancia",
+      "bots": "Bots",
+      "developer": "Desarrollador"
+    },
+    "logOut": "Cerrar sesión",
+    "backToMenu": "Volver al menú de ajustes"
+  },
+  "appearance": { "title": "Apariencia" },
+  "account": {
+    "title": "Mi cuenta",
+    "detached": {
+      "notice": "Esta cuenta está desvinculada de su instancia de origen.",
+      "explanation": "{{homeInstance}} se ha restablecido o ya no está disponible, así que esta cuenta ahora funciona localmente en esta instancia. Tu perfil y contraseña se gestionan aquí.",
+      "reattachHint": "Con tu identidad {{username}} en {{homeInstance}}, puedes volver a vincular esta cuenta. Tu perfil y presencia volverán a sincronizarse desde allí.",
+      "reattachButton": "Volver a vincular con {{homeInstance}}",
+      "reattachConfirm": "Confirmar vinculación como {{username}}",
+      "reattaching": "Vinculando de nuevo…",
+      "reattachFailed": "No se pudo volver a vincular",
+      "reattached": "Cuenta vinculada de nuevo con {{username}}"
+    },
+    "profile": {
+      "sectionTitle": "Personalización del perfil",
+      "avatar": {
+        "label": "Avatar",
+        "alt": "Tu avatar",
+        "change": "Cambiar avatar",
+        "uploadFailed": "No se pudo subir el avatar",
+        "cropTitle": "Recortar avatar"
+      },
+      "banner": {
+        "label": "Banner",
+        "change": "Cambiar banner",
+        "uploadFailed": "No se pudo subir el banner",
+        "cropTitle": "Recortar banner"
+      },
+      "avatarColor": { "label": "Color del avatar" },
+      "bannerColor": { "label": "Color del banner", "hexPlaceholder": "#hex" },
+      "bio": {
+        "label": "Sobre mí",
+        "placeholder": "Cuéntale al mundo algo sobre ti…",
+        "counter": "{{used}}/{{max}}"
+      }
+    },
+    "details": {
+      "sectionTitle": "Cuenta",
+      "status": {
+        "label": "Estado",
+        "homeUnavailable": "Tu estado se guarda en {{host}}. Conecta con {{host}} para cambiarlo."
+      },
+      "customStatus": { "label": "Estado personalizado", "placeholder": "¿Qué estás haciendo?" }
+    },
+    "password": {
+      "current": { "label": "Contraseña actual", "placeholder": "Introduce la contraseña actual" },
+      "new": { "label": "Contraseña nueva", "placeholder": "Mínimo {{min}} caracteres" },
+      "confirm": { "label": "Confirmar contraseña nueva", "placeholder": "Confirma la contraseña nueva" },
+      "show": "Mostrar contraseña",
+      "hide": "Ocultar contraseña",
+      "tooShort": "La contraseña nueva debe tener al menos {{min}} caracteres",
+      "mismatch": "Las contraseñas no coinciden",
+      "changed": "Contraseña cambiada",
+      "changeFailed": "No se pudo cambiar la contraseña",
+      "submit": "Cambiar contraseña",
+      "submitting": "Cambiando…"
+    },
+    "danger": {
+      "description": "Eliminar tu cuenta no se puede deshacer. Tus mensajes se conservarán, pero aparecerán a nombre de «Usuario eliminado».",
+      "deleteButton": "Eliminar cuenta"
+    },
+    "save": { "updated": "Perfil actualizado", "failed": "No se pudo actualizar el perfil" },
+    "deletion": {
+      "title": "Eliminar cuenta",
+      "warning": {
+        "headline": "Tu cuenta se eliminará definitivamente.",
+        "spaces": "Se eliminarán todas tus pertenencias a espacios",
+        "friends": "Se eliminarán todas tus conexiones de amistad",
+        "dms": "Dejarás de pertenecer a todas tus conversaciones directas",
+        "messages": "Tus mensajes se conservarán, pero aparecerán a nombre de «Usuario eliminado»"
+      },
+      "ownedSpaces": {
+        "prompt_one": "Eres propietario de {{count}} espacio. Gestiona cada uno antes de continuar:",
+        "prompt_many": "Eres propietario de {{count}} espacios. Gestiona cada uno antes de continuar:",
+        "prompt_other": "Eres propietario de {{count}} espacios. Gestiona cada uno antes de continuar:",
+        "transfer": "Transferir",
+        "delete": "Eliminar espacio",
+        "selectOwner": "Seleccionar nuevo propietario…"
+      },
+      "processing": "Procesando…",
+      "confirm": {
+        "permanent": "Esta acción es permanente y no se puede deshacer.",
+        "usernamePrompt": "Escribe tu nombre de usuario <username>{{username}}</username> para confirmar",
+        "passwordPlaceholder": "Introduce tu contraseña",
+        "submit": "Eliminar mi cuenta",
+        "deleting": "Eliminando…"
+      },
+      "federation": {
+        "removing": "Eliminando tu cuenta de las instancias conectadas…",
+        "deleteAnyway": "Eliminar cuenta ahora"
+      },
+      "complete": { "title": "Cuenta eliminada", "redirecting": "Redirigiendo al inicio de sesión…" },
+      "errors": {
+        "usernameMismatch": "El nombre de usuario no coincide",
+        "spacesFailed": "No se pudieron gestionar los espacios",
+        "deleteFailed": "No se pudo eliminar la cuenta"
+      }
+    }
+  },
+  "privacy": {
+    "title": "Privacidad",
+    "discovery": {
+      "sectionTitle": "Descubrimiento",
+      "label": "Permitir que otras personas encuentren mi perfil",
+      "description": "Si se activa, tu perfil aparece en Descubrir personas. Siempre podrán añadirte por tu nombre de usuario exacto."
+    },
+    "activity": {
+      "sectionTitle": "Estado de actividad",
+      "label": "Compartir estado de actividad",
+      "description": "Permite que otras personas vean lo que haces, como a qué juegas o qué música escuchas.",
+      "game": {
+        "label": "Creado manualmente",
+        "description": "Añade un juego que no se haya detectado. Se muestra hasta que lo quites.",
+        "placeholder": "Nombre del juego",
+        "set": "Establecer",
+        "detectedLabel": "Detectado ahora",
+        "detectedDescription": "Muestra un juego detectado con otro nombre. Se recordará para la próxima vez.",
+        "renamePlaceholder": "Mostrar como…",
+        "renameLabel": "Mostrar {{name}} como",
+        "renamedLabel": "Juegos con nombre cambiado",
+        "renamedItem": "{{detected}} → {{chosen}}",
+        "restore": "Restaurar",
+        "descriptionBound": "Añade un juego que no se haya detectado: elige su programa y dale un nombre. Se mostrará mientras ese programa esté en ejecución.",
+        "programLabel": "Programa",
+        "programPlaceholder": "Elige un programa en ejecución…",
+        "programHint": "Inicia primero el juego y después elige su programa de la lista.",
+        "clearRename": "Borrar",
+        "unknownLabel": "Programas de Wine no reconocidos",
+        "unknownDescription": "Estos programas están en ejecución, pero no coinciden con ningún juego conocido. Si alguno es tu juego, puedes mostrarlo como el juego al que estás jugando.",
+        "unknownUse": "Añadir a mis juegos",
+        "gamesLabel": "Tus juegos",
+        "gamesDescription": "El primer juego es el que aparece en las listas. Muévelos para establecer la prioridad. Los juegos ocultos no se muestran a otras personas.",
+        "moveUp": "Subir {{name}}",
+        "moveDown": "Bajar {{name}}",
+        "hide": "Ocultar",
+        "show": "Mostrar",
+        "hideGame": "Ocultar {{name}}",
+        "showGame": "Mostrar {{name}}",
+        "add": "Añadir",
+        "remove": "Quitar",
+        "statusName": "se muestra por su nombre",
+        "statusRunning": "en ejecución",
+        "statusWaiting": "esperando a {{program}}",
+        "dragHandle": "Arrastra {{name}} para cambiar su prioridad",
+        "manualNameLabel": "Nombre de {{name}}",
+        "save": "Guardar"
+      }
+    }
+  },
+  "connections": { "title": "Conexiones" },
+  "instance": {
+    "tabs": {
+      "general": "General",
+      "registration": "Registro",
+      "federation": "Federación",
+      "streaming": "Transmisión",
+      "storage": "Almacenamiento",
+      "users": "Usuarios",
+      "updates": "Actualizaciones"
+    }
+  },
+  "keybinds": {
+    "portal": {
+      "description": "En Wayland, el entorno de escritorio gestiona todos los atajos de Backspace. Asigna, cambia o quita teclas en los ajustes de atajos de teclado del sistema, en la sección Backspace. Aquí no se usan las asignaciones locales del navegador ni de X11.",
+      "idle": "Preparando el registro inicial de todas las acciones disponibles.",
+      "pending": "Conectando con el portal de escritorio. Si aparece un diálogo del sistema, elige los atajos para las acciones que quieras usar.",
+      "ready": "Backspace está registrado. Abre los ajustes de atajos de teclado del sistema para cambiar o quitar asignaciones. La lista siguiente es de solo lectura y se actualiza al volver a Backspace.",
+      "unavailable": "El portal no está disponible, se ha denegado el permiso o ha terminado la sesión. Se necesita una implementación del portal de atajos globales. Los atajos locales están desactivados en Wayland.",
+      "retry": "Registrar o reconectar atajos",
+      "assigned": "Atajo del sistema: {{shortcut}}",
+      "notAssigned": "No hay asignación activa en el sistema"
+    },
+    "title": "Atajos de teclado",
+    "note": { "webOnly": "Los atajos funcionan mientras esta pestaña tenga el foco. Para usar atajos globales que funcionen en otras aplicaciones, usa la aplicación de escritorio." },
+    "section": { "voice": "Atajos de voz" },
+    "action": {
+      "toggleMute": "Activar/desactivar micrófono",
+      "toggleDeafen": "Activar/desactivar audio",
+      "pushToTalk": "Pulsar para hablar",
+      "toggleCamera": "Activar/desactivar cámara",
+      "toggleScreenShare": "Activar/desactivar pantalla compartida",
+      "disconnect": "Desconectar"
+    },
+    "row": {
+      "recordingPrompt": "Pulsa una combinación de teclas…",
+      "notBound": "Sin asignar",
+      "record": "Grabar",
+      "escToCancel": "Esc para cancelar"
+    },
+    "key": {
+      "shift": "Shift",
+      "ctrl": "Ctrl",
+      "alt": "Alt",
+      "option": "Option",
+      "cmd": "Cmd",
+      "win": "Win",
+      "space": "Espacio",
+      "middleClick": "Clic central",
+      "mouse4": "Ratón 4",
+      "mouse5": "Ratón 5",
+      "mouseGeneric": "Ratón {{button}}"
+    },
+    "accessibility": {
+      "title": "Se necesita permiso de accesibilidad",
+      "description": "Backspace necesita permiso de accesibilidad para que los atajos globales funcionen fuera de la aplicación.",
+      "grant": "Conceder permiso"
+    },
+    "hookError": {
+      "title": "Atajos globales no disponibles",
+      "description": "No se pudo iniciar la escucha de entrada. En Linux, es posible que tu usuario deba pertenecer al grupo <code>input</code>."
+    },
+    "conflict": {
+      "message": "<strong>{{combo}}</strong> ya está asignado a <strong>{{action}}</strong>. ¿Quieres sustituirlo?",
+      "overwrite": "Sustituir"
+    }
+  },
+  "desktop": {
+    "title": "Escritorio",
+    "autoLaunch": {
+      "openAtLogin": { "label": "Iniciar con el sistema", "description": "Abrir Backspace automáticamente al iniciar sesión" },
+      "startMinimized": { "label": "Iniciar minimizado", "description": "Iniciar oculto en la bandeja del sistema en lugar de mostrar la ventana" }
+    },
+    "updates": {
+      "appName": "Backspace Desktop",
+      "versionLabel": "Versión {{version}}",
+      "checking": "Buscando actualizaciones…",
+      "checkingShort": "Buscando…",
+      "checkNow": "Buscar actualizaciones",
+      "downloading": "Descargando {{version}}, {{percent}}%",
+      "downloadingWithRate": "Descargando {{version}}, {{percent}}% a {{rate}}",
+      "rateMegabytes": "{{value}} MB/s",
+      "rateKilobytes": "{{value}} KB/s",
+      "upToDate": "Estás usando la última versión",
+      "available": "La versión {{version}} está disponible",
+      "readyToInstall": "La versión {{version}} está lista para instalarse",
+      "installFailed": "No se pudo instalar la versión {{version}}",
+      "checkFailed": "La última búsqueda de actualizaciones ha fallado",
+      "idle": "Busca versiones nuevas de la aplicación de escritorio",
+      "external": "Las actualizaciones se instalan a través del gestor de software de Flatpak",
+      "download": "Descargar",
+      "restart": "Reiniciar",
+      "manualNote": "Esta compilación no puede instalar actualizaciones por sí sola. Descarga las versiones nuevas de GitHub y sustituye la aplicación manualmente. Consulta las notas de la versión para ver los pasos de tu plataforma.",
+      "externalNote": "Flatpak instala las actualizaciones de forma atómica fuera de la aplicación. Usa tu gestor de software o el comando <code>flatpak update</code> para actualizar Backspace."
+    },
+    "instance": { "current": "Instancia conectada actualmente", "change": "Cambiar de instancia" }
+  },
+  "desktopDownload": {
+    "title": "Escritorio",
+    "intro": "Atajos globales, inicio con el sistema e icono en la bandeja del sistema.",
+    "unsupported": "La aplicación de escritorio funciona en Windows, Linux y macOS.",
+    "name": { "windows": "Windows", "mac": "macOS", "linux": "Linux" },
+    "tag": { "windows": "Este PC", "mac": "Este Mac", "linux": "Este equipo" },
+    "covers": {
+      "windows": "x64 o arm64",
+      "mac": "Funciona en Mac con Apple Silicon e Intel",
+      "linux": "AppImage o paquete deb, x64 o arm64"
+    },
+    "download": { "windows": "Descargar para Windows", "mac": "Descargar para macOS", "linux": "Descargar para Linux" },
+    "picker": { "architecture": "Arquitectura", "format": "Formato del paquete" },
+    "arch": { "appleSilicon": "Apple Silicon", "intel": "Intel", "x64": "x64", "arm64": "arm64" },
+    "kind": { "appimage": "AppImage", "deb": "deb" },
+    "archGuessed": {
+      "windows": "Tu navegador no ha indicado qué procesador tiene este PC, así que se ha preseleccionado x64.",
+      "mac": "Tu navegador no ha indicado qué chip tiene este Mac, así que se ha preseleccionado Apple Silicon.",
+      "linux": "Tu navegador no ha indicado qué procesador tiene este equipo, así que se ha preseleccionado x64."
+    },
+    "version": "Versión {{version}}",
+    "allReleases": "Todas las versiones en GitHub"
+  },
+  "bots": {
+    "title": "Bots",
+    "description": "Un bot es una cuenta que un programa controla mediante un token. Crea uno, copia su token y conecta tu programa. Los bots responden por mensaje directo.",
+    "create": {
+      "sectionTitle": "Crear un bot",
+      "nameLabel": "Nombre de usuario del bot",
+      "submit": "Crear bot",
+      "hint": "De {{min}} a {{max}} caracteres: letras latinas minúsculas (a–z), dígitos (0–9) y guiones bajos (_). Puedes crear hasta {{limit}} bots."
+    },
+    "list": { "sectionTitle": "Tus bots", "empty": "Aún no tienes bots.", "createdOn": "Creado el {{date}}" },
+    "token": {
+      "title": "Token de {{name}}",
+      "warning": "Copia el token ahora. Solo se muestra una vez y cualquiera que lo tenga podrá controlar el bot.",
+      "copy": "Copiar token",
+      "copied": "Copiado",
+      "dismiss": "Ya lo he guardado"
+    },
+    "tokens": {
+      "title": "Tokens de acceso",
+      "loading": "Cargando tokens",
+      "legacy": "Este bot aún usa su antiguo token de larga duración. Crea uno nuevo para cambiar: el antiguo dejará de funcionar en ese mismo momento.",
+      "empty": "Este bot no tiene tokens.",
+      "unnamed": "Token sin nombre",
+      "createdOn": "Creado el {{date}}",
+      "neverUsed": "nunca se ha usado",
+      "lastUsed": "último uso: {{time}}",
+      "revoke": "Revocar",
+      "confirmRevoke": "Confirmar revocación",
+      "nameLabel": "Etiqueta del token",
+      "namePlaceholder": "Etiqueta (opcional)",
+      "create": "Crear token",
+      "limitHint": "Hasta {{max}} tokens por bot. Revocar un token desconecta el bot; los demás siguen funcionando."
+    },
+    "actions": {
+      "regenerate": "Restablecer todos los tokens",
+      "delete": "Eliminar",
+      "confirmDelete": "Confirmar eliminación",
+      "cancel": "Cancelar",
+      "edit": "Editar",
+      "save": "Guardar",
+      "addToServer": "Añadir a un espacio",
+      "tokens": "Tokens"
+    },
+    "edit": {
+      "nameLabel": "Nombre visible",
+      "hint": "El nombre de usuario @{{username}} no se puede cambiar. Hasta {{max}} caracteres.",
+      "bioLabel": "Información",
+      "bioPlaceholder": "Qué hace el bot, sus comandos y dónde obtener ayuda",
+      "bioCounter": "{{used}}/{{max}}"
+    },
+    "status": {
+      "label": "Estado",
+      "none": "Sin estado",
+      "textLabel": "Texto del estado",
+      "placeholder": "Lo que el bot muestra junto a su nombre",
+      "hint": "Se muestra mientras el bot está conectado. Su código puede sustituirlo hasta la próxima conexión.",
+      "types": { "custom": "Personalizado", "playing": "Jugando", "listening": "Escuchando", "watching": "Viendo" },
+      "display": { "custom": "{{name}}", "playing": "Jugando a {{name}}", "listening": "Escuchando {{name}}", "watching": "Viendo {{name}}" }
+    },
+    "permissions": {
+      "label": "Permisos que solicita el bot",
+      "hint": "Quien gestione el espacio y añada el bot verá estos permisos marcados y podrá desmarcar cualquiera. Se asignan a un rol con el nombre del bot. Los cambios posteriores no afectan a los roles ya creados."
+    },
+    "avatar": {
+      "change": "Cambiar avatar",
+      "remove": "Quitar avatar",
+      "cropTitle": "Recortar avatar del bot",
+      "uploadFailed": "No se pudo subir el avatar",
+      "notImage": "Elige un archivo de imagen"
+    },
+    "spaces": {
+      "title": "Añadir a un espacio",
+      "loading": "Cargando espacios",
+      "empty": "Aún no gestionas ningún espacio. Para añadir un bot necesitas permiso para gestionar el espacio.",
+      "add": "Añadir",
+      "added": "Añadido",
+      "remove": "Quitar"
+    }
+  },
+  "developer": {
+    "title": "Desarrollador",
+    "mode": {
+      "label": "Modo de desarrollador",
+      "description": "Muestra herramientas de desarrollo en los ajustes, como la pestaña Bots. Desactivarlo solo las oculta; tus bots siguen funcionando.",
+      "saveFailed": "No se pudo guardar el ajuste. Inténtalo de nuevo."
+    }
+  }
+}

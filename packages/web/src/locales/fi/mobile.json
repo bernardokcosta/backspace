@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "spaces": "Tilat",
+    "dms": "YV:t",
+    "you": "Sinä"
+  },
+  "you": {
+    "editProfile": "Muokkaa profiilia",
+    "homeInstance": "Koti-instanssi: {{domain}}",
+    "logOutConfirm": "Haluatko varmasti kirjautua ulos?"
+  },
+  "chat": {
+    "openCall": "Avaa puhelu",
+    "cancelCall": "Peruuta puhelu",
+    "unknownChannel": "kanava"
+  }
+}

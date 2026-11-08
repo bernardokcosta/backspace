@@ -1,0 +1,102 @@
+{
+  "tabs": {
+    "all": "全員",
+    "pending": "保留中",
+    "add": "フレンド追加",
+    "activity": "アクティビティ"
+  },
+  "sections": {
+    "online": "オンライン — {{n}}",
+    "all": "全フレンド — {{n}}",
+    "pending": "保留中 — {{n}}",
+    "active": "アクティブ — {{n}}",
+    "offline": "オフライン — {{n}}"
+  },
+  "empty": {
+    "online": "今オンラインの人はいません。",
+    "all": "フレンドはまだいません — 誰かを追加!",
+    "pending": "保留中のリクエストなし — Noriは昼寝中。",
+    "activity": "今は静かです… 友達が何か始めるとここに表示します!"
+  },
+  "friend": {
+    "viaInstance": "{{host}} 経由",
+    "message": "メッセージ",
+    "remove": "フレンド削除"
+  },
+  "sendMessage": {
+    "failed": "会話を開けませんでした: {{reason}}"
+  },
+  "request": {
+    "incoming": "受信フレンド申請",
+    "outgoing": "送信フレンド申請",
+    "ignore": "無視",
+    "cancel": "リクエスト取消",
+    "send": "フレンド申請を送信",
+    "pending": "リクエスト保留中",
+    "sending": "送信中…",
+    "cancelling": "取消中…",
+    "sent": "フレンド申請を送信しました!"
+  },
+  "removeFriend": {
+    "title": "フレンド削除",
+    "description": "{{name}}をフレンドから削除しますか? 後で新しい申請を送れます。",
+    "fallbackName": "このユーザー"
+  },
+  "add": {
+    "title": "人を見つける",
+    "hint": "ユーザー名で検索するか <handle>user@instance</handle> で直接追加。",
+    "placeholder": "名前で検索・追加…",
+    "direct": "<handle>{{handle}}</handle> にフレンド申請を送信",
+    "sendRequest": "リクエスト送信",
+    "discover": "人を見つける",
+    "noSearchResults": "検索に合うユーザーなし。",
+    "noDiscoverable": "見つけられるユーザーはまだいません — 人を招待しよう!"
+  },
+  "mutuals": {
+    "friends_other": "共通フレンド {{count}} 人",
+    "spaces_other": "共通スペース {{count}} 件",
+    "noFriends": "共通フレンドなし",
+    "noSpaces": "共通スペースなし"
+  },
+  "profile": {
+    "tabs": {
+      "about": "概要",
+      "mutualFriends": "共通フレンド",
+      "mutualSpaces": "共通スペース"
+    },
+    "aboutMe": "自己紹介",
+    "roles": "ロール",
+    "memberSince": "参加時期",
+    "sendMessage": "メッセージ送信",
+    "editRoles": "ロール編集",
+    "viewFull": "全プロフィール表示",
+    "addFriend": "フレンド追加",
+    "playingNow": "プレイ中"
+  },
+  "activity": {
+    "title": "今アクティブ",
+    "quietTitle": "今は静かです…",
+    "quietDescription": "友達が何か始めたら — ゲームや通話など — ここに表示します!",
+    "online": "オンライン — {{n}}",
+    "offline": "オフライン — {{n}}",
+    "resizeHandle": "フレンドリストのサイズ変更",
+    "types": {
+      "playing": "ゲーム中",
+      "listening": "音楽を聴取中",
+      "streaming": "配信中",
+      "watching": "視聴中",
+      "custom": "カスタムステータス"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "トラックを開く"
+  },
+  "instanceNotConnected": "{{host}} に未接続。再接続して再試行。"
+}

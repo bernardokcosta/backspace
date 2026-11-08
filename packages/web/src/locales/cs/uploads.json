@@ -1,0 +1,36 @@
+{
+  "failure": {
+    "notAuthenticated": "Bez přihlášení k této instanci",
+    "invalidResponse": "Nepodařilo se zpracovat odpověď nahrávání",
+    "uploadError": "Chyba nahrávání",
+    "downloadError": "Chyba stahování",
+    "fileUnavailable": "Soubor už není dostupný — zahoď ho a nahraj znovu",
+    "noDestination": "Chybí cílový popisovač — nelze pokračovat",
+    "destinationMissing": "Chybí cílový popisovač",
+    "permissionDenied": "Přístup odepřen",
+    "lostDownload": "Stahování nelze obnovit — data se ztratila. Začni stahovat znovu.",
+    "uploadHandleMissing": "Chybí popisovač souboru — zahoď ho a nahraj znovu",
+    "downloadHandleMissing": "Chybí cílový popisovač — začni stahovat znovu",
+    "downloadFailed": "Stažení selhalo: {{status}}",
+    "resumeFailed": "Obnovení selhalo: {{status}}"
+  },
+  "transfers": {
+    "title": "Přenosy",
+    "count_one": "{{count}} přenos",
+    "count_few": "{{count}} přenosy",
+    "count_many": "{{count}} přenosů",
+    "count_other": "{{count}} přenosu",
+    "clearCompleted": "Vymazat dokončené",
+    "empty": "Žádné aktivní přenosy.",
+    "status": {
+      "done": "Hotovo",
+      "failed": "Selhalo: {{reason}}",
+      "aborted": "Přerušeno",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "Oříznout obrázek",
+    "applying": "Používání…"
+  }
+}

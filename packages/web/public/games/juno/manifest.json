@@ -10,6 +10,15 @@
       "sha256": "79cddf091378c79851fd04111fcab7d9572acab675132402c662d09fe99a772c"
     }
   },
+  "music": {
+    "path": "/games/juno/music/charting-the-dark.mp3",
+    "sourceFile": "Charting_the_Dark.mp3",
+    "bytes": 4363065,
+    "sha256": "5c1d9c0b04da244f5e55d91340b638bc05469352ce7a3d5cb79d5f115f1912bf",
+    "format": "MP3",
+    "durationSecondsApprox": 181.52,
+    "unchanged": true
+  },
   "memoryAudio": {
     "path": "/sounds/juno_memory.ogg",
     "sourceFile": "hf_20261107_042622_ad7a3a7a-cf99-44a5-a4f0-10ae662cee54.wav",

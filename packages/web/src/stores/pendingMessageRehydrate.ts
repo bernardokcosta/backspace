@@ -3,6 +3,7 @@ import { useTransferStore } from './transferStore';
 import { useUIStore } from './uiStore';
 import { getApiForOrigin, getChannelOrigin, getChannelKind, useSpaceStore } from './spaceStore';
 import { HttpError, RateLimitError } from '../api/client';
+import i18n from '../i18n';
 
 let started = false;
 let users = 0;
@@ -84,7 +85,7 @@ export function startPendingMessageOrchestrator(): () => void {
   const dropped = usePendingMessageStore.getState().discardExpired(Date.now());
   for (const b of dropped) {
     useUIStore.getState().addToast(
-      `Couldn't send "${b.content || '(attachment-only)'}" — upload expired.`,
+      i18n.t('chat:feedback.uploadExpired', { content: b.content || i18n.t('chat:feedback.attachmentOnly') }),
       'warning',
     );
   }

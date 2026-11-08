@@ -1,0 +1,305 @@
+{
+  "feedback": {
+    "openedInNewTab": "Öppnad i ny flik",
+    "copiedGifLink": "GIF-länk kopierad",
+    "copiedImageLink": "Bildlänk kopierad",
+    "uploadExpired": "Kunde inte skicka \"{{content}}\" — uppladdningen gick ut.",
+    "attachmentOnly": "(endast bilaga)"
+  },
+  "message": {
+    "edit": {
+      "hint": "escape för att <cancel>avbryta</cancel> • enter för att <save>spara</save>"
+    },
+    "edited": "(redigerad)",
+    "rowLabel": "{{author}}, {{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "Uppladdningen misslyckades",
+      "discard": "Kasta"
+    },
+    "actions": {
+      "confirmDelete": "Bekräfta borttagning"
+    },
+    "reply": {
+      "jump": "Hoppa till det ursprungliga meddelandet"
+    },
+    "mention": {
+      "unknownUser": "Okänd användare",
+      "unknownRole": "Okänd roll"
+    },
+    "reactions": {
+      "picker": "Reaktionsväljare",
+      "you": "Du",
+      "others_one": "{{count}} annan",
+      "others_other": "{{count}} andra",
+      "bySelf": "Du reagerade",
+      "byOne": "{{name}} reagerade",
+      "byMany": "Reaktioner: {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "Du har inte behörighet att visa meddelandehistorik i denna kanal",
+    "loading": "Laddar meddelanden",
+    "loadingOlder": "Laddar äldre meddelanden",
+    "loadFailed": "Kunde inte ladda meddelanden",
+    "jumpToPresent": "Hoppa till nutid",
+    "jump": {
+      "unavailable": "Det meddelandet är inte längre tillgängligt",
+      "failed": "Kunde inte ladda det meddelandet",
+      "presentFailed": "Kunde inte ladda de senaste meddelandena"
+    },
+    "unread": {
+      "label": "Nya",
+      "divider": "Nya meddelanden",
+      "dividerWithDate": "Nya meddelanden, {{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "Välkommen till kanalen!",
+        "description": "Detta är början på konversationen."
+      },
+      "group": {
+        "intro": "Detta är början på din gruppkonversation.",
+        "owner": "Ägare: <owner>@{{name}}</owner>",
+        "federatedNotice": "Meddelanden lagras på din hemmainstans och mottagarnas hemmainstanser. De är inte end-to-end-krypterade.",
+        "openSettings": "Öppna gruppinställningar",
+        "leave": "Lämna gruppen"
+      },
+      "dm": {
+        "fallbackName": "Direktmeddelande",
+        "intro": "Detta är början på din direktmeddelandehistorik med <strong>@{{name}}</strong>.",
+        "federatedNotice": "Meddelanden lagras på din hemmainstans och mottagarens hemmainstans. De är inte end-to-end-krypterade.",
+        "removeFriend": "Ta bort vän"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "Du har inte behörighet att skicka meddelanden i denna kanal",
+    "placeholder": {
+      "channel": "Meddelande #{{name}}",
+      "dm": "Meddelande @{{name}}"
+    },
+    "replyingTo": "Svarar på",
+    "cancelReply": "Avbryt svar",
+    "removeAttachment": "Ta bort bilaga",
+    "attachFile": "Bifoga fil",
+    "dropTitle": "Ladda upp fil",
+    "dropHint": "Släpp för att bifoga",
+    "uploading": "Laddar upp…",
+    "uploadingLabel": "Laddar upp",
+    "failedCount_one": "{{count}} misslyckades",
+    "failedCount_other": "{{count}} misslyckades",
+    "failedHint": "Ta bort eller försök igen med den felaktiga bilagan för att skicka",
+    "gif": "GIF",
+    "gifPicker": "GIF-väljare",
+    "emoji": "Emoji",
+    "emojiPicker": "Emojiväljare",
+    "send": "Skicka",
+    "sendMessage": "Skicka meddelande",
+    "uploadFailed": "Kunde inte ladda upp {{file}}: {{reason}}",
+    "uploadFailedReason": "Uppladdningen misslyckades",
+    "typing": {
+      "named_one": "{{names}} skriver",
+      "named_other": "{{names}} skriver",
+      "several": "Flera personer skriver"
+    }
+  },
+  "menu": {
+    "saveImage": "Spara bild",
+    "copyImage": "Kopiera bild",
+    "openOriginal": "Öppna original",
+    "saveVideo": "Spara video",
+    "saveAudio": "Spara ljud",
+    "copyLink": "Kopiera länk",
+    "openLink": "Öppna länk",
+    "copySelectedText": "Kopiera markerad text",
+    "copyText": "Kopiera text",
+    "markUnread": "Markera som oläst",
+    "editMessage": "Redigera meddelande",
+    "deleteMessage": "Ta bort meddelande",
+    "linkCopied": "Länk kopierad",
+    "linkCopyFailed": "Kunde inte kopiera länk",
+    "pinMessage": "Fäst meddelande",
+    "unpinMessage": "Lossa meddelande"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "Pausad — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "Kan inte spela här — ladda ner",
+      "unsupportedFormat": "Videoformat som inte stöds",
+      "unsupportedBrowser": "Din webbläsare stöder inte videouppspelning."
+    },
+    "audio": {
+      "unsupportedBrowser": "Din webbläsare stöder inte ljuduppspelning."
+    },
+    "federation": {
+      "remoteNamed": "Hostad på instansen för {{sender}}. Ladda ner för en lokal kopia.",
+      "remoteUnknown": "Hostad på avsändarens instans. Ladda ner för en lokal kopia.",
+      "partialGeneric": "Vissa mottagare kan inte cacha denna fil lokalt.",
+      "partialInstance": "Instansen för {{username}} (gräns: {{limit}})",
+      "partialList": "Filen kunde inte cachas på {{instances}}. De kan fortfarande se den från din instans.",
+      "listPair": "{{first}} och {{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "Sök GIF",
+    "noResults": "Inga GIF hittades",
+    "noTrending": "Inga trendande GIF",
+    "attribution": "Drivs av Klipy"
+  },
+  "preview": {
+    "save": "Spara bild",
+    "copy": "Kopiera bild",
+    "alt": "Bildförhandsvisning"
+  },
+  "invite": {
+    "sentBy": "Inbjudan från {{name}}",
+    "memberCount_one": "{{count}} medlem",
+    "memberCount_other": "{{count}} medlemmar",
+    "revoked": "Inbjudan gäller inte längre",
+    "join": "Gå med",
+    "joining": "Går med…",
+    "joinFailed": "Kunde inte gå med",
+    "askToJoin": "Be om att få gå med",
+    "sendingRequest": "Skickar…",
+    "requestSent": "Förfrågan skickad",
+    "requestPending": "Förfrågan väntar",
+    "requestNotice": "Detta rum tar emot ansökningar. En hanterare godkänner var och en.",
+    "requestReview": "En hanterare granskar din förfrågan."
+  },
+  "notification": {
+    "unknownSender": "Någon",
+    "attachmentOnly": "Skickade en bilaga"
+  },
+  "commands": {
+    "title": "Kommandon",
+    "failed": "Kommandot kunde inte skickas",
+    "extraText": "Detta kommando tar ingen fritext, men \"{{text}}\" blev över. Sätt alternativen först, texten sist",
+    "invalidOption": "Värdet för {{option}} passar inte detta kommando.",
+    "optionsTitle": "Parametrar",
+    "required": "krävs",
+    "subcommandsTitle": "Underkommandon",
+    "group": "grupp",
+    "chooseSubcommand": "Välj ett underkommando: {{names}}",
+    "subcommandRefused": "Boten erbjuder inte detta underkommando. Välj ett från listan"
+  },
+  "ephemeral": {
+    "onlyYou": "Endast du kan se detta",
+    "dismiss": "Stäng",
+    "rowLabel": "Svar endast du kan se från {{author}}, {{time}}"
+  },
+  "embed": {
+    "loadAction": "Klicka för att ladda",
+    "loadNamed": "Ladda {{name}}",
+    "loadUnnamed": "Ladda inbäddning",
+    "frameTitle": "Inbäddning",
+    "playNamed": "Spela {{title}}",
+    "playUnnamed": "Spela video",
+    "videoTitle": "Video"
+  },
+  "stickers": {
+    "title": "Mina dekaler",
+    "upload": "Ladda upp bild",
+    "limits": "PNG, JPEG, WebP eller GIF · upp till 5 MB",
+    "loading": "Laddar…",
+    "empty": "Din dekalsamling börjar här",
+    "remove": "Ta bort",
+    "save": "Lägg till i mina dekaler",
+    "saved": "Tillagd i mina dekaler",
+    "preview": "Förhandsvisa dekal",
+    "manage": "Hantera",
+    "done": "Klar",
+    "collectionHint": "Välj en dekal att skicka. Gör detta rum till ditt.",
+    "manageHint": "Byt namn på eller ta bort dekaler i samlingen. Redan skickade meddelanden ändras inte.",
+    "emptyHint": "Spara dina favoritögonblick som dekaler, redo för nästa svar.",
+    "chooseImage": "Välj bild",
+    "cancel": "Avbryt",
+    "replace": "Ersätt bild",
+    "name": "Dekalnamn",
+    "dropImage": "Klicka eller dra en bild hit",
+    "pasteHint": "Du kan också klistra in en bild från urklipp",
+    "uploading": "Lägger till dekal…",
+    "singleImage": "Välj en bild åt gången.",
+    "invalidSize": "Välj en icke-tom bild upp till 5 MB.",
+    "invalidType": "Endast PNG-, JPEG-, WebP- och GIF-bilder stöds.",
+    "invalidImage": "Den bilden kan inte förhandsvisas. Välj en giltig bild.",
+    "removeNamed": "Ta bort {{name}}",
+    "addMore": "Lägg till fler",
+    "selectedCount_one": "{{count}} dekal vald",
+    "selectedCount_other": "{{count}} dekaler valda",
+    "dropMore": "Klicka eller dra fler bilder hit",
+    "sticker": "Dekal",
+    "downloadFailed": "Bilden kunde inte laddas.",
+    "batchLimit_one": "Välj upp till {{count}} bild åt gången.",
+    "batchLimit_other": "Välj upp till {{count}} bilder åt gången.",
+    "capacityLimit_one": "Din samling har plats för {{count}} dekal till.",
+    "capacityLimit_other": "Din samling har plats för {{count}} dekaler till.",
+    "full": "Din samling är full. Ta bort en dekal för att lägga till en annan.",
+    "batchFailed_one": "{{count}} bild kunde inte läggas till. Den står fortfarande nedan.",
+    "batchFailed_other": "{{count}} bilder kunde inte läggas till. De står fortfarande nedan.",
+    "uploadingProgress": "Lägger till {{current}} av {{total}}…",
+    "rename": "Byt namn",
+    "renameNamed": "Byt namn på {{name}}",
+    "renameTitle": "Byt namn på dekal",
+    "search": "Sök dekaler",
+    "noResults": "Inga dekaler hittades",
+    "store": "Dekalbutik",
+    "myCollection": "Mina dekaler",
+    "packs": "Dekalpaket",
+    "explore": "Utforska",
+    "myPacks": "Skapade av mig",
+    "install": "Lägg till",
+    "installed": "Tillagd",
+    "uninstall": "Ta bort",
+    "createPack": "Skapa paket",
+    "editPack": "Redigera paket",
+    "packName": "Paketnamn",
+    "packDesc": "Beskrivning (valfri)",
+    "submitReview": "Skicka för granskning",
+    "pendingReview": "Väntar på granskning",
+    "approved": "Godkänd",
+    "rejected": "Avvisad",
+    "draft": "Utkast",
+    "newVersion": "Ny version",
+    "deletePack": "Ta bort paket",
+    "stickersCount_one": "{{count}} dekal",
+    "stickersCount_other": "{{count}} dekaler",
+    "noPacks": "Inga dekalpaket hittades",
+    "replicaBadge": "Federerad",
+    "viewPack": "Visa paket",
+    "saveDraft": "Spara som utkast",
+    "packCreated": "Paket skapat",
+    "reviewSubmitted": "Inskickat för admingranskning",
+    "reviews": "Granskning",
+    "noReviews": "Inga dekalpaket väntar på granskning",
+    "approve": "Godkänn",
+    "reject": "Avvisa",
+    "rejectTitle": "Avvisa dekalpaket",
+    "rejectReason": "Avvisningsorsak",
+    "rejectPlaceholder": "Ange orsak till avvisning (t.ex. olämpligt innehåll, låg kvalitet)",
+    "rejectConfirm": "Bekräfta avvisning",
+    "approvedSuccess": "Dekalpaket godkänt",
+    "rejectedSuccess": "Dekalpaket avvisat",
+    "reviewNotes": "Avvisningsorsak",
+    "creator": "Skapare",
+    "sourceInstance": "Instans",
+    "localInstance": "Lokal instans",
+    "viewStickers": "Visa dekaler",
+    "pendingReviewHint": "Hos administratör för granskning; visas i Utforska efter godkännande"
+  },
+  "poke": {
+    "action": "Puffa",
+    "received": "{{actor}} puffade {{target}}",
+    "disconnected": "Anslutningen bröts. Puffen skickades inte."
+  },
+  "pins": {
+    "title": "Fästa meddelanden",
+    "empty": "Inga fästa meddelanden ännu.",
+    "jump": "Hoppa till meddelande",
+    "unpin": "Lossa",
+    "deletedMessage": "Meddelande borttaget",
+    "attachmentOnly": "Bilaga"
+  }
+}

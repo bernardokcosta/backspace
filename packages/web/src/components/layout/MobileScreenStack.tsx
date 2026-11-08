@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useUIStore } from '../../stores/uiStore';
+import { MobileScreenVisibility } from './MobileScreenVisibility';
 
 interface MobileScreenStackProps {
   rootScreen: React.ReactNode;
@@ -53,7 +54,7 @@ export function MobileScreenStack({ rootScreen, screenMap }: MobileScreenStackPr
         className="flex flex-col h-full"
         style={{ visibility: renderStack.length > 0 ? 'hidden' : 'visible' }}
       >
-        {rootScreen}
+        <MobileScreenVisibility value={renderStack.length === 0 && renderStack === mobileStack && !transitioning}>{rootScreen}</MobileScreenVisibility>
       </div>
 
       {/* Stacked screens */}
@@ -79,7 +80,7 @@ export function MobileScreenStack({ rootScreen, screenMap }: MobileScreenStackPr
 
         return (
           <div key={`${entry.screen}-${index}`} className={className} style={style}>
-            {renderer(entry.params)}
+            <MobileScreenVisibility value={isTop && renderStack === mobileStack && !transitioning && !animatingRef.current}>{renderer(entry.params)}</MobileScreenVisibility>
           </div>
         );
       })}

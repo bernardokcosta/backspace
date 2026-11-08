@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "spaces": "Ruimtes",
+    "dms": "DM's",
+    "you": "Jij"
+  },
+  "you": {
+    "editProfile": "Profiel bewerken",
+    "homeInstance": "Thuisinstantie: {{domain}}",
+    "logOutConfirm": "Weet je zeker dat je wilt uitloggen?"
+  },
+  "chat": {
+    "openCall": "Oproep openen",
+    "cancelCall": "Oproep annuleren",
+    "unknownChannel": "kanaal"
+  }
+}

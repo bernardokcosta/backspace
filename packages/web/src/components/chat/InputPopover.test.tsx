@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { act, render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { InputPopover } from './InputPopover';
 import { useUIStore } from '../../stores/uiStore';
+import { setLanguage } from '../../i18n';
 
 vi.mock('./EmojiPicker', () => ({
   EmojiPicker: () => <div data-testid="mock-emoji-picker">Emoji Picker</div>,
@@ -40,6 +41,16 @@ describe('InputPopover', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     anchorEl.remove();
+  });
+
+  it('uses translated emoji and GIF tab labels, not invariant English assumptions', async () => {
+    await setLanguage('zh');
+    try {
+      render(<InputPopover activeTab="sticker" onClose={vi.fn()} onEmojiSelect={vi.fn()} onGifSelect={vi.fn()}
+        anchorRef={{ current: anchorEl }} gifEnabled onTabChange={vi.fn()} />);
+      expect(screen.getByRole('button', { name: '表情', exact: true })).toBeVisible();
+      expect(screen.getByRole('button', { name: 'GIF 动图', exact: true })).toBeVisible();
+    } finally { await act(async () => setLanguage('en')); }
   });
 
   it('closes on outside click on normal document body', () => {

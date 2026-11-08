@@ -1,0 +1,34 @@
+{
+  "failure": {
+    "notAuthenticated": "Inte autentiserad för denna instans",
+    "invalidResponse": "Kunde inte tolka uppladdningssvaret",
+    "uploadError": "Uppladdningsfel",
+    "downloadError": "Nedladdningsfel",
+    "fileUnavailable": "Filen är inte längre tillgänglig — kasta och ladda upp igen",
+    "noDestination": "Inget målhandtag — kan inte återuppta",
+    "destinationMissing": "Målhandtag saknas",
+    "permissionDenied": "Åtkomst nekad",
+    "lostDownload": "Nedladdningen kan inte återupptas — data förlorade. Starta nedladdningen igen.",
+    "uploadHandleMissing": "Filhandtag saknas — kasta och ladda upp igen",
+    "downloadHandleMissing": "Målhandtag saknas — starta nedladdningen igen",
+    "downloadFailed": "Nedladdningen misslyckades: {{status}}",
+    "resumeFailed": "Återupptagandet misslyckades: {{status}}"
+  },
+  "transfers": {
+    "title": "Överföringar",
+    "count_one": "{{count}} överföring",
+    "count_other": "{{count}} överföringar",
+    "clearCompleted": "Rensa slutförda",
+    "empty": "Inga aktiva överföringar.",
+    "status": {
+      "done": "Klar",
+      "failed": "Misslyckades: {{reason}}",
+      "aborted": "Avbruten",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "Beskär bild",
+    "applying": "Tillämpar…"
+  }
+}

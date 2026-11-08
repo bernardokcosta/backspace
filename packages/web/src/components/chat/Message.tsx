@@ -91,7 +91,7 @@ function PersonName({ name, person, className, style }: {
   style?: React.CSSProperties;
 }) {
   return (
-    <span className={`inline-flex items-center gap-0.5 ${className}`} style={style}>
+    <span className={`inline-flex items-center gap-0.5 ${className}`} style={style} dir="auto">
       {name}
       {isFederationGlobeApplicable(person) && (
         <Tooltip content={person.username} position="top">
@@ -616,6 +616,7 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
               className="input-standard w-full p-3 rounded-lg resize-none text-[15px] leading-[1.5] shadow-inner"
               rows={2}
               autoFocus
+              dir="auto"
             />
             <p className="text-[12px] text-txt-tertiary mt-1.5 ml-1">
               <Trans
@@ -666,7 +667,7 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
             ) : (
               <>
                 {message.content && (
-                  <div className="text-txt-message text-[15px] leading-[1.5] break-words whitespace-pre-wrap selection:bg-accent-primary/30">
+                  <div className="text-txt-message text-[15px] leading-[1.5] break-words whitespace-pre-wrap selection:bg-accent-primary/30" dir="auto">
                     {isSticker
                       ? <StickerMessage token={message.content} />
                       : <MarkdownRenderer content={message.content} channelId={mentionChannelId} />}

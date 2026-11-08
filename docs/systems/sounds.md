@@ -69,6 +69,46 @@ scope/account/room exit, disconnection, deafen or zero SFX volume. Audio/autopla
 failure never rejects a game update. Browser validation proves decode/output
 playback, not the clip's spoken content or a live multi-device voice session.
 
+### Juno personal audio and focused music
+
+Juno's personal effects/music controls live in its gear modal and default to
+100%, stored only in `backspace-juno-preferences`. The effects percentage
+multiplies `getSfxVolume()` through a Juno-owned gain on cached short buffers;
+current sources change gain live without replay. Zero/deafen cancels pending
+loads too. The existing memory move-id, freshness, initial-read and reconnect
+suppression rules above remain unchanged. Dubbing and special-card artwork share
+the real `JUNO_DUBBINGS` catalog: Automatic (the default) currently resolves to
+the only supplied pt-BR edition for any UI language; explicit pt-BR also works.
+
+The separate unchanged `public/games/juno/music/charting-the-dark.mp3` is the
+user-supplied approximately 181.52s background track, not a new system cue. Its
+4,363,065 bytes/SHA-256/source provenance live in `games/juno/manifest.json`;
+no authorship/license claim or offline availability is inferred. A managed
+HTMLAudioElement streams it to `ensureContext()` → local GainNode → existing
+`getMasterOutput()`/limiter/device. It does not allocate a second AudioContext or
+cache roughly 64MB of decoded music PCM. The music is first loaded only when
+Juno is eligible, loops locally and is never captured/published into LiveKit.
+
+The 100% control represents gain `0.20` before global output-volume scaling and
+the existing master boost/limiter. Formula: `0.20 * music/100 * output/100`.
+It is independent of the global SFX slider, respects self/space deafen and global
+output zero, and ignores ordinary microphone mute. Preferences never write
+global volume/device settings. Music pauses outside the main focused Juno view,
+including hidden tabs, window blur/minimize and actual mobile transition/overlay
+state. Settings/rules/ranking within the game keep it eligible. Music
+also pauses for the soundboard, screen-share setup and incoming-call overlays,
+whose existing state lives outside `activeModal`. The same target
+resumes from its in-memory position; scope exit removes media source/gain and
+aborts the element load. Generation checks and zero gain prevent stale starts.
+Autoplay/setup failure is contained and exposes a gesture retry in game settings;
+no game mutation, forced autoplay or repeated alert. Headless validation verifies
+real HTTP 503 → 200 recovery through the retry control: a media error requires
+`load()` to reselect the resource on the same routed element, with generation
+invalidation and zero gain retained. Headless validation also measures
+real streamed MP3 playback/nonzero PCM/gains and navigation pause/resume; OS
+window focus/hidden policy is also covered by controlled event/unit tests, not
+claimed as installed-app or real multi-device media acceptance.
+
 ---
 
 ## Which messages alert

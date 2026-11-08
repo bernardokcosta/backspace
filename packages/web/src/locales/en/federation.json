@@ -1,4 +1,24 @@
 {
+  "validation": {
+    "invalidUrl": "Invalid URL",
+    "selfInstance": "You're already logged into this instance",
+    "alreadyConnected": "This instance is already connected",
+    "notLoggedIn": "Not logged in",
+    "connectHomeFirst": "Connect to your home instance ({{home}}) first — it issues the credential for {{target}}",
+    "incorrectPassword": "Incorrect password",
+    "authenticationFailed": "Failed to authenticate with remote instance"
+  },
+  "feedback": {
+    "connectionLost": "Lost connection to {{instance}} — reconnecting...",
+    "connectionRestored": "Reconnected to {{instance}}",
+    "pendingRequests_one": "You have {{count}} pending peering request",
+    "pendingRequests_other": "You have {{count}} pending peering requests",
+    "requestApproved": "Your peering request was approved",
+    "requestDenied": "Your peering request was denied",
+    "requestExpired": "Your peering request expired",
+    "friendRequestDeliveryFailed": "Friend request to {{username}} could not be delivered: {{reason}}",
+    "accountRelinked": "Account re-linked with {{instance}}"
+  },
   "connections": {
     "title": "Connected Instances",
     "description": "Link accounts across federated Backspace instances.",

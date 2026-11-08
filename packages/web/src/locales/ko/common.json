@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "저장",
+    "cancel": "취소",
+    "close": "닫기",
+    "delete": "삭제",
+    "bot": "봇",
+    "confirm": "확인",
+    "copy": "복사",
+    "copied": "복사됨",
+    "retry": "다시 시도",
+    "back": "뒤로",
+    "done": "완료",
+    "edit": "편집",
+    "remove": "제거",
+    "add": "추가",
+    "apply": "적용",
+    "reset": "초기화",
+    "continue": "계속",
+    "dismiss": "닫기",
+    "ok": "확인",
+    "search": "검색",
+    "clear": "지우기",
+    "change": "변경",
+    "refresh": "새로 고침",
+    "openLink": "링크 열기",
+    "tryAgain": "다시 시도",
+    "reply": "답장",
+    "addReaction": "반응 추가",
+    "share": "공유",
+    "accept": "수락",
+    "decline": "거절",
+    "pause": "일시 정지",
+    "resume": "계속",
+    "abort": "중단",
+    "dismissAll": "모두 닫기",
+    "filter": "필터",
+    "sort": "정렬",
+    "sortBy": "정렬 기준",
+    "leave": "나가기",
+    "invitePeople": "사람 초대",
+    "previous": "이전",
+    "next": "다음",
+    "preview": "미리 보기",
+    "logIn": "로그인"
+  },
+  "states": {
+    "loading": "불러오는 중…",
+    "saving": "저장 중…",
+    "saved": "저장됨",
+    "unknown": "알 수 없음",
+    "none": "없음",
+    "enabled": "활성화됨",
+    "disabled": "비활성화됨",
+    "on": "켬",
+    "off": "끔",
+    "yes": "예",
+    "no": "아니요",
+    "optional": "선택 사항",
+    "required": "필수",
+    "default": "기본값",
+    "recommended": "권장",
+    "online": "온라인",
+    "idle": "자리 비움",
+    "doNotDisturb": "방해 금지",
+    "offline": "오프라인",
+    "loadingSettings": "설정 불러오는 중…",
+    "loadSettingsFailed": "설정을 불러올 수 없습니다.",
+    "settingsSaved": "설정 저장됨",
+    "saveFailed": "저장 실패",
+    "scanning": "검색 중…",
+    "pleaseWait": "잠시 기다리세요…"
+  },
+  "labels": {
+    "username": "사용자 이름",
+    "password": "비밀번호",
+    "displayName": "표시 이름",
+    "friends": "친구",
+    "members": "멤버",
+    "settings": "설정",
+    "dangerZone": "위험 구역",
+    "searchMembers": "멤버 검색…",
+    "noMembersFound": "멤버를 찾을 수 없음",
+    "or": "또는",
+    "nameAZ": "이름 (A-Z)"
+  },
+  "time": {
+    "today": "오늘 {{time}}",
+    "yesterday": "어제 {{time}}",
+    "never": "없음",
+    "justNow": "방금",
+    "minutesShort": "{{minutes}}분",
+    "hoursMinutesShort": "{{hours}}시간 {{minutes}}분",
+    "elapsed": "{{duration}} 경과",
+    "left": "남은 {{duration}}"
+  },
+  "units": {
+    "ms": "{{value}}ms",
+    "percent": "{{value}}%",
+    "kbps": "{{value}}kbps",
+    "mbps": "{{value}}Mbps"
+  },
+  "colors": {
+    "mint": "민트",
+    "sky": "하늘",
+    "lavender": "라벤더",
+    "coral": "산호",
+    "rose": "장미",
+    "teal": "청록",
+    "amber": "호박",
+    "peach": "복숭아"
+  },
+  "language": {
+    "label": "언어",
+    "automatic": "자동 (시스템)",
+    "description": "메뉴·버튼·시스템 메시지의 언어를 선택하세요. 자동은 시스템이나 브라우저 언어 설정을 따릅니다. 다른 사람의 메시지는 작성된 대로 유지됩니다."
+  },
+  "crash": {
+    "title": "문제가 발생했습니다",
+    "reload": "페이지 새로 고침",
+    "details": "오류 세부 정보"
+  },
+  "app": {
+    "description": "셀프 호스팅 Discord·TeamSpeak 대안. HD 음성·영상·화면 공유 — 오픈 소스이며 무료 (AGPL-3.0).",
+    "loading": "Backspace 불러오는 중"
+  },
+  "chrome": {
+    "toggleMemberList": "멤버 목록 표시 전환",
+    "closeSettings": "설정 닫기"
+  },
+  "sourceCode": {
+    "label": "소스 코드 (AGPL)",
+    "labelWithBuild": "소스 코드 (AGPL) · {{build}}",
+    "title": "이 인스턴스에서 실행 중인 버전의 소스 코드 보기 (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "{{label}} 감지됨. 전환하려면 음성 설정에서 선택하세요.",
+    "unnamedAudioInput": "새 오디오 장치"
+  }
+}

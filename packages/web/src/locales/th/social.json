@@ -1,0 +1,102 @@
+{
+  "tabs": {
+    "all": "ทั้งหมด",
+    "pending": "รอดำเนินการ",
+    "add": "เพิ่มเพื่อน",
+    "activity": "กิจกรรม"
+  },
+  "sections": {
+    "online": "ออนไลน์ — {{n}}",
+    "all": "เพื่อนทั้งหมด — {{n}}",
+    "pending": "รอดำเนินการ — {{n}}",
+    "active": "ใช้งาน — {{n}}",
+    "offline": "ออฟไลน์ — {{n}}"
+  },
+  "empty": {
+    "online": "ไม่มีใครออนไลน์ตอนนี้",
+    "all": "ยังไม่มีเพื่อน — เพิ่มใครสักคน!",
+    "pending": "ไม่มีคำขอค้าง — Nori กำลังงีบ",
+    "activity": "เงียบตอนนี้… เมื่อเพื่อนเริ่มกิจกรรม เราจะแสดงที่นี่!"
+  },
+  "friend": {
+    "viaInstance": "ผ่าน {{host}}",
+    "message": "ข้อความ",
+    "remove": "ลบเพื่อน"
+  },
+  "sendMessage": {
+    "failed": "เปิดบทสนทนาไม่ได้: {{reason}}"
+  },
+  "request": {
+    "incoming": "คำขอเป็นเพื่อนขาเข้า",
+    "outgoing": "คำขอเป็นเพื่อนขาออก",
+    "ignore": "เพิกเฉย",
+    "cancel": "ยกเลิกคำขอ",
+    "send": "ส่งคำขอเป็นเพื่อน",
+    "pending": "คำขอรอดำเนินการ",
+    "sending": "กำลังส่ง…",
+    "cancelling": "กำลังยกเลิก…",
+    "sent": "ส่งคำขอเป็นเพื่อนแล้ว!"
+  },
+  "removeFriend": {
+    "title": "ลบเพื่อน",
+    "description": "แน่ใจหรือไม่ว่าลบ {{name}} จากเพื่อน? คุณสามารถส่งคำขอใหม่ภายหลังได้เสมอ",
+    "fallbackName": "ผู้ใช้นี้"
+  },
+  "add": {
+    "title": "ค้นหาผู้คน",
+    "hint": "ค้นหาด้วยชื่อผู้ใช้ หรือใช้ <handle>user@instance</handle> เพื่อเพิ่มโดยตรง",
+    "placeholder": "ค้นหาหรือเพิ่มด้วยชื่อ…",
+    "direct": "ส่งคำขอเป็นเพื่อนถึง <handle>{{handle}}</handle>",
+    "sendRequest": "ส่งคำขอ",
+    "discover": "ค้นพบผู้คน",
+    "noSearchResults": "ไม่มีผู้ใช้ตรงค้นหา",
+    "noDiscoverable": "ยังไม่มีผู้ใช้ให้ค้นพบ — เชิญคนเข้าร่วม!"
+  },
+  "mutuals": {
+    "friends_other": "เพื่อนร่วม {{count}} คน",
+    "spaces_other": "สเปซร่วม {{count}} แห่ง",
+    "noFriends": "ไม่มีเพื่อนร่วม",
+    "noSpaces": "ไม่มีสเปซร่วม"
+  },
+  "profile": {
+    "tabs": {
+      "about": "เกี่ยวกับ",
+      "mutualFriends": "เพื่อนร่วม",
+      "mutualSpaces": "สเปซร่วม"
+    },
+    "aboutMe": "เกี่ยวกับฉัน",
+    "roles": "บทบาท",
+    "memberSince": "เป็นสมาชิกตั้งแต่",
+    "sendMessage": "ส่งข้อความ",
+    "editRoles": "แก้ไขบทบาท",
+    "viewFull": "ดูโปรไฟล์เต็ม",
+    "addFriend": "เพิ่มเพื่อน",
+    "playingNow": "กำลังเล่น"
+  },
+  "activity": {
+    "title": "กำลังใช้งาน",
+    "quietTitle": "เงียบตอนนี้…",
+    "quietDescription": "เมื่อเพื่อนเริ่มกิจกรรม — เช่นเล่นเกมหรืออยู่ห้องเสียง — เราจะแสดงที่นี่!",
+    "online": "ออนไลน์ — {{n}}",
+    "offline": "ออฟไลน์ — {{n}}",
+    "resizeHandle": "ปรับขนาดรายชื่อเพื่อน",
+    "types": {
+      "playing": "กำลังเล่นเกม",
+      "listening": "กำลังฟังเพลง",
+      "streaming": "กำลังสตรีม",
+      "watching": "กำลังดู",
+      "custom": "สถานะกำหนดเอง"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "เปิดแทร็ก"
+  },
+  "instanceNotConnected": "ไม่ได้เชื่อม {{host}} เชื่อมใหม่แล้วลองอีกครั้ง"
+}

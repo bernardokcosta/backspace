@@ -6,31 +6,20 @@ import path from 'path';
 import { devCspPreamble } from './src/build/devCsp';
 import { preloadStartupChunks } from './src/build/startupChunks';
 import { PRECACHE_GLOB_PATTERNS, PRECACHE_MAX_FILE_BYTES } from './src/build/precache';
+import { BASE_MANIFEST, localizedManifests } from './src/build/localizedManifests';
 
 export default defineConfig({
   plugins: [
     devCspPreamble(),
     preloadStartupChunks(),
+    localizedManifests(),
     react(),
     VitePWA({
       // 'prompt' keeps a new build waiting until SwAutoUpdate applies it, so an
       // update never reloads the page out from under a live voice session.
       registerType: 'prompt',
       includeAssets: ['icons/favicon-32.png', 'icons/favicon-16.png', 'icons/apple-touch-icon.png'],
-      manifest: {
-        name: 'Backspace Fork',
-        short_name: 'Backspace Fork',
-        description: 'The self-hosted Discord and TeamSpeak alternative. HD voice, video, and screen share — open source and free (AGPL-3.0).',
-        display: 'standalone',
-        start_url: '/',
-        theme_color: '#0b0b10',
-        background_color: '#0b0b10',
-        icons: [
-          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: '/icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
-        ],
-      },
+      manifest: BASE_MANIFEST,
       workbox: {
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/, /^\/ws/, /^\/uploads/],

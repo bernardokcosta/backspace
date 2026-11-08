@@ -51,6 +51,18 @@ The host may fill empty lobby seats with built-in computers (practice, no XP),
 and the logo JUNO button replaces the checkbox. Confirmed-action effects respect
 reduced motion and never consume touch input. See [juno.md](juno.md).
 
+The Juno gear uses the shared portal/glass modal as a bounded mobile sheet;
+language and volume changes are personal and never push a game/settings screen
+or leave voice. Its own modal does not stop focused-game music. Music pauses in
+the mosaic, chat or any other screen, even when the voice screen stays mounted.
+`MobileScreenStack` supplies `MobileScreenVisibility` context: only the actual
+settled current top screen (or uncovered settled root) is true. All retained,
+incoming and outgoing animated screens are false, including the 200ms pop delay.
+Juno combines this rendering-owner signal with viewport intersection and existing
+voice/navigation/document gates before registering a view lease. This adds no
+navigation state and changes no DOM/CSS, media subscriptions or camera behavior;
+an ongoing call and `open: true` alone cannot keep the music playing.
+
 ---
 
 ## Responsive Breakpoint

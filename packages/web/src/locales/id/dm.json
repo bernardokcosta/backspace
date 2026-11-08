@@ -1,0 +1,173 @@
+{
+  "callDelivery": {
+    "remoteInstance": "instans remote",
+    "hostInstance": "instans host",
+    "acceptDropped": "Tidak dapat mengonfirmasi penerimaan Anda dengan {{instance}} — panggilan terputus.",
+    "rejectFailed": "Tidak dapat memberi tahu {{instances}} bahwa Anda menolak. Penelepon mungkin masih melihat Anda berdering sebentar.",
+    "endFailed": "Tidak dapat memberi tahu {{instances}} bahwa Anda menutup. Peserta remote mungkin melihat panggilan hingga 60 detik.",
+    "hostUnreachable": "Panggilan berakhir — instans host tidak dapat dijangkau.",
+    "peeringLost": "Panggilan berakhir — instans ini tidak lagi dipeering dengan {{instance}}.",
+    "instanceUnreachable": "Panggilan berakhir — {{instance}} tidak dapat dijangkau.",
+    "someUnreachable": "Beberapa peserta tidak dapat dijangkau: {{instances}}.",
+    "multipleUnreachable_one": "Tidak dapat menjangkau {{count}} instans: {{instances}}.",
+    "multipleUnreachable_other": "Tidak dapat menjangkau {{count}} instans: {{instances}}.",
+    "callFailed": "Panggilan tidak dapat dilakukan.",
+    "manualApproval": "Tidak dapat menjangkau {{instance}} — instans ini memerlukan persetujuan peering manual.",
+    "awaitingApproval": "Menunggu admin {{instance}} menyetujui instans Anda. Panggilan berfungsi setelah disetujui.",
+    "transientFailure": "Tidak dapat menjangkau {{instance}}. Coba sebentar lagi.",
+    "voiceUnavailable": "Voice tidak dikonfigurasi di instans ini.",
+    "noRecipient": "{{instance}} tidak menelepon siapa pun.",
+    "targetCallFailed": "Panggilan ke {{instance}} tidak dapat dilakukan."
+  },
+  "feedback": {
+    "relayDenied": "Tidak dapat meneruskan pesan — server mereka menolak peering. Hubungi admin mereka.",
+    "awaitingPeering": "Pesan akan terkirim setelah admin mereka menyetujui permintaan peering."
+  },
+  "names": {
+    "group": "Grup",
+    "directMessage": "Pesan Langsung",
+    "theGroup": "grup",
+    "unknownHandle": "tidak diketahui",
+    "groupFallback": "DM Grup",
+    "emptyGroup": "Grup Kosong"
+  },
+  "preview": {
+    "image": "Gambar",
+    "video": "Video",
+    "audio": "Audio",
+    "files_one": "📎 {{count}} berkas",
+    "files_other": "📎 {{count}} berkas",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 Undangan ke {{spaceName}} terkirim",
+    "memberAdded": "{{actor}} menambahkan {{target}}",
+    "memberAddedToGroup": "{{actor}} menambahkan {{target}} ke grup",
+    "memberLeft": "{{target}} keluar grup",
+    "memberRemoved": "{{actor}} menghapus {{target}}",
+    "memberRemovedFromGroup": "{{actor}} menghapus {{target}} dari grup",
+    "ownerChanged": "{{newOwner}} kini pemilik grup",
+    "renamed": "{{actor}} mengganti nama grup",
+    "renamedTo": "{{actor}} mengganti nama grup menjadi \"{{name}}\"",
+    "nameCleared": "{{actor}} menghapus nama grup",
+    "iconChanged": "{{actor}} memperbarui ikon grup",
+    "generic": "Pesan sistem"
+  },
+  "deletedNotice": {
+    "accountDeleted": "Akun pengguna ini dihapus"
+  },
+  "memberRow": {
+    "viewProfile": "Lihat Profil",
+    "transferOwnership": "Transfer Kepemilikan",
+    "removeFromGroup": "Hapus dari Grup",
+    "removeFriend": "Hapus Teman",
+    "ownerTooltip": "Pemilik Grup",
+    "actions": "Aksi anggota"
+  },
+  "roster": {
+    "owner": "Pemilik",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "Ubah ukuran daftar anggota"
+  },
+  "kick": {
+    "title": "Hapus dari Grup",
+    "description": "Hapus {{name}} dari grup ini? Mereka takkan melihat pesan baru.",
+    "success": "{{name}} dihapus dari grup",
+    "failed": "Gagal menghapus anggota"
+  },
+  "transfer": {
+    "title": "Transfer Kepemilikan",
+    "description": "Transfer kepemilikan ke {{name}}? Anda kehilangan hak pemilik.",
+    "confirm": "Alihkan",
+    "success": "Kepemilikan ditransfer ke {{name}}",
+    "failed": "Gagal mentransfer kepemilikan"
+  },
+  "removeFriend": {
+    "failed": "Gagal menghapus teman"
+  },
+  "leave": {
+    "title": "Keluar Grup",
+    "description": "Keluar “{{name}}”? Anda berhenti menerima pesan percakapan ini.",
+    "inProgress": "Keluar…",
+    "failed": "Gagal keluar grup",
+    "explanation": "Anda berhenti menerima pesan percakapan ini. Anggota lain melihat pesan sistem."
+  },
+  "search": {
+    "trigger": "Temukan atau mulai percakapan",
+    "placeholder": "Cari…",
+    "emptyHint": "Cari pengguna untuk mengobrol",
+    "conversations": "Percakapan",
+    "users": "Pengguna",
+    "searching": "Mencari…",
+    "noResults": "Tidak ada hasil",
+    "createFailed": "Gagal membuat DM"
+  },
+  "list": {
+    "resizeHandle": "Ubah ukuran pesan langsung",
+    "title": "Pesan",
+    "empty": "Belum ada percakapan.",
+    "leaveGroup": "Keluar Grup",
+    "justNow": "kini",
+    "minutesShort_one": "{{count}} mnt",
+    "minutesShort_other": "{{count}} mnt",
+    "hoursShort_one": "{{count}} jam",
+    "hoursShort_other": "{{count}} jam",
+    "daysShort_one": "{{count}} hr",
+    "daysShort_other": "{{count}} hr",
+    "close": "Tutup DM"
+  },
+  "newDm": {
+    "title": "Pesan Langsung Baru",
+    "searchPlaceholder": "Cari pengguna…",
+    "noUsers": "Tidak ada pengguna ditemukan"
+  },
+  "addMember": {
+    "title": "Tambah Teman ke DM",
+    "description": "Pilih teman untuk ditambah ke percakapan ini.",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "Cari teman…",
+    "limitReached": "DM grup ini mencapai batas {{max}} anggota.",
+    "alreadyInDm": "Sudah di DM ini",
+    "noMatch": "Tidak ada teman cocok pencarian",
+    "noFriends": "Belum ada teman",
+    "selectFriends": "Pilih Teman",
+    "addCount_one": "Tambah {{count}} Teman",
+    "addCount_other": "Tambah {{count}} Teman",
+    "adding": "Menambah…",
+    "noOtherMember": "Tidak dapat menentukan anggota lain percakapan ini.",
+    "failed": "Gagal menambah anggota",
+    "yourBots": "Bot Anda"
+  },
+  "groupSettings": {
+    "title": "Pengaturan Grup",
+    "general": "Umum",
+    "overview": "Ringkasan",
+    "backToMenu": "Kembali ke menu pengaturan DM grup",
+    "changeIcon": "Ubah ikon grup",
+    "icon": "Ikon grup",
+    "clickToUpload": "Klik untuk mengunggah",
+    "removeIcon": "Hapus ikon grup",
+    "nameLabel": "Nama Grup",
+    "nameAria": "Nama grup",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "Tambah Anggota",
+    "groupFull": "Grup penuh",
+    "groupFullSuffix": "— Grup penuh",
+    "cropTitle": "Pangkas Ikon Grup",
+    "saveFailed": "Gagal menyimpan pengaturan"
+  },
+  "groupInfo": {
+    "title": "Info Grup",
+    "plainTitle": "Info",
+    "notFound": "Percakapan tidak ditemukan.",
+    "notGroup": "Percakapan ini tidak punya info grup.",
+    "cancelEdit": "Batalkan edit",
+    "federated": "Grup federasi",
+    "memberCount_one": "{{count}} anggota",
+    "memberCount_other": "{{count}} anggota"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "Grup ini dikelola di {{host}}. Hubungkan ke instans itu untuk mengubahnya.",
+    "ownerNotListed": "{{host}} belum mencantumkan grup ini untuk Anda. Coba sebentar lagi."
+  }
+}

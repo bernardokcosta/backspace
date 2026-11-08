@@ -414,7 +414,7 @@
       "external": "Updates are installed through your Flatpak software manager",
       "download": "Download",
       "restart": "Restart",
-      "manualNote": "This build cannot install updates itself, so new versions are downloaded from GitHub and replace the app by hand. See the release notes for the steps on your platform.",
+      "manualNote": "This build cannot install updates itself. Download new versions from GitHub and replace the app manually. See the release notes for the steps on your platform.",
       "externalNote": "Flatpak applies updates atomically outside the app. Use your software manager or the <code>flatpak update</code> command to update Backspace."
     },
     "instance": {
@@ -475,7 +475,7 @@
       "sectionTitle": "Create a bot",
       "nameLabel": "Bot username",
       "submit": "Create bot",
-      "hint": "{{min}} to {{max}} characters: lowercase letters, numbers and underscores. You can create up to {{limit}} bots."
+      "hint": "{{min}} to {{max}} characters: lowercase Latin letters (a–z), digits (0–9) and underscores (_). You can create up to {{limit}} bots."
     },
     "list": {
       "sectionTitle": "Your bots",
@@ -512,7 +512,7 @@
       "cancel": "Cancel",
       "edit": "Edit",
       "save": "Save",
-      "addToServer": "Add to server",
+      "addToServer": "Add to a space",
       "tokens": "Tokens"
     },
     "edit": {

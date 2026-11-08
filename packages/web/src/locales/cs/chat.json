@@ -1,0 +1,323 @@
+{
+  "feedback": {
+    "openedInNewTab": "Otevřeno v nové kartě",
+    "copiedGifLink": "Odkaz na GIF zkopírován",
+    "copiedImageLink": "Odkaz na obrázek zkopírován",
+    "uploadExpired": "„{{content}}” se nepodařilo poslat — nahrávání vypršelo.",
+    "attachmentOnly": "(jen příloha)"
+  },
+  "message": {
+    "edit": {
+      "hint": "escape pro <cancel>zrušení</cancel> • enter pro <save>uložení</save>"
+    },
+    "edited": "(upraveno)",
+    "rowLabel": "{{author}}, {{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "Nahrávání selhalo",
+      "discard": "Zahodit"
+    },
+    "actions": {
+      "confirmDelete": "Potvrdit smazání"
+    },
+    "reply": {
+      "jump": "Přejít na původní zprávu"
+    },
+    "mention": {
+      "unknownUser": "Neznámý uživatel",
+      "unknownRole": "Neznámá role"
+    },
+    "reactions": {
+      "picker": "Výběr reakce",
+      "you": "Ty",
+      "others_one": "{{count}} další",
+      "others_few": "{{count}} další",
+      "others_many": "{{count}} dalších",
+      "others_other": "{{count}} dalšího",
+      "bySelf": "Tvá reakce",
+      "byOne": "Reakce od {{name}}",
+      "byMany": "Reakce: {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "K prohlížení historie zpráv v tomto kanálu nemáš oprávnění",
+    "loading": "Načítání zpráv",
+    "loadingOlder": "Načítání starších zpráv",
+    "loadFailed": "Zprávy se nepodařilo načíst",
+    "jumpToPresent": "Přejít na nejnovější",
+    "jump": {
+      "unavailable": "Tato zpráva už není dostupná",
+      "failed": "Tuto zprávu se nepodařilo načíst",
+      "presentFailed": "Nejnovější zprávy se nepodařilo načíst"
+    },
+    "unread": {
+      "label": "Nové",
+      "divider": "Nové zprávy",
+      "dividerWithDate": "Nové zprávy, {{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "Vítej v kanálu!",
+        "description": "To je začátek konverzace."
+      },
+      "group": {
+        "intro": "To je začátek tvé skupinové konverzace.",
+        "owner": "Vlastník: <owner>@{{name}}</owner>",
+        "federatedNotice": "Zprávy se ukládají na tvé domovské instanci a domovských instancích příjemců. Nemají koncové šifrování.",
+        "openSettings": "Otevřít nastavení skupiny",
+        "leave": "Opustit skupinu"
+      },
+      "dm": {
+        "fallbackName": "Přímá zpráva",
+        "intro": "To je začátek historie přímých zpráv s <strong>@{{name}}</strong>.",
+        "federatedNotice": "Zprávy se ukládají na tvé domovské instanci a domovské instanci příjemce. Nemají koncové šifrování.",
+        "removeFriend": "Odebrat přítele"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "K posílání zpráv v tomto kanálu nemáš oprávnění",
+    "placeholder": {
+      "channel": "Zpráva do #{{name}}",
+      "dm": "Zpráva pro @{{name}}"
+    },
+    "replyingTo": "Odpověď na",
+    "cancelReply": "Zrušit odpověď",
+    "removeAttachment": "Odebrat přílohu",
+    "attachFile": "Přiložit soubor",
+    "dropTitle": "Nahrát soubor",
+    "dropHint": "Pusť pro přiložení",
+    "uploading": "Nahrávání…",
+    "uploadingLabel": "Nahrávání",
+    "failedCount_one": "{{count}} selhala",
+    "failedCount_few": "{{count}} selhaly",
+    "failedCount_many": "{{count}} selhalo",
+    "failedCount_other": "{{count}} selhala",
+    "failedHint": "Odeber či zopakuj vadnou přílohu pro odeslání",
+    "gif": "GIF",
+    "gifPicker": "Výběr GIFu",
+    "emoji": "Emodži",
+    "emojiPicker": "Výběr emodži",
+    "send": "Poslat",
+    "sendMessage": "Poslat zprávu",
+    "uploadFailed": "Nepodařilo se nahrát {{file}}: {{reason}}",
+    "uploadFailedReason": "Nahrávání selhalo",
+    "typing": {
+      "named_one": "{{names}} píše",
+      "named_few": "{{names}} píšou",
+      "named_many": "{{names}} píše",
+      "named_other": "{{names}} píše",
+      "several": "Píše několik lidí"
+    }
+  },
+  "menu": {
+    "saveImage": "Uložit obrázek",
+    "copyImage": "Kopírovat obrázek",
+    "openOriginal": "Otevřít originál",
+    "saveVideo": "Uložit video",
+    "saveAudio": "Uložit zvuk",
+    "copyLink": "Kopírovat odkaz",
+    "openLink": "Otevřít odkaz",
+    "copySelectedText": "Kopírovat vybraný text",
+    "copyText": "Kopírovat text",
+    "markUnread": "Označit jako nepřečtené",
+    "editMessage": "Upravit zprávu",
+    "deleteMessage": "Smazat zprávu",
+    "linkCopied": "Odkaz zkopírován",
+    "linkCopyFailed": "Odkaz se nepodařilo zkopírovat",
+    "pinMessage": "Připnout zprávu",
+    "unpinMessage": "Odepnout zprávu"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "Pozastaveno — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "Tady přehrát nejde — stáhni si",
+      "unsupportedFormat": "Nepodporovaný formát videa",
+      "unsupportedBrowser": "Tvůj prohlížeč přehrávání videa neumí."
+    },
+    "audio": {
+      "unsupportedBrowser": "Tvůj prohlížeč přehrávání zvuku neumí."
+    },
+    "federation": {
+      "remoteNamed": "Hostováno na instanci {{sender}}. Stáhni si pro místní kopii.",
+      "remoteUnknown": "Hostováno na instanci odesílatele. Stáhni si pro místní kopii.",
+      "partialGeneric": "Někteří příjemci nemohou tento soubor uložit místně.",
+      "partialInstance": "Instance {{username}} (limit: {{limit}})",
+      "partialList": "Soubor se nepodařilo uložit na {{instances}}. Stále si jej mohou prohlédnout z tvé.",
+      "listPair": "{{first}} a {{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "Hledat GIFy",
+    "noResults": "Žádné GIFy",
+    "noTrending": "Žádné trendy GIFy",
+    "attribution": "Běží na Klipy"
+  },
+  "preview": {
+    "save": "Uložit obrázek",
+    "copy": "Kopírovat obrázek",
+    "alt": "Náhled obrázku"
+  },
+  "invite": {
+    "sentBy": "Pozvánka od {{name}}",
+    "memberCount_one": "{{count}} člen",
+    "memberCount_few": "{{count}} členové",
+    "memberCount_many": "{{count}} členů",
+    "memberCount_other": "{{count}} člena",
+    "revoked": "Pozvánka už neplatí",
+    "join": "Připojit se",
+    "joining": "Připojování…",
+    "joinFailed": "Připojení selhalo",
+    "askToJoin": "Požádat o vstup",
+    "sendingRequest": "Posílání…",
+    "requestSent": "Žádost odeslána",
+    "requestPending": "Žádost čeká",
+    "requestNotice": "Tento prostor přijímá žádosti o vstup. Správce každou schválí.",
+    "requestReview": "Správce tvou žádost posoudí."
+  },
+  "notification": {
+    "unknownSender": "Někdo",
+    "attachmentOnly": "Poslal přílohu"
+  },
+  "commands": {
+    "title": "Příkazy",
+    "failed": "Příkaz se nepodařilo odeslat",
+    "extraText": "Tento příkaz nebere volný text, ale „{{text}}” zbylo. Nejprve uveď volby, text až poslední",
+    "invalidOption": "Hodnota {{option}} se k tomuto příkazu nehodí.",
+    "optionsTitle": "Parametry",
+    "required": "povinné",
+    "subcommandsTitle": "Podpříkazy",
+    "group": "skupina",
+    "chooseSubcommand": "Vyber podpříkaz: {{names}}",
+    "subcommandRefused": "Bot tento podpříkaz nenabízí. Vyber jeden ze seznamu"
+  },
+  "ephemeral": {
+    "onlyYou": "Vidíš jen ty",
+    "dismiss": "Skrýt",
+    "rowLabel": "Odpověď jen pro tebe od {{author}}, {{time}}"
+  },
+  "embed": {
+    "loadAction": "Klikni pro načtení",
+    "loadNamed": "Načíst {{name}}",
+    "loadUnnamed": "Načíst vložený obsah",
+    "frameTitle": "Vložený obsah",
+    "playNamed": "Přehrát {{title}}",
+    "playUnnamed": "Přehrát video",
+    "videoTitle": "Video"
+  },
+  "stickers": {
+    "title": "Moje nálepky",
+    "upload": "Nahrát obrázek",
+    "limits": "PNG, JPEG, WebP či GIF · do 5 MB",
+    "loading": "Načítání…",
+    "empty": "Tvá sbírka nálepek začíná tady",
+    "remove": "Odebrat",
+    "save": "Přidat do mých nálepek",
+    "saved": "Přidáno do mých nálepek",
+    "preview": "Náhled nálepky",
+    "manage": "Spravovat",
+    "done": "Hotovo",
+    "collectionHint": "Vyber nálepku k odeslání. Udělej si prostor svým.",
+    "manageHint": "Přejmenuj či odeber nálepky ve sbírce. Už odeslané zprávy zůstanou beze změny.",
+    "emptyHint": "Ulož si oblíbené momenty jako nálepky pro příští odpověď.",
+    "chooseImage": "Vybrat obrázek",
+    "cancel": "Zrušit",
+    "replace": "Nahradit obrázek",
+    "name": "Název nálepky",
+    "dropImage": "Klikni či sem přetáhni obrázek",
+    "pasteHint": "Obrázek můžeš vložit i ze schránky",
+    "uploading": "Přidávání nálepky…",
+    "singleImage": "Vyber po jednom obrázku.",
+    "invalidSize": "Vyber neprázdný obrázek do 5 MB.",
+    "invalidType": "Podporovány jsou jen obrázky PNG, JPEG, WebP a GIF.",
+    "invalidImage": "Tento obrázek nelze zobrazit. Vyber platný obrázek.",
+    "removeNamed": "Odebrat {{name}}",
+    "addMore": "Přidat další",
+    "selectedCount_one": "Vybrána {{count}} nálepka",
+    "selectedCount_few": "Vybrány {{count}} nálepky",
+    "selectedCount_many": "Vybráno {{count}} nálepek",
+    "selectedCount_other": "Vybrána {{count}} nálepka",
+    "dropMore": "Klikni či sem přetáhni další obrázky",
+    "sticker": "Nálepka",
+    "downloadFailed": "Obrázek se nepodařilo načíst.",
+    "batchLimit_one": "Vyber naráz do {{count}} obrázku.",
+    "batchLimit_few": "Vyber naráz do {{count}} obrázků.",
+    "batchLimit_many": "Vyber naráz do {{count}} obrázků.",
+    "batchLimit_other": "Vyber naráz do {{count}} obrázku.",
+    "capacityLimit_one": "Ve sbírce je místo ještě pro {{count}} nálepku.",
+    "capacityLimit_few": "Ve sbírce je místo ještě pro {{count}} nálepky.",
+    "capacityLimit_many": "Ve sbírce je místo ještě pro {{count}} nálepek.",
+    "capacityLimit_other": "Ve sbírce je místo ještě pro {{count}} nálepku.",
+    "full": "Tvá sbírka je plná. Odeber nálepku pro přidání další.",
+    "batchFailed_one": "{{count}} obrázek se nepodařilo přidat. Je stále uveden níže.",
+    "batchFailed_few": "{{count}} obrázky se nepodařilo přidat. Jsou stále uvedeny níže.",
+    "batchFailed_many": "{{count}} obrázků se nepodařilo přidat. Jsou stále uvedeny níže.",
+    "batchFailed_other": "{{count}} obrázek se nepodařilo přidat. Je stále uveden níže.",
+    "uploadingProgress": "Přidávání {{current}} z {{total}}…",
+    "rename": "Přejmenovat",
+    "renameNamed": "Přejmenovat {{name}}",
+    "renameTitle": "Přejmenovat nálepku",
+    "search": "Hledat nálepky",
+    "noResults": "Žádné nálepky",
+    "store": "Obchod s nálepkami",
+    "myCollection": "Moje nálepky",
+    "packs": "Balíčky nálepek",
+    "explore": "Procházet",
+    "myPacks": "Vytvořené mnou",
+    "install": "Přidat",
+    "installed": "Přidáno",
+    "uninstall": "Odebrat",
+    "createPack": "Vytvořit balíček",
+    "editPack": "Upravit balíček",
+    "packName": "Název balíčku",
+    "packDesc": "Popis (volitelný)",
+    "submitReview": "Odeslat k posouzení",
+    "pendingReview": "Čeká na posouzení",
+    "approved": "Schváleno",
+    "rejected": "Odmítnuto",
+    "draft": "Koncept",
+    "newVersion": "Nová verze",
+    "deletePack": "Smazat balíček",
+    "stickersCount_one": "{{count}} nálepka",
+    "stickersCount_few": "{{count}} nálepky",
+    "stickersCount_many": "{{count}} nálepek",
+    "stickersCount_other": "{{count}} nálepky",
+    "noPacks": "Žádné balíčky nálepek",
+    "replicaBadge": "Federováno",
+    "viewPack": "Zobrazit balíček",
+    "saveDraft": "Uložit jako koncept",
+    "packCreated": "Balíček vytvořen",
+    "reviewSubmitted": "Odesláno správci k posouzení",
+    "reviews": "Posouzení",
+    "noReviews": "Žádné balíčky nečekají na posouzení",
+    "approve": "Schválit",
+    "reject": "Odmítnout",
+    "rejectTitle": "Odmítnout balíček nálepek",
+    "rejectReason": "Důvod odmítnutí",
+    "rejectPlaceholder": "Zadej důvod odmítnutí (např. nevhodný obsah, nízká kvalita)",
+    "rejectConfirm": "Potvrdit odmítnutí",
+    "approvedSuccess": "Balíček nálepek schválen",
+    "rejectedSuccess": "Balíček nálepek odmítnut",
+    "reviewNotes": "Důvod odmítnutí",
+    "creator": "Autor",
+    "sourceInstance": "Instance",
+    "localInstance": "Místní instance",
+    "viewStickers": "Zobrazit nálepky",
+    "pendingReviewHint": "U správce k posouzení; po schválení se objeví v procházení"
+  },
+  "poke": {
+    "action": "Drcnout",
+    "received": "{{actor}} drcá do {{target}}",
+    "disconnected": "Spojení ztraceno. Drcnutí neodesláno."
+  },
+  "pins": {
+    "title": "Připnuté zprávy",
+    "empty": "Zatím žádné připnuté zprávy.",
+    "jump": "Přejít na zprávu",
+    "unpin": "Odepnout",
+    "deletedMessage": "Zpráva smazána",
+    "attachmentOnly": "Příloha"
+  }
+}

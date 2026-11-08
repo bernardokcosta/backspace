@@ -1,0 +1,173 @@
+{
+  "callDelivery": {
+    "remoteInstance": "रिमोट इंस्टेंस",
+    "hostInstance": "होस्ट इंस्टेंस",
+    "acceptDropped": "आपकी स्वीकृति {{instance}} पर पुष्ट नहीं हो सकी — कॉल कट गया।",
+    "rejectFailed": "{{instances}} को सूचित नहीं हो सका कि आपने अस्वीकार किया। कॉलर आपको कुछ देर रिंग करता देख सकता है।",
+    "endFailed": "{{instances}} को सूचित नहीं हो सका कि आपने काट दिया। रिमोट प्रतिभागी कॉल 60 सेकंड तक देख सकते हैं।",
+    "hostUnreachable": "कॉल समाप्त — होस्ट इंस्टेंस पहुंच से बाहर।",
+    "peeringLost": "कॉल समाप्त — यह इंस्टेंस {{instance}} से अब जुड़ा नहीं।",
+    "instanceUnreachable": "कॉल समाप्त — {{instance}} पहुंच से बाहर हो गया।",
+    "someUnreachable": "कुछ प्रतिभागियों तक नहीं पहुंचा जा सका: {{instances}}।",
+    "multipleUnreachable_one": "{{count}} इंस्टेंस तक नहीं पहुंचा जा सका: {{instances}}।",
+    "multipleUnreachable_other": "{{count}} इंस्टेंस तक नहीं पहुंचा जा सका: {{instances}}।",
+    "callFailed": "कॉल नहीं हो सका।",
+    "manualApproval": "{{instance}} तक नहीं पहुंचा जा सका — यह इंस्टेंस मैन्युअल पेयरिंग अनुमोदन मांगता है।",
+    "awaitingApproval": "{{instance}} व्यवस्थापक द्वारा आपके इंस्टेंस के अनुमोदन की प्रतीक्षा। अनुमोदन पर कॉल काम करेंगे।",
+    "transientFailure": "{{instance}} तक नहीं पहुंचा जा सका। क्षण भर में पुनः प्रयास करें।",
+    "voiceUnavailable": "इस इंस्टेंस पर वॉयस कॉन्फ़िगर नहीं।",
+    "noRecipient": "{{instance}} ने किसी को रिंग नहीं किया।",
+    "targetCallFailed": "{{instance}} पर कॉल नहीं हो सका।"
+  },
+  "feedback": {
+    "relayDenied": "संदेश रिले नहीं हो सकते — उनके सर्वर ने पेयरिंग अस्वीकार की। उनके व्यवस्थापक से संपर्क करें।",
+    "awaitingPeering": "उनके व्यवस्थापक के पेयरिंग अनुरोध अनुमोदन पर संदेश वितरित होंगे।"
+  },
+  "names": {
+    "group": "समूह",
+    "directMessage": "प्रत्यक्ष संदेश",
+    "theGroup": "समूह",
+    "unknownHandle": "अज्ञात",
+    "groupFallback": "समूह DM",
+    "emptyGroup": "खाली समूह"
+  },
+  "preview": {
+    "image": "छवि",
+    "video": "वीडियो",
+    "audio": "ऑडियो",
+    "files_one": "📎 {{count}} फ़ाइल",
+    "files_other": "📎 {{count}} फ़ाइलें",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 {{spaceName}} का निमंत्रण भेजा गया",
+    "memberAdded": "{{actor}} ने {{target}} जोड़ा",
+    "memberAddedToGroup": "{{actor}} ने {{target}} को समूह में जोड़ा",
+    "memberLeft": "{{target}} ने समूह छोड़ा",
+    "memberRemoved": "{{actor}} ने {{target}} हटाया",
+    "memberRemovedFromGroup": "{{actor}} ने {{target}} को समूह से हटाया",
+    "ownerChanged": "{{newOwner}} अब समूह स्वामी",
+    "renamed": "{{actor}} ने समूह का नाम बदला",
+    "renamedTo": "{{actor}} ने समूह का नाम \"{{name}}\" रखा",
+    "nameCleared": "{{actor}} ने समूह का नाम साफ़ किया",
+    "iconChanged": "{{actor}} ने समूह आइकन बदला",
+    "generic": "सिस्टम संदेश"
+  },
+  "deletedNotice": {
+    "accountDeleted": "इस उपयोगकर्ता का खाता हटाया गया"
+  },
+  "memberRow": {
+    "viewProfile": "प्रोफ़ाइल देखें",
+    "transferOwnership": "स्वामित्व स्थानांतरित करें",
+    "removeFromGroup": "समूह से हटाएं",
+    "removeFriend": "मित्र हटाएं",
+    "ownerTooltip": "समूह स्वामी",
+    "actions": "सदस्य क्रियाएं"
+  },
+  "roster": {
+    "owner": "स्वामी",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "सदस्य सूची का आकार बदलें"
+  },
+  "kick": {
+    "title": "समूह से हटाएं",
+    "description": "{{name}} को इस समूह से हटाएं? नए संदेश नहीं दिखेंगे।",
+    "success": "{{name}} समूह से हटाया गया",
+    "failed": "सदस्य हटाना विफल"
+  },
+  "transfer": {
+    "title": "स्वामित्व स्थानांतरित करें",
+    "description": "स्वामित्व {{name}} को दें? आप स्वामी अधिकार खो देंगे।",
+    "confirm": "स्थानांतरित करें",
+    "success": "स्वामित्व {{name}} को दिया गया",
+    "failed": "स्वामित्व स्थानांतरण विफल"
+  },
+  "removeFriend": {
+    "failed": "मित्र हटाना विफल"
+  },
+  "leave": {
+    "title": "समूह छोड़ें",
+    "description": "“{{name}}” छोड़ें? इस वार्तालाप से संदेश मिलना बंद होंगे।",
+    "inProgress": "छोड़ा जा रहा…",
+    "failed": "समूह छोड़ना विफल",
+    "explanation": "इस वार्तालाप से संदेश मिलना बंद होंगे। अन्य सदस्य सिस्टम संदेश देखेंगे।"
+  },
+  "search": {
+    "trigger": "वार्तालाप खोजें या शुरू करें",
+    "placeholder": "खोजें…",
+    "emptyHint": "चैट हेतु उपयोगकर्ता खोजें",
+    "conversations": "वार्तालाप",
+    "users": "उपयोगकर्ता",
+    "searching": "खोज हो रही…",
+    "noResults": "कोई परिणाम नहीं",
+    "createFailed": "DM बनाना विफल"
+  },
+  "list": {
+    "resizeHandle": "प्रत्यक्ष संदेशों का आकार बदलें",
+    "title": "संदेश",
+    "empty": "अभी कोई वार्तालाप नहीं।",
+    "leaveGroup": "समूह छोड़ें",
+    "justNow": "अभी",
+    "minutesShort_one": "{{count}} मि",
+    "minutesShort_other": "{{count}} मि",
+    "hoursShort_one": "{{count}} घं",
+    "hoursShort_other": "{{count}} घं",
+    "daysShort_one": "{{count}} दि",
+    "daysShort_other": "{{count}} दि",
+    "close": "DM बंद करें"
+  },
+  "newDm": {
+    "title": "नया प्रत्यक्ष संदेश",
+    "searchPlaceholder": "उपयोगकर्ता खोजें…",
+    "noUsers": "कोई उपयोगकर्ता नहीं मिला"
+  },
+  "addMember": {
+    "title": "DM में मित्र जोड़ें",
+    "description": "इस वार्तालाप में जोड़ने हेतु मित्र चुनें।",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "मित्र खोजें…",
+    "limitReached": "यह समूह DM {{max}} सदस्य सीमा पर पहुंच गया।",
+    "alreadyInDm": "पहले से इस DM में",
+    "noMatch": "खोज से कोई मित्र नहीं मिला",
+    "noFriends": "अभी कोई मित्र नहीं",
+    "selectFriends": "मित्र चुनें",
+    "addCount_one": "{{count}} मित्र जोड़ें",
+    "addCount_other": "{{count}} मित्र जोड़ें",
+    "adding": "जोड़ा जा रहा…",
+    "noOtherMember": "इस वार्तालाप का दूसरा सदस्य निर्धारित नहीं हो सका।",
+    "failed": "सदस्य जोड़ना विफल",
+    "yourBots": "आपके बॉट"
+  },
+  "groupSettings": {
+    "title": "समूह सेटिंग्स",
+    "general": "सामान्य",
+    "overview": "अवलोकन",
+    "backToMenu": "समूह DM सेटिंग्स मेनू पर वापस",
+    "changeIcon": "समूह आइकन बदलें",
+    "icon": "समूह आइकन",
+    "clickToUpload": "अपलोड हेतु क्लिक करें",
+    "removeIcon": "समूह आइकन हटाएं",
+    "nameLabel": "समूह नाम",
+    "nameAria": "समूह नाम",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "सदस्य जोड़ें",
+    "groupFull": "समूह पूर्ण",
+    "groupFullSuffix": "— समूह पूर्ण",
+    "cropTitle": "समूह आइकन क्रॉप करें",
+    "saveFailed": "सेटिंग्स सहेजना विफल"
+  },
+  "groupInfo": {
+    "title": "समूह जानकारी",
+    "plainTitle": "जानकारी",
+    "notFound": "वार्तालाप नहीं मिला।",
+    "notGroup": "इस वार्तालाप की कोई समूह जानकारी नहीं।",
+    "cancelEdit": "संपादन रद्द करें",
+    "federated": "फेडरेटेड समूह",
+    "memberCount_one": "{{count}} सदस्य",
+    "memberCount_other": "{{count}} सदस्य"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "यह समूह {{host}} पर प्रबंधित है। बदलने हेतु उस इंस्टेंस से कनेक्ट करें।",
+    "ownerNotListed": "{{host}} अभी आपके लिए यह समूह सूचीबद्ध नहीं करता। क्षण भर में पुनः प्रयास करें।"
+  }
+}

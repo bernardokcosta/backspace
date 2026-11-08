@@ -104,7 +104,7 @@
     },
     "editModal": {
       "title": "编辑“{{name}}”",
-      "description": "调整此邀请链接的限制。URL 保持不变 — 已经持有该链接的人仍可在新限制下进行兑换。",
+      "description": "调整此邀请链接的限制。URL 保持不变 — 已经持有该链接的人仍可在新限制下使用它。",
       "used": "（已使用 {{used}} 次）",
       "maxUsesBelowUsed": "最大使用次数不能少于当前已使用次数 ({{used}})",
       "noChanges": "没有需要保存的更改",
@@ -129,20 +129,20 @@
       "failed": "恢复失败：{{message}}"
     },
     "redemptions": {
-      "title": "“{{name}}”的兑换记录",
+      "title": "“{{name}}”的使用记录",
       "description": "使用此邀请链接注册的用户，按注册时间先后排序。",
       "revokedNotice": "此邀请已被撤销。下方记录展示在撤销前注册的用户。",
       "revokedNoticeDated": "此邀请已于 {{date}} 撤销。下方记录展示在撤销前注册的用户。",
       "usesOfMax_other": "{{count}} / {{max}} 次使用",
       "uses_other": "{{count}} 次使用",
-      "loadFailed": "加载兑换记录失败",
-      "loadFailedInline": "无法加载兑换记录。",
-      "empty": "暂无兑换记录。",
+      "loadFailed": "加载使用记录失败",
+      "loadFailedInline": "无法加载使用记录。",
+      "empty": "暂无使用记录。",
       "now": "（现为 {{name}}）",
       "deletedUser": "已注销用户"
     },
     "row": {
-      "usage": "{{usage}} 次使用",
+      "usage": "使用次数：{{usage}}",
       "createdBy": "由 {{name}} 创建",
       "unknownCreator": "未知",
       "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
@@ -155,10 +155,10 @@
       "created": "创建时间",
       "createdByLabel": "创建者",
       "token": "凭证标识",
-      "lastRedeemed": "最后兑换",
+      "lastRedeemed": "最后使用",
       "copyLink": "复制链接",
       "revoke": "撤销",
-      "viewRedemptions": "查看兑换记录",
+      "viewRedemptions": "查看使用记录",
       "reinstate": "恢复",
       "deletePermanently": "永久删除",
       "copied": "已复制邀请链接",
@@ -174,7 +174,7 @@
       },
       "deleteDialog": {
         "title": "确定永久删除“{{name}}”吗？",
-        "description": "此操作无法撤销。该链接的兑换历史也将一并清除。如果您只想停止该链接的使用，请改用<strong>撤销</strong> — 这将保留兑换记录。",
+        "description": "此操作无法撤销。该链接的使用历史也将一并清除。如果您只想停止该链接的使用，请改用<strong>撤销</strong> — 这将保留使用记录。",
         "confirm": "永久删除"
       }
     }
@@ -244,7 +244,7 @@
     "title": "推流",
     "description": "这些限制适用于此实例上的所有用户。用户可在此范围内自行调整推流参数。",
     "units": {
-      "fps": "{{value}} 帧",
+      "fps": "{{value}} 帧/秒",
       "kbpsLabel": "kbps"
     },
     "bandwidth": {
@@ -267,7 +267,7 @@
     },
     "highEndWarning": {
       "title": "已启用高性能画质设置。",
-      "description": "超过 1080p 或 60 帧的推流对客户端 CPU/GPU 编码性能要求极高，并且可能耗尽服务器带宽（尤其是流经 TURN 中继时）。高端配置（如 4K 120 帧）每路活跃流可能需要高达 45 Mbps 的带宽。在为所有用户启用这些选项之前，请确保您的网络基础设施具备足够的承载能力。"
+      "description": "超过 1080p 或 60 帧/秒的推流对客户端 CPU/GPU 编码性能要求极高，并且可能耗尽服务器带宽（尤其是流经 TURN 中继时）。高端配置（如 4K 120 帧/秒）每路活跃流可能需要高达 45 Mbps 的带宽。在为所有用户启用这些选项之前，请确保您的网络基础设施具备足够的承载能力。"
     },
     "matrix": {
       "label": "码率矩阵",
@@ -330,7 +330,7 @@
       "description": "暂时无法连接到 GitHub，无法确定是否有新版本。您的实例运行不受任何影响。"
     },
     "lastChecked": "最后检查时间：{{when}}",
-    "noLookups": "未执行过检查",
+    "noLookups": "不执行检查",
     "checkAgain": "重新检查",
     "checking": "正在检查…"
   },

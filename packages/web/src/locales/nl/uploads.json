@@ -1,0 +1,34 @@
+{
+  "failure": {
+    "notAuthenticated": "Niet geverifieerd voor deze instantie",
+    "invalidResponse": "Uploadreactie kon niet worden verwerkt",
+    "uploadError": "Uploadfout",
+    "downloadError": "Downloadfout",
+    "fileUnavailable": "Bestand niet meer beschikbaar — verwijder en upload opnieuw",
+    "noDestination": "Geen doelhandle — hervatten onmogelijk",
+    "destinationMissing": "Doelhandle ontbreekt",
+    "permissionDenied": "Toegang geweigerd",
+    "lostDownload": "Download kan niet worden hervat — bytes verloren. Start de download opnieuw.",
+    "uploadHandleMissing": "Bestandshandle ontbreekt — verwijder en upload opnieuw",
+    "downloadHandleMissing": "Doelhandle ontbreekt — start de download opnieuw",
+    "downloadFailed": "Downloaden mislukt: {{status}}",
+    "resumeFailed": "Hervatten mislukt: {{status}}"
+  },
+  "transfers": {
+    "title": "Overdrachten",
+    "count_one": "{{count}} overdracht",
+    "count_other": "{{count}} overdrachten",
+    "clearCompleted": "Voltooide wissen",
+    "empty": "Geen actieve overdrachten.",
+    "status": {
+      "done": "Klaar",
+      "failed": "Mislukt: {{reason}}",
+      "aborted": "Afgebroken",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "Afbeelding bijsnijden",
+    "applying": "Toepassen…"
+  }
+}

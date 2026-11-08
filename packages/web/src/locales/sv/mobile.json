@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "spaces": "Rum",
+    "dms": "DM",
+    "you": "Du"
+  },
+  "you": {
+    "editProfile": "Redigera profil",
+    "homeInstance": "Hemmainstans: {{domain}}",
+    "logOutConfirm": "Är du säker på att du vill logga ut?"
+  },
+  "chat": {
+    "openCall": "Öppna samtal",
+    "cancelCall": "Avbryt samtal",
+    "unknownChannel": "kanal"
+  }
+}

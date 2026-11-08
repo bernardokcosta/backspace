@@ -1,0 +1,34 @@
+{
+  "input": {
+    "placeholder": "Sök meddelanden…"
+  },
+  "filters": {
+    "toggle": "Filter",
+    "from": {
+      "label": "Från",
+      "placeholder": "användarnamn"
+    },
+    "has": {
+      "label": "Innehåller",
+      "any": "Allt",
+      "file": "Fil",
+      "image": "Bild",
+      "link": "Länk"
+    },
+    "before": {
+      "label": "Före"
+    },
+    "after": {
+      "label": "Efter"
+    }
+  },
+  "results": {
+    "empty": "Inga resultat",
+    "hint": "Skriv för att söka meddelanden i denna kanal",
+    "count_one": "{{count}} resultat",
+    "count_other": "{{count}} resultat",
+    "loadMore": "Ladda fler ({{remaining}} kvar)",
+    "attachments_one": "{{count}} bilaga",
+    "attachments_other": "{{count}} bilagor"
+  }
+}

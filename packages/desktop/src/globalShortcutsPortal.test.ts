@@ -2,6 +2,9 @@ import { EventEmitter } from 'node:events';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DBusError, Message, MessageBus, MessageType, Variant } from 'dbus-next';
 import { GlobalShortcutsPortal } from './globalShortcutsPortal';
+import { getDesktopLanguage } from './l10n';
+
+vi.mock('./l10n', async original => ({ ...await original<typeof import('./l10n')>(), getDesktopLanguage: vi.fn(() => 'en') }));
 
 const PATH = '/org/freedesktop/portal/desktop';
 const IFACE = 'org.freedesktop.portal.GlobalShortcuts';
@@ -46,12 +49,22 @@ function setup() {
   return { bus, action, status, client };
 }
 afterEach(() => {
+  vi.mocked(getDesktopLanguage).mockReturnValue('en');
   for (const client of clients.splice(0)) client.stop();
   vi.restoreAllMocks();
   vi.useRealTimers();
 });
 
 describe('GlobalShortcuts portal lifecycle', () => {
+  it('localizes project-owned shortcut descriptions while leaving action IDs intact', async () => {
+    vi.mocked(getDesktopLanguage).mockReturnValue('pt');
+    const { bus, client } = setup();
+    await client.start();
+    const bind = bus.call.mock.calls.find(([message]) => message.member === 'BindShortcuts')![0];
+    const descriptions = Object.fromEntries(bind.body[1].map(([id, props]: [string, Record<string, Variant<string>>]) => [id, props.description!.value]));
+    expect(descriptions).toMatchObject({ toggleMute: 'Ativar/desativar microfone', pushToTalk: 'Pressionar para falar' });
+    expect(Object.keys(descriptions)).toHaveLength(6);
+  });
   it('registers at startup when the backend exposes saved assignments only after binding', async () => {
     const { bus, client, status, action } = setup();
     bus.emptyBeforeBind = true;

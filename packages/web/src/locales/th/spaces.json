@@ -1,0 +1,621 @@
+{
+  "soundboardTab": "ซาวด์บอร์ด",
+  "create": {
+    "title": "สร้างสเปซ",
+    "icon": {
+      "upload": "อัปโหลด",
+      "previewAlt": "ดูตัวอย่างไอคอน",
+      "colorLabel": "สีไอคอน",
+      "cropTitle": "ครอบไอคอนสเปซ",
+      "uploadFailed": "อัปโหลดไอคอนไม่ได้"
+    },
+    "name": {
+      "label": "ชื่อสเปซ",
+      "placeholder": "สเปซเจ๋งของฉัน",
+      "required": "ต้องมีชื่อสเปซ"
+    },
+    "visibilityLabel": "การมองเห็น",
+    "description": {
+      "label": "คำอธิบาย",
+      "placeholder": "คำอธิบายสั้น ๆ ของสเปซคุณ…",
+      "counter": "{{length}}/{{max}}"
+    },
+    "submit": "สร้าง",
+    "submitting": "กำลังสร้าง…"
+  },
+  "channel": {
+    "create": {
+      "title": "สร้างช่อง",
+      "typeLabel": "ชนิดช่อง",
+      "types": {
+        "text": {
+          "name": "ข้อความ",
+          "description": "ส่งข้อความ รูป และไฟล์"
+        },
+        "voice": {
+          "name": "เสียง",
+          "description": "อยู่ด้วยเสียงและวิดีโอ"
+        }
+      },
+      "nameLabel": "ชื่อช่อง",
+      "namePlaceholder": "ช่อง-ใหม่",
+      "topicLabel": "หัวข้อ (ไม่บังคับ)",
+      "topicPlaceholder": "ช่องนี้เกี่ยวกับอะไร?",
+      "categoryLabel": "หมวด",
+      "noCategory": "ไม่มีหมวด",
+      "nameRequired": "ต้องมีชื่อช่อง",
+      "noSpaceSelected": "ไม่ได้เลือกสเปซ",
+      "submit": "สร้างช่อง",
+      "submitting": "กำลังสร้าง…"
+    },
+    "settings": {
+      "title": "ตั้งค่าช่อง",
+      "rename": "เปลี่ยนชื่อช่อง",
+      "nameLabel": "ชื่อช่อง",
+      "channelLabel": "ช่อง",
+      "topic": {
+        "label": "หัวข้อ",
+        "placeholder": "ช่องนี้เกี่ยวกับอะไร?",
+        "hint": "แสดงในหัวช่อง ใครก็เปิดข้อความเต็มจากนั้นได้",
+        "counter": "{{used}}/{{max}}",
+        "tooLong": "ย่อหัวข้อเหลือ {{max}} อักขระหรือน้อยกว่าเพื่อบันทึก",
+        "empty": "ไม่ได้ตั้งหัวข้อ",
+        "reset": "ทิ้งเปลี่ยน"
+      },
+      "private": {
+        "label": "ช่องส่วนตัว",
+        "description": "เฉพาะสมาชิกและบทบาทที่เลือกเห็นช่องนี้ได้",
+        "note": "ช่องนี้ซ่อนจากสมาชิกที่ไม่มีสิทธิ์ชัดแจ้ง ผู้มีสิทธิ์ผู้ดูแลหรือเจ้าของสเปซเห็นทุกช่องเสมอ",
+        "unhideOnSave": "บันทึกทำให้ช่องนี้ทุกคนเห็น"
+      },
+      "deleteButton": "ลบช่อง"
+    },
+    "delete": {
+      "title": "ลบ #{{name}}?",
+      "description": "ลบ <strong>#{{name}}</strong> และข้อความทั้งหมดถาวร ย้อนไม่ได้",
+      "descriptionVoice": "ลบ <strong>#{{name}}</strong> และข้อความทั้งหมดถาวร ทุกคนในช่องเสียงนี้จะถูกตัด ย้อนไม่ได้",
+      "confirm": "ลบช่อง"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "สร้างหมวด",
+      "nameLabel": "ชื่อหมวด",
+      "namePlaceholder": "หมวด-ใหม่",
+      "nameRequired": "ต้องมีชื่อหมวด",
+      "noSpaceSelected": "ไม่ได้เลือกสเปซ",
+      "submit": "สร้างหมวด",
+      "submitting": "กำลังสร้าง…"
+    },
+    "settings": {
+      "title": "ตั้งค่าหมวด",
+      "rename": "เปลี่ยนชื่อหมวด",
+      "nameLabel": "ชื่อหมวด",
+      "categoryLabel": "หมวด",
+      "private": {
+        "label": "หมวดส่วนตัว",
+        "description": "เฉพาะสมาชิกและบทบาทที่เลือกเห็นช่องในหมวดนี้ได้",
+        "note": "หมวดนี้ซ่อนจากสมาชิกที่ไม่มีสิทธิ์ชัดแจ้ง ช่องข้างในสืบทอดข้อจำกัดนี้เว้นแต่แทนที่ชัดแจ้ง",
+        "unhideOnSave": "บันทึกทำให้หมวดนี้และช่องที่ไม่มีข้อจำกัดมองเห็นแยกเห็นกันทุกคน"
+      },
+      "deleteButton": "ลบหมวด"
+    },
+    "delete": {
+      "title": "ลบ “{{name}}”?",
+      "description": "ลบหมวด <strong>{{name}}</strong> ถาวร ช่องข้างในย้ายขึ้นระดับบนสุด ย้อนไม่ได้",
+      "confirm": "ลบหมวด"
+    }
+  },
+  "invite": {
+    "title": "เชิญเพื่อน",
+    "intro": "ส่งถึงเพื่อน หรือแชร์ลิงก์",
+    "introRequest": "ส่งถึงเพื่อน หรือแชร์ลิงก์ ผู้เปิดขอเข้าร่วม และผู้ดูแลอนุมัติแต่ละรายการ",
+    "searchPlaceholder": "ค้นหาเพื่อน…",
+    "noMatches": "ไม่มีเพื่อนตรงค้นหา",
+    "noFriends": "ยังไม่มีเพื่อน",
+    "alreadyMember": "อยู่ในสเปซแล้ว",
+    "removeSelected": "ลบ {{name}}",
+    "selectFriends": "เลือกเพื่อน",
+    "send_other": "ส่งคำเชิญ {{count}}",
+    "sending": "กำลังส่ง…",
+    "retryFailed": "ลองคำเชิญที่ล้มเหลวใหม่",
+    "status": {
+      "sent": "✓ ส่งแล้ว",
+      "failed": "✗ {{reason}}"
+    },
+    "shareLink": "หรือแชร์ลิงก์",
+    "generating": "กำลังสร้าง…",
+    "generateFailed": "สร้างลิงก์เชิญไม่ได้",
+    "failure": {
+      "inviteInvalid": "ลิงก์เชิญใช้ไม่ได้แล้ว",
+      "notAFriend": "ไม่ใช่เพื่อน",
+      "userNotFound": "ไม่พบผู้ใช้",
+      "alreadyMember": "เป็นสมาชิกแล้ว",
+      "upstream": "ตรวจคำเชิญไม่ได้ ลองใหม่",
+      "cannotInviteSelf": "เชิญตัวเองไม่ได้",
+      "invalidBody": "คำขอไม่ถูกต้อง",
+      "invalidTarget": "เป้าหมายไม่ถูกต้อง",
+      "unreachable": "ติดต่ออินสแตนซ์คุณไม่ได้",
+      "serverError": "ส่งไม่ได้ (เซิร์ฟเวอร์ผิดพลาด)"
+    }
+  },
+  "inviteFriend": {
+    "title": "เชิญ {{name}} ไปสเปซ",
+    "intro": "เลือกสเปซหนึ่งของคุณเพื่อส่งคำเชิญ",
+    "noSpaces": "คุณยังไม่อยู่ในสเปซใด",
+    "contextMenu": "เชิญไปสเปซ"
+  },
+  "join": {
+    "validation": {
+      "required": "ต้องมีรหัสเชิญ",
+      "invalidLink": "ลิงก์เชิญไม่ถูกต้อง",
+      "linkFormat": "ลิงก์เชิญไม่ถูกต้อง — รูปแบบคาดหวัง: https://instance/join/CODE",
+      "qualifiedFormat": "รูปแบบเชิญไม่ถูกต้อง — คาดหวัง: CODE@domain",
+      "invalidDomain": "โดเมนในคำเชิญไม่ถูกต้อง"
+    },
+    "title": "เข้าร่วมสเปซ",
+    "invitePlaceholder": "เช่น abc123 หรือ https://instance.com/join/abc123",
+    "submit": "เข้าร่วมสเปซ",
+    "submitting": "กำลังเข้าร่วม…",
+    "connect": {
+      "intro": "เชื่อม <host>{{host}}</host> เพื่อเข้าร่วมสเปซนี้",
+      "passwordLabel": "กรอกรหัสผ่านเพื่อเชื่อม",
+      "passwordPlaceholder": "รหัสผ่านบัญชีของคุณ",
+      "passwordNote": "รหัสผ่านตรวจโดยอินสแตนซ์หลักและไม่ส่งไป {{host}} อินสแตนซ์นั้นได้ข้อมูลประจำตัวเฉพาะที่สร้างให้เท่านั้น",
+      "submit": "เชื่อม & เข้าร่วม",
+      "submitting": "กำลังเชื่อม…"
+    },
+    "fallback": {
+      "usernamePlaceholder": "ชื่อผู้ใช้ของคุณบนอินสแตนซ์นี้",
+      "passwordLabel": "รหัสผ่านอินสแตนซ์นี้",
+      "passwordPlaceholder": "รหัสผ่านบนอินสแตนซ์ระยะไกล",
+      "submit": "เข้าสู่ระบบ & เข้าร่วม",
+      "submitting": "กำลังเข้าสู่ระบบ…"
+    },
+    "request": {
+      "messagePlaceholder": "ทำไมอยากเข้าร่วม? (ไม่บังคับ)",
+      "send": "ส่งคำขอ",
+      "sending": "กำลังส่ง…",
+      "notice": "สเปซนี้รับคำขอเข้าร่วม ส่งหนึ่งแล้วผู้ดูแลจะตรวจ",
+      "messageLabel": "โน้ตแนบคำขอ",
+      "sent": "ส่งคำขอแล้ว ผู้ดูแลจะตรวจ และสเปซปรากฏในรายการหลังอนุมัติ",
+      "pending": "คุณขอเข้าร่วมสเปซนี้แล้ว คำขอรอผู้ดูแล"
+    }
+  },
+  "settings": {
+    "title": "ตั้งค่าสเปซ",
+    "backAria": "กลับเมนูตั้งค่าสเปซ",
+    "nav": {
+      "general": "ทั่วไป",
+      "management": "จัดการ",
+      "tabs": {
+        "overview": "ภาพรวม",
+        "roles": "บทบาท",
+        "bans": "แบน"
+      }
+    },
+    "discardChanges": "ทิ้ง",
+    "overview": {
+      "identity": "ตัวตนสเปซ",
+      "iconLabel": "ไอคอนสเปซ",
+      "iconAlt": "ไอคอนสเปซ",
+      "colorLabel": "สีไอคอน",
+      "bannerLabel": "แบนเนอร์สเปซ",
+      "bannerAlt": "แบนเนอร์สเปซ",
+      "uploadBanner": "อัปโหลดแบนเนอร์ (16:9)",
+      "removeBanner": "ลบแบนเนอร์",
+      "nameLabel": "ชื่อสเปซ",
+      "iconUploadFailed": "อัปโหลดไอคอนไม่ได้",
+      "bannerUploadFailed": "อัปโหลดแบนเนอร์ไม่ได้",
+      "cropIconTitle": "ครอบไอคอนสเปซ",
+      "cropBannerTitle": "ครอบแบนเนอร์สเปซ",
+      "transfer": {
+        "description": "โอนความเป็นเจ้าของให้สมาชิกอื่น คุณเป็นสมาชิกธรรมดา",
+        "prompt": "โอนความเป็นเจ้าของให้ <strong>{{name}}</strong>?",
+        "button": "โอนความเป็นเจ้าของ",
+        "confirm": "โอน",
+        "transferring": "กำลังโอน…",
+        "success": "โอนความเป็นเจ้าของให้ {{name}} แล้ว",
+        "failed": "โอนความเป็นเจ้าของไม่ได้"
+      },
+      "delete": {
+        "description": "ลบสเปซนี้และข้อมูลทั้งหมดถาวร ย้อนไม่ได้",
+        "button": "ลบสเปซ",
+        "confirmAgain": "คลิกอีกเพื่อยืนยันลบ",
+        "failed": "ลบสเปซไม่ได้"
+      }
+    },
+    "access": {
+      "title": "เข้าถึงและคำอธิบาย",
+      "visibility": {
+        "label": "การมองเห็น",
+        "hint": "ควบคุมว่าคนมีคำเชิญเข้าสเปซนี้อย่างไร",
+        "options": {
+          "private": {
+            "label": "ส่วนตัว",
+            "description": "เฉพาะคนมีลิงก์เชิญเข้าร่วมได้"
+          },
+          "request": {
+            "label": "ตามคำขอ",
+            "description": "คำเชิญนำสู่คำขอที่ผู้ดูแลต้องอนุมัติ"
+          },
+          "public": {
+            "label": "สาธารณะ",
+            "description": "คนมีคำเชิญเข้าร่วมทันทีได้"
+          }
+        }
+      },
+      "description": {
+        "label": "คำอธิบาย",
+        "hint": "สรุปสั้นแสดงพร้อมคำเชิญไปสเปซนี้",
+        "placeholder": "คำอธิบายสั้นของสเปซนี้…",
+        "counter": "{{length}}/{{max}}"
+      },
+      "requests": {
+        "title": "คำขอเข้าร่วมรอ",
+        "empty": "ไม่มีคำขอเข้าร่วมรอ",
+        "actionFailed": "กระทำล้มเหลว"
+      }
+    },
+    "members": {
+      "description": "จัดการสมาชิกสเปซนี้ คลิกสมาชิกเพื่อแก้ไขบทบาท",
+      "listHeading": "สมาชิก ({{total}})",
+      "owner": "เจ้าของ",
+      "noRoles": "ไม่มีบทบาท",
+      "ban": "แบน",
+      "kick": "เตะ",
+      "confirm": {
+        "banTitle": "แบน {{name}}",
+        "kickTitle": "เตะ {{name}}",
+        "banDescription": "คนนี้ถูกแบนถาวรจากสเปซนี้จนกว่าเลิกแบน",
+        "kickDescription": "คนนี้เข้าร่วมใหม่ได้ด้วยลิงก์เชิญ"
+      },
+      "updateRolesFailed": "อัปเดตบทบาทไม่ได้",
+      "kickFailed": "เตะสมาชิกไม่ได้",
+      "banFailed": "แบนสมาชิกไม่ได้",
+      "rolesAboveYou": "บทบาทเท่าหรือเหนือบทบาทสูงสุดของคุณถูกล็อก",
+      "rolesUnheld": "บทบาทมีสิทธิ์ที่คุณไม่มีให้ไม่ได้",
+      "rolesManagedByBot": "บทบาทตัวเองของบอทอยู่กับบอท",
+      "botInvite": {
+        "warning": "บอทเป็นสมาชิกสเปซนี้และรับข้อความและเหตุการณ์ทุกช่องที่สิทธิ์อนุญาต เพิ่มเฉพาะบอทที่ไว้ใจ",
+        "owner": "เจ้าของ: @{{owner}}",
+        "button": "เพิ่มบอท",
+        "title": "เพิ่มบอท",
+        "searchPlaceholder": "ค้นหาบอทตามชื่อ…",
+        "searching": "กำลังค้นหา…",
+        "noResults": "ไม่พบบอท",
+        "add": "เพิ่ม",
+        "adding": "กำลังเพิ่ม…",
+        "permissionsTitle": "สิทธิ์สำหรับ {{name}}",
+        "permissionsIntro": "บอทขอสิทธิ์เหล่านี้ เข้าบทบาทชื่อบอท; ติ๊กออกที่ไม่ให้",
+        "permissionsUnheld": "สิทธิ์ที่คุณไม่มีเองให้ไม่ได้",
+        "permissionsNone": "ไม่ติ๊ก: บอทเข้าร่วมไร้บทบาท",
+        "back": "กลับ"
+      }
+    },
+    "afk": {
+      "title": "ช่อง AFK",
+      "channelLabel": "ย้ายสมาชิกว่างไป",
+      "disabled": "ปิด",
+      "timeoutLabel": "หลังว่าง",
+      "minutes": "นาที",
+      "hint": "สมาชิกไร้กิจกรรมเสียงตามเวลาที่เลือกถูกย้ายอัตโนมัติไปช่องเสียงนี้"
+    }
+  },
+  "bans": {
+    "title": "แบน",
+    "description": "ผู้ใช้ถูกแบนเข้าร่วมสเปซนี้ใหม่ไม่ได้จนกว่าเลิกแบน",
+    "loading": "กำลังโหลดแบน…",
+    "empty": "ไม่มีผู้ใช้ถูกแบน",
+    "listHeading": "แบน ({{total}})",
+    "bannedBy": "แบนโดย {{moderator}} เมื่อ {{date}}",
+    "bannedByWithReason": "แบนโดย {{moderator}} เมื่อ {{date}}: {{reason}}",
+    "unban": "เลิกแบน",
+    "loadFailed": "โหลดแบนไม่ได้",
+    "unbanFailed": "เลิกแบนผู้ใช้ไม่ได้"
+  },
+  "roles": {
+    "title": "บทบาท",
+    "create": "สร้างบทบาท",
+    "creating": "กำลังสร้าง…",
+    "listHeading": "บทบาท",
+    "description": "บทบาทกำหนดว่าสมาชิกมีสิทธิ์อะไร",
+    "hierarchyHint": "บทบาทสูงกว่าในรายการอยู่เหนือข้างล่าง",
+    "defaultName": "บทบาทใหม่",
+    "copyName": "สำเนา {{name}}",
+    "backToList": "กลับบทบาท",
+    "created": "สร้างบทบาทแล้ว ตั้งด้านล่าง",
+    "aboveYou": "บทบาทนี้เท่าหรือเหนือบทบาทสูงสุดของคุณ ดูได้แต่เปลี่ยนไม่ได้",
+    "managedByBot": "บทบาทนี้จัดการโดยบอทและลบเมื่อบอทออกจากสเปซ มอบให้คนอื่นหรือลบเองไม่ได้ เปลี่ยนสิทธิ์ได้",
+    "reorder": {
+      "handle": "ย้าย {{name}}",
+      "handleHint": "ลาก หรือใช้ลูกศรขึ้นลง",
+      "up": "ย้าย {{name}} ขึ้น",
+      "down": "ย้าย {{name}} ลง",
+      "locked": "{{name}} เท่าหรือเหนือบทบาทสูงสุดของคุณ",
+      "moved": "ย้าย {{name}} ไปตำแหน่ง {{position}} จาก {{total}}"
+    },
+    "identity": "ตัวตน",
+    "nameLabel": "ชื่อบทบาท",
+    "colorLabel": "สีบทบาท",
+    "nameEmpty": "ชื่อบทบาทว่างไม่ได้",
+    "nameDuplicate": "มีบทบาทชื่อนั้นแล้ว",
+    "groups": {
+      "general": "ทั่วไป",
+      "text": "ข้อความ",
+      "voice": "เสียง"
+    },
+    "saved": "บันทึกบทบาทแล้ว",
+    "copy": "คัดลอกบทบาท",
+    "copying": "กำลังคัดลอก…",
+    "delete": "ลบบทบาท",
+    "deleting": "กำลังลบ…",
+    "confirmDelete": "ยืนยัน?",
+    "createFailed": "สร้างบทบาทไม่ได้",
+    "saveFailed": "บันทึกบทบาทไม่ได้",
+    "deleteFailed": "ลบบทบาทไม่ได้",
+    "copyFailed": "คัดลอกบทบาทไม่ได้",
+    "unheldLocked": "สลับได้เฉพาะสิทธิ์ที่คุณมี ที่เหลือล็อก",
+    "unheldPermission": "คุณไม่มีสิทธิ์นี้",
+    "copyUnheld": "บทบาทนี้มีสิทธิ์ที่คุณไม่มี จึงคัดลอกไม่ได้",
+    "copyDeleteUnheld": "บทบาทนี้มีสิทธิ์ที่คุณไม่มี จึงคัดลอกหรือลบไม่ได้"
+  },
+  "memberRoles": {
+    "title": "แก้ไขบทบาทสำหรับ {{name}}",
+    "viewProfile": "ดูโปรไฟล์",
+    "affectsAll": "เปลี่ยนสิทธิ์มีผลทุกสมาชิกมีบทบาทนี้",
+    "selectRole": "เลือกบทบาทเพื่อแก้ไขสิทธิ์",
+    "saved": "บันทึกเปลี่ยนแล้ว"
+  },
+  "permissions": {
+    "title": "สิทธิ์",
+    "names": {
+      "administrator": "ผู้ดูแล",
+      "viewChannel": "ดูช่อง",
+      "manageChannels": "จัดการช่อง",
+      "manageRoles": "จัดการบทบาท",
+      "manageSpace": "จัดการสเปซ",
+      "createInvite": "สร้างคำเชิญ",
+      "kickMembers": "เตะสมาชิก",
+      "banMembers": "แบนสมาชิก",
+      "sendMessages": "ส่งข้อความ",
+      "manageMessages": "จัดการข้อความ",
+      "attachFiles": "แนบไฟล์",
+      "readMessageHistory": "อ่านประวัติข้อความ",
+      "addReactions": "เพิ่มรีแอ็กชัน",
+      "connect": "เชื่อม",
+      "speak": "พูด",
+      "muteMembers": "ปิดเสียงสมาชิก",
+      "deafenMembers": "ทำให้สมาชิกหนวก",
+      "moveMembers": "ย้ายสมาชิก",
+      "stream": "สตรีม",
+      "disconnectMembers": "ตัดสมาชิก",
+      "mentionEveryone": "เอ่ยถึง @everyone, @here และบทบาท"
+    },
+    "tristate": {
+      "deny": "ปฏิเสธ",
+      "neutral": "กลาง (สืบทอด)",
+      "allow": "อนุญาต"
+    },
+    "overrideCount_other": "แทนที่ {{count}}",
+    "removeOverride": "ลบแทนที่",
+    "removeOverrideFor": "ลบแทนที่สำหรับ {{name}}",
+    "removeOverrideHint": "ไม่มีมัน สิทธิ์ทั่วสเปซใช้ที่นี่",
+    "noRoleOverrides": "ไม่มีแทนที่บทบาท แต่ละบทบาทใช้สิทธิ์ทั่วสเปซที่นี่",
+    "noMemberOverrides": "ไม่มีแทนที่สมาชิก",
+    "roleOverrides": "แทนที่บทบาท",
+    "memberOverrides": "แทนที่สมาชิก",
+    "addRole": "เพิ่มบทบาท",
+    "addMember": "เพิ่มสมาชิก",
+    "noMoreRoles": "ไม่มีบทบาทเพิ่มอีก",
+    "loadFailed": "โหลดแทนที่ไม่ได้",
+    "saveFailed": "บันทึกแทนที่ไม่ได้",
+    "partialFailure_other": "บันทึกแทนที่ {{count}} ล้มเหลว",
+    "unheldLocked": "สลับได้เฉพาะสิทธิ์ที่คุณมี ที่เหลือล็อก",
+    "unheldPermission": "คุณไม่มีสิทธิ์นี้",
+    "removeUnheld": "แทนที่นี้ตั้งสิทธิ์ที่คุณไม่มี เฉพาะผู้มีลบได้",
+    "removeUnheldShort": "เฉพาะผู้มีสิทธิ์นี้ลบได้",
+    "aboveYouRole": "บทบาทนี้เท่าหรือเหนือบทบาทสูงสุดของคุณ ดูแทนที่ได้แต่เปลี่ยนหรือลบไม่ได้",
+    "aboveYouMember": "สมาชิกนี้เท่าหรือเหนือคุณ ดูแทนที่ได้แต่เปลี่ยนหรือลบไม่ได้",
+    "aboveYouShort": "เท่าหรือเหนือบทบาทสูงสุดของคุณ"
+  },
+  "sidebar": {
+    "directMessages": "ข้อความตรง",
+    "addSpace": "เพิ่มสเปซ",
+    "joinSpace": "เข้าร่วมสเปซ",
+    "folder": {
+      "tooltip_other": "โฟลเดอร์ ({{count}})",
+      "spaceCount_other": "สเปซ {{count}}",
+      "unnamed": "โฟลเดอร์ไร้ชื่อ",
+      "rename": "เปลี่ยนชื่อโฟลเดอร์",
+      "color": "สีโฟลเดอร์",
+      "create": "สร้างโฟลเดอร์",
+      "moveTo": "ย้ายไปโฟลเดอร์",
+      "removeFrom": "ลบจากโฟลเดอร์",
+      "ungroup": "แยกกลุ่ม",
+      "created": "สร้างโฟลเดอร์แล้ว",
+      "moved": "ย้ายไปโฟลเดอร์แล้ว",
+      "removed": "ลบจากโฟลเดอร์แล้ว",
+      "ungrouped": "แยกกลุ่มโฟลเดอร์แล้ว"
+    },
+    "space": {
+      "inviteCopied": "คัดลอกลิงก์เชิญสู่คลิปบอร์ดแล้ว",
+      "inviteCopiedRequest": "คัดลอกลิงก์เชิญแล้ว ผู้เปิดขอเข้าร่วมได้",
+      "inviteFailed": "สร้างคำเชิญไม่ได้",
+      "transferOwnership": "โอนความเป็นเจ้าของ",
+      "settings": "ตั้งค่าสเปซ",
+      "leave": "ออกจากสเปซ",
+      "reconnecting": "กำลังเชื่อม {{instance}} ใหม่…",
+      "remoteInstance": "อินสแตนซ์ระยะไกล",
+      "leaveConfirm": {
+        "title": "ออกจากสเปซ",
+        "titleNamed": "ออก {{name}}",
+        "description": "แน่ใจออกจากสเปซนี้? เข้าร่วมใหม่ต้องมีคำเชิญ"
+      },
+      "left": "ออกจากสเปซแล้ว",
+      "leaveFailed": "ออกจากสเปซไม่ได้",
+      "unreadMessages_other": "ยังไม่อ่าน {{count}} ข้อความ",
+      "unreadMessagesOver99": "ยังไม่อ่านกว่า 99 ข้อความ"
+    },
+    "dmList": {
+      "newDm": "ข้อความตรงใหม่",
+      "empty": "ยังไม่มีบทสนทนา",
+      "leaveGroup": "ออกจากกลุ่ม",
+      "leaveGroupConfirm": {
+        "title": "ออก DM กลุ่ม",
+        "description": "แน่ใจจะไป? เข้าร่วมใหม่ไม่ได้เว้นใครเพิ่มกลับ"
+      }
+    },
+    "userArea": {
+      "inputDevice": "อุปกรณ์ป้อน",
+      "outputDevice": "อุปกรณ์ออก",
+      "inputDevices": "อุปกรณ์ป้อน",
+      "outputDevices": "อุปกรณ์ออก",
+      "inputVolume": "ระดับเสียงเข้า",
+      "outputVolume": "ระดับเสียงออก",
+      "systemDefault": "ค่าเริ่มต้นระบบ",
+      "microphonePermission": "ต้องสิทธิ์ไมค์",
+      "audioPermission": "ต้องสิทธิ์เสียง",
+      "enable": "เปิด",
+      "voiceSettings": "ตั้งค่าเสียง",
+      "mute": "ปิดเสียง",
+      "unmute": "เปิดเสียง",
+      "deafen": "หูหนวก",
+      "undeafen": "หายหนวก",
+      "spaceMuted": "ปิดเสียงในสเปซ",
+      "spaceDeafened": "หูหนวกในสเปซ",
+      "permissionMuted": "ปิดเสียง (ไม่มีสิทธิ์พูด)"
+    },
+    "dmUnreadMessages_other": "DM ยังไม่อ่าน {{count}}",
+    "dmUnreadMessagesOver99": "DM ยังไม่อ่านกว่า 99"
+  },
+  "channels": {
+    "resizeHandle": "ปรับขนาดรายชื่อช่อง",
+    "loading": "กำลังโหลดช่อง",
+    "create": "สร้างช่อง",
+    "createCategory": "สร้างหมวด",
+    "settings": "ตั้งค่าช่อง",
+    "categorySettings": "ตั้งค่าหมวด",
+    "delete": "ลบช่อง",
+    "deleteCategory": "ลบหมวด",
+    "emptyCategory": "ไม่มีช่อง",
+    "empty": "ยังไม่มีช่อง",
+    "deleteConfirm": {
+      "title": "ลบช่อง",
+      "description": "แน่ใจ? ลบช่องและข้อความทั้งหมดถาวร"
+    },
+    "deleteCategoryConfirm": {
+      "title": "ลบหมวด",
+      "description": "แน่ใจลบหมวดนี้? ช่องในนั้นย้ายไปไม่จัดหมวด — ไม่ลบช่อง"
+    },
+    "deleted": "ลบช่องแล้ว",
+    "deleteFailed": "ลบช่องไม่ได้",
+    "categoryDeleted": "ลบหมวดแล้ว",
+    "categoryDeleteFailed": "ลบหมวดไม่ได้"
+  },
+  "members": {
+    "titleWithCount_other": "สมาชิก — {{count}}",
+    "loading": "กำลังโหลดสมาชิก",
+    "resizeHandle": "ปรับขนาดรายชื่อสมาชิก",
+    "groups": {
+      "owner": "เจ้าของ"
+    },
+    "ownerTitle": {
+      "edit": "แก้ไขหัวข้อเจ้าของ",
+      "label": "หัวข้อเจ้าของ",
+      "hint": "ทุกคนในสเปซนี้เห็น ใช้ 1–{{max}} อักขระ; ไม่เปลี่ยนสิทธิ์",
+      "reset": "รีเซ็ตเป็นค่าเริ่มต้น"
+    },
+    "menu": {
+      "profile": "ดูโปรไฟล์",
+      "nickname": "เปลี่ยนชื่อเล่นสเปซ…",
+      "roles": "บทบาท"
+    },
+    "nickname": {
+      "title": "เปลี่ยนชื่อเล่นสเปซ",
+      "label": "ชื่อเล่นสเปซ",
+      "descriptionSelf": "ใช้เฉพาะในสเปซนี้ ชื่อบัญชีและชื่อเล่นสเปซอื่นคงอยู่ เว้นว่างเพื่อแสดงชื่อบัญชี",
+      "descriptionOther": "ใช้เฉพาะในสเปซนี้ ชื่อบัญชี {{name}} คงอยู่ เว้นว่างเพื่อแสดงชื่อบัญชี",
+      "reset": "รีเซ็ตเป็นชื่อบัญชี",
+      "shownAs": "ชื่อเล่นในสเปซนี้: {{nickname}}"
+    }
+  },
+  "mobile": {
+    "addSheet": {
+      "createSpace": "สร้างสเปซ",
+      "joinSpace": "เข้าร่วมสเปซ"
+    },
+    "muteUser": "ปิดเสียงผู้ใช้"
+  },
+  "main": {
+    "selectChannel": "เลือกช่อง",
+    "selectChannelHint": "เลือกช่องข้อความหรือเสียงเพื่อเริ่ม",
+    "notificationSettings": "ตั้งค่าแจ้งเตือน",
+    "topic": {
+      "show": "แสดงหัวข้อเต็ม",
+      "dialogTitle": "#{{name}}"
+    },
+    "voice": {
+      "connectionFailed": "เชื่อมล้มเหลว",
+      "connected": "เชื่อมแล้ว",
+      "connecting": "กำลังเชื่อม…",
+      "participants_other": "เชื่อม {{count}}",
+      "inCall_other": "ในสาย {{count}}",
+      "empty": "ไม่มีใครในช่องเสียงนี้ตอนนี้",
+      "join": "เข้าร่วมเสียง"
+    },
+    "dm": {
+      "fallbackName": "ข้อความตรง",
+      "composerPlaceholder": "ข้อความถึง {{target}}",
+      "calling": "กำลังโทร {{name}}…",
+      "groupSettings": "ตั้งค่ากลุ่ม",
+      "openGroupSettings": "เปิดตั้งค่ากลุ่ม",
+      "memberCount_other": "({{count}} สมาชิก)",
+      "startVoiceCall": "เริ่มโทรเสียง",
+      "joinCall": "เข้าร่วมสาย",
+      "startVideoCall": "เริ่มโทรวิดีโอ",
+      "addFriends": "เพิ่มเพื่อนใน DM"
+    }
+  },
+  "ownership": {
+    "title": "โอนความเป็นเจ้าของ",
+    "description": "เลือกสมาชิกเป็นเจ้าของใหม่ของ <name>{{name}}</name>",
+    "confirmQuestion": "โอนความเป็นเจ้าของ <name>{{space}}</name> ให้ <name>{{member}}</name>?",
+    "regularMember": "คุณเป็นสมาชิกธรรมดา",
+    "transferring": "กำลังโอน…",
+    "confirm": "โอน",
+    "loading": "กำลังโหลดสมาชิก…",
+    "success": "โอนความเป็นเจ้าของให้ {{name}} แล้ว",
+    "failed": "โอนความเป็นเจ้าของไม่ได้"
+  },
+  "notifications": {
+    "open": "ตั้งค่าแจ้งเตือน",
+    "channelTitle": "แจ้งเตือนสำหรับ #{{channel}}",
+    "spaceTitle": "แจ้งเตือนสำหรับ {{space}}",
+    "levelHeading": "แจ้งฉันเรื่อง",
+    "level": {
+      "all": "ทุกข้อความ",
+      "mentions": "เฉพาะ @เอ่ยถึง",
+      "nothing": "ไม่มี",
+      "inherit": "ค่าเริ่มต้นสเปซ ({{level}})"
+    },
+    "dmNote": "ข้อความตรงแจ้งคุณเสมอ",
+    "muteHeading": "ปิดเสียง",
+    "mute": {
+      "oneHour": "1 ชม",
+      "eightHours": "8 ชม",
+      "oneDay": "24 ชม",
+      "indefinite": "จนกว่าฉันเปิด"
+    },
+    "unmute": "เปิดเสียง",
+    "mutedUntil": "ปิดเสียงถึง {{time}}",
+    "mutedIndefinitely": "ปิดเสียงจนกว่าคุณเปิด",
+    "spaceMuted": "สเปซนี้ปิดเสียง ช่องจึงด้วย",
+    "mutedIndicator": "ปิดเสียง",
+    "saveFailed": "บันทึกตั้งค่าแจ้งเตือนไม่ได้",
+    "suppressEveryone": "ระงับ @everyone และ @here",
+    "suppressRoles": "ระงับเอ่ยบทบาท",
+    "massHeading": "เอ่ยกลุ่ม",
+    "massNote": "@here ถึงสมาชิกเดียวกับ @everyone เอ่ยชื่อคุณแจ้งเสมอ"
+  }
+}

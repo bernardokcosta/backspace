@@ -141,6 +141,43 @@
     font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Segoe UI', 'Microsoft YaHei', system-ui, 'Noto Sans CJK SC', 'Noto Sans SC', sans-serif;
   }
 
+  /* Ukrainian uses the bundled Inter Cyrillic subset (see its unicode-range:
+     U+0400-052F), same as Russian. DM Sans has no Cyrillic coverage. */
+  :root:lang(uk) body,
+  :root:lang(uk) #root {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  }
+
+  /* Arabic, Hindi, Thai, Japanese and Korean have no bundled webfont with
+     their scripts, and adding multi-megabyte CJK/Indic faces is out of
+     scope, so each uses the platform stack outright (same rationale as the
+     Simplified Chinese rule above). DM Sans stays only where the bundled
+     faces actually cover the script: Latin and Vietnamese. */
+  :root:lang(ar) body,
+  :root:lang(ar) #root {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Arabic', 'Tahoma', system-ui, sans-serif;
+  }
+
+  :root:lang(hi) body,
+  :root:lang(hi) #root {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Devanagari', 'Mangal', system-ui, sans-serif;
+  }
+
+  :root:lang(th) body,
+  :root:lang(th) #root {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Thai', 'Tahoma', system-ui, sans-serif;
+  }
+
+  :root:lang(ja) body,
+  :root:lang(ja) #root {
+    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', 'Segoe UI', system-ui, 'Noto Sans CJK JP', sans-serif;
+  }
+
+  :root:lang(ko) body,
+  :root:lang(ko) #root {
+    font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', system-ui, 'Noto Sans CJK KR', sans-serif;
+  }
+
   /* Suppress native text selection and callout on mobile interactive elements.
      Our global useGlobalLongPress handler provides context menus instead.
      Text can still be copied via context menu "Copy Text" option. */
@@ -450,6 +487,30 @@
 
 :root:lang(zh) .emoji-picker-wrapper em-emoji-picker {
   --font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Segoe UI', 'Microsoft YaHei', system-ui, 'Noto Sans CJK SC', 'Noto Sans SC', sans-serif;
+}
+
+:root:lang(uk) .emoji-picker-wrapper em-emoji-picker {
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+:root:lang(ar) .emoji-picker-wrapper em-emoji-picker {
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Arabic', 'Tahoma', system-ui, sans-serif;
+}
+
+:root:lang(hi) .emoji-picker-wrapper em-emoji-picker {
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Devanagari', 'Mangal', system-ui, sans-serif;
+}
+
+:root:lang(th) .emoji-picker-wrapper em-emoji-picker {
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Thai', 'Tahoma', system-ui, sans-serif;
+}
+
+:root:lang(ja) .emoji-picker-wrapper em-emoji-picker {
+  --font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', 'Segoe UI', system-ui, 'Noto Sans CJK JP', sans-serif;
+}
+
+:root:lang(ko) .emoji-picker-wrapper em-emoji-picker {
+  --font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', system-ui, 'Noto Sans CJK KR', sans-serif;
 }
 
 /* Mobile bottom-sheet variant: stretch the custom element to fill the

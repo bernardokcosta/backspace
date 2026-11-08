@@ -1,0 +1,36 @@
+{
+  "input": {
+    "placeholder": "Buscar mensajes…"
+  },
+  "filters": {
+    "toggle": "Filtros",
+    "from": {
+      "label": "De",
+      "placeholder": "nombre de usuario"
+    },
+    "has": {
+      "label": "Contiene",
+      "any": "Cualquier contenido",
+      "file": "Archivo",
+      "image": "Imagen",
+      "link": "Enlace"
+    },
+    "before": {
+      "label": "Antes de"
+    },
+    "after": {
+      "label": "Después de"
+    }
+  },
+  "results": {
+    "empty": "No se encontraron resultados",
+    "hint": "Escribe para buscar mensajes en este canal",
+    "count_one": "{{count}} resultado",
+    "count_many": "{{count}} resultados",
+    "count_other": "{{count}} resultados",
+    "loadMore": "Cargar más (quedan {{remaining}})",
+    "attachments_one": "{{count}} archivo adjunto",
+    "attachments_many": "{{count}} archivos adjuntos",
+    "attachments_other": "{{count}} archivos adjuntos"
+  }
+}

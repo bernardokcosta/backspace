@@ -1,0 +1,173 @@
+{
+  "callDelivery": {
+    "remoteInstance": "uzak örnek",
+    "hostInstance": "barındıran örnek",
+    "acceptDropped": "{{instance}} ile kabulün doğrulanamadı — arama kesildi.",
+    "rejectFailed": "{{instances}} tarafına reddettiğin bildirilemedi. Arayan seni kısa süreliğine hâlâ çalıyor olarak görebilir.",
+    "endFailed": "{{instances}} tarafına kapattığın bildirilemedi. Uzak katılımcılar aramayı 60 saniye kadar görebilir.",
+    "hostUnreachable": "Arama sona erdi — barındıran örneğe ulaşılamıyor.",
+    "peeringLost": "Arama sona erdi — bu örnek artık {{instance}} ile eşlemesi yok.",
+    "instanceUnreachable": "Arama sona erdi — {{instance}} adresine ulaşılamıyor.",
+    "someUnreachable": "Bazı katılımcılara ulaşılamadı: {{instances}}.",
+    "multipleUnreachable_one": "{{count}} örneğe ulaşılamadı: {{instances}}.",
+    "multipleUnreachable_other": "{{count}} örneğe ulaşılamadı: {{instances}}.",
+    "callFailed": "Arama başlatılamadı.",
+    "manualApproval": "{{instance}} adresine ulaşılamıyor — bu örnek elle eşleme onayı gerektiriyor.",
+    "awaitingApproval": "{{instance}} yöneticisinin örneğini onaylaması bekleniyor. Onaylandığında aramalar çalışacak.",
+    "transientFailure": "{{instance}} adresine ulaşılamadı. Birazdan tekrar dene.",
+    "voiceUnavailable": "Bu örnekte ses yapılandırılmamış.",
+    "noRecipient": "{{instance}} kimseyi arayamadı.",
+    "targetCallFailed": "{{instance}} araması başlatılamadı."
+  },
+  "feedback": {
+    "relayDenied": "Mesajlar iletilemiyor — sunucuları eşlemeyi reddetti. Yöneticilerine ulaş.",
+    "awaitingPeering": "Yöneticileri eşleme isteğini onayladığında mesajlar teslim edilecek."
+  },
+  "names": {
+    "group": "Grup",
+    "directMessage": "Doğrudan mesaj",
+    "theGroup": "grup",
+    "unknownHandle": "bilinmiyor",
+    "groupFallback": "Grup DM",
+    "emptyGroup": "Boş grup"
+  },
+  "preview": {
+    "image": "Görsel",
+    "video": "Video",
+    "audio": "Ses",
+    "files_one": "📎 {{count}} dosya",
+    "files_other": "📎 {{count}} dosya",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 {{spaceName}} alanına davet gönderildi",
+    "memberAdded": "{{actor}}, {{target}} kişisini ekledi",
+    "memberAddedToGroup": "{{actor}}, {{target}} kişisini gruba ekledi",
+    "memberLeft": "{{target}} gruptan ayrıldı",
+    "memberRemoved": "{{actor}}, {{target}} kişisini kaldırdı",
+    "memberRemovedFromGroup": "{{actor}}, {{target}} kişisini gruptan kaldırdı",
+    "ownerChanged": "{{newOwner}} artık grup sahibi",
+    "renamed": "{{actor}} grubun adını değiştirdi",
+    "renamedTo": "{{actor}} grubun adını \"{{name}}\" olarak değiştirdi",
+    "nameCleared": "{{actor}} grup adını temizledi",
+    "iconChanged": "{{actor}} grup simgesini güncelledi",
+    "generic": "Sistem mesajı"
+  },
+  "deletedNotice": {
+    "accountDeleted": "Bu kullanıcının hesabı silindi"
+  },
+  "memberRow": {
+    "viewProfile": "Profili görüntüle",
+    "transferOwnership": "Sahipliği devret",
+    "removeFromGroup": "Gruptan kaldır",
+    "removeFriend": "Arkadaşı kaldır",
+    "ownerTooltip": "Grup sahibi",
+    "actions": "Üye işlemleri"
+  },
+  "roster": {
+    "owner": "Sahip",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "Üye listesini yeniden boyutlandır"
+  },
+  "kick": {
+    "title": "Gruptan kaldır",
+    "description": "{{name}} bu gruptan kaldırılsın mı? Yeni mesajları göremeyecek.",
+    "success": "{{name}} gruptan kaldırıldı",
+    "failed": "Üye kaldırılamadı"
+  },
+  "transfer": {
+    "title": "Sahipliği devret",
+    "description": "Sahiplik {{name}} kişisine devredilsin mi? Sahip ayrıcalıklarını kaybedeceksin.",
+    "confirm": "Devret",
+    "success": "Sahiplik {{name}} kişisine devredildi",
+    "failed": "Sahiplik devredilemedi"
+  },
+  "removeFriend": {
+    "failed": "Arkadaş kaldırılamadı"
+  },
+  "leave": {
+    "title": "Gruptan ayrıl",
+    "description": "\"{{name}}\" grubundan ayrılsın mı? Bu konuşmadan artık mesaj almayacaksın.",
+    "inProgress": "Ayrılınıyor…",
+    "failed": "Gruptan ayrılınamadı",
+    "explanation": "Bu konuşmadan artık mesaj almayacaksın. Diğer üyeler bir sistem mesajı görecek."
+  },
+  "search": {
+    "trigger": "Konuşma bul veya başlat",
+    "placeholder": "Ara…",
+    "emptyHint": "Sohbet başlatmak için bir kullanıcı ara",
+    "conversations": "Konuşmalar",
+    "users": "Kullanıcılar",
+    "searching": "Aranıyor…",
+    "noResults": "Sonuç bulunamadı",
+    "createFailed": "DM oluşturulamadı"
+  },
+  "list": {
+    "resizeHandle": "Doğrudan mesajları yeniden boyutlandır",
+    "title": "Mesajlar",
+    "empty": "Henüz konuşma yok.",
+    "leaveGroup": "Gruptan ayrıl",
+    "justNow": "şimdi",
+    "minutesShort_one": "{{count}} dk",
+    "minutesShort_other": "{{count}} dk",
+    "hoursShort_one": "{{count}} sa",
+    "hoursShort_other": "{{count}} sa",
+    "daysShort_one": "{{count}} g",
+    "daysShort_other": "{{count}} g",
+    "close": "DM'yi kapat"
+  },
+  "newDm": {
+    "title": "Yeni doğrudan mesaj",
+    "searchPlaceholder": "Kullanıcı ara…",
+    "noUsers": "Kullanıcı bulunamadı"
+  },
+  "addMember": {
+    "title": "DM'ye arkadaş ekle",
+    "description": "Bu konuşmaya eklenecek arkadaşları seç.",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "Arkadaş ara…",
+    "limitReached": "Bu grup DM'si {{max}} üye sınırına ulaştı.",
+    "alreadyInDm": "Zaten bu DM'de",
+    "noMatch": "Aramanla eşleşen arkadaş yok",
+    "noFriends": "Henüz arkadaş yok",
+    "selectFriends": "Arkadaş seç",
+    "addCount_one": "{{count}} arkadaş ekle",
+    "addCount_other": "{{count}} arkadaş ekle",
+    "adding": "Ekleniyor…",
+    "noOtherMember": "Bu konuşmanın diğer üyesi belirlenemedi.",
+    "failed": "Üyeler eklenemedi",
+    "yourBots": "Botların"
+  },
+  "groupSettings": {
+    "title": "Grup ayarları",
+    "general": "Genel",
+    "overview": "Genel bakış",
+    "backToMenu": "Grup DM ayarları menüsüne dön",
+    "changeIcon": "Grup simgesini değiştir",
+    "icon": "Grup simgesi",
+    "clickToUpload": "Yüklemek için tıkla",
+    "removeIcon": "Grup simgesini kaldır",
+    "nameLabel": "Grup adı",
+    "nameAria": "Grup adı",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "Üye ekle",
+    "groupFull": "Grup dolu",
+    "groupFullSuffix": "— Grup dolu",
+    "cropTitle": "Grup simgesini kırp",
+    "saveFailed": "Ayarlar kaydedilemedi"
+  },
+  "groupInfo": {
+    "title": "Grup bilgisi",
+    "plainTitle": "Bilgi",
+    "notFound": "Konuşma bulunamadı.",
+    "notGroup": "Bu konuşmanın grup bilgisi yok.",
+    "cancelEdit": "Düzenlemeyi iptal et",
+    "federated": "Federe grup",
+    "memberCount_one": "{{count}} üye",
+    "memberCount_other": "{{count}} üye"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "Bu grup {{host}} üzerinde yönetiliyor. Değiştirmek için o örneğe bağlan.",
+    "ownerNotListed": "{{host}} bu grubu senin için henüz listelemiyor. Birazdan tekrar dene."
+  }
+}

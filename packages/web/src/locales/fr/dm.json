@@ -1,0 +1,89 @@
+{
+  "callDelivery": {
+    "remoteInstance": "l’instance distante", "hostInstance": "l’instance qui héberge l’appel",
+    "acceptDropped": "Impossible de confirmer ton acceptation auprès de {{instance}}. L’appel a été interrompu.",
+    "rejectFailed": "Impossible d’informer {{instances}} de ton refus. La personne qui appelle peut encore voir l’appel en cours de sonnerie pendant un court instant.",
+    "endFailed": "Impossible d’informer {{instances}} que tu as raccroché. Les participants distants peuvent encore voir l’appel pendant 60 secondes au maximum.",
+    "hostUnreachable": "Appel terminé : l’instance qui l’héberge est devenue injoignable.",
+    "peeringLost": "Appel terminé : cette instance n’est plus appairée avec {{instance}}.",
+    "instanceUnreachable": "Appel terminé : {{instance}} est devenue injoignable.",
+    "someUnreachable": "Impossible de joindre certains participants : {{instances}}.",
+    "multipleUnreachable_one": "Impossible de joindre {{count}} instance : {{instances}}.",
+    "multipleUnreachable_many": "Impossible de joindre {{count}} instances : {{instances}}.",
+    "multipleUnreachable_other": "Impossible de joindre {{count}} instances : {{instances}}.",
+    "callFailed": "Impossible de passer l’appel.",
+    "manualApproval": "Impossible de joindre {{instance}} : cette instance exige une approbation manuelle de l’appairage.",
+    "awaitingApproval": "En attente de l’approbation de ton instance par l’administrateur de {{instance}}. Les appels seront disponibles après l’approbation.",
+    "transientFailure": "Impossible de joindre {{instance}}. Réessaie dans un instant.",
+    "voiceUnavailable": "La fonction vocale n’est pas configurée sur cette instance.",
+    "noRecipient": "{{instance}} n’a pu transmettre l’appel à personne.", "targetCallFailed": "Impossible de passer l’appel à {{instance}}."
+  },
+  "feedback": {
+    "relayDenied": "Impossible de relayer les messages : le serveur destinataire a refusé l’appairage. Contacte son administrateur.",
+    "awaitingPeering": "Les messages seront transmis quand l’administrateur destinataire aura approuvé la demande d’appairage."
+  },
+  "names": { "group": "Groupe", "directMessage": "Message privé", "theGroup": "le groupe", "unknownHandle": "inconnu", "groupFallback": "Message privé de groupe", "emptyGroup": "Groupe vide" },
+  "preview": {
+    "image": "Image", "video": "Vidéo", "audio": "Audio", "files_one": "📎 {{count}} fichier", "files_many": "📎 {{count}} fichiers", "files_other": "📎 {{count}} fichiers", "withSender": "{{name}} : {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 Invitation envoyée à {{spaceName}}", "memberAdded": "{{actor}} a ajouté {{target}}",
+    "memberAddedToGroup": "{{actor}} a ajouté {{target}} au groupe", "memberLeft": "{{target}} a quitté le groupe",
+    "memberRemoved": "{{actor}} a retiré {{target}}", "memberRemovedFromGroup": "{{actor}} a retiré {{target}} du groupe",
+    "ownerChanged": "{{newOwner}} est désormais propriétaire du groupe", "renamed": "{{actor}} a renommé le groupe",
+    "renamedTo": "{{actor}} a renommé le groupe « {{name}} »", "nameCleared": "{{actor}} a effacé le nom du groupe",
+    "iconChanged": "{{actor}} a modifié l’icône du groupe", "generic": "Message système"
+  },
+  "deletedNotice": { "accountDeleted": "Le compte de cet utilisateur a été supprimé" },
+  "memberRow": {
+    "viewProfile": "Voir le profil", "transferOwnership": "Transférer la propriété", "removeFromGroup": "Retirer du groupe",
+    "removeFriend": "Retirer des amis", "ownerTooltip": "Propriétaire du groupe", "actions": "Actions du membre"
+  },
+  "roster": { "owner": "Propriétaire", "sectionCount": "{{label}} — {{total}}", "resizeHandle": "Redimensionner la liste des membres" },
+  "kick": {
+    "title": "Retirer du groupe", "description": "Retirer {{name}} de ce groupe ? Cette personne ne pourra plus voir les nouveaux messages.",
+    "success": "{{name}} a été retiré du groupe", "failed": "Impossible de retirer le membre"
+  },
+  "transfer": {
+    "title": "Transférer la propriété", "description": "Transférer la propriété à {{name}} ? Tu perdras tes privilèges de propriétaire.",
+    "confirm": "Transférer", "success": "Propriété transférée à {{name}}", "failed": "Impossible de transférer la propriété"
+  },
+  "removeFriend": { "failed": "Impossible de retirer cet ami" },
+  "leave": {
+    "title": "Quitter le groupe", "description": "Quitter « {{name}} » ? Tu ne recevras plus de messages de cette conversation.",
+    "inProgress": "Départ…", "failed": "Impossible de quitter le groupe",
+    "explanation": "Tu ne recevras plus de messages de cette conversation. Les autres membres verront un message système."
+  },
+  "search": {
+    "trigger": "Rechercher ou démarrer une conversation", "placeholder": "Rechercher…", "emptyHint": "Recherche un utilisateur pour démarrer une conversation",
+    "conversations": "Conversations", "users": "Utilisateurs", "searching": "Recherche…", "noResults": "Aucun résultat", "createFailed": "Impossible de créer la conversation privée"
+  },
+  "list": {
+    "resizeHandle": "Redimensionner les messages privés", "title": "Messages", "empty": "Aucune conversation pour le moment.",
+    "leaveGroup": "Quitter le groupe", "justNow": "à l’instant", "minutesShort_one": "{{count}} min", "minutesShort_many": "{{count}} min", "minutesShort_other": "{{count}} min",
+    "hoursShort_one": "{{count}} h", "hoursShort_many": "{{count}} h", "hoursShort_other": "{{count}} h",
+    "daysShort_one": "{{count}} j", "daysShort_many": "{{count}} j", "daysShort_other": "{{count}} j", "close": "Fermer la conversation privée"
+  },
+  "newDm": { "title": "Nouveau message privé", "searchPlaceholder": "Rechercher un utilisateur…", "noUsers": "Aucun utilisateur trouvé" },
+  "addMember": {
+    "title": "Ajouter des amis à la conversation privée", "description": "Sélectionne les amis à ajouter à cette conversation.",
+    "capacity": "{{current}}/{{max}}", "searchPlaceholder": "Rechercher des amis…", "limitReached": "Ce groupe a atteint sa limite de {{max}} membres.",
+    "alreadyInDm": "Déjà dans cette conversation", "noMatch": "Aucun ami ne correspond à ta recherche", "noFriends": "Pas encore d’amis", "selectFriends": "Sélectionner des amis",
+    "addCount_one": "Ajouter {{count}} ami", "addCount_many": "Ajouter {{count}} amis", "addCount_other": "Ajouter {{count}} amis",
+    "adding": "Ajout…", "noOtherMember": "Impossible d’identifier l’autre membre de cette conversation.", "failed": "Impossible d’ajouter les membres", "yourBots": "Tes bots"
+  },
+  "groupSettings": {
+    "title": "Paramètres du groupe", "general": "Général", "overview": "Vue d’ensemble", "backToMenu": "Retour au menu des paramètres du groupe privé",
+    "changeIcon": "Changer l’icône du groupe", "icon": "Icône du groupe", "clickToUpload": "Cliquer pour importer", "removeIcon": "Retirer l’icône du groupe",
+    "nameLabel": "Nom du groupe", "nameAria": "Nom du groupe", "nameCount": "{{current}}/{{max}}", "addMember": "Ajouter un membre",
+    "groupFull": "Le groupe est complet", "groupFullSuffix": "— Le groupe est complet", "cropTitle": "Recadrer l’icône du groupe", "saveFailed": "Impossible d’enregistrer les paramètres"
+  },
+  "groupInfo": {
+    "title": "Informations du groupe", "plainTitle": "Informations", "notFound": "Conversation introuvable.", "notGroup": "Cette conversation n’a pas d’informations de groupe.",
+    "cancelEdit": "Annuler la modification", "federated": "Groupe fédéré", "memberCount_one": "{{count}} membre", "memberCount_many": "{{count}} membres", "memberCount_other": "{{count}} membres"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "Ce groupe est géré sur {{host}}. Connecte-toi à cette instance pour le modifier.",
+    "ownerNotListed": "{{host}} ne présente pas encore ce groupe dans ton compte. Réessaie dans un instant."
+  }
+}

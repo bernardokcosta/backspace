@@ -18,8 +18,17 @@ vi.mock('tus-js-client', () => ({
 }));
 
 import { useTransferStore } from './transferStore';
+import { setLanguage } from '../i18n';
 
 describe('transferStore basics', () => {
+  it('localizes app-owned failures without changing transfer permanence or state', async () => {
+    await setLanguage('pt');
+    try {
+      const id = useTransferStore.getState().createTransfer({ type: 'upload', file: { name: 'fixture.png', size: 10, mimetype: 'image/png' }, tray: true });
+      await useTransferStore.getState().resumeUpload(id);
+      expect(useTransferStore.getState().get(id)).toMatchObject({ state: 'failed', error: { permanent: true, message: 'Você não está autenticado nesta instância.' } });
+    } finally { await setLanguage('en'); }
+  });
   beforeEach(() => {
     useTransferStore.setState({ transfers: new Map() });
     if (typeof localStorage !== 'undefined') localStorage.clear();

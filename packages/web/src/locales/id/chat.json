@@ -1,0 +1,305 @@
+{
+  "feedback": {
+    "openedInNewTab": "Dibuka di tab baru",
+    "copiedGifLink": "Tautan GIF disalin",
+    "copiedImageLink": "Tautan gambar disalin",
+    "uploadExpired": "Tidak dapat mengirim \"{{content}}\" — unggahan kedaluwarsa.",
+    "attachmentOnly": "(hanya lampiran)"
+  },
+  "message": {
+    "edit": {
+      "hint": "escape untuk <cancel>batal</cancel> • enter untuk <save>simpan</save>"
+    },
+    "edited": "(diedit)",
+    "rowLabel": "{{author}}, {{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "Unggahan gagal",
+      "discard": "Buang"
+    },
+    "actions": {
+      "confirmDelete": "Konfirmasi hapus"
+    },
+    "reply": {
+      "jump": "Lompat ke pesan asli"
+    },
+    "mention": {
+      "unknownUser": "Pengguna Tak Dikenal",
+      "unknownRole": "Peran Tak Dikenal"
+    },
+    "reactions": {
+      "picker": "Pemilih reaksi",
+      "you": "Anda",
+      "others_one": "{{count}} lainnya",
+      "others_other": "{{count}} lainnya",
+      "bySelf": "Anda bereaksi",
+      "byOne": "{{name}} bereaksi",
+      "byMany": "Reaksi: {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "Anda tak berizin melihat riwayat pesan di kanal ini",
+    "loading": "Memuat pesan",
+    "loadingOlder": "Memuat pesan lama",
+    "loadFailed": "Gagal memuat pesan",
+    "jumpToPresent": "Lompat ke Kini",
+    "jump": {
+      "unavailable": "Pesan itu tak lagi tersedia",
+      "failed": "Pesan itu gagal dimuat",
+      "presentFailed": "Pesan terbaru gagal dimuat"
+    },
+    "unread": {
+      "label": "Baru",
+      "divider": "Pesan baru",
+      "dividerWithDate": "Pesan baru, {{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "Selamat datang di kanal!",
+        "description": "Ini awal percakapan."
+      },
+      "group": {
+        "intro": "Ini awal percakapan grup Anda.",
+        "owner": "Pemilik: <owner>@{{name}}</owner>",
+        "federatedNotice": "Pesan disimpan di instans utama Anda dan instans utama penerima. Tidak terenkripsi end-to-end.",
+        "openSettings": "Buka Pengaturan Grup",
+        "leave": "Keluar Grup"
+      },
+      "dm": {
+        "fallbackName": "Pesan Langsung",
+        "intro": "Ini awal riwayat pesan langsung Anda dengan <strong>@{{name}}</strong>.",
+        "federatedNotice": "Pesan disimpan di instans utama Anda dan instans utama penerima. Tidak terenkripsi end-to-end.",
+        "removeFriend": "Hapus Teman"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "Anda tak berizin mengirim pesan di kanal ini",
+    "placeholder": {
+      "channel": "Pesan #{{name}}",
+      "dm": "Pesan @{{name}}"
+    },
+    "replyingTo": "Membalas",
+    "cancelReply": "Batalkan balasan",
+    "removeAttachment": "Hapus lampiran",
+    "attachFile": "Lampirkan berkas",
+    "dropTitle": "Unggah berkas",
+    "dropHint": "Lepas untuk melampirkan",
+    "uploading": "Mengunggah…",
+    "uploadingLabel": "Mengunggah",
+    "failedCount_one": "{{count}} gagal",
+    "failedCount_other": "{{count}} gagal",
+    "failedHint": "Hapus atau ulangi lampiran gagal untuk mengirim",
+    "gif": "GIF",
+    "gifPicker": "Pemilih GIF",
+    "emoji": "Emoji",
+    "emojiPicker": "Pemilih emoji",
+    "send": "Kirim",
+    "sendMessage": "Kirim pesan",
+    "uploadFailed": "Gagal mengunggah {{file}}: {{reason}}",
+    "uploadFailedReason": "Unggahan gagal",
+    "typing": {
+      "named_one": "{{names}} mengetik",
+      "named_other": "{{names}} mengetik",
+      "several": "Beberapa orang mengetik"
+    }
+  },
+  "menu": {
+    "saveImage": "Simpan Gambar",
+    "copyImage": "Salin Gambar",
+    "openOriginal": "Buka Asli",
+    "saveVideo": "Simpan Video",
+    "saveAudio": "Simpan Audio",
+    "copyLink": "Salin Tautan",
+    "openLink": "Buka Tautan",
+    "copySelectedText": "Salin Teks Terpilih",
+    "copyText": "Salin Teks",
+    "markUnread": "Tandai Belum Dibaca",
+    "editMessage": "Edit Pesan",
+    "deleteMessage": "Hapus Pesan",
+    "linkCopied": "Tautan disalin",
+    "linkCopyFailed": "Gagal menyalin tautan",
+    "pinMessage": "Sematkan Pesan",
+    "unpinMessage": "Lepas Sematan"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "Dijeda — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "Tak dapat putar di sini — unduh",
+      "unsupportedFormat": "Format video tak didukung",
+      "unsupportedBrowser": "Peramban Anda tak mendukung pemutaran video."
+    },
+    "audio": {
+      "unsupportedBrowser": "Peramban Anda tak mendukung pemutaran audio."
+    },
+    "federation": {
+      "remoteNamed": "Dihost di instans {{sender}}. Unduh untuk salinan lokal.",
+      "remoteUnknown": "Dihost di instans pengirim. Unduh untuk salinan lokal.",
+      "partialGeneric": "Beberapa penerima tak dapat mengcache berkas ini secara lokal.",
+      "partialInstance": "Instans {{username}} (batas: {{limit}})",
+      "partialList": "Berkas tak dapat dicache di {{instances}}. Mereka tetap dapat melihatnya dari milik Anda.",
+      "listPair": "{{first}} dan {{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "Cari GIF",
+    "noResults": "Tidak ada GIF ditemukan",
+    "noTrending": "Tidak ada GIF tren",
+    "attribution": "Didukung Klipy"
+  },
+  "preview": {
+    "save": "Simpan gambar",
+    "copy": "Salin gambar",
+    "alt": "Pratinjau gambar"
+  },
+  "invite": {
+    "sentBy": "{{name}} mengirim undangan",
+    "memberCount_one": "{{count}} anggota",
+    "memberCount_other": "{{count}} anggota",
+    "revoked": "Undangan tak berlaku lagi",
+    "join": "Bergabung",
+    "joining": "Bergabung…",
+    "joinFailed": "Gagal bergabung",
+    "askToJoin": "Minta bergabung",
+    "sendingRequest": "Mengirim…",
+    "requestSent": "Permintaan terkirim",
+    "requestPending": "Permintaan tertunda",
+    "requestNotice": "Ruang ini menerima permintaan bergabung. Manajer menyetujui tiap permintaan.",
+    "requestReview": "Manajer akan meninjau permintaan Anda."
+  },
+  "notification": {
+    "unknownSender": "Seseorang",
+    "attachmentOnly": "Mengirim lampiran"
+  },
+  "commands": {
+    "title": "Perintah",
+    "failed": "Perintah tidak dapat dikirim",
+    "extraText": "Perintah ini tak menerima teks bebas, tetapi \"{{text}}\" tersisa. Taruh opsi dulu, teks terakhir",
+    "invalidOption": "Nilai {{option}} tak cocok untuk perintah ini.",
+    "optionsTitle": "Parameter",
+    "required": "wajib",
+    "subcommandsTitle": "Subperintah",
+    "group": "grup",
+    "chooseSubcommand": "Pilih subperintah: {{names}}",
+    "subcommandRefused": "Bot tak menawarkan subperintah ini. Pilih satu dari daftar"
+  },
+  "ephemeral": {
+    "onlyYou": "Hanya Anda yang dapat melihat ini",
+    "dismiss": "Tutup",
+    "rowLabel": "Jawaban hanya Anda yang lihat dari {{author}}, {{time}}"
+  },
+  "embed": {
+    "loadAction": "Klik untuk memuat",
+    "loadNamed": "Muat {{name}}",
+    "loadUnnamed": "Muat embed",
+    "frameTitle": "Konten sematan",
+    "playNamed": "Putar {{title}}",
+    "playUnnamed": "Putar video",
+    "videoTitle": "Video"
+  },
+  "stickers": {
+    "title": "Stiker Saya",
+    "upload": "Unggah gambar",
+    "limits": "PNG, JPEG, WebP atau GIF · hingga 5 MB",
+    "loading": "Memuat…",
+    "empty": "Koleksi stiker Anda mulai di sini",
+    "remove": "Hapus",
+    "save": "Tambah ke stiker saya",
+    "saved": "Ditambah ke stiker saya",
+    "preview": "Pratinjau stiker",
+    "manage": "Kelola",
+    "done": "Selesai",
+    "collectionHint": "Pilih stiker untuk dikirim. Jadikan ruang ini milikmu.",
+    "manageHint": "Ganti nama atau hapus stiker di koleksi. Pesan terkirim tetap tak berubah.",
+    "emptyHint": "Simpan momen favorit sebagai stiker, siap untuk balasan berikut.",
+    "chooseImage": "Pilih gambar",
+    "cancel": "Batal",
+    "replace": "Ganti gambar",
+    "name": "Nama stiker",
+    "dropImage": "Klik atau seret gambar ke sini",
+    "pasteHint": "Anda juga dapat menempel gambar dari papan klip",
+    "uploading": "Menambah stiker…",
+    "singleImage": "Pilih satu gambar tiap kali.",
+    "invalidSize": "Pilih gambar tak kosong hingga 5 MB.",
+    "invalidType": "Hanya gambar PNG, JPEG, WebP, dan GIF didukung.",
+    "invalidImage": "Gambar ini tak dapat dipratinjau. Pilih gambar valid.",
+    "removeNamed": "Hapus {{name}}",
+    "addMore": "Tambah lagi",
+    "selectedCount_one": "{{count}} stiker dipilih",
+    "selectedCount_other": "{{count}} stiker dipilih",
+    "dropMore": "Klik atau seret lebih banyak gambar ke sini",
+    "sticker": "Stiker",
+    "downloadFailed": "Gambar tidak dapat dimuat.",
+    "batchLimit_one": "Pilih hingga {{count}} gambar tiap kali.",
+    "batchLimit_other": "Pilih hingga {{count}} gambar tiap kali.",
+    "capacityLimit_one": "Koleksi Anda punya ruang untuk {{count}} stiker lagi.",
+    "capacityLimit_other": "Koleksi Anda punya ruang untuk {{count}} stiker lagi.",
+    "full": "Koleksi Anda penuh. Hapus stiker untuk menambah lain.",
+    "batchFailed_one": "{{count}} gambar tak dapat ditambah. Masih tercantum di bawah.",
+    "batchFailed_other": "{{count}} gambar tak dapat ditambah. Masih tercantum di bawah.",
+    "uploadingProgress": "Menambah {{current}} dari {{total}}…",
+    "rename": "Ganti nama",
+    "renameNamed": "Ganti nama {{name}}",
+    "renameTitle": "Ganti nama stiker",
+    "search": "Cari stiker",
+    "noResults": "Tidak ada stiker ditemukan",
+    "store": "Toko Stiker",
+    "myCollection": "Stiker Saya",
+    "packs": "Paket Stiker",
+    "explore": "Jelajahi",
+    "myPacks": "Dibuat oleh Saya",
+    "install": "Tambah",
+    "installed": "Ditambah",
+    "uninstall": "Hapus",
+    "createPack": "Buat Paket",
+    "editPack": "Edit Paket",
+    "packName": "Nama paket",
+    "packDesc": "Deskripsi (opsional)",
+    "submitReview": "Kirim untuk Ditinjau",
+    "pendingReview": "Menunggu Tinjauan",
+    "approved": "Disetujui",
+    "rejected": "Ditolak",
+    "draft": "Draf",
+    "newVersion": "Versi Baru",
+    "deletePack": "Hapus Paket",
+    "stickersCount_one": "{{count}} stiker",
+    "stickersCount_other": "{{count}} stiker",
+    "noPacks": "Tidak ada paket stiker ditemukan",
+    "replicaBadge": "Federasi",
+    "viewPack": "Lihat Paket",
+    "saveDraft": "Simpan sebagai Draf",
+    "packCreated": "Paket dibuat",
+    "reviewSubmitted": "Dikirim untuk tinjauan admin",
+    "reviews": "Tinjauan",
+    "noReviews": "Tidak ada paket stiker menunggu tinjauan",
+    "approve": "Setujui",
+    "reject": "Tolak",
+    "rejectTitle": "Tolak Paket Stiker",
+    "rejectReason": "Alasan penolakan",
+    "rejectPlaceholder": "Masukkan alasan penolakan (mis. konten tak pantas, kualitas rendah)",
+    "rejectConfirm": "Konfirmasi Penolakan",
+    "approvedSuccess": "Paket stiker disetujui",
+    "rejectedSuccess": "Paket stiker ditolak",
+    "reviewNotes": "Alasan penolakan",
+    "creator": "Pembuat",
+    "sourceInstance": "Instans",
+    "localInstance": "Instans lokal",
+    "viewStickers": "Lihat stiker",
+    "pendingReviewHint": "Dalam tinjauan admin, akan tercantum di Jelajahi setelah disetujui"
+  },
+  "poke": {
+    "action": "Colek",
+    "received": "{{actor}} mencolek {{target}}",
+    "disconnected": "Terputus. Colekan tidak terkirim."
+  },
+  "pins": {
+    "title": "Pesan Tersemat",
+    "empty": "Belum ada pesan tersemat.",
+    "jump": "Lompat ke pesan",
+    "unpin": "Lepas sematan",
+    "deletedMessage": "Pesan dihapus",
+    "attachmentOnly": "Lampiran"
+  }
+}

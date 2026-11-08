@@ -1,0 +1,36 @@
+{
+  "input": {
+    "placeholder": "Caută mesaje…"
+  },
+  "filters": {
+    "toggle": "Filtre",
+    "from": {
+      "label": "De la",
+      "placeholder": "nume de utilizator"
+    },
+    "has": {
+      "label": "Conține",
+      "any": "Oricare",
+      "file": "Fișier",
+      "image": "Imagine",
+      "link": "Link"
+    },
+    "before": {
+      "label": "Înainte de"
+    },
+    "after": {
+      "label": "După"
+    }
+  },
+  "results": {
+    "empty": "Niciun rezultat găsit",
+    "hint": "Scrie pentru a căuta mesaje în acest canal",
+    "count_one": "{{count}} rezultat",
+    "count_few": "{{count}} rezultate",
+    "count_other": "{{count}} de rezultate",
+    "loadMore": "Încarcă mai multe ({{remaining}} rămase)",
+    "attachments_one": "{{count}} atașament",
+    "attachments_few": "{{count}} atașamente",
+    "attachments_other": "{{count}} de atașamente"
+  }
+}

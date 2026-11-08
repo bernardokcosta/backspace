@@ -60,7 +60,7 @@
       }
     },
     "status": {
-      "active": "Ativos",
+      "active": "Ativo",
       "expired": "Expirado",
       "exhausted": "Esgotado",
       "revoked": "Revogado"
@@ -79,7 +79,7 @@
       "revokedOn": "Revogado em {{date}}",
       "expiredOn": "Expirado em {{date}}",
       "exhausted": "Esgotado",
-      "noExpiration": "Sem validade",
+      "noExpiration": "Sem expiração",
       "inDays_one": "Expira em {{count}} dia",
       "inDays_many": "Expira em {{count}} dias",
       "inDays_other": "Expira em {{count}} dias",
@@ -109,7 +109,7 @@
     "editModal": {
       "title": "Editar \"{{name}}\"",
       "description": "Ajuste os limites deste link de convite. A URL permanece a mesma — qualquer pessoa que já a tenha poderá usá-la dentro das novas restrições.",
-      "used": "({{used}} usado)",
+      "used": "(usos: {{used}})",
       "maxUsesBelowUsed": "O máximo de usos não pode ser menor que o número atual de usos ({{used}})",
       "noChanges": "Nenhuma alteração para salvar",
       "updated": "Convite atualizado",
@@ -120,7 +120,7 @@
     "reinstateModal": {
       "title": "Reativar \"{{name}}\"",
       "descriptionRevoked": "Este convite foi revogado. Reativá-lo gera um novo link com uma URL diferente — a URL antiga permanece inativa.",
-      "descriptionLapsed": "Este convite expirou. Reativá-lo torna a mesma URL ativa novamente — qualquer pessoa que a tenha salvo poderá usá-la outra vez.",
+      "descriptionLapsed": "Este convite não está mais ativo. Reativá-lo torna a mesma URL ativa novamente — qualquer pessoa que a tenha salvo poderá usá-la outra vez.",
       "newLinkWarning": "Um novo link será gerado. Quem tiver a URL antiga não poderá usá-la.",
       "maxUsesMeta": "(atual: {{max}}, usado: {{used}})",
       "maxUsesMin": "O máximo de usos deve ser pelo menos {{min}} (usos atuais: {{used}})",
@@ -150,7 +150,7 @@
       "deletedUser": "Usuário excluído"
     },
     "row": {
-      "usage": "{{usage}} usos",
+      "usage": "Usos: {{usage}}",
       "createdBy": "Criado por {{name}}",
       "unknownCreator": "Desconhecido",
       "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
@@ -199,7 +199,7 @@
       "referenced": "Referenciados",
       "orphanedFiles": "Arquivos órfãos",
       "unlinkedUploads": "Uploads não vinculados",
-      "danglingRecords": "Registros pendentes",
+      "danglingRecords": "Registros sem mensagem",
       "staleUploads": "Uploads obsoletos"
     },
     "breakdown": {
@@ -219,15 +219,15 @@
     },
     "cleanup": {
       "label": "Limpeza",
-      "nothingFound": "Nenhum arquivo órfão, upload obsoleto ou registro pendente encontrado.",
+      "nothingFound": "Nenhum arquivo órfão, upload obsoleto ou registro sem mensagem encontrado.",
       "preview": "Visualizar limpeza",
       "run": "Limpar agora",
       "running": "Limpando…",
       "previewResult": "Prévia — nenhum arquivo excluído",
       "complete": "Limpeza concluída",
-      "orphanedFiles_one": "{{count}} arquivo órfão/pendente ({{size}})",
-      "orphanedFiles_many": "{{count}} arquivos órfãos/pendentes ({{size}})",
-      "orphanedFiles_other": "{{count}} arquivos órfãos/pendentes ({{size}})",
+      "orphanedFiles_one": "{{count}} arquivo órfão/sem mensagem ({{size}})",
+      "orphanedFiles_many": "{{count}} arquivos órfãos/sem mensagem ({{size}})",
+      "orphanedFiles_other": "{{count}} arquivos órfãos/sem mensagem ({{size}})",
       "staleRecords_one": ", {{count}} registro de upload obsoleto",
       "staleRecords_many": ", {{count}} registros de upload obsoletos",
       "staleRecords_other": ", {{count}} registros de upload obsoletos",
@@ -242,7 +242,7 @@
     "stale": {
       "label": "Uploads obsoletos",
       "description": "Sessões de upload tus abandonadas em <code>.tus/</code> (pausadas/interrompidas sem DELETE). A expiração automática ocorre a cada 24 horas; isto permite fazer uma limpeza antecipada.",
-      "maxAge": "Idade máxima (horas)",
+      "maxAge": "Tempo máximo de retenção (horas)",
       "sessionFiles_one": "{{count}} arquivo de sessão ({{size}})",
       "sessionFiles_many": "{{count}} arquivos de sessão ({{size}})",
       "sessionFiles_other": "{{count}} arquivos de sessão ({{size}})",
@@ -348,7 +348,7 @@
       "description": "Esta instância não entrará em contato com o GitHub. Defina <code>BACKSPACE_UPDATE_CHECK=true</code> no seu <code>.env</code> para permitir a consulta ou verifique a página de versões manualmente."
     },
     "rateLimited": {
-      "title": "O GitHub limitou a consulta por taxa",
+      "title": "Limite de consultas do GitHub atingido",
       "description": "Isso não indica se existe uma atualização. Tente novamente mais tarde."
     },
     "unreachable": {
@@ -380,7 +380,7 @@
       "nameDesc": "Nome Z-A",
       "deleted": "Excluído",
       "clear": "Limpar filtros",
-      "bot": "Robôs"
+      "bot": "Bots"
     },
     "badge": {
       "admin": "Administrador",

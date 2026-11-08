@@ -1,0 +1,104 @@
+{
+  "tabs": {
+    "all": "Alle",
+    "pending": "Afventende",
+    "add": "Tilføj ven",
+    "activity": "Aktivitet"
+  },
+  "sections": {
+    "online": "Online — {{n}}",
+    "all": "Alle venner — {{n}}",
+    "pending": "Afventende — {{n}}",
+    "active": "Aktive — {{n}}",
+    "offline": "Offline — {{n}}"
+  },
+  "empty": {
+    "online": "Ingen er online lige nu.",
+    "all": "Ingen venner endnu — tilføj nogen!",
+    "pending": "Ingen afventende anmodninger — Nori sover.",
+    "activity": "Det er stille for nu… Når venner starter en aktivitet, viser vi den her!"
+  },
+  "friend": {
+    "viaInstance": "via {{host}}",
+    "message": "Besked",
+    "remove": "Fjern ven"
+  },
+  "sendMessage": {
+    "failed": "Kunne ikke åbne samtalen: {{reason}}"
+  },
+  "request": {
+    "incoming": "Indgående venneanmodning",
+    "outgoing": "Udgående venneanmodning",
+    "ignore": "Ignorér",
+    "cancel": "Annuller anmodning",
+    "send": "Send venneanmodning",
+    "pending": "Anmodning afventer",
+    "sending": "Sender…",
+    "cancelling": "Annullerer…",
+    "sent": "Venneanmodning sendt!"
+  },
+  "removeFriend": {
+    "title": "Fjern ven",
+    "description": "Er du sikker på, at du vil fjerne {{name}} som ven? Du kan altid sende en ny venneanmodning senere.",
+    "fallbackName": "denne bruger"
+  },
+  "add": {
+    "title": "Find folk",
+    "hint": "Søg på brugernavn eller brug <handle>user@instance</handle> for at tilføje nogen direkte.",
+    "placeholder": "Søg eller tilføj på navn…",
+    "direct": "Send venneanmodning til <handle>{{handle}}</handle>",
+    "sendRequest": "Send anmodning",
+    "discover": "Opdag folk",
+    "noSearchResults": "Ingen brugere matcher din søgning.",
+    "noDiscoverable": "Ingen brugere at opdage endnu — invitér folk til at deltage!"
+  },
+  "mutuals": {
+    "friends_one": "{{count}} fælles ven",
+    "friends_other": "{{count}} fælles venner",
+    "spaces_one": "{{count}} fælles rum",
+    "spaces_other": "{{count}} fælles rum",
+    "noFriends": "Ingen fælles venner",
+    "noSpaces": "Ingen fælles rum"
+  },
+  "profile": {
+    "tabs": {
+      "about": "Om",
+      "mutualFriends": "Fælles venner",
+      "mutualSpaces": "Fælles rum"
+    },
+    "aboutMe": "Om mig",
+    "roles": "Roller",
+    "memberSince": "Medlem siden",
+    "sendMessage": "Send besked",
+    "editRoles": "Rediger roller",
+    "viewFull": "Se fuld profil",
+    "addFriend": "Tilføj ven",
+    "playingNow": "Spiller nu"
+  },
+  "activity": {
+    "title": "Aktive nu",
+    "quietTitle": "Det er stille for nu…",
+    "quietDescription": "Når en ven starter en aktivitet — f.eks. spiller eller hænger på voice — viser vi den her!",
+    "online": "Online — {{n}}",
+    "offline": "Offline — {{n}}",
+    "resizeHandle": "Ændr størrelse på vennelisten",
+    "types": {
+      "playing": "Spiller et spil",
+      "listening": "Lytter til musik",
+      "streaming": "Streamer",
+      "watching": "Ser",
+      "custom": "Brugerdefineret status"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "Åbn nummer"
+  },
+  "instanceNotConnected": "Ikke forbundet til {{host}}. Forbind igen og prøv igen."
+}

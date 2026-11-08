@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "spaces": "Rom",
+    "dms": "DM-er",
+    "you": "Deg"
+  },
+  "you": {
+    "editProfile": "Rediger profil",
+    "homeInstance": "Hjeminstans: {{domain}}",
+    "logOutConfirm": "Er du sikker på at du vil logge ut?"
+  },
+  "chat": {
+    "openCall": "Åpne samtale",
+    "cancelCall": "Avbryt samtale",
+    "unknownChannel": "kanal"
+  }
+}

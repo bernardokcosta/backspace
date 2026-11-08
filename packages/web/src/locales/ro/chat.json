@@ -1,0 +1,314 @@
+{
+  "feedback": {
+    "openedInNewTab": "Deschis într-o filă nouă",
+    "copiedGifLink": "Linkul GIF copiat",
+    "copiedImageLink": "Linkul imaginii copiat",
+    "uploadExpired": "Nu s-a putut trimite „{{content}}” — încărcarea a expirat.",
+    "attachmentOnly": "(doar atașament)"
+  },
+  "message": {
+    "edit": {
+      "hint": "esc pentru <cancel>anulare</cancel> • enter pentru <save>salvare</save>"
+    },
+    "edited": "(editat)",
+    "rowLabel": "{{author}}, {{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "Încărcarea a eșuat",
+      "discard": "Renunță"
+    },
+    "actions": {
+      "confirmDelete": "Confirmă ștergerea"
+    },
+    "reply": {
+      "jump": "Sari la mesajul original"
+    },
+    "mention": {
+      "unknownUser": "Utilizator necunoscut",
+      "unknownRole": "Rol necunoscut"
+    },
+    "reactions": {
+      "picker": "Selector de reacții",
+      "you": "Tu",
+      "others_one": "{{count}} altul",
+      "others_few": "{{count}} alții",
+      "others_other": "{{count}} de alții",
+      "bySelf": "Ai reacționat",
+      "byOne": "{{name}} a reacționat",
+      "byMany": "Reacții: {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "Nu ai permisiunea de a vedea istoricul mesajelor în acest canal",
+    "loading": "Se încarcă mesajele",
+    "loadingOlder": "Se încarcă mesajele mai vechi",
+    "loadFailed": "Mesajele nu au putut fi încărcate",
+    "jumpToPresent": "Sari la prezent",
+    "jump": {
+      "unavailable": "Acest mesaj nu mai este disponibil",
+      "failed": "Mesajul nu a putut fi încărcat",
+      "presentFailed": "Cele mai recente mesaje nu au putut fi încărcate"
+    },
+    "unread": {
+      "label": "Nou",
+      "divider": "Mesaje noi",
+      "dividerWithDate": "Mesaje noi, {{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "Bine ai venit în canal!",
+        "description": "Acesta este începutul conversației."
+      },
+      "group": {
+        "intro": "Acesta este începutul conversației de grup.",
+        "owner": "Proprietar: <owner>@{{name}}</owner>",
+        "federatedNotice": "Mesajele sunt stocate pe instanțele principale ale tale și ale destinatarilor. Nu sunt criptate end-to-end.",
+        "openSettings": "Deschide setările grupului",
+        "leave": "Părăsește grupul"
+      },
+      "dm": {
+        "fallbackName": "Mesaj direct",
+        "intro": "Acesta este începutul istoricului mesajelor directe cu <strong>@{{name}}</strong>.",
+        "federatedNotice": "Mesajele sunt stocate pe instanțele principale ale tale și ale destinatarului. Nu sunt criptate end-to-end.",
+        "removeFriend": "Elimină prietenul"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "Nu ai permisiunea de a trimite mesaje în acest canal",
+    "placeholder": {
+      "channel": "Mesaj pentru #{{name}}",
+      "dm": "Mesaj pentru @{{name}}"
+    },
+    "replyingTo": "Răspuns la",
+    "cancelReply": "Anulează răspunsul",
+    "removeAttachment": "Elimină atașamentul",
+    "attachFile": "Atașează un fișier",
+    "dropTitle": "Încarcă un fișier",
+    "dropHint": "Eliberează pentru a atașa",
+    "uploading": "Se încarcă…",
+    "uploadingLabel": "Se încarcă",
+    "failedCount_one": "{{count}} eșuat",
+    "failedCount_few": "{{count}} eșuate",
+    "failedCount_other": "{{count}} de eșuate",
+    "failedHint": "Elimină sau reîncearcă atașamentul eșuat pentru a trimite",
+    "gif": "GIF",
+    "gifPicker": "Selector GIF",
+    "emoji": "Emoji",
+    "emojiPicker": "Selector de emoji",
+    "send": "Trimite",
+    "sendMessage": "Trimite mesajul",
+    "uploadFailed": "Încărcarea {{file}} a eșuat: {{reason}}",
+    "uploadFailedReason": "Încărcarea a eșuat",
+    "typing": {
+      "named_one": "{{names}} scrie",
+      "named_few": "{{names}} scriu",
+      "named_other": "{{names}} scriu",
+      "several": "Mai multe persoane scriu"
+    }
+  },
+  "menu": {
+    "saveImage": "Salvează imaginea",
+    "copyImage": "Copiază imaginea",
+    "openOriginal": "Deschide originalul",
+    "saveVideo": "Salvează videoclipul",
+    "saveAudio": "Salvează sunetul",
+    "copyLink": "Copiază linkul",
+    "openLink": "Deschide linkul",
+    "copySelectedText": "Copiază textul selectat",
+    "copyText": "Copiază textul",
+    "markUnread": "Marchează ca necitit",
+    "editMessage": "Editează mesajul",
+    "deleteMessage": "Șterge mesajul",
+    "linkCopied": "Link copiat",
+    "linkCopyFailed": "Copierea linkului a eșuat",
+    "pinMessage": "Fixează mesajul",
+    "unpinMessage": "Anulează fixarea mesajului"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "În pauză — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "Nu poate fi redat aici — descarcă",
+      "unsupportedFormat": "Format video neacceptat",
+      "unsupportedBrowser": "Browserul tău nu acceptă redarea video."
+    },
+    "audio": {
+      "unsupportedBrowser": "Browserul tău nu acceptă redarea audio."
+    },
+    "federation": {
+      "remoteNamed": "Găzduit pe instanța utilizatorului {{sender}}. Descarcă pentru a păstra o copie locală.",
+      "remoteUnknown": "Găzduit pe instanța expeditorului. Descarcă pentru a păstra o copie locală.",
+      "partialGeneric": "Unii destinatari nu pot stoca acest fișier local.",
+      "partialInstance": "Instanța utilizatorului {{username}} (limită: {{limit}})",
+      "partialList": "Fișierul nu a putut fi stocat pe {{instances}}. Îl pot vedea în continuare de pe instanța ta.",
+      "listPair": "{{first}} și {{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "Caută GIF-uri",
+    "noResults": "Niciun GIF găsit",
+    "noTrending": "Niciun GIF popular",
+    "attribution": "Oferit de Klipy"
+  },
+  "preview": {
+    "save": "Salvează imaginea",
+    "copy": "Copiază imaginea",
+    "alt": "Previzualizare imagine"
+  },
+  "invite": {
+    "sentBy": "{{name}} a trimis o invitație",
+    "memberCount_one": "{{count}} membru",
+    "memberCount_few": "{{count}} membri",
+    "memberCount_other": "{{count}} de membri",
+    "revoked": "Invitația nu mai este validă",
+    "join": "Alătură-te",
+    "joining": "Te alături…",
+    "joinFailed": "Alăturarea a eșuat",
+    "askToJoin": "Cere să te alături",
+    "sendingRequest": "Se trimite…",
+    "requestSent": "Cerere trimisă",
+    "requestPending": "Cerere în așteptare",
+    "requestNotice": "Acest spațiu acceptă cereri de alăturare. Un manager aprobă fiecare cerere.",
+    "requestReview": "Un manager îți va verifica cererea."
+  },
+  "notification": {
+    "unknownSender": "Cineva",
+    "attachmentOnly": "A trimis un atașament"
+  },
+  "commands": {
+    "title": "Comenzi",
+    "failed": "Comanda nu a putut fi trimisă",
+    "extraText": "Această comandă nu acceptă text liber, dar a rămas „{{text}}”. Pune opțiunile primele și textul la final",
+    "invalidOption": "Valoarea pentru {{option}} nu se potrivește acestei comenzi.",
+    "optionsTitle": "Parametri",
+    "required": "obligatoriu",
+    "subcommandsTitle": "Subcomenzi",
+    "group": "grup",
+    "chooseSubcommand": "Alege o subcomandă: {{names}}",
+    "subcommandRefused": "Botul nu oferă această subcomandă. Alege una din listă"
+  },
+  "ephemeral": {
+    "onlyYou": "Doar tu poți vedea acest mesaj",
+    "dismiss": "Ignoră",
+    "rowLabel": "Răspuns vizibil doar pentru tine de la {{author}}, {{time}}"
+  },
+  "embed": {
+    "loadAction": "Fă clic pentru a încărca",
+    "loadNamed": "Încarcă {{name}}",
+    "loadUnnamed": "Încarcă embedul",
+    "frameTitle": "Conținut încorporat",
+    "playNamed": "Redă {{title}}",
+    "playUnnamed": "Redă videoclipul",
+    "videoTitle": "Video"
+  },
+  "stickers": {
+    "title": "Stickerele mele",
+    "upload": "Încarcă o imagine",
+    "limits": "PNG, JPEG, WebP sau GIF · până la 5 MB",
+    "loading": "Se încarcă…",
+    "empty": "Colecția ta de stickere începe aici",
+    "remove": "Elimină",
+    "save": "Adaugă la stickerele mele",
+    "saved": "Adăugat la stickerele mele",
+    "preview": "Previzualizează stickerul",
+    "manage": "Gestionează",
+    "done": "Gata",
+    "collectionHint": "Alege un sticker de trimis. Personalizează acest spațiu.",
+    "manageHint": "Redenumește sau elimină stickere din colecție. Mesajele deja trimise rămân neschimbate.",
+    "emptyHint": "Salvează-ți momentele preferate ca stickere, gata pentru următorul răspuns.",
+    "chooseImage": "Alege imaginea",
+    "cancel": "Anulează",
+    "replace": "Înlocuiește imaginea",
+    "name": "Numele stickerului",
+    "dropImage": "Fă clic sau trage o imagine aici",
+    "pasteHint": "Poți lipi și o imagine din clipboard",
+    "uploading": "Se adaugă stickerul…",
+    "singleImage": "Alege câte o imagine odată.",
+    "invalidSize": "Alege o imagine care nu este goală, de până la 5 MB.",
+    "invalidType": "Sunt acceptate doar imagini PNG, JPEG, WebP și GIF.",
+    "invalidImage": "Această imagine nu poate fi previzualizată. Alege o imagine validă.",
+    "removeNamed": "Elimină {{name}}",
+    "addMore": "Adaugă mai multe",
+    "selectedCount_one": "{{count}} sticker selectat",
+    "selectedCount_few": "{{count}} stickere selectate",
+    "selectedCount_other": "{{count}} de stickere selectate",
+    "dropMore": "Fă clic sau trage mai multe imagini aici",
+    "sticker": "Sticker",
+    "downloadFailed": "Imaginea nu a putut fi încărcată.",
+    "batchLimit_one": "Alege cel mult {{count}} imagine odată.",
+    "batchLimit_few": "Alege cel mult {{count}} imagini odată.",
+    "batchLimit_other": "Alege cel mult {{count}} de imagini odată.",
+    "capacityLimit_one": "Colecția ta mai are loc pentru {{count}} sticker.",
+    "capacityLimit_few": "Colecția ta mai are loc pentru {{count}} stickere.",
+    "capacityLimit_other": "Colecția ta mai are loc pentru {{count}} de stickere.",
+    "full": "Colecția ta este plină. Elimină un sticker pentru a adăuga altul.",
+    "batchFailed_one": "{{count}} imagine nu a putut fi adăugată. Este încă listată mai jos.",
+    "batchFailed_few": "{{count}} imagini nu au putut fi adăugate. Sunt încă listate mai jos.",
+    "batchFailed_other": "{{count}} de imagini nu au putut fi adăugate. Sunt încă listate mai jos.",
+    "uploadingProgress": "Se adaugă {{current}} din {{total}}…",
+    "rename": "Redenumește",
+    "renameNamed": "Redenumește {{name}}",
+    "renameTitle": "Redenumește stickerul",
+    "search": "Caută stickere",
+    "noResults": "Niciun sticker găsit",
+    "store": "Magazin de stickere",
+    "myCollection": "Stickerele mele",
+    "packs": "Pachete de stickere",
+    "explore": "Explorează",
+    "myPacks": "Create de mine",
+    "install": "Adaugă",
+    "installed": "Adăugat",
+    "uninstall": "Elimină",
+    "createPack": "Creează pachet",
+    "editPack": "Editează pachetul",
+    "packName": "Numele pachetului",
+    "packDesc": "Descriere (opțional)",
+    "submitReview": "Trimite spre verificare",
+    "pendingReview": "În așteptare pentru verificare",
+    "approved": "Aprobat",
+    "rejected": "Respins",
+    "draft": "Ciornă",
+    "newVersion": "Versiune nouă",
+    "deletePack": "Șterge pachetul",
+    "stickersCount_one": "{{count}} sticker",
+    "stickersCount_few": "{{count}} stickere",
+    "stickersCount_other": "{{count}} de stickere",
+    "noPacks": "Niciun pachet de stickere găsit",
+    "replicaBadge": "Federat",
+    "viewPack": "Vezi pachetul",
+    "saveDraft": "Salvează ca ciornă",
+    "packCreated": "Pachet creat cu succes",
+    "reviewSubmitted": "Trimis spre verificarea administratorului",
+    "reviews": "Verificare",
+    "noReviews": "Niciun pachet de stickere în așteptarea verificării",
+    "approve": "Aprobă",
+    "reject": "Respinge",
+    "rejectTitle": "Respinge pachetul de stickere",
+    "rejectReason": "Motivul respingerii",
+    "rejectPlaceholder": "Introdu motivul respingerii (de ex. conținut necorespunzător, calitate slabă)",
+    "rejectConfirm": "Confirmă respingerea",
+    "approvedSuccess": "Pachetul de stickere a fost aprobat",
+    "rejectedSuccess": "Pachetul de stickere a fost respins",
+    "reviewNotes": "Motivul respingerii",
+    "creator": "Autor",
+    "sourceInstance": "Instanță",
+    "localInstance": "Instanța locală",
+    "viewStickers": "Vezi stickerele",
+    "pendingReviewHint": "În verificare la administrator; va apărea în Explorează după aprobare"
+  },
+  "poke": {
+    "action": "Ciocănește",
+    "received": "Poke de la {{actor}} către {{target}}",
+    "disconnected": "Deconectat. Ciocănitul nu a fost trimis."
+  },
+  "pins": {
+    "title": "Mesaje fixate",
+    "empty": "Niciun mesaj fixat încă.",
+    "jump": "Sari la mesaj",
+    "unpin": "Anulează fixarea",
+    "deletedMessage": "Mesaj șters",
+    "attachmentOnly": "Atașament"
+  }
+}

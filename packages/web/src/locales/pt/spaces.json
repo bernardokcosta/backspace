@@ -96,7 +96,7 @@
         "label": "Categoria privada",
         "description": "Somente os membros e cargos selecionados poderão ver os canais desta categoria.",
         "note": "Esta categoria fica oculta para membros sem acesso explícito. Os canais dentro dela herdam essa restrição, a menos que a substituam explicitamente.",
-        "unhideOnSave": "Ao salvar, esta categoria e os canais dentro dela que não se ocultam por conta própria ficarão visíveis para todos os membros."
+        "unhideOnSave": "Ao salvar, esta categoria e seus canais sem uma restrição de visibilidade própria ficarão visíveis para todos os membros."
       },
       "deleteButton": "Excluir categoria"
     },
@@ -148,6 +148,13 @@
     "contextMenu": "Convidar para um espaço"
   },
   "join": {
+    "validation": {
+      "required": "O código do convite é obrigatório.",
+      "invalidLink": "Link de convite inválido.",
+      "linkFormat": "Link de convite inválido. Use o formato https://instance/join/CODE",
+      "qualifiedFormat": "Formato de convite inválido. Use CODE@domain",
+      "invalidDomain": "O domínio do convite é inválido."
+    },
     "title": "Entrar em um espaço",
     "invitePlaceholder": "ex.: abc123 ou https://instancia.com/join/abc123",
     "submit": "Entrar no espaço",
@@ -321,7 +328,7 @@
     "backToList": "Voltar aos cargos",
     "created": "Cargo criado. Personalize-o abaixo.",
     "aboveYou": "Este cargo tem hierarquia igual ou superior ao seu cargo mais alto. Você pode visualizá-lo, mas não alterá-lo.",
-    "managedByBot": "Este cargo pertence a um bot. Ele sai quando o bot deixa o espaço e não pode ser dado a outra pessoa nem excluído. Suas permissões podem ser alteradas.",
+    "managedByBot": "Este cargo é gerenciado por um bot e é removido quando o bot sai do espaço. Não é possível atribuí-lo a outras pessoas nem excluí-lo manualmente. Suas permissões podem ser alteradas.",
     "reorder": {
       "handle": "Mover {{name}}",
       "handleHint": "Arraste ou use as setas para cima e para baixo",
@@ -381,7 +388,7 @@
       "connect": "Conectar",
       "speak": "Falar",
       "muteMembers": "Silenciar membros",
-      "deafenMembers": "Ensurdecer membros",
+      "deafenMembers": "Desativar áudio dos membros",
       "moveMembers": "Mover membros",
       "stream": "Transmitir",
       "disconnectMembers": "Desconectar membros",
@@ -453,7 +460,7 @@
       "leaveConfirm": {
         "title": "Sair do espaço",
         "titleNamed": "Sair de {{name}}",
-        "description": "Tem certeza de que deseja sair deste espaço? Você precisará de um novo convite para entrar de novo."
+          "description": "Tem certeza de que deseja sair deste espaço? Você precisará de um convite para entrar de novo."
       },
       "left": "Você saiu do espaço",
       "leaveFailed": "Falha ao sair do espaço",
@@ -485,10 +492,10 @@
       "voiceSettings": "Configurações de voz",
       "mute": "Silenciar",
       "unmute": "Reativar microfone",
-      "deafen": "Ensurdecer",
-      "undeafen": "Desfazer ensurdecimento",
+      "deafen": "Desativar áudio",
+      "undeafen": "Ativar áudio",
       "spaceMuted": "Silenciado no espaço",
-      "spaceDeafened": "Ensurdecido no espaço",
+      "spaceDeafened": "Áudio desativado no espaço",
       "permissionMuted": "Silenciado (sem permissão para falar)"
     },
     "dmUnreadMessages_one": "{{count}} mensagem direta não lida",

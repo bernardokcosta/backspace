@@ -1,0 +1,431 @@
+{
+  "general": {
+    "title": "Genel",
+    "description": "Backspace örneğini yapılandır. Bu ayarlar tüm kullanıcıları etkiler.",
+    "instanceName": {
+      "label": "Örnek adı",
+      "description": "Giriş sayfasında ve federasyondaki örneklerde gösterilen ad.",
+      "counter": "{{length}}/{{max}}"
+    },
+    "gif": {
+      "label": "GIF arama",
+      "description": "Klipy destekli GIF aramayı etkinleştir. Klipy geliştirici portalından ücretsiz bir API anahtarı al.",
+      "placeholderSaved": "Anahtar kaydedildi — değiştirmek için yeni anahtar gir",
+      "placeholderKey": "Klipy API anahtarı",
+      "enabled": "Etkin",
+      "notConfigured": "Yapılandırılmadı",
+      "clearKey": "Anahtarı temizle"
+    }
+  },
+  "registration": {
+    "title": "Kayıt",
+    "description": "Bu örnekte kimlerin hesap oluşturabileceğini kontrol et. Genel kayıt yerel kayıtları, federasyon kaydı ise eşleşmiş örneklerden burada hesap oluşturan kullanıcıları kapsar.",
+    "public": {
+      "label": "Genel kayıt",
+      "toggleLabel": "Yeni yerel hesaplara izin ver",
+      "toggleDescription": "Kayıt sayfasından herkes yerel hesap oluşturabilir. Kapalıyken yalnızca davet bağlantıları yeni yerel hesap oluşturabilir."
+    },
+    "federated": {
+      "label": "Federasyon kaydı",
+      "toggleLabel": "Yeni federasyon hesaplarına izin ver",
+      "toggleDescription": "Diğer örneklerdeki kullanıcılar Bağlantılar ayarlarından burada federasyon hesabı oluşturabilir. Mevcut federasyon hesapları bu ayardan bağımsız olarak her zaman giriş yapabilir."
+    },
+    "spaceCreation": {
+      "label": "Alan oluşturma",
+      "toggleLabel": "Yeni alan oluşturmaya izin ver",
+      "toggleDescription": "Kullanıcılar bu örnekte yeni alan oluşturabilir. Kapalıyken yalnızca örnek yöneticileri alan oluşturabilir, normal kullanıcılar yalnızca mevcut alanlara katılabilir."
+    },
+    "saved": "Kayıt ayarları kaydedildi",
+    "saveFailed": "Kayıt ayarları güncellenemedi"
+  },
+  "invites": {
+    "label": "Davet bağlantıları",
+    "create": "+ Bağlantı oluştur",
+    "tabs": {
+      "active": "Etkin",
+      "archived": "Arşivlenmiş"
+    },
+    "loadFailed": "Davetler yüklenemedi",
+    "emptyActive": "Etkin davet bağlantısı yok.",
+    "emptyArchived": "Arşivlenmiş davet bağlantısı yok.",
+    "noMatch": "Geçerli filtreyle eşleşen davet yok.",
+    "filter": {
+      "status": "Durum",
+      "sort": {
+        "recent": "En yeni",
+        "oldest": "En eski",
+        "name": "Ad (A–Z)",
+        "mostUsed": "En çok kullanılan",
+        "expiringSoonest": "En yakında süresi dolan"
+      }
+    },
+    "status": {
+      "active": "Etkin",
+      "expired": "Süresi dolmuş",
+      "exhausted": "Tükenmiş",
+      "revoked": "İptal edilmiş"
+    },
+    "expiry": {
+      "preset": {
+        "hour1": "1 saat",
+        "hours24": "24 saat",
+        "days7": "7 gün",
+        "days30": "30 gün",
+        "custom": "Özel…"
+      },
+      "keepCurrent": "Mevcudu koru",
+      "invalidFuture": "Gelecekte bir tarih ve saat seç",
+      "invalidSelection": "Geçersiz son kullanma seçimi",
+      "revokedOn": "{{date}} tarihinde iptal edildi",
+      "expiredOn": "{{date}} tarihinde süresi doldu",
+      "exhausted": "Tükendi",
+      "noExpiration": "Süresiz",
+      "inDays_one": "{{count}} gün içinde sona erer",
+      "inDays_other": "{{count}} gün içinde sona erer",
+      "inHours_one": "{{count}} saat içinde sona erer",
+      "inHours_other": "{{count}} saat içinde sona erer"
+    },
+    "form": {
+      "name": "Ad",
+      "namePlaceholder": "ör. Arkadaşlar grubu 1",
+      "maxUses": "En fazla kullanım",
+      "unlimited": "Sınırsız",
+      "uses": "kullanım",
+      "expires": "Son kullanma",
+      "nameLength": "Ad 1–64 karakter olmalı",
+      "maxUsesInteger": "En fazla kullanım pozitif bir tam sayı olmalı"
+    },
+    "createModal": {
+      "title": "Davet bağlantısı oluştur",
+      "description": "İnsanların bu örnekte kayıt olmasını sağlayan paylaşılabilir bir bağlantı oluştur. Kaç kez kullanılabileceğini ve ne zaman sona ereceğini sen belirlersin.",
+      "submit": "Bağlantı oluştur",
+      "submitting": "Oluşturuluyor…",
+      "createdCopied": "Bağlantı oluşturuldu. Panoya kopyalandı.",
+      "createdManual": "Bağlantı oluşturuldu. Satırdan elle kopyala.",
+      "failed": "Davet oluşturulamadı: {{message}}"
+    },
+    "editModal": {
+      "title": "\"{{name}}\" düzenle",
+      "description": "Bu davet bağlantısının sınırlarını ayarla. URL aynı kalır — bağlantıya zaten sahip olanlar yeni koşullarla kullanabilir.",
+      "used": "({{used}} kullanıldı)",
+      "maxUsesBelowUsed": "En fazla kullanım mevcut kullanımdan ({{used}}) düşük olamaz",
+      "noChanges": "Kaydedilecek değişiklik yok",
+      "updated": "Davet güncellendi",
+      "failed": "Davet güncellenemedi: {{message}}",
+      "submit": "Değişiklikleri kaydet",
+      "submitting": "Kaydediliyor…"
+    },
+    "reinstateModal": {
+      "title": "\"{{name}}\" yeniden etkinleştir",
+      "descriptionRevoked": "Bu davet iptal edilmişti. Yeniden etkinleştirmek farklı URL'li yeni bir bağlantı oluşturur — eski URL etkin kalmaz.",
+      "descriptionLapsed": "Bu davetin süresi dolmuş. Yeniden etkinleştirmek aynı URL'yi tekrar açar — kaydeden herkes yeniden kullanabilir.",
+      "newLinkWarning": "Yeni bir bağlantı oluşturulacak. Eski URL'ye sahip olanlar artık kullanamayacak.",
+      "maxUsesMeta": "(mevcut: {{max}}, kullanılan: {{used}})",
+      "maxUsesMin": "En fazla kullanım en az {{min}} olmalı (mevcut kullanım: {{used}})",
+      "submit": "Yeniden etkinleştir",
+      "submitNewLink": "Yeni bağlantıyla yeniden etkinleştir",
+      "submitting": "Yeniden etkinleştiriliyor…",
+      "doneCopied": "Yeni bağlantıyla yeniden etkinleştirildi. Panoya kopyalandı.",
+      "doneManual": "Yeni bağlantıyla yeniden etkinleştirildi. Satırdan elle kopyala.",
+      "doneSameLink": "Yeniden etkinleştirildi. Aynı bağlantı tekrar etkin.",
+      "failed": "Yeniden etkinleştirilemedi: {{message}}"
+    },
+    "redemptions": {
+      "title": "\"{{name}}\" için kullanımlar",
+      "description": "Bu davet bağlantısıyla kayıt olan kullanıcılar, kayıt sırasına göre.",
+      "revokedNotice": "Bu davet iptal edilmişti. Aşağıdaki kullanımlar iptalden önce kayıt olan kullanıcıları gösterir.",
+      "revokedNoticeDated": "Bu davet {{date}} tarihinde iptal edildi. Aşağıdaki kullanımlar iptalden önce kayıt olan kullanıcıları gösterir.",
+      "usesOfMax_one": "{{max}} kullanımın {{count}} tanesi",
+      "usesOfMax_other": "{{max}} kullanımın {{count}} tanesi",
+      "uses_one": "{{count}} kullanım",
+      "uses_other": "{{count}} kullanım",
+      "loadFailed": "Kullanımlar yüklenemedi",
+      "loadFailedInline": "Kullanımlar yüklenemedi.",
+      "empty": "Henüz kullanım yok.",
+      "now": "(şimdi {{name}})",
+      "deletedUser": "Silinmiş kullanıcı"
+    },
+    "row": {
+      "usage": "Kullanım: {{usage}}",
+      "createdBy": "{{name}} tarafından oluşturuldu",
+      "unknownCreator": "Bilinmiyor",
+      "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
+      "subtitleArchived": "{{usage}} · {{expiry}} · {{when}}",
+      "used": "Kullanıldı",
+      "expires": "Sona erer",
+      "expiredAt": "Sona erme tarihi",
+      "revokedAt": "İptal tarihi",
+      "exhausted": "Tükendi",
+      "created": "Oluşturuldu",
+      "createdByLabel": "Oluşturan",
+      "token": "Token",
+      "lastRedeemed": "Son kullanım",
+      "copyLink": "Bağlantıyı kopyala",
+      "revoke": "İptal et",
+      "viewRedemptions": "Kullanımları görüntüle",
+      "reinstate": "Yeniden etkinleştir",
+      "deletePermanently": "Kalıcı olarak sil",
+      "copied": "Davet bağlantısı kopyalandı",
+      "copyFailed": "Bağlantı kopyalanamadı",
+      "revoked": "Davet iptal edildi",
+      "revokeFailed": "İptal edilemedi: {{message}}",
+      "deleted": "Davet silindi",
+      "deleteFailed": "Silinemedi: {{message}}",
+      "revokeDialog": {
+        "title": "\"{{name}}\" iptal edilsin mi?",
+        "description": "Bağlantı hemen çalışmayı durdurur. URL'ye sahip olanlar artık kullanamaz.<br/><br/>Fikrini değiştirirsen, <strong>Yeniden etkinleştir</strong> bu kayıt altında yeni bir bağlantı verir — özgün URL etkin kalmaz.",
+        "confirm": "Bağlantıyı iptal et"
+      },
+      "deleteDialog": {
+        "title": "\"{{name}}\" kalıcı olarak silinsin mi?",
+        "description": "Bu geri alınamaz. Bu bağlantının kullanım geçmişi de silinir. Yalnızca bağlantının çalışmasını durdurmak istiyorsan <strong>İptal et</strong> kullan — kullanım kaydını korur.",
+        "confirm": "Kalıcı olarak sil"
+      }
+    }
+  },
+  "storage": {
+    "title": "Depolama",
+    "description": "Disk kullanımını izle ve silinen içerikten ya da değiştirilen avatarlardan/banner'lardan kalan sahipsiz dosyaları temizle.",
+    "loading": "Depolama istatistikleri yükleniyor…",
+    "loadFailed": "Depolama istatistikleri yüklenemedi",
+    "refresh": "İstatistikleri yenile",
+    "overview": {
+      "label": "Depolama özeti",
+      "totalFiles": "Toplam dosya",
+      "referenced": "Referanslı",
+      "orphanedFiles": "Sahipsiz dosyalar",
+      "unlinkedUploads": "Bağlanmamış yüklemeler",
+      "danglingRecords": "Başvurusuz kayıtlar",
+      "staleUploads": "Süresi geçmiş yüklemeler"
+    },
+    "breakdown": {
+      "label": "Dosya türü dağılımı",
+      "entry_one": "{{count}} dosya — {{size}}",
+      "entry_other": "{{count}} dosya — {{size}}"
+    },
+    "uploadLimit": {
+      "label": "Yükleme sınırı",
+      "maxFileSize": "En büyük dosya boyutu",
+      "maxStickerSize": "En büyük sticker boyutu",
+      "saved": "Yükleme sınırı {{limit}} olarak ayarlandı",
+      "saveFailed": "Yükleme sınırı güncellenemedi",
+      "stickerSaved": "Sticker boyutu sınırı {{limit}} olarak ayarlandı",
+      "stickerSaveFailed": "Sticker boyutu sınırı güncellenemedi"
+    },
+    "cleanup": {
+      "label": "Temizlik",
+      "nothingFound": "Sahipsiz dosya, süresi geçmiş yükleme veya başvurusuz kayıt bulunamadı.",
+      "preview": "Temizliği önizle",
+      "run": "Şimdi temizle",
+      "running": "Temizleniyor…",
+      "previewResult": "Önizleme — hiçbir dosya silinmedi",
+      "complete": "Temizlik tamamlandı",
+      "orphanedFiles_one": "{{count}} sahipsiz/başvurusuz dosya ({{size}})",
+      "orphanedFiles_other": "{{count}} sahipsiz/başvurusuz dosya ({{size}})",
+      "staleRecords_one": ", {{count}} süresi geçmiş yükleme kaydı",
+      "staleRecords_other": ", {{count}} süresi geçmiş yükleme kaydı",
+      "errors_one": "{{count}} hata: {{first}}",
+      "errors_other": "{{count}} hata: {{first}}",
+      "cleanedToast_one": "{{count}} dosya temizlendi ({{size}})",
+      "cleanedToast_other": "{{count}} dosya temizlendi ({{size}})",
+      "failed": "Temizlik başarısız"
+    },
+    "stale": {
+      "label": "Süresi geçmiş yüklemeler",
+      "description": "<code>.tus/</code> içindeki terk edilmiş tus yükleme oturumları (DELETE olmadan duraklatılmış/çökmüş). Otomatik sona erme her 24 saatte çalışır; bu, önceden temizlik yapmanı sağlar.",
+      "maxAge": "En uzun süre (saat)",
+      "sessionFiles_one": "{{count}} oturum dosyası ({{size}})",
+      "sessionFiles_other": "{{count}} oturum dosyası ({{size}})",
+      "cleanedToast_one": "{{count}} süresi geçmiş yükleme oturumu temizlendi ({{size}})",
+      "cleanedToast_other": "{{count}} süresi geçmiş yükleme oturumu temizlendi ({{size}})",
+      "failed": "Süresi geçmiş yükleme temizliği başarısız"
+    },
+    "media": {
+      "label": "Medya saklama",
+      "olderThan": "Şundan eski sohbet medyasını sil",
+      "days": "gün",
+      "run": "Şimdi sil",
+      "running": "Siliniyor…",
+      "files_one": "{{count}} dosya ({{size}})",
+      "files_other": "{{count}} dosya ({{size}})",
+      "deletedToast_one": "{{count}} dosya silindi ({{size}})",
+      "deletedToast_other": "{{count}} dosya silindi ({{size}})",
+      "failed": "Medya temizliği başarısız"
+    }
+  },
+  "streaming": {
+    "title": "Yayın",
+    "description": "Bu sınırlar bu örnekteki tüm kullanıcılar için geçerlidir. Kullanıcılar bu sınırlar içinde değer seçebilir.",
+    "units": {
+      "fps": "{{value}} fps",
+      "kbpsLabel": "kbps"
+    },
+    "bandwidth": {
+      "label": "Bant genişliği",
+      "description": "En düşük ve en yüksek bit hızı sınırları ile kalite kaydırıcısının adım boyutu.",
+      "customBitrate": {
+        "label": "Özel bit hızına izin ver",
+        "description": "Kullanıcıların matris varsayılanları yerine kendi bit hızlarını ayarlamasına izin ver"
+      },
+      "range": "Bit hızı aralığı",
+      "min": "En az",
+      "max": "En çok",
+      "step": "Kaydırıcı adımı"
+    },
+    "quality": {
+      "label": "Kalite",
+      "description": "Ekran paylaşımı için kullanılabilir çözünürlük ve kare hızı seçenekleri.",
+      "resolutions": "İzin verilen çözünürlükler",
+      "framerates": "İzin verilen kare hızları"
+    },
+    "highEndWarning": {
+      "title": "Yüksek performanslı ayarlar etkin.",
+      "description": "1080p veya 60 fps üzerinde yayın, önemli ölçüde istemci tarafı CPU/GPU kodlama gücü gerektirir ve özellikle akışlar TURN üzerinden yönlendirildiğinde sunucu bant genişliğini doyurabilir. Üst düzey yapılandırmalar (ör. 120 fps'te 4K) etkin akış başına 45 Mbps'a kadar gerektirebilir. Bu seçenekleri tüm kullanıcılar için etkinleştirmeden önce altyapının bu yükü kaldırabildiğinden emin ol."
+    },
+    "matrix": {
+      "label": "Bit hızı matrisi",
+      "description": "Çözünürlük ve kare hızı başına varsayılan bit hızları. Tek tek hücreleri düzenle veya tüm değerleri tek seferde ölçekle.",
+      "scaleAll": "Tümünü ölçekle",
+      "scaleHint": "Tüm bit hızlarını ölçeklemek için sürükle. Aşağıdaki hücreleri ince ayarla.",
+      "cellDefault": "Varsayılan: {{value}} (sıfırlamak için × tıkla)",
+      "cellEdit": "Düzenlemek için tıkla",
+      "resetAll": "Tümünü varsayılanlara sıfırla"
+    },
+    "capWarning": {
+      "title": "Matris değerleri genel üst sınırı aşıyor.",
+      "description": "Bazı bit hızı değerleri {{max}} üst sınırını aşıyor. Bu kombinasyonlardaki akışlar üst sınırına göre kalite düşürülecek."
+    }
+  },
+  "updates": {
+    "title": "Güncellemeler",
+    "badge": {
+      "settingsAriaLabel": "Ayarlar, örnek güncellemesi mevcut",
+      "toast": "Bu örnek için Backspace {{version}} kullanılabilir",
+      "toastAction": "Görüntüle"
+    },
+    "description": "Bu örneğin ne çalıştırdığı ve nasıl ilerletileceği.",
+    "loading": "Güncelleme durumu yükleniyor…",
+    "loadFailed": "Güncelleme durumu yüklenemedi.",
+    "copyFailed": "Kopyalanamadı. Komutu seçip elle kopyala.",
+    "running": {
+      "label": "Çalışıyor",
+      "commit": "commit {{commit}} · ",
+      "channel": {
+        "prebuilt": "önceden derlenmiş imaj",
+        "source": "kaynaktan derlenmiş",
+        "unknown": "kurulum yöntemi kaydedilmemiş"
+      }
+    },
+    "available": {
+      "label": "Mevcut",
+      "version": "Backspace {{version}} kullanılabilir",
+      "released": "{{date}} tarihinde yayınlandı · ",
+      "releaseNotes": "Sürüm notları",
+      "fromInstallDir": "Kurulum dizininden:",
+      "scriptDescription": "Veritabanı anlık görüntüsü alır, yeni imajı indirir ve yalnızca Backspace konteynerini yeniden başlatır. Yeni sürüm sağlıklı başlamazsa veya hâlâ eski kodu çalıştırarak başlarsa, şu anki sürümüne geri döner.",
+      "noScript": "update.sh dosyam yok",
+      "manualIntro": "update.sh 1.0.5'ten itibaren gelir. Git checkout'ta <code>git pull</code> dosyayı getirir. Aksi halde <code>./backup.sh</code> ile anlık görüntü aldıktan sonra adımları elle çalıştır.",
+      "prebuiltInstall": "Önceden derlenmiş imaj kurulumu:",
+      "sourceInstall": "Kaynaktan kurulum:",
+      "manualWarning": "<code>backspace</code> servisini açıkça belirt ve <code>--remove-orphans</code> verme. Bu projede başka konteynerler çalıştırıyorsan Compose bunu önerecektir ve onları siler."
+    },
+    "upToDate": "En son sürümdesin.",
+    "disabled": {
+      "title": "Güncelleme kontrolleri kapalı",
+      "description": "Bu örnek GitHub'a bağlanmayacak. Aramaya izin vermek için <code>.env</code> dosyasında <code>BACKSPACE_UPDATE_CHECK=true</code> ayarla veya sürümler sayfasına kendin bak."
+    },
+    "rateLimited": {
+      "title": "GitHub aramayı sınırladı",
+      "description": "Bu, bir güncelleme olup olmadığı hakkında bir şey söylemez. Daha sonra tekrar dene."
+    },
+    "unreachable": {
+      "title": "Güncellemeler kontrol edilemedi",
+      "description": "GitHub'a ulaşılamadı, bu yüzden bu bir güncelleme olup olmadığı hakkında bir şey söylemez. Örneğin etkilenmedi."
+    },
+    "lastChecked": "Son kontrol {{when}}",
+    "noLookups": "Arama yapılmaz",
+    "checkAgain": "Tekrar kontrol et",
+    "checking": "Kontrol ediliyor…"
+  },
+  "users": {
+    "title": "Kullanıcılar",
+    "description": "Bu örnekteki kullanıcı hesaplarını görüntüle ve yönet.",
+    "searchPlaceholder": "Kullanıcı ara…",
+    "loading": "Kullanıcılar yükleniyor…",
+    "loadFailed": "Kullanıcılar yüklenemedi",
+    "empty": "Kullanıcı bulunamadı",
+    "filters": {
+      "allInstances": "Tüm örnekler",
+      "localOnly": "Yalnızca yerel",
+      "allRoles": "Tüm roller",
+      "admin": "Yönetici",
+      "nonAdmin": "Yönetici olmayan",
+      "joinedAfter": "Sonra katılan",
+      "joinedBefore": "Önce katılan",
+      "newest": "En yeni önce",
+      "oldest": "En eski önce",
+      "nameDesc": "Ad Z-A",
+      "deleted": "Silinmiş",
+      "clear": "Filtreleri temizle",
+      "bot": "Botlar"
+    },
+    "badge": {
+      "admin": "Yönetici",
+      "deleted": "Silinmiş"
+    },
+    "actions": {
+      "demote": "Yöneticilikten düşür",
+      "promote": "Yönetici yap",
+      "federatedNoAdmin": "Federasyon kullanıcıları yönetici olamaz",
+      "resetPassword": "Parolayı sıfırla",
+      "federatedNoReset": "Federasyon kullanıcıları ana örnek üzerinden kimlik doğrular",
+      "delete": "Kullanıcıyı sil",
+      "selfDelete": "Kendi hesabını silmek için hesap ayarlarını kullan"
+    },
+    "tempPassword": {
+      "label": "Geçici parola:",
+      "note": "Bir kez gösterilir. Kullanıcının bağlantısı kesildi ve yeniden giriş yapması gerekiyor."
+    },
+    "pagination": "Sayfa {{page}} / {{total}} ({{users}})",
+    "count_one": "{{count}} kullanıcı",
+    "count_other": "{{count}} kullanıcı",
+    "roleFailed": "Rol güncellenemedi",
+    "resetFailed": "Parola sıfırlanamadı",
+    "actionFailed": "İşlem başarısız",
+    "resetDialog": {
+      "title": "Parolayı sıfırla",
+      "description": "<strong>{{username}}</strong> için parola sıfırlansın mı? Hemen bağlantısı kesilecek ve yeni geçici parolayla giriş yapması gerekecek.",
+      "confirm": "Parolayı sıfırla"
+    },
+    "demoteDialog": {
+      "title": "Yöneticiliği düşür",
+      "description": "<strong>{{username}}</strong> kullanıcısının yönetici ayrıcalıkları kaldırılsın mı? Örnek ayarlarına erişimini kaybedecek.",
+      "confirm": "Düşür"
+    },
+    "deleteDialog": {
+      "title": "Kullanıcıyı sil",
+      "description": "<strong>{{username}}</strong> kalıcı olarak silinsin mi? Tüm alanlardan, DM'lerden ve arkadaş listelerinden kaldırılacak. Bu geri alınamaz.",
+      "confirm": "Kullanıcıyı sil",
+      "blockBot": "Bu botun yeniden kayıt olmasına izin verme",
+      "blockBotHint": "Ana örneği geri döndüğünde bot burada hesap oluşturamaz. Kullanıcı listesinin altından engelini kaldırabilirsin."
+    },
+    "blockedBots": {
+      "title": "Engellenen botlar",
+      "description": "Burada kayıt olamayan diğer örneklerin botları. Yeniden girişine izin vermek için birinin engelini kaldır.",
+      "blockedAt": "{{date}} tarihinde engellendi",
+      "unblock": "Engeli kaldır"
+    }
+  },
+  "mobile": {
+    "title": "Örnek",
+    "sections": {
+      "general": "Genel",
+      "registration": "Kayıt",
+      "federation": "Federasyon",
+      "streaming": "Yayın",
+      "storage": "Depolama",
+      "updates": "Güncellemeler",
+      "users": "Kullanıcılar"
+    }
+  }
+}

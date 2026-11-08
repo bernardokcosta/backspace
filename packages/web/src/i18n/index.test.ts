@@ -1,12 +1,111 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import i18n, { initI18n, setLanguage, LANGUAGE_STORAGE_KEY } from './index';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import i18n, { initI18n, setLanguage, setLanguagePreference, getLanguagePreference, subscribeLanguagePreference, getLanguage, LANGUAGE_STORAGE_KEY } from './index';
 
 const allReleased = new Set(['en', 'ru', 'de']);
 
 beforeEach(() => {
+  vi.restoreAllMocks();
+  Object.defineProperty(window, 'backspace', { configurable: true, value: undefined });
   localStorage.clear();
   document.documentElement.lang = '';
   document.documentElement.dir = '';
+});
+
+afterEach(() => { vi.restoreAllMocks(); });
+
+function bridge(getSystemLanguages: () => Promise<readonly string[]>) {
+  const setLanguage = vi.fn();
+  Object.defineProperty(window, 'backspace', { configurable: true, value: { getSystemLanguages, setLanguage } });
+  return setLanguage;
+}
+
+describe('Automatic preference lifecycle', () => {
+  it('auto mode changes notify when locale is unchanged', async () => {
+    vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['en-US']);
+    await initI18n();
+    expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBeNull();
+    const listener = vi.fn();
+    const dispose = subscribeLanguagePreference(listener);
+    await setLanguagePreference('en');
+    await setLanguagePreference('auto');
+    expect(getLanguage()).toBe('en');
+    expect(getLanguagePreference()).toBe('auto');
+    expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('auto');
+    expect(listener).toHaveBeenCalledTimes(2);
+    dispose();
+    await setLanguagePreference('pt');
+    expect(listener).toHaveBeenCalledTimes(2);
+  });
+
+  it('explicit survives languagechange while Automatic follows it', async () => {
+    const langs = vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['en']);
+    await initI18n();
+    await setLanguagePreference('pt');
+    langs.mockReturnValue(['de']);
+    window.dispatchEvent(new Event('languagechange'));
+    await vi.waitFor(() => expect(getLanguage()).toBe('pt'));
+    await setLanguagePreference('auto');
+    expect(getLanguage()).toBe('de');
+    langs.mockReturnValue(['ru']);
+    window.dispatchEvent(new Event('languagechange'));
+    await vi.waitFor(() => expect(getLanguage()).toBe('ru'));
+  });
+
+  it('late native response loses to explicit', async () => {
+    let resolve!: (value: readonly string[]) => void;
+    const reply = new Promise<readonly string[]>(r => { resolve = r; });
+    const sent = bridge(() => reply);
+    const starting = initI18n();
+    await setLanguagePreference('pt');
+    resolve(['ru']);
+    await starting;
+    expect(getLanguagePreference()).toBe('pt');
+    expect(getLanguage()).toBe('pt');
+    expect(sent).toHaveBeenLastCalledWith('pt');
+    expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('pt');
+  });
+
+  it('reinitialization owns one listener set and native mode follows focus', async () => {
+    const get = vi.fn(async () => ['en']);
+    const sent = bridge(get);
+    await initI18n();
+    await initI18n();
+    get.mockResolvedValue(['de']);
+    window.dispatchEvent(new Event('focus'));
+    await vi.waitFor(() => expect(getLanguage()).toBe('de'));
+    expect(get).toHaveBeenCalledTimes(3);
+    expect(sent).toHaveBeenLastCalledWith('auto');
+    expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBeNull();
+  });
+
+  it('preview never persists or notifies native and ignores system refreshes', async () => {
+    const sent = bridge(async () => ['ru']);
+    await initI18n({ previewLanguage: 'de' });
+    window.dispatchEvent(new Event('languagechange'));
+    expect(getLanguage()).toBe('de');
+    expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBeNull();
+    expect(sent).not.toHaveBeenCalled();
+    await setLanguagePreference('auto');
+    expect(getLanguage()).toBe('ru');
+  });
+
+  it('uses navigator for old, rejected or malformed bridges and keeps live mode on storage denial', async () => {
+    vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['de']);
+    bridge(async () => { throw Error('unavailable'); });
+    await initI18n();
+    expect(getLanguage()).toBe('de');
+    bridge(async () => 'bad' as unknown as readonly string[]);
+    await initI18n();
+    expect(getLanguage()).toBe('de');
+    vi.spyOn(window.localStorage, 'setItem').mockImplementation(() => { throw Error('disabled'); });
+    await setLanguagePreference('pt');
+    expect(getLanguage()).toBe('pt');
+    expect(getLanguagePreference()).toBe('pt');
+    const legacy = vi.fn();
+    Object.defineProperty(window, 'backspace', { configurable: true, value: { setLanguage: legacy } });
+    await setLanguagePreference('auto');
+    expect(legacy).toHaveBeenLastCalledWith('de');
+  });
 });
 
 describe('initI18n', () => {
@@ -49,6 +148,15 @@ describe('initI18n preview', () => {
 });
 
 describe('setLanguage', () => {
+  it('translates app metadata and selects a localized manifest without changing install identity', async () => {
+    document.querySelector('meta[name="description"]')?.remove();
+    document.querySelector('link[rel="manifest"]')?.remove();
+    await setLanguage('pt');
+    expect(document.querySelector('meta[name="description"]')?.getAttribute('content')).toContain('hospedada por você');
+    expect(document.querySelector('link[rel="manifest"]')?.getAttribute('href')).toBe('/manifest-pt.webmanifest');
+    await setLanguage('en');
+    expect(document.querySelector('link[rel="manifest"]')?.getAttribute('href')).toBe('/manifest-en.webmanifest');
+  });
   it('switches, persists, and updates the document', async () => {
     await initI18n({ browserLanguages: ['en'] });
     await setLanguage('ru');
@@ -63,5 +171,31 @@ describe('setLanguage', () => {
     await setLanguage('de');
     i18n.addResource('en', 'common', 'test.onlyEnglish', 'English only');
     expect(i18n.t('common:test.onlyEnglish')).toBe('English only');
+  });
+
+  it('does not allow an older lazy load to overwrite the newest choice', async () => {
+    await initI18n({ browserLanguages: ['en'] });
+    const load = i18n.loadLanguages.bind(i18n);
+    let release!: () => void;
+    const wait = new Promise<void>(resolve => { release = resolve; });
+    vi.spyOn(i18n, 'loadLanguages').mockImplementation(language => language === 'ru' ? wait.then(() => load(language)) : load(language));
+    const older = setLanguage('ru');
+    await setLanguage('pt');
+    release();
+    await older;
+    expect(getLanguage()).toBe('pt');
+    expect(i18n.language).toBe('pt');
+    expect(document.documentElement.lang).toBe('pt');
+    expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('pt');
+  });
+
+  it.each(['ar', 'ru', 'ja'] as const)('uses the English namespace and whole plural family without losing selected %s', async language => {
+    await initI18n({ browserLanguages: ['en'] });
+    i18n.addResourceBundle('en', 'newFeature', { label: 'English feature', items_one: '{{count}} item', items_other: '{{count}} items' });
+    await setLanguage(language);
+    expect(getLanguage()).toBe(language);
+    expect(document.documentElement.lang).toBe(language);
+    expect(i18n.t('newFeature:label')).toBe('English feature');
+    for (const count of [0, 1, 2, 3, 11, 100, 1000000]) expect(i18n.t('newFeature:items', { count })).toBe(`${count} ${count === 1 ? 'item' : 'items'}`);
   });
 });

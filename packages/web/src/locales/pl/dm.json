@@ -1,0 +1,187 @@
+{
+  "callDelivery": {
+    "remoteInstance": "zdalna instancja",
+    "hostInstance": "instancja hostująca",
+    "acceptDropped": "Nie udało się potwierdzić przyjęcia z {{instance}} — rozmowa została przerwana.",
+    "rejectFailed": "Nie udało się powiadomić {{instances}}, że odrzuciłeś. Dzwoniący może widzieć Cię jako dzwoniącego jeszcze przez chwilę.",
+    "endFailed": "Nie udało się powiadomić {{instances}}, że się rozłączyłeś. Uczestnicy mogą widzieć rozmowę jeszcze do 60 sekund.",
+    "hostUnreachable": "Rozmowa zakończona — utracono połączenie z instancją hostującą.",
+    "peeringLost": "Rozmowa zakończona — ta instancja nie ma już federacji z {{instance}}.",
+    "instanceUnreachable": "Rozmowa zakończona — utracono połączenie z {{instance}}.",
+    "someUnreachable": "Nie udało się dotrzeć do niektórych uczestników: {{instances}}.",
+    "multipleUnreachable_one": "Nie udało się połączyć z {{count}} instancją: {{instances}}.",
+    "multipleUnreachable_few": "Nie udało się połączyć z {{count}} instancjami: {{instances}}.",
+    "multipleUnreachable_many": "Nie udało się połączyć z {{count}} instancjami: {{instances}}.",
+    "multipleUnreachable_other": "Nie udało się połączyć z {{count}} instancją: {{instances}}.",
+    "callFailed": "Nie udało się nawiązać połączenia.",
+    "manualApproval": "Brak połączenia z {{instance}} — ta instancja wymaga ręcznego zatwierdzenia federacji.",
+    "awaitingApproval": "Oczekiwanie na zatwierdzenie Twojej instancji przez administratora {{instance}}. Połączenia zadziałają po zatwierdzeniu.",
+    "transientFailure": "Brak połączenia z {{instance}}. Spróbuj za chwilę.",
+    "voiceUnavailable": "Głos nie jest skonfigurowany na tej instancji.",
+    "noRecipient": "{{instance}} nie mogła nikogo zawołać.",
+    "targetCallFailed": "Nie udało się zadzwonić do {{instance}}."
+  },
+  "feedback": {
+    "relayDenied": "Nie można przekazywać wiadomości — ich serwer odmówił federacji. Skontaktuj się z administratorem.",
+    "awaitingPeering": "Wiadomości zostaną dostarczone, gdy ich administrator zatwierdzi prośbę o federację."
+  },
+  "names": {
+    "group": "Grupa",
+    "directMessage": "Wiadomość bezpośrednia",
+    "theGroup": "grupa",
+    "unknownHandle": "nieznany",
+    "groupFallback": "Grupowy DM",
+    "emptyGroup": "Pusta grupa"
+  },
+  "preview": {
+    "image": "Obraz",
+    "video": "Wideo",
+    "audio": "Audio",
+    "files_one": "📎 {{count}} plik",
+    "files_few": "📎 {{count}} pliki",
+    "files_many": "📎 {{count}} plików",
+    "files_other": "📎 {{count}} pliku",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 Wysłano zaproszenie do {{spaceName}}",
+    "memberAdded": "{{actor}} dodał {{target}}",
+    "memberAddedToGroup": "{{actor}} dodał {{target}} do grupy",
+    "memberLeft": "{{target}} opuścił grupę",
+    "memberRemoved": "{{actor}} usunął {{target}}",
+    "memberRemovedFromGroup": "{{actor}} usunął {{target}} z grupy",
+    "ownerChanged": "{{newOwner}} jest teraz właścicielem grupy",
+    "renamed": "{{actor}} zmienił nazwę grupy",
+    "renamedTo": "{{actor}} zmienił nazwę grupy na „{{name}}”",
+    "nameCleared": "{{actor}} wyczyścił nazwę grupy",
+    "iconChanged": "{{actor}} zaktualizował ikonę grupy",
+    "generic": "Komunikat systemowy"
+  },
+  "deletedNotice": {
+    "accountDeleted": "Konto tego użytkownika zostało usunięte"
+  },
+  "memberRow": {
+    "viewProfile": "Zobacz profil",
+    "transferOwnership": "Przekaż własność",
+    "removeFromGroup": "Usuń z grupy",
+    "removeFriend": "Usuń znajomego",
+    "ownerTooltip": "Właściciel grupy",
+    "actions": "Akcje członka"
+  },
+  "roster": {
+    "owner": "Właściciel",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "Zmień rozmiar listy członków"
+  },
+  "kick": {
+    "title": "Usuń z grupy",
+    "description": "Usunąć {{name}} z tej grupy? Nie będzie widzieć nowych wiadomości.",
+    "success": "Usunięto {{name}} z grupy",
+    "failed": "Nie udało się usunąć członka"
+  },
+  "transfer": {
+    "title": "Przekaż własność",
+    "description": "Przekazać własność użytkownikowi {{name}}? Stracisz uprawnienia właściciela.",
+    "confirm": "Przekaż",
+    "success": "Przekazano własność użytkownikowi {{name}}",
+    "failed": "Nie udało się przekazać własności"
+  },
+  "removeFriend": {
+    "failed": "Nie udało się usunąć znajomego"
+  },
+  "leave": {
+    "title": "Opuść grupę",
+    "description": "Opuścić „{{name}}”? Przestaniesz otrzymywać wiadomości z tej rozmowy.",
+    "inProgress": "Opuszczanie…",
+    "failed": "Nie udało się opuścić grupy",
+    "explanation": "Przestaniesz otrzymywać wiadomości z tej rozmowy. Pozostali członkowie zobaczą komunikat systemowy."
+  },
+  "search": {
+    "trigger": "Znajdź lub rozpocznij rozmowę",
+    "placeholder": "Szukaj…",
+    "emptyHint": "Znajdź użytkownika, aby zacząć rozmawiać",
+    "conversations": "Rozmowy",
+    "users": "Użytkownicy",
+    "searching": "Szukanie…",
+    "noResults": "Brak wyników",
+    "createFailed": "Nie udało się utworzyć DM"
+  },
+  "list": {
+    "resizeHandle": "Zmień rozmiar wiadomości bezpośrednich",
+    "title": "Wiadomości",
+    "empty": "Brak rozmów.",
+    "leaveGroup": "Opuść grupę",
+    "justNow": "teraz",
+    "minutesShort_one": "{{count}} min",
+    "minutesShort_few": "{{count}} min",
+    "minutesShort_many": "{{count}} min",
+    "minutesShort_other": "{{count}} min",
+    "hoursShort_one": "{{count}} godz.",
+    "hoursShort_few": "{{count}} godz.",
+    "hoursShort_many": "{{count}} godz.",
+    "hoursShort_other": "{{count}} godz.",
+    "daysShort_one": "{{count}} dn.",
+    "daysShort_few": "{{count}} dn.",
+    "daysShort_many": "{{count}} dn.",
+    "daysShort_other": "{{count}} dn.",
+    "close": "Zamknij DM"
+  },
+  "newDm": {
+    "title": "Nowa wiadomość bezpośrednia",
+    "searchPlaceholder": "Szukaj użytkownika…",
+    "noUsers": "Nie znaleziono użytkowników"
+  },
+  "addMember": {
+    "title": "Dodaj znajomych do DM",
+    "description": "Wybierz znajomych do dodania do tej rozmowy.",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "Szukaj znajomych…",
+    "limitReached": "Ten grupowy DM osiągnął limit {{max}} członków.",
+    "alreadyInDm": "Już w tym DM",
+    "noMatch": "Brak znajomych pasujących do wyszukiwania",
+    "noFriends": "Brak znajomych",
+    "selectFriends": "Wybierz znajomych",
+    "addCount_one": "Dodaj {{count}} znajomego",
+    "addCount_few": "Dodaj {{count}} znajomych",
+    "addCount_many": "Dodaj {{count}} znajomych",
+    "addCount_other": "Dodaj {{count}} znajomego",
+    "adding": "Dodawanie…",
+    "noOtherMember": "Nie udało się ustalić drugiego uczestnika tej rozmowy.",
+    "failed": "Nie udało się dodać członków",
+    "yourBots": "Twoje boty"
+  },
+  "groupSettings": {
+    "title": "Ustawienia grupy",
+    "general": "Ogólne",
+    "overview": "Przegląd",
+    "backToMenu": "Wróć do menu ustawień grupowego DM",
+    "changeIcon": "Zmień ikonę grupy",
+    "icon": "Ikona grupy",
+    "clickToUpload": "Kliknij, aby przesłać",
+    "removeIcon": "Usuń ikonę grupy",
+    "nameLabel": "Nazwa grupy",
+    "nameAria": "Nazwa grupy",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "Dodaj członka",
+    "groupFull": "Grupa jest pełna",
+    "groupFullSuffix": "— Grupa jest pełna",
+    "cropTitle": "Przytnij ikonę grupy",
+    "saveFailed": "Nie udało się zapisać ustawień"
+  },
+  "groupInfo": {
+    "title": "Informacje o grupie",
+    "plainTitle": "Informacje",
+    "notFound": "Nie znaleziono rozmowy.",
+    "notGroup": "Ta rozmowa nie ma informacji o grupie.",
+    "cancelEdit": "Anuluj edycję",
+    "federated": "Sfederowana grupa",
+    "memberCount_one": "{{count}} członek",
+    "memberCount_few": "{{count}} członkowie",
+    "memberCount_many": "{{count}} członków",
+    "memberCount_other": "{{count}} członka"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "Ta grupa jest zarządzana na {{host}}. Połącz się z tą instancją, aby ją zmienić.",
+    "ownerNotListed": "{{host}} nie pokazuje Ci jeszcze tej grupy. Spróbuj za chwilę."
+  }
+}

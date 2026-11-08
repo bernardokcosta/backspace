@@ -1,4 +1,11 @@
 {
+  "feedback": {
+    "openedInNewTab": "已在新标签页中打开",
+    "copiedGifLink": "已复制 GIF 链接",
+    "copiedImageLink": "已复制图片链接",
+    "uploadExpired": "无法发送“{{content}}”：上传已过期。",
+    "attachmentOnly": "（仅附件）"
+  },
   "message": {
     "edit": {
       "hint": "按 Esc <cancel>取消</cancel> • 按 Enter <save>保存</save>"
@@ -175,9 +182,9 @@
     "subcommandRefused": "机器人不提供此子命令，请从列表中选择"
   },
   "ephemeral": {
-    "onlyYou": "仅你可见",
+    "onlyYou": "仅您可见",
     "dismiss": "关闭",
-    "rowLabel": "来自 {{author}} 的仅你可见的回复，{{time}}"
+    "rowLabel": "来自 {{author}} 的仅您可见的回复，{{time}}"
   },
   "embed": {
     "loadAction": "点击加载",
@@ -202,7 +209,7 @@
     "done": "完成",
     "collectionHint": "点击即可发送，把喜欢的表情留在这里。",
     "manageHint": "重命名或移除收藏中的表情，已发送的消息和回应不受影响。",
-    "emptyHint": "上传一张图片，让每次聊天都多一点你的风格。",
+    "emptyHint": "上传一张图片，让每次聊天都多一点您的风格。",
     "chooseImage": "选择图片",
     "cancel": "取消",
     "replace": "更换图片",
@@ -272,7 +279,7 @@
     "sourceInstance": "所属实例",
     "localInstance": "本地实例",
     "viewStickers": "查看表情",
-    "pendingReviewHint": "管理员审核中，通过后将公开在探索页面"
+    "pendingReviewHint": "管理员审核中，通过后将显示在“探索表情”页面。"
   },
   "poke": {
     "action": "戳一戳",

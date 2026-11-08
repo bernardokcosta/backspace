@@ -1,4 +1,19 @@
 {
+  "failure": {
+    "notAuthenticated": "Not authenticated for this instance",
+    "invalidResponse": "Could not parse upload response",
+    "uploadError": "Upload error",
+    "downloadError": "Download error",
+    "fileUnavailable": "File no longer available — discard and re-upload",
+    "noDestination": "No destination handle — cannot resume",
+    "destinationMissing": "Destination handle missing",
+    "permissionDenied": "Permission denied",
+    "lostDownload": "Download cannot resume — bytes lost. Restart the download.",
+    "uploadHandleMissing": "File handle missing — discard and re-upload",
+    "downloadHandleMissing": "Destination handle missing — restart the download",
+    "downloadFailed": "Download failed: {{status}}",
+    "resumeFailed": "Resume failed: {{status}}"
+  },
   "transfers": {
     "title": "Transfers",
     "count_one": "{{count}} transfer",

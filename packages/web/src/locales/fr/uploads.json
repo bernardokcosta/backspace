@@ -1,0 +1,18 @@
+{
+  "failure": {
+    "notAuthenticated": "Tu n’es pas authentifié sur cette instance", "invalidResponse": "Impossible de lire la réponse de l’envoi",
+    "uploadError": "Erreur d’envoi", "downloadError": "Erreur de téléchargement",
+    "fileUnavailable": "Le fichier n’est plus disponible. Abandonne cet envoi et renvoie-le.",
+    "noDestination": "Aucune référence au fichier de destination : reprise impossible", "destinationMissing": "La référence au fichier de destination manque",
+    "permissionDenied": "Autorisation refusée", "lostDownload": "Reprise impossible : des données ont été perdues. Relance le téléchargement.",
+    "uploadHandleMissing": "La référence au fichier manque. Abandonne cet envoi et renvoie-le.",
+    "downloadHandleMissing": "La référence au fichier de destination manque. Relance le téléchargement.",
+    "downloadFailed": "Échec du téléchargement : {{status}}", "resumeFailed": "Échec de la reprise : {{status}}"
+  },
+  "transfers": {
+    "title": "Transferts", "count_one": "{{count}} transfert", "count_many": "{{count}} transferts", "count_other": "{{count}} transferts",
+    "clearCompleted": "Effacer les transferts terminés", "empty": "Aucun transfert en cours.",
+    "status": { "done": "Terminé", "failed": "Échec : {{reason}}", "aborted": "Annulé", "progress": "{{loaded}} / {{total}}" }
+  },
+  "crop": { "title": "Recadrer l’image", "applying": "Application…" }
+}

@@ -1,0 +1,104 @@
+{
+  "tabs": {
+    "all": "Tümü",
+    "pending": "Bekleyen",
+    "add": "Arkadaş ekle",
+    "activity": "Etkinlik"
+  },
+  "sections": {
+    "online": "Çevrimiçi — {{n}}",
+    "all": "Tüm arkadaşlar — {{n}}",
+    "pending": "Bekleyen — {{n}}",
+    "active": "Etkin — {{n}}",
+    "offline": "Çevrimdışı — {{n}}"
+  },
+  "empty": {
+    "online": "Şu anda çevrimiçi kimse yok.",
+    "all": "Henüz arkadaşın yok — birini ekle!",
+    "pending": "Bekleyen istek yok — Nori kestiriyor.",
+    "activity": "Şimdilik sessiz... Arkadaşların bir etkinliğe başladığında burada göstereceğiz!"
+  },
+  "friend": {
+    "viaInstance": "{{host}} üzerinden",
+    "message": "Mesaj",
+    "remove": "Arkadaşı kaldır"
+  },
+  "sendMessage": {
+    "failed": "Konuşma açılamadı: {{reason}}"
+  },
+  "request": {
+    "incoming": "Gelen arkadaşlık isteği",
+    "outgoing": "Giden arkadaşlık isteği",
+    "ignore": "Yoksay",
+    "cancel": "İsteği iptal et",
+    "send": "Arkadaşlık isteği gönder",
+    "pending": "İstek bekliyor",
+    "sending": "Gönderiliyor...",
+    "cancelling": "İptal ediliyor...",
+    "sent": "Arkadaşlık isteği gönderildi!"
+  },
+  "removeFriend": {
+    "title": "Arkadaşı kaldır",
+    "description": "{{name}} adlı kişiyi arkadaşlarından kaldırmak istediğine emin misin? Daha sonra ona yeni bir arkadaşlık isteği gönderebilirsin.",
+    "fallbackName": "bu kullanıcı"
+  },
+  "add": {
+    "title": "Kişi bul",
+    "hint": "Kullanıcı adıyla ara veya doğrudan eklemek için <handle>user@instance</handle> kullan.",
+    "placeholder": "Kullanıcı adıyla ara veya ekle...",
+    "direct": "<handle>{{handle}}</handle> adresine arkadaşlık isteği gönder",
+    "sendRequest": "İstek gönder",
+    "discover": "Kişileri keşfet",
+    "noSearchResults": "Aramanla eşleşen kullanıcı yok.",
+    "noDiscoverable": "Henüz keşfedilebilir kullanıcı yok — insanları katılmaya davet et!"
+  },
+  "mutuals": {
+    "friends_one": "{{count}} ortak arkadaş",
+    "friends_other": "{{count}} ortak arkadaş",
+    "spaces_one": "{{count}} ortak alan",
+    "spaces_other": "{{count}} ortak alan",
+    "noFriends": "Ortak arkadaş yok",
+    "noSpaces": "Ortak alan yok"
+  },
+  "profile": {
+    "tabs": {
+      "about": "Hakkında",
+      "mutualFriends": "Ortak arkadaşlar",
+      "mutualSpaces": "Ortak alanlar"
+    },
+    "aboutMe": "Hakkımda",
+    "roles": "Roller",
+    "memberSince": "Üyelik tarihi",
+    "sendMessage": "Mesaj gönder",
+    "editRoles": "Rolleri düzenle",
+    "viewFull": "Tam profili görüntüle",
+    "addFriend": "Arkadaş ekle",
+    "playingNow": "Şu anda oynuyor"
+  },
+  "activity": {
+    "title": "Şu anda etkin",
+    "quietTitle": "Şimdilik sessiz...",
+    "quietDescription": "Bir arkadaşın oyun oynamak veya sesli sohbette takılmak gibi bir etkinliğe başladığında burada göstereceğiz!",
+    "online": "Çevrimiçi — {{n}}",
+    "offline": "Çevrimdışı — {{n}}",
+    "resizeHandle": "Arkadaş listesini yeniden boyutlandır",
+    "types": {
+      "playing": "Oyun oynuyor",
+      "listening": "Müzik dinliyor",
+      "streaming": "Yayında",
+      "watching": "İzliyor",
+      "custom": "Özel durum"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "Parçayı aç"
+  },
+  "instanceNotConnected": "{{host}} ile bağlantı yok. Yeniden bağlanıp tekrar dene."
+}

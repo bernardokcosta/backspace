@@ -6,6 +6,7 @@ import type { Attachment } from '@backspace/shared';
 import { useAuthStore } from './authStore';
 import { getTokenForOrigin } from '../utils/crossStoreResolvers';
 import { getHandle, putHandle, ensurePermission, queryHandlePermission } from '../utils/idbHandles';
+import i18n from '../i18n';
 
 export type TransferType = 'upload' | 'download';
 export type TransferState =
@@ -234,7 +235,7 @@ export const useTransferStore = create<TransferStore>()(
       startUpload: async (file, opts) => {
         const token = getTokenForOrigin(opts.origin ?? '');
         const user = useAuthStore.getState().user;
-        if (!token) throw new Error('Cannot start upload — not authenticated');
+        if (!token) throw new Error(i18n.t('uploads:failure.notAuthenticated'));
 
         const endpoint = tusEndpoint(opts.origin);
 
@@ -283,7 +284,7 @@ export const useTransferStore = create<TransferStore>()(
               get().setState_(id, 'completed');
               get().updateProgress(id, fileLike.size);
             } catch (e) {
-              const msg = e instanceof Error ? e.message : 'Could not parse upload response';
+              const msg = e instanceof Error ? e.message : i18n.t('uploads:failure.invalidResponse');
               get().setError(id, { message: msg, permanent: true });
             } finally {
               liveUploads.delete(id);
@@ -292,7 +293,7 @@ export const useTransferStore = create<TransferStore>()(
             }
           },
           onError: (err: Error) => {
-            const msg = err.message ?? 'Upload error';
+            const msg = err.message ?? i18n.t('uploads:failure.uploadError');
             // Treat 4xx as permanent (no retry past tus's own retry chain).
             const permanent = /\b4\d\d\b/.test(msg);
             get().setError(id, { message: msg, permanent });
@@ -350,7 +351,7 @@ export const useTransferStore = create<TransferStore>()(
 
         const token = getTokenForOrigin(t.origin ?? '');
         if (!token) {
-          get().setError(id, { message: 'Not authenticated for this instance', permanent: true });
+          get().setError(id, { message: i18n.t('uploads:failure.notAuthenticated'), permanent: true });
           return;
         }
 
@@ -378,7 +379,7 @@ export const useTransferStore = create<TransferStore>()(
           // mark-failed sweep keep the bubble in failed state and Message.tsx surfaces
           // the discard control. The Retry button is hidden in this case (canRetry gate).
           get().setError(id, {
-            message: 'File no longer available — discard and re-upload',
+            message: i18n.t('uploads:failure.fileUnavailable'),
             permanent: true,
           });
           return;
@@ -449,7 +450,7 @@ export const useTransferStore = create<TransferStore>()(
               get().setState_(id, 'completed');
               get().updateProgress(id, blob!.size);
             } catch (e) {
-              const msg = e instanceof Error ? e.message : 'Upload completed but parse failed';
+              const msg = e instanceof Error ? e.message : i18n.t('uploads:failure.invalidResponse');
               get().setError(id, { message: msg, permanent: true });
             } finally {
               liveUploads.delete(id);
@@ -458,7 +459,7 @@ export const useTransferStore = create<TransferStore>()(
             }
           },
           onError: (err: Error) => {
-            const msg = err.message ?? 'Upload error';
+            const msg = err.message ?? i18n.t('uploads:failure.uploadError');
             const permanent = /\b4\d\d\b/.test(msg);
             get().setError(id, { message: msg, permanent });
             liveUploads.delete(id);
@@ -528,7 +529,7 @@ export const useTransferStore = create<TransferStore>()(
             });
             writable = await handle.createWritable({ keepExistingData: false });
             const resp = await fetch(url, { signal: controller.signal });
-            if (!resp.ok || !resp.body) throw new Error(`Download failed: ${resp.status}`);
+            if (!resp.ok || !resp.body) throw new Error(i18n.t('uploads:failure.downloadFailed', { status: resp.status }));
             const reader = resp.body.getReader();
             let written = 0;
             for (;;) {
@@ -551,7 +552,7 @@ export const useTransferStore = create<TransferStore>()(
           } else {
             // Blob fallback — accumulate in memory, then trigger anchor click.
             const resp = await fetch(url, { signal: controller.signal });
-            if (!resp.ok) throw new Error(`Download failed: ${resp.status}`);
+            if (!resp.ok) throw new Error(i18n.t('uploads:failure.downloadFailed', { status: resp.status }));
             const total = Number(resp.headers.get('Content-Length') ?? opts.size ?? 0);
             const chunks: Uint8Array[] = [];
             const reader = resp.body!.getReader();
@@ -583,7 +584,7 @@ export const useTransferStore = create<TransferStore>()(
           if (err instanceof Error && err.name === 'AbortError') {
             // Aborted via abortDownload/pauseDownload — state already set there.
           } else {
-            const msg = err instanceof Error ? err.message : 'Download failed';
+            const msg = err instanceof Error ? err.message : i18n.t('uploads:failure.downloadError');
             const permanent = /\b4\d\d\b/.test(msg);
             get().setError(id, { message: msg, permanent });
           }
@@ -612,17 +613,17 @@ export const useTransferStore = create<TransferStore>()(
         const t = get().get(id);
         if (!t || t.type !== 'download' || !t.sourceUrl) return;
         if (!t.destFileHandleId) {
-          get().setError(id, { message: 'No destination handle — cannot resume', permanent: true });
+          get().setError(id, { message: i18n.t('uploads:failure.noDestination'), permanent: true });
           return;
         }
         const handle = await getHandle(t.destFileHandleId);
         if (!handle) {
-          get().setError(id, { message: 'Destination handle missing', permanent: true });
+          get().setError(id, { message: i18n.t('uploads:failure.destinationMissing'), permanent: true });
           return;
         }
         const perm = await ensurePermission(handle, 'readwrite');
         if (perm !== 'granted') {
-          get().setError(id, { message: 'Permission denied', permanent: false });
+          get().setError(id, { message: i18n.t('uploads:failure.permissionDenied'), permanent: false });
           return;
         }
         const handleAny = handle as unknown as {
@@ -642,7 +643,7 @@ export const useTransferStore = create<TransferStore>()(
             signal: controller.signal,
             headers: { Range: `bytes=${offset}-` },
           });
-          if (!resp.ok && resp.status !== 206) throw new Error(`Resume failed: ${resp.status}`);
+          if (!resp.ok && resp.status !== 206) throw new Error(i18n.t('uploads:failure.resumeFailed', { status: resp.status }));
           const reader = resp.body!.getReader();
           let written = offset;
           for (;;) {
@@ -668,7 +669,7 @@ export const useTransferStore = create<TransferStore>()(
           if (err instanceof Error && err.name === 'AbortError') {
             get().setState_(id, 'paused');
           } else {
-            const msg = err instanceof Error ? err.message : 'Resume failed';
+            const msg = err instanceof Error ? err.message : i18n.t('uploads:failure.downloadError');
             const permanent = /\b4\d\d\b/.test(msg);
             get().setError(id, { message: msg, permanent });
           }
@@ -752,8 +753,8 @@ async function normalizeRehydratedTransfers(): Promise<void> {
         if (isUpload && liveUploadFiles.has(current.id)) continue;
         store.setError(current.id, {
           message: isUpload
-            ? 'File no longer available — discard and re-upload'
-            : 'Download cannot resume — bytes lost. Restart the download.',
+            ? i18n.t('uploads:failure.fileUnavailable')
+            : i18n.t('uploads:failure.lostDownload'),
           permanent: true,
         });
         continue;
@@ -765,8 +766,8 @@ async function normalizeRehydratedTransfers(): Promise<void> {
         if (!handle) {
           store.setError(current.id, {
             message: isUpload
-              ? 'File handle missing — discard and re-upload'
-              : 'Destination handle missing — restart the download',
+              ? i18n.t('uploads:failure.uploadHandleMissing')
+              : i18n.t('uploads:failure.downloadHandleMissing'),
             permanent: true,
           });
           continue;

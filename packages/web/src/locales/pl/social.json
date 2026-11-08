@@ -1,0 +1,108 @@
+{
+  "tabs": {
+    "all": "Wszyscy",
+    "pending": "Oczekujące",
+    "add": "Dodaj znajomego",
+    "activity": "Aktywność"
+  },
+  "sections": {
+    "online": "Online — {{n}}",
+    "all": "Wszyscy znajomi — {{n}}",
+    "pending": "Oczekujące — {{n}}",
+    "active": "Aktywni — {{n}}",
+    "offline": "Offline — {{n}}"
+  },
+  "empty": {
+    "online": "Nikogo nie ma teraz online.",
+    "all": "Nie masz jeszcze znajomych — dodaj kogoś!",
+    "pending": "Brak oczekujących próśb — Nori drzemie.",
+    "activity": "Na razie cicho… Gdy znajomi zaczną aktywność, pokażemy ją tutaj!"
+  },
+  "friend": {
+    "viaInstance": "przez {{host}}",
+    "message": "Wiadomość",
+    "remove": "Usuń znajomego"
+  },
+  "sendMessage": {
+    "failed": "Nie można otworzyć rozmowy: {{reason}}"
+  },
+  "request": {
+    "incoming": "Przychodzące zaproszenie do znajomych",
+    "outgoing": "Wychodzące zaproszenie do znajomych",
+    "ignore": "Ignoruj",
+    "cancel": "Anuluj prośbę",
+    "send": "Wyślij zaproszenie",
+    "pending": "Prośba oczekuje",
+    "sending": "Wysyłanie…",
+    "cancelling": "Anulowanie…",
+    "sent": "Wysłano zaproszenie!"
+  },
+  "removeFriend": {
+    "title": "Usuń znajomego",
+    "description": "Czy na pewno chcesz usunąć {{name}} ze znajomych? Zawsze możesz wysłać nowe zaproszenie później.",
+    "fallbackName": "tego użytkownika"
+  },
+  "add": {
+    "title": "Znajdź ludzi",
+    "hint": "Szukaj po nazwie użytkownika lub użyj <handle>user@instance</handle>, aby dodać kogoś bezpośrednio.",
+    "placeholder": "Szukaj lub dodaj po nazwie…",
+    "direct": "Wyślij zaproszenie do <handle>{{handle}}</handle>",
+    "sendRequest": "Wyślij prośbę",
+    "discover": "Odkryj ludzi",
+    "noSearchResults": "Brak użytkowników pasujących do wyszukiwania.",
+    "noDiscoverable": "Brak użytkowników do odkrycia — zaproś ludzi do dołączenia!"
+  },
+  "mutuals": {
+    "friends_one": "{{count}} wspólny znajomy",
+    "friends_few": "{{count}} wspólnych znajomych",
+    "friends_many": "{{count}} wspólnych znajomych",
+    "friends_other": "{{count}} wspólnego znajomego",
+    "spaces_one": "{{count}} wspólna przestrzeń",
+    "spaces_few": "{{count}} wspólne przestrzenie",
+    "spaces_many": "{{count}} wspólnych przestrzeni",
+    "spaces_other": "{{count}} wspólnej przestrzeni",
+    "noFriends": "Brak wspólnych znajomych",
+    "noSpaces": "Brak wspólnych przestrzeni"
+  },
+  "profile": {
+    "tabs": {
+      "about": "O mnie",
+      "mutualFriends": "Wspólni znajomi",
+      "mutualSpaces": "Wspólne przestrzenie"
+    },
+    "aboutMe": "O mnie",
+    "roles": "Role",
+    "memberSince": "Członek od",
+    "sendMessage": "Wyślij wiadomość",
+    "editRoles": "Edytuj role",
+    "viewFull": "Zobacz pełny profil",
+    "addFriend": "Dodaj znajomego",
+    "playingNow": "Gra teraz"
+  },
+  "activity": {
+    "title": "Aktywni teraz",
+    "quietTitle": "Na razie cicho…",
+    "quietDescription": "Gdy znajomy zacznie aktywność — np. grę albo głosowy hangout — pokażemy ją tutaj!",
+    "online": "Online — {{n}}",
+    "offline": "Offline — {{n}}",
+    "resizeHandle": "Zmień rozmiar listy znajomych",
+    "types": {
+      "playing": "Gra w grę",
+      "listening": "Słucha muzyki",
+      "streaming": "Streamuje",
+      "watching": "Ogląda",
+      "custom": "Własny status"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "Otwórz utwór"
+  },
+  "instanceNotConnected": "Brak połączenia z {{host}}. Połącz się ponownie i spróbuj jeszcze raz."
+}

@@ -1,4 +1,5 @@
 import { MAX_SOUNDBOARD_BYTES, SOUNDBOARD_SAMPLE_RATE } from '@backspace/shared/src/soundboard';
+import i18n from '../i18n';
 
 /** Validate selections in output samples, not floating-point differences of timestamps. */
 export function soundboardSelectionSamples(sourceDuration: number, start: number, end: number): number | null {
@@ -11,8 +12,8 @@ export function soundboardSelectionSamples(sourceDuration: number, start: number
 /** Encode only the selection. Mono downmix, resample, and a short fade avoid clicks at cut boundaries. */
 export async function encodeSoundboardClip(buffer: AudioBuffer, start: number, end: number): Promise<Uint8Array> {
   const length = soundboardSelectionSamples(buffer.duration, start, end);
-  if (length === null) throw new Error('Invalid selection');
-  if (length * 2 + 44 > MAX_SOUNDBOARD_BYTES) throw new Error('Selection exceeds file limit');
+  if (length === null) throw new Error(i18n.t('errors:soundboard_invalid_audio'));
+  if (length * 2 + 44 > MAX_SOUNDBOARD_BYTES) throw new Error(i18n.t('errors:soundboard_invalid_audio'));
   const offline = new OfflineAudioContext(1, length, SOUNDBOARD_SAMPLE_RATE);
   const source = offline.createBufferSource();
   source.buffer = buffer;

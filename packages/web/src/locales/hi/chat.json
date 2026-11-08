@@ -1,0 +1,305 @@
+{
+  "feedback": {
+    "openedInNewTab": "नए टैब में खोला गया",
+    "copiedGifLink": "GIF लिंक कॉपी हुआ",
+    "copiedImageLink": "छवि लिंक कॉपी हुआ",
+    "uploadExpired": "\"{{content}}\" नहीं भेजा जा सका — अपलोड समाप्त।",
+    "attachmentOnly": "(केवल अनुलग्नक)"
+  },
+  "message": {
+    "edit": {
+      "hint": "रद्द हेतु escape <cancel>रद्द करें</cancel> • सहेजने हेतु enter <save>सहेजें</save>"
+    },
+    "edited": "(संपादित)",
+    "rowLabel": "{{author}}, {{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "अपलोड विफल",
+      "discard": "खारिज करें"
+    },
+    "actions": {
+      "confirmDelete": "हटाने की पुष्टि करें"
+    },
+    "reply": {
+      "jump": "मूल संदेश पर जाएं"
+    },
+    "mention": {
+      "unknownUser": "अज्ञात उपयोगकर्ता",
+      "unknownRole": "अज्ञात भूमिका"
+    },
+    "reactions": {
+      "picker": "प्रतिक्रिया चयनकर्ता",
+      "you": "आप",
+      "others_one": "{{count}} अन्य",
+      "others_other": "{{count}} अन्य",
+      "bySelf": "आपने प्रतिक्रिया दी",
+      "byOne": "{{name}} ने प्रतिक्रिया दी",
+      "byMany": "प्रतिक्रियाएं: {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "इस चैनल में संदेश इतिहास देखने की अनुमति नहीं",
+    "loading": "संदेश लोड हो रहे",
+    "loadingOlder": "पुराने संदेश लोड हो रहे",
+    "loadFailed": "संदेश लोड नहीं हो सके",
+    "jumpToPresent": "वर्तमान पर जाएं",
+    "jump": {
+      "unavailable": "वह संदेश अब उपलब्ध नहीं",
+      "failed": "वह संदेश लोड नहीं हो सका",
+      "presentFailed": "नवीनतम संदेश लोड नहीं हो सके"
+    },
+    "unread": {
+      "label": "नया",
+      "divider": "नए संदेश",
+      "dividerWithDate": "नए संदेश, {{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "चैनल में स्वागत!",
+        "description": "यह वार्तालाप की शुरुआत है।"
+      },
+      "group": {
+        "intro": "यह आपकी समूह वार्तालाप की शुरुआत है।",
+        "owner": "स्वामी: <owner>@{{name}}</owner>",
+        "federatedNotice": "संदेश आपकी होम इंस्टेंस और प्राप्तकर्ताओं की होम इंस्टेंस पर संग्रहित होते हैं। वे एंड-टू-एंड एन्क्रिप्टेड नहीं।",
+        "openSettings": "समूह सेटिंग्स खोलें",
+        "leave": "समूह छोड़ें"
+      },
+      "dm": {
+        "fallbackName": "प्रत्यक्ष संदेश",
+        "intro": "यह <strong>@{{name}}</strong> के साथ प्रत्यक्ष संदेश इतिहास की शुरुआत है।",
+        "federatedNotice": "संदेश आपकी होम इंस्टेंस और प्राप्तकर्ता की होम इंस्टेंस पर संग्रहित होते हैं। वे एंड-टू-एंड एन्क्रिप्टेड नहीं।",
+        "removeFriend": "मित्र हटाएं"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "इस चैनल में संदेश भेजने की अनुमति नहीं",
+    "placeholder": {
+      "channel": "#{{name}} को संदेश",
+      "dm": "@{{name}} को संदेश"
+    },
+    "replyingTo": "उत्तर दिया जा रहा",
+    "cancelReply": "उत्तर रद्द करें",
+    "removeAttachment": "अनुलग्नक हटाएं",
+    "attachFile": "फ़ाइल संलग्न करें",
+    "dropTitle": "फ़ाइल अपलोड करें",
+    "dropHint": "संलग्न हेतु छोड़ें",
+    "uploading": "अपलोड हो रहा…",
+    "uploadingLabel": "अपलोड हो रहा",
+    "failedCount_one": "{{count}} विफल",
+    "failedCount_other": "{{count}} विफल",
+    "failedHint": "भेजने हेतु विफल अनुलग्नक हटाएं या पुनः प्रयास करें",
+    "gif": "GIF",
+    "gifPicker": "GIF चयनकर्ता",
+    "emoji": "इमोजी",
+    "emojiPicker": "इमोजी चयनकर्ता",
+    "send": "भेजें",
+    "sendMessage": "संदेश भेजें",
+    "uploadFailed": "{{file}} अपलोड विफल: {{reason}}",
+    "uploadFailedReason": "अपलोड विफल",
+    "typing": {
+      "named_one": "{{names}} लिख रहा",
+      "named_other": "{{names}} लिख रहे",
+      "several": "कई लोग लिख रहे"
+    }
+  },
+  "menu": {
+    "saveImage": "छवि सहेजें",
+    "copyImage": "छवि कॉपी करें",
+    "openOriginal": "मूल खोलें",
+    "saveVideo": "वीडियो सहेजें",
+    "saveAudio": "ऑडियो सहेजें",
+    "copyLink": "लिंक कॉपी करें",
+    "openLink": "लिंक खोलें",
+    "copySelectedText": "चयनित पाठ कॉपी करें",
+    "copyText": "पाठ कॉपी करें",
+    "markUnread": "अपठित चिह्नित करें",
+    "editMessage": "संदेश संपादित करें",
+    "deleteMessage": "संदेश हटाएं",
+    "linkCopied": "लिंक कॉपी हुआ",
+    "linkCopyFailed": "लिंक कॉपी विफल",
+    "pinMessage": "संदेश पिन करें",
+    "unpinMessage": "संदेश अनपिन करें"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "रोका गया — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "यहां नहीं चल सकता — डाउनलोड करें",
+      "unsupportedFormat": "असमर्थित वीडियो प्रारूप",
+      "unsupportedBrowser": "आपका ब्राउज़र वीडियो प्लेबैक समर्थित नहीं करता।"
+    },
+    "audio": {
+      "unsupportedBrowser": "आपका ब्राउज़र ऑडियो प्लेबैक समर्थित नहीं करता।"
+    },
+    "federation": {
+      "remoteNamed": "{{sender}} की इंस्टेंस पर होस्टेड। स्थानीय प्रति हेतु डाउनलोड करें।",
+      "remoteUnknown": "प्रेषक की इंस्टेंस पर होस्टेड। स्थानीय प्रति हेतु डाउनलोड करें।",
+      "partialGeneric": "कुछ प्राप्तकर्ता यह फ़ाइल स्थानीय कैश नहीं कर सकते।",
+      "partialInstance": "{{username}} की इंस्टेंस (सीमा: {{limit}})",
+      "partialList": "फ़ाइल {{instances}} पर कैश नहीं हो सकी। वे अभी आपकी से देख सकते हैं।",
+      "listPair": "{{first}} और {{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "GIF खोजें",
+    "noResults": "कोई GIF नहीं",
+    "noTrending": "कोई ट्रेंडिंग GIF नहीं",
+    "attribution": "Klipy द्वारा संचालित"
+  },
+  "preview": {
+    "save": "छवि सहेजें",
+    "copy": "छवि कॉपी करें",
+    "alt": "छवि पूर्वावलोकन"
+  },
+  "invite": {
+    "sentBy": "{{name}} ने आमंत्रण भेजा",
+    "memberCount_one": "{{count}} सदस्य",
+    "memberCount_other": "{{count}} सदस्य",
+    "revoked": "आमंत्रण अब मान्य नहीं",
+    "join": "जुड़ें",
+    "joining": "जुड़ रहे…",
+    "joinFailed": "जुड़ना विफल",
+    "askToJoin": "जुड़ने हेतु कहें",
+    "sendingRequest": "भेजा जा रहा…",
+    "requestSent": "अनुरोध भेजा गया",
+    "requestPending": "अनुरोध लंबित",
+    "requestNotice": "यह स्पेस जुड़ने के अनुरोध लेता है। प्रबंधक प्रत्येक अनुमोदित करता है।",
+    "requestReview": "प्रबंधक आपका अनुरोध समीक्षा करेगा।"
+  },
+  "notification": {
+    "unknownSender": "कोई",
+    "attachmentOnly": "अनुलग्नक भेजा"
+  },
+  "commands": {
+    "title": "कमांड",
+    "failed": "कमांड नहीं भेजा जा सका",
+    "extraText": "यह कमांड मुक्त पाठ नहीं लेता, पर \"{{text}}\" शेष है। विकल्प पहले रखें, पाठ अंत में",
+    "invalidOption": "{{option}} का मान इस कमांड हेतु उपयुक्त नहीं।",
+    "optionsTitle": "पैरामीटर",
+    "required": "आवश्यक",
+    "subcommandsTitle": "उपकमांड",
+    "group": "समूह",
+    "chooseSubcommand": "उपकमांड चुनें: {{names}}",
+    "subcommandRefused": "बॉट यह उपकमांड प्रदान नहीं करता। सूची से चुनें"
+  },
+  "ephemeral": {
+    "onlyYou": "केवल आप देख सकते हैं",
+    "dismiss": "बंद करें",
+    "rowLabel": "उत्तर केवल आप देख सकते हैं, {{author}} से, {{time}}"
+  },
+  "embed": {
+    "loadAction": "लोड हेतु क्लिक करें",
+    "loadNamed": "{{name}} लोड करें",
+    "loadUnnamed": "एम्बेड लोड करें",
+    "frameTitle": "एम्बेड",
+    "playNamed": "{{title}} चलाएं",
+    "playUnnamed": "वीडियो चलाएं",
+    "videoTitle": "वीडियो"
+  },
+  "stickers": {
+    "title": "मेरे स्टिकर",
+    "upload": "छवि अपलोड करें",
+    "limits": "PNG, JPEG, WebP या GIF · 5 MB तक",
+    "loading": "लोड हो रहा…",
+    "empty": "आपका स्टिकर संग्रह यहां शुरू होता है",
+    "remove": "हटाएं",
+    "save": "मेरे स्टिकर में जोड़ें",
+    "saved": "मेरे स्टिकर में जोड़ा गया",
+    "preview": "स्टिकर पूर्वावलोकन",
+    "manage": "प्रबंधित करें",
+    "done": "पूर्ण",
+    "collectionHint": "भेजने हेतु स्टिकर चुनें। इस स्पेस को अपना बनाएं।",
+    "manageHint": "संग्रह में स्टिकर नाम बदलें या हटाएं। पहले भेजे संदेश अपरिवर्तित रहते हैं।",
+    "emptyHint": "पसंदीदा क्षण अगले उत्तर हेतु स्टिकर सहेजें।",
+    "chooseImage": "छवि चुनें",
+    "cancel": "रद्द करें",
+    "replace": "छवि बदलें",
+    "name": "स्टिकर नाम",
+    "dropImage": "यहां क्लिक करें या छवि खींचें",
+    "pasteHint": "आप क्लिपबोर्ड से छवि पेस्ट भी कर सकते हैं",
+    "uploading": "स्टिकर जोड़ा जा रहा…",
+    "singleImage": "एक बार में एक छवि चुनें।",
+    "invalidSize": "5 MB तक गैर-रिक्त छवि चुनें।",
+    "invalidType": "केवल PNG, JPEG, WebP और GIF छवियां समर्थित।",
+    "invalidImage": "यह छवि पूर्वावलोकित नहीं हो सकती। मान्य छवि चुनें।",
+    "removeNamed": "{{name}} हटाएं",
+    "addMore": "और जोड़ें",
+    "selectedCount_one": "{{count}} स्टिकर चुना",
+    "selectedCount_other": "{{count}} स्टिकर चुने",
+    "dropMore": "यहां क्लिक करें या और छवियां खींचें",
+    "sticker": "स्टिकर",
+    "downloadFailed": "छवि लोड नहीं हो सकी।",
+    "batchLimit_one": "एक बार में {{count}} छवि तक चुनें।",
+    "batchLimit_other": "एक बार में {{count}} छवियों तक चुनें।",
+    "capacityLimit_one": "आपके संग्रह में {{count}} और स्टिकर हेतु जगह।",
+    "capacityLimit_other": "आपके संग्रह में {{count}} और स्टिकर हेतु जगह।",
+    "full": "आपका संग्रह पूर्ण। दूसरा जोड़ने हेतु स्टिकर हटाएं।",
+    "batchFailed_one": "{{count}} छवि नहीं जोड़ी जा सकी। वह अभी नीचे सूचीबद्ध।",
+    "batchFailed_other": "{{count}} छवियां नहीं जोड़ी जा सकीं। वे अभी नीचे सूचीबद्ध।",
+    "uploadingProgress": "{{current}} / {{total}} जोड़ा जा रहा…",
+    "rename": "नाम बदलें",
+    "renameNamed": "{{name}} नाम बदलें",
+    "renameTitle": "स्टिकर नाम बदलें",
+    "search": "स्टिकर खोजें",
+    "noResults": "कोई स्टिकर नहीं मिला",
+    "store": "स्टिकर स्टोर",
+    "myCollection": "मेरे स्टिकर",
+    "packs": "स्टिकर पैक",
+    "explore": "खोजें",
+    "myPacks": "मेरे द्वारा बनाए",
+    "install": "जोड़ें",
+    "installed": "जोड़ा गया",
+    "uninstall": "हटाएं",
+    "createPack": "पैक बनाएं",
+    "editPack": "पैक संपादित करें",
+    "packName": "पैक नाम",
+    "packDesc": "विवरण (वैकल्पिक)",
+    "submitReview": "समीक्षा हेतु भेजें",
+    "pendingReview": "समीक्षा लंबित",
+    "approved": "अनुमोदित",
+    "rejected": "अस्वीकृत",
+    "draft": "प्रारूप",
+    "newVersion": "नया संस्करण",
+    "deletePack": "पैक हटाएं",
+    "stickersCount_one": "{{count}} स्टिकर",
+    "stickersCount_other": "{{count}} स्टिकर",
+    "noPacks": "कोई स्टिकर पैक नहीं मिला",
+    "replicaBadge": "फेडरेटेड",
+    "viewPack": "पैक देखें",
+    "saveDraft": "प्रारूप सहेजें",
+    "packCreated": "पैक बनाया गया",
+    "reviewSubmitted": "व्यवस्थापक समीक्षा हेतु भेजा गया",
+    "reviews": "समीक्षा",
+    "noReviews": "कोई स्टिकर पैक समीक्षा प्रतीक्षारत नहीं",
+    "approve": "अनुमोदित करें",
+    "reject": "अस्वीकार करें",
+    "rejectTitle": "स्टिकर पैक अस्वीकार करें",
+    "rejectReason": "अस्वीकृति कारण",
+    "rejectPlaceholder": "अस्वीकृति कारण डालें (जैसे अनुचित सामग्री, निम्न गुणवत्ता)",
+    "rejectConfirm": "अस्वीकृति पुष्टि करें",
+    "approvedSuccess": "स्टिकर पैक अनुमोदित",
+    "rejectedSuccess": "स्टिकर पैक अस्वीकृत",
+    "reviewNotes": "अस्वीकृति कारण",
+    "creator": "निर्माता",
+    "sourceInstance": "इंस्टेंस",
+    "localInstance": "स्थानीय इंस्टेंस",
+    "viewStickers": "स्टिकर देखें",
+    "pendingReviewHint": "व्यवस्थापक समीक्षाधीन, अनुमोदन पर एक्सप्लोर में दिखेगा"
+  },
+  "poke": {
+    "action": "पोक करें",
+    "received": "{{actor}} ने {{target}} पोक किया",
+    "disconnected": "डिस्कनेक्ट। पोक नहीं भेजा गया।"
+  },
+  "pins": {
+    "title": "पिन संदेश",
+    "empty": "अभी कोई पिन संदेश नहीं।",
+    "jump": "संदेश पर जाएं",
+    "unpin": "अनपिन करें",
+    "deletedMessage": "संदेश हटाया गया",
+    "attachmentOnly": "अनुलग्नक"
+  }
+}

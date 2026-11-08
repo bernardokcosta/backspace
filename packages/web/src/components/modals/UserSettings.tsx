@@ -238,7 +238,7 @@ export function UserSettingsModal() {
             />
             <div className="min-w-0">
               <div className="text-sm font-medium text-txt-primary truncate">{user?.displayName || user?.username}</div>
-              <div className="text-xs text-txt-tertiary truncate">@{user?.username}</div>
+              <div className="text-xs text-txt-tertiary truncate"><bdi dir="ltr">@{user?.username}</bdi></div>
             </div>
           </div>
 
@@ -278,7 +278,7 @@ export function UserSettingsModal() {
               />
               <div className="min-w-0">
                 <div className="text-sm font-medium text-txt-primary truncate">{user?.displayName || user?.username}</div>
-                <div className="text-xs text-txt-tertiary truncate">@{user?.username}</div>
+                <div className="text-xs text-txt-tertiary truncate"><bdi dir="ltr">@{user?.username}</bdi></div>
               </div>
             </div>
 

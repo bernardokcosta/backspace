@@ -1,0 +1,34 @@
+{
+  "failure": {
+    "notAuthenticated": "Ikke autentisert for denne instansen",
+    "invalidResponse": "Kunne ikke tolke opplastingssvaret",
+    "uploadError": "Opplastingsfeil",
+    "downloadError": "Nedlastingsfeil",
+    "fileUnavailable": "Filen er ikke lenger tilgjengelig — forkast og last opp igjen",
+    "noDestination": "Ingen destinasjonshåndtak — kan ikke fortsette",
+    "destinationMissing": "Destinasjonshåndtak mangler",
+    "permissionDenied": "Tilgang nektet",
+    "lostDownload": "Nedlastingen kan ikke fortsettes — bytes tapt. Start nedlastingen på nytt.",
+    "uploadHandleMissing": "Filhåndtak mangler — forkast og last opp igjen",
+    "downloadHandleMissing": "Destinasjonshåndtak mangler — start nedlastingen på nytt",
+    "downloadFailed": "Nedlasting mislyktes: {{status}}",
+    "resumeFailed": "Fortsettelse mislyktes: {{status}}"
+  },
+  "transfers": {
+    "title": "Overføringer",
+    "count_one": "{{count}} overføring",
+    "count_other": "{{count}} overføringer",
+    "clearCompleted": "Fjern fullførte",
+    "empty": "Ingen aktive overføringer.",
+    "status": {
+      "done": "Ferdig",
+      "failed": "Mislyktes: {{reason}}",
+      "aborted": "Avbrutt",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "Beskjær bilde",
+    "applying": "Bruker…"
+  }
+}

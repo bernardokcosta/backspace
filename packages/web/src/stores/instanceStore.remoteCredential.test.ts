@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { User } from '@backspace/shared';
 import type { BackspaceApiClient } from '../api/client';
 import { HttpError } from '../api/client';
+import { setLanguage } from '../i18n';
 
 // ── Fixtures ────────────────────────────────────────────────────────────────
 // Obvious fakes only. HOME_PASSWORD is the value that must never leave the
@@ -86,6 +87,16 @@ import { useInstanceStore, ensureRemoteCredential, RemoteLoginRequiredError } fr
 import type { ConnectedInstance } from './instanceStore';
 
 const REMOTE = 'https://orbit.example';
+
+it('localizes app-owned probe errors without probing or exposing credentials', async () => {
+  await setLanguage('pt');
+  useInstanceStore.setState({ instances: [{ origin: REMOTE, status: 'connected' } as ConnectedInstance] });
+  try {
+    await expect(useInstanceStore.getState().probeInstance(REMOTE)).rejects.toThrow('Esta instância já está conectada.');
+    expect(remoteInfo).not.toHaveBeenCalled();
+    expect(passwordsSentToRemote()).toEqual([]);
+  } finally { await setLanguage('en'); }
+});
 
 /** Every password value this test harness saw arrive at a REMOTE instance. */
 function passwordsSentToRemote(): string[] {

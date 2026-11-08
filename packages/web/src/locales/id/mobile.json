@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "spaces": "Ruang",
+    "dms": "DM",
+    "you": "Anda"
+  },
+  "you": {
+    "editProfile": "Edit profil",
+    "homeInstance": "Instans utama: {{domain}}",
+    "logOutConfirm": "Yakin ingin keluar?"
+  },
+  "chat": {
+    "openCall": "Buka panggilan",
+    "cancelCall": "Batalkan panggilan",
+    "unknownChannel": "kanal"
+  }
+}

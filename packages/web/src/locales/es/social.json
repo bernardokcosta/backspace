@@ -1,0 +1,106 @@
+{
+  "tabs": {
+    "all": "Todos",
+    "pending": "Pendientes",
+    "add": "Añadir amigo",
+    "activity": "Actividad"
+  },
+  "sections": {
+    "online": "En línea — {{n}}",
+    "all": "Todos los amigos — {{n}}",
+    "pending": "Pendientes — {{n}}",
+    "active": "Activos — {{n}}",
+    "offline": "Desconectados — {{n}}"
+  },
+  "empty": {
+    "online": "Ahora mismo no hay nadie en línea.",
+    "all": "Aún no tienes amigos. ¡Añade a alguien!",
+    "pending": "No hay solicitudes pendientes. Nori está durmiendo.",
+    "activity": "Todo está tranquilo por ahora… Cuando tus amigos inicien alguna actividad, ¡la verás aquí!"
+  },
+  "friend": {
+    "viaInstance": "a través de {{host}}",
+    "message": "Enviar mensaje",
+    "remove": "Eliminar de amigos"
+  },
+  "sendMessage": {
+    "failed": "No se pudo abrir la conversación: {{reason}}"
+  },
+  "request": {
+    "incoming": "Solicitud de amistad recibida",
+    "outgoing": "Solicitud de amistad enviada",
+    "ignore": "Ignorar",
+    "cancel": "Cancelar solicitud",
+    "send": "Enviar solicitud de amistad",
+    "pending": "Solicitud pendiente",
+    "sending": "Enviando…",
+    "cancelling": "Cancelando…",
+    "sent": "¡Solicitud de amistad enviada!"
+  },
+  "removeFriend": {
+    "title": "Eliminar de amigos",
+    "description": "¿Seguro que quieres eliminar a {{name}} de tus amigos? Puedes enviarle otra solicitud de amistad más adelante.",
+    "fallbackName": "este usuario"
+  },
+  "add": {
+    "title": "Buscar personas",
+    "hint": "Busca por nombre de usuario o usa <handle>usuario@instancia</handle> para añadir a alguien directamente.",
+    "placeholder": "Buscar o añadir por nombre de usuario…",
+    "direct": "Enviar solicitud de amistad a <handle>{{handle}}</handle>",
+    "sendRequest": "Enviar solicitud",
+    "discover": "Descubrir personas",
+    "noSearchResults": "No hay usuarios que coincidan con tu búsqueda.",
+    "noDiscoverable": "Aún no hay perfiles disponibles para descubrir. ¡Invita a más personas!"
+  },
+  "mutuals": {
+    "friends_one": "{{count}} amigo en común",
+    "friends_many": "{{count}} amigos en común",
+    "friends_other": "{{count}} amigos en común",
+    "spaces_one": "{{count}} espacio en común",
+    "spaces_many": "{{count}} espacios en común",
+    "spaces_other": "{{count}} espacios en común",
+    "noFriends": "No hay amigos en común",
+    "noSpaces": "No hay espacios en común"
+  },
+  "profile": {
+    "tabs": {
+      "about": "Información",
+      "mutualFriends": "Amigos en común",
+      "mutualSpaces": "Espacios en común"
+    },
+    "aboutMe": "Sobre mí",
+    "roles": "Roles",
+    "memberSince": "Miembro desde",
+    "sendMessage": "Enviar mensaje",
+    "editRoles": "Editar roles",
+    "viewFull": "Ver perfil completo",
+    "addFriend": "Añadir amigo",
+    "playingNow": "Jugando ahora"
+  },
+  "activity": {
+    "title": "Actividad actual",
+    "quietTitle": "Todo está tranquilo por ahora…",
+    "quietDescription": "Cuando un amigo inicie una actividad, como jugar o charlar por voz, ¡la verás aquí!",
+    "online": "En línea — {{n}}",
+    "offline": "Desconectados — {{n}}",
+    "resizeHandle": "Cambiar el tamaño de la lista de amigos",
+    "types": {
+      "playing": "Jugando",
+      "listening": "Escuchando música",
+      "streaming": "Transmitiendo",
+      "watching": "Viendo",
+      "custom": "Estado personalizado"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "Abrir canción"
+  },
+  "instanceNotConnected": "No estás conectado a {{host}}. Vuelve a conectar con esa instancia e inténtalo de nuevo."
+}

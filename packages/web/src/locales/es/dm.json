@@ -1,0 +1,180 @@
+{
+  "callDelivery": {
+    "remoteInstance": "la instancia remota",
+    "hostInstance": "la instancia que aloja la llamada",
+    "acceptDropped": "No se pudo confirmar con {{instance}} que aceptaste. La llamada se ha interrumpido.",
+    "rejectFailed": "No se pudo avisar a {{instances}} de que rechazaste la llamada. Quien llama podría seguir viendo la señal de llamada durante unos instantes.",
+    "endFailed": "No se pudo avisar a {{instances}} de que colgaste. Los participantes remotos podrían seguir viendo la llamada hasta 60 segundos.",
+    "hostUnreachable": "La llamada ha terminado porque la instancia que la aloja ya no está accesible.",
+    "peeringLost": "La llamada ha terminado porque esta instancia ya no está emparejada con {{instance}}.",
+    "instanceUnreachable": "La llamada ha terminado porque {{instance}} ya no está accesible.",
+    "someUnreachable": "No se pudo contactar con algunos participantes: {{instances}}.",
+    "multipleUnreachable_one": "No se pudo conectar con {{count}} instancia: {{instances}}.",
+    "multipleUnreachable_many": "No se pudo conectar con {{count}} instancias: {{instances}}.",
+    "multipleUnreachable_other": "No se pudo conectar con {{count}} instancias: {{instances}}.",
+    "callFailed": "No se pudo realizar la llamada.",
+    "manualApproval": "No se puede conectar con {{instance}}. Esta instancia exige aprobar manualmente el emparejamiento.",
+    "awaitingApproval": "Esperando a que el administrador de {{instance}} apruebe tu instancia. Las llamadas estarán disponibles tras la aprobación.",
+    "transientFailure": "No se pudo conectar con {{instance}}. Vuelve a intentarlo en un momento.",
+    "voiceUnavailable": "La función de voz no está configurada en esta instancia.",
+    "noRecipient": "{{instance}} no pudo hacer llegar la llamada a nadie.",
+    "targetCallFailed": "No se pudo realizar la llamada a {{instance}}."
+  },
+  "feedback": {
+    "relayDenied": "No se pueden retransmitir los mensajes porque el servidor de destino ha rechazado el emparejamiento. Contacta con su administrador.",
+    "awaitingPeering": "Los mensajes se entregarán cuando el administrador de destino apruebe la solicitud de emparejamiento."
+  },
+  "names": {
+    "group": "Grupo",
+    "directMessage": "Mensaje directo",
+    "theGroup": "el grupo",
+    "unknownHandle": "desconocido",
+    "groupFallback": "Mensaje directo de grupo",
+    "emptyGroup": "Grupo vacío"
+  },
+  "preview": {
+    "image": "Imagen",
+    "video": "Vídeo",
+    "audio": "Audio",
+    "files_one": "📎 {{count}} archivo",
+    "files_many": "📎 {{count}} archivos",
+    "files_other": "📎 {{count}} archivos",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 Invitación enviada a {{spaceName}}",
+    "memberAdded": "{{actor}} ha añadido a {{target}}",
+    "memberAddedToGroup": "{{actor}} ha añadido a {{target}} al grupo",
+    "memberLeft": "{{target}} ha salido del grupo",
+    "memberRemoved": "{{actor}} ha quitado a {{target}}",
+    "memberRemovedFromGroup": "{{actor}} ha quitado a {{target}} del grupo",
+    "ownerChanged": "{{newOwner}} tiene ahora la propiedad del grupo",
+    "renamed": "{{actor}} ha cambiado el nombre del grupo",
+    "renamedTo": "{{actor}} ha cambiado el nombre del grupo a «{{name}}»",
+    "nameCleared": "{{actor}} ha borrado el nombre del grupo",
+    "iconChanged": "{{actor}} ha actualizado el icono del grupo",
+    "generic": "Mensaje del sistema"
+  },
+  "deletedNotice": {
+    "accountDeleted": "La cuenta de este usuario se ha eliminado"
+  },
+  "memberRow": {
+    "viewProfile": "Ver perfil",
+    "transferOwnership": "Transferir propiedad",
+    "removeFromGroup": "Quitar del grupo",
+    "removeFriend": "Eliminar de amigos",
+    "ownerTooltip": "Propietario del grupo",
+    "actions": "Acciones del miembro"
+  },
+  "roster": {
+    "owner": "Propietario",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "Cambiar el tamaño de la lista de miembros"
+  },
+  "kick": {
+    "title": "Quitar del grupo",
+    "description": "¿Quieres quitar a {{name}} de este grupo? No podrá ver los mensajes nuevos.",
+    "success": "Has quitado a {{name}} del grupo",
+    "failed": "No se pudo quitar al miembro"
+  },
+  "transfer": {
+    "title": "Transferir propiedad",
+    "description": "¿Quieres transferir la propiedad a {{name}}? Perderás tus privilegios de propietario.",
+    "confirm": "Transferir",
+    "success": "Propiedad transferida a {{name}}",
+    "failed": "No se pudo transferir la propiedad"
+  },
+  "removeFriend": {
+    "failed": "No se pudo eliminar de amigos"
+  },
+  "leave": {
+    "title": "Salir del grupo",
+    "description": "¿Quieres salir de «{{name}}»? Dejarás de recibir mensajes de esta conversación.",
+    "inProgress": "Saliendo…",
+    "failed": "No se pudo salir del grupo",
+    "explanation": "Dejarás de recibir mensajes de esta conversación. Los demás miembros verán un mensaje del sistema."
+  },
+  "search": {
+    "trigger": "Buscar o iniciar una conversación",
+    "placeholder": "Buscar…",
+    "emptyHint": "Busca un usuario para empezar a conversar",
+    "conversations": "Conversaciones",
+    "users": "Usuarios",
+    "searching": "Buscando…",
+    "noResults": "No se encontraron resultados",
+    "createFailed": "No se pudo crear el mensaje directo"
+  },
+  "list": {
+    "resizeHandle": "Cambiar el tamaño de los mensajes directos",
+    "title": "Mensajes",
+    "empty": "Aún no hay conversaciones.",
+    "leaveGroup": "Salir del grupo",
+    "justNow": "ahora",
+    "minutesShort_one": "{{count}} min",
+    "minutesShort_many": "{{count}} min",
+    "minutesShort_other": "{{count}} min",
+    "hoursShort_one": "{{count}} h",
+    "hoursShort_many": "{{count}} h",
+    "hoursShort_other": "{{count}} h",
+    "daysShort_one": "{{count}} d",
+    "daysShort_many": "{{count}} d",
+    "daysShort_other": "{{count}} d",
+    "close": "Cerrar mensaje directo"
+  },
+  "newDm": {
+    "title": "Nuevo mensaje directo",
+    "searchPlaceholder": "Buscar un usuario…",
+    "noUsers": "No se encontraron usuarios"
+  },
+  "addMember": {
+    "title": "Añadir amigos al mensaje directo",
+    "description": "Selecciona los amigos que quieres añadir a esta conversación.",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "Buscar amigos…",
+    "limitReached": "Este mensaje directo de grupo ha alcanzado el límite de {{max}} miembros.",
+    "alreadyInDm": "Ya está en este mensaje directo",
+    "noMatch": "No hay amigos que coincidan con tu búsqueda",
+    "noFriends": "Aún no tienes amigos",
+    "selectFriends": "Seleccionar amigos",
+    "addCount_one": "Añadir {{count}} amigo",
+    "addCount_many": "Añadir {{count}} amigos",
+    "addCount_other": "Añadir {{count}} amigos",
+    "adding": "Añadiendo…",
+    "noOtherMember": "No se pudo determinar quién es el otro miembro de esta conversación.",
+    "failed": "No se pudieron añadir los miembros",
+    "yourBots": "Tus bots"
+  },
+  "groupSettings": {
+    "title": "Ajustes del grupo",
+    "general": "General",
+    "overview": "Vista general",
+    "backToMenu": "Volver al menú de ajustes del mensaje directo de grupo",
+    "changeIcon": "Cambiar icono del grupo",
+    "icon": "Icono del grupo",
+    "clickToUpload": "Haz clic para subir",
+    "removeIcon": "Quitar icono del grupo",
+    "nameLabel": "Nombre del grupo",
+    "nameAria": "Nombre del grupo",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "Añadir miembro",
+    "groupFull": "El grupo está lleno",
+    "groupFullSuffix": "— El grupo está lleno",
+    "cropTitle": "Recortar icono del grupo",
+    "saveFailed": "No se pudieron guardar los ajustes"
+  },
+  "groupInfo": {
+    "title": "Información del grupo",
+    "plainTitle": "Información",
+    "notFound": "No se encontró la conversación.",
+    "notGroup": "Esta conversación no tiene información de grupo.",
+    "cancelEdit": "Cancelar edición",
+    "federated": "Grupo federado",
+    "memberCount_one": "{{count}} miembro",
+    "memberCount_many": "{{count}} miembros",
+    "memberCount_other": "{{count}} miembros"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "Este grupo se gestiona en {{host}}. Conecta con esa instancia para modificarlo.",
+    "ownerNotListed": "{{host}} aún no muestra este grupo en tu cuenta. Vuelve a intentarlo en un momento."
+  }
+}

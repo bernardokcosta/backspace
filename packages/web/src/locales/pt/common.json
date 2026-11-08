@@ -113,7 +113,8 @@
   },
   "language": {
     "label": "Idioma",
-    "description": "Menus, botões e mensagens do sistema aparecem neste idioma. As mensagens de outras pessoas continuam como foram escritas."
+    "automatic": "Automático (sistema)",
+    "description": "Escolha o idioma dos menus, botões e mensagens do sistema. No modo automático, o idioma acompanha as preferências do sistema ou navegador. As mensagens de outras pessoas não são traduzidas."
   },
   "crash": {
     "title": "Algo deu errado",
@@ -121,6 +122,7 @@
     "details": "Detalhes do erro"
   },
   "app": {
+    "description": "Uma alternativa ao Discord e ao TeamSpeak, hospedada por você. Voz, vídeo e compartilhamento de tela em HD. Código aberto e gratuito (AGPL-3.0).",
     "loading": "Carregando o Backspace"
   },
   "chrome": {

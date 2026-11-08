@@ -1,0 +1,376 @@
+{
+  "validation": {
+    "invalidUrl": "URL không hợp lệ",
+    "selfInstance": "Bạn đã đăng nhập trên máy chủ này",
+    "alreadyConnected": "Máy chủ này đã kết nối",
+    "notLoggedIn": "Chưa đăng nhập",
+    "connectHomeFirst": "Hãy kết nối tới máy chủ chính ({{home}}) trước — nó cấp chứng chỉ cho {{target}}",
+    "incorrectPassword": "Sai mật khẩu",
+    "authenticationFailed": "Xác thực với máy chủ xa thất bại"
+  },
+  "feedback": {
+    "connectionLost": "Mất kết nối tới {{instance}} — đang kết nối lại…",
+    "connectionRestored": "Đã kết nối lại tới {{instance}}",
+    "pendingRequests_one": "Bạn có {{count}} yêu cầu ghép chờ",
+    "pendingRequests_other": "Bạn có {{count}} yêu cầu ghép chờ",
+    "requestApproved": "Yêu cầu ghép của bạn được duyệt",
+    "requestDenied": "Yêu cầu ghép của bạn bị từ chối",
+    "requestExpired": "Yêu cầu ghép của bạn hết hạn",
+    "friendRequestDeliveryFailed": "Không thể gửi lời mời kết bạn tới {{username}}: {{reason}}",
+    "accountRelinked": "Đã liên kết lại tài khoản với {{instance}}"
+  },
+  "connections": {
+    "title": "Máy chủ đã kết nối",
+    "description": "Liên kết tài khoản trên các máy chủ Backspace liên hợp.",
+    "empty": "Chưa kết nối máy chủ xa nào. Hãy thêm một để bắt đầu liên hợp.",
+    "addButton": "+ Thêm máy chủ",
+    "home": {
+      "title": "Máy chủ chính",
+      "asUser": "với tên {{username}}",
+      "local": "Cục bộ"
+    },
+    "status": {
+      "connected": "Đã kết nối",
+      "disconnected": "Đã ngắt",
+      "unreachable": "Không tới được",
+      "authExpired": "Xác thực hết hạn"
+    },
+    "add": {
+      "title": "Thêm máy chủ xa",
+      "urlPlaceholder": "https://instance.example.com",
+      "probing": "Đang thăm dò…",
+      "connect": "Kết nối",
+      "connecting": "Đang kết nối…",
+      "registrationClosed": "Máy chủ này đã tắt đăng ký liên hợp mới. Tài khoản hiện có vẫn đăng nhập được.",
+      "passwordLabel": "Nhập mật khẩu để kết nối tới {{host}}",
+      "passwordPlaceholder": "Mật khẩu bạn đăng nhập",
+      "passwordHint": "Mật khẩu của bạn do máy chủ chính kiểm tra và không bao giờ gửi tới {{host}}. Máy chủ đó nhận một chứng chỉ riêng tạo chỉ cho nó.",
+      "fallbackNotice": {
+        "credentialRefused": "Đã có tài khoản trên {{host}} và nó không chấp nhận chứng chỉ máy chủ chính cấp. Hãy đăng nhập bằng mật khẩu bạn đặt trên máy chủ đó. Sau đó nó sẽ chuyển sang chứng chỉ đã cấp.",
+        "registrationClosed": "{{host}} không nhận tài khoản mới từ máy chủ khác, nên không có tài khoản nào tạo cho bạn ở đó. Nếu đã có tài khoản trên {{host}}, hãy đăng nhập bằng nó bên dưới."
+      },
+      "usernamePlaceholder": "Tên người dùng của bạn trên máy chủ này",
+      "remotePasswordLabel": "Mật khẩu cho máy chủ này",
+      "remotePasswordPlaceholder": "Mật khẩu trên máy chủ xa",
+      "loggingIn": "Đang đăng nhập…",
+      "loginAndConnect": "Đăng nhập & kết nối"
+    },
+    "filter": {
+      "all": "Tất cả",
+      "connected": "Đã kết nối",
+      "disconnected": "Đã ngắt",
+      "issues": "Sự cố",
+      "noMatch": "Không có máy chủ khớp bộ lọc."
+    },
+    "sort": {
+      "dateAdded": "Ngày thêm",
+      "lastConnected": "Kết nối gần nhất"
+    },
+    "row": {
+      "asUser": "với tên {{username}}",
+      "added": "Đã thêm {{date}}",
+      "connectedAgo": "Đã kết nối {{time}}",
+      "disconnectedAgo": "Đã ngắt {{time}}",
+      "lastConnectedAgo": "Gần nhất {{time}}",
+      "remoteUserId": "ID người dùng xa",
+      "addedLabel": "Đã thêm",
+      "disconnectedLabel": "Đã ngắt",
+      "lastConnectedLabel": "Kết nối gần nhất",
+      "homePasswordLabel": "Mật khẩu tài khoản chính của bạn",
+      "disconnect": "Ngắt",
+      "reconnect": "Kết nối lại",
+      "reauthenticate": "Xác thực lại",
+      "forceRemove": "Xóa cưỡng bức",
+      "deleteIdentity": "Xóa danh tính",
+      "deleteIdentityDisabled": "Hãy ngắt trước để xóa danh tính",
+      "reason": {
+        "unreachable": "Không thể tới máy chủ đó.",
+        "sessionExpired": "Phiên đã lưu hết hạn. Hãy xác thực lại để kết nối.",
+        "reauthenticate": "Xác thực để kết nối.",
+        "authenticateHome": "Xác thực để kết nối tới máy chủ chính."
+      }
+    },
+    "forceRemove": {
+      "title": "Xóa cưỡng bức mục",
+      "description": "Điều này xóa mục sổ cho {{name}}. Máy chủ xa không được báo. Chỉ dùng khi máy chủ vĩnh viễn không tới được.",
+      "confirm": "Xóa cưỡng bức"
+    },
+    "deleteIdentity": {
+      "title": "Xóa danh tính",
+      "description": "Xóa danh tính liên hợp của bạn trên <name>{{name}}</name>. Chọn cách xử lý dữ liệu.",
+      "leave": {
+        "title": "Rời lặng lẽ",
+        "description": "Ngắt khỏi máy chủ này. Tài khoản và mọi dữ liệu ở lại."
+      },
+      "soft": {
+        "title": "Xóa người dùng",
+        "description": "Xóa tài khoản nhưng giữ tin nhắn. Bạn hiện là ‘Người dùng đã xóa’."
+      },
+      "full": {
+        "title": "Hủy hết",
+        "description": "Xóa tài khoản và mọi tin nhắn, DM, cảm xúc và tệp. Không còn gì."
+      },
+      "scope": {
+        "heading": "Phạm vi",
+        "this": "Chỉ máy chủ này",
+        "select": "Chọn máy chủ…",
+        "all": "Tất cả máy chủ xa"
+      },
+      "deleting": "Đang xóa…",
+      "disconnect": "Ngắt",
+      "confirm": "Xóa danh tính",
+      "toast": {
+        "disconnected": "Đã ngắt",
+        "deleted_one": "Đã xóa danh tính",
+        "deleted_other": "Đã xóa danh tính trên {{count}} máy chủ",
+        "ownsSpaces": "{{host}}: hãy chuyển quyền sở hữu không gian trước",
+        "failed": "{{host}}: {{error}}",
+        "failedGeneric": "Thất bại"
+      }
+    },
+    "action": {
+      "friendRequest": "lời mời kết bạn",
+      "spaceJoin": "tham gia không gian",
+      "directMessage": "tin nhắn trực tiếp",
+      "friendRequestTo": "Lời mời kết bạn tới {{target}}",
+      "joinSpace": "Tham gia {{target}}",
+      "directMessageTo": "Tin nhắn trực tiếp tới {{target}}",
+      "instanceConnect": "kết nối",
+      "connectTo": "Kết nối tới {{target}}"
+    },
+    "pending": {
+      "title": "Chờ duyệt ghép",
+      "description": "Quản trị của bạn phải duyệt trước khi các yêu cầu này tiếp tục.",
+      "onPeer": "trên <peer>{{peer}}</peer>",
+      "cancelling": "Đang hủy…",
+      "cancelled": "Đã hủy yêu cầu ghép",
+      "cancelFailed": "Hủy thất bại: {{error}}"
+    },
+    "outcomes": {
+      "title": "Kết quả ghép gần đây",
+      "approved": "Yêu cầu ghép của bạn tới {{host}} được quản trị duyệt.",
+      "denied": "Yêu cầu ghép của bạn tới {{host}} bị quản trị từ chối.",
+      "expired": "Yêu cầu ghép của bạn tới {{host}} hết hạn mà không có hành động quản trị.",
+      "originalAction": "Hành động gốc: {{action}}",
+      "retry": "Thử lại: {{action}}",
+      "dismissing": "Đang đóng…",
+      "dismissFailed": "Đóng thất bại: {{error}}",
+      "dismissAllFailed": "Đóng tất cả thất bại: {{error}}"
+    },
+    "peering": {
+      "unavailable": "Tin nhắn với người trên {{name}} không thể chuyển tiếp cho tới khi quản trị duyệt ghép với nó.",
+      "inProgress": "Đang thiết lập ghép với {{name}}. Tin nhắn với người ở đó sẽ sớm được chuyển tiếp."
+    }
+  },
+  "admin": {
+    "title": "Liên hợp",
+    "description": "Cấu hình chuyển tiếp liên hợp, xoay bí mật và quản lý máy chủ ghép.",
+    "relay": {
+      "title": "Cài đặt chuyển tiếp",
+      "description": "Điều khiển chuyển tiếp DM giữa các máy chủ liên hợp. Khi bật, DM với người dùng trên máy chủ ghép được chuyển tiếp máy-chủ-tới-máy-chủ.",
+      "enable": {
+        "label": "Bật chuyển tiếp DM",
+        "description": "Chuyển tiếp tin nhắn trực tiếp tới và từ máy chủ ghép"
+      },
+      "autoAccept": {
+        "label": "Tự chấp nhận ghép",
+        "description": "Tự chấp nhận yêu cầu ghép từ máy chủ khác. Khi tắt, chỉ cho ghép bắt đầu thủ công."
+      },
+      "ttl": {
+        "label": "TTL chuyển tiếp (ngày)",
+        "description": "Giữ tin nhắn chuyển tiếp trong hộp đi bao lâu trước dọn"
+      },
+      "rotation": {
+        "label": "Xoay bí mật mặc định (ngày)",
+        "description": "Khoảng tự xoay cho peer mới. Peer hiện giữ cài đặt hiện tại."
+      }
+    },
+    "status": {
+      "active": "Hoạt động",
+      "pending": "Chờ duyệt",
+      "unreachable": "Không tới được",
+      "rejectedShort": "Bị từ chối",
+      "revoked": "Đã thu hồi",
+      "awaitingApproval": "Chờ duyệt",
+      "needsAttention": "Cần chú ý"
+    },
+    "filter": {
+      "statusHeading": "Trạng thái",
+      "sort": {
+        "domain": "Tên miền (A-Z)",
+        "lastSeen": "Thấy gần nhất",
+        "dateAdded": "Ngày thêm",
+        "failures": "Lỗi",
+        "revokedDate": "Ngày thu hồi"
+      }
+    },
+    "views": {
+      "active": "Hoạt động",
+      "revoked": "Đã thu hồi"
+    },
+    "peer": {
+      "instanceName": "Tên máy chủ",
+      "revokedMeta": "Thu hồi: {{revoked}} · Ghép: {{peered}}",
+      "unreachableMeta": "Thấy gần nhất: {{lastSeen}} · {{failures}}",
+      "activeMeta": "Thấy gần nhất: {{lastSeen}} · Đã đồng bộ: {{synced}}",
+      "failures_one": "{{count}} lỗi",
+      "failures_other": "{{count}} lỗi",
+      "reinitiate": "Bắt đầu lại ghép",
+      "deletePermanently": "Xóa vĩnh viễn",
+      "consecutiveFailures": "Lỗi liên tiếp",
+      "authFailures": "Lỗi xác thực",
+      "lastFailure": "Lỗi gần nhất",
+      "peeredSince": "Ghép từ",
+      "secretRotated": "Đã xoay bí mật",
+      "autoRotate": "Tự xoay",
+      "rotationStatus": "Trạng thái xoay",
+      "rotateEvery_one": "Mỗi {{count}} ngày",
+      "rotateEvery_other": "Mỗi {{count}} ngày",
+      "defaultTag": "(mặc định)",
+      "inProgress": "Đang tiến hành",
+      "idle": "Nhàn rỗi",
+      "intervalRange": "Phải 1–365",
+      "intervalUpdated": "Đã cập nhật khoảng xoay",
+      "checking": "Đang kiểm tra…",
+      "checkNow": "Kiểm tra ngay",
+      "resetPeering": "Đặt lại ghép",
+      "rotateSecret": "Xoay bí mật",
+      "rotationInProgress": "Xoay đang diễn ra",
+      "revoke": "Thu hồi",
+      "editInterval": "Sửa khoảng xoay",
+      "reason": {
+        "auth_failures": "Gửi có ký liên tục thất bại",
+        "peer_reset_detected": "Cài lại với danh tính mới",
+        "repeer_incomplete": "Không thể xác minh ghép lại",
+        "denied_by_local_admin": "Bị quản trị của bạn từ chối",
+        "denied_by_remote": "Bị quản trị của họ từ chối",
+        "revoked_by_remote": "Bị quản trị của họ thu hồi",
+        "expired_on_remote": "Yêu cầu hết hạn ở phía họ",
+        "stale_peering_on_remote": "Phía họ giữ ghép cũ"
+      },
+      "reasonDetail": {
+        "auth_failures": "{{host}} đã từ chối năm gửi có ký liên tiếp, nên hai máy chủ không còn chung bí mật. Hãy đặt lại ghép rồi ghép lại.",
+        "peer_reset_detected": "{{host}} đã cài lại: nó báo danh tính máy chủ khác trước. Hãy dùng “Ghép lại” trong banner trên để kết nối tới máy chủ mới và dọn tài khoản cũ.",
+        "repeer_incomplete": "{{host}} đã chấp nhận bắt tay, nhưng kiểm tra có ký bằng bí mật mới thất bại, nên ghép không dùng. Hãy đặt lại và thử lại. Nếu vẫn thất bại, quản trị của họ phải đặt lại phía họ.",
+        "denied_by_local_admin": "Quản trị ở đây đã từ chối yêu cầu ghép từ {{host}}. Yêu cầu của nó bị từ chối cho tới khi bạn bắt đầu lại hoặc xóa mục.",
+        "denied_by_remote": "Quản trị của {{host}} đã từ chối ghép với máy chủ này. Hãy bắt đầu lại khi họ đồng ý.",
+        "revoked_by_remote": "Quản trị của {{host}} đã thu hồi ghép với máy chủ này. Nó trở lại khi họ bắt đầu.",
+        "expired_on_remote": "Quản trị của {{host}} không trả lời yêu cầu ghép trong 30 ngày. Hãy bắt đầu lại để hỏi lại.",
+        "stale_peering_on_remote": "{{host}} vẫn giữ ghép cũ với máy chủ này và từ chối cái mới cho tới khi quản trị của nó đặt lại. Máy chủ này kiểm tra mỗi 15 phút và kết nối ngay khi được."
+      }
+    },
+    "approvals": {
+      "title": "Yêu cầu chờ duyệt",
+      "outboundTitle_one": "{{name}} — {{count}} người dùng muốn ghép với chúng ta",
+      "outboundTitle_other": "{{name}} — {{count}} người dùng muốn ghép với chúng ta",
+      "requested": "Đã yêu cầu {{time}}",
+      "subscriber": {
+        "friendAdd": "kết bạn với {{target}}",
+        "spaceJoin": "muốn tham gia {{target}}",
+        "directMessage": "muốn nhắn DM {{target}}",
+        "instanceConnect": "đã kết nối tài khoản trên {{target}}"
+      },
+      "approve": "Duyệt",
+      "deny": "Từ chối",
+      "established": "Đã thiết lập ghép với {{name}}",
+      "deniedToast": "Đã từ chối yêu cầu ghép từ {{name}}",
+      "confirm": {
+        "approveTitle": "Duyệt yêu cầu ghép",
+        "denyTitle": "Từ chối yêu cầu ghép",
+        "approveOutbound_one": "Điều này bắt đầu bắt tay ghép với {{name}} thay {{count}} người dùng yêu cầu. Máy chủ xa phải tới được.",
+        "approveOutbound_other": "Điều này bắt đầu bắt tay ghép với {{name}} thay {{count}} người dùng yêu cầu. Máy chủ xa phải tới được.",
+        "approveInbound": "Điều này bắt đầu bắt tay ghép với {{name}}. Máy chủ xa phải tới được.",
+        "denyOutbound_one": "Điều này từ chối yêu cầu ghép đi và báo người dùng yêu cầu. Họ hỏi lại được bằng cách lặp lại việc đã làm.",
+        "denyOutbound_other": "Điều này từ chối yêu cầu ghép đi và báo người dùng yêu cầu. Họ hỏi lại được bằng cách lặp lại việc đã làm.",
+        "denyInbound": "Điều này từ chối yêu cầu và chặn yêu cầu ghép tự động tương lai từ {{name}}. Bạn bỏ chặn sau trong danh sách peer bị từ chối.",
+        "approveAndPeer": "Duyệt & ghép",
+        "approve": "Duyệt",
+        "denyAndNotify": "Từ chối & báo",
+        "deny": "Từ chối"
+      }
+    },
+    "resetCleanup": {
+      "title": "Dọn sau đặt lại",
+      "peerReset": "{{name}} đã đặt lại",
+      "peerResetDescription": "Máy chủ mới đang chạy trên domain này. Hãy khôi phục liên hợp để chữa tình bạn và DM cũ.",
+      "repeer": "Ghép lại",
+      "resetToast": "{{host}} đã đặt lại — cần khôi phục liên hợp",
+      "repeerIncomplete": "Ghép lại chưa xong — {{name}} vẫn giữ ghép cũ với bạn. Quản trị của nó phải đặt lại phía họ, rồi ghép lại.",
+      "repeerInitiated": "Đã bắt đầu ghép lại với {{name}}",
+      "removed": "Đã xóa {{username}} và mọi nội dung",
+      "ownsSpaces": "{{username}} sở hữu không gian — hãy chuyển quyền sở hữu trước (Cài đặt không gian → Quyền sở hữu).",
+      "staleRemote": "Máy chủ xa vẫn giữ ghép cũ với bạn. Hãy bảo quản trị của nó đặt lại phía họ, rồi ghép lại.",
+      "eventSummary": "<host>{{host}}</host> đã đặt lại — {{identities}} tự dọn, {{accounts}} có nội dung cục bộ tách ra. Tài khoản tách vẫn chạy cục bộ — chủ giữ quyền truy cập bằng mật khẩu hiện có. Chủ có thể gắn lại tài khoản tách vào danh tính chính mới từ cài đặt tài khoản đó (Tài khoản → thông báo tách), khi đăng nhập cả hai.",
+      "identitiesCleaned_one": "{{count}} danh tính sao chép",
+      "identitiesCleaned_other": "{{count}} danh tính sao chép",
+      "accountsDetached_one": "{{count}} tài khoản",
+      "accountsDetached_other": "{{count}} tài khoản",
+      "memberships_one": "{{count}} tư cách thành viên",
+      "memberships_other": "{{count}} tư cách thành viên",
+      "messages_one": "{{count}} tin nhắn",
+      "messages_other": "{{count}} tin nhắn",
+      "owns": "Sở hữu: {{spaces}}",
+      "dismissKeep": "Đóng — giữ mọi tài khoản tách",
+      "confirm": {
+        "repeerTitle": "Khôi phục liên hợp",
+        "removeTitle": "Xóa tài khoản tách",
+        "repeerDescription": "Điều này xóa bản ghi ghép cục bộ và bắt đầu bắt tay xác thực mới với {{origin}}. Máy chủ xa phải tới được và (nếu không tự chấp nhận) duyệt yêu cầu.",
+        "removeDescription": "Xóa vĩnh viễn {{username}} và mọi nội dung của nó trên máy chủ này? Không thể hoàn tác.",
+        "repeerConfirm": "Ghép lại & chữa",
+        "removeConfirm": "Xóa vĩnh viễn"
+      }
+    },
+    "peers": {
+      "title": "Máy chủ đã ghép",
+      "empty": "Chưa thiết lập peer liên hợp. Peer tạo tự động khi người dùng kết nối tới máy chủ xa.",
+      "noMatch": "Không có peer khớp bộ lọc.",
+      "noRevoked": "Không có peer bị thu hồi.",
+      "backOnline": "{{name}} đã online lại",
+      "stillUnreachable": "{{name}} vẫn không tới được",
+      "rotationInitiated": "Đã bắt đầu xoay bí mật — thời gian ân hạn 15 phút",
+      "revoked": "Đã thu hồi peer",
+      "reinitiated": "Đã bắt đầu lại ghép",
+      "reinitiateFailed": "Đã xóa bản ghi peer nhưng bắt tay thất bại: {{error}}. Hãy ghép thủ công với {{origin}}",
+      "deleted": "Đã xóa vĩnh viễn peer",
+      "resetDone": "Đã đặt lại ghép với {{name}}",
+      "confirm": {
+        "rotate": {
+          "title": "Xoay bí mật HMAC",
+          "description": "Điều này tạo bí mật HMAC mới cho {{name}}. Cả hai máy chủ chấp nhận bí mật cũ và mới trong thời gian ân hạn 15 phút.",
+          "confirm": "Xoay"
+        },
+        "revoke": {
+          "title": "Thu hồi peer",
+          "description": "Điều này dừng mọi lưu lượng chuyển tiếp liên hợp với {{name}}. Mục hộp đi chờ bị xóa. Bạn ghép lại được sau.",
+          "confirm": "Thu hồi"
+        },
+        "reinitiate": {
+          "title": "Bắt đầu lại ghép",
+          "description": "Điều này xóa bản ghi thu hồi và bắt đầu bắt tay mới với {{origin}}. Máy chủ xa phải tới được.",
+          "confirm": "Bắt đầu lại"
+        },
+        "delete": {
+          "title": "Xóa bản ghi peer",
+          "description": "Điều này xóa vĩnh viễn bản ghi peer cho {{name}}. Không thể hoàn tác.",
+          "confirm": "Xóa"
+        },
+        "reset": {
+          "title": "Đặt lại ghép",
+          "description": "Đặt lại ghép với {{name}}? Điều này xóa bản ghi ghép cục bộ và mọi mục hộp đi chờ. Bạn phải bắt đầu lại ghép với quản trị xa ngoài hệ thống sau đặt lại. Không thể hoàn tác.",
+          "confirm": "Đặt lại"
+        }
+      }
+    }
+  },
+  "peerRejected": {
+    "auth_failures": "Tin nhắn tới {{name}} không gửi được: bí mật chung của kết nối ngừng hoạt động. Quản trị phải đặt lại ghép.",
+    "peer_reset_detected": "Tin nhắn tới {{name}} không gửi được: nó đã cài lại. Quản trị phải ghép lại.",
+    "repeer_incomplete": "Tin nhắn tới {{name}} không gửi được: không thể xác minh ghép lại. Quản trị phải đặt lại ghép.",
+    "denied_by_local_admin": "Tin nhắn tới {{name}} không gửi được: quản trị của bạn đã từ chối liên hợp với nó.",
+    "denied_by_remote": "Tin nhắn tới {{name}} không gửi được: quản trị của nó đã từ chối liên hợp với máy chủ này.",
+    "revoked_by_remote": "Tin nhắn tới {{name}} không gửi được: quản trị của nó đã thu hồi liên hợp với máy chủ này.",
+    "expired_on_remote": "Tin nhắn tới {{name}} không gửi được: quản trị của nó không trả lời yêu cầu liên hợp kịp thời.",
+    "stale_peering_on_remote": "Tin nhắn tới {{name}} chưa gửi được: nó vẫn giữ kết nối cũ tới máy chủ này mà quản trị của nó phải đặt lại.",
+    "fallback": "Tin nhắn tới {{name}} không gửi được: {{reason}}"
+  }
+}

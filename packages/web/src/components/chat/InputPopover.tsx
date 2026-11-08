@@ -194,11 +194,11 @@ export function InputPopover(props: InputPopoverProps) {
   const isMobile = useUIStore((s) => s.isMobile);
 
   const availableTabs: { key: InputPopoverTab; label: string }[] = [
-    { key: 'emoji', label: 'Emoji' },
+    { key: 'emoji', label: t('composer.emoji') },
     { key: 'sticker', label: t('stickers.title') },
   ];
   if (props.gifEnabled) {
-    availableTabs.splice(0, 0, { key: 'gif', label: 'GIF' });
+    availableTabs.splice(0, 0, { key: 'gif', label: t('composer.gif') });
   }
 
   if (isMobile) {

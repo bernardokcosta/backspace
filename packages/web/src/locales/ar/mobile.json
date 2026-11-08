@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "spaces": "المساحات",
+    "dms": "الرسائل",
+    "you": "أنت"
+  },
+  "you": {
+    "editProfile": "تعديل الملف",
+    "homeInstance": "النسخة الرئيسية: {{domain}}",
+    "logOutConfirm": "هل أنت متأكد من تسجيل الخروج؟"
+  },
+  "chat": {
+    "openCall": "فتح المكالمة",
+    "cancelCall": "إلغاء المكالمة",
+    "unknownChannel": "قناة"
+  }
+}

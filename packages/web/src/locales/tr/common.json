@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "close": "Kapat",
+    "delete": "Sil",
+    "bot": "BOT",
+    "confirm": "Onayla",
+    "copy": "Kopyala",
+    "copied": "Kopyalandı",
+    "retry": "Yeniden dene",
+    "back": "Geri",
+    "done": "Bitti",
+    "edit": "Düzenle",
+    "remove": "Kaldır",
+    "add": "Ekle",
+    "apply": "Uygula",
+    "reset": "Sıfırla",
+    "continue": "Devam et",
+    "dismiss": "Yoksay",
+    "ok": "Tamam",
+    "search": "Ara",
+    "clear": "Temizle",
+    "change": "Değiştir",
+    "refresh": "Yenile",
+    "openLink": "Bağlantıyı aç",
+    "tryAgain": "Tekrar dene",
+    "reply": "Yanıtla",
+    "addReaction": "Tepki ekle",
+    "share": "Paylaş",
+    "accept": "Kabul et",
+    "decline": "Reddet",
+    "pause": "Duraklat",
+    "resume": "Devam ettir",
+    "abort": "Durdur",
+    "dismissAll": "Tümünü yoksay",
+    "filter": "Filtrele",
+    "sort": "Sırala",
+    "sortBy": "Sıralama ölçütü",
+    "leave": "Ayrıl",
+    "invitePeople": "Kişi davet et",
+    "previous": "Önceki",
+    "next": "Sonraki",
+    "preview": "Önizle",
+    "logIn": "Giriş yap"
+  },
+  "states": {
+    "loading": "Yükleniyor…",
+    "saving": "Kaydediliyor…",
+    "saved": "Kaydedildi",
+    "unknown": "Bilinmiyor",
+    "none": "Yok",
+    "enabled": "Etkin",
+    "disabled": "Devre dışı",
+    "on": "Açık",
+    "off": "Kapalı",
+    "yes": "Evet",
+    "no": "Hayır",
+    "optional": "İsteğe bağlı",
+    "required": "Zorunlu",
+    "default": "Varsayılan",
+    "recommended": "Önerilen",
+    "online": "Çevrimiçi",
+    "idle": "Boşta",
+    "doNotDisturb": "Rahatsız etme",
+    "offline": "Çevrimdışı",
+    "loadingSettings": "Ayarlar yükleniyor…",
+    "loadSettingsFailed": "Ayarlar yüklenemedi.",
+    "settingsSaved": "Ayarlar kaydedildi",
+    "saveFailed": "Kaydedilemedi",
+    "scanning": "Taranıyor…",
+    "pleaseWait": "Lütfen bekle…"
+  },
+  "labels": {
+    "username": "Kullanıcı adı",
+    "password": "Parola",
+    "displayName": "Görünen ad",
+    "friends": "Arkadaşlar",
+    "members": "Üyeler",
+    "settings": "Ayarlar",
+    "dangerZone": "Tehlikeli bölge",
+    "searchMembers": "Üye ara…",
+    "noMembersFound": "Üye bulunamadı",
+    "or": "veya",
+    "nameAZ": "Ad (A-Z)"
+  },
+  "time": {
+    "today": "Bugün {{time}}",
+    "yesterday": "Dün {{time}}",
+    "never": "Asla",
+    "justNow": "Az önce",
+    "minutesShort": "{{minutes}} dk",
+    "hoursMinutesShort": "{{hours}} sa {{minutes}} dk",
+    "elapsed": "{{duration}} geçti",
+    "left": "{{duration}} kaldı"
+  },
+  "units": {
+    "ms": "{{value}} ms",
+    "percent": "{{value}}%",
+    "kbps": "{{value}} kbps",
+    "mbps": "{{value}} Mbps"
+  },
+  "colors": {
+    "mint": "Nane",
+    "sky": "Gökyüzü",
+    "lavender": "Lavanta",
+    "coral": "Mercan",
+    "rose": "Gül",
+    "teal": "Deniz mavisi",
+    "amber": "Kehribar",
+    "peach": "Şeftali"
+  },
+  "language": {
+    "label": "Dil",
+    "automatic": "Otomatik (sistem)",
+    "description": "Menüler, düğmeler ve sistem mesajları için dili seç. Otomatik, sistem veya tarayıcı dil tercihlerini izler. Başkalarının mesajları yazıldığı gibi kalır."
+  },
+  "crash": {
+    "title": "Bir sorun oluştu",
+    "reload": "Sayfayı yenile",
+    "details": "Hata ayrıntıları"
+  },
+  "app": {
+    "description": "Kendi sunucunda barındırabileceğin Discord ve TeamSpeak alternatifi. HD ses, video ve ekran paylaşımı — açık kaynak ve ücretsiz (AGPL-3.0).",
+    "loading": "Backspace yükleniyor"
+  },
+  "chrome": {
+    "toggleMemberList": "Üye listesini aç/kapat",
+    "closeSettings": "Ayarları kapat"
+  },
+  "sourceCode": {
+    "label": "Kaynak kodu (AGPL)",
+    "labelWithBuild": "Kaynak kodu (AGPL) · {{build}}",
+    "title": "Bu örneğin çalıştırdığı sürümün kaynak kodunu görüntüle (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "{{label}} algılandı. Geçiş yapmak için Ses ayarlarından seç.",
+    "unnamedAudioInput": "Yeni ses cihazı"
+  }
+}

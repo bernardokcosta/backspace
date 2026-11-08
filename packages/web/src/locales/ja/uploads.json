@@ -1,0 +1,33 @@
+{
+  "failure": {
+    "notAuthenticated": "このインスタンスで認証されていません",
+    "invalidResponse": "アップロード応答を解析できませんでした",
+    "uploadError": "アップロードエラー",
+    "downloadError": "ダウンロードエラー",
+    "fileUnavailable": "ファイルは利用できません — 破棄して再アップロード",
+    "noDestination": "宛先ハンドルなし — 再開不可",
+    "destinationMissing": "宛先ハンドルなし",
+    "permissionDenied": "権限が拒否されました",
+    "lostDownload": "ダウンロードを再開できません — データ喪失。最初から開始してください。",
+    "uploadHandleMissing": "ファイルハンドルなし — 破棄して再アップロード",
+    "downloadHandleMissing": "宛先ハンドルなし — ダウンロードを最初から開始",
+    "downloadFailed": "ダウンロード失敗: {{status}}",
+    "resumeFailed": "再開失敗: {{status}}"
+  },
+  "transfers": {
+    "title": "転送",
+    "count_other": "{{count}} 件の転送",
+    "clearCompleted": "完了をクリア",
+    "empty": "アクティブな転送なし。",
+    "status": {
+      "done": "完了",
+      "failed": "失敗: {{reason}}",
+      "aborted": "中止",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "画像を切り抜き",
+    "applying": "適用中…"
+  }
+}

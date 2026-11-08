@@ -1,0 +1,34 @@
+{
+  "input": {
+    "placeholder": "Mesaj ara…"
+  },
+  "filters": {
+    "toggle": "Filtreler",
+    "from": {
+      "label": "Gönderen",
+      "placeholder": "kullanıcı adı"
+    },
+    "has": {
+      "label": "İçerik",
+      "any": "Herhangi biri",
+      "file": "Dosya",
+      "image": "Görsel",
+      "link": "Bağlantı"
+    },
+    "before": {
+      "label": "Önce"
+    },
+    "after": {
+      "label": "Sonra"
+    }
+  },
+  "results": {
+    "empty": "Sonuç bulunamadı",
+    "hint": "Bu kanalda mesaj aramak için yaz",
+    "count_one": "{{count}} sonuç",
+    "count_other": "{{count}} sonuç",
+    "loadMore": "Daha fazla yükle ({{remaining}} kaldı)",
+    "attachments_one": "{{count}} ek",
+    "attachments_other": "{{count}} ek"
+  }
+}

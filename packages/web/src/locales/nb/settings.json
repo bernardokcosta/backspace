@@ -1,0 +1,572 @@
+{
+  "interfaceScale": {
+    "label": "Grensesnittskala",
+    "description": "Endre størrelse på tekst, knapper og paneler. Lagres i denne nettleseren eller appen på denne enheten.",
+    "reset": "Nullstill til 100 %"
+  },
+  "voice": {
+    "input": {
+      "title": "Inndataenhet",
+      "checkingAccess": "Kontrollerer mikrofontilgang…",
+      "accessDenied": {
+        "title": "Mikrofontilgang nektet",
+        "description": "Gi mikrofontilgang for å velge inndataenhet.",
+        "retry": "Prøv igjen"
+      },
+      "permissionPrompt": {
+        "description": "Mikrofontillatelse trengs for å liste opp og velge inndataenhet.",
+        "enable": "Aktiver mikrofontilgang"
+      },
+      "device": {
+        "systemDefault": "Systemstandard",
+        "currentlyUsing": "Bruker nå: {{label}}",
+        "none": "Ingen mikrofoner oppdaget."
+      },
+      "volume": {
+        "label": "Inndatavolum"
+      },
+      "meter": {
+        "hint": "Nivåmåleren aktiveres når du blir med i en talekanal."
+      }
+    },
+    "output": {
+      "title": "Utdataenhet",
+      "checkingAccess": "Kontrollerer lydtilgang…",
+      "device": {
+        "systemDefault": "Systemstandard",
+        "unsupported": "Denne nettleseren støtter ikke valg av utdataenhet. Lyd går til systemstandard."
+      },
+      "permissionPrompt": {
+        "description": "Gi mikrofontilgang for å liste utdataenheter (nettlesere skjuler utnavn bak mikrofontilgang).",
+        "enable": "Aktiver lydtilgang"
+      },
+      "volume": {
+        "label": "Utvolum"
+      },
+      "testSound": "Spill testlyd"
+    },
+    "video": {
+      "title": "Video",
+      "checkingAccess": "Kontrollerer kameratilgang…",
+      "accessDenied": {
+        "title": "Kameratilgang nektet",
+        "description": "Gi kameratilgang for å velge kamera.",
+        "retry": "Prøv igjen"
+      },
+      "blocked": {
+        "browser": "Kamera blokkert på nettlesernivå. Klikk kameraikonet i adresselinjen, nullstill tillatelsen og klikk Prøv igjen.",
+        "mac": "Gi kameratilgang i Systeminnstillinger → Personvern og sikkerhet → Kamera, og start deretter appen på nytt.",
+        "windows": "Gi kameratilgang i Innstillinger → Personvern og sikkerhet → Kamera, og start deretter appen på nytt.",
+        "other": "Kameratillatelse ble nektet. Nullstill den i nettleser/Chromium-ledeteksten og prøv igjen."
+      },
+      "permissionPrompt": {
+        "description": "Kameratillatelse trengs for å velge kamera og forhåndsvise.",
+        "enable": "Aktiver kameraforhåndsvisning"
+      },
+      "camera": {
+        "label": "Kamera",
+        "auto": "Auto (systemstandard)",
+        "fallbackName": "Kamera {{number}}",
+        "detectedFallback": "oppdaget kamera",
+        "currentlyUsing": "Bruker nå: {{label}}",
+        "none": "Ingen kameraer oppdaget."
+      },
+      "preview": {
+        "testAria": "Test kamera",
+        "testHint": "Klikk for å teste kamera",
+        "stop": "Stopp forhåndsvisning",
+        "retry": "Prøv igjen"
+      },
+      "previewError": {
+        "inUse": "Kameraet brukes av et annet program.",
+        "unavailable": "Valgt kamera er ikke tilgjengelig.",
+        "notFound": "Ingen kamera oppdaget.",
+        "generic": "Kunne ikke starte kameraforhåndsvisning."
+      }
+    },
+    "title": "Stemme & video",
+    "volume": {
+      "sectionTitle": "Volum",
+      "soundEffects": {
+        "label": "Volum for lydeffekter"
+      },
+      "messageSound": {
+        "label": "Spill lyd for hver melding",
+        "description": "Av (standard): bare DM-er og meldinger som nevner deg. På: hver kanal."
+      }
+    },
+    "pip": {
+      "sectionTitle": "Flytende vindu",
+      "showOnSwitch": {
+        "label": "Vis flytende vindu under samtaler",
+        "description": "Mens du er i en talekanal eller samtale og ser et annet sted, holder et lite vindu samtalen synlig."
+      }
+    },
+    "processing": {
+      "sectionTitle": "Stemmebehandling",
+      "noiseSuppression": {
+        "label": "KI-støyreduksjon",
+        "description": "ML-basert støyreduksjon (RNNoise). Filtrerer tastatur, vifter og bakgrunnsstøy."
+      },
+      "echoCancellation": {
+        "label": "Ekkokansellering",
+        "description": "Fjerner ekko fra høyttalerne dine tilbake i mikrofonen. Alltid på for talekanaler og samtaler."
+      },
+      "autoGain": {
+        "label": "Automatisk gainkontroll",
+        "description": "Justerer mikrofonvolumet automatisk. Kan gi stemme-ducking under strømming."
+      }
+    }
+  },
+  "nav": {
+    "userSettings": "Brukerinnstillinger",
+    "appSettings": "Appinnstillinger",
+    "administration": "Administrasjon",
+    "tabs": {
+      "account": "Konto",
+      "appearance": "Utseende",
+      "voice": "Stemme & video",
+      "privacy": "Personvern",
+      "connections": "Tilkoblinger",
+      "keybinds": "Tastebindinger",
+      "desktop": "Datamaskin",
+      "instance": "Instans",
+      "bots": "Boter",
+      "developer": "Utvikler"
+    },
+    "logOut": "Logg ut",
+    "backToMenu": "Tilbake til innstillingsmenyen"
+  },
+  "appearance": {
+    "title": "Utseende"
+  },
+  "account": {
+    "title": "Min konto",
+    "detached": {
+      "notice": "Denne kontoen er frakoblet hjeminstansen sin.",
+      "explanation": "{{homeInstance}} ble nullstilt eller er ikke lenger tilgjengelig, så denne kontoen fungerer nå lokalt på denne instansen. Profilen din og passordet styres her.",
+      "reattachHint": "Som {{username}} på {{homeInstance}} kan du koble denne kontoen igjen. Profil og tilstedeværelse synkroniseres derfra igjen.",
+      "reattachButton": "Koble igjen til {{homeInstance}}",
+      "reattachConfirm": "Bekreft gjenkobling som {{username}}",
+      "reattaching": "Kobler igjen…",
+      "reattachFailed": "Gjenkobling mislyktes",
+      "reattached": "Konto koblet igjen med {{username}}"
+    },
+    "profile": {
+      "sectionTitle": "Profiltilpasning",
+      "avatar": {
+        "label": "Avatar",
+        "alt": "Avataren din",
+        "change": "Bytt avatar",
+        "uploadFailed": "Kunne ikke laste opp avatar",
+        "cropTitle": "Beskjær avatar"
+      },
+      "banner": {
+        "label": "Banner",
+        "change": "Bytt banner",
+        "uploadFailed": "Kunne ikke laste opp banner",
+        "cropTitle": "Beskjær banner"
+      },
+      "avatarColor": {
+        "label": "Avatarfarge"
+      },
+      "bannerColor": {
+        "label": "Bannerfarge",
+        "hexPlaceholder": "#hex"
+      },
+      "bio": {
+        "label": "Om meg",
+        "placeholder": "Fortell verden om deg…",
+        "counter": "{{used}}/{{max}}"
+      }
+    },
+    "details": {
+      "sectionTitle": "Konto",
+      "status": {
+        "label": "Status",
+        "homeUnavailable": "Statusen din holdes på {{host}}. Koble til {{host}} for å endre den."
+      },
+      "customStatus": {
+        "label": "Egendefinert status",
+        "placeholder": "Hva holder du på med?"
+      }
+    },
+    "password": {
+      "current": {
+        "label": "Gjeldende passord",
+        "placeholder": "Oppgi gjeldende passord"
+      },
+      "new": {
+        "label": "Nytt passord",
+        "placeholder": "Minst {{min}} tegn"
+      },
+      "confirm": {
+        "label": "Bekreft nytt passord",
+        "placeholder": "Bekreft nytt passord"
+      },
+      "show": "Vis passord",
+      "hide": "Skjul passord",
+      "tooShort": "Nytt passord må være minst {{min}} tegn",
+      "mismatch": "Passordene stemmer ikke overens",
+      "changed": "Passord endret",
+      "changeFailed": "Kunne ikke endre passord",
+      "submit": "Endre passord",
+      "submitting": "Endrer…"
+    },
+    "danger": {
+      "description": "Når du sletter kontoen din er det ingen vei tilbake. Meldingene dine blir, men tilskrives “Slettet bruker”.",
+      "deleteButton": "Slett konto"
+    },
+    "save": {
+      "updated": "Profil oppdatert",
+      "failed": "Kunne ikke oppdatere profil"
+    },
+    "deletion": {
+      "title": "Slett konto",
+      "warning": {
+        "headline": "Dette sletter permanent kontoen din.",
+        "spaces": "Alle rommedlemskap fjernes",
+        "friends": "Alle vennskap fjernes",
+        "dms": "Alle DM-medlemskap fjernes",
+        "messages": "Meldingene dine blir, men tilskrives “Slettet bruker”"
+      },
+      "ownedSpaces": {
+        "prompt_one": "Du eier {{count}} rom. Håndter det først:",
+        "prompt_other": "Du eier {{count}} rom. Håndter hvert først:",
+        "transfer": "Overfør",
+        "delete": "Slett rom",
+        "selectOwner": "Velg ny eier…"
+      },
+      "processing": "Behandler…",
+      "confirm": {
+        "permanent": "Denne handlingen er permanent og kan ikke angres.",
+        "usernamePrompt": "Skriv brukernavnet ditt <username>{{username}}</username> for å bekrefte",
+        "passwordPlaceholder": "Oppgi passordet ditt",
+        "submit": "Slett kontoen min",
+        "deleting": "Sletter…"
+      },
+      "federation": {
+        "removing": "Fjerner kontoen din fra tilkoblede instanser…",
+        "deleteAnyway": "Slett konto nå"
+      },
+      "complete": {
+        "title": "Konto slettet",
+        "redirecting": "Omdirigerer til innlogging…"
+      },
+      "errors": {
+        "usernameMismatch": "Brukernavnet stemmer ikke",
+        "spacesFailed": "Kunne ikke behandle rom",
+        "deleteFailed": "Kunne ikke slette konto"
+      }
+    }
+  },
+  "privacy": {
+    "title": "Personvern",
+    "discovery": {
+      "sectionTitle": "Oppdagelse",
+      "label": "La andre finne profilen min",
+      "description": "Når på, vises profilen din i Oppdag folk. Andre kan alltid legge deg til via nøyaktig brukernavn."
+    },
+    "activity": {
+      "sectionTitle": "Aktivitetsstatus",
+      "label": "Del aktivitetsstatus",
+      "description": "La andre se hva du holder på med, for eksempel hvilke spill du spiller eller hvilken musikk du hører på.",
+      "game": {
+        "label": "Opprettet manuelt",
+        "description": "Legg til et spill som ikke ble oppdaget. Det vises til du fjerner det.",
+        "placeholder": "Spillnavn",
+        "set": "Sett",
+        "detectedLabel": "Oppdaget akkurat nå",
+        "detectedDescription": "Vis et oppdaget spill under et annet navn. Det huskes til neste gang.",
+        "renamePlaceholder": "Vis som…",
+        "renameLabel": "Vis {{name}} som",
+        "renamedLabel": "Omdøpte spill",
+        "renamedItem": "{{detected}} → {{chosen}}",
+        "restore": "Gjenopprett",
+        "descriptionBound": "Legg til et spill som ikke ble oppdaget: velg programmet og navngi det. Det vises mens det programmet kjører.",
+        "programLabel": "Programvare",
+        "programPlaceholder": "Velg et kjørende program…",
+        "programHint": "Start først spillet, velg deretter programmet i listen.",
+        "clearRename": "Tøm",
+        "unknownLabel": "Uoppdagede Wine-programmer",
+        "unknownDescription": "De kjører, men matcher ikke noe kjent spill. Er ett spillet ditt, så vis det som spillet du spiller.",
+        "unknownUse": "Legg til i mine spill",
+        "gamesLabel": "Spillene dine",
+        "gamesDescription": "Det første spillet er hva lister viser; flytt spill for å sette prioritet. Et skjult spill vises ikke for andre.",
+        "moveUp": "Flytt {{name}} opp",
+        "moveDown": "Flytt {{name}} ned",
+        "hide": "Skjul",
+        "show": "Vis",
+        "hideGame": "Skjul {{name}}",
+        "showGame": "Vis {{name}}",
+        "add": "Legg til",
+        "remove": "Fjern",
+        "statusName": "vist på navn",
+        "statusRunning": "kjører",
+        "statusWaiting": "venter på {{program}}",
+        "dragHandle": "Dra {{name}} for å endre prioritet",
+        "manualNameLabel": "Navn på {{name}}",
+        "save": "Lagre"
+      }
+    }
+  },
+  "connections": {
+    "title": "Tilkoblinger"
+  },
+  "instance": {
+    "tabs": {
+      "general": "Generelt",
+      "registration": "Registrering",
+      "federation": "Føderasjon",
+      "streaming": "Strømming",
+      "storage": "Lagring",
+      "users": "Brukere",
+      "updates": "Oppdateringer"
+    }
+  },
+  "keybinds": {
+    "portal": {
+      "description": "På Wayland styrer datamaskinen alle Backspace-snarveier. Tildel, endre eller fjern taster i systemets innstillinger for tastatursnarveier, under Backspace. Lokale nettleser/X11-bindinger brukes ikke her.",
+      "idle": "Forbereder første registrering av alle tilgjengelige handlinger.",
+      "pending": "Kobler til desktopportalen. Hvis en systemdialog vises, velg snarveier for handlingene du vil bruke.",
+      "ready": "Backspace er registrert. Åpne systemets innstillinger for tastatursnarveier for å endre eller fjerne tildelinger. Listen nedenfor er skrivebeskyttet og oppdateres når du vender tilbake til Backspace.",
+      "unavailable": "Portalen er ikke tilgjengelig, tillatelse nektet eller sesjon avsluttet. En Global Shortcuts-portalbackend kreves. Lokale bindinger er av på Wayland.",
+      "retry": "Registrer eller koble snarveier igjen",
+      "assigned": "Systemsnarvei: {{shortcut}}",
+      "notAssigned": "Ingen aktiv systemtildeling"
+    },
+    "title": "Tastebindinger",
+    "note": {
+      "webOnly": "Snarveier virker mens denne fanen er aktiv. For globale snarveier som virker i andre apper, bruk desktopappen."
+    },
+    "section": {
+      "voice": "Stemmesnarveier"
+    },
+    "action": {
+      "toggleMute": "Slå av/på demping",
+      "toggleDeafen": "Slå av/på døving",
+      "pushToTalk": "Trykk for å snakke",
+      "toggleCamera": "Slå av/på kamera",
+      "toggleScreenShare": "Slå av/på skjermdeling",
+      "disconnect": "Koble fra"
+    },
+    "row": {
+      "recordingPrompt": "Trykk en tastekombinasjon…",
+      "notBound": "Ikke bundet",
+      "record": "Ta opp",
+      "escToCancel": "ESC for å avbryte"
+    },
+    "key": {
+      "shift": "Shift",
+      "ctrl": "Ctrl",
+      "alt": "Alt",
+      "option": "Option",
+      "cmd": "Cmd",
+      "win": "Win",
+      "space": "Mellomrom",
+      "middleClick": "Mitteklikk",
+      "mouse4": "Mus 4",
+      "mouse5": "Mus 5",
+      "mouseGeneric": "Mus {{button}}"
+    },
+    "accessibility": {
+      "title": "Tilgjengelighetstillatelse kreves",
+      "description": "Backspace trenger tilgjengelighetstillatelse for at globale snarveier skal virke utenfor appen.",
+      "grant": "Gi tillatelse"
+    },
+    "hookError": {
+      "title": "Globale snarveier ikke tilgjengelige",
+      "description": "Kunne ikke starte inndatalytter. På Linux må brukeren din kanskje være i gruppen <code>input</code>."
+    },
+    "conflict": {
+      "message": "<strong>{{combo}}</strong> er allerede bundet til <strong>{{action}}</strong>. Overskrive?",
+      "overwrite": "Overskriv"
+    }
+  },
+  "desktop": {
+    "title": "Datamaskin",
+    "autoLaunch": {
+      "openAtLogin": {
+        "label": "Start ved innlogging",
+        "description": "Start Backspace automatisk når du logger inn"
+      },
+      "startMinimized": {
+        "label": "Start minimert",
+        "description": "Start skjult i systemstatusfeltet i stedet for å vise vinduet"
+      }
+    },
+    "updates": {
+      "appName": "Backspace Desktop",
+      "versionLabel": "Versjon {{version}}",
+      "checking": "Kontrollerer oppdateringer…",
+      "checkingShort": "Kontrollerer…",
+      "checkNow": "Se etter oppdateringer",
+      "downloading": "Laster ned {{version}}, {{percent}} %",
+      "downloadingWithRate": "Laster ned {{version}}, {{percent}} % med {{rate}}",
+      "rateMegabytes": "{{value}} MB/s",
+      "rateKilobytes": "{{value}} KB/s",
+      "upToDate": "Du har den nyeste versjonen",
+      "available": "Versjon {{version}} tilgjengelig",
+      "readyToInstall": "Versjon {{version}} klar til å installeres",
+      "installFailed": "Versjon {{version}} kunne ikke installeres",
+      "checkFailed": "Siste oppdateringskontroll mislyktes",
+      "idle": "Se etter nye versjoner av datamaskinappen",
+      "external": "Oppdateringer installeres via Flatpak-programbehandleren din",
+      "download": "Last ned",
+      "restart": "Start på nytt",
+      "manualNote": "Dette bygget installerer ikke oppdateringer selv. Last ned nye versjoner fra GitHub og erstatt appen manuelt. Se utgivelsesnotatene for trinn på plattformen din.",
+      "externalNote": "Flatpak bruker oppdateringer atomisk utenfor appen. Bruk programbehandleren din eller kommandoen <code>flatpak update</code> for å oppdatere Backspace."
+    },
+    "instance": {
+      "current": "Nå tilkoblet instans",
+      "change": "Bytt instans"
+    }
+  },
+  "desktopDownload": {
+    "title": "Datamaskin",
+    "intro": "Globale snarveier, start ved oppstart og ikon i systemstatusfeltet.",
+    "unsupported": "Datamaskinappen kjører på Windows, Linux og macOS.",
+    "name": {
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux"
+    },
+    "tag": {
+      "windows": "Denne PC-en",
+      "mac": "Denne Mac-en",
+      "linux": "Denne maskinen"
+    },
+    "covers": {
+      "windows": "x64 eller arm64",
+      "mac": "Kjører på Apple Silicon og Intel-Mac",
+      "linux": "AppImage- eller deb-pakke, x64 eller arm64"
+    },
+    "download": {
+      "windows": "Last ned for Windows",
+      "mac": "Last ned for macOS",
+      "linux": "Last ned for Linux"
+    },
+    "picker": {
+      "architecture": "Arkitektur",
+      "format": "Pakkeformat"
+    },
+    "arch": {
+      "appleSilicon": "Apple Silicon",
+      "intel": "Intel",
+      "x64": "x64",
+      "arm64": "arm64"
+    },
+    "kind": {
+      "appimage": "AppImage",
+      "deb": "deb"
+    },
+    "archGuessed": {
+      "windows": "Nettleseren din sa ikke hvilken prosessor denne PC-en har, så x64 er forhåndsvalgt.",
+      "mac": "Nettleseren din sa ikke hvilken chip denne Mac-en har, så Apple Silicon er forhåndsvalgt.",
+      "linux": "Nettleseren din sa ikke hvilken prosessor denne maskinen har, så x64 er forhåndsvalgt."
+    },
+    "version": "Versjon {{version}}",
+    "allReleases": "Alle utgivelser på GitHub"
+  },
+  "bots": {
+    "title": "Boter",
+    "description": "En bot er en konto som et program styrer med et token. Opprett en, kopier tokenet og koble til programmet ditt. Boter svarer i direktemeldinger.",
+    "create": {
+      "sectionTitle": "Opprett en bot",
+      "nameLabel": "Botbrukernavn",
+      "submit": "Opprett bot",
+      "hint": "{{min}} til {{max}} tegn: små latinske bokstaver (a–z), tall (0–9) og understreker (_). Du kan opprette opptil {{limit}} boter."
+    },
+    "list": {
+      "sectionTitle": "Botene dine",
+      "empty": "Du har ingen boter ennå.",
+      "createdOn": "Opprettet {{date}}"
+    },
+    "token": {
+      "title": "Tokenet for {{name}}",
+      "warning": "Kopier tokenet nå. Det vises bare én gang, og den som har det styrer boten.",
+      "copy": "Kopiér token",
+      "copied": "Kopiert",
+      "dismiss": "Jeg har lagret det"
+    },
+    "tokens": {
+      "title": "Tilgangstokens",
+      "loading": "Laster tokens",
+      "legacy": "Denne boten kjører fortsatt på sitt gamle langlivede token. Opprett et token for å bytte: det gamle slutter å virke med én gang.",
+      "empty": "Denne boten har ingen tokens.",
+      "unnamed": "Navnløst token",
+      "createdOn": "Opprettet {{date}}",
+      "neverUsed": "aldri brukt",
+      "lastUsed": "sist brukt {{time}}",
+      "revoke": "Tilbakekall",
+      "confirmRevoke": "Bekreft tilbakekalling",
+      "nameLabel": "Tokenetikett",
+      "namePlaceholder": "Etikett (valgfri)",
+      "create": "Opprett token",
+      "limitHint": "Opptil {{max}} tokens per bot. Å tilbakekalle et token kobler fra boten; de andre tokenene virker videre."
+    },
+    "actions": {
+      "regenerate": "Nullstill alle tokens",
+      "delete": "Slett",
+      "confirmDelete": "Bekreft sletting",
+      "cancel": "Avbryt",
+      "edit": "Rediger",
+      "save": "Lagre",
+      "addToServer": "Legg til i et rom",
+      "tokens": "Tokens"
+    },
+    "edit": {
+      "nameLabel": "Visningsnavn",
+      "hint": "Brukernavnet @{{username}} kan ikke endres. Opptil {{max}} tegn.",
+      "bioLabel": "Om boten",
+      "bioPlaceholder": "Hva boten gjør, kommandoene dens, hvor man får hjelp",
+      "bioCounter": "{{used}}/{{max}}"
+    },
+    "status": {
+      "label": "Status",
+      "none": "Ingen status",
+      "textLabel": "Statustekst",
+      "placeholder": "Hva boten viser ved navnet sitt",
+      "hint": "Vises mens boten er koblet til. Botens kode kan erstatte den til neste tilkobling.",
+      "types": {
+        "custom": "Egendefinert",
+        "playing": "Spiller",
+        "listening": "Hører på",
+        "watching": "Ser på"
+      },
+      "display": {
+        "custom": "{{name}}",
+        "playing": "Spiller {{name}}",
+        "listening": "Hører på {{name}}",
+        "watching": "Ser på {{name}}"
+      }
+    },
+    "permissions": {
+      "label": "Tillatelser boten ber om",
+      "hint": "En ansvarlig som legger boten til i et rom ser dem avkrysset og kan fjerne kryss. De går i en rolle oppkalt etter boten. Senere endring rører ikke allerede opprettede roller."
+    },
+    "avatar": {
+      "change": "Bytt avatar",
+      "remove": "Fjern avatar",
+      "cropTitle": "Beskjær botavatar",
+      "uploadFailed": "Kunne ikke laste opp avataren",
+      "notImage": "Velg en bildefil"
+    },
+    "spaces": {
+      "title": "Legg til i et rom",
+      "loading": "Laster rom",
+      "empty": "Du styrer ennå ingen rom. Å legge til en bot krever tillatelse til å styre rommet.",
+      "add": "Legg til",
+      "added": "Lagt til",
+      "remove": "Fjern"
+    }
+  },
+  "developer": {
+    "title": "Utvikler",
+    "mode": {
+      "label": "Utviklermodus",
+      "description": "Vis utviklerverktøy, som fanen Boter, i innstillinger. Å slå av skjuler dem bare; botene dine fortsetter å kjøre.",
+      "saveFailed": "Kunne ikke lagre innstillingen. Prøv igjen."
+    }
+  }
+}

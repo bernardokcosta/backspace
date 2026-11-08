@@ -67,7 +67,13 @@ describe('collectPrecacheCandidates', () => {
 
   it('builds the worker glob from the same list of file types', () => {
     expect(PRECACHE_GLOB_PATTERNS).toEqual([`**/*.{${EXTENSIONS.join(',')}}`]);
-    expect([...EXTENSIONS].sort()).toEqual(['css', 'html', 'js', 'wasm']);
+    expect([...EXTENSIONS].sort()).toEqual(['css', 'html', 'js', 'wasm', 'webmanifest']);
+  });
+
+  it('keeps localized install metadata in the offline precache budget', () => {
+    const dist = makeDist({ 'manifest-pt.webmanifest': 1200 });
+    expect(collectPrecacheCandidates(dist, ['manifest-pt.webmanifest'], EXTENSIONS))
+      .toEqual([{ path: 'manifest-pt.webmanifest', bytes: 1200, precached: true }]);
   });
 
   it('leaves source maps out, which are never precached', () => {

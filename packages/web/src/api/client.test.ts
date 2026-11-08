@@ -2,10 +2,20 @@ import { describe, it, expect, afterEach, vi } from 'vitest';
 import { createApiClient, HttpError, RateLimitError } from './client';
 import { describeError } from '../i18n/errors';
 import { recordDiagnostic } from '../utils/diagnostics';
+import { setLanguage } from '../i18n';
 
 vi.mock('../utils/diagnostics', () => ({ recordDiagnostic: vi.fn() }));
 
 const originalFetch = globalThis.fetch;
+
+it('localizes a client-owned timeout without changing transport behavior', async () => {
+  globalThis.fetch = vi.fn().mockRejectedValue(new DOMException('fixture abort', 'AbortError'));
+  await setLanguage('pt');
+  try {
+    const client = createApiClient('https://fixture.example.test', () => null);
+    await expect(client.users.me()).rejects.toThrow('O tempo limite da solicitação foi excedido.');
+  } finally { await setLanguage('en'); }
+});
 
 function answer(status: number, body: string | null, headers: Record<string, string> = {}): void {
   (globalThis.fetch as unknown) = vi.fn().mockResolvedValue(new Response(body, { status, headers }));

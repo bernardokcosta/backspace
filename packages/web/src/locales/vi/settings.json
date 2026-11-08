@@ -1,0 +1,572 @@
+{
+  "interfaceScale": {
+    "label": "Tỉ lệ giao diện",
+    "description": "Đổi cỡ chữ, nút và panel. Lưu trong trình duyệt hay app này trên thiết bị này.",
+    "reset": "Đặt lại 100%"
+  },
+  "voice": {
+    "input": {
+      "title": "Thiết bị vào",
+      "checkingAccess": "Đang kiểm tra quyền micro…",
+      "accessDenied": {
+        "title": "Quyền micro bị từ chối",
+        "description": "Cấp quyền micro để chọn thiết bị vào.",
+        "retry": "Thử lại"
+      },
+      "permissionPrompt": {
+        "description": "Cần quyền micro để liệt kê và chọn thiết bị vào.",
+        "enable": "Bật quyền micro"
+      },
+      "device": {
+        "systemDefault": "Mặc định hệ thống",
+        "currentlyUsing": "Đang dùng: {{label}}",
+        "none": "Không phát hiện micro nào."
+      },
+      "volume": {
+        "label": "Âm lượng vào"
+      },
+      "meter": {
+        "hint": "Đồng hồ mức kích hoạt khi bạn tham gia kênh voice."
+      }
+    },
+    "output": {
+      "title": "Thiết bị ra",
+      "checkingAccess": "Đang kiểm tra quyền âm thanh…",
+      "device": {
+        "systemDefault": "Mặc định hệ thống",
+        "unsupported": "Trình duyệt này không hỗ trợ chọn thiết bị ra. Âm thanh ra mặc định hệ thống."
+      },
+      "permissionPrompt": {
+        "description": "Cấp quyền micro để liệt kê thiết bị ra (trình duyệt ẩn tên ra sau quyền micro).",
+        "enable": "Bật quyền âm thanh"
+      },
+      "volume": {
+        "label": "Âm lượng ra"
+      },
+      "testSound": "Phát âm thử"
+    },
+    "video": {
+      "title": "Video",
+      "checkingAccess": "Đang kiểm tra quyền camera…",
+      "accessDenied": {
+        "title": "Quyền camera bị từ chối",
+        "description": "Cấp quyền camera để chọn camera.",
+        "retry": "Thử lại"
+      },
+      "blocked": {
+        "browser": "Camera bị chặn ở cấp trình duyệt. Hãy nhấn biểu tượng camera trên thanh địa chỉ, đặt lại quyền rồi nhấn Thử lại.",
+        "mac": "Cấp quyền camera trong Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Camera, rồi khởi động lại app.",
+        "windows": "Cấp quyền camera trong Cài đặt → Quyền riêng tư & Bảo mật → Camera, rồi khởi động lại app.",
+        "other": "Quyền camera bị từ chối. Hãy đặt lại trong hộp trình duyệt/Chromium và thử lại."
+      },
+      "permissionPrompt": {
+        "description": "Cần quyền camera để chọn camera và xem trước.",
+        "enable": "Bật xem trước camera"
+      },
+      "camera": {
+        "label": "Máy ảnh",
+        "auto": "Tự động (mặc định hệ thống)",
+        "fallbackName": "Máy ảnh {{number}}",
+        "detectedFallback": "camera phát hiện",
+        "currentlyUsing": "Đang dùng: {{label}}",
+        "none": "Không phát hiện camera nào."
+      },
+      "preview": {
+        "testAria": "Thử camera",
+        "testHint": "Nhấn để thử camera",
+        "stop": "Dừng xem trước",
+        "retry": "Thử lại"
+      },
+      "previewError": {
+        "inUse": "Camera đang dùng bởi ứng dụng khác.",
+        "unavailable": "Camera đã chọn không khả dụng.",
+        "notFound": "Không phát hiện camera.",
+        "generic": "Không thể khởi động xem trước camera."
+      }
+    },
+    "title": "Thoại & Video",
+    "volume": {
+      "sectionTitle": "Âm lượng",
+      "soundEffects": {
+        "label": "Âm lượng hiệu ứng"
+      },
+      "messageSound": {
+        "label": "Phát âm cho mỗi tin nhắn",
+        "description": "Tắt (mặc định): chỉ DM và tin nhắn nhắc bạn. Bật: mọi kênh."
+      }
+    },
+    "pip": {
+      "sectionTitle": "Cửa sổ nổi",
+      "showOnSwitch": {
+        "label": "Hiện cửa sổ nổi khi gọi",
+        "description": "Khi bạn ở kênh voice hay cuộc gọi mà nhìn chỗ khác, cửa sổ nhỏ giữ cuộc gọi trong tầm mắt."
+      }
+    },
+    "processing": {
+      "sectionTitle": "Xử lý voice",
+      "noiseSuppression": {
+        "label": "Khử ồn AI",
+        "description": "Khử ồn bằng ML (RNNoise). Lọc bàn phím, quạt và ồn nền."
+      },
+      "echoCancellation": {
+        "label": "Hủy tiếng vang",
+        "description": "Hủy vang từ loa dội vào micro. Luôn bật cho kênh voice và cuộc gọi."
+      },
+      "autoGain": {
+        "label": "Tự điều khiển độ lợi",
+        "description": "Tự chỉnh âm lượng micro. Có thể gây hụt voice khi stream."
+      }
+    }
+  },
+  "nav": {
+    "userSettings": "Cài đặt người dùng",
+    "appSettings": "Cài đặt app",
+    "administration": "Quản trị",
+    "tabs": {
+      "account": "Tài khoản",
+      "appearance": "Giao diện",
+      "voice": "Thoại & Video",
+      "privacy": "Riêng tư",
+      "connections": "Kết nối",
+      "keybinds": "Phím tắt",
+      "desktop": "Máy tính",
+      "instance": "Máy chủ",
+      "bots": "Bot",
+      "developer": "Nhà phát triển"
+    },
+    "logOut": "Đăng xuất",
+    "backToMenu": "Về menu cài đặt"
+  },
+  "appearance": {
+    "title": "Giao diện"
+  },
+  "account": {
+    "title": "Tài khoản của tôi",
+    "detached": {
+      "notice": "Tài khoản này tách khỏi máy chủ chính.",
+      "explanation": "{{homeInstance}} đã đặt lại hoặc không còn khả dụng, nên tài khoản này giờ chạy cục bộ trên máy chủ này. Hồ sơ và mật khẩu của bạn quản lý ở đây.",
+      "reattachHint": "Với tên {{username}} trên {{homeInstance}}, bạn gắn lại được tài khoản này. Hồ sơ và hiện diện lại đồng bộ từ đó.",
+      "reattachButton": "Gắn lại tới {{homeInstance}}",
+      "reattachConfirm": "Xác nhận gắn lại với tên {{username}}",
+      "reattaching": "Đang gắn lại…",
+      "reattachFailed": "Gắn lại thất bại",
+      "reattached": "Đã gắn lại tài khoản với {{username}}"
+    },
+    "profile": {
+      "sectionTitle": "Tùy chỉnh hồ sơ",
+      "avatar": {
+        "label": "Avatar",
+        "alt": "Avatar của bạn",
+        "change": "Đổi avatar",
+        "uploadFailed": "Tải avatar thất bại",
+        "cropTitle": "Cắt avatar"
+      },
+      "banner": {
+        "label": "Banner",
+        "change": "Đổi banner",
+        "uploadFailed": "Tải banner thất bại",
+        "cropTitle": "Cắt banner"
+      },
+      "avatarColor": {
+        "label": "Màu avatar"
+      },
+      "bannerColor": {
+        "label": "Màu banner",
+        "hexPlaceholder": "#hex"
+      },
+      "bio": {
+        "label": "Về tôi",
+        "placeholder": "Kể thế giới về bạn…",
+        "counter": "{{used}}/{{max}}"
+      }
+    },
+    "details": {
+      "sectionTitle": "Tài khoản",
+      "status": {
+        "label": "Trạng thái",
+        "homeUnavailable": "Trạng thái của bạn giữ trên {{host}}. Hãy kết nối tới {{host}} để đổi."
+      },
+      "customStatus": {
+        "label": "Trạng thái tùy chỉnh",
+        "placeholder": "Bạn đang làm gì?"
+      }
+    },
+    "password": {
+      "current": {
+        "label": "Mật khẩu hiện tại",
+        "placeholder": "Nhập mật khẩu hiện tại"
+      },
+      "new": {
+        "label": "Mật khẩu mới",
+        "placeholder": "Ít nhất {{min}} ký tự"
+      },
+      "confirm": {
+        "label": "Xác nhận mật khẩu mới",
+        "placeholder": "Xác nhận mật khẩu mới"
+      },
+      "show": "Hiện mật khẩu",
+      "hide": "Ẩn mật khẩu",
+      "tooShort": "Mật khẩu mới ít nhất {{min}} ký tự",
+      "mismatch": "Mật khẩu không khớp",
+      "changed": "Đã đổi mật khẩu",
+      "changeFailed": "Đổi mật khẩu thất bại",
+      "submit": "Đổi mật khẩu",
+      "submitting": "Đang đổi…"
+    },
+    "danger": {
+      "description": "Khi xóa tài khoản, không thể quay lại. Tin nhắn của bạn ở lại nhưng gán cho “Người dùng đã xóa”.",
+      "deleteButton": "Xóa tài khoản"
+    },
+    "save": {
+      "updated": "Đã cập nhật hồ sơ",
+      "failed": "Cập nhật hồ sơ thất bại"
+    },
+    "deletion": {
+      "title": "Xóa tài khoản",
+      "warning": {
+        "headline": "Điều này xóa vĩnh viễn tài khoản của bạn.",
+        "spaces": "Mọi tư cách thành viên không gian bị gỡ",
+        "friends": "Mọi tình bạn bị gỡ",
+        "dms": "Mọi tư cách thành viên DM bị gỡ",
+        "messages": "Tin nhắn của bạn ở lại nhưng gán cho “Người dùng đã xóa”"
+      },
+      "ownedSpaces": {
+        "prompt_one": "Bạn sở hữu {{count}} không gian. Hãy xử lý trước khi tiếp tục:",
+        "prompt_other": "Bạn sở hữu {{count}} không gian. Hãy xử lý từng cái trước khi tiếp tục:",
+        "transfer": "Chuyển",
+        "delete": "Xóa không gian",
+        "selectOwner": "Chọn chủ mới…"
+      },
+      "processing": "Đang xử lý…",
+      "confirm": {
+        "permanent": "Hành động này vĩnh viễn và không thể hoàn tác.",
+        "usernamePrompt": "Nhập tên người dùng <username>{{username}}</username> để xác nhận",
+        "passwordPlaceholder": "Nhập mật khẩu của bạn",
+        "submit": "Xóa tài khoản của tôi",
+        "deleting": "Đang xóa…"
+      },
+      "federation": {
+        "removing": "Đang gỡ tài khoản của bạn khỏi máy chủ đã kết nối…",
+        "deleteAnyway": "Xóa tài khoản ngay"
+      },
+      "complete": {
+        "title": "Đã xóa tài khoản",
+        "redirecting": "Đang chuyển tới đăng nhập…"
+      },
+      "errors": {
+        "usernameMismatch": "Tên người dùng không khớp",
+        "spacesFailed": "Xử lý không gian thất bại",
+        "deleteFailed": "Xóa tài khoản thất bại"
+      }
+    }
+  },
+  "privacy": {
+    "title": "Riêng tư",
+    "discovery": {
+      "sectionTitle": "Khám phá",
+      "label": "Cho người khác tìm hồ sơ của tôi",
+      "description": "Khi bật, hồ sơ của bạn hiện trong Khám phá mọi người. Người khác luôn thêm được bạn qua tên chính xác."
+    },
+    "activity": {
+      "sectionTitle": "Trạng thái hoạt động",
+      "label": "Chia sẻ trạng thái hoạt động",
+      "description": "Cho người khác thấy bạn đang làm gì, như game đang chơi hay nhạc đang nghe.",
+      "game": {
+        "label": "Tạo thủ công",
+        "description": "Thêm game không phát hiện được. Nó hiện tới khi bạn xóa.",
+        "placeholder": "Tên game",
+        "set": "Đặt",
+        "detectedLabel": "Phát hiện ngay",
+        "detectedDescription": "Hiện game phát hiện dưới tên khác. Nó nhớ cho lần tới.",
+        "renamePlaceholder": "Hiện dưới dạng…",
+        "renameLabel": "Hiện {{name}} dưới dạng",
+        "renamedLabel": "Game đổi tên",
+        "renamedItem": "{{detected}} → {{chosen}}",
+        "restore": "Khôi phục",
+        "descriptionBound": "Thêm game không phát hiện được: chọn chương trình của nó và đặt tên. Nó hiện khi chương trình đó chạy.",
+        "programLabel": "Chương trình",
+        "programPlaceholder": "Chọn chương trình đang chạy…",
+        "programHint": "Hãy mở game trước, rồi chọn chương trình của nó trong danh sách.",
+        "clearRename": "Xóa",
+        "unknownLabel": "Chương trình Wine không rõ",
+        "unknownDescription": "Chúng chạy nhưng không khớp game đã biết nào. Nếu một là game của bạn, hãy hiện nó như game bạn chơi.",
+        "unknownUse": "Thêm vào game của tôi",
+        "gamesLabel": "Game của bạn",
+        "gamesDescription": "Game đầu là thứ danh sách hiện; di chuyển game để đặt ưu tiên. Game ẩn không hiện với người khác.",
+        "moveUp": "Chuyển {{name}} lên",
+        "moveDown": "Chuyển {{name}} xuống",
+        "hide": "Ẩn",
+        "show": "Hiện",
+        "hideGame": "Ẩn {{name}}",
+        "showGame": "Hiện {{name}}",
+        "add": "Thêm",
+        "remove": "Gỡ",
+        "statusName": "hiện theo tên",
+        "statusRunning": "đang chạy",
+        "statusWaiting": "đang chờ {{program}}",
+        "dragHandle": "Kéo {{name}} để đổi ưu tiên",
+        "manualNameLabel": "Tên của {{name}}",
+        "save": "Lưu"
+      }
+    }
+  },
+  "connections": {
+    "title": "Kết nối"
+  },
+  "instance": {
+    "tabs": {
+      "general": "Chung",
+      "registration": "Đăng ký",
+      "federation": "Liên hợp",
+      "streaming": "Phát trực tiếp",
+      "storage": "Lưu trữ",
+      "users": "Người dùng",
+      "updates": "Cập nhật"
+    }
+  },
+  "keybinds": {
+    "portal": {
+      "description": "Trên Wayland, máy tính quản lý mọi phím tắt Backspace. Gán, đổi hoặc gỡ phím trong cài đặt phím tắt keyboard hệ thống, dưới Backspace. Binding trình duyệt/X11 cục bộ không dùng ở đây.",
+      "idle": "Chuẩn bị đăng ký đầu tiên mọi hành động khả dụng.",
+      "pending": "Đang kết nối tới cổng desktop. Nếu hộp hệ thống hiện, hãy chọn phím tắt cho hành động muốn dùng.",
+      "ready": "Backspace đã đăng ký. Mở cài đặt phím tắt keyboard hệ thống để đổi hoặc gỡ gán. Danh sách dưới chỉ đọc và làm mới khi bạn quay lại Backspace.",
+      "unavailable": "Cổng không khả dụng, quyền bị từ chối hoặc phiên kết thúc. Cần backend cổng Global Shortcuts. Binding cục bộ tắt trên Wayland.",
+      "retry": "Đăng ký hoặc kết nối lại phím tắt",
+      "assigned": "Phím tắt hệ thống: {{shortcut}}",
+      "notAssigned": "Không có gán hệ thống hoạt động"
+    },
+    "title": "Phím tắt",
+    "note": {
+      "webOnly": "Phím tắt chạy khi tab này focus. Để có phím tắt toàn cục chạy trong app khác, hãy dùng app desktop."
+    },
+    "section": {
+      "voice": "Phím tắt voice"
+    },
+    "action": {
+      "toggleMute": "Bật/tắt tắt tiếng",
+      "toggleDeafen": "Bật/tắt điếc",
+      "pushToTalk": "Nhấn để nói",
+      "toggleCamera": "Bật/tắt camera",
+      "toggleScreenShare": "Bật/tắt chia sẻ màn hình",
+      "disconnect": "Ngắt"
+    },
+    "row": {
+      "recordingPrompt": "Nhấn tổ hợp phím…",
+      "notBound": "Chưa gán",
+      "record": "Ghi",
+      "escToCancel": "ESC để hủy"
+    },
+    "key": {
+      "shift": "Shift",
+      "ctrl": "Ctrl",
+      "alt": "Alt",
+      "option": "Option",
+      "cmd": "Cmd",
+      "win": "Win",
+      "space": "Khoảng trắng",
+      "middleClick": "Nhấn giữa",
+      "mouse4": "Chuột 4",
+      "mouse5": "Chuột 5",
+      "mouseGeneric": "Chuột {{button}}"
+    },
+    "accessibility": {
+      "title": "Cần quyền trợ năng",
+      "description": "Backspace cần quyền trợ năng để phím tắt toàn cục chạy ngoài app.",
+      "grant": "Cấp quyền"
+    },
+    "hookError": {
+      "title": "Phím tắt toàn cục không khả dụng",
+      "description": "Không thể khởi động nghe đầu vào. Trên Linux, người dùng của bạn có thể cần ở nhóm <code>input</code>."
+    },
+    "conflict": {
+      "message": "<strong>{{combo}}</strong> đã gán cho <strong>{{action}}</strong>. Ghi đè?",
+      "overwrite": "Ghi đè"
+    }
+  },
+  "desktop": {
+    "title": "Máy tính",
+    "autoLaunch": {
+      "openAtLogin": {
+        "label": "Mở khi đăng nhập",
+        "description": "Tự mở Backspace khi bạn đăng nhập"
+      },
+      "startMinimized": {
+        "label": "Mở thu nhỏ",
+        "description": "Mở ẩn trong khay hệ thống thay vì hiện cửa sổ"
+      }
+    },
+    "updates": {
+      "appName": "Backspace Desktop",
+      "versionLabel": "Bản {{version}}",
+      "checking": "Đang kiểm tra cập nhật…",
+      "checkingShort": "Đang kiểm tra…",
+      "checkNow": "Kiểm tra cập nhật",
+      "downloading": "Đang tải {{version}}, {{percent}}%",
+      "downloadingWithRate": "Đang tải {{version}}, {{percent}}% với {{rate}}",
+      "rateMegabytes": "{{value}} MB/s",
+      "rateKilobytes": "{{value}} KB/s",
+      "upToDate": "Bạn đang mới nhất",
+      "available": "Có bản {{version}}",
+      "readyToInstall": "Bản {{version}} sẵn sàng cài",
+      "installFailed": "Không thể cài bản {{version}}",
+      "checkFailed": "Kiểm tra cập nhật gần nhất thất bại",
+      "idle": "Kiểm tra bản mới của app desktop",
+      "external": "Cập nhật cài qua trình quản lý phần mềm Flatpak của bạn",
+      "download": "Tải xuống",
+      "restart": "Khởi động lại",
+      "manualNote": "Bản build này không tự cài cập nhật. Hãy tải bản mới từ GitHub và thay app thủ công. Xem ghi chú phát hành cho bước trên nền tảng của bạn.",
+      "externalNote": "Flatpak áp cập nhật nguyên tử ngoài app. Hãy dùng trình quản lý phần mềm hoặc lệnh <code>flatpak update</code> để cập nhật Backspace."
+    },
+    "instance": {
+      "current": "Máy chủ đang kết nối",
+      "change": "Đổi máy chủ"
+    }
+  },
+  "desktopDownload": {
+    "title": "Máy tính",
+    "intro": "Phím tắt toàn cục, mở khi khởi động và biểu tượng khay hệ thống.",
+    "unsupported": "App desktop chạy trên Windows, Linux và macOS.",
+    "name": {
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux"
+    },
+    "tag": {
+      "windows": "PC này",
+      "mac": "Mac này",
+      "linux": "Máy này"
+    },
+    "covers": {
+      "windows": "x64 hoặc arm64",
+      "mac": "Chạy trên Apple Silicon và Intel Mac",
+      "linux": "Gói AppImage hoặc deb, x64 hoặc arm64"
+    },
+    "download": {
+      "windows": "Tải cho Windows",
+      "mac": "Tải cho macOS",
+      "linux": "Tải cho Linux"
+    },
+    "picker": {
+      "architecture": "Kiến trúc",
+      "format": "Định dạng gói"
+    },
+    "arch": {
+      "appleSilicon": "Apple Silicon",
+      "intel": "Intel",
+      "x64": "x64",
+      "arm64": "arm64"
+    },
+    "kind": {
+      "appimage": "AppImage",
+      "deb": "deb"
+    },
+    "archGuessed": {
+      "windows": "Trình duyệt không nói PC này dùng chip gì, nên x64 được chọn sẵn.",
+      "mac": "Trình duyệt không nói Mac này dùng chip gì, nên Apple Silicon được chọn sẵn.",
+      "linux": "Trình duyệt không nói máy này dùng chip gì, nên x64 được chọn sẵn."
+    },
+    "version": "Bản {{version}}",
+    "allReleases": "Mọi bản phát hành trên GitHub"
+  },
+  "bots": {
+    "title": "Bot",
+    "description": "Bot là tài khoản do chương trình điều khiển bằng token. Hãy tạo một, sao chép token và kết nối chương trình. Bot trả lời trong tin nhắn trực tiếp.",
+    "create": {
+      "sectionTitle": "Tạo bot",
+      "nameLabel": "Tên người dùng bot",
+      "submit": "Tạo bot",
+      "hint": "{{min}} đến {{max}} ký tự: chữ Latin thường (a–z), số (0–9) và gạch dưới (_). Bạn tạo tối đa {{limit}} bot."
+    },
+    "list": {
+      "sectionTitle": "Bot của bạn",
+      "empty": "Bạn chưa có bot nào.",
+      "createdOn": "Tạo {{date}}"
+    },
+    "token": {
+      "title": "Token cho {{name}}",
+      "warning": "Hãy sao chép token ngay. Nó chỉ hiện một lần, và ai có nó điều khiển bot.",
+      "copy": "Sao chép token",
+      "copied": "Đã sao chép",
+      "dismiss": "Tôi đã lưu"
+    },
+    "tokens": {
+      "title": "Token truy cập",
+      "loading": "Đang tải token",
+      "legacy": "Bot này vẫn chạy trên token dài hạn cũ. Hãy tạo token để chuyển: token cũ dừng ngay.",
+      "empty": "Bot này không có token.",
+      "unnamed": "Token không tên",
+      "createdOn": "Tạo {{date}}",
+      "neverUsed": "chưa dùng",
+      "lastUsed": "dùng gần nhất {{time}}",
+      "revoke": "Thu hồi",
+      "confirmRevoke": "Xác nhận thu hồi",
+      "nameLabel": "Nhãn token",
+      "namePlaceholder": "Nhãn (tùy chọn)",
+      "create": "Tạo token",
+      "limitHint": "Tối đa {{max}} token mỗi bot. Thu hồi token ngắt bot; token khác vẫn chạy."
+    },
+    "actions": {
+      "regenerate": "Đặt lại mọi token",
+      "delete": "Xóa",
+      "confirmDelete": "Xác nhận xóa",
+      "cancel": "Hủy",
+      "edit": "Sửa",
+      "save": "Lưu",
+      "addToServer": "Thêm vào không gian",
+      "tokens": "Token"
+    },
+    "edit": {
+      "nameLabel": "Tên hiển thị",
+      "hint": "Tên người dùng @{{username}} không đổi được. Tới {{max}} ký tự.",
+      "bioLabel": "Về bot",
+      "bioPlaceholder": "Bot làm gì, lệnh của nó, trợ giúp ở đâu",
+      "bioCounter": "{{used}}/{{max}}"
+    },
+    "status": {
+      "label": "Trạng thái",
+      "none": "Không trạng thái",
+      "textLabel": "Văn bản trạng thái",
+      "placeholder": "Bot hiện gì cạnh tên nó",
+      "hint": "Hiện khi bot kết nối. Mã bot thay được tới lần kết nối tới.",
+      "types": {
+        "custom": "Tùy chỉnh",
+        "playing": "Đang chơi",
+        "listening": "Đang nghe",
+        "watching": "Đang xem"
+      },
+      "display": {
+        "custom": "{{name}}",
+        "playing": "Đang chơi {{name}}",
+        "listening": "Đang nghe {{name}}",
+        "watching": "Đang xem {{name}}"
+      }
+    },
+    "permissions": {
+      "label": "Quyền bot xin",
+      "hint": "Người quản lý thêm bot vào không gian thấy chúng tích và bỏ tích được cái không muốn cho. Chúng vào vai trò mang tên bot. Đổi sau không động vai trò đã tạo."
+    },
+    "avatar": {
+      "change": "Đổi avatar",
+      "remove": "Xóa avatar",
+      "cropTitle": "Cắt avatar bot",
+      "uploadFailed": "Tải avatar thất bại",
+      "notImage": "Chọn tệp hình"
+    },
+    "spaces": {
+      "title": "Thêm vào không gian",
+      "loading": "Đang tải không gian",
+      "empty": "Bạn chưa quản lý không gian nào. Thêm bot cần quyền quản lý không gian.",
+      "add": "Thêm",
+      "added": "Đã thêm",
+      "remove": "Gỡ"
+    }
+  },
+  "developer": {
+    "title": "Nhà phát triển",
+    "mode": {
+      "label": "Chế độ nhà phát triển",
+      "description": "Hiện công cụ nhà phát triển, như tab Bot, trong cài đặt. Tắt chỉ ẩn chúng; bot của bạn vẫn chạy.",
+      "saveFailed": "Lưu cài đặt thất bại. Thử lại."
+    }
+  }
+}

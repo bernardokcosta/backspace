@@ -1,0 +1,571 @@
+{
+  "interfaceScale": {
+    "label": "인터페이스 크기",
+    "description": "텍스트·버튼·패널 크기를 변경합니다. 이 브라우저나 앱에 이 기기로 저장됩니다.",
+    "reset": "100%로 초기화"
+  },
+  "voice": {
+    "input": {
+      "title": "입력 장치",
+      "checkingAccess": "마이크 접근 확인 중…",
+      "accessDenied": {
+        "title": "마이크 접근 거부됨",
+        "description": "입력 장치를 선택하려면 마이크 접근을 허용하세요.",
+        "retry": "다시 시도"
+      },
+      "permissionPrompt": {
+        "description": "입력 장치를 나열·선택하려면 마이크 권한이 필요합니다.",
+        "enable": "마이크 접근 활성화"
+      },
+      "device": {
+        "systemDefault": "시스템 기본값",
+        "currentlyUsing": "현재 사용 중: {{label}}",
+        "none": "마이크를 찾을 수 없습니다."
+      },
+      "volume": {
+        "label": "입력 볼륨"
+      },
+      "meter": {
+        "hint": "음성 채널에 참가하면 레벨 미터가 활성화됩니다."
+      }
+    },
+    "output": {
+      "title": "출력 장치",
+      "checkingAccess": "오디오 접근 확인 중…",
+      "device": {
+        "systemDefault": "시스템 기본값",
+        "unsupported": "이 브라우저는 출력 장치 선택을 지원하지 않습니다. 오디오는 시스템 기본값으로 나갑니다."
+      },
+      "permissionPrompt": {
+        "description": "출력 장치를 나열하려면 마이크 접근을 허용하세요 (브라우저는 출력 이름을 마이크 접근 뒤에 숨깁니다).",
+        "enable": "오디오 접근 활성화"
+      },
+      "volume": {
+        "label": "출력 볼륨"
+      },
+      "testSound": "테스트 사운드 재생"
+    },
+    "video": {
+      "title": "비디오",
+      "checkingAccess": "카메라 접근 확인 중…",
+      "accessDenied": {
+        "title": "카메라 접근 거부됨",
+        "description": "카메라를 선택하려면 카메라 접근을 허용하세요.",
+        "retry": "다시 시도"
+      },
+      "blocked": {
+        "browser": "브라우저 수준에서 카메라가 차단되었습니다. 주소 표시줄의 카메라 아이콘을 클릭하고 권한을 초기화한 뒤 다시 시도를 클릭하세요.",
+        "mac": "시스템 설정 → 개인정보 보호 및 보안 → 카메라에서 카메라 접근을 허용한 뒤 앱을 다시 시작하세요.",
+        "windows": "설정 → 개인정보 보호 및 보안 → 카메라에서 카메라 접근을 허용한 뒤 앱을 다시 시작하세요.",
+        "other": "카메라 권한이 거부되었습니다. 브라우저/Chromium 프롬프트에서 초기화하고 다시 시도하세요."
+      },
+      "permissionPrompt": {
+        "description": "카메라를 선택하고 미리 보려면 카메라 권한이 필요합니다.",
+        "enable": "카메라 미리 보기 활성화"
+      },
+      "camera": {
+        "label": "카메라",
+        "auto": "자동 (시스템 기본값)",
+        "fallbackName": "카메라 {{number}}",
+        "detectedFallback": "감지된 카메라",
+        "currentlyUsing": "현재 사용 중: {{label}}",
+        "none": "카메라를 찾을 수 없습니다."
+      },
+      "preview": {
+        "testAria": "카메라 테스트",
+        "testHint": "클릭하여 카메라 테스트",
+        "stop": "미리 보기 중지",
+        "retry": "다시 시도"
+      },
+      "previewError": {
+        "inUse": "카메라가 다른 앱에서 사용 중입니다.",
+        "unavailable": "선택한 카메라를 사용할 수 없습니다.",
+        "notFound": "카메라를 찾을 수 없습니다.",
+        "generic": "카메라 미리 보기를 시작할 수 없습니다."
+      }
+    },
+    "title": "음성 & 비디오",
+    "volume": {
+      "sectionTitle": "볼륨",
+      "soundEffects": {
+        "label": "효과음 볼륨"
+      },
+      "messageSound": {
+        "label": "모든 메시지에 사운드 재생",
+        "description": "끔 (기본값): DM과 나를 언급한 메시지만. 켬: 모든 채널."
+      }
+    },
+    "pip": {
+      "sectionTitle": "플로팅 창",
+      "showOnSwitch": {
+        "label": "통화 중 플로팅 창 표시",
+        "description": "음성 채널이나 통화 중에 다른 곳을 보면 작은 창이 통화를 화면에 유지합니다."
+      }
+    },
+    "processing": {
+      "sectionTitle": "음성 처리",
+      "noiseSuppression": {
+        "label": "AI 소음 제거",
+        "description": "ML 기반 소음 제거 (RNNoise). 키보드·팬·배경 소음을 필터링합니다."
+      },
+      "echoCancellation": {
+        "label": "에코 제거",
+        "description": "스피커에서 마이크로 돌아오는 에코를 제거합니다. 음성 채널·통화에 항상 켬."
+      },
+      "autoGain": {
+        "label": "자동 게인 조절",
+        "description": "마이크 볼륨을 자동으로 조절합니다. 스트림 중 음성 덕킹이 생길 수 있습니다."
+      }
+    }
+  },
+  "nav": {
+    "userSettings": "사용자 설정",
+    "appSettings": "앱 설정",
+    "administration": "관리",
+    "tabs": {
+      "account": "계정",
+      "appearance": "외관",
+      "voice": "음성 & 비디오",
+      "privacy": "개인정보",
+      "connections": "연결",
+      "keybinds": "키바인드",
+      "desktop": "데스크톱",
+      "instance": "인스턴스",
+      "bots": "봇",
+      "developer": "개발자"
+    },
+    "logOut": "로그아웃",
+    "backToMenu": "설정 메뉴로 돌아가기"
+  },
+  "appearance": {
+    "title": "외관"
+  },
+  "account": {
+    "title": "내 계정",
+    "detached": {
+      "notice": "이 계정은 홈 인스턴스에서 분리되었습니다.",
+      "explanation": "{{homeInstance}}가 초기화되었거나 더 이상 사용할 수 없어 이 계정은 이제 이 인스턴스에서 로컬로 동작합니다. 프로필과 비밀번호는 여기서 관리됩니다.",
+      "reattachHint": "{{homeInstance}}의 {{username}}(으)로서 이 계정을 다시 연결할 수 있습니다. 프로필과 현재 상태가 거기서 다시 동기화됩니다.",
+      "reattachButton": "{{homeInstance}}에 다시 연결",
+      "reattachConfirm": "{{username}}(으)로 다시 연결 확인",
+      "reattaching": "다시 연결 중…",
+      "reattachFailed": "다시 연결 실패",
+      "reattached": "{{username}}와(과) 계정이 다시 연결됨"
+    },
+    "profile": {
+      "sectionTitle": "프로필 사용자 지정",
+      "avatar": {
+        "label": "아바타",
+        "alt": "내 아바타",
+        "change": "아바타 변경",
+        "uploadFailed": "아바타를 업로드할 수 없습니다",
+        "cropTitle": "아바타 자르기"
+      },
+      "banner": {
+        "label": "배너",
+        "change": "배너 변경",
+        "uploadFailed": "배너를 업로드할 수 없습니다",
+        "cropTitle": "배너 자르기"
+      },
+      "avatarColor": {
+        "label": "아바타 색"
+      },
+      "bannerColor": {
+        "label": "배너 색",
+        "hexPlaceholder": "#hex"
+      },
+      "bio": {
+        "label": "소개",
+        "placeholder": "세상에 자신을 소개하세요…",
+        "counter": "{{used}}/{{max}}"
+      }
+    },
+    "details": {
+      "sectionTitle": "계정",
+      "status": {
+        "label": "상태",
+        "homeUnavailable": "상태는 {{host}}에 보관됩니다. 변경하려면 {{host}}에 연결하세요."
+      },
+      "customStatus": {
+        "label": "사용자 지정 상태",
+        "placeholder": "무엇을 하고 있습니까?"
+      }
+    },
+    "password": {
+      "current": {
+        "label": "현재 비밀번호",
+        "placeholder": "현재 비밀번호 입력"
+      },
+      "new": {
+        "label": "새 비밀번호",
+        "placeholder": "최소 {{min}}자"
+      },
+      "confirm": {
+        "label": "새 비밀번호 확인",
+        "placeholder": "새 비밀번호 확인"
+      },
+      "show": "비밀번호 표시",
+      "hide": "비밀번호 숨기기",
+      "tooShort": "새 비밀번호는 최소 {{min}}자",
+      "mismatch": "비밀번호가 일치하지 않습니다",
+      "changed": "비밀번호 변경됨",
+      "changeFailed": "비밀번호를 변경할 수 없습니다",
+      "submit": "비밀번호 변경",
+      "submitting": "변경 중…"
+    },
+    "danger": {
+      "description": "계정을 삭제하면 되돌릴 수 없습니다. 메시지는 남지만 “삭제된 사용자”에 귀속됩니다.",
+      "deleteButton": "계정 삭제"
+    },
+    "save": {
+      "updated": "프로필 업데이트됨",
+      "failed": "프로필을 업데이트할 수 없습니다"
+    },
+    "deletion": {
+      "title": "계정 삭제",
+      "warning": {
+        "headline": "계정이 완전히 삭제됩니다.",
+        "spaces": "모든 스페이스 멤버십 삭제",
+        "friends": "모든 친구 관계 삭제",
+        "dms": "모든 DM 멤버십 삭제",
+        "messages": "메시지는 남지만 “삭제된 사용자”에 귀속됩니다"
+      },
+      "ownedSpaces": {
+        "prompt_other": "{{count}}개 스페이스를 소유하고 있습니다. 계속하기 전에 처리하세요:",
+        "transfer": "이전",
+        "delete": "스페이스 삭제",
+        "selectOwner": "새 소유자 선택…"
+      },
+      "processing": "처리 중…",
+      "confirm": {
+        "permanent": "이 작업은 영구적이며 되돌릴 수 없습니다.",
+        "usernamePrompt": "확인하려면 사용자 이름 <username>{{username}}</username> 입력",
+        "passwordPlaceholder": "비밀번호 입력",
+        "submit": "내 계정 삭제",
+        "deleting": "삭제 중…"
+      },
+      "federation": {
+        "removing": "연결된 인스턴스에서 계정 삭제 중…",
+        "deleteAnyway": "지금 계정 삭제"
+      },
+      "complete": {
+        "title": "계정 삭제됨",
+        "redirecting": "로그인으로 리디렉션 중…"
+      },
+      "errors": {
+        "usernameMismatch": "사용자 이름이 일치하지 않습니다",
+        "spacesFailed": "스페이스를 처리할 수 없습니다",
+        "deleteFailed": "계정을 삭제할 수 없습니다"
+      }
+    }
+  },
+  "privacy": {
+    "title": "개인정보",
+    "discovery": {
+      "sectionTitle": "발견",
+      "label": "다른 사람이 내 프로필을 찾도록 허용",
+      "description": "켜면 프로필이 사람 찾기에 표시됩니다. 다른 사람은 정확한 사용자 이름으로 항상 추가할 수 있습니다."
+    },
+    "activity": {
+      "sectionTitle": "활동 상태",
+      "label": "활동 상태 공유",
+      "description": "다른 사람이 무엇을 하는지 보게 하세요. 예: 플레이 중인 게임이나 듣는 음악.",
+      "game": {
+        "label": "수동 생성됨",
+        "description": "감지되지 않은 게임을 추가하세요. 삭제할 때까지 표시됩니다.",
+        "placeholder": "게임 이름",
+        "set": "설정",
+        "detectedLabel": "지금 감지됨",
+        "detectedDescription": "감지된 게임을 다른 이름으로 표시합니다. 다음에 기억합니다.",
+        "renamePlaceholder": "표시 이름…",
+        "renameLabel": "{{name}} 표시 이름",
+        "renamedLabel": "이름 바뀐 게임",
+        "renamedItem": "{{detected}} → {{chosen}}",
+        "restore": "복원",
+        "descriptionBound": "감지되지 않은 게임 추가: 프로그램을 선택하고 이름을 지정하세요. 해당 프로그램 실행 중에 표시됩니다.",
+        "programLabel": "프로그램",
+        "programPlaceholder": "실행 중인 프로그램 선택…",
+        "programHint": "먼저 게임을 시작한 뒤 목록에서 해당 프로그램을 선택하세요.",
+        "clearRename": "지우기",
+        "unknownLabel": "알 수 없는 Wine 프로그램",
+        "unknownDescription": "실행 중이지만 알려진 게임과 일치하지 않습니다. 하나가 당신의 게임이면 플레이 중인 게임으로 표시하세요.",
+        "unknownUse": "내 게임에 추가",
+        "gamesLabel": "내 게임",
+        "gamesDescription": "첫 게임이 목록에 표시되는 것입니다. 우선순위를 정하려면 게임을 이동하세요. 숨긴 게임은 다른 사람에게 표시되지 않습니다.",
+        "moveUp": "{{name}} 위로 이동",
+        "moveDown": "{{name}} 아래로 이동",
+        "hide": "숨기기",
+        "show": "표시",
+        "hideGame": "{{name}} 숨기기",
+        "showGame": "{{name}} 표시",
+        "add": "추가",
+        "remove": "삭제",
+        "statusName": "이름으로 표시됨",
+        "statusRunning": "실행 중",
+        "statusWaiting": "{{program}} 대기 중",
+        "dragHandle": "우선순위를 바꾸려면 {{name}} 드래그",
+        "manualNameLabel": "{{name}}의 이름",
+        "save": "저장"
+      }
+    }
+  },
+  "connections": {
+    "title": "연결"
+  },
+  "instance": {
+    "tabs": {
+      "general": "일반",
+      "registration": "가입",
+      "federation": "연합",
+      "streaming": "스트리밍",
+      "storage": "스토리지",
+      "users": "사용자",
+      "updates": "업데이트"
+    }
+  },
+  "keybinds": {
+    "portal": {
+      "description": "Wayland에서는 데스크톱이 모든 Backspace 단축키를 관리합니다. 시스템 키보드 단축키 설정의 Backspace에서 키를 할당·변경·삭제하세요. 여기서는 로컬 브라우저/X11 바인딩을 사용하지 않습니다.",
+      "idle": "사용 가능한 모든 작업의 첫 등록을 준비 중.",
+      "pending": "데스크톱 포털에 연결 중. 시스템 대화 상자가 나타나면 사용할 작업의 단축키를 선택하세요.",
+      "ready": "Backspace가 등록되었습니다. 할당을 변경·삭제하려면 시스템 키보드 단축키 설정을 여세요. 아래 목록은 읽기 전용이며 Backspace로 돌아오면 새로 고쳐집니다.",
+      "unavailable": "포털을 사용할 수 없거나 권한이 거부되었거나 세션이 종료되었습니다. Global Shortcuts 포털 백엔드가 필요합니다. Wayland에서는 로컬 바인딩이 꺼져 있습니다.",
+      "retry": "단축키 등록·다시 연결",
+      "assigned": "시스템 단축키: {{shortcut}}",
+      "notAssigned": "활성 시스템 할당 없음"
+    },
+    "title": "키바인드",
+    "note": {
+      "webOnly": "단축키는 이 탭이 포커스될 때 동작합니다. 다른 앱에서 동작하는 전역 단축키에는 데스크톱 앱을 사용하세요."
+    },
+    "section": {
+      "voice": "음성 단축키"
+    },
+    "action": {
+      "toggleMute": "음소거 전환",
+      "toggleDeafen": "청각 차단 전환",
+      "pushToTalk": "눌러서 말하기",
+      "toggleCamera": "카메라 전환",
+      "toggleScreenShare": "화면 공유 전환",
+      "disconnect": "연결 끊기"
+    },
+    "row": {
+      "recordingPrompt": "키 조합 누르기…",
+      "notBound": "바인딩 없음",
+      "record": "기록",
+      "escToCancel": "취소는 ESC"
+    },
+    "key": {
+      "shift": "Shift",
+      "ctrl": "Ctrl",
+      "alt": "Alt",
+      "option": "Option",
+      "cmd": "Cmd",
+      "win": "Win",
+      "space": "스페이스바",
+      "middleClick": "가운데 클릭",
+      "mouse4": "마우스 4",
+      "mouse5": "마우스 5",
+      "mouseGeneric": "마우스 {{button}}"
+    },
+    "accessibility": {
+      "title": "손쉬운 사용 권한 필요",
+      "description": "앱 외부에서 전역 단축키가 동작하려면 Backspace에 손쉬운 사용 권한이 필요합니다.",
+      "grant": "권한 부여"
+    },
+    "hookError": {
+      "title": "전역 단축키 사용 불가",
+      "description": "입력 리스너를 시작할 수 없습니다. Linux에서는 사용자가 <code>input</code> 그룹에 있어야 할 수 있습니다."
+    },
+    "conflict": {
+      "message": "<strong>{{combo}}</strong>는 이미 <strong>{{action}}</strong>에 바인딩되어 있습니다. 덮어쓸까요?",
+      "overwrite": "덮어쓰기"
+    }
+  },
+  "desktop": {
+    "title": "데스크톱",
+    "autoLaunch": {
+      "openAtLogin": {
+        "label": "로그인 시 시작",
+        "description": "로그인하면 Backspace를 자동 시작"
+      },
+      "startMinimized": {
+        "label": "최소화로 시작",
+        "description": "창을 표시하는 대신 시스템 트레이에 숨겨 시작"
+      }
+    },
+    "updates": {
+      "appName": "Backspace Desktop",
+      "versionLabel": "버전 {{version}}",
+      "checking": "업데이트 확인 중…",
+      "checkingShort": "확인 중…",
+      "checkNow": "업데이트 확인",
+      "downloading": "{{version}} 다운로드 중, {{percent}}%",
+      "downloadingWithRate": "{{version}} 다운로드 중, {{percent}}% ({{rate}})",
+      "rateMegabytes": "{{value}}MB/s",
+      "rateKilobytes": "{{value}}KB/s",
+      "upToDate": "최신입니다",
+      "available": "버전 {{version}} 사용 가능",
+      "readyToInstall": "버전 {{version}} 설치 준비됨",
+      "installFailed": "버전 {{version}}을(를) 설치할 수 없습니다",
+      "checkFailed": "마지막 업데이트 확인 실패",
+      "idle": "데스크톱 앱 새 버전 확인",
+      "external": "업데이트는 Flatpak 소프트웨어 관리자로 설치됩니다",
+      "download": "다운로드",
+      "restart": "다시 시작",
+      "manualNote": "이 빌드는 업데이트를 자동 설치하지 않습니다. GitHub에서 새 버전을 다운로드하고 앱을 수동으로 교체하세요. 플랫폼별 단계는 릴리스 노트를 참조하세요.",
+      "externalNote": "Flatpak은 앱 외부에서 원자적으로 업데이트를 적용합니다. Backspace를 업데이트하려면 소프트웨어 관리나 <code>flatpak update</code> 명령을 사용하세요."
+    },
+    "instance": {
+      "current": "현재 연결된 인스턴스",
+      "change": "인스턴스 변경"
+    }
+  },
+  "desktopDownload": {
+    "title": "데스크톱",
+    "intro": "전역 단축키·부팅 시 시작·시스템 트레이 아이콘.",
+    "unsupported": "데스크톱 앱은 Windows·Linux·macOS에서 실행됩니다.",
+    "name": {
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux"
+    },
+    "tag": {
+      "windows": "이 PC",
+      "mac": "이 Mac",
+      "linux": "이 머신"
+    },
+    "covers": {
+      "windows": "x64 또는 arm64",
+      "mac": "Apple Silicon 및 Intel Mac에서 실행",
+      "linux": "AppImage 또는 deb 패키지, x64 또는 arm64"
+    },
+    "download": {
+      "windows": "Windows용 다운로드",
+      "mac": "macOS용 다운로드",
+      "linux": "Linux용 다운로드"
+    },
+    "picker": {
+      "architecture": "아키텍처",
+      "format": "패키지 형식"
+    },
+    "arch": {
+      "appleSilicon": "Apple Silicon",
+      "intel": "Intel",
+      "x64": "x64",
+      "arm64": "arm64"
+    },
+    "kind": {
+      "appimage": "AppImage",
+      "deb": "deb"
+    },
+    "archGuessed": {
+      "windows": "브라우저가 이 PC의 프로세서를 알려주지 않아 x64가 미리 선택되었습니다.",
+      "mac": "브라우저가 이 Mac의 칩을 알려주지 않아 Apple Silicon이 미리 선택되었습니다.",
+      "linux": "브라우저가 이 머신의 프로세서를 알려주지 않아 x64가 미리 선택되었습니다."
+    },
+    "version": "버전 {{version}}",
+    "allReleases": "GitHub의 모든 릴리스"
+  },
+  "bots": {
+    "title": "봇",
+    "description": "봇은 프로그램이 토큰으로 제어하는 계정입니다. 하나를 만들고 토큰을 복사해 프로그램을 연결하세요. 봇은 다이렉트 메시지에서 답합니다.",
+    "create": {
+      "sectionTitle": "봇 만들기",
+      "nameLabel": "봇 사용자 이름",
+      "submit": "봇 만들기",
+      "hint": "{{min}}~{{max}}자: 소문자 라틴 문자 (a–z)·숫자 (0–9)·밑줄 (_). 최대 {{limit}}개 봇을 만들 수 있습니다."
+    },
+    "list": {
+      "sectionTitle": "내 봇",
+      "empty": "아직 봇이 없습니다.",
+      "createdOn": "생성 {{date}}"
+    },
+    "token": {
+      "title": "{{name}}용 토큰",
+      "warning": "지금 토큰을 복사하세요. 한 번만 표시되며 가진 사람이 봇을 제어합니다.",
+      "copy": "토큰 복사",
+      "copied": "복사됨",
+      "dismiss": "저장했습니다"
+    },
+    "tokens": {
+      "title": "액세스 토큰",
+      "loading": "토큰 불러오는 중",
+      "legacy": "이 봇은 아직 기존 장기 토큰으로 실행 중. 전환하려면 토큰을 만드세요. 기존 것은 즉시 중단됩니다.",
+      "empty": "이 봇에 토큰이 없습니다.",
+      "unnamed": "이름 없는 토큰",
+      "createdOn": "생성 {{date}}",
+      "neverUsed": "사용 안 함",
+      "lastUsed": "마지막 사용 {{time}}",
+      "revoke": "취소",
+      "confirmRevoke": "취소 확인",
+      "nameLabel": "토큰 레이블",
+      "namePlaceholder": "레이블 (선택)",
+      "create": "토큰 만들기",
+      "limitHint": "봇당 최대 {{max}}개 토큰. 토큰을 취소하면 봇 연결이 끊어지고 다른 토큰은 계속 동작합니다."
+    },
+    "actions": {
+      "regenerate": "모든 토큰 초기화",
+      "delete": "삭제",
+      "confirmDelete": "삭제 확인",
+      "cancel": "취소",
+      "edit": "편집",
+      "save": "저장",
+      "addToServer": "스페이스에 추가",
+      "tokens": "토큰"
+    },
+    "edit": {
+      "nameLabel": "표시 이름",
+      "hint": "@{{username}} 사용자 이름은 변경 불가. 최대 {{max}}자.",
+      "bioLabel": "소개",
+      "bioPlaceholder": "봇이 하는 일·명령·도움말 위치",
+      "bioCounter": "{{used}}/{{max}}"
+    },
+    "status": {
+      "label": "상태",
+      "none": "상태 없음",
+      "textLabel": "상태 텍스트",
+      "placeholder": "봇이 이름 옆에 표시하는 것",
+      "hint": "봇 연결 중에 표시됩니다. 봇 코드는 다음 연결까지 이를 바꿀 수 있습니다.",
+      "types": {
+        "custom": "사용자 지정",
+        "playing": "플레이 중",
+        "listening": "감상 중",
+        "watching": "시청 중"
+      },
+      "display": {
+        "custom": "{{name}}",
+        "playing": "{{name}} 플레이 중",
+        "listening": "{{name}} 감상 중",
+        "watching": "{{name}} 시청 중"
+      }
+    },
+    "permissions": {
+      "label": "봇이 요청하는 권한",
+      "hint": "스페이스에 봇을 추가하는 관리자는 체크된 채로 보고 원치 않는 것을 해제할 수 있습니다. 봇 이름의 역할로 들어갑니다. 나중에 변경해도 이미 만든 역할은 건드리지 않습니다."
+    },
+    "avatar": {
+      "change": "아바타 변경",
+      "remove": "아바타 삭제",
+      "cropTitle": "봇 아바타 자르기",
+      "uploadFailed": "아바타를 업로드할 수 없습니다",
+      "notImage": "이미지 파일 선택"
+    },
+    "spaces": {
+      "title": "스페이스에 추가",
+      "loading": "스페이스 불러오는 중",
+      "empty": "아직 관리하는 스페이스가 없습니다. 봇 추가에는 스페이스 관리 권한이 필요합니다.",
+      "add": "추가",
+      "added": "추가됨",
+      "remove": "삭제"
+    }
+  },
+  "developer": {
+    "title": "개발자",
+    "mode": {
+      "label": "개발자 모드",
+      "description": "설정에 봇 탭 같은 개발자 도구를 표시합니다. 끄면 숨기기만 하고 봇은 계속 실행됩니다.",
+      "saveFailed": "설정을 저장할 수 없습니다. 다시 시도하세요."
+    }
+  }
+}

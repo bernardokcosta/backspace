@@ -50,7 +50,7 @@
     "sendRequest": "Enviar solicitação",
     "discover": "Descobrir pessoas",
     "noSearchResults": "Nenhum usuário corresponde à sua pesquisa.",
-    "noDiscoverable": "Nenhum usuário descobrível ainda — convide pessoas para entrar!"
+    "noDiscoverable": "Ainda não há perfis disponíveis para descoberta. Convide pessoas para participar!"
   },
   "mutuals": {
     "friends_one": "{{count}} amigo em comum",

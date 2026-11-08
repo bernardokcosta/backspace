@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "spaces": "Spații",
+    "dms": "DM-uri",
+    "you": "Tu"
+  },
+  "you": {
+    "editProfile": "Editează profilul",
+    "homeInstance": "Instanță principală: {{domain}}",
+    "logOutConfirm": "Sigur vrei să te deconectezi?"
+  },
+  "chat": {
+    "openCall": "Deschide apelul",
+    "cancelCall": "Anulează apelul",
+    "unknownChannel": "canal"
+  }
+}

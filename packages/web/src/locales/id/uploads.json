@@ -1,0 +1,34 @@
+{
+  "failure": {
+    "notAuthenticated": "Tidak terautentikasi untuk instans ini",
+    "invalidResponse": "Tidak dapat mengurai respons unggahan",
+    "uploadError": "Galat unggah",
+    "downloadError": "Galat unduh",
+    "fileUnavailable": "Berkas tidak lagi tersedia — buang dan unggah ulang",
+    "noDestination": "Tidak ada handle tujuan — tidak dapat lanjut",
+    "destinationMissing": "Handle tujuan hilang",
+    "permissionDenied": "Izin ditolak",
+    "lostDownload": "Unduhan tidak dapat dilanjut — byte hilang. Mulai unduhan dari awal.",
+    "uploadHandleMissing": "Handle berkas hilang — buang dan unggah ulang",
+    "downloadHandleMissing": "Handle tujuan hilang — mulai unduhan dari awal",
+    "downloadFailed": "Unduhan gagal: {{status}}",
+    "resumeFailed": "Lanjutan gagal: {{status}}"
+  },
+  "transfers": {
+    "title": "Transfer",
+    "count_one": "{{count}} kiriman",
+    "count_other": "{{count}} kiriman",
+    "clearCompleted": "Hapus selesai",
+    "empty": "Tidak ada transfer aktif.",
+    "status": {
+      "done": "Selesai",
+      "failed": "Gagal: {{reason}}",
+      "aborted": "Dibatalkan",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "Pangkas Gambar",
+    "applying": "Menerapkan…"
+  }
+}

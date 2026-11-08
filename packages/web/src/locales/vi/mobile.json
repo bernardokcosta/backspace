@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "spaces": "Không gian",
+    "dms": "DM",
+    "you": "Bạn"
+  },
+  "you": {
+    "editProfile": "Sửa hồ sơ",
+    "homeInstance": "Máy chủ chính: {{domain}}",
+    "logOutConfirm": "Bạn chắc chắn muốn đăng xuất?"
+  },
+  "chat": {
+    "openCall": "Mở cuộc gọi",
+    "cancelCall": "Hủy cuộc gọi",
+    "unknownChannel": "kênh"
+  }
+}

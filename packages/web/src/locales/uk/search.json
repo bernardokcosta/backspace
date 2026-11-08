@@ -1,0 +1,38 @@
+{
+  "input": {
+    "placeholder": "Пошук повідомлень…"
+  },
+  "filters": {
+    "toggle": "Фільтри",
+    "from": {
+      "label": "Від",
+      "placeholder": "ім'я користувача"
+    },
+    "has": {
+      "label": "Містить",
+      "any": "Будь-що",
+      "file": "Файл",
+      "image": "Зображення",
+      "link": "Посилання"
+    },
+    "before": {
+      "label": "До"
+    },
+    "after": {
+      "label": "Після"
+    }
+  },
+  "results": {
+    "empty": "Нічого не знайдено",
+    "hint": "Введіть текст, щоб шукати повідомлення в цьому каналі",
+    "count_one": "{{count}} результат",
+    "count_few": "{{count}} результати",
+    "count_many": "{{count}} результатів",
+    "count_other": "{{count}} результату",
+    "loadMore": "Завантажити ще (залишилося {{remaining}})",
+    "attachments_one": "{{count}} вкладення",
+    "attachments_few": "{{count}} вкладення",
+    "attachments_many": "{{count}} вкладень",
+    "attachments_other": "{{count}} вкладення"
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "tabs": {
+    "all": "الكل",
+    "pending": "قيد الانتظار",
+    "add": "إضافة صديق",
+    "activity": "النشاط"
+  },
+  "sections": {
+    "online": "متصل — {{n}}",
+    "all": "كل الأصدقاء — {{n}}",
+    "pending": "قيد الانتظار — {{n}}",
+    "active": "نشط — {{n}}",
+    "offline": "غير متصل — {{n}}"
+  },
+  "empty": {
+    "online": "لا أحد متصل الآن.",
+    "all": "لا أصدقاء بعد — أضف شخصًا!",
+    "pending": "لا طلبات معلقة — نوري يغفو.",
+    "activity": "هدوء الآن… عندما يبدأ الأصدقاء نشاطًا سنعرضه هنا!"
+  },
+  "friend": {
+    "viaInstance": "عبر {{host}}",
+    "message": "رسالة",
+    "remove": "إزالة الصديق"
+  },
+  "sendMessage": {
+    "failed": "تعذّر فتح المحادثة: {{reason}}"
+  },
+  "request": {
+    "incoming": "طلب صداقة وارد",
+    "outgoing": "طلب صداقة صادر",
+    "ignore": "تجاهل",
+    "cancel": "إلغاء الطلب",
+    "send": "إرسال طلب صداقة",
+    "pending": "الطلب معلق",
+    "sending": "جارٍ الإرسال…",
+    "cancelling": "جارٍ الإلغاء…",
+    "sent": "تم إرسال طلب الصداقة!"
+  },
+  "removeFriend": {
+    "title": "إزالة الصديق",
+    "description": "هل أنت متأكد من إزالة {{name}} من الأصدقاء؟ يمكنك دائمًا إرسال طلب صداقة جديد لاحقًا.",
+    "fallbackName": "هذا المستخدم"
+  },
+  "add": {
+    "title": "العثور على الأشخاص",
+    "hint": "ابحث باسم المستخدم أو استخدم <handle>user@instance</handle> لإضافة شخص مباشرة.",
+    "placeholder": "ابحث أو أضف بالاسم…",
+    "direct": "إرسال طلب صداقة إلى <handle>{{handle}}</handle>",
+    "sendRequest": "إرسال الطلب",
+    "discover": "اكتشاف الأشخاص",
+    "noSearchResults": "لا مستخدمون يطابقون بحثك.",
+    "noDiscoverable": "لا مستخدمون قابلون للاكتشاف بعد — ادعُ الناس للانضمام!"
+  },
+  "mutuals": {
+    "friends_zero": "لا أصدقاء مشتركون ({{count}})",
+    "friends_one": "صديق مشترك {{count}}",
+    "friends_two": "صديقان مشتركان ({{count}})",
+    "friends_few": "{{count}} أصدقاء مشتركون",
+    "friends_many": "{{count}} صديقًا مشتركًا",
+    "friends_other": "{{count}} صديق مشترك",
+    "spaces_zero": "لا مساحات مشتركة ({{count}})",
+    "spaces_one": "مساحة مشتركة {{count}}",
+    "spaces_two": "مساحتان مشتركتان ({{count}})",
+    "spaces_few": "{{count}} مساحات مشتركة",
+    "spaces_many": "{{count}} مساحة مشتركة",
+    "spaces_other": "{{count}} مساحة مشتركة",
+    "noFriends": "لا أصدقاء مشتركون",
+    "noSpaces": "لا مساحات مشتركة"
+  },
+  "profile": {
+    "tabs": {
+      "about": "نبذة",
+      "mutualFriends": "أصدقاء مشتركون",
+      "mutualSpaces": "مساحات مشتركة"
+    },
+    "aboutMe": "نبذة عني",
+    "roles": "الأدوار",
+    "memberSince": "عضو منذ",
+    "sendMessage": "إرسال رسالة",
+    "editRoles": "تعديل الأدوار",
+    "viewFull": "عرض الملف الكامل",
+    "addFriend": "إضافة صديق",
+    "playingNow": "يلعب الآن"
+  },
+  "activity": {
+    "title": "نشطون الآن",
+    "quietTitle": "هدوء الآن…",
+    "quietDescription": "عندما يبدأ صديق نشاطًا — مثل لعب لعبة أو التواجد صوتيًا — سنعرضه هنا!",
+    "online": "متصل — {{n}}",
+    "offline": "غير متصل — {{n}}",
+    "resizeHandle": "تغيير حجم قائمة الأصدقاء",
+    "types": {
+      "playing": "يلعب لعبة",
+      "listening": "يستمع إلى الموسيقى",
+      "streaming": "يبث",
+      "watching": "يشاهد",
+      "custom": "حالة مخصصة"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "فتح المقطع"
+  },
+  "instanceNotConnected": "غير متصل بـ {{host}}. اتصل مجددًا وحاول مرة أخرى."
+}

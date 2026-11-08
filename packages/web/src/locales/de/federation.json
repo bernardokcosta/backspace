@@ -1,4 +1,24 @@
 {
+  "validation": {
+    "invalidUrl": "Ungültige URL",
+    "selfInstance": "Du bist bereits auf dieser Instanz angemeldet.",
+    "alreadyConnected": "Diese Instanz ist bereits verbunden.",
+    "notLoggedIn": "Du bist nicht angemeldet.",
+    "connectHomeFirst": "Verbinde dich zuerst mit deiner Heimatinstanz ({{home}}). Sie stellt den Zugangsnachweis für {{target}} aus.",
+    "incorrectPassword": "Falsches Passwort",
+    "authenticationFailed": "Die Anmeldung auf der Remote-Instanz ist fehlgeschlagen."
+  },
+  "feedback": {
+    "connectionLost": "Verbindung zu {{instance}} verloren. Verbindung wird wiederhergestellt...",
+    "connectionRestored": "Wieder mit {{instance}} verbunden",
+    "pendingRequests_one": "Du hast {{count}} ausstehende Peering-Anfrage",
+    "pendingRequests_other": "Du hast {{count}} ausstehende Peering-Anfragen",
+    "requestApproved": "Deine Peering-Anfrage wurde genehmigt",
+    "requestDenied": "Deine Peering-Anfrage wurde abgelehnt",
+    "requestExpired": "Deine Peering-Anfrage ist abgelaufen",
+    "friendRequestDeliveryFailed": "Die Freundschaftsanfrage an {{username}} konnte nicht zugestellt werden: {{reason}}",
+    "accountRelinked": "Konto erneut mit {{instance}} verknüpft"
+  },
   "connections": {
     "title": "Verbundene Instanzen",
     "description": "Verknüpfe deine Konten über föderierte Backspace-Instanzen hinweg.",

@@ -1,0 +1,38 @@
+{
+  "input": {
+    "placeholder": "Hledat zprávy…"
+  },
+  "filters": {
+    "toggle": "Filtry",
+    "from": {
+      "label": "Od",
+      "placeholder": "uživatelské jméno"
+    },
+    "has": {
+      "label": "Obsahuje",
+      "any": "Cokoli",
+      "file": "Soubor",
+      "image": "Obrázek",
+      "link": "Odkaz"
+    },
+    "before": {
+      "label": "Před"
+    },
+    "after": {
+      "label": "Po"
+    }
+  },
+  "results": {
+    "empty": "Nic jsme nenašli",
+    "hint": "Piš a hledej zprávy v tomto kanálu",
+    "count_one": "{{count}} výsledek",
+    "count_few": "{{count}} výsledky",
+    "count_many": "{{count}} výsledků",
+    "count_other": "{{count}} výsledku",
+    "loadMore": "Načíst další (zbývá {{remaining}})",
+    "attachments_one": "{{count}} příloha",
+    "attachments_few": "{{count}} přílohy",
+    "attachments_many": "{{count}} příloh",
+    "attachments_other": "{{count}} přílohy"
+  }
+}

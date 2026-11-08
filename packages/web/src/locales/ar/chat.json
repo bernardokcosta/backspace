@@ -1,0 +1,341 @@
+{
+  "feedback": {
+    "openedInNewTab": "فُتح في تبويب جديد",
+    "copiedGifLink": "نُسخ رابط GIF",
+    "copiedImageLink": "نُسخ رابط الصورة",
+    "uploadExpired": "تعذّر إرسال \"{{content}}\" — انتهت صلاحية الرفع.",
+    "attachmentOnly": "(مرفق فقط)"
+  },
+  "message": {
+    "edit": {
+      "hint": "esc لـ <cancel>الإلغاء</cancel> • enter لـ <save>الحفظ</save>"
+    },
+    "edited": "(معدّلة)",
+    "rowLabel": "{{author}}، {{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "فشل الرفع",
+      "discard": "تجاهل"
+    },
+    "actions": {
+      "confirmDelete": "تأكيد الحذف"
+    },
+    "reply": {
+      "jump": "الانتقال إلى الرسالة الأصلية"
+    },
+    "mention": {
+      "unknownUser": "مستخدم غير معروف",
+      "unknownRole": "دور غير معروف"
+    },
+    "reactions": {
+      "picker": "منتقي التفاعلات",
+      "you": "أنت",
+      "others_zero": "لا آخرون ({{count}})",
+      "others_one": "آخر {{count}}",
+      "others_two": "آخران ({{count}})",
+      "others_few": "{{count}} آخرون",
+      "others_many": "{{count}} آخر",
+      "others_other": "{{count}} آخر",
+      "bySelf": "تفاعلت",
+      "byOne": "تفاعل {{name}}",
+      "byMany": "التفاعلات: {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "ليس لديك إذن لعرض سجل الرسائل في هذه القناة",
+    "loading": "جارٍ تحميل الرسائل",
+    "loadingOlder": "جارٍ تحميل الرسائل الأقدم",
+    "loadFailed": "تعذّر تحميل الرسائل",
+    "jumpToPresent": "الانتقال إلى الحاضر",
+    "jump": {
+      "unavailable": "تلك الرسالة لم تعد متاحة",
+      "failed": "تعذّر تحميل تلك الرسالة",
+      "presentFailed": "تعذّر تحميل أحدث الرسائل"
+    },
+    "unread": {
+      "label": "جديد",
+      "divider": "رسائل جديدة",
+      "dividerWithDate": "رسائل جديدة، {{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "مرحبًا بك في القناة!",
+        "description": "هذه بداية المحادثة."
+      },
+      "group": {
+        "intro": "هذه بداية محادثة مجموعتك.",
+        "owner": "المالك: <owner>@{{name}}</owner>",
+        "federatedNotice": "تُخزَّن الرسائل في نسختك الرئيسية والنسخ الرئيسية للمستلمين. ليست مشفرة طرفًا لطرف.",
+        "openSettings": "فتح إعدادات المجموعة",
+        "leave": "مغادرة المجموعة"
+      },
+      "dm": {
+        "fallbackName": "رسالة مباشرة",
+        "intro": "هذه بداية سجل رسائلك المباشرة مع <strong>@{{name}}</strong>.",
+        "federatedNotice": "تُخزَّن الرسائل في نسختك الرئيسية والنسخة الرئيسية للمستلم. ليست مشفرة طرفًا لطرف.",
+        "removeFriend": "إزالة الصديق"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "ليس لديك إذن لإرسال رسائل في هذه القناة",
+    "placeholder": {
+      "channel": "رسالة #{{name}}",
+      "dm": "رسالة @{{name}}"
+    },
+    "replyingTo": "ردًا على",
+    "cancelReply": "إلغاء الرد",
+    "removeAttachment": "إزالة المرفق",
+    "attachFile": "إرفاق ملف",
+    "dropTitle": "رفع ملف",
+    "dropHint": "أفلت للإرفاق",
+    "uploading": "جارٍ الرفع…",
+    "uploadingLabel": "جارٍ الرفع",
+    "failedCount_zero": "لا فشل ({{count}})",
+    "failedCount_one": "فشل {{count}}",
+    "failedCount_two": "فشل اثنان ({{count}})",
+    "failedCount_few": "فشل {{count}}",
+    "failedCount_many": "فشل {{count}}",
+    "failedCount_other": "فشل {{count}}",
+    "failedHint": "أزل المرفق الفاشل أو أعده لمحاولة الإرسال",
+    "gif": "GIF",
+    "gifPicker": "منتقي GIF",
+    "emoji": "إيموجي",
+    "emojiPicker": "منتقي الإيموجي",
+    "send": "إرسال",
+    "sendMessage": "إرسال رسالة",
+    "uploadFailed": "تعذّر رفع {{file}}: {{reason}}",
+    "uploadFailedReason": "فشل الرفع",
+    "typing": {
+      "named_zero": "لا أحد يكتب ({{names}})",
+      "named_one": "{{names}} يكتب",
+      "named_two": "{{names}} يكتبان",
+      "named_few": "{{names}} يكتبون",
+      "named_many": "{{names}} يكتب",
+      "named_other": "{{names}} يكتب",
+      "several": "عدة أشخاص يكتبون"
+    }
+  },
+  "menu": {
+    "saveImage": "حفظ الصورة",
+    "copyImage": "نسخ الصورة",
+    "openOriginal": "فتح الأصل",
+    "saveVideo": "حفظ الفيديو",
+    "saveAudio": "حفظ الصوت",
+    "copyLink": "نسخ الرابط",
+    "openLink": "فتح الرابط",
+    "copySelectedText": "نسخ النص المحدد",
+    "copyText": "نسخ النص",
+    "markUnread": "تعليم كغير مقروءة",
+    "editMessage": "تعديل الرسالة",
+    "deleteMessage": "حذف الرسالة",
+    "linkCopied": "نُسخ الرابط",
+    "linkCopyFailed": "تعذّر نسخ الرابط",
+    "pinMessage": "تثبيت الرسالة",
+    "unpinMessage": "إلغاء تثبيت الرسالة"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "موقوف مؤقتًا — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "لا يعمل هنا — نزّل",
+      "unsupportedFormat": "صيغة فيديو غير مدعومة",
+      "unsupportedBrowser": "متصفحك لا يدعم تشغيل الفيديو."
+    },
+    "audio": {
+      "unsupportedBrowser": "متصفحك لا يدعم تشغيل الصوت."
+    },
+    "federation": {
+      "remoteNamed": "مستضاف على نسخة {{sender}}. نزّل لنسخة محلية.",
+      "remoteUnknown": "مستضاف على نسخة المرسل. نزّل لنسخة محلية.",
+      "partialGeneric": "تعذّر على بعض المستلمين تخزين هذا الملف محليًا.",
+      "partialInstance": "نسخة {{username}} (الحد: {{limit}})",
+      "partialList": "تعذّر تخزين الملف على {{instances}}. يمكنهم رؤيته من نسختك.",
+      "listPair": "{{first}} و{{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "ابحث في GIF",
+    "noResults": "لا GIF",
+    "noTrending": "لا GIF رائجة",
+    "attribution": "بدعم Klipy"
+  },
+  "preview": {
+    "save": "حفظ الصورة",
+    "copy": "نسخ الصورة",
+    "alt": "معاينة الصورة"
+  },
+  "invite": {
+    "sentBy": "دعوة من {{name}}",
+    "memberCount_zero": "لا أعضاء ({{count}})",
+    "memberCount_one": "عضو {{count}}",
+    "memberCount_two": "عضوان ({{count}})",
+    "memberCount_few": "{{count}} أعضاء",
+    "memberCount_many": "{{count}} عضوًا",
+    "memberCount_other": "{{count}} عضو",
+    "revoked": "الدعوة لم تعد صالحة",
+    "join": "انضم",
+    "joining": "جارٍ الانضمام…",
+    "joinFailed": "تعذّر الانضمام",
+    "askToJoin": "اطلب الانضمام",
+    "sendingRequest": "جارٍ الإرسال…",
+    "requestSent": "أُرسل الطلب",
+    "requestPending": "الطلب معلق",
+    "requestNotice": "تقبل هذه المساحة طلبات الانضمام. يوافق المشرف على كل واحد.",
+    "requestReview": "سيراجع المشرف طلبك."
+  },
+  "notification": {
+    "unknownSender": "شخص",
+    "attachmentOnly": "أرسل مرفقًا"
+  },
+  "commands": {
+    "title": "الأوامر",
+    "failed": "تعذّر إرسال الأمر",
+    "extraText": "لا يأخذ هذا الأمر نصًا حرًا، لكن \"{{text}}\" زائد. ضع الخيارات أولًا والنص آخرًا",
+    "invalidOption": "قيمة {{option}} لا تناسب هذا الأمر.",
+    "optionsTitle": "المعاملات",
+    "required": "مطلوب",
+    "subcommandsTitle": "الأوامر الفرعية",
+    "group": "مجموعة",
+    "chooseSubcommand": "اختر أمرًا فرعيًا: {{names}}",
+    "subcommandRefused": "لا يقدم البوت هذا الأمر الفرعي. اختر واحدًا من القائمة"
+  },
+  "ephemeral": {
+    "onlyYou": "أنت فقط ترى هذا",
+    "dismiss": "إغلاق",
+    "rowLabel": "إجابة تراها أنت فقط من {{author}}، {{time}}"
+  },
+  "embed": {
+    "loadAction": "انقر للتحميل",
+    "loadNamed": "تحميل {{name}}",
+    "loadUnnamed": "تحميل مضمّن",
+    "frameTitle": "مضمّن",
+    "playNamed": "تشغيل {{title}}",
+    "playUnnamed": "تشغيل فيديو",
+    "videoTitle": "فيديو"
+  },
+  "stickers": {
+    "title": "ملصقاتي",
+    "upload": "رفع صورة",
+    "limits": "PNG أو JPEG أو WebP أو GIF · حتى 5 م.ب.",
+    "loading": "جارٍ التحميل…",
+    "empty": "تبدأ مجموعة ملصقاتك هنا",
+    "remove": "إزالة",
+    "save": "إضافة إلى ملصقاتي",
+    "saved": "أُضيف إلى ملصقاتي",
+    "preview": "معاينة الملصق",
+    "manage": "إدارة",
+    "done": "تم",
+    "collectionHint": "اختر ملصقًا للإرسال. اجعل هذه المساحة لك.",
+    "manageHint": "أعد تسمية ملصقات المجموعة أو أزلها. الرسائل المرسلة تبقى دون تغيير.",
+    "emptyHint": "احفظ لحظاتك المفضلة ملصقات جاهزة لردك التالي.",
+    "chooseImage": "اختيار صورة",
+    "cancel": "إلغاء",
+    "replace": "استبدال الصورة",
+    "name": "اسم الملصق",
+    "dropImage": "انقر أو اسحب صورة هنا",
+    "pasteHint": "يمكنك أيضًا لصق صورة من الحافظة",
+    "uploading": "جارٍ إضافة الملصق…",
+    "singleImage": "اختر صورة واحدة في المرة.",
+    "invalidSize": "اختر صورة غير فارغة حتى 5 م.ب.",
+    "invalidType": "تُدعم صور PNG وJPEG وWebP وGIF فقط.",
+    "invalidImage": "تعذّر معاينة الصورة. اختر صورة صالحة.",
+    "removeNamed": "إزالة {{name}}",
+    "addMore": "إضافة المزيد",
+    "selectedCount_zero": "لا ملصقات محددة ({{count}})",
+    "selectedCount_one": "ملصق محدد {{count}}",
+    "selectedCount_two": "ملصقان محددان ({{count}})",
+    "selectedCount_few": "{{count}} ملصقات محددة",
+    "selectedCount_many": "{{count}} ملصقًا محددًا",
+    "selectedCount_other": "{{count}} ملصق محدد",
+    "dropMore": "انقر أو اسحب مزيدًا من الصور هنا",
+    "sticker": "ملصق",
+    "downloadFailed": "تعذّر تحميل الصورة.",
+    "batchLimit_zero": "اختر حتى صفر صورة ({{count}}) في المرة.",
+    "batchLimit_one": "اختر حتى صورة {{count}} في المرة.",
+    "batchLimit_two": "اختر حتى صورتين ({{count}}) في المرة.",
+    "batchLimit_few": "اختر حتى {{count}} صور في المرة.",
+    "batchLimit_many": "اختر حتى {{count}} صورة في المرة.",
+    "batchLimit_other": "اختر حتى {{count}} صورة في المرة.",
+    "capacityLimit_zero": "لا مكان ({{count}}).",
+    "capacityLimit_one": "تتسع مجموعتك لملصق {{count}} آخر.",
+    "capacityLimit_two": "تتسع مجموعتك لملصقين ({{count}}).",
+    "capacityLimit_few": "تتسع مجموعتك لـ {{count}} ملصقات أخرى.",
+    "capacityLimit_many": "تتسع مجموعتك لـ {{count}} ملصقًا آخر.",
+    "capacityLimit_other": "تتسع مجموعتك لـ {{count}} ملصق آخر.",
+    "full": "مجموعتك ممتلئة. أزل ملصقًا لإضافة آخر.",
+    "batchFailed_zero": "لا صور فشلت ({{count}}). ما زالت أدناه.",
+    "batchFailed_one": "تعذّرت إضافة صورة {{count}}. ما زالت أدناه.",
+    "batchFailed_two": "تعذّرت إضافة صورتين ({{count}}). ما زالتا أدناه.",
+    "batchFailed_few": "تعذّرت إضافة {{count}} صور. ما زالت أدناه.",
+    "batchFailed_many": "تعذّرت إضافة {{count}} صورة. ما زالت أدناه.",
+    "batchFailed_other": "تعذّرت إضافة {{count}} صورة. ما زالت أدناه.",
+    "uploadingProgress": "جارٍ إضافة {{current}} من {{total}}…",
+    "rename": "إعادة تسمية",
+    "renameNamed": "إعادة تسمية {{name}}",
+    "renameTitle": "إعادة تسمية الملصق",
+    "search": "ابحث في الملصقات",
+    "noResults": "لا ملصقات",
+    "store": "متجر الملصقات",
+    "myCollection": "ملصقاتي",
+    "packs": "حزم الملصقات",
+    "explore": "استكشاف",
+    "myPacks": "أنشأتها أنا",
+    "install": "إضافة",
+    "installed": "مضاف",
+    "uninstall": "إزالة",
+    "createPack": "إنشاء حزمة",
+    "editPack": "تعديل الحزمة",
+    "packName": "اسم الحزمة",
+    "packDesc": "الوصف (اختياري)",
+    "submitReview": "إرسال للمراجعة",
+    "pendingReview": "قيد المراجعة",
+    "approved": "موافق عليه",
+    "rejected": "مرفوض",
+    "draft": "مسودة",
+    "newVersion": "نسخة جديدة",
+    "deletePack": "حذف الحزمة",
+    "stickersCount_zero": "لا ملصقات ({{count}})",
+    "stickersCount_one": "ملصق {{count}}",
+    "stickersCount_two": "ملصقان ({{count}})",
+    "stickersCount_few": "{{count}} ملصقات",
+    "stickersCount_many": "{{count}} ملصقًا",
+    "stickersCount_other": "{{count}} ملصق",
+    "noPacks": "لا حزم ملصقات",
+    "replicaBadge": "مفدرلة",
+    "viewPack": "عرض الحزمة",
+    "saveDraft": "حفظ كمسودة",
+    "packCreated": "أُنشئت الحزمة",
+    "reviewSubmitted": "أُرسلت لمراجعة المسؤول",
+    "reviews": "مراجعة",
+    "noReviews": "لا حزم ملصقات تنتظر المراجعة",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "rejectTitle": "رفض حزمة ملصقات",
+    "rejectReason": "سبب الرفض",
+    "rejectPlaceholder": "أدخل سبب الرفض (مثل محتوى غير لائق، جودة منخفضة)",
+    "rejectConfirm": "تأكيد الرفض",
+    "approvedSuccess": "وُفق على حزمة الملصقات",
+    "rejectedSuccess": "رُفضت حزمة الملصقات",
+    "reviewNotes": "سبب الرفض",
+    "creator": "المنشئ",
+    "sourceInstance": "النسخة",
+    "localInstance": "النسخة المحلية",
+    "viewStickers": "عرض الملصقات",
+    "pendingReviewHint": "قيد مراجعة المسؤول؛ ستظهر في الاستكشاف بعد الموافقة"
+  },
+  "poke": {
+    "action": "نخز",
+    "received": "نخز {{actor}} {{target}}",
+    "disconnected": "انقطع الاتصال. لم تُرسل النخزة."
+  },
+  "pins": {
+    "title": "الرسائل المثبتة",
+    "empty": "لا رسائل مثبتة بعد.",
+    "jump": "الانتقال إلى الرسالة",
+    "unpin": "إلغاء التثبيت",
+    "deletedMessage": "حُذفت الرسالة",
+    "attachmentOnly": "مرفق"
+  }
+}

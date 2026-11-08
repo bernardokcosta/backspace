@@ -1,0 +1,305 @@
+{
+  "feedback": {
+    "openedInNewTab": "Yeni sekmede açıldı",
+    "copiedGifLink": "GIF bağlantısı kopyalandı",
+    "copiedImageLink": "Görsel bağlantısı kopyalandı",
+    "uploadExpired": "\"{{content}}\" gönderilemedi — yüklemenin süresi doldu.",
+    "attachmentOnly": "(yalnızca ek)"
+  },
+  "message": {
+    "edit": {
+      "hint": "iptal için <cancel>esc</cancel> • kaydetmek için <save>enter</save>"
+    },
+    "edited": "(düzenlendi)",
+    "rowLabel": "{{author}}, {{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "Yükleme başarısız",
+      "discard": "Vazgeç"
+    },
+    "actions": {
+      "confirmDelete": "Silmeyi onayla"
+    },
+    "reply": {
+      "jump": "Özgün mesaja git"
+    },
+    "mention": {
+      "unknownUser": "Bilinmeyen kullanıcı",
+      "unknownRole": "Bilinmeyen rol"
+    },
+    "reactions": {
+      "picker": "Tepki seçici",
+      "you": "Sen",
+      "others_one": "{{count}} kişi daha",
+      "others_other": "{{count}} kişi daha",
+      "bySelf": "Tepki verdin",
+      "byOne": "{{name}} tepki verdi",
+      "byMany": "Tepki verenler: {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "Bu kanalda mesaj geçmişini görüntüleme iznin yok",
+    "loading": "Mesajlar yükleniyor",
+    "loadingOlder": "Daha eski mesajlar yükleniyor",
+    "loadFailed": "Mesajlar yüklenemedi",
+    "jumpToPresent": "Şimdiye git",
+    "jump": {
+      "unavailable": "O mesaj artık mevcut değil.",
+      "failed": "O mesaj yüklenemedi",
+      "presentFailed": "En son mesajlar yüklenemedi"
+    },
+    "unread": {
+      "label": "Yeni",
+      "divider": "Yeni mesajlar",
+      "dividerWithDate": "Yeni mesajlar, {{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "Kanala hoş geldin!",
+        "description": "Konuşmanın başlangıcı burası."
+      },
+      "group": {
+        "intro": "Grup konuşmanın başlangıcı burası.",
+        "owner": "Sahip: <owner>@{{name}}</owner>",
+        "federatedNotice": "Mesajlar senin ve alıcıların ana örneklerinde saklanır. Uçtan uca şifrelenmezler.",
+        "openSettings": "Grup ayarlarını aç",
+        "leave": "Gruptan ayrıl"
+      },
+      "dm": {
+        "fallbackName": "Doğrudan mesaj",
+        "intro": "<strong>@{{name}}</strong> ile doğrudan mesaj geçmişinin başlangıcı burası.",
+        "federatedNotice": "Mesajlar senin ve alıcının ana örneklerinde saklanır. Uçtan uca şifrelenmezler.",
+        "removeFriend": "Arkadaşı kaldır"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "Bu kanalda mesaj gönderme iznin yok",
+    "placeholder": {
+      "channel": "#{{name}} kanalına mesaj gönder",
+      "dm": "@{{name}} kişisine mesaj gönder"
+    },
+    "replyingTo": "Yanıtlanıyor",
+    "cancelReply": "Yanıtı iptal et",
+    "removeAttachment": "Eki kaldır",
+    "attachFile": "Dosya ekle",
+    "dropTitle": "Dosya yükle",
+    "dropHint": "Eklemek için bırak",
+    "uploading": "Yükleniyor…",
+    "uploadingLabel": "Yükleniyor",
+    "failedCount_one": "{{count}} başarısız",
+    "failedCount_other": "{{count}} başarısız",
+    "failedHint": "Göndermek için başarısız eki kaldır veya yeniden dene",
+    "gif": "GIF",
+    "gifPicker": "GIF seçici",
+    "emoji": "Emoji",
+    "emojiPicker": "Emoji seçici",
+    "send": "Gönder",
+    "sendMessage": "Mesaj gönder",
+    "uploadFailed": "{{file}} yüklenemedi: {{reason}}",
+    "uploadFailedReason": "Yükleme başarısız",
+    "typing": {
+      "named_one": "{{names}} yazıyor",
+      "named_other": "{{names}} yazıyor",
+      "several": "Birkaç kişi yazıyor"
+    }
+  },
+  "menu": {
+    "saveImage": "Görseli kaydet",
+    "copyImage": "Görseli kopyala",
+    "openOriginal": "Orijinali aç",
+    "saveVideo": "Videoyu kaydet",
+    "saveAudio": "Sesi kaydet",
+    "copyLink": "Bağlantıyı kopyala",
+    "openLink": "Bağlantıyı aç",
+    "copySelectedText": "Seçili metni kopyala",
+    "copyText": "Metni kopyala",
+    "markUnread": "Okunmadı olarak işaretle",
+    "editMessage": "Mesajı düzenle",
+    "deleteMessage": "Mesajı sil",
+    "linkCopied": "Bağlantı kopyalandı",
+    "linkCopyFailed": "Bağlantı kopyalanamadı",
+    "pinMessage": "Mesajı sabitle",
+    "unpinMessage": "Sabitlemeyi kaldır"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "Duraklatıldı — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "Burada oynatılamıyor — indir",
+      "unsupportedFormat": "Desteklenmeyen video biçimi",
+      "unsupportedBrowser": "Tarayıcın video oynatmayı desteklemiyor."
+    },
+    "audio": {
+      "unsupportedBrowser": "Tarayıcın ses oynatmayı desteklemiyor."
+    },
+    "federation": {
+      "remoteNamed": "{{sender}} örneğinde barındırılıyor. Yerel bir kopya tutmak için indir.",
+      "remoteUnknown": "Gönderenin örneğinde barındırılıyor. Yerel bir kopya tutmak için indir.",
+      "partialGeneric": "Bazı alıcılar bu dosyayı yerel olarak önbelleğe alamıyor.",
+      "partialInstance": "{{username}} örneği (sınır: {{limit}})",
+      "partialList": "Dosya {{instances}} üzerinde önbelleğe alınamadı. Yine de senin örneğinden görüntüleyebilirler.",
+      "listPair": "{{first}} ve {{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "GIF ara",
+    "noResults": "GIF bulunamadı",
+    "noTrending": "Öne çıkan GIF yok",
+    "attribution": "Klipy ile sunulur"
+  },
+  "preview": {
+    "save": "Görseli kaydet",
+    "copy": "Görseli kopyala",
+    "alt": "Görsel önizlemesi"
+  },
+  "invite": {
+    "sentBy": "{{name}} davet gönderdi",
+    "memberCount_one": "{{count}} üye",
+    "memberCount_other": "{{count}} üye",
+    "revoked": "Davet artık geçerli değil",
+    "join": "Katıl",
+    "joining": "Katılınıyor…",
+    "joinFailed": "Katılınamadı",
+    "askToJoin": "Katılmayı iste",
+    "sendingRequest": "Gönderiliyor…",
+    "requestSent": "İstek gönderildi",
+    "requestPending": "İstek bekliyor",
+    "requestNotice": "Bu alan katılma isteklerini kabul eder. Bir yönetici her isteği onaylar.",
+    "requestReview": "Bir yönetici isteğini inceleyecek."
+  },
+  "notification": {
+    "unknownSender": "Birisi",
+    "attachmentOnly": "Bir ek gönderdi"
+  },
+  "commands": {
+    "title": "Komutlar",
+    "failed": "Komut gönderilemedi",
+    "extraText": "Bu komut serbest metin almaz, ancak \"{{text}}\" kaldı. Seçenekleri başa, metni sona koy",
+    "invalidOption": "{{option}} değeri bu komuta uymuyor.",
+    "optionsTitle": "Parametreler",
+    "required": "gerekli",
+    "subcommandsTitle": "Alt komutlar",
+    "group": "grup",
+    "chooseSubcommand": "Bir alt komut seç: {{names}}",
+    "subcommandRefused": "Bot bu alt komutu sunmuyor. Listeden birini seç"
+  },
+  "ephemeral": {
+    "onlyYou": "Bunu yalnızca sen görebilirsin",
+    "dismiss": "Yoksay",
+    "rowLabel": "{{author}} tarafından yalnızca senin görebileceğin yanıt, {{time}}"
+  },
+  "embed": {
+    "loadAction": "Yüklemek için tıkla",
+    "loadNamed": "{{name}} öğesini yükle",
+    "loadUnnamed": "Gömülü içeriği yükle",
+    "frameTitle": "Gömülü içerik",
+    "playNamed": "{{title}} oynat",
+    "playUnnamed": "Videoyu oynat",
+    "videoTitle": "Video"
+  },
+  "stickers": {
+    "title": "Sticker'larım",
+    "upload": "Görsel yükle",
+    "limits": "PNG, JPEG, WebP veya GIF · en fazla 5 MB",
+    "loading": "Yükleniyor…",
+    "empty": "Sticker koleksiyonun burada başlıyor",
+    "remove": "Kaldır",
+    "save": "Sticker'larıma ekle",
+    "saved": "Sticker'larıma eklendi",
+    "preview": "Sticker'ı önizle",
+    "manage": "Yönet",
+    "done": "Bitti",
+    "collectionHint": "Göndermek için bir sticker seç. Bu alanı kendine ait yap.",
+    "manageHint": "Koleksiyonundaki sticker'ları yeniden adlandır veya kaldır. Gönderilmiş mesajlar değişmez.",
+    "emptyHint": "En sevdiğin anları sticker olarak kaydet, bir sonraki yanıtına hazır olsun.",
+    "chooseImage": "Görsel seç",
+    "cancel": "İptal",
+    "replace": "Görseli değiştir",
+    "name": "Sticker adı",
+    "dropImage": "Görseli buraya tıkla veya bırak",
+    "pasteHint": "Panondan bir görsel de yapıştırabilirsin",
+    "uploading": "Sticker ekleniyor…",
+    "singleImage": "Tek seferde bir görsel seç.",
+    "invalidSize": "5 MB'a kadar boş olmayan bir görsel seç.",
+    "invalidType": "Yalnızca PNG, JPEG, WebP ve GIF görselleri desteklenir.",
+    "invalidImage": "Bu görsel önizlenemiyor. Geçerli bir görsel seç.",
+    "removeNamed": "{{name}} öğesini kaldır",
+    "addMore": "Daha fazla ekle",
+    "selectedCount_one": "{{count}} sticker seçildi",
+    "selectedCount_other": "{{count}} sticker seçildi",
+    "dropMore": "Daha fazla görseli buraya tıkla veya bırak",
+    "sticker": "Sticker",
+    "downloadFailed": "Görsel yüklenemedi.",
+    "batchLimit_one": "Tek seferde en fazla {{count}} görsel seç.",
+    "batchLimit_other": "Tek seferde en fazla {{count}} görsel seç.",
+    "capacityLimit_one": "Koleksiyonunda {{count}} sticker daha eklemek için yer var.",
+    "capacityLimit_other": "Koleksiyonunda {{count}} sticker daha eklemek için yer var.",
+    "full": "Koleksiyonun dolu. Başka bir sticker eklemek için birini kaldır.",
+    "batchFailed_one": "{{count}} görsel eklenemedi. Aşağıda listelenmeye devam ediyor.",
+    "batchFailed_other": "{{count}} görsel eklenemedi. Aşağıda listelenmeye devam ediyor.",
+    "uploadingProgress": "{{current}}/{{total}} görsel ekleniyor…",
+    "rename": "Yeniden adlandır",
+    "renameNamed": "{{name}} öğesini yeniden adlandır",
+    "renameTitle": "Sticker'ı yeniden adlandır",
+    "search": "Sticker ara",
+    "noResults": "Sticker bulunamadı",
+    "store": "Sticker Mağazası",
+    "myCollection": "Sticker'larım",
+    "packs": "Sticker Paketleri",
+    "explore": "Keşfet",
+    "myPacks": "Benim oluşturduklarım",
+    "install": "Ekle",
+    "installed": "Eklendi",
+    "uninstall": "Kaldır",
+    "createPack": "Paket oluştur",
+    "editPack": "Paketi düzenle",
+    "packName": "Paket adı",
+    "packDesc": "Açıklama (isteğe bağlı)",
+    "submitReview": "İncelemeye gönder",
+    "pendingReview": "İnceleme bekliyor",
+    "approved": "Onaylandı",
+    "rejected": "Reddedildi",
+    "draft": "Taslak",
+    "newVersion": "Yeni sürüm",
+    "deletePack": "Paketi sil",
+    "stickersCount_one": "{{count}} sticker",
+    "stickersCount_other": "{{count}} sticker",
+    "noPacks": "Sticker paketi bulunamadı",
+    "replicaBadge": "Federe",
+    "viewPack": "Paketi görüntüle",
+    "saveDraft": "Taslak olarak kaydet",
+    "packCreated": "Paket başarıyla oluşturuldu",
+    "reviewSubmitted": "Yönetici incelemesine gönderildi",
+    "reviews": "İnceleme",
+    "noReviews": "İnceleme bekleyen sticker paketi yok",
+    "approve": "Onayla",
+    "reject": "Reddet",
+    "rejectTitle": "Sticker paketini reddet",
+    "rejectReason": "Reddetme nedeni",
+    "rejectPlaceholder": "Reddetme nedenini gir (ör. uygunsuz içerik, düşük kalite)",
+    "rejectConfirm": "Reddetmeyi onayla",
+    "approvedSuccess": "Sticker paketi onaylandı",
+    "rejectedSuccess": "Sticker paketi reddedildi",
+    "reviewNotes": "Reddetme nedeni",
+    "creator": "Oluşturan",
+    "sourceInstance": "Örnek",
+    "localInstance": "Yerel örnek",
+    "viewStickers": "Sticker'ları görüntüle",
+    "pendingReviewHint": "Yönetici incelemesinde; onaylandığında Keşfet'te listelenecek"
+  },
+  "poke": {
+    "action": "Dürt",
+    "received": "{{actor}}, {{target}} kişisini dürttü",
+    "disconnected": "Bağlantı kesildi. Dürtme gönderilmedi."
+  },
+  "pins": {
+    "title": "Sabitlenen mesajlar",
+    "empty": "Henüz sabitlenen mesaj yok.",
+    "jump": "Mesaja git",
+    "unpin": "Sabitlemeyi kaldır",
+    "deletedMessage": "Mesaj silindi",
+    "attachmentOnly": "Ek"
+  }
+}

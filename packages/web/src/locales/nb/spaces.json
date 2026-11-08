@@ -1,0 +1,632 @@
+{
+  "soundboardTab": "Lydtavle",
+  "create": {
+    "title": "Opprett et rom",
+    "icon": {
+      "upload": "Last opp",
+      "previewAlt": "Ikonforhåndsvisning",
+      "colorLabel": "Ikonfarge",
+      "cropTitle": "Beskjær romikon",
+      "uploadFailed": "Kunne ikke laste opp ikon"
+    },
+    "name": {
+      "label": "Romnavn",
+      "placeholder": "Mitt kule rom",
+      "required": "Romnavn er påkrevd"
+    },
+    "visibilityLabel": "Synlighet",
+    "description": {
+      "label": "Beskrivelse",
+      "placeholder": "En kort beskrivelse av rommet ditt…",
+      "counter": "{{length}}/{{max}}"
+    },
+    "submit": "Opprett",
+    "submitting": "Oppretter…"
+  },
+  "channel": {
+    "create": {
+      "title": "Opprett kanal",
+      "typeLabel": "Kanaltype",
+      "types": {
+        "text": {
+          "name": "Tekst",
+          "description": "Send meldinger, bilder og filer"
+        },
+        "voice": {
+          "name": "Stemme",
+          "description": "Heng med stemme og video"
+        }
+      },
+      "nameLabel": "Kanalnavn",
+      "namePlaceholder": "ny-kanal",
+      "topicLabel": "Emne (valgfritt)",
+      "topicPlaceholder": "Hva handler denne kanalen om?",
+      "categoryLabel": "Kategori",
+      "noCategory": "Ingen kategori",
+      "nameRequired": "Kanalnavn er påkrevd",
+      "noSpaceSelected": "Intet rom valgt",
+      "submit": "Opprett kanal",
+      "submitting": "Oppretter…"
+    },
+    "settings": {
+      "title": "Kanalinnstillinger",
+      "rename": "Gi kanalen nytt navn",
+      "nameLabel": "Kanalnavn",
+      "channelLabel": "Kanal",
+      "topic": {
+        "label": "Emne",
+        "placeholder": "Hva handler denne kanalen om?",
+        "hint": "Vises i kanaltoppen. Alle kan åpne den fulle teksten derfra.",
+        "counter": "{{used}}/{{max}}",
+        "tooLong": "Forkort emnet til {{max}} tegn eller færre for å lagre.",
+        "empty": "Intet emne angitt.",
+        "reset": "Forkast endringer"
+      },
+      "private": {
+        "label": "Privat kanal",
+        "description": "Bare valgte medlemmer og roller kan se denne kanalen.",
+        "note": "Denne kanalen er skjult for medlemmer uten eksplisitt tilgang. Brukere med administratortillatelse eller romeiere ser alltid alle kanaler.",
+        "unhideOnSave": "Lagring gjør denne kanalen synlig for hvert medlem."
+      },
+      "deleteButton": "Slett kanal"
+    },
+    "delete": {
+      "title": "Slette #{{name}}?",
+      "description": "Dette sletter permanent <strong>#{{name}}</strong> og alle meldingene dens. Dette kan ikke angres.",
+      "descriptionVoice": "Dette sletter permanent <strong>#{{name}}</strong> og alle meldingene dens. Alle i denne talekanalen kobles fra. Dette kan ikke angres.",
+      "confirm": "Slett kanal"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "Opprett kategori",
+      "nameLabel": "Kategorinavn",
+      "namePlaceholder": "ny-kategori",
+      "nameRequired": "Kategorinavn er påkrevd",
+      "noSpaceSelected": "Intet rom valgt",
+      "submit": "Opprett kategori",
+      "submitting": "Oppretter…"
+    },
+    "settings": {
+      "title": "Kategoriinnstillinger",
+      "rename": "Gi kategorien nytt navn",
+      "nameLabel": "Kategorinavn",
+      "categoryLabel": "Kategori",
+      "private": {
+        "label": "Privat kategori",
+        "description": "Bare valgte medlemmer og roller kan se kanaler i denne kategorien.",
+        "note": "Denne kategorien er skjult for medlemmer uten eksplisitt tilgang. Kanaler inni arver denne begrensningen med mindre de eksplisitt overstyrer den.",
+        "unhideOnSave": "Lagring gjør denne kategorien og kanalene dens uten separat synlighetsbegrensning synlige for alle."
+      },
+      "deleteButton": "Slett kategori"
+    },
+    "delete": {
+      "title": "Slette “{{name}}”?",
+      "description": "Dette sletter permanent kategorien <strong>{{name}}</strong>. Kanaler inni flyttes til øverste nivå. Dette kan ikke angres.",
+      "confirm": "Slett kategori"
+    }
+  },
+  "invite": {
+    "title": "Inviter venner",
+    "intro": "Send til venner, eller del en lenke.",
+    "introRequest": "Send til venner, eller del en lenke. De som åpner den ber om å bli med, og en ansvarlig godkjenner hver forespørsel.",
+    "searchPlaceholder": "Søk venner…",
+    "noMatches": "Ingen venner matcher søket ditt",
+    "noFriends": "Ingen venner ennå",
+    "alreadyMember": "Allerede i rommet",
+    "removeSelected": "Fjern {{name}}",
+    "selectFriends": "Velg venner",
+    "send_one": "Send {{count}} invitasjon",
+    "send_other": "Send {{count}} invitasjoner",
+    "sending": "Sender…",
+    "retryFailed": "Prøv mislykkede invitasjoner igjen",
+    "status": {
+      "sent": "✓ Sendt",
+      "failed": "✗ {{reason}}"
+    },
+    "shareLink": "Eller del en lenke",
+    "generating": "Genererer…",
+    "generateFailed": "Kunne ikke generere invitasjonslenke",
+    "failure": {
+      "inviteInvalid": "Invitasjonslenke ikke lenger gyldig",
+      "notAFriend": "Ikke venn",
+      "userNotFound": "Bruker ikke funnet",
+      "alreadyMember": "Allerede medlem",
+      "upstream": "Kunne ikke verifisere invitasjon, prøv igjen",
+      "cannotInviteSelf": "Du kan ikke invitere deg selv",
+      "invalidBody": "Ugyldig forespørsel",
+      "invalidTarget": "Ugyldig mål",
+      "unreachable": "Kunne ikke nå instansen din",
+      "serverError": "Kunne ikke sende (serverfeil)"
+    }
+  },
+  "inviteFriend": {
+    "title": "Inviter {{name}} til et rom",
+    "intro": "Velg et av rommene dine for å sende en invitasjon.",
+    "noSpaces": "Du er ennå ikke i noen rom",
+    "contextMenu": "Inviter til rom"
+  },
+  "join": {
+    "validation": {
+      "required": "Invitasjonskode er påkrevd",
+      "invalidLink": "Ugyldig invitasjonslenke",
+      "linkFormat": "Ugyldig invitasjonslenke — forventet format: https://instance/join/CODE",
+      "qualifiedFormat": "Ugyldig invitasjonsformat — forventet: CODE@domain",
+      "invalidDomain": "Ugyldig domene i invitasjon"
+    },
+    "title": "Bli med i et rom",
+    "invitePlaceholder": "f.eks. abc123 eller https://instance.com/join/abc123",
+    "submit": "Bli med i rom",
+    "submitting": "Blir med…",
+    "connect": {
+      "intro": "Koble til <host>{{host}}</host> for å bli med i dette rommet.",
+      "passwordLabel": "Oppgi passordet ditt for å koble til",
+      "passwordPlaceholder": "Passordet til kontoen din",
+      "passwordNote": "Passordet ditt kontrolleres av hjeminstansen din og sendes aldri til {{host}}. Den instansen får en unik legitimasjon laget bare for den.",
+      "submit": "Koble til & bli med",
+      "submitting": "Kobler til…"
+    },
+    "fallback": {
+      "usernamePlaceholder": "Brukernavnet ditt på denne instansen",
+      "passwordLabel": "Passord for denne instansen",
+      "passwordPlaceholder": "Passord på den eksterne instansen",
+      "submit": "Logg inn & bli med",
+      "submitting": "Logger inn…"
+    },
+    "request": {
+      "messagePlaceholder": "Hvorfor vil du bli med? (valgfritt)",
+      "send": "Send forespørsel",
+      "sending": "Sender…",
+      "notice": "Dette rommet tar imot forespørsler. Send en, og en ansvarlig gjennomgår den.",
+      "messageLabel": "Melding til forespørselen din",
+      "sent": "Forespørsel sendt. En ansvarlig gjennomgår den, og rommet vises i listen din når den godkjennes.",
+      "pending": "Du har allerede bedt om å bli med i dette rommet. Forespørselen din venter på en ansvarlig."
+    }
+  },
+  "settings": {
+    "title": "Rominnstillinger",
+    "backAria": "Tilbake til rominnstillingsmenyen",
+    "nav": {
+      "general": "Generelt",
+      "management": "Håndtering",
+      "tabs": {
+        "overview": "Oversikt",
+        "roles": "Roller",
+        "bans": "Utestengelser"
+      }
+    },
+    "discardChanges": "Forkast",
+    "overview": {
+      "identity": "Romsidentitet",
+      "iconLabel": "Romikon",
+      "iconAlt": "Romikon",
+      "colorLabel": "Ikonfarge",
+      "bannerLabel": "Rombanner",
+      "bannerAlt": "Rombanner",
+      "uploadBanner": "Last opp banner (16:9)",
+      "removeBanner": "Fjern banner",
+      "nameLabel": "Romnavn",
+      "iconUploadFailed": "Kunne ikke laste opp ikon",
+      "bannerUploadFailed": "Kunne ikke laste opp banner",
+      "cropIconTitle": "Beskjær romikon",
+      "cropBannerTitle": "Beskjær rombanner",
+      "transfer": {
+        "description": "Overfør eierskapet til et annet medlem. Du blir et vanlig medlem.",
+        "prompt": "Overføre eierskapet til <strong>{{name}}</strong>?",
+        "button": "Overfør eierskap",
+        "confirm": "Overfør",
+        "transferring": "Overfører…",
+        "success": "Eierskap overført til {{name}}",
+        "failed": "Kunne ikke overføre eierskap"
+      },
+      "delete": {
+        "description": "Slett permanent dette rommet og alle dataene dens. Dette kan ikke angres.",
+        "button": "Slett rom",
+        "confirmAgain": "Klikk igjen for å bekrefte sletting",
+        "failed": "Kunne ikke slette rom"
+      }
+    },
+    "access": {
+      "title": "Tilgang og beskrivelse",
+      "visibility": {
+        "label": "Synlighet",
+        "hint": "Bestem hvordan folk med invitasjon kommer inn i dette rommet.",
+        "options": {
+          "private": {
+            "label": "Privat",
+            "description": "Bare folk med invitasjonslenke kan bli med"
+          },
+          "request": {
+            "label": "På forespørsel",
+            "description": "En invitasjon fører til en forespørsel som en ansvarlig må godkjenne"
+          },
+          "public": {
+            "label": "Offentlig",
+            "description": "Folk med invitasjon kan bli med med én gang"
+          }
+        }
+      },
+      "description": {
+        "label": "Beskrivelse",
+        "hint": "Et kort sammendrag vist med invitasjoner til dette rommet.",
+        "placeholder": "En kort beskrivelse av dette rommet…",
+        "counter": "{{length}}/{{max}}"
+      },
+      "requests": {
+        "title": "Ventende forespørsler om deltagelse",
+        "empty": "Ingen ventende forespørsler om deltagelse",
+        "actionFailed": "Handlingen mislyktes"
+      }
+    },
+    "members": {
+      "description": "Håndter medlemmer i dette rommet. Klikk et medlem for å redigere rollene dens.",
+      "listHeading": "Medlemmer ({{total}})",
+      "owner": "Eier",
+      "noRoles": "Ingen roller",
+      "ban": "Utesteng",
+      "kick": "Spark ut",
+      "confirm": {
+        "banTitle": "Utesteng {{name}}",
+        "kickTitle": "Spark ut {{name}}",
+        "banDescription": "Denne personen blir permanent utestengt fra dette rommet til utestengelsen oppheves.",
+        "kickDescription": "Denne personen kan bli med igjen med en invitasjonslenke."
+      },
+      "updateRolesFailed": "Kunne ikke oppdatere roller",
+      "kickFailed": "Kunne ikke sparke ut medlem",
+      "banFailed": "Kunne ikke utestenge medlem",
+      "rolesAboveYou": "Roller på eller over din høyeste rolle er låste.",
+      "rolesUnheld": "Roller med tillatelser du ikke har kan ikke gis.",
+      "rolesManagedByBot": "En bots egen rolle blir hos boten.",
+      "botInvite": {
+        "warning": "Boten blir medlem av dette rommet og mottar meldinger og hendelser fra hver kanal tillatelsene dens tillater. Legg bare til boter du stoler på.",
+        "owner": "Eier: @{{owner}}",
+        "button": "Legg til bot",
+        "title": "Legg til en bot",
+        "searchPlaceholder": "Søk boter på navn…",
+        "searching": "Søker…",
+        "noResults": "Ingen boter funnet",
+        "add": "Legg til",
+        "adding": "Legger til…",
+        "permissionsTitle": "Tillatelser for {{name}}",
+        "permissionsIntro": "Boten ber om disse tillatelsene. De går i en rolle oppkalt etter boten; fjern krysset for dem du ikke vil gi.",
+        "permissionsUnheld": "Tillatelser du ikke selv har kan ikke gis.",
+        "permissionsNone": "Ingen krysset av: boten blir med uten rolle.",
+        "back": "Tilbake"
+      }
+    },
+    "afk": {
+      "title": "AFK-kanal",
+      "channelLabel": "Flytt inaktive medlemmer til",
+      "disabled": "Deaktivert",
+      "timeoutLabel": "Etter å ha vært inaktiv i",
+      "minutes": "min",
+      "hint": "Medlemmer uten taleaktivitet i den valgte tiden flyttes automatisk til denne talekanalen."
+    }
+  },
+  "bans": {
+    "title": "Utestengelser",
+    "description": "Utestengte brukere kan ikke bli med i dette rommet igjen før utestengelsen oppheves.",
+    "loading": "Laster utestengelser…",
+    "empty": "Ingen utestengte brukere",
+    "listHeading": "Utestengelser ({{total}})",
+    "bannedBy": "Utestengt av {{moderator}} den {{date}}",
+    "bannedByWithReason": "Utestengt av {{moderator}} den {{date}}: {{reason}}",
+    "unban": "Opphev utestengelse",
+    "loadFailed": "Kunne ikke laste utestengelser",
+    "unbanFailed": "Kunne ikke oppheve utestengelse"
+  },
+  "roles": {
+    "title": "Roller",
+    "create": "Opprett rolle",
+    "creating": "Oppretter…",
+    "listHeading": "Roller",
+    "description": "Roller avgjør hvilke tillatelser medlemmer har.",
+    "hierarchyHint": "Roller høyere i listen står over dem nedenfor.",
+    "defaultName": "ny rolle",
+    "copyName": "Kopi av {{name}}",
+    "backToList": "Tilbake til roller",
+    "created": "Rolle opprettet. Sett den opp nedenfor.",
+    "aboveYou": "Denne rollen ligger på eller over din høyeste rolle. Du kan vise den, men ikke endre den.",
+    "managedByBot": "Denne rollen styres av en bot og slettes når boten forlater rommet. Den kan ikke tildeles noen andre eller slettes manuelt. Tillatelsene dens kan endres.",
+    "reorder": {
+      "handle": "Flytt {{name}}",
+      "handleHint": "Dra, eller bruk opp- og ned-pilene",
+      "up": "Flytt {{name}} opp",
+      "down": "Flytt {{name}} ned",
+      "locked": "{{name}} ligger på eller over din høyeste rolle",
+      "moved": "{{name}} flyttet til posisjon {{position}} av {{total}}"
+    },
+    "identity": "Identitet",
+    "nameLabel": "Rollenavn",
+    "colorLabel": "Rollefarge",
+    "nameEmpty": "Rollenavnet kan ikke være tomt",
+    "nameDuplicate": "Det finnes allerede en rolle med det navnet",
+    "groups": {
+      "general": "Generelt",
+      "text": "Tekst",
+      "voice": "Stemme"
+    },
+    "saved": "Rolle lagret",
+    "copy": "Kopiér rolle",
+    "copying": "Kopierer…",
+    "delete": "Slett rolle",
+    "deleting": "Sletter…",
+    "confirmDelete": "Bekrefte?",
+    "createFailed": "Kunne ikke opprette rolle",
+    "saveFailed": "Kunne ikke lagre rolle",
+    "deleteFailed": "Kunne ikke slette rolle",
+    "copyFailed": "Kunne ikke kopiere rolle",
+    "unheldLocked": "Du kan bare veksle tillatelser du selv har. Resten er låste.",
+    "unheldPermission": "Du har ikke denne tillatelsen",
+    "copyUnheld": "Denne rollen har tillatelser du ikke har, så du kan ikke kopiere den.",
+    "copyDeleteUnheld": "Denne rollen har tillatelser du ikke har, så du kan ikke kopiere eller slette den."
+  },
+  "memberRoles": {
+    "title": "Rediger roller for {{name}}",
+    "viewProfile": "Se profil",
+    "affectsAll": "Tillatelsesendringer gjelder hvert medlem med denne rollen.",
+    "selectRole": "Velg en rolle for å redigere tillatelsene dens.",
+    "saved": "Endringer lagret"
+  },
+  "permissions": {
+    "title": "Tillatelser",
+    "names": {
+      "administrator": "Administrator",
+      "viewChannel": "Se kanaler",
+      "manageChannels": "Håndter kanaler",
+      "manageRoles": "Håndter roller",
+      "manageSpace": "Håndter rom",
+      "createInvite": "Opprett invitasjon",
+      "kickMembers": "Spark ut medlemmer",
+      "banMembers": "Utesteng medlemmer",
+      "sendMessages": "Send meldinger",
+      "manageMessages": "Håndter meldinger",
+      "attachFiles": "Legg ved filer",
+      "readMessageHistory": "Les meldingshistorikk",
+      "addReactions": "Legg til reaksjoner",
+      "connect": "Koble til",
+      "speak": "Snakk",
+      "muteMembers": "Demp medlemmer",
+      "deafenMembers": "Døv medlemmer",
+      "moveMembers": "Flytt medlemmer",
+      "stream": "Strøm",
+      "disconnectMembers": "Koble fra medlemmer",
+      "mentionEveryone": "Nevn @everyone, @here og roller"
+    },
+    "tristate": {
+      "deny": "Nekt",
+      "neutral": "Nøytral (arver)",
+      "allow": "Tillat"
+    },
+    "overrideCount_one": "{{count}} overstyring",
+    "overrideCount_other": "{{count}} overstyringer",
+    "removeOverride": "Fjern overstyring",
+    "removeOverrideFor": "Fjern overstyring for {{name}}",
+    "removeOverrideHint": "Uten den gjelder her rommets tillatelser.",
+    "noRoleOverrides": "Ingen rolleoverstyringer. Hver rolle bruker her romtillatelsene sine.",
+    "noMemberOverrides": "Ingen medlemsoverstyringer.",
+    "roleOverrides": "Rolleoverstyringer",
+    "memberOverrides": "Medlemsoverstyringer",
+    "addRole": "Legg til rolle",
+    "addMember": "Legg til medlem",
+    "noMoreRoles": "Ingen flere roller å legge til",
+    "loadFailed": "Kunne ikke laste overstyringer",
+    "saveFailed": "Kunne ikke lagre overstyringer",
+    "partialFailure_one": "{{count}} overstyring kunne ikke lagres",
+    "partialFailure_other": "{{count}} overstyringer kunne ikke lagres",
+    "unheldLocked": "Du kan bare veksle tillatelser du selv har. Resten er låste.",
+    "unheldPermission": "Du har ikke denne tillatelsen",
+    "removeUnheld": "Denne overstyringen setter tillatelser du ikke har. Bare den som har dem kan fjerne den.",
+    "removeUnheldShort": "Bare den med disse tillatelsene kan fjerne den",
+    "aboveYouRole": "Denne rollen ligger på eller over din høyeste rolle. Du kan vise overstyringen dens, men ikke endre eller fjerne den.",
+    "aboveYouMember": "Dette medlemmet ligger på eller over deg. Du kan vise overstyringen dens, men ikke endre eller fjerne den.",
+    "aboveYouShort": "På eller over din høyeste rolle"
+  },
+  "sidebar": {
+    "directMessages": "Direktemeldinger",
+    "addSpace": "Legg til et rom",
+    "joinSpace": "Bli med i et rom",
+    "folder": {
+      "tooltip_one": "Mappe ({{count}})",
+      "tooltip_other": "Mappe ({{count}})",
+      "spaceCount_one": "{{count}} rom",
+      "spaceCount_other": "{{count}} rom",
+      "unnamed": "Navnløs mappe",
+      "rename": "Gi mappen nytt navn",
+      "color": "Mappefarge",
+      "create": "Opprett mappe",
+      "moveTo": "Flytt til mappe",
+      "removeFrom": "Fjern fra mappe",
+      "ungroup": "Del opp",
+      "created": "Mappe opprettet",
+      "moved": "Flyttet til mappe",
+      "removed": "Fjernet fra mappe",
+      "ungrouped": "Mappe delt opp"
+    },
+    "space": {
+      "inviteCopied": "Invitasjonslenke kopiert til utklippstavlen",
+      "inviteCopiedRequest": "Invitasjonslenke kopiert. De som åpner den kan be om å bli med.",
+      "inviteFailed": "Kunne ikke generere invitasjon",
+      "transferOwnership": "Overfør eierskap",
+      "settings": "Rominnstillinger",
+      "leave": "Forlat rom",
+      "reconnecting": "Kobler til igjen med {{instance}}…",
+      "remoteInstance": "ekstern instans",
+      "leaveConfirm": {
+        "title": "Forlat rom",
+        "titleNamed": "Forlat {{name}}",
+        "description": "Er du sikker på at du vil forlate dette rommet? For å bli med igjen trenger du en invitasjon."
+      },
+      "left": "Forlot rommet",
+      "leaveFailed": "Kunne ikke forlate rommet",
+      "unreadMessages_one": "{{count}} ulest melding",
+      "unreadMessages_other": "{{count}} uleste meldinger",
+      "unreadMessagesOver99": "Mer enn 99 uleste meldinger"
+    },
+    "dmList": {
+      "newDm": "Ny direktemelding",
+      "empty": "Ingen samtaler ennå.",
+      "leaveGroup": "Forlat gruppen",
+      "leaveGroupConfirm": {
+        "title": "Forlat gruppe-DM",
+        "description": "Er du sikker på at du vil gå? Du kan ikke bli med igjen med mindre noen legger deg til igjen."
+      }
+    },
+    "userArea": {
+      "inputDevice": "Inndataenhet",
+      "outputDevice": "Utdataenhet",
+      "inputDevices": "Inndataenheter",
+      "outputDevices": "Utdataenheter",
+      "inputVolume": "Inndatavolum",
+      "outputVolume": "Utvolum",
+      "systemDefault": "Systemstandard",
+      "microphonePermission": "Mikrofontillatelse trengs.",
+      "audioPermission": "Lydtillatelse trengs.",
+      "enable": "Aktiver",
+      "voiceSettings": "Stemmeinnstillinger",
+      "mute": "Demp",
+      "unmute": "Slutt å dempe",
+      "deafen": "Døv",
+      "undeafen": "Slutt å døve",
+      "spaceMuted": "Dempet i rommet",
+      "spaceDeafened": "Døvet i rommet",
+      "permissionMuted": "Dempet (ingen taletillatelse)"
+    },
+    "dmUnreadMessages_one": "{{count}} ulest direktemelding",
+    "dmUnreadMessages_other": "{{count}} uleste direktemeldinger",
+    "dmUnreadMessagesOver99": "Mer enn 99 uleste direktemeldinger"
+  },
+  "channels": {
+    "resizeHandle": "Endre størrelse på kanallisten",
+    "loading": "Laster kanaler",
+    "create": "Opprett kanal",
+    "createCategory": "Opprett kategori",
+    "settings": "Kanalinnstillinger",
+    "categorySettings": "Kategoriinnstillinger",
+    "delete": "Slett kanal",
+    "deleteCategory": "Slett kategori",
+    "emptyCategory": "Ingen kanaler",
+    "empty": "Ingen kanaler ennå.",
+    "deleteConfirm": {
+      "title": "Slett kanal",
+      "description": "Er du sikker? Dette sletter permanent kanalen og alle meldingene dens."
+    },
+    "deleteCategoryConfirm": {
+      "title": "Slett kategori",
+      "description": "Er du sikker på at du vil slette denne kategorien? Kanaler i den flyttes til ukategoriserte — ingen kanaler slettes."
+    },
+    "deleted": "Kanal slettet",
+    "deleteFailed": "Kunne ikke slette kanal",
+    "categoryDeleted": "Kategori slettet",
+    "categoryDeleteFailed": "Kunne ikke slette kategori"
+  },
+  "members": {
+    "titleWithCount_one": "Medlemmer — {{count}}",
+    "titleWithCount_other": "Medlemmer — {{count}}",
+    "loading": "Laster medlemmer",
+    "resizeHandle": "Endre størrelse på medlemslisten",
+    "groups": {
+      "owner": "Eier"
+    },
+    "ownerTitle": {
+      "edit": "Rediger eiertittel",
+      "label": "Eiertittel",
+      "hint": "Synlig for alle medlemmer i dette rommet. Bruk 1–{{max}} tegn; dette endrer ikke tillatelser.",
+      "reset": "Nullstill til standard"
+    },
+    "menu": {
+      "profile": "Se profil",
+      "nickname": "Endre romkallenavn…",
+      "roles": "Roller"
+    },
+    "nickname": {
+      "title": "Endre romkallenavn",
+      "label": "Romkallenavn",
+      "descriptionSelf": "Gjelder bare i dette rommet. Kontonavnet ditt og kallenavnene dine i andre rom forblir uendret. La stå tomt for å vise kontonavnet.",
+      "descriptionOther": "Gjelder bare i dette rommet. Kontonavnet til {{name}} forblir uendret. La stå tomt for å vise kontonavnet.",
+      "reset": "Nullstill til kontonavn",
+      "shownAs": "Kallenavn i dette rommet: {{nickname}}"
+    }
+  },
+  "mobile": {
+    "addSheet": {
+      "createSpace": "Opprett rom",
+      "joinSpace": "Bli med i rom"
+    },
+    "muteUser": "Demp bruker"
+  },
+  "main": {
+    "selectChannel": "Velg en kanal",
+    "selectChannelHint": "Velg en tekst- eller talekanal for å begynne",
+    "notificationSettings": "Varslingsinnstillinger",
+    "topic": {
+      "show": "Vis hele emnet",
+      "dialogTitle": "#{{name}}"
+    },
+    "voice": {
+      "connectionFailed": "Tilkobling mislyktes",
+      "connected": "Koblet til",
+      "connecting": "Kobler til…",
+      "participants_one": "{{count}} koblet til",
+      "participants_other": "{{count}} koblet til",
+      "inCall_one": "{{count}} i samtale",
+      "inCall_other": "{{count}} i samtale",
+      "empty": "Ingen er i denne talekanalen akkurat nå.",
+      "join": "Bli med i tale"
+    },
+    "dm": {
+      "fallbackName": "Direktemelding",
+      "composerPlaceholder": "Melding til {{target}}",
+      "calling": "Ringer {{name}}…",
+      "groupSettings": "Gruppeinnstillinger",
+      "openGroupSettings": "Åpne gruppeinnstillinger",
+      "memberCount_one": "({{count}} medlem)",
+      "memberCount_other": "({{count}} medlemmer)",
+      "startVoiceCall": "Start talesamtale",
+      "joinCall": "Bli med i samtale",
+      "startVideoCall": "Start videosamtale",
+      "addFriends": "Legg til venner i DM"
+    }
+  },
+  "ownership": {
+    "title": "Overfør eierskap",
+    "description": "Velg et medlem som ny eier av <name>{{name}}</name>",
+    "confirmQuestion": "Overføre eierskapet av <name>{{space}}</name> til <name>{{member}}</name>?",
+    "regularMember": "Du blir et vanlig medlem.",
+    "transferring": "Overfører…",
+    "confirm": "Overfør",
+    "loading": "Laster medlemmer…",
+    "success": "Eierskap overført til {{name}}",
+    "failed": "Kunne ikke overføre eierskap"
+  },
+  "notifications": {
+    "open": "Varslingsinnstillinger",
+    "channelTitle": "Varsler for #{{channel}}",
+    "spaceTitle": "Varsler for {{space}}",
+    "levelHeading": "Varsle meg om",
+    "level": {
+      "all": "Alle meldinger",
+      "mentions": "Bare @omtaler",
+      "nothing": "Ingenting",
+      "inherit": "Romstandard ({{level}})"
+    },
+    "dmNote": "Direktemeldinger varsler deg alltid.",
+    "muteHeading": "Demp",
+    "mute": {
+      "oneHour": "I 1 time",
+      "eightHours": "I 8 timer",
+      "oneDay": "I 24 timer",
+      "indefinite": "Til jeg slår på varsler igjen"
+    },
+    "unmute": "Slutt å dempe",
+    "mutedUntil": "Dempet til {{time}}",
+    "mutedIndefinitely": "Dempet til du slår på varsler igjen",
+    "spaceMuted": "Dette rommet er dempet, så kanalene dens også.",
+    "mutedIndicator": "Dempet",
+    "saveFailed": "Kunne ikke lagre varslingsinnstillinger",
+    "suppressEveryone": "Undertrykk @everyone og @here",
+    "suppressRoles": "Undertrykk rolleomtaler",
+    "massHeading": "Gruppeomtaler",
+    "massNote": "@here når de samme medlemmene som @everyone. Omtaler av deg ved navn varsler deg alltid."
+  }
+}

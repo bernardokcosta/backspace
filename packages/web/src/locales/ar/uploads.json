@@ -1,0 +1,38 @@
+{
+  "failure": {
+    "notAuthenticated": "غير موثّق لهذه النسخة",
+    "invalidResponse": "تعذّر تحليل استجابة الرفع",
+    "uploadError": "خطأ في الرفع",
+    "downloadError": "خطأ في التنزيل",
+    "fileUnavailable": "الملف لم يعد متاحًا — تجاهله وأعد الرفع",
+    "noDestination": "لا مقبض وجهة — لا يمكن الاستئناف",
+    "destinationMissing": "مقبض الوجهة مفقود",
+    "permissionDenied": "تم رفض الإذن",
+    "lostDownload": "تعذّر استئناف التنزيل — فُقدت البيانات. ابدأ التنزيل من جديد.",
+    "uploadHandleMissing": "مقبض الملف مفقود — تجاهله وأعد الرفع",
+    "downloadHandleMissing": "مقبض الوجهة مفقود — ابدأ التنزيل من جديد",
+    "downloadFailed": "فشل التنزيل: {{status}}",
+    "resumeFailed": "فشل الاستئناف: {{status}}"
+  },
+  "transfers": {
+    "title": "النقل",
+    "count_zero": "لا عمليات نقل ({{count}})",
+    "count_one": "عملية نقل {{count}}",
+    "count_two": "عمليتا نقل ({{count}})",
+    "count_few": "{{count}} عمليات نقل",
+    "count_many": "{{count}} عملية نقل",
+    "count_other": "{{count}} عملية نقل",
+    "clearCompleted": "مسح المكتملة",
+    "empty": "لا عمليات نقل نشطة.",
+    "status": {
+      "done": "تم",
+      "failed": "فشل: {{reason}}",
+      "aborted": "أُجهض",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "قص الصورة",
+    "applying": "جارٍ التطبيق…"
+  }
+}

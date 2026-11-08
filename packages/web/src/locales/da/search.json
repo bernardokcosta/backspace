@@ -1,0 +1,34 @@
+{
+  "input": {
+    "placeholder": "Søg beskeder…"
+  },
+  "filters": {
+    "toggle": "Filtre",
+    "from": {
+      "label": "Fra",
+      "placeholder": "brugernavn"
+    },
+    "has": {
+      "label": "Indeholder",
+      "any": "Alt",
+      "file": "Fil",
+      "image": "Billede",
+      "link": "Link"
+    },
+    "before": {
+      "label": "Før"
+    },
+    "after": {
+      "label": "Efter"
+    }
+  },
+  "results": {
+    "empty": "Ingen resultater fundet",
+    "hint": "Skriv for at søge beskeder i denne kanal",
+    "count_one": "{{count}} resultat",
+    "count_other": "{{count}} resultater",
+    "loadMore": "Indlæs flere ({{remaining}} tilbage)",
+    "attachments_one": "{{count}} vedhæftning",
+    "attachments_other": "{{count}} vedhæftninger"
+  }
+}

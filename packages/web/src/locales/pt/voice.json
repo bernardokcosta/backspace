@@ -1,6 +1,75 @@
 {
+  "feedback": {
+    "micDeniedListener": "O acesso ao microfone foi negado. Você entrou apenas para ouvir. Toque em \"Permitir microfone\" para liberar o acesso.",
+    "micRestoreFailed": "Não foi possível restaurar o microfone",
+    "micPermissionRevoked": "A permissão de acesso ao microfone foi revogada",
+    "micDisconnectedDefault": "O microfone foi desconectado. Usando o dispositivo padrão do sistema.",
+    "micDisconnected": "Microfone desconectado",
+    "cameraSwitchFailed": "Não foi possível trocar de câmera",
+    "cameraUnavailable": "Câmera indisponível",
+    "cameraPermissionRevoked": "A permissão de acesso à câmera foi revogada",
+    "cameraDisconnected": "Câmera desconectada",
+    "joinedOtherSession": "A conexão de voz foi encerrada porque você entrou por outra sessão"
+  },
   "juno": {
-    "memory": { "title": "Memória nebulosa", "hiddenCard": "Carta oculta {{number}}", "hiddenPile": "Última carta oculta", "instruction": "Jogue às cegas. Errou: +2 e passa.", "affected": "{{name}} está sob a maldição da memória.", "miss": "{{name}} errou a cor e comprou {{amount}}.", "rules": "Uma carta rara Alzheimer mantém a cor atual e esconde a mão e a cor para o próximo jogador. Jogue uma carta às cegas: acertar a cor ou um coringa válido encerra a maldição; errar mantém a carta na mão, compra duas e passa a vez. Não dá para escapar comprando ou passando; o tempo esgotado também compra duas. Um coringa às cegas mantém a cor atual. O efeito termina ao encerrar a rodada ou sair o jogador afetado." },
+    "guide": {
+      "subtitle": "Conheça a mesa, entenda as cartas e prepare a próxima jogada.", "contents": "Sumário do guia",
+      "sections": { "start": "Para começar", "turn": "Sua vez", "special": "Cartas de ação", "juno": "Diga JUNO", "memory": "Cartas especiais", "score": "Resultado e XP", "table": "Ao redor da mesa" },
+      "start": {
+        "goal": "Seja a primeira pessoa a ficar sem cartas.",
+        "deal": "Cada pessoa começa com sete cartas. São quatro cores; o baralho clássico tem 108 cartas. A primeira carta aberta é um número e o jogo começa no sentido horário.",
+        "setup": "O Juno tem de dois a quatro lugares em um canal de voz do espaço. O anfitrião cria a mesa e inicia a rodada depois que os jogadores entram."
+      },
+      "turn": {
+        "match": "Combine a cor ativa ou o número ou símbolo da última carta. Um coringa permitido também pode ser jogado. Todos estes exemplos combinam com um 5 azul:",
+        "draw": "Você pode comprar uma carta, não continuar comprando até encontrar uma que sirva. Se a nova carta puder ser jogada, jogue essa carta ou passe; depois de comprar, não pode jogar outra carta da mão. Se ela não combinar, sua vez termina automaticamente. Não é possível simplesmente passar antes de comprar uma carta jogável.",
+        "clock": "São {{seconds}} segundos para o turno inteiro, incluindo a decisão depois de comprar. Se o tempo acabar, compre uma e passe; se já comprou, apenas passe. Dizer JUNO não reinicia o relógio. A maldição da memória tem outra penalidade por tempo esgotado."
+      },
+      "examples": { "top": "5 azul · última carta", "color": "9 azul · mesma cor", "number": "5 vermelho · mesmo número", "wild": "Coringa · escolha a cor" },
+      "effects": {
+        "skip": "O próximo jogador perde a vez. Com duas pessoas, você joga novamente.",
+        "reverse": "Inverte o sentido do jogo. Com duas pessoas, pula o adversário e você joga novamente.",
+        "draw2": "O próximo jogador compra duas cartas e perde a vez. Ele não pode responder com outra carta de compra.",
+        "wild": "Pode ser jogado sobre qualquer cor ou símbolo e permite escolher a próxima cor ativa.",
+        "draw4": "Escolha uma cor; o próximo jogador compra quatro e perde a vez. Só pode ser jogado se você não tiver nenhuma carta da cor ativa, mesmo que um número ou símbolo de outra cor combine.",
+        "limits": "Não há acúmulo de compras nem desafio do +4. Se sua última carta for +2 ou +4, a compra ainda é aplicada antes de calcular as posições finais."
+      },
+      "announce": "Com duas cartas, aperte o logo JUNO antes de jogar e ficar com uma. É um botão, não reconhecimento de voz. Dizer depois não corrige o esquecimento; ganhar cartas também apaga seu anúncio anterior.",
+      "reporting": {
+        "unknown": "Isso depende da mesa: servidores mais novos usam denúncias dos jogadores; os antigos usam a penalidade automática descrita abaixo. A regra ativa é confirmada quando há uma mesa disponível.",
+        "detail": "A primeira denúncia válida faz o acusado comprar duas, sem mudar a vez atual nem reiniciar o relógio. Você pode denunciar fora da sua vez, mas não a si mesmo. Espectadores não denunciam. A oportunidade termina aos dez segundos, quando o acusado ganha cartas ou sai, ou quando a rodada acaba. Uma vitória não é reaberta por denúncia."
+      },
+      "memory": {
+        "intro": "O baralho ampliado acrescenta exatamente uma carta rara Alzheimer às 108 clássicas. Jogue sobre qualquer carta: ela mantém a cor ativa e faz o próximo jogador no sentido atual jogar às cegas. Só a mão, a carta do meio e a cor ativa dessa pessoa ficam ocultas.",
+        "play": "Escolha uma das suas cartas ocultas, sem espiá-la. Uma combinação válida ou um coringa permitido encerra a maldição e aplica o efeito normal da carta. Um coringa às cegas mantém a cor anterior, sem seletor de cores; a restrição do +4 continua valendo.",
+        "miss": "Se errar, a carta escolhida continua oculta na sua mão, você compra duas, a maldição termina e a vez passa uma vez. Se o tempo acabar, também compra duas, encerra a maldição e passa.",
+        "limits": "Não dá para comprar ou passar para evitar a tentativa às cegas. Denúncias não curam a maldição. Se a carta de memória for sua última carta, você vence sem deixar outro jogador amaldiçoado.",
+        "inactive": "Não está ativa nesta rodada: o baralho clássico dela não contém a carta rara de memória.",
+        "lobby": "A carta rara só entra quando os aplicativos de todos os jogadores humanos são compatíveis. Uma mesa com versões diferentes pode usar o baralho clássico; o baralho não muda durante a rodada."
+      },
+      "score": {
+        "ranking": "A primeira mão vazia vence. As demais posições seguem a quantidade de cartas restantes, incluindo qualquer compra causada pela última carta.",
+        "award": "XP recebido",
+        "ties": "Empates compartilham posição e XP: duas pessoas empatadas em segundo recebem 80 XP cada, e a posição seguinte é a quarta. Só contam rodadas concluídas apenas por humanos e com vencedor; só o vencedor ganha uma vitória. Sair antes não dá posição nem XP.",
+        "practice": "Uma rodada iniciada com bot continua sendo treino, mesmo que ele saia depois: não dá XP, vitórias ou rodadas no ranking. O XP pertence a este espaço e soma seus canais de voz, não outros espaços.",
+        "pending": "Enquanto o resultado está sendo salvo, o XP está pendente, ainda não foi recebido. Uma nova mesa fica disponível depois que esse resultado é resolvido."
+      },
+      "table": {
+        "seats": "Você pode assistir a uma rodada em andamento, mas novos jogadores não entram no meio dela. Depois do resultado, o anfitrião abre um novo lobby; as outras pessoas entram nessa nova mesa explicitamente.",
+        "leave": "Sair do jogo libera seu lugar e devolve suas cartas ao monte de compra, mas não desconecta você da voz. Voltar ao mosaico apenas esconde a mesa: não sai do jogo. Com menos de duas pessoas, a rodada termina sem vencedor.",
+        "deck": "Quando o monte de compra acaba, os descartes são embaralhados de novo, exceto a última carta aberta. Uma penalidade compra só as cartas disponíveis se não houver a quantidade completa. Se um ciclo inteiro não tiver compra disponível nem jogada válida, a rodada empata, sem XP.",
+        "connection": "Uma reconexão breve da voz mantém seu lugar só enquanto o período de tolerância existente for válido. Mesas em andamento são temporárias: reiniciar o servidor encerra os jogos.",
+        "expiry": "A rodada também expira depois de duas horas, sem vencedor nem XP. Rodadas encerradas por saída de jogadores ou falta de jogadas também não dão XP."
+      }
+    },
+    "settings": {
+      "title": "Configurações do Juno",
+      "languageGroup": "Idioma", "language": "Idioma do jogo", "automatic": "Automático (Backspace)", "automaticDubbing": "Automático (Backspace)",
+      "dubbing": "Dublagem e texto das cartas", "brazilianPortuguese": "Português (Brasil)",
+      "audioGroup": "Áudio", "effects": "Efeitos sonoros", "music": "Música de fundo",
+      "autoplayBlocked": "O navegador pausou a música. Aperte reproduzir para ativar.", "musicFailed": "Não foi possível reproduzir a música. Você pode tentar novamente.", "playMusic": "Reproduzir música"
+    },
+    "memory": { "title": "Memória nebulosa", "hiddenCard": "Carta oculta {{number}}", "hiddenPile": "Última carta oculta", "instruction": "Jogue às cegas. Errou: +2 e passa.", "affected": "{{name}} está sob a maldição da memória.", "miss": "{{name}} errou a tentativa às cegas e comprou {{amount}}.", "rules": "Uma carta rara Alzheimer mantém a cor atual e esconde a mão e a cor para o próximo jogador. Jogue uma carta às cegas: acertar a cor ou um coringa válido encerra a maldição; errar mantém a carta na mão, compra duas e passa a vez. Não dá para escapar comprando ou passando; o tempo esgotado também compra duas. Um coringa às cegas mantém a cor atual. O efeito termina ao encerrar a rodada ou sair o jogador afetado." },
     "addBot": "Adicionar jogador bot", "removeBot": "Remover jogador bot {{name}}", "botName": "Bot Juno {{number}}",
     "practice": "Treino", "practiceHint": "Partidas com bots são de treino: não dão XP, vitórias ou rodadas no ranking.",
     "nextTurn": "Próximo jogador", "turnTime": "Tempo restante do turno", "announcedBy": "{{name}} gritou JUNO!",
@@ -57,8 +126,8 @@
   "badges": {
     "mutedNoPermission": "Silenciado (sem permissão para falar)",
     "spaceMuted": "Silenciado no espaço",
-    "mutedSpaceDeafened": "Silenciado (ensurdecido no espaço)",
-    "spaceDeafened": "Ensurdecido no espaço",
+    "mutedSpaceDeafened": "Silenciado (áudio desativado no espaço)",
+    "spaceDeafened": "Áudio desativado no espaço",
     "locallyMuted": "Silenciado localmente",
     "live": "AO VIVO",
     "you": "(você)"
@@ -66,8 +135,8 @@
   "moderation": {
     "spaceMute": "Silenciar no espaço",
     "spaceUnmute": "Reativar microfone no espaço",
-    "spaceDeafen": "Ensurdecer no espaço",
-    "spaceUndeafen": "Desfazer ensurdecimento no espaço",
+    "spaceDeafen": "Desativar áudio no espaço",
+    "spaceUndeafen": "Ativar áudio no espaço",
     "disconnect": "Desconectar",
     "moveTo": "Mover para"
   },
@@ -128,7 +197,7 @@
       "deniedUser": "A permissão para compartilhar sem o contorno de captura do Windows foi negada. O compartilhamento está bloqueado.",
       "deniedSystem": "O Windows ou um administrador bloqueou a captura sem contorno. Libere o acesso antes de tentar novamente.",
       "notDeclared": "Esta instalação não pode solicitar captura sem contorno. Atualize ou repare o aplicativo desktop.",
-      "unsupported": "Este aplicativo ou esta versão do Windows não oferece captura SDR sem contorno. Atualize antes de compartilhar com Forçar SDR.",
+      "unsupported": "Este aplicativo ou esta versão do Windows não pode garantir captura SDR sem contorno. Atualize antes de compartilhar com Forçar SDR.",
       "cancelled": "A solicitação de captura sem contorno foi cancelada. Nenhuma transmissão foi iniciada.",
       "timeout": "O Windows não concluiu a solicitação de permissão a tempo. Nenhuma transmissão foi iniciada.",
       "failed": "Não foi possível confirmar a permissão de captura sem contorno. O compartilhamento continua bloqueado.",
@@ -252,12 +321,12 @@
     "spaceMutedSelfMuted": "Silenciado no espaço (você também se silenciou)",
     "unmuteShortcut": "Reativar microfone (M)",
     "muteShortcut": "Silenciar (M)",
-    "undeafenShortcut": "Desfazer ensurdecimento (D)",
-    "deafenShortcut": "Ensurdecer (D)",
+    "undeafenShortcut": "Ativar áudio (D)",
+    "deafenShortcut": "Desativar áudio (D)",
     "unmute": "Reativar microfone",
     "mute": "Silenciar",
-    "undeafen": "Desfazer ensurdecimento",
-    "deafen": "Ensurdecer",
+    "undeafen": "Ativar áudio",
+    "deafen": "Desativar áudio",
     "cameraOff": "Desligar câmera",
     "cameraOn": "Ligar câmera",
     "stopSharing": "Parar de compartilhar",

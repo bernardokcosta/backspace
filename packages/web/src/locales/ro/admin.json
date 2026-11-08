@@ -1,0 +1,445 @@
+{
+  "general": {
+    "title": "General",
+    "description": "Configurează instanța Backspace. Aceste setări afectează toți utilizatorii.",
+    "instanceName": {
+      "label": "Numele instanței",
+      "description": "Numele afișat pe pagina de conectare și pe instanțele federate.",
+      "counter": "{{length}}/{{max}}"
+    },
+    "gif": {
+      "label": "Căutare GIF",
+      "description": "Activează căutarea GIF prin Klipy. Obține o cheie API gratuită din portalul pentru dezvoltatori Klipy.",
+      "placeholderSaved": "Cheie salvată — introdu o cheie nouă pentru a o înlocui",
+      "placeholderKey": "Cheie API Klipy",
+      "enabled": "Activat",
+      "notConfigured": "Neconfigurat",
+      "clearKey": "Golește cheia"
+    }
+  },
+  "registration": {
+    "title": "Înregistrare",
+    "description": "Controlează cine poate crea conturi pe această instanță. Înregistrarea publică acoperă conturile locale; cea federată acoperă utilizatorii din instanțe conectate care creează un cont aici.",
+    "public": {
+      "label": "Înregistrare publică",
+      "toggleLabel": "Permite conturi locale noi",
+      "toggleDescription": "Oricine poate crea un cont local din pagina de înregistrare. Când este oprit, doar linkurile de invitație pot crea conturi locale noi."
+    },
+    "federated": {
+      "label": "Înregistrare federată",
+      "toggleLabel": "Permite conturi federate noi",
+      "toggleDescription": "Utilizatorii din alte instanțe pot crea un cont federat aici din setările lor de Conexiuni. Conturile federate existente se pot conecta oricând indiferent de această setare."
+    },
+    "spaceCreation": {
+      "label": "Crearea spațiilor",
+      "toggleLabel": "Permite crearea de spații noi",
+      "toggleDescription": "Utilizatorii pot crea spații noi pe această instanță. Când este oprit, doar administratorii instanței pot crea spații, iar utilizatorii obișnuiți se pot alătura doar celor existente."
+    },
+    "saved": "Setările de înregistrare au fost salvate",
+    "saveFailed": "Setările de înregistrare nu au putut fi actualizate"
+  },
+  "invites": {
+    "label": "Linkuri de invitație",
+    "create": "+ Creează link",
+    "tabs": {
+      "active": "Active",
+      "archived": "Arhivate"
+    },
+    "loadFailed": "Invitațiile nu au putut fi încărcate",
+    "emptyActive": "Niciun link de invitație activ.",
+    "emptyArchived": "Niciun link de invitație arhivat.",
+    "noMatch": "Nicio invitație nu corespunde filtrului curent.",
+    "filter": {
+      "status": "Stare",
+      "sort": {
+        "recent": "Cele mai recente",
+        "oldest": "Cele mai vechi",
+        "name": "Nume (A–Z)",
+        "mostUsed": "Cele mai folosite",
+        "expiringSoonest": "Expiră cel mai curând"
+      }
+    },
+    "status": {
+      "active": "Activă",
+      "expired": "Expirată",
+      "exhausted": "Epuizată",
+      "revoked": "Revocată"
+    },
+    "expiry": {
+      "preset": {
+        "hour1": "1 oră",
+        "hours24": "24 de ore",
+        "days7": "7 zile",
+        "days30": "30 de zile",
+        "custom": "Personalizat…"
+      },
+      "keepCurrent": "Păstrează actuala",
+      "invalidFuture": "Alege o dată și o oră viitoare",
+      "invalidSelection": "Selecție de expirare nevalidă",
+      "revokedOn": "Revocată {{date}}",
+      "expiredOn": "Expirată {{date}}",
+      "exhausted": "Epuizată",
+      "noExpiration": "Fără expirare",
+      "inDays_one": "Expiră în {{count}} zi",
+      "inDays_few": "Expiră în {{count}} zile",
+      "inDays_other": "Expiră în {{count}} de zile",
+      "inHours_one": "Expiră în {{count}} oră",
+      "inHours_few": "Expiră în {{count}} ore",
+      "inHours_other": "Expiră în {{count}} de ore"
+    },
+    "form": {
+      "name": "Nume",
+      "namePlaceholder": "de ex. Lot de prieteni 1",
+      "maxUses": "Utilizări maxime",
+      "unlimited": "Nelimitat",
+      "uses": "utilizări",
+      "expires": "Expiră",
+      "nameLength": "Numele trebuie să aibă 1–64 de caractere",
+      "maxUsesInteger": "Utilizările maxime trebuie să fie un număr întreg pozitiv"
+    },
+    "createModal": {
+      "title": "Creează un link de invitație",
+      "description": "Generează un link partajabil care le permite oamenilor să se înregistreze pe această instanță. Stabilești de câte ori poate fi folosit și când expiră.",
+      "submit": "Creează linkul",
+      "submitting": "Se creează…",
+      "createdCopied": "Link creat. Copiat în clipboard.",
+      "createdManual": "Link creat. Copiază-l manual din rând.",
+      "failed": "Crearea invitației a eșuat: {{message}}"
+    },
+    "editModal": {
+      "title": "Editează „{{name}}”",
+      "description": "Ajustează limitele acestui link de invitație. URL-ul rămâne același — cine îl are deja îl poate folosi în continuare, în noile condiții.",
+      "used": "({{used}} folosite)",
+      "maxUsesBelowUsed": "Utilizările maxime nu pot fi mai mici decât utilizările curente ({{used}})",
+      "noChanges": "Nicio modificare de salvat",
+      "updated": "Invitație actualizată",
+      "failed": "Actualizarea invitației a eșuat: {{message}}",
+      "submit": "Salvează modificările",
+      "submitting": "Se salvează…"
+    },
+    "reinstateModal": {
+      "title": "Reactivează „{{name}}”",
+      "descriptionRevoked": "Această invitație a fost revocată. Reactivarea generează un link nou, cu un URL diferit — URL-ul vechi rămâne inactiv.",
+      "descriptionLapsed": "Această invitație a expirat. Reactivarea reactivează același URL — cine l-a salvat îl va putea folosi din nou.",
+      "newLinkWarning": "Se va genera un link nou. Cine avea URL-ul vechi nu îl va mai putea folosi.",
+      "maxUsesMeta": "(actual: {{max}}, folosite: {{used}})",
+      "maxUsesMin": "Utilizările maxime trebuie să fie cel puțin {{min}} (utilizări curente: {{used}})",
+      "submit": "Reactivează",
+      "submitNewLink": "Reactivează cu link nou",
+      "submitting": "Se reactivează…",
+      "doneCopied": "Reactivare cu link nou. Copiat în clipboard.",
+      "doneManual": "Reactivare cu link nou. Copiază manual din rând.",
+      "doneSameLink": "Reactivare. Același link este din nou activ.",
+      "failed": "Reactivarea a eșuat: {{message}}"
+    },
+    "redemptions": {
+      "title": "Utilizări pentru „{{name}}”",
+      "description": "Utilizatorii care s-au înregistrat cu acest link de invitație, în ordinea înscrierii.",
+      "revokedNotice": "Această invitație a fost revocată. Utilizările de mai jos reprezintă utilizatorii care s-au înregistrat înainte de revocare.",
+      "revokedNoticeDated": "Această invitație a fost revocată la {{date}}. Utilizările de mai jos reprezintă utilizatorii care s-au înregistrat înainte de revocare.",
+      "usesOfMax_one": "{{count}} din {{max}} utilizări",
+      "usesOfMax_few": "{{count}} din {{max}} utilizări",
+      "usesOfMax_other": "{{count}} din {{max}} de utilizări",
+      "uses_one": "{{count}} utilizare",
+      "uses_few": "{{count}} utilizări",
+      "uses_other": "{{count}} de utilizări",
+      "loadFailed": "Utilizările nu au putut fi încărcate",
+      "loadFailedInline": "Utilizările nu au putut fi încărcate.",
+      "empty": "Nicio utilizare încă.",
+      "now": "(acum {{name}})",
+      "deletedUser": "Utilizator șters"
+    },
+    "row": {
+      "usage": "Utilizări: {{usage}}",
+      "createdBy": "Creat de {{name}}",
+      "unknownCreator": "Necunoscut",
+      "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
+      "subtitleArchived": "{{usage}} · {{expiry}} · {{when}}",
+      "used": "Folosit",
+      "expires": "Expiră",
+      "expiredAt": "Expirat la",
+      "revokedAt": "Revocat la",
+      "exhausted": "Epuizat",
+      "created": "Creat",
+      "createdByLabel": "Creat de",
+      "token": "Token",
+      "lastRedeemed": "Ultima utilizare",
+      "copyLink": "Copiază linkul",
+      "revoke": "Revocă",
+      "viewRedemptions": "Vezi utilizările",
+      "reinstate": "Reactivează",
+      "deletePermanently": "Șterge definitiv",
+      "copied": "Link de invitație copiat",
+      "copyFailed": "Copierea linkului a eșuat",
+      "revoked": "Invitație revocată",
+      "revokeFailed": "Revocarea a eșuat: {{message}}",
+      "deleted": "Invitație ștearsă",
+      "deleteFailed": "Ștergerea a eșuat: {{message}}",
+      "revokeDialog": {
+        "title": "Revoci „{{name}}”?",
+        "description": "Linkul încetează să funcționeze imediat. Cine are URL-ul nu îl mai poate folosi.<br/><br/>Dacă te răzgândești, <strong>Reactivează</strong> emite un link nou sub această înregistrare — URL-ul original rămâne inactiv.",
+        "confirm": "Revocă linkul"
+      },
+      "deleteDialog": {
+        "title": "Ștergi definitiv „{{name}}”?",
+        "description": "Această acțiune nu poate fi anulată. Se va șterge și istoricul utilizărilor pentru acest link. Dacă vrei doar să oprești linkul, folosește <strong>Revocă</strong> — păstrează istoricul utilizărilor.",
+        "confirm": "Șterge definitiv"
+      }
+    }
+  },
+  "storage": {
+    "title": "Stocare",
+    "description": "Monitorizează spațiul pe disc și curăță fișierele orfane rămase de la conținut șters sau avatare/bannere înlocuite.",
+    "loading": "Se încarcă statisticile de stocare…",
+    "loadFailed": "Statisticile de stocare nu au putut fi încărcate",
+    "refresh": "Reîmprospătează statisticile",
+    "overview": {
+      "label": "Prezentare generală a stocării",
+      "totalFiles": "Total fișiere",
+      "referenced": "Referențiate",
+      "orphanedFiles": "Fișiere orfane",
+      "unlinkedUploads": "Încărcări neasociate",
+      "danglingRecords": "Înregistrări fără referință",
+      "staleUploads": "Încărcări expirate"
+    },
+    "breakdown": {
+      "label": "Defalcare pe tipuri de fișiere",
+      "entry_one": "{{count}} fișier — {{size}}",
+      "entry_few": "{{count}} fișiere — {{size}}",
+      "entry_other": "{{count}} de fișiere — {{size}}"
+    },
+    "uploadLimit": {
+      "label": "Limita de încărcare",
+      "maxFileSize": "Dimensiunea maximă a fișierului",
+      "maxStickerSize": "Dimensiunea maximă a stickerului",
+      "saved": "Limita de încărcare a fost setată la {{limit}}",
+      "saveFailed": "Limita de încărcare nu a putut fi actualizată",
+      "stickerSaved": "Limita de dimensiune a stickerelor a fost setată la {{limit}}",
+      "stickerSaveFailed": "Limita de dimensiune a stickerelor nu a putut fi actualizată"
+    },
+    "cleanup": {
+      "label": "Curățare",
+      "nothingFound": "Nu s-au găsit fișiere orfane, încărcări expirate sau înregistrări fără referință.",
+      "preview": "Previzualizează curățarea",
+      "run": "Curăță acum",
+      "running": "Se curăță…",
+      "previewResult": "Previzualizare — niciun fișier șters",
+      "complete": "Curățare finalizată",
+      "orphanedFiles_one": "{{count}} fișier orfan/fără referință ({{size}})",
+      "orphanedFiles_few": "{{count}} fișiere orfane/fără referință ({{size}})",
+      "orphanedFiles_other": "{{count}} de fișiere orfane/fără referință ({{size}})",
+      "staleRecords_one": ", {{count}} înregistrare de încărcare expirată",
+      "staleRecords_few": ", {{count}} înregistrări de încărcare expirate",
+      "staleRecords_other": ", {{count}} de înregistrări de încărcare expirate",
+      "errors_one": "{{count}} eroare: {{first}}",
+      "errors_few": "{{count}} erori: {{first}}",
+      "errors_other": "{{count}} de erori: {{first}}",
+      "cleanedToast_one": "S-a curățat {{count}} fișier ({{size}})",
+      "cleanedToast_few": "S-au curățat {{count}} fișiere ({{size}})",
+      "cleanedToast_other": "S-au curățat {{count}} de fișiere ({{size}})",
+      "failed": "Curățarea a eșuat"
+    },
+    "stale": {
+      "label": "Încărcări expirate",
+      "description": "Sesiuni de încărcare tus abandonate în <code>.tus/</code> (întrerupte fără DELETE). Expirarea automată rulează la fiecare 24 de ore; aceasta îți permite să faci curățenia preventivă.",
+      "maxAge": "Vârsta maximă (ore)",
+      "sessionFiles_one": "{{count}} fișier de sesiune ({{size}})",
+      "sessionFiles_few": "{{count}} fișiere de sesiune ({{size}})",
+      "sessionFiles_other": "{{count}} de fișiere de sesiune ({{size}})",
+      "cleanedToast_one": "S-a curățat {{count}} sesiune de încărcare expirată ({{size}})",
+      "cleanedToast_few": "S-au curățat {{count}} sesiuni de încărcare expirate ({{size}})",
+      "cleanedToast_other": "S-au curățat {{count}} de sesiuni de încărcare expirate ({{size}})",
+      "failed": "Curățarea încărcărilor expirate a eșuat"
+    },
+    "media": {
+      "label": "Retenția media",
+      "olderThan": "Șterge media din chat mai veche de",
+      "days": "zile",
+      "run": "Șterge acum",
+      "running": "Se șterge…",
+      "files_one": "{{count}} fișier ({{size}})",
+      "files_few": "{{count}} fișiere ({{size}})",
+      "files_other": "{{count}} de fișiere ({{size}})",
+      "deletedToast_one": "S-a șters {{count}} fișier ({{size}})",
+      "deletedToast_few": "S-au șters {{count}} fișiere ({{size}})",
+      "deletedToast_other": "S-au șters {{count}} de fișiere ({{size}})",
+      "failed": "Curățarea media a eșuat"
+    }
+  },
+  "streaming": {
+    "title": "Transmisie",
+    "description": "Aceste limite se aplică tuturor utilizatorilor acestei instanțe. Utilizatorii pot alege valori în aceste limite.",
+    "units": {
+      "fps": "{{value}} fps",
+      "kbpsLabel": "kbps"
+    },
+    "bandwidth": {
+      "label": "Lățime de bandă",
+      "description": "Limitele minime și maxime de bitrate și pasul glisorului de calitate.",
+      "customBitrate": {
+        "label": "Permite bitrate personalizat",
+        "description": "Lasă utilizatorii să își seteze propriul bitrate în loc să folosească valorile implicite din matrice"
+      },
+      "range": "Interval de bitrate",
+      "min": "Minim",
+      "max": "Maxim",
+      "step": "Pasul glisorului"
+    },
+    "quality": {
+      "label": "Calitate",
+      "description": "Opțiunile de rezoluție și rată de cadre disponibile pentru partajarea ecranului.",
+      "resolutions": "Rezoluții permise",
+      "framerates": "Rate de cadre permise"
+    },
+    "highEndWarning": {
+      "title": "Setări de înaltă performanță activate.",
+      "description": "Transmisia peste 1080p sau 60 fps necesită putere semnificativă de codare CPU/GPU pe client și poate satura lățimea de bandă a serverului, mai ales când fluxurile trec prin TURN. Configurațiile de top (de ex. 4K la 120 fps) pot necesita până la 45 Mbps per flux activ. Asigură-te că infrastructura ta suportă această încărcare înainte de a activa aceste opțiuni pentru toți utilizatorii."
+    },
+    "matrix": {
+      "label": "Matrice de bitrate",
+      "description": "Bitrate-urile implicite per rezoluție și rată de cadre. Editează celulele individuale sau scalează toate valorile deodată.",
+      "scaleAll": "Scalează tot",
+      "scaleHint": "Trage pentru a scala toate bitrate-urile. Ajustează fin celulele individuale mai jos.",
+      "cellDefault": "Implicit: {{value}} (fă clic pe × pentru resetare)",
+      "cellEdit": "Fă clic pentru a edita",
+      "resetAll": "Resetează tot la valorile implicite"
+    },
+    "capWarning": {
+      "title": "Valorile matricei depășesc limita globală.",
+      "description": "Unele valori de bitrate depășesc maximul tău de {{max}}. Fluxurile la acele combinații vor fi degradate calitativ la limita ta."
+    }
+  },
+  "updates": {
+    "title": "Actualizări",
+    "badge": {
+      "settingsAriaLabel": "Setări, actualizare de instanță disponibilă",
+      "toast": "Backspace {{version}} este disponibil pentru această instanță",
+      "toastAction": "Vezi"
+    },
+    "description": "Ce rulează această instanță și cum o poți actualiza.",
+    "loading": "Se încarcă starea actualizării…",
+    "loadFailed": "Starea actualizării nu a putut fi încărcată.",
+    "copyFailed": "Copierea a eșuat. Selectează comanda și copiaz-o manual.",
+    "running": {
+      "label": "Rulează",
+      "commit": "commit {{commit}} · ",
+      "channel": {
+        "prebuilt": "imagine preconstruită",
+        "source": "construit din sursă",
+        "unknown": "metoda de instalare nu este înregistrată"
+      }
+    },
+    "available": {
+      "label": "Disponibil",
+      "version": "Backspace {{version}} este disponibil",
+      "released": "Lansat {{date}} · ",
+      "releaseNotes": "Note de lansare",
+      "fromInstallDir": "Din directorul de instalare:",
+      "scriptDescription": "Creează un instantaneu al bazei de date, descarcă noua imagine și repornește doar containerul Backspace. Dacă noua versiune nu pornește sănătos sau pornește rulând încă codul vechi, revine la versiunea actuală.",
+      "noScript": "Nu am update.sh",
+      "manualIntro": "update.sh este livrat începând cu 1.0.5. Pe un checkout git, <code>git pull</code> îl aduce. Altfel, rulează pașii manual, după ce faci un instantaneu cu <code>./backup.sh</code>.",
+      "prebuiltInstall": "Instalare din imagine preconstruită:",
+      "sourceInstall": "Instalare din sursă:",
+      "manualWarning": "Numește explicit serviciul <code>backspace</code> și nu transmite <code>--remove-orphans</code>. Compose îl va sugera dacă rulezi alte containere în acest proiect, iar aceasta le-ar șterge."
+    },
+    "upToDate": "Folosești cea mai recentă versiune.",
+    "disabled": {
+      "title": "Verificările de actualizare sunt oprite",
+      "description": "Această instanță nu va contacta GitHub. Setează <code>BACKSPACE_UPDATE_CHECK=true</code> în <code>.env</code> pentru a permite verificarea sau consultă singur pagina de lansări."
+    },
+    "rateLimited": {
+      "title": "GitHub a limitat verificarea",
+      "description": "Aceasta nu spune nimic despre existența unei actualizări. Încearcă din nou mai târziu."
+    },
+    "unreachable": {
+      "title": "Actualizările nu au putut fi verificate",
+      "description": "GitHub nu a putut fi contactat, așa că aceasta nu spune nimic despre existența unei actualizări. Instanța ta nu este afectată."
+    },
+    "lastChecked": "Ultima verificare {{when}}",
+    "noLookups": "Nu se fac verificări",
+    "checkAgain": "Verifică din nou",
+    "checking": "Se verifică…"
+  },
+  "users": {
+    "title": "Utilizatori",
+    "description": "Vizualizează și gestionează conturile de utilizator de pe această instanță.",
+    "searchPlaceholder": "Caută utilizatori…",
+    "loading": "Se încarcă utilizatorii…",
+    "loadFailed": "Utilizatorii nu au putut fi încărcați",
+    "empty": "Niciun utilizator găsit",
+    "filters": {
+      "allInstances": "Toate instanțele",
+      "localOnly": "Doar local",
+      "allRoles": "Toate rolurile",
+      "admin": "Administrator",
+      "nonAdmin": "Neadministrator",
+      "joinedAfter": "Înscriși după",
+      "joinedBefore": "Înscriși înainte",
+      "newest": "Cei mai noi primii",
+      "oldest": "Cei mai vechi primii",
+      "nameDesc": "Nume Z-A",
+      "deleted": "Șterși",
+      "clear": "Golește filtrele",
+      "bot": "Boți"
+    },
+    "badge": {
+      "admin": "Administrator",
+      "deleted": "Șters"
+    },
+    "actions": {
+      "demote": "Retrogradează din rolul de administrator",
+      "promote": "Promovează ca administrator",
+      "federatedNoAdmin": "Utilizatorii federați nu pot fi administratori",
+      "resetPassword": "Resetează parola",
+      "federatedNoReset": "Utilizatorii federați se autentifică prin instanța principală",
+      "delete": "Șterge utilizatorul",
+      "selfDelete": "Folosește setările contului pentru a-ți șterge propriul cont"
+    },
+    "tempPassword": {
+      "label": "Parolă temporară:",
+      "note": "Afișată o singură dată. Utilizatorul a fost deconectat și trebuie să se conecteze din nou."
+    },
+    "pagination": "Pagina {{page}} din {{total}} ({{users}})",
+    "count_one": "{{count}} utilizator",
+    "count_few": "{{count}} utilizatori",
+    "count_other": "{{count}} de utilizatori",
+    "roleFailed": "Rolul nu a putut fi actualizat",
+    "resetFailed": "Parola nu a putut fi resetată",
+    "actionFailed": "Acțiunea a eșuat",
+    "resetDialog": {
+      "title": "Resetează parola",
+      "description": "Resetezi parola pentru <strong>{{username}}</strong>? Va fi deconectat imediat și trebuie să se conecteze cu noua parolă temporară.",
+      "confirm": "Resetează parola"
+    },
+    "demoteDialog": {
+      "title": "Retrogradează administratorul",
+      "description": "Elimini privilegiile de administrator de la <strong>{{username}}</strong>? Va pierde accesul la setările instanței.",
+      "confirm": "Retrogradează"
+    },
+    "deleteDialog": {
+      "title": "Șterge utilizatorul",
+      "description": "Ștergi definitiv <strong>{{username}}</strong>? Va fi eliminat din toate spațiile, DM-urile și listele de prieteni. Această acțiune nu poate fi anulată.",
+      "confirm": "Șterge utilizatorul",
+      "blockBot": "Nu lăsa acest bot să se înregistreze din nou",
+      "blockBotHint": "Când instanța sa principală revine, botul nu va putea crea un cont aici. Îl poți debloca sub lista de utilizatori."
+    },
+    "blockedBots": {
+      "title": "Boți blocați",
+      "description": "Boții altor instanțe care nu se pot înregistra aici. Deblochează unul pentru a-i permite din nou accesul.",
+      "blockedAt": "Blocat {{date}}",
+      "unblock": "Deblochează"
+    }
+  },
+  "mobile": {
+    "title": "Instanță",
+    "sections": {
+      "general": "General",
+      "registration": "Înregistrare",
+      "federation": "Federare",
+      "streaming": "Transmisie",
+      "storage": "Stocare",
+      "updates": "Actualizări",
+      "users": "Utilizatori"
+    }
+  }
+}

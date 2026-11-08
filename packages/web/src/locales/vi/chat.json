@@ -1,0 +1,305 @@
+{
+  "feedback": {
+    "openedInNewTab": "Đã mở trong tab mới",
+    "copiedGifLink": "Đã sao chép liên kết GIF",
+    "copiedImageLink": "Đã sao chép liên kết hình",
+    "uploadExpired": "Không thể gửi \"{{content}}\" — tải lên hết hạn.",
+    "attachmentOnly": "(chỉ tệp đính kèm)"
+  },
+  "message": {
+    "edit": {
+      "hint": "escape để <cancel>hủy</cancel> • enter để <save>lưu</save>"
+    },
+    "edited": "(đã sửa)",
+    "rowLabel": "{{author}}, {{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "Tải lên thất bại",
+      "discard": "Loại bỏ"
+    },
+    "actions": {
+      "confirmDelete": "Xác nhận xóa"
+    },
+    "reply": {
+      "jump": "Nhảy tới tin gốc"
+    },
+    "mention": {
+      "unknownUser": "Người dùng không rõ",
+      "unknownRole": "Vai trò không rõ"
+    },
+    "reactions": {
+      "picker": "Chọn biểu tượng",
+      "you": "Bạn",
+      "others_one": "{{count}} người khác",
+      "others_other": "{{count}} người khác",
+      "bySelf": "Bạn đã thả cảm xúc",
+      "byOne": "{{name}} đã thả cảm xúc",
+      "byMany": "Cảm xúc: {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "Bạn không có quyền xem lịch sử tin nhắn trong kênh này",
+    "loading": "Đang tải tin nhắn",
+    "loadingOlder": "Đang tải tin nhắn cũ hơn",
+    "loadFailed": "Không thể tải tin nhắn",
+    "jumpToPresent": "Nhảy tới hiện tại",
+    "jump": {
+      "unavailable": "Tin nhắn đó không còn khả dụng",
+      "failed": "Không thể tải tin nhắn đó",
+      "presentFailed": "Không thể tải tin nhắn mới nhất"
+    },
+    "unread": {
+      "label": "Mới",
+      "divider": "Tin nhắn mới",
+      "dividerWithDate": "Tin nhắn mới, {{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "Chào mừng tới kênh!",
+        "description": "Đây là khởi đầu cuộc trò chuyện."
+      },
+      "group": {
+        "intro": "Đây là khởi đầu cuộc trò chuyện nhóm của bạn.",
+        "owner": "Chủ: <owner>@{{name}}</owner>",
+        "federatedNotice": "Tin nhắn lưu trên máy chủ chính của bạn và máy chủ chính của người nhận. Chúng không được mã hóa đầu-cuối.",
+        "openSettings": "Mở cài đặt nhóm",
+        "leave": "Rời nhóm"
+      },
+      "dm": {
+        "fallbackName": "Tin nhắn trực tiếp",
+        "intro": "Đây là khởi đầu lịch sử tin nhắn trực tiếp của bạn với <strong>@{{name}}</strong>.",
+        "federatedNotice": "Tin nhắn lưu trên máy chủ chính của bạn và máy chủ chính của người nhận. Chúng không được mã hóa đầu-cuối.",
+        "removeFriend": "Xóa bạn"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "Bạn không có quyền gửi tin nhắn trong kênh này",
+    "placeholder": {
+      "channel": "Nhắn #{{name}}",
+      "dm": "Nhắn @{{name}}"
+    },
+    "replyingTo": "Đang trả lời",
+    "cancelReply": "Hủy trả lời",
+    "removeAttachment": "Gỡ tệp đính kèm",
+    "attachFile": "Đính kèm tệp",
+    "dropTitle": "Tải tệp lên",
+    "dropHint": "Thả để đính kèm",
+    "uploading": "Đang tải lên…",
+    "uploadingLabel": "Đang tải lên",
+    "failedCount_one": "{{count}} thất bại",
+    "failedCount_other": "{{count}} thất bại",
+    "failedHint": "Gỡ hoặc thử lại tệp đính kèm lỗi để gửi",
+    "gif": "GIF",
+    "gifPicker": "Chọn GIF",
+    "emoji": "Emoji",
+    "emojiPicker": "Chọn emoji",
+    "send": "Gửi",
+    "sendMessage": "Gửi tin nhắn",
+    "uploadFailed": "Không thể tải lên {{file}}: {{reason}}",
+    "uploadFailedReason": "Tải lên thất bại",
+    "typing": {
+      "named_one": "{{names}} đang nhập",
+      "named_other": "{{names}} đang nhập",
+      "several": "Nhiều người đang nhập"
+    }
+  },
+  "menu": {
+    "saveImage": "Lưu hình",
+    "copyImage": "Sao chép hình",
+    "openOriginal": "Mở bản gốc",
+    "saveVideo": "Lưu video",
+    "saveAudio": "Lưu âm thanh",
+    "copyLink": "Sao chép liên kết",
+    "openLink": "Mở liên kết",
+    "copySelectedText": "Sao chép văn bản đã chọn",
+    "copyText": "Sao chép văn bản",
+    "markUnread": "Đánh dấu chưa đọc",
+    "editMessage": "Sửa tin nhắn",
+    "deleteMessage": "Xóa tin nhắn",
+    "linkCopied": "Đã sao chép liên kết",
+    "linkCopyFailed": "Không thể sao chép liên kết",
+    "pinMessage": "Ghim tin nhắn",
+    "unpinMessage": "Bỏ ghim tin nhắn"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "Tạm dừng — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "Không phát được ở đây — tải xuống",
+      "unsupportedFormat": "Định dạng video không hỗ trợ",
+      "unsupportedBrowser": "Trình duyệt của bạn không hỗ trợ phát video."
+    },
+    "audio": {
+      "unsupportedBrowser": "Trình duyệt của bạn không hỗ trợ phát âm thanh."
+    },
+    "federation": {
+      "remoteNamed": "Lưu trên máy chủ của {{sender}}. Tải xuống để giữ bản cục bộ.",
+      "remoteUnknown": "Lưu trên máy chủ của người gửi. Tải xuống để giữ bản cục bộ.",
+      "partialGeneric": "Một số người nhận không thể cache tệp này cục bộ.",
+      "partialInstance": "Máy chủ của {{username}} (giới hạn: {{limit}})",
+      "partialList": "Không thể cache tệp trên {{instances}}. Họ vẫn xem được từ máy của bạn.",
+      "listPair": "{{first}} và {{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "Tìm GIF",
+    "noResults": "Không tìm thấy GIF",
+    "noTrending": "Không có GIF thịnh hành",
+    "attribution": "Cung cấp bởi Klipy"
+  },
+  "preview": {
+    "save": "Lưu hình",
+    "copy": "Sao chép hình",
+    "alt": "Xem trước hình"
+  },
+  "invite": {
+    "sentBy": "{{name}} đã gửi thư mời",
+    "memberCount_one": "{{count}} thành viên",
+    "memberCount_other": "{{count}} thành viên",
+    "revoked": "Thư mời không còn hiệu lực",
+    "join": "Tham gia",
+    "joining": "Đang tham gia…",
+    "joinFailed": "Tham gia thất bại",
+    "askToJoin": "Xin tham gia",
+    "sendingRequest": "Đang gửi…",
+    "requestSent": "Đã gửi yêu cầu",
+    "requestPending": "Yêu cầu đang chờ",
+    "requestNotice": "Không gian này nhận yêu cầu tham gia. Người quản lý duyệt từng yêu cầu.",
+    "requestReview": "Người quản lý sẽ duyệt yêu cầu của bạn."
+  },
+  "notification": {
+    "unknownSender": "Ai đó",
+    "attachmentOnly": "Đã gửi tệp đính kèm"
+  },
+  "commands": {
+    "title": "Lệnh",
+    "failed": "Không thể gửi lệnh",
+    "extraText": "Lệnh này không nhận văn bản tự do, nhưng \"{{text}}\" còn thừa. Hãy đặt tùy chọn trước, văn bản sau cùng",
+    "invalidOption": "Giá trị của {{option}} không hợp cho lệnh này.",
+    "optionsTitle": "Tham số",
+    "required": "bắt buộc",
+    "subcommandsTitle": "Lệnh con",
+    "group": "nhóm",
+    "chooseSubcommand": "Chọn lệnh con: {{names}}",
+    "subcommandRefused": "Bot không cung cấp lệnh con này. Hãy chọn một từ danh sách"
+  },
+  "ephemeral": {
+    "onlyYou": "Chỉ bạn thấy được điều này",
+    "dismiss": "Đóng",
+    "rowLabel": "Trả lời chỉ bạn thấy từ {{author}}, {{time}}"
+  },
+  "embed": {
+    "loadAction": "Nhấn để tải",
+    "loadNamed": "Tải {{name}}",
+    "loadUnnamed": "Tải nhúng",
+    "frameTitle": "Nhúng",
+    "playNamed": "Phát {{title}}",
+    "playUnnamed": "Phát video",
+    "videoTitle": "Video"
+  },
+  "stickers": {
+    "title": "Nhãn dán của tôi",
+    "upload": "Tải hình lên",
+    "limits": "PNG, JPEG, WebP hoặc GIF · tới 5 MB",
+    "loading": "Đang tải…",
+    "empty": "Bộ sưu tập nhãn dán của bạn bắt đầu ở đây",
+    "remove": "Gỡ",
+    "save": "Thêm vào nhãn dán của tôi",
+    "saved": "Đã thêm vào nhãn dán của tôi",
+    "preview": "Xem trước nhãn dán",
+    "manage": "Quản lý",
+    "done": "Xong",
+    "collectionHint": "Chọn nhãn dán để gửi. Hãy biến không gian này thành của bạn.",
+    "manageHint": "Đổi tên hoặc xóa nhãn dán trong bộ sưu tập. Tin đã gửi giữ nguyên.",
+    "emptyHint": "Lưu khoảnh khắc yêu thích thành nhãn dán, sẵn cho lần trả lời tới.",
+    "chooseImage": "Chọn hình",
+    "cancel": "Hủy",
+    "replace": "Thay hình",
+    "name": "Tên nhãn dán",
+    "dropImage": "Nhấn hoặc kéo hình vào đây",
+    "pasteHint": "Bạn cũng dán được hình từ khay nhớ",
+    "uploading": "Đang thêm nhãn dán…",
+    "singleImage": "Chọn một hình mỗi lần.",
+    "invalidSize": "Chọn hình không rỗng tới 5 MB.",
+    "invalidType": "Chỉ hỗ trợ hình PNG, JPEG, WebP và GIF.",
+    "invalidImage": "Không thể xem trước hình này. Hãy chọn hình hợp lệ.",
+    "removeNamed": "Xóa {{name}}",
+    "addMore": "Thêm nữa",
+    "selectedCount_one": "Đã chọn {{count}} nhãn dán",
+    "selectedCount_other": "Đã chọn {{count}} nhãn dán",
+    "dropMore": "Nhấn hoặc kéo thêm hình vào đây",
+    "sticker": "Nhãn dán",
+    "downloadFailed": "Không thể tải hình.",
+    "batchLimit_one": "Chọn tới {{count}} hình mỗi lần.",
+    "batchLimit_other": "Chọn tới {{count}} hình mỗi lần.",
+    "capacityLimit_one": "Bộ sưu tập của bạn còn chỗ cho {{count}} nhãn dán nữa.",
+    "capacityLimit_other": "Bộ sưu tập của bạn còn chỗ cho {{count}} nhãn dán nữa.",
+    "full": "Bộ sưu tập của bạn đầy. Hãy xóa nhãn dán để thêm cái khác.",
+    "batchFailed_one": "Không thể thêm {{count}} hình. Nó vẫn liệt kê bên dưới.",
+    "batchFailed_other": "Không thể thêm {{count}} hình. Chúng vẫn liệt kê bên dưới.",
+    "uploadingProgress": "Đang thêm {{current}} trên {{total}}…",
+    "rename": "Đổi tên",
+    "renameNamed": "Đổi tên {{name}}",
+    "renameTitle": "Đổi tên nhãn dán",
+    "search": "Tìm nhãn dán",
+    "noResults": "Không tìm thấy nhãn dán",
+    "store": "Cửa hàng nhãn dán",
+    "myCollection": "Nhãn dán của tôi",
+    "packs": "Gói nhãn dán",
+    "explore": "Khám phá",
+    "myPacks": "Do tôi tạo",
+    "install": "Thêm",
+    "installed": "Đã thêm",
+    "uninstall": "Gỡ",
+    "createPack": "Tạo gói",
+    "editPack": "Sửa gói",
+    "packName": "Tên gói",
+    "packDesc": "Mô tả (tùy chọn)",
+    "submitReview": "Gửi duyệt",
+    "pendingReview": "Chờ duyệt",
+    "approved": "Đã duyệt",
+    "rejected": "Bị từ chối",
+    "draft": "Nháp",
+    "newVersion": "Bản mới",
+    "deletePack": "Xóa gói",
+    "stickersCount_one": "{{count}} nhãn dán",
+    "stickersCount_other": "{{count}} nhãn dán",
+    "noPacks": "Không tìm thấy gói nhãn dán",
+    "replicaBadge": "Liên hợp",
+    "viewPack": "Xem gói",
+    "saveDraft": "Lưu thành nháp",
+    "packCreated": "Đã tạo gói",
+    "reviewSubmitted": "Đã gửi quản trị duyệt",
+    "reviews": "Duyệt",
+    "noReviews": "Không có gói nhãn dán chờ duyệt",
+    "approve": "Duyệt",
+    "reject": "Từ chối",
+    "rejectTitle": "Từ chối gói nhãn dán",
+    "rejectReason": "Lý do từ chối",
+    "rejectPlaceholder": "Nhập lý do từ chối (ví dụ nội dung không phù hợp, chất lượng thấp)",
+    "rejectConfirm": "Xác nhận từ chối",
+    "approvedSuccess": "Đã duyệt gói nhãn dán",
+    "rejectedSuccess": "Đã từ chối gói nhãn dán",
+    "reviewNotes": "Lý do từ chối",
+    "creator": "Tác giả",
+    "sourceInstance": "Máy chủ",
+    "localInstance": "Máy chủ cục bộ",
+    "viewStickers": "Xem nhãn dán",
+    "pendingReviewHint": "Đang chờ quản trị duyệt; hiện ở Khám phá sau duyệt"
+  },
+  "poke": {
+    "action": "Chọc",
+    "received": "{{actor}} đã chọc {{target}}",
+    "disconnected": "Mất kết nối. Chọc không được gửi."
+  },
+  "pins": {
+    "title": "Tin nhắn ghim",
+    "empty": "Chưa có tin nhắn ghim.",
+    "jump": "Nhảy tới tin nhắn",
+    "unpin": "Bỏ ghim",
+    "deletedMessage": "Tin nhắn đã xóa",
+    "attachmentOnly": "Tệp đính kèm"
+  }
+}

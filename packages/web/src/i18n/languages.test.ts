@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { availableLanguages, isSupportedLanguage, pickLanguage, readPreviewLanguage, resolveSupportedLanguage, supportedLanguages } from './languages';
+import { availableLanguages, isLanguagePreference, isSupportedLanguage, pickLanguage, readPreviewLanguage, resolveSupportedLanguage, supportedLanguages } from './languages';
 
 describe('resolveSupportedLanguage', () => {
   it('maps a regional tag to its base language when that base is shipped', () => {
@@ -13,7 +13,7 @@ describe('resolveSupportedLanguage', () => {
   });
 
   it('returns null for a language that is not shipped', () => {
-    expect(resolveSupportedLanguage('fr')).toBeNull();
+    expect(resolveSupportedLanguage('zz')).toBeNull();
     expect(resolveSupportedLanguage('')).toBeNull();
   });
 });
@@ -34,14 +34,14 @@ describe('pickLanguage', () => {
   });
 
   it('falls back to English when nothing matches', () => {
-    expect(pickLanguage(null, ['fr-FR', 'ja'])).toBe('en');
+    expect(pickLanguage(null, ['zz', 'xx-YY'])).toBe('en');
     expect(pickLanguage(null, [])).toBe('en');
   });
 });
 
 describe('availableLanguages', () => {
   it('offers every released language to users', () => {
-    expect(availableLanguages.map((l) => l.code)).toEqual(['en', 'ru', 'de', 'pt', 'zh']);
+    expect(availableLanguages.map((l) => l.code)).toEqual(['en', 'ru', 'de', 'pt', 'zh', 'es', 'fr', 'it', 'uk', 'pl', 'nl', 'sv', 'da', 'nb', 'fi', 'cs', 'ro', 'tr', 'ar', 'hi', 'id', 'vi', 'th', 'ja', 'ko']);
   });
 
   it('never lets detection pick a language that is not released', () => {
@@ -65,7 +65,10 @@ describe('availableLanguages', () => {
 
 describe('supportedLanguages', () => {
   it('lists every language by its own name and text direction', () => {
-    expect(supportedLanguages.map((l) => l.code)).toEqual(['en', 'ru', 'de', 'pt', 'zh']);
+    expect(supportedLanguages.map((l) => l.code).sort()).toEqual('en pt es fr de it ru uk pl nl sv da nb fi cs ro tr ar hi id vi th ja ko zh'.split(' ').sort());
+    expect(new Set(supportedLanguages.map(l => l.nativeName)).size).toBe(25);
+    expect(supportedLanguages.find(l => l.code === 'pt')?.nativeName).toBe('Português (Brasil)');
+    expect(supportedLanguages.filter(l => l.dir === 'rtl').map(l => l.code)).toEqual(['ar']);
     for (const language of supportedLanguages) {
       expect(language.nativeName.length).toBeGreaterThan(0);
       expect(['ltr', 'rtl']).toContain(language.dir);
@@ -84,7 +87,23 @@ describe('readPreviewLanguage', () => {
   });
 
   it('ignores values that are not shipped languages', () => {
-    expect(readPreviewLanguage('?lang=fr', true)).toBeNull();
+    expect(readPreviewLanguage('?lang=zz', true)).toBeNull();
     expect(readPreviewLanguage('', true)).toBeNull();
+  });
+});
+
+describe('language preferences and expanded detection', () => {
+  it('distinguishes Automatic from concrete or invalid preferences', () => {
+    expect(isLanguagePreference('auto')).toBe(true);
+    expect(isLanguagePreference('ar')).toBe(true);
+    for (const value of [null, {}, 1, 'pt-BR', 'zz', 'AUTO']) expect(isLanguagePreference(value)).toBe(false);
+  });
+
+  it('normalizes Norwegian aliases and retained regional mappings', () => {
+    for (const tag of ['no', 'no-NO', 'nb-NO', ' NB-no ']) expect(resolveSupportedLanguage(tag)).toBe('nb');
+    expect(resolveSupportedLanguage('pt-PT')).toBe('pt');
+    expect(resolveSupportedLanguage('zh-TW')).toBe('zh');
+    expect(pickLanguage('auto', ['zz-ZZ', 'fr-CA', 'en'], new Set(['fr', 'en']))).toBe('fr');
+    expect(pickLanguage('auto', ['fr-CA', 'de'])).toBe('fr');
   });
 });

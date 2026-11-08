@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "spaces": "Przestrzenie",
+    "dms": "DM-y",
+    "you": "Ty"
+  },
+  "you": {
+    "editProfile": "Edytuj profil",
+    "homeInstance": "Macierzysta instancja: {{domain}}",
+    "logOutConfirm": "Czy na pewno chcesz się wylogować?"
+  },
+  "chat": {
+    "openCall": "Otwórz połączenie",
+    "cancelCall": "Anuluj połączenie",
+    "unknownChannel": "kanał"
+  }
+}

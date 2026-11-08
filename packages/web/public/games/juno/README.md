@@ -28,3 +28,11 @@ PNG and PCM WAV hashes, derived file hashes and crop are recorded in the manifes
 `memoryAudio` records the separately served `/sounds/juno_memory.ogg` (Ogg Vorbis).
 Original source files remain untouched. No authorship/license claim or release/
 deployment authorization is inferred from their provision.
+
+`music/charting-the-dark.mp3` is the separate user-supplied background track
+approved for the personal-settings source/preview phase. It is copied byte for
+byte (4,363,065 bytes, approximately 181.52s); `manifest.music` records its source
+name and matching SHA-256. The original Downloads file remains untouched. It is
+streamed locally through the existing audio output rather than decoded into the
+short-cue cache. No external service, authorship/license claim, offline-music
+guarantee or release/deployment authorization is inferred.

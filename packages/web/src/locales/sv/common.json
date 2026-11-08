@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "Spara",
+    "cancel": "Avbryt",
+    "close": "Stäng",
+    "delete": "Ta bort",
+    "bot": "BOTT",
+    "confirm": "Bekräfta",
+    "copy": "Kopiera",
+    "copied": "Kopierad",
+    "retry": "Försök igen",
+    "back": "Tillbaka",
+    "done": "Klar",
+    "edit": "Redigera",
+    "remove": "Ta bort",
+    "add": "Lägg till",
+    "apply": "Tillämpa",
+    "reset": "Återställ",
+    "continue": "Fortsätt",
+    "dismiss": "Stäng",
+    "ok": "OK",
+    "search": "Sök",
+    "clear": "Rensa",
+    "change": "Ändra",
+    "refresh": "Uppdatera",
+    "openLink": "Öppna länk",
+    "tryAgain": "Försök igen",
+    "reply": "Svara",
+    "addReaction": "Lägg till reaktion",
+    "share": "Dela",
+    "accept": "Acceptera",
+    "decline": "Avböj",
+    "pause": "Pausa",
+    "resume": "Återuppta",
+    "abort": "Avbryt",
+    "dismissAll": "Stäng alla",
+    "filter": "Filtrera",
+    "sort": "Sortera",
+    "sortBy": "Sortera efter",
+    "leave": "Lämna",
+    "invitePeople": "Bjud in människor",
+    "previous": "Föregående",
+    "next": "Nästa",
+    "preview": "Förhandsvisning",
+    "logIn": "Logga in"
+  },
+  "states": {
+    "loading": "Laddar…",
+    "saving": "Sparar…",
+    "saved": "Sparad",
+    "unknown": "Okänd",
+    "none": "Ingen",
+    "enabled": "Aktiverad",
+    "disabled": "Inaktiverad",
+    "on": "På",
+    "off": "Av",
+    "yes": "Ja",
+    "no": "Nej",
+    "optional": "Valfri",
+    "required": "Krävs",
+    "default": "Standard",
+    "recommended": "Rekommenderad",
+    "online": "Online",
+    "idle": "Inaktiv",
+    "doNotDisturb": "Stör ej",
+    "offline": "Offline",
+    "loadingSettings": "Laddar inställningar…",
+    "loadSettingsFailed": "Inställningarna kunde inte laddas.",
+    "settingsSaved": "Inställningar sparade",
+    "saveFailed": "Sparandet misslyckades",
+    "scanning": "Skannar…",
+    "pleaseWait": "Vänta…"
+  },
+  "labels": {
+    "username": "Användarnamn",
+    "password": "Lösenord",
+    "displayName": "Visningsnamn",
+    "friends": "Vänner",
+    "members": "Medlemmar",
+    "settings": "Inställningar",
+    "dangerZone": "Farozon",
+    "searchMembers": "Sök medlemmar…",
+    "noMembersFound": "Inga medlemmar hittades",
+    "or": "eller",
+    "nameAZ": "Namn (A–Ö)"
+  },
+  "time": {
+    "today": "Idag {{time}}",
+    "yesterday": "Igår {{time}}",
+    "never": "Aldrig",
+    "justNow": "Just nu",
+    "minutesShort": "{{minutes}} min",
+    "hoursMinutesShort": "{{hours}} tim {{minutes}} min",
+    "elapsed": "{{duration}} har gått",
+    "left": "{{duration}} kvar"
+  },
+  "units": {
+    "ms": "{{value}} ms",
+    "percent": "{{value}} %",
+    "kbps": "{{value}} kb/s",
+    "mbps": "{{value}} Mb/s"
+  },
+  "colors": {
+    "mint": "Mynta",
+    "sky": "Himmel",
+    "lavender": "Lavendel",
+    "coral": "Korall",
+    "rose": "Ros",
+    "teal": "Petrol",
+    "amber": "Bärnsten",
+    "peach": "Persika"
+  },
+  "language": {
+    "label": "Språk",
+    "automatic": "Automatiskt (system)",
+    "description": "Välj språk för menyer, knappar och systemmeddelanden. Automatiskt följer dina system- eller webbläsarpreferenser. Andras meddelanden förblir som skrivna."
+  },
+  "crash": {
+    "title": "Något gick fel",
+    "reload": "Ladda om sidan",
+    "details": "Feldetaljer"
+  },
+  "app": {
+    "description": "Det självvärdade Discord- och TeamSpeak-alternativet. HD-röst, video och skärmdelning — öppen källkod och gratis (AGPL-3.0).",
+    "loading": "Laddar Backspace"
+  },
+  "chrome": {
+    "toggleMemberList": "Visa eller dölj medlemslistan",
+    "closeSettings": "Stäng inställningar"
+  },
+  "sourceCode": {
+    "label": "Källkod (AGPL)",
+    "labelWithBuild": "Källkod (AGPL) · {{build}}",
+    "title": "Visa källkoden för versionen som körs på denna instans (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "{{label}} upptäckt. Välj den i röstinställningar för att växla.",
+    "unnamedAudioInput": "Ny ljudenhet"
+  }
+}

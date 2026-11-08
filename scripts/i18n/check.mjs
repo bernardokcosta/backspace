@@ -8,9 +8,8 @@
  * root, using forward slashes.
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { getTypeScript as ts, readLiteralBinding, readDesktopCatalogs } from './desktop.mjs';
 
 export const SOURCE_LANGUAGE = 'en';
 export const LOCALES_DIR = 'packages/web/src/locales';
@@ -102,6 +101,18 @@ export function flattenCatalog(obj, prefix = '', out = {}) {
   return out;
 }
 
+/** Retain object paths so flattening cannot hide an invalid string-leaf shape. */
+function catalogObjectPaths(obj, prefix = '', out = []) {
+  for (const [key, value] of Object.entries(obj)) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) continue;
+    const full = prefix ? `${prefix}.${key}` : key;
+    const empty = Object.keys(value).length === 0;
+    out.push({ key: full, empty });
+    if (!empty) catalogObjectPaths(value, full, out);
+  }
+  return out;
+}
+
 /** `storage.deleted_few` -> `{ base: 'storage.deleted', form: 'few' }`; a plain key has form null. */
 export function splitPlural(key) {
   const match = PLURAL_SUFFIX_RE.exec(key);
@@ -119,7 +130,8 @@ export function splitPlural(key) {
  */
 export function loadCatalogs(root) {
   const localesAbs = path.join(root, LOCALES_DIR);
-  const result = { languages: [], namespaces: [], catalogs: {}, files: {} };
+  const result = { languages: [], namespaces: [], catalogs: {}, files: {}, findings: [] };
+  const objects = [];
   if (!existsSync(localesAbs)) return result;
 
   for (const entry of readdirSync(localesAbs, { withFileTypes: true })) {
@@ -132,8 +144,30 @@ export function loadCatalogs(root) {
       if (!file.endsWith('.json')) continue;
       const ns = file.slice(0, -'.json'.length);
       const rel = `${LOCALES_DIR}/${lng}/${file}`;
-      result.catalogs[lng][ns] = flattenCatalog(readJson(path.join(root, rel)));
+      try {
+        const data = readJson(path.join(root, rel));
+        if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Expected a namespace object');
+        for (const entry of catalogObjectPaths(data)) objects.push({ lng, ns, file: rel, ...entry });
+        result.catalogs[lng][ns] = flattenCatalog(data);
+        for (const [key, value] of Object.entries(result.catalogs[lng][ns])) {
+          if (typeof value !== 'string' || !value.trim()) result.findings.push({ rule: 'catalog-value', file: rel, message: `key "${key}" must contain nonempty string copy` });
+        }
+      } catch (error) {
+        result.catalogs[lng][ns] = {};
+        result.findings.push({ rule: 'catalog-value', file: rel, message: `Invalid catalog: ${error.message}` });
+      }
       result.files[lng][ns] = rel;
+    }
+  }
+  const sourceLeaves = new Map(Object.entries(result.catalogs[SOURCE_LANGUAGE] ?? {}).map(([ns, flat]) => [
+    ns, new Set(Object.keys(flat).map(key => splitPlural(key).base)),
+  ]));
+  for (const { lng, ns, file, key, empty } of objects) {
+    const base = splitPlural(key).base;
+    // Empty target branches can omit copy, but an object at a string/plural
+    // leaf blocks i18next's fallback instead of behaving like an absent key.
+    if ((lng === SOURCE_LANGUAGE && empty) || sourceLeaves.get(ns)?.has(base)) {
+      result.findings.push({ rule: 'catalog-value', file, message: `key "${key}" must contain nonempty string copy, not an object` });
     }
   }
   result.languages.sort();
@@ -177,24 +211,27 @@ function fileFor(loaded, lng, ns) {
 // Rule 1: parity
 // ---------------------------------------------------------------------------
 
-export function checkParity(root) {
+export function checkParity(root, options = {}) {
   const loaded = loadCatalogs(root);
   const findings = [];
   const source = loaded.catalogs[SOURCE_LANGUAGE] ?? {};
 
-  for (const lng of loaded.languages) {
+  const declared = readLanguageRegistry(root).entries.map(entry => entry.code);
+  const coverage = options.locales ?? (declared.length ? declared : loaded.languages);
+  const languages = new Set([...loaded.languages, ...(options.strict ? coverage : [])]);
+  for (const lng of languages) {
     if (lng === SOURCE_LANGUAGE) continue;
     const target = loaded.catalogs[lng] ?? {};
 
     for (const ns of loaded.namespaces) {
       if (!target[ns]) {
-        findings.push({ rule: 'parity', file: fileFor(loaded, lng, ns), message: `namespace "${ns}" is missing for ${lng}` });
+        if (options.strict && coverage.includes(lng)) findings.push({ rule: 'parity', file: fileFor(loaded, lng, ns), message: `namespace "${ns}" is missing for ${lng}` });
         continue;
       }
       const sourceFamilies = families(source[ns]);
       const targetFamilies = families(target[ns]);
       for (const base of sourceFamilies.keys()) {
-        if (!targetFamilies.has(base)) {
+        if (options.strict && coverage.includes(lng) && !targetFamilies.has(base)) {
           findings.push({ rule: 'parity', file: fileFor(loaded, lng, ns), message: `key "${base}" exists in ${SOURCE_LANGUAGE} but not in ${lng}` });
         }
       }
@@ -235,13 +272,18 @@ export function checkPlaceholders(root) {
         if (!targetForms) continue;
         const expected = new Set();
         for (const value of sourceForms.values()) for (const name of placeholdersOf(value)) expected.add(name);
-        const actual = new Set();
-        for (const value of targetForms.values()) for (const name of placeholdersOf(value)) actual.add(name);
-        if (!sameSet(expected, actual)) {
-          findings.push({
-            rule: 'placeholders',
-            file: fileFor(loaded, lng, ns),
-            message: `key "${base}" uses {${[...actual].join(', ')}} in ${lng} but {${[...expected].join(', ')}} in ${SOURCE_LANGUAGE}`,
+        for (const [form, value] of targetForms) {
+          const required = new Set(expected);
+          // Singular source phrases may state the number implicitly; Arabic
+          // one/two likewise have explicit lexical singular/dual forms.
+          if ((form === 'one' && sourceForms.has('one') && !placeholdersOf(sourceForms.get('one')).has('count'))
+            || (lng === 'ar' && (form === 'one' || form === 'two'))) required.delete('count');
+          const actual = placeholdersOf(value);
+          const absent = [...required].filter(name => !actual.has(name));
+          const extra = [...actual].filter(name => !expected.has(name));
+          if (absent.length || extra.length) findings.push({
+            rule: 'placeholders', file: fileFor(loaded, lng, ns),
+            message: `key "${base}${form ? `_${form}` : ''}" has invalid placeholders (missing: ${absent.join(', ')}; extra: ${extra.join(', ')})`,
           });
         }
       }
@@ -359,7 +401,7 @@ export function isPlaceholderOnly(value) {
 
 export function checkUntranslated(root, options = {}) {
   const loaded = loadCatalogs(root);
-  const allow = new Set(options.allowlist ?? loadAllowlist(root));
+  const allow = options.allowlist ?? loadAllowlist(root);
   const findings = [];
   const source = loaded.catalogs[SOURCE_LANGUAGE] ?? {};
 
@@ -371,7 +413,7 @@ export function checkUntranslated(root, options = {}) {
       for (const [key, value] of Object.entries(target)) {
         const sourceValue = source[ns]?.[key];
         if (sourceValue === undefined || value !== sourceValue) continue;
-        if (isPlaceholderOnly(value) || allow.has(value)) continue;
+        if (isPlaceholderOnly(value) || isAllowedTranslation(allow, lng, ns, key, value)) continue;
         findings.push({ rule: 'untranslated', file: fileFor(loaded, lng, ns), message: `key "${key}" is identical to ${SOURCE_LANGUAGE}: "${value}"` });
       }
     }
@@ -446,22 +488,13 @@ export function checkErrorCodes(root) {
 // ---------------------------------------------------------------------------
 
 const ALLOW_LITERAL_MARKER = 'i18n-check: allow-literal';
-const TEXT_ATTRIBUTES = new Set(['placeholder', 'title', 'aria-label', 'alt']);
+const TEXT_ATTRIBUTES = new Set(['placeholder', 'title', 'aria-label', 'alt', 'content']);
 
 /**
  * The TypeScript compiler, from the web package that depends on it: the
  * repository root has no dependency of its own on it, and the check runs as a
  * plain `node` script from the root. Loaded on first use.
  */
-const repoRootOfThisFile = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-let typescript = null;
-function ts() {
-  if (typescript) return typescript;
-  const requireFromWeb = createRequire(path.join(repoRootOfThisFile, 'packages/web/package.json'));
-  typescript = requireFromWeb('typescript');
-  return typescript;
-}
-
 // stripComments is also what readErrorCodes reads the ERROR_CODES array
 // through; it is a hoisted declaration for that reason.
 function stripComments(text) {
@@ -531,7 +564,7 @@ function calleeName(expression) {
  */
 function literalFindingsIn(rel, text) {
   const T = ts();
-  const source = T.createSourceFile(rel, text, T.ScriptTarget.Latest, true, T.ScriptKind.TSX);
+  const source = T.createSourceFile(rel, text, T.ScriptTarget.Latest, true, rel.endsWith('tsx') ? T.ScriptKind.TSX : T.ScriptKind.TS);
   const lines = text.split('\n');
   const findings = [];
   const push = (node, message) => {
@@ -561,6 +594,13 @@ function literalFindingsIn(rel, text) {
     } else if (T.isCallExpression(node) && calleeName(node.expression) === 'addToast') {
       const first = node.arguments[0];
       if (first) pushRendered(first, 'addToast literal');
+    } else if (T.isObjectLiteralExpression(node)) {
+      const properties = node.properties.filter(property => T.isPropertyAssignment(property));
+      const type = properties.find(property => property.name.getText(source) === 'type')?.initializer;
+      if (type && T.isStringLiteral(type) && ['action', 'checkbox', 'submenu'].includes(type.text)) {
+        const label = properties.find(property => property.name.getText(source) === 'label')?.initializer;
+        if (label) pushRendered(label, 'context-menu label');
+      }
     }
     T.forEachChild(node, visit);
   };
@@ -589,7 +629,7 @@ function isDevHarness(rel) {
 }
 
 function isComponentFile(rel) {
-  return rel.endsWith('.tsx') && !isTestFile(rel) && !isDevHarness(rel);
+  return isSourceFile(rel) && !isDevHarness(rel);
 }
 
 export function checkLiteralStrings(root, options = {}) {
@@ -668,9 +708,8 @@ export function checkMarkup(root) {
     }
   }
 
-  // As with interpolation placeholders, markup is part of a translation's
-  // contract. Compare the union across plural forms because CLDR categories
-  // differ between languages.
+  // Every provided form must retain its interactive markup, not merely the
+  // family's union (which could conceal a broken singular form).
   for (const lng of loaded.languages) {
     if (lng === SOURCE_LANGUAGE) continue;
     for (const ns of loaded.namespaces) {
@@ -683,13 +722,12 @@ export function checkMarkup(root) {
         if (!targetForms) continue;
         const expected = new Set();
         for (const value of sourceForms.values()) for (const tag of markupTagsOf(value)) expected.add(tag);
-        const actual = new Set();
-        for (const value of targetForms.values()) for (const tag of markupTagsOf(value)) actual.add(tag);
-        if (!sameSet(expected, actual)) {
-          findings.push({
+        for (const [form, value] of targetForms) {
+          const actual = markupTagsOf(value);
+          if (!sameSet(expected, actual)) findings.push({
             rule: 'markup',
             file: fileFor(loaded, lng, ns),
-            message: `key "${base}" uses <${[...actual].join('>, <')}> in ${lng} but <${[...expected].join('>, <')}> in ${SOURCE_LANGUAGE}`,
+            message: `key "${base}${form ? `_${form}` : ''}" uses <${[...actual].join('>, <')}> in ${lng} but <${[...expected].join('>, <')}> in ${SOURCE_LANGUAGE}`,
           });
         }
       }
@@ -704,6 +742,9 @@ export function checkMarkup(root) {
 // ---------------------------------------------------------------------------
 
 export const RULES = [
+  'catalog-value',
+  'language-registry',
+  'native-catalog',
   'parity',
   'placeholders',
   'plural-forms',
@@ -716,8 +757,18 @@ export const RULES = [
 ];
 
 export function runAllChecks(root, options = {}) {
+  const loaded = loadCatalogs(root);
+  const registry = readLanguageRegistry(root);
+  const known = registry.entries.length ? registry.entries.map(entry => entry.code) : loaded.languages;
+  const registryFindings = [...registry.findings];
+  for (const language of [...loaded.languages, ...(options.locales ?? [])]) {
+    if (!known.includes(language)) registryFindings.push({ rule: 'language-registry', file: LOCALES_DIR, message: `Unknown language "${language}"` });
+  }
   return [
-    ...checkParity(root),
+    ...loaded.findings,
+    ...checkDuplicateCatalogKeys(root, loaded),
+    ...registryFindings,
+    ...checkParity(root, options),
     ...checkPlaceholders(root),
     ...checkPluralForms(root),
     ...checkCountWithoutPlural(root),
@@ -726,7 +777,106 @@ export function runAllChecks(root, options = {}) {
     ...checkErrorCodes(root),
     ...checkLiteralStrings(root, options),
     ...checkMarkup(root),
+    ...(options.includeDesktop ? checkDesktopCatalogs(root, options, registry) : []),
   ];
+}
+
+function checkDuplicateCatalogKeys(root, loaded) {
+  const findings = [];
+  const T = ts();
+  for (const namespaces of Object.values(loaded.files)) for (const file of Object.values(namespaces)) {
+    const source = T.parseJsonText(file, readFileSync(path.join(root, file), 'utf8'));
+    function visit(node) {
+      if (T.isObjectLiteralExpression(node)) {
+        const seen = new Set();
+        for (const property of node.properties) {
+          if (!T.isPropertyAssignment(property)) continue;
+          const key = property.name.text;
+          if (seen.has(key)) findings.push({ rule: 'catalog-value', file, line: source.getLineAndCharacterOfPosition(property.getStart(source)).line + 1, message: `Duplicate JSON property "${key}" would discard earlier copy` });
+          seen.add(key);
+        }
+      }
+      T.forEachChild(node, visit);
+    }
+    visit(source);
+  }
+  return findings;
+}
+
+function readLanguageRegistry(root) {
+  const file = 'packages/web/src/i18n/languages.ts';
+  if (!existsSync(path.join(root, file))) return { entries: [], findings: [] };
+  try {
+    const entries = readLiteralBinding(readFileSync(path.join(root, file), 'utf8'), file, 'supportedLanguages');
+    if (!Array.isArray(entries) || !entries.length || entries.some(entry => !entry || typeof entry.code !== 'string'
+      || !/^[a-z]{2}(?:-[A-Za-z0-9]+)*$/.test(entry.code) || !requiredPluralForms(entry.code)
+      || typeof entry.nativeName !== 'string' || !entry.nativeName.trim() || !['ltr', 'rtl'].includes(entry.dir) || typeof entry.released !== 'boolean')
+      || new Set(entries.map(entry => entry.code)).size !== entries.length || !entries.some(entry => entry.code === 'en' && entry.released)) throw new Error('Invalid/duplicate registry entries or missing released English');
+    return { entries, findings: [] };
+  } catch (error) {
+    return { entries: [], findings: [{ rule: 'language-registry', file, message: error.message }] };
+  }
+}
+
+function isAllowedTranslation(allowlist, language, namespace, key, value) {
+  return allowlist.some(entry => typeof entry === 'string' ? entry === value : entry && typeof entry.reason === 'string' && entry.reason.trim()
+    && entry.language === language && entry.namespace === namespace && entry.key === key && entry.value === value);
+}
+
+function checkDesktopCatalogs(root, options, registry) {
+  const { catalogs, findings } = readDesktopCatalogs(root);
+  const declared = registry.entries.map(entry => entry.code);
+  const known = declared.length ? declared : [...new Set(catalogs.map(catalog => catalog.language))];
+  const coverage = options.locales ?? known;
+  const allowlist = options.allowlist ?? loadAllowlist(root);
+  const placeholderSet = value => new Set([...value.matchAll(/\{(\w+)\}/g)].map(match => match[1]));
+  for (const surface of ['main', 'recovery', 'instancePicker']) {
+    const source = catalogs.find(catalog => catalog.surface === surface && catalog.language === 'en');
+    const file = surface === 'main' ? 'packages/desktop/src/l10n.ts' : `packages/desktop/resources/${surface === 'instancePicker' ? 'instance-picker' : surface}.html`;
+    if (!source || !Object.keys(source.values).length) { findings.push({ rule: 'native-catalog', file, message: 'Native English source is missing/empty' }); continue; }
+    for (const language of new Set([...known, ...catalogs.filter(catalog => catalog.surface === surface).map(catalog => catalog.language)])) {
+      if (language === 'en') continue;
+      const target = catalogs.find(catalog => catalog.surface === surface && catalog.language === language);
+      if (!known.includes(language)) findings.push({ rule: 'language-registry', file, message: `Unknown native language "${language}"` });
+      if (options.strict && coverage.includes(language)) for (const key of Object.keys(source.values)) {
+        if (!Object.hasOwn(target?.values ?? {}, key)) findings.push({ rule: 'native-catalog', file, message: `${language}:${key} is missing` });
+      }
+      for (const [key, value] of Object.entries(target?.values ?? {})) {
+        const english = source.values[key];
+        if (english === undefined) findings.push({ rule: 'native-catalog', file, message: `${language}:${key} has no English source` });
+        else {
+          if (!sameSet(placeholderSet(english), placeholderSet(value))) findings.push({ rule: 'placeholders', file, message: `${language}:${key} has invalid native placeholders` });
+          if (value === english && /\p{L}/u.test(value.replace(/\{\w+\}/g, ''))
+            && !isAllowedTranslation(allowlist, language, `native.${surface}`, key, value)) findings.push({ rule: 'untranslated', file, message: `${language}:${key} is identical to English` });
+        }
+      }
+    }
+  }
+  if (declared.length && existsSync(path.join(root, 'packages/desktop/src/l10n.ts'))) {
+    const file = 'packages/desktop/src/l10n.ts';
+    try {
+      const text = readFileSync(path.join(root, file), 'utf8');
+      for (const [binding, expected] of [['DESKTOP_LANGUAGES', declared], ['RELEASED_DESKTOP_LANGUAGES', registry.entries.filter(entry => entry.released).map(entry => entry.code)]]) {
+        const codes = readLiteralBinding(text, file, binding);
+        if (!Array.isArray(codes) || codes.length !== new Set(codes).size || !sameSet(new Set(codes), new Set(expected))) findings.push({ rule: 'language-registry', file, message: `${binding} differs from the web registry` });
+      }
+    } catch (error) { findings.push({ rule: 'language-registry', file, message: error.message }); }
+  }
+  const mainFile = 'packages/desktop/src/main.ts';
+  if (existsSync(path.join(root, mainFile))) {
+    const T = ts();
+    const source = T.createSourceFile(mainFile, readFileSync(path.join(root, mainFile), 'utf8'), T.ScriptTarget.Latest, true, T.ScriptKind.TS);
+    function visit(node) {
+      if (T.isCallExpression(node) && T.isIdentifier(node.expression) && node.expression.text === 'showNotification') {
+        for (const argument of node.arguments.slice(0, 2)) for (const value of renderedLiterals(argument, [])) {
+          if (hasLetters(value.text)) findings.push({ rule: 'literal-string', file: mainFile, line: source.getLineAndCharacterOfPosition(value.node.getStart(source)).line + 1, message: 'Native notification copy must use the catalog' });
+        }
+      }
+      T.forEachChild(node, visit);
+    }
+    visit(source);
+  }
+  return findings;
 }
 
 export function formatFinding(finding) {

@@ -1,0 +1,104 @@
+{
+  "tabs": {
+    "all": "Tất cả",
+    "pending": "Chờ duyệt",
+    "add": "Thêm bạn",
+    "activity": "Hoạt động"
+  },
+  "sections": {
+    "online": "Trực tuyến — {{n}}",
+    "all": "Tất cả bạn bè — {{n}}",
+    "pending": "Chờ duyệt — {{n}}",
+    "active": "Đang hoạt động — {{n}}",
+    "offline": "Ngoại tuyến — {{n}}"
+  },
+  "empty": {
+    "online": "Không ai trực tuyến lúc này.",
+    "all": "Chưa có bạn bè — hãy thêm ai đó!",
+    "pending": "Không có yêu cầu chờ — Nori đang ngủ trưa.",
+    "activity": "Yên ắng lúc này… Khi bạn bè bắt đầu hoạt động, chúng tôi sẽ hiện ở đây!"
+  },
+  "friend": {
+    "viaInstance": "qua {{host}}",
+    "message": "Nhắn",
+    "remove": "Xóa bạn"
+  },
+  "sendMessage": {
+    "failed": "Không thể mở cuộc trò chuyện: {{reason}}"
+  },
+  "request": {
+    "incoming": "Lời mời kết bạn đến",
+    "outgoing": "Lời mời kết bạn đi",
+    "ignore": "Bỏ qua",
+    "cancel": "Hủy yêu cầu",
+    "send": "Gửi lời mời kết bạn",
+    "pending": "Yêu cầu đang chờ",
+    "sending": "Đang gửi…",
+    "cancelling": "Đang hủy…",
+    "sent": "Đã gửi lời mời kết bạn!"
+  },
+  "removeFriend": {
+    "title": "Xóa bạn",
+    "description": "Bạn chắc chắn muốn xóa {{name}} khỏi bạn bè? Bạn luôn có thể gửi lời mời mới sau.",
+    "fallbackName": "người dùng này"
+  },
+  "add": {
+    "title": "Tìm mọi người",
+    "hint": "Tìm theo tên người dùng hoặc dùng <handle>user@instance</handle> để thêm trực tiếp.",
+    "placeholder": "Tìm hoặc thêm theo tên…",
+    "direct": "Gửi lời mời kết bạn tới <handle>{{handle}}</handle>",
+    "sendRequest": "Gửi yêu cầu",
+    "discover": "Khám phá mọi người",
+    "noSearchResults": "Không có người dùng khớp tìm kiếm.",
+    "noDiscoverable": "Chưa có người dùng để khám phá — hãy mời người tham gia!"
+  },
+  "mutuals": {
+    "friends_one": "{{count}} bạn chung",
+    "friends_other": "{{count}} bạn chung",
+    "spaces_one": "{{count}} không gian chung",
+    "spaces_other": "{{count}} không gian chung",
+    "noFriends": "Không có bạn chung",
+    "noSpaces": "Không có không gian chung"
+  },
+  "profile": {
+    "tabs": {
+      "about": "Giới thiệu",
+      "mutualFriends": "Bạn chung",
+      "mutualSpaces": "Không gian chung"
+    },
+    "aboutMe": "Về tôi",
+    "roles": "Vai trò",
+    "memberSince": "Thành viên từ",
+    "sendMessage": "Gửi tin nhắn",
+    "editRoles": "Sửa vai trò",
+    "viewFull": "Xem hồ sơ đầy đủ",
+    "addFriend": "Thêm bạn",
+    "playingNow": "Đang chơi"
+  },
+  "activity": {
+    "title": "Đang hoạt động",
+    "quietTitle": "Yên ắng lúc này…",
+    "quietDescription": "Khi bạn bè bắt đầu hoạt động — như chơi game hay tụ họp voice — chúng tôi sẽ hiện ở đây!",
+    "online": "Trực tuyến — {{n}}",
+    "offline": "Ngoại tuyến — {{n}}",
+    "resizeHandle": "Đổi cỡ danh sách bạn bè",
+    "types": {
+      "playing": "Đang chơi game",
+      "listening": "Đang nghe nhạc",
+      "streaming": "Đang phát trực tiếp",
+      "watching": "Đang xem",
+      "custom": "Trạng thái tùy chỉnh"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "Mở bài"
+  },
+  "instanceNotConnected": "Chưa kết nối tới {{host}}. Hãy kết nối lại và thử lại."
+}

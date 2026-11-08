@@ -1,0 +1,102 @@
+{
+  "tabs": {
+    "all": "전체",
+    "pending": "대기 중",
+    "add": "친구 추가",
+    "activity": "활동"
+  },
+  "sections": {
+    "online": "온라인 — {{n}}",
+    "all": "모든 친구 — {{n}}",
+    "pending": "대기 중 — {{n}}",
+    "active": "활성 — {{n}}",
+    "offline": "오프라인 — {{n}}"
+  },
+  "empty": {
+    "online": "지금 온라인인 사람이 없습니다.",
+    "all": "아직 친구가 없습니다 — 누군가를 추가하세요!",
+    "pending": "대기 중인 요청 없음 — Nori가 낮잠 중입니다.",
+    "activity": "지금은 조용합니다… 친구가 활동을 시작하면 여기에 표시됩니다!"
+  },
+  "friend": {
+    "viaInstance": "{{host}} 경유",
+    "message": "메시지",
+    "remove": "친구 삭제"
+  },
+  "sendMessage": {
+    "failed": "대화를 열 수 없습니다: {{reason}}"
+  },
+  "request": {
+    "incoming": "받은 친구 요청",
+    "outgoing": "보낸 친구 요청",
+    "ignore": "무시",
+    "cancel": "요청 취소",
+    "send": "친구 요청 보내기",
+    "pending": "요청 대기 중",
+    "sending": "보내는 중…",
+    "cancelling": "취소 중…",
+    "sent": "친구 요청을 보냈습니다!"
+  },
+  "removeFriend": {
+    "title": "친구 삭제",
+    "description": "{{name}}님을 친구에서 삭제하시겠습니까? 나중에 새 요청을 보낼 수 있습니다.",
+    "fallbackName": "이 사용자"
+  },
+  "add": {
+    "title": "사람 찾기",
+    "hint": "사용자 이름으로 검색하거나 <handle>user@instance</handle>로 직접 추가하세요.",
+    "placeholder": "이름으로 검색·추가…",
+    "direct": "<handle>{{handle}}</handle>님에게 친구 요청 보내기",
+    "sendRequest": "요청 보내기",
+    "discover": "사람 발견",
+    "noSearchResults": "검색과 일치하는 사용자 없음.",
+    "noDiscoverable": "발견할 사용자가 아직 없습니다 — 사람을 초대하세요!"
+  },
+  "mutuals": {
+    "friends_other": "공통 친구 {{count}}명",
+    "spaces_other": "공통 스페이스 {{count}}개",
+    "noFriends": "공통 친구 없음",
+    "noSpaces": "공통 스페이스 없음"
+  },
+  "profile": {
+    "tabs": {
+      "about": "소개",
+      "mutualFriends": "공통 친구",
+      "mutualSpaces": "공통 스페이스"
+    },
+    "aboutMe": "소개",
+    "roles": "역할",
+    "memberSince": "가입 시기",
+    "sendMessage": "메시지 보내기",
+    "editRoles": "역할 편집",
+    "viewFull": "전체 프로필 보기",
+    "addFriend": "친구 추가",
+    "playingNow": "플레이 중"
+  },
+  "activity": {
+    "title": "지금 활성",
+    "quietTitle": "지금은 조용합니다…",
+    "quietDescription": "친구가 활동을 시작하면 — 게임·음성 어울림 등 — 여기에 표시됩니다!",
+    "online": "온라인 — {{n}}",
+    "offline": "오프라인 — {{n}}",
+    "resizeHandle": "친구 목록 크기 조정",
+    "types": {
+      "playing": "게임 중",
+      "listening": "음악 감상 중",
+      "streaming": "방송 중",
+      "watching": "시청 중",
+      "custom": "사용자 지정 상태"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "트랙 열기"
+  },
+  "instanceNotConnected": "{{host}}에 연결되지 않았습니다. 다시 연결하고 시도하세요."
+}

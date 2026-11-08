@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "保存",
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "delete": "削除",
+    "bot": "BOT",
+    "confirm": "確認",
+    "copy": "コピー",
+    "copied": "コピー済み",
+    "retry": "再試行",
+    "back": "戻る",
+    "done": "完了",
+    "edit": "編集",
+    "remove": "削除",
+    "add": "追加",
+    "apply": "適用",
+    "reset": "リセット",
+    "continue": "続ける",
+    "dismiss": "閉じる",
+    "ok": "OK",
+    "search": "検索",
+    "clear": "クリア",
+    "change": "変更",
+    "refresh": "更新",
+    "openLink": "リンクを開く",
+    "tryAgain": "再試行",
+    "reply": "返信",
+    "addReaction": "リアクション追加",
+    "share": "共有",
+    "accept": "承諾",
+    "decline": "拒否",
+    "pause": "一時停止",
+    "resume": "再開",
+    "abort": "中止",
+    "dismissAll": "すべて閉じる",
+    "filter": "絞り込み",
+    "sort": "並べ替え",
+    "sortBy": "並べ替え基準",
+    "leave": "退出",
+    "invitePeople": "招待する",
+    "previous": "前へ",
+    "next": "次へ",
+    "preview": "プレビュー",
+    "logIn": "ログイン"
+  },
+  "states": {
+    "loading": "読み込み中…",
+    "saving": "保存中…",
+    "saved": "保存済み",
+    "unknown": "不明",
+    "none": "なし",
+    "enabled": "有効",
+    "disabled": "無効",
+    "on": "オン",
+    "off": "オフ",
+    "yes": "はい",
+    "no": "いいえ",
+    "optional": "任意",
+    "required": "必須",
+    "default": "既定",
+    "recommended": "推奨",
+    "online": "オンライン",
+    "idle": "退席中",
+    "doNotDisturb": "取り込み中",
+    "offline": "オフライン",
+    "loadingSettings": "設定を読み込み中…",
+    "loadSettingsFailed": "設定を読み込めませんでした。",
+    "settingsSaved": "設定を保存しました",
+    "saveFailed": "保存に失敗",
+    "scanning": "スキャン中…",
+    "pleaseWait": "お待ちください…"
+  },
+  "labels": {
+    "username": "ユーザー名",
+    "password": "パスワード",
+    "displayName": "表示名",
+    "friends": "フレンド",
+    "members": "メンバー",
+    "settings": "設定",
+    "dangerZone": "危険ゾーン",
+    "searchMembers": "メンバーを検索…",
+    "noMembersFound": "メンバーが見つかりません",
+    "or": "または",
+    "nameAZ": "名前 (A-Z)"
+  },
+  "time": {
+    "today": "今日 {{time}}",
+    "yesterday": "昨日 {{time}}",
+    "never": "なし",
+    "justNow": "たった今",
+    "minutesShort": "{{minutes}} 分",
+    "hoursMinutesShort": "{{hours}} 時間 {{minutes}} 分",
+    "elapsed": "{{duration}} 経過",
+    "left": "残り {{duration}}"
+  },
+  "units": {
+    "ms": "{{value}} ミリ秒",
+    "percent": "{{value}}%",
+    "kbps": "{{value}} kbps",
+    "mbps": "{{value}} Mbps"
+  },
+  "colors": {
+    "mint": "ミント",
+    "sky": "空色",
+    "lavender": "ラベンダー",
+    "coral": "珊瑚",
+    "rose": "ローズ",
+    "teal": "ティール",
+    "amber": "琥珀",
+    "peach": "ピーチ"
+  },
+  "language": {
+    "label": "言語",
+    "automatic": "自動 (システム)",
+    "description": "メニュー・ボタン・システムメッセージの言語を選択。自動はシステムやブラウザの言語設定に従います。他者のメッセージは書かれたままです。"
+  },
+  "crash": {
+    "title": "問題が発生しました",
+    "reload": "ページを再読み込み",
+    "details": "エラー詳細"
+  },
+  "app": {
+    "description": "自ホスト型Discord・TeamSpeak代替。HD音声・ビデオ・画面共有 — オープンソースで無料 (AGPL-3.0)。",
+    "loading": "Backspaceを読み込み中"
+  },
+  "chrome": {
+    "toggleMemberList": "メンバーリスト表示切替",
+    "closeSettings": "設定を閉じる"
+  },
+  "sourceCode": {
+    "label": "ソースコード (AGPL)",
+    "labelWithBuild": "ソースコード (AGPL) · {{build}}",
+    "title": "このインスタンスで動作中のバージョンのソースコードを見る (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "{{label}}を検出。切り替えは音声設定で選択。",
+    "unnamedAudioInput": "新しいオーディオ機器"
+  }
+}

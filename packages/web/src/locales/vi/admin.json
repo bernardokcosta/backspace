@@ -1,0 +1,431 @@
+{
+  "general": {
+    "title": "Chung",
+    "description": "Cấu hình máy chủ Backspace của bạn. Các cài đặt này áp dụng cho mọi người dùng.",
+    "instanceName": {
+      "label": "Tên máy chủ",
+      "description": "Tên hiện trên trang đăng nhập và với các máy chủ liên hợp.",
+      "counter": "{{length}}/{{max}}"
+    },
+    "gif": {
+      "label": "Tìm GIF",
+      "description": "Bật tìm GIF qua Klipy. Lấy khóa API miễn phí từ cổng nhà phát triển Klipy.",
+      "placeholderSaved": "Đã lưu khóa — nhập khóa mới để thay",
+      "placeholderKey": "Khóa API Klipy",
+      "enabled": "Đã bật",
+      "notConfigured": "Chưa cấu hình",
+      "clearKey": "Xóa khóa"
+    }
+  },
+  "registration": {
+    "title": "Đăng ký",
+    "description": "Kiểm soát ai tạo được tài khoản trên máy chủ này. Đăng ký công khai bao phủ đăng ký cục bộ; đăng ký liên hợp bao phủ người dùng từ máy chủ ghép tạo tài khoản ở đây.",
+    "public": {
+      "label": "Đăng ký công khai",
+      "toggleLabel": "Cho phép tài khoản cục bộ mới",
+      "toggleDescription": "Bất kỳ ai cũng tạo được tài khoản cục bộ trên trang đăng ký. Khi tắt, tài khoản cục bộ mới chỉ qua liên kết thư mời."
+    },
+    "federated": {
+      "label": "Đăng ký liên hợp",
+      "toggleLabel": "Cho phép tài khoản liên hợp mới",
+      "toggleDescription": "Người dùng từ máy chủ khác tạo được tài khoản liên hợp ở đây qua cài đặt Kết nối. Tài khoản liên hợp hiện có luôn đăng nhập được, bất kể cài đặt này."
+    },
+    "spaceCreation": {
+      "label": "Tạo không gian",
+      "toggleLabel": "Cho phép không gian mới",
+      "toggleDescription": "Người dùng tạo được không gian mới trên máy chủ này. Khi tắt, chỉ quản trị máy chủ tạo được không gian, và người dùng thường chỉ tham gia không gian hiện có."
+    },
+    "saved": "Đã lưu cài đặt đăng ký",
+    "saveFailed": "Không thể cập nhật cài đặt đăng ký"
+  },
+  "invites": {
+    "label": "Liên kết thư mời",
+    "create": "+ Tạo liên kết",
+    "tabs": {
+      "active": "Đang hoạt động",
+      "archived": "Đã lưu trữ"
+    },
+    "loadFailed": "Không thể tải thư mời",
+    "emptyActive": "Không có liên kết thư mời đang hoạt động.",
+    "emptyArchived": "Không có liên kết thư mời đã lưu trữ.",
+    "noMatch": "Không có thư mời khớp bộ lọc hiện tại.",
+    "filter": {
+      "status": "Trạng thái",
+      "sort": {
+        "recent": "Mới nhất trước",
+        "oldest": "Cũ nhất trước",
+        "name": "Tên (A–Z)",
+        "mostUsed": "Dùng nhiều nhất",
+        "expiringSoonest": "Hết hạn sớm nhất"
+      }
+    },
+    "status": {
+      "active": "Đang hoạt động",
+      "expired": "Hết hạn",
+      "exhausted": "Hết lượt",
+      "revoked": "Đã thu hồi"
+    },
+    "expiry": {
+      "preset": {
+        "hour1": "1 giờ",
+        "hours24": "24 giờ",
+        "days7": "7 ngày",
+        "days30": "30 ngày",
+        "custom": "Tùy chỉnh…"
+      },
+      "keepCurrent": "Giữ hiện tại",
+      "invalidFuture": "Chọn ngày giờ tương lai",
+      "invalidSelection": "Lựa chọn hết hạn không hợp lệ",
+      "revokedOn": "Đã thu hồi {{date}}",
+      "expiredOn": "Hết hạn {{date}}",
+      "exhausted": "Hết lượt",
+      "noExpiration": "Không hết hạn",
+      "inDays_one": "Hết hạn sau {{count}} ngày",
+      "inDays_other": "Hết hạn sau {{count}} ngày",
+      "inHours_one": "Hết hạn sau {{count}} giờ",
+      "inHours_other": "Hết hạn sau {{count}} giờ"
+    },
+    "form": {
+      "name": "Tên",
+      "namePlaceholder": "ví dụ Bạn bè, nhóm 1",
+      "maxUses": "Tối đa lượt dùng",
+      "unlimited": "Không giới hạn",
+      "uses": "lượt dùng",
+      "expires": "Hết hạn",
+      "nameLength": "Tên phải từ 1 đến 64 ký tự",
+      "maxUsesInteger": "Tối đa lượt dùng phải là số nguyên dương"
+    },
+    "createModal": {
+      "title": "Tạo liên kết thư mời",
+      "description": "Tạo liên kết để chia sẻ cho người đăng ký trên máy chủ này. Bạn đặt số lần dùng và khi hết hạn.",
+      "submit": "Tạo liên kết",
+      "submitting": "Đang tạo…",
+      "createdCopied": "Đã tạo liên kết. Đã sao chép vào khay nhớ.",
+      "createdManual": "Đã tạo liên kết. Hãy sao chép thủ công từ hàng.",
+      "failed": "Không thể tạo thư mời: {{message}}"
+    },
+    "editModal": {
+      "title": "Sửa “{{name}}”",
+      "description": "Điều chỉnh giới hạn của liên kết này. URL giữ nguyên — ai có nó vẫn dùng được với điều kiện mới.",
+      "used": "(đã dùng {{used}})",
+      "maxUsesBelowUsed": "Tối đa lượt dùng không được thấp hơn dùng hiện tại ({{used}})",
+      "noChanges": "Không có thay đổi để lưu",
+      "updated": "Đã cập nhật thư mời",
+      "failed": "Không thể cập nhật thư mời: {{message}}",
+      "submit": "Lưu thay đổi",
+      "submitting": "Đang lưu…"
+    },
+    "reinstateModal": {
+      "title": "Khôi phục “{{name}}”",
+      "descriptionRevoked": "Thư mời này đã bị thu hồi. Khôi phục tạo liên kết mới với URL khác — URL cũ giữ nguyên không hoạt động.",
+      "descriptionLapsed": "Thư mời này đã hết hạn. Khôi phục kích hoạt lại cùng URL — ai lưu nó dùng lại được.",
+      "newLinkWarning": "Liên kết mới sẽ được tạo. Người có URL cũ không dùng được nữa.",
+      "maxUsesMeta": "(hiện: {{max}}, đã dùng: {{used}})",
+      "maxUsesMin": "Tối đa lượt dùng ít nhất {{min}} (hiện: {{used}})",
+      "submit": "Khôi phục",
+      "submitNewLink": "Khôi phục với liên kết mới",
+      "submitting": "Đang khôi phục…",
+      "doneCopied": "Đã khôi phục với liên kết mới. Đã sao chép vào khay nhớ.",
+      "doneManual": "Đã khôi phục với liên kết mới. Hãy sao chép thủ công từ hàng.",
+      "doneSameLink": "Đã khôi phục. Cùng liên kết hoạt động lại.",
+      "failed": "Khôi phục thất bại: {{message}}"
+    },
+    "redemptions": {
+      "title": "Lượt dùng “{{name}}”",
+      "description": "Người dùng đã đăng ký qua liên kết này, theo thứ tự đăng ký.",
+      "revokedNotice": "Thư mời này đã bị thu hồi. Lượt dùng dưới đây của người dùng đã đăng ký trước thu hồi.",
+      "revokedNoticeDated": "Thư mời này bị thu hồi {{date}}. Lượt dùng dưới đây của người dùng đã đăng ký trước thu hồi.",
+      "usesOfMax_one": "{{count}} trên {{max}} lượt dùng",
+      "usesOfMax_other": "{{count}} trên {{max}} lượt dùng",
+      "uses_one": "{{count}} lượt dùng",
+      "uses_other": "{{count}} lượt dùng",
+      "loadFailed": "Không thể tải lượt dùng",
+      "loadFailedInline": "Không thể tải lượt dùng.",
+      "empty": "Chưa có lượt dùng.",
+      "now": "(hiện {{name}})",
+      "deletedUser": "Người dùng đã xóa"
+    },
+    "row": {
+      "usage": "Dùng: {{usage}}",
+      "createdBy": "Bởi: {{name}}",
+      "unknownCreator": "Không rõ",
+      "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
+      "subtitleArchived": "{{usage}} · {{expiry}} · {{when}}",
+      "used": "Đã dùng",
+      "expires": "Hết hạn",
+      "expiredAt": "Hết hạn",
+      "revokedAt": "Đã thu hồi",
+      "exhausted": "Hết lượt",
+      "created": "Đã tạo",
+      "createdByLabel": "Bởi",
+      "token": "Token",
+      "lastRedeemed": "Dùng gần nhất",
+      "copyLink": "Sao chép liên kết",
+      "revoke": "Thu hồi",
+      "viewRedemptions": "Xem lượt dùng",
+      "reinstate": "Khôi phục",
+      "deletePermanently": "Xóa vĩnh viễn",
+      "copied": "Đã sao chép liên kết thư mời",
+      "copyFailed": "Không thể sao chép liên kết",
+      "revoked": "Đã thu hồi thư mời",
+      "revokeFailed": "Thu hồi thất bại: {{message}}",
+      "deleted": "Đã xóa thư mời",
+      "deleteFailed": "Xóa thất bại: {{message}}",
+      "revokeDialog": {
+        "title": "Thu hồi “{{name}}”?",
+        "description": "Liên kết ngừng hoạt động ngay. Không ai có URL dùng được nữa.<br/><br/>Nếu đổi ý, <strong>Khôi phục</strong> tạo liên kết mới trong mục này — URL gốc giữ nguyên không hoạt động.",
+        "confirm": "Thu hồi liên kết"
+      },
+      "deleteDialog": {
+        "title": "Xóa “{{name}}” vĩnh viễn?",
+        "description": "Điều này không thể hoàn tác. Lịch sử dùng của liên kết này cũng bị xóa. Nếu chỉ muốn dừng liên kết, hãy dùng <strong>Thu hồi</strong> — lịch sử dùng được giữ.",
+        "confirm": "Xóa vĩnh viễn"
+      }
+    }
+  },
+  "storage": {
+    "title": "Lưu trữ",
+    "description": "Theo dõi dùng đĩa và dọn tệp mồ côi từ nội dung đã xóa hoặc avatar và banner thay thế.",
+    "loading": "Đang tải thống kê lưu trữ…",
+    "loadFailed": "Không thể tải thống kê lưu trữ",
+    "refresh": "Làm mới thống kê",
+    "overview": {
+      "label": "Tổng quan lưu trữ",
+      "totalFiles": "Tổng tệp",
+      "referenced": "Có tham chiếu",
+      "orphanedFiles": "Tệp mồ côi",
+      "unlinkedUploads": "Tải lên không liên kết",
+      "danglingRecords": "Bản ghi lơ lửng",
+      "staleUploads": "Tải lên cũ"
+    },
+    "breakdown": {
+      "label": "Phân chia theo loại tệp",
+      "entry_one": "{{count}} tệp — {{size}}",
+      "entry_other": "{{count}} tệp — {{size}}"
+    },
+    "uploadLimit": {
+      "label": "Giới hạn tải lên",
+      "maxFileSize": "Cỡ tệp tối đa",
+      "maxStickerSize": "Cỡ nhãn dán tối đa",
+      "saved": "Đặt giới hạn tải lên thành {{limit}}",
+      "saveFailed": "Không thể cập nhật giới hạn tải lên",
+      "stickerSaved": "Đặt giới hạn nhãn dán thành {{limit}}",
+      "stickerSaveFailed": "Không thể cập nhật giới hạn nhãn dán"
+    },
+    "cleanup": {
+      "label": "Dọn dẹp",
+      "nothingFound": "Không tìm thấy tệp mồ côi, tải lên cũ hay bản ghi lơ lửng.",
+      "preview": "Xem trước dọn dẹp",
+      "run": "Dọn ngay",
+      "running": "Đang dọn…",
+      "previewResult": "Xem trước — không xóa tệp nào",
+      "complete": "Dọn xong",
+      "orphanedFiles_one": "{{count}} tệp mồ côi ({{size}})",
+      "orphanedFiles_other": "{{count}} tệp mồ côi ({{size}})",
+      "staleRecords_one": ", {{count}} bản ghi tải lên cũ",
+      "staleRecords_other": ", {{count}} bản ghi tải lên cũ",
+      "errors_one": "{{count}} lỗi: {{first}}",
+      "errors_other": "{{count}} lỗi: {{first}}",
+      "cleanedToast_one": "Đã dọn {{count}} tệp ({{size}})",
+      "cleanedToast_other": "Đã dọn {{count}} tệp ({{size}})",
+      "failed": "Dọn thất bại"
+    },
+    "stale": {
+      "label": "Tải lên cũ",
+      "description": "Phiên tải lên tus bị bỏ trong <code>.tus/</code> (tạm dừng hoặc sập mà không DELETE). Dọn tự động chạy mỗi 24 giờ; đây dọn sớm hơn.",
+      "maxAge": "Tuổi tối đa (giờ)",
+      "sessionFiles_one": "{{count}} tệp phiên ({{size}})",
+      "sessionFiles_other": "{{count}} tệp phiên ({{size}})",
+      "cleanedToast_one": "Đã dọn {{count}} phiên tải lên cũ ({{size}})",
+      "cleanedToast_other": "Đã dọn {{count}} phiên tải lên cũ ({{size}})",
+      "failed": "Dọn tải lên cũ thất bại"
+    },
+    "media": {
+      "label": "Lưu trữ phương tiện",
+      "olderThan": "Xóa phương tiện chat cũ hơn",
+      "days": "ngày",
+      "run": "Xóa ngay",
+      "running": "Đang xóa…",
+      "files_one": "{{count}} tệp ({{size}})",
+      "files_other": "{{count}} tệp ({{size}})",
+      "deletedToast_one": "Đã xóa {{count}} tệp ({{size}})",
+      "deletedToast_other": "Đã xóa {{count}} tệp ({{size}})",
+      "failed": "Dọn phương tiện thất bại"
+    }
+  },
+  "streaming": {
+    "title": "Phát trực tiếp",
+    "description": "Các giới hạn này áp dụng cho mọi người dùng của máy chủ này. Người dùng chọn giá trị trong giới hạn này.",
+    "units": {
+      "fps": "{{value}} fps",
+      "kbpsLabel": "kbps"
+    },
+    "bandwidth": {
+      "label": "Băng thông",
+      "description": "Giới hạn bitrate tối thiểu và tối đa, cùng bước thanh trượt chất lượng.",
+      "customBitrate": {
+        "label": "Cho phép bitrate tùy chỉnh",
+        "description": "Cho người dùng đặt bitrate riêng thay vì chuẩn ma trận"
+      },
+      "range": "Khoảng bitrate",
+      "min": "Tối thiểu",
+      "max": "Tối đa",
+      "step": "Bước thanh trượt"
+    },
+    "quality": {
+      "label": "Chất lượng",
+      "description": "Tùy chọn độ phân giải và tốc độ khung hình khả dụng cho chia sẻ màn hình.",
+      "resolutions": "Độ phân giải cho phép",
+      "framerates": "Tốc độ khung hình cho phép"
+    },
+    "highEndWarning": {
+      "title": "Đã bật cài đặt cao cấp.",
+      "description": "Phát trên 1080p hoặc 60 fps cần nhiều sức mã hóa CPU/GPU trên client và có thể bão hòa băng thông máy chủ, nhất là khi luồng qua TURN. Cấu hình cao (ví dụ 4K với 120 fps) có thể cần tới 45 Mbps mỗi luồng hoạt động. Hãy đảm bảo hạ tầng chịu được tải trước khi bật cho mọi người dùng."
+    },
+    "matrix": {
+      "label": "Ma trận bitrate",
+      "description": "Bitrate chuẩn cho mỗi độ phân giải và tốc độ khung hình. Sửa ô riêng hoặc co giãn mọi giá trị cùng lúc.",
+      "scaleAll": "Co giãn tất cả",
+      "scaleHint": "Kéo để co giãn mọi bitrate. Tinh chỉnh ô riêng — bên dưới.",
+      "cellDefault": "Chuẩn: {{value}} (nhấn × để đặt lại)",
+      "cellEdit": "Nhấn để sửa",
+      "resetAll": "Đặt lại tất cả về chuẩn"
+    },
+    "capWarning": {
+      "title": "Giá trị ma trận vượt giới hạn toàn cục.",
+      "description": "Một số bitrate vượt tối đa {{max}} của bạn. Luồng với tổ hợp đó sẽ hạ xuống giới hạn của bạn."
+    }
+  },
+  "updates": {
+    "title": "Cập nhật",
+    "badge": {
+      "settingsAriaLabel": "Cài đặt, có cập nhật máy chủ",
+      "toast": "Có Backspace {{version}} cho máy chủ này",
+      "toastAction": "Xem"
+    },
+    "description": "Bản nào chạy trên máy chủ này và cách cập nhật nó.",
+    "loading": "Đang tải trạng thái cập nhật…",
+    "loadFailed": "Không thể tải trạng thái cập nhật.",
+    "copyFailed": "Không thể sao chép. Hãy chọn lệnh và sao chép thủ công.",
+    "running": {
+      "label": "Đang chạy",
+      "commit": "commit {{commit}} · ",
+      "channel": {
+        "prebuilt": "image dựng sẵn",
+        "source": "dựng từ mã nguồn",
+        "unknown": "cách cài không ghi"
+      }
+    },
+    "available": {
+      "label": "Khả dụng",
+      "version": "Có Backspace {{version}}",
+      "released": "Phát hành {{date}} · ",
+      "releaseNotes": "Ghi chú phát hành",
+      "fromInstallDir": "Từ thư mục cài của bạn:",
+      "scriptDescription": "Tạo snapshot cơ sở dữ liệu, tải image mới và chỉ khởi động lại container Backspace. Nếu bản mới không chạy tốt hoặc chạy với mã cũ, nó sẽ hoàn lại bản hiện tại.",
+      "noScript": "Tôi không có update.sh",
+      "manualIntro": "update.sh đi kèm từ 1.0.5. Trong bản sao git, <code>git pull</code> thêm nó. Nếu không, làm thủ công sau snapshot bằng <code>./backup.sh</code>.",
+      "prebuiltInstall": "Cài image dựng sẵn:",
+      "sourceInstall": "Cài từ mã nguồn:",
+      "manualWarning": "Nêu rõ dịch vụ <code>backspace</code> và đừng truyền <code>--remove-orphans</code>. Compose đề xuất điều đó nếu container khác chạy trong dự án này, và sẽ xóa chúng."
+    },
+    "upToDate": "Bạn đang mới nhất.",
+    "disabled": {
+      "title": "Tắt kiểm tra cập nhật",
+      "description": "Máy chủ này không liên hệ GitHub. Đặt <code>BACKSPACE_UPDATE_CHECK=true</code> trong <code>.env</code> của bạn để cho kiểm tra, hoặc tự xem trang phát hành."
+    },
+    "rateLimited": {
+      "title": "GitHub giới hạn tốc độ",
+      "description": "Điều này không nói có hay không cập nhật. Thử sau."
+    },
+    "unreachable": {
+      "title": "Không thể kiểm tra cập nhật",
+      "description": "Không tới được GitHub, nên điều này không nói có hay không cập nhật. Máy chủ của bạn không bị ảnh hưởng."
+    },
+    "lastChecked": "Kiểm tra lần cuối: {{when}}",
+    "noLookups": "Không chạy tra cứu",
+    "checkAgain": "Kiểm tra lại",
+    "checking": "Đang kiểm tra…"
+  },
+  "users": {
+    "title": "Người dùng",
+    "description": "Xem và quản lý tài khoản trên máy chủ này.",
+    "searchPlaceholder": "Tìm người dùng…",
+    "loading": "Đang tải người dùng…",
+    "loadFailed": "Không thể tải người dùng",
+    "empty": "Không tìm thấy người dùng",
+    "filters": {
+      "allInstances": "Tất cả máy chủ",
+      "localOnly": "Chỉ cục bộ",
+      "allRoles": "Tất cả vai trò",
+      "admin": "Quản trị",
+      "nonAdmin": "Không quản trị",
+      "joinedAfter": "Tham gia sau",
+      "joinedBefore": "Tham gia trước",
+      "newest": "Mới nhất trước",
+      "oldest": "Cũ nhất trước",
+      "nameDesc": "Tên Z-A",
+      "deleted": "Đã xóa",
+      "clear": "Xóa bộ lọc",
+      "bot": "Bot"
+    },
+    "badge": {
+      "admin": "Quản trị",
+      "deleted": "Đã xóa"
+    },
+    "actions": {
+      "demote": "Hạ quyền quản trị",
+      "promote": "Cấp quyền quản trị",
+      "federatedNoAdmin": "Người dùng liên hợp không thể làm quản trị",
+      "resetPassword": "Đặt lại mật khẩu",
+      "federatedNoReset": "Người dùng liên hợp đăng nhập qua máy chủ chính",
+      "delete": "Xóa người dùng",
+      "selfDelete": "Dùng cài đặt để xóa tài khoản của mình"
+    },
+    "tempPassword": {
+      "label": "Mật khẩu tạm:",
+      "note": "Hiện một lần. Người dùng bị ngắt; họ phải đăng nhập lại."
+    },
+    "pagination": "Trang {{page}} trên {{total}} ({{users}})",
+    "count_one": "{{count}} người dùng",
+    "count_other": "{{count}} người dùng",
+    "roleFailed": "Không thể cập nhật vai trò",
+    "resetFailed": "Không thể đặt lại mật khẩu",
+    "actionFailed": "Hành động thất bại",
+    "resetDialog": {
+      "title": "Đặt lại mật khẩu",
+      "description": "Đặt lại mật khẩu cho <strong>{{username}}</strong>? Người dùng bị ngắt ngay và phải đăng nhập bằng mật khẩu tạm mới.",
+      "confirm": "Đặt lại mật khẩu"
+    },
+    "demoteDialog": {
+      "title": "Hạ quyền quản trị",
+      "description": "Hạ quyền quản trị của <strong>{{username}}</strong>? Người dùng mất quyền vào cài đặt máy chủ.",
+      "confirm": "Hạ quyền"
+    },
+    "deleteDialog": {
+      "title": "Xóa người dùng",
+      "description": "Xóa vĩnh viễn <strong>{{username}}</strong>? Người dùng bị gỡ khỏi mọi không gian, DM và danh sách bạn. Điều này không thể hoàn tác.",
+      "confirm": "Xóa người dùng",
+      "blockBot": "Không cho bot này đăng ký lại",
+      "blockBotHint": "Khi máy chủ chính của nó trở lại, bot không tạo được tài khoản ở đây. Bỏ chặn dưới danh sách người dùng."
+    },
+    "blockedBots": {
+      "title": "Bot bị chặn",
+      "description": "Bot từ máy chủ khác không được đăng ký ở đây. Bỏ chặn bot để cho truy cập lại.",
+      "blockedAt": "Bị chặn {{date}}",
+      "unblock": "Bỏ chặn"
+    }
+  },
+  "mobile": {
+    "title": "Máy chủ",
+    "sections": {
+      "general": "Chung",
+      "registration": "Đăng ký",
+      "federation": "Liên hợp",
+      "streaming": "Phát trực tiếp",
+      "storage": "Lưu trữ",
+      "users": "Người dùng",
+      "updates": "Cập nhật"
+    }
+  }
+}

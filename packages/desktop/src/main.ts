@@ -11,6 +11,7 @@ import {
   session,
   desktopCapturer,
   sharedTexture,
+  powerMonitor,
 } from 'electron';
 import path from 'path';
 import fs from 'fs';
@@ -69,6 +70,7 @@ import {
   isValidRecoveryAction,
   buildTrayMenuTemplate,
   buildAppMenuTemplate,
+  buildEditMenuTemplate,
   type RecoveryState,
 } from './recovery';
 import { migrateUserData } from './userDataMigration';
@@ -81,7 +83,8 @@ import {
   type PendingScreenSelection,
   type ScreenSharePickerMode,
 } from './screenSharePolicy';
-import { getDesktopLanguage, isDesktopLanguage, saveStoredLanguage, translateDesktop } from './l10n';
+import { getDesktopLanguage, getDesktopLanguageQuery, translateDesktop } from './l10n';
+import { registerLanguageIpc } from './languageIpc';
 import { createSdrCaptureController, registerSdrCaptureIpc, resolveNativeSdrSource, resolveSdrPreselection } from './sdrCapture';
 import { createSdrCaptureTransport } from './sdrCaptureTransport';
 import type { NativeSdrModule } from './sdrCaptureTypes';
@@ -451,7 +454,7 @@ function createWindow(): void {
     if (savedUrl) {
       mainWindow.loadURL(savedUrl);
     } else {
-      mainWindow.loadFile(getPickerPath(), { query: { lang: getDesktopLanguage() } });
+      mainWindow.loadFile(getPickerPath(), { query: getDesktopLanguageQuery() });
     }
   }
 
@@ -800,7 +803,7 @@ function registerIpcHandlers(): void {
   ipcMain.handle('clear-instance-url', () => {
     clearInstanceUrl();
     if (mainWindow) {
-      mainWindow.loadFile(getPickerPath(), { query: { lang: getDesktopLanguage() } });
+      mainWindow.loadFile(getPickerPath(), { query: getDesktopLanguageQuery() });
       // Force Electron to re-evaluate drag regions after navigation
       mainWindow.webContents.once('did-finish-load', () => {
         if (mainWindow && !mainWindow.isDestroyed()) {
@@ -833,7 +836,7 @@ function registerIpcHandlers(): void {
       store.setStatus({
         phase: 'failed',
         version: statusVersion(snapshot.status),
-        message: 'The updater is not available in this build.',
+        message: translateDesktop(getDesktopLanguage(), 'update.unavailableBuild'),
       });
       return;
     }
@@ -847,7 +850,7 @@ function registerIpcHandlers(): void {
       getUpdateStore().setStatus({
         phase: 'failed',
         version: statusVersion(current.status),
-        message: 'Restarting to install the update did not start.',
+        message: translateDesktop(getDesktopLanguage(), 'update.restartFailed'),
       });
     }, INSTALL_WATCHDOG_MS);
   });
@@ -1142,16 +1145,16 @@ function notifyAboutUpdate(
 
   if (snapshot.status.phase === 'ready' && snapshot.capability === 'auto') {
     showNotification(
-      'Backspace Fork update ready',
-      `Click to restart and install version ${version}.`,
+      translateDesktop(getDesktopLanguage(), 'update.notificationReady'),
+      translateDesktop(getDesktopLanguage(), 'update.notificationRestart', { version }),
       () => updater.quitAndInstall(),
     );
     return;
   }
 
   showNotification(
-    `Backspace Fork ${version} is available`,
-    'Click to open the download page.',
+    translateDesktop(getDesktopLanguage(), 'update.notificationAvailable', { version }),
+    translateDesktop(getDesktopLanguage(), 'update.notificationDownload'),
     () => { void shell.openExternal(RELEASES_URL); },
   );
 }
@@ -1407,20 +1410,7 @@ if (!gotTheLock) {
     // (so it can re-render with current update/recovery state). Rebuilt on a
     // language change, hence a function rather than a one-off.
     const applyEditOnlyMenu = (): void => {
-      Menu.setApplicationMenu(Menu.buildFromTemplate([
-        {
-          label: translateDesktop(getDesktopLanguage(), 'menu.edit'),
-          submenu: [
-            { role: 'undo' },
-            { role: 'redo' },
-            { type: 'separator' },
-            { role: 'cut' },
-            { role: 'copy' },
-            { role: 'paste' },
-            { role: 'selectAll' },
-          ],
-        },
-      ]));
+      Menu.setApplicationMenu(Menu.buildFromTemplate([buildEditMenuTemplate(getDesktopLanguage())]));
     };
     if (process.platform !== 'darwin') {
       applyEditOnlyMenu();
@@ -1560,12 +1550,13 @@ if (!gotTheLock) {
     createTray();
 
     // AGPL-3.0 § 13: native About panel advertises the version + source repo.
-    app.setAboutPanelOptions({
+    const applyAboutPanelOptions = (): void => app.setAboutPanelOptions({
       applicationName: 'Backspace Fork',
       applicationVersion: app.getVersion(),
-      copyright: `AGPL-3.0-only · Source: ${FORK_SOURCE_URL}`,
+      copyright: translateDesktop(getDesktopLanguage(), 'menu.sourceAttribution', { url: FORK_SOURCE_URL }),
       website: FORK_SOURCE_URL,
     });
+    applyAboutPanelOptions();
 
     // Tray + macOS app-menu actions. Defined once so the subscriber and the
     // initial-fire share one implementation (no drift on future menu changes).
@@ -1603,16 +1594,18 @@ if (!gotTheLock) {
     // The renderer owns the language choice (settings → Language). Remember
     // it so the tray is right from the first paint next launch, and relabel
     // everything main draws right now.
-    ipcMain.on('set-language', (_event, language: unknown) => {
-      if (!isDesktopLanguage(language)) return;
-      try {
-        saveStoredLanguage(language);
-      } catch (err) {
-        console.warn('[main] Failed to persist language:', err);
-      }
+    const refreshLanguage = (): void => {
+      applyAboutPanelOptions();
       if (process.platform !== 'darwin') applyEditOnlyMenu();
       applyMenusForState(recoveryStore.get());
+    };
+    registerLanguageIpc(ipcMain, event => !!mainWindow && !mainWindow.isDestroyed()
+      && event.sender === mainWindow.webContents && event.senderFrame === mainWindow.webContents.mainFrame,
+    refreshLanguage);
+    app.on('browser-window-focus', (_event, window) => {
+      if (window === mainWindow) refreshLanguage();
     });
+    powerMonitor.on('resume', refreshLanguage);
 
     initAutoUpdater();
 

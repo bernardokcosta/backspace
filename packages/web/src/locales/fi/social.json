@@ -1,0 +1,104 @@
+{
+  "tabs": {
+    "all": "Kaikki",
+    "pending": "Odottaa",
+    "add": "Lisää kaveri",
+    "activity": "Toiminta"
+  },
+  "sections": {
+    "online": "Paikalla — {{n}}",
+    "all": "Kaikki kaverit — {{n}}",
+    "pending": "Odottaa — {{n}}",
+    "active": "Aktiiviset — {{n}}",
+    "offline": "Poissa — {{n}}"
+  },
+  "empty": {
+    "online": "Kukaan ei ole paikalla juuri nyt.",
+    "all": "Ei kavereita vielä — lisää joku!",
+    "pending": "Ei odottavia pyyntöjä — Nori torkkuu.",
+    "activity": "Nyt on hiljaista… Kun kaverit aloittavat toiminnan, näytämme sen tässä!"
+  },
+  "friend": {
+    "viaInstance": "kautta {{host}}",
+    "message": "Viesti",
+    "remove": "Poista kaveri"
+  },
+  "sendMessage": {
+    "failed": "Keskustelua ei voitu avata: {{reason}}"
+  },
+  "request": {
+    "incoming": "Saapuva kaveripyyntö",
+    "outgoing": "Lähtevä kaveripyyntö",
+    "ignore": "Ohita",
+    "cancel": "Peruuta pyyntö",
+    "send": "Lähetä kaveripyyntö",
+    "pending": "Pyyntö odottaa",
+    "sending": "Lähetetään…",
+    "cancelling": "Perutaan…",
+    "sent": "Kaveripyyntö lähetetty!"
+  },
+  "removeFriend": {
+    "title": "Poista kaveri",
+    "description": "Haluatko varmasti poistaa {{name}} kavereista? Voit aina lähettää uuden kaveripyynnön myöhemmin.",
+    "fallbackName": "tämä käyttäjä"
+  },
+  "add": {
+    "title": "Etsi ihmisiä",
+    "hint": "Hae käyttäjänimellä tai käytä <handle>user@instance</handle> lisätäksesi jonkun suoraan.",
+    "placeholder": "Hae tai lisää nimellä…",
+    "direct": "Lähetä kaveripyyntö käyttäjälle <handle>{{handle}}</handle>",
+    "sendRequest": "Lähetä pyyntö",
+    "discover": "Löydä ihmisiä",
+    "noSearchResults": "Kukaan käyttäjä ei vastaa hakuasi.",
+    "noDiscoverable": "Ei löydettäviä käyttäjiä vielä — kutsu ihmisiä mukaan!"
+  },
+  "mutuals": {
+    "friends_one": "{{count}} yhteinen kaveri",
+    "friends_other": "{{count}} yhteistä kaveria",
+    "spaces_one": "{{count}} yhteinen tila",
+    "spaces_other": "{{count}} yhteistä tilaa",
+    "noFriends": "Ei yhteisiä kavereita",
+    "noSpaces": "Ei yhteisiä tiloja"
+  },
+  "profile": {
+    "tabs": {
+      "about": "Tietoa",
+      "mutualFriends": "Yhteiset kaverit",
+      "mutualSpaces": "Yhteiset tilat"
+    },
+    "aboutMe": "Tietoa minusta",
+    "roles": "Roolit",
+    "memberSince": "Jäsen alkaen",
+    "sendMessage": "Lähetä viesti",
+    "editRoles": "Muokkaa rooleja",
+    "viewFull": "Näytä koko profiili",
+    "addFriend": "Lisää kaveri",
+    "playingNow": "Pelaa nyt"
+  },
+  "activity": {
+    "title": "Aktiiviset nyt",
+    "quietTitle": "Nyt on hiljaista…",
+    "quietDescription": "Kun kaveri aloittaa toiminnan — pelaa peliä tai hengailee äänessä — näytämme sen tässä!",
+    "online": "Paikalla — {{n}}",
+    "offline": "Poissa — {{n}}",
+    "resizeHandle": "Muuta kaverilistan kokoa",
+    "types": {
+      "playing": "Pelaa peliä",
+      "listening": "Kuuntelee musiikkia",
+      "streaming": "Striimaa",
+      "watching": "Katsoo",
+      "custom": "Mukautettu tila"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "Avaa kappale"
+  },
+  "instanceNotConnected": "Ei yhteyttä kohteeseen {{host}}. Yhdistä uudelleen ja yritä uudelleen."
+}

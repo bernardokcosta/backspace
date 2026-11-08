@@ -1,0 +1,34 @@
+{
+  "input": {
+    "placeholder": "Hae viestejä…"
+  },
+  "filters": {
+    "toggle": "Suodattimet",
+    "from": {
+      "label": "Lähettäjä",
+      "placeholder": "käyttäjänimi"
+    },
+    "has": {
+      "label": "Sisältää",
+      "any": "Mitä vain",
+      "file": "Tiedosto",
+      "image": "Kuva",
+      "link": "Linkki"
+    },
+    "before": {
+      "label": "Ennen"
+    },
+    "after": {
+      "label": "Jälkeen"
+    }
+  },
+  "results": {
+    "empty": "Ei tuloksia",
+    "hint": "Kirjoita hakeaksesi viestejä tältä kanavalta",
+    "count_one": "{{count}} tulos",
+    "count_other": "{{count}} tulosta",
+    "loadMore": "Lataa lisää (jäljellä {{remaining}})",
+    "attachments_one": "{{count}} liite",
+    "attachments_other": "{{count}} liitettä"
+  }
+}

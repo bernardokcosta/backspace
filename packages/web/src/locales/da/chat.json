@@ -1,0 +1,305 @@
+{
+  "feedback": {
+    "openedInNewTab": "Åbnet i ny fane",
+    "copiedGifLink": "GIF-link kopieret",
+    "copiedImageLink": "Billedlink kopieret",
+    "uploadExpired": "Kunne ikke sende \"{{content}}\" — uploadet er udløbet.",
+    "attachmentOnly": "(kun vedhæftning)"
+  },
+  "message": {
+    "edit": {
+      "hint": "escape for at <cancel>annullere</cancel> • enter for at <save>gemme</save>"
+    },
+    "edited": "(redigeret)",
+    "rowLabel": "{{author}}, {{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "Upload mislykkedes",
+      "discard": "Kassér"
+    },
+    "actions": {
+      "confirmDelete": "Bekræft sletning"
+    },
+    "reply": {
+      "jump": "Spring til den oprindelige besked"
+    },
+    "mention": {
+      "unknownUser": "Ukendt bruger",
+      "unknownRole": "Ukendt rolle"
+    },
+    "reactions": {
+      "picker": "Reaktionsvælger",
+      "you": "Dig",
+      "others_one": "{{count}} anden",
+      "others_other": "{{count}} andre",
+      "bySelf": "Du reagerede",
+      "byOne": "{{name}} reagerede",
+      "byMany": "Reaktioner: {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "Du har ikke tilladelse til at se beskedhistorik i denne kanal",
+    "loading": "Indlæser beskeder",
+    "loadingOlder": "Indlæser ældre beskeder",
+    "loadFailed": "Kunne ikke indlæse beskeder",
+    "jumpToPresent": "Spring til nutiden",
+    "jump": {
+      "unavailable": "Den besked er ikke længere tilgængelig",
+      "failed": "Kunne ikke indlæse den besked",
+      "presentFailed": "Kunne ikke indlæse de nyeste beskeder"
+    },
+    "unread": {
+      "label": "Nye",
+      "divider": "Nye beskeder",
+      "dividerWithDate": "Nye beskeder, {{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "Velkommen til kanalen!",
+        "description": "Dette er begyndelsen på samtalen."
+      },
+      "group": {
+        "intro": "Dette er begyndelsen på din gruppesamtale.",
+        "owner": "Ejer: <owner>@{{name}}</owner>",
+        "federatedNotice": "Beskeder lagres på din hjemmeinstans og modtagernes hjemmeinstanser. De er ikke end-to-end-krypterede.",
+        "openSettings": "Åbn gruppeindstillinger",
+        "leave": "Forlad gruppen"
+      },
+      "dm": {
+        "fallbackName": "Direkte besked",
+        "intro": "Dette er begyndelsen på din direkte beskedhistorik med <strong>@{{name}}</strong>.",
+        "federatedNotice": "Beskeder lagres på din hjemmeinstans og modtagerens hjemmeinstans. De er ikke end-to-end-krypterede.",
+        "removeFriend": "Fjern ven"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "Du har ikke tilladelse til at sende beskeder i denne kanal",
+    "placeholder": {
+      "channel": "Besked #{{name}}",
+      "dm": "Besked @{{name}}"
+    },
+    "replyingTo": "Svarer på",
+    "cancelReply": "Annuller svar",
+    "removeAttachment": "Fjern vedhæftning",
+    "attachFile": "Vedhæft fil",
+    "dropTitle": "Upload fil",
+    "dropHint": "Slip for at vedhæfte",
+    "uploading": "Uploader…",
+    "uploadingLabel": "Uploader",
+    "failedCount_one": "{{count}} mislykkedes",
+    "failedCount_other": "{{count}} mislykkedes",
+    "failedHint": "Fjern eller prøv den fejlbehæftede vedhæftning igen for at sende",
+    "gif": "GIF",
+    "gifPicker": "GIF-vælger",
+    "emoji": "Emoji",
+    "emojiPicker": "Emojivælger",
+    "send": "Afsend",
+    "sendMessage": "Send besked",
+    "uploadFailed": "Kunne ikke uploade {{file}}: {{reason}}",
+    "uploadFailedReason": "Upload mislykkedes",
+    "typing": {
+      "named_one": "{{names}} skriver",
+      "named_other": "{{names}} skriver",
+      "several": "Flere personer skriver"
+    }
+  },
+  "menu": {
+    "saveImage": "Gem billede",
+    "copyImage": "Kopiér billede",
+    "openOriginal": "Åbn original",
+    "saveVideo": "Gem video",
+    "saveAudio": "Gem lyd",
+    "copyLink": "Kopiér link",
+    "openLink": "Åbn link",
+    "copySelectedText": "Kopiér markeret tekst",
+    "copyText": "Kopiér tekst",
+    "markUnread": "Markér som ulæst",
+    "editMessage": "Rediger besked",
+    "deleteMessage": "Slet besked",
+    "linkCopied": "Link kopieret",
+    "linkCopyFailed": "Kunne ikke kopiere link",
+    "pinMessage": "Fastgør besked",
+    "unpinMessage": "Frigør besked"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "Sat på pause — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "Kan ikke afspille her — download",
+      "unsupportedFormat": "Ikke-understøttet videoformat",
+      "unsupportedBrowser": "Din browser understøtter ikke videoafspilning."
+    },
+    "audio": {
+      "unsupportedBrowser": "Din browser understøtter ikke lydafspilning."
+    },
+    "federation": {
+      "remoteNamed": "Hostet på {{sender}}s instans. Download for en lokal kopi.",
+      "remoteUnknown": "Hostet på afsenderens instans. Download for en lokal kopi.",
+      "partialGeneric": "Nogle modtagere kan ikke cache denne fil lokalt.",
+      "partialInstance": "{{username}}s instans (grænse: {{limit}})",
+      "partialList": "Filen kunne ikke caches på {{instances}}. De kan stadig se den fra din.",
+      "listPair": "{{first}} og {{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "Søg GIF",
+    "noResults": "Ingen GIF fundet",
+    "noTrending": "Ingen trendende GIF",
+    "attribution": "Drevet af Klipy"
+  },
+  "preview": {
+    "save": "Gem billede",
+    "copy": "Kopiér billede",
+    "alt": "Billedforhåndsvisning"
+  },
+  "invite": {
+    "sentBy": "Invitation fra {{name}}",
+    "memberCount_one": "{{count}} medlem",
+    "memberCount_other": "{{count}} medlemmer",
+    "revoked": "Invitation gælder ikke længere",
+    "join": "Deltag",
+    "joining": "Deltager…",
+    "joinFailed": "Kunne ikke deltage",
+    "askToJoin": "Bed om at deltage",
+    "sendingRequest": "Sender…",
+    "requestSent": "Anmodning sendt",
+    "requestPending": "Anmodning afventer",
+    "requestNotice": "Dette rum tager imod anmodninger. En ansvarlig godkender hver enkelt.",
+    "requestReview": "En ansvarlig gennemgår din anmodning."
+  },
+  "notification": {
+    "unknownSender": "Nogen",
+    "attachmentOnly": "Sendte en vedhæftning"
+  },
+  "commands": {
+    "title": "Kommandoer",
+    "failed": "Kommandoen kunne ikke sendes",
+    "extraText": "Denne kommando tager ingen fritekst, men \"{{text}}\" blev tilovers. Sæt valgene først, teksten sidst",
+    "invalidOption": "Værdien for {{option}} passer ikke til denne kommando.",
+    "optionsTitle": "Parametre",
+    "required": "påkrævet",
+    "subcommandsTitle": "Underkommandoer",
+    "group": "gruppe",
+    "chooseSubcommand": "Vælg en underkommando: {{names}}",
+    "subcommandRefused": "Botten tilbyder ikke denne underkommando. Vælg en fra listen"
+  },
+  "ephemeral": {
+    "onlyYou": "Kun du kan se dette",
+    "dismiss": "Luk",
+    "rowLabel": "Svar kun du kan se fra {{author}}, {{time}}"
+  },
+  "embed": {
+    "loadAction": "Klik for at indlæse",
+    "loadNamed": "Indlæs {{name}}",
+    "loadUnnamed": "Indlæs indlejring",
+    "frameTitle": "Indlejring",
+    "playNamed": "Afspil {{title}}",
+    "playUnnamed": "Afspil video",
+    "videoTitle": "Video"
+  },
+  "stickers": {
+    "title": "Mine klistermærker",
+    "upload": "Upload billede",
+    "limits": "PNG, JPEG, WebP eller GIF · op til 5 MB",
+    "loading": "Indlæser…",
+    "empty": "Din klistermærkesamling starter her",
+    "remove": "Fjern",
+    "save": "Tilføj til mine klistermærker",
+    "saved": "Tilføjet til mine klistermærker",
+    "preview": "Vis klistermærke",
+    "manage": "Håndtér",
+    "done": "Færdig",
+    "collectionHint": "Vælg et klistermærke at sende. Gør dette rum til dit.",
+    "manageHint": "Omdøb eller fjern klistermærker i samlingen. Allerede sendte beskeder ændres ikke.",
+    "emptyHint": "Gem dine favoritøjeblikke som klistermærker, klar til næste svar.",
+    "chooseImage": "Vælg billede",
+    "cancel": "Annuller",
+    "replace": "Erstat billede",
+    "name": "Klistermærkenavn",
+    "dropImage": "Klik eller træk et billede hertil",
+    "pasteHint": "Du kan også indsætte et billede fra udklipsholder",
+    "uploading": "Tilføjer klistermærke…",
+    "singleImage": "Vælg ét billede ad gangen.",
+    "invalidSize": "Vælg et ikke-tomt billede op til 5 MB.",
+    "invalidType": "Kun PNG-, JPEG-, WebP- og GIF-billeder understøttes.",
+    "invalidImage": "Dette billede kan ikke vises. Vælg et gyldigt billede.",
+    "removeNamed": "Fjern {{name}}",
+    "addMore": "Tilføj flere",
+    "selectedCount_one": "{{count}} klistermærke valgt",
+    "selectedCount_other": "{{count}} klistermærker valgt",
+    "dropMore": "Klik eller træk flere billeder hertil",
+    "sticker": "Klistermærke",
+    "downloadFailed": "Billedet kunne ikke indlæses.",
+    "batchLimit_one": "Vælg op til {{count}} billede ad gangen.",
+    "batchLimit_other": "Vælg op til {{count}} billeder ad gangen.",
+    "capacityLimit_one": "Din samling har plads til {{count}} klistermærke mere.",
+    "capacityLimit_other": "Din samling har plads til {{count}} klistermærker mere.",
+    "full": "Din samling er fuld. Fjern et klistermærke for at tilføje et andet.",
+    "batchFailed_one": "{{count}} billede kunne ikke tilføjes. Det står stadig nedenfor.",
+    "batchFailed_other": "{{count}} billeder kunne ikke tilføjes. De står stadig nedenfor.",
+    "uploadingProgress": "Tilføjer {{current}} af {{total}}…",
+    "rename": "Omdøb",
+    "renameNamed": "Omdøb {{name}}",
+    "renameTitle": "Omdøb klistermærke",
+    "search": "Søg klistermærker",
+    "noResults": "Ingen klistermærker fundet",
+    "store": "Klistermærkebutik",
+    "myCollection": "Mine klistermærker",
+    "packs": "Klistermærkepakker",
+    "explore": "Udforsk",
+    "myPacks": "Lavet af mig",
+    "install": "Tilføj",
+    "installed": "Tilføjet",
+    "uninstall": "Fjern",
+    "createPack": "Opret pakke",
+    "editPack": "Rediger pakke",
+    "packName": "Pakkenavn",
+    "packDesc": "Beskrivelse (valgfri)",
+    "submitReview": "Send til gennemgang",
+    "pendingReview": "Afventer gennemgang",
+    "approved": "Godkendt",
+    "rejected": "Afvist",
+    "draft": "Udkast",
+    "newVersion": "Ny version",
+    "deletePack": "Slet pakke",
+    "stickersCount_one": "{{count}} klistermærke",
+    "stickersCount_other": "{{count}} klistermærker",
+    "noPacks": "Ingen klistermærkepakker fundet",
+    "replicaBadge": "Fødereret",
+    "viewPack": "Se pakke",
+    "saveDraft": "Gem som udkast",
+    "packCreated": "Pakke oprettet",
+    "reviewSubmitted": "Indsendt til admin-gennemgang",
+    "reviews": "Gennemgang",
+    "noReviews": "Ingen klistermærkepakker venter på gennemgang",
+    "approve": "Godkend",
+    "reject": "Afvis",
+    "rejectTitle": "Afvis klistermærkepakke",
+    "rejectReason": "Afvisningsårsag",
+    "rejectPlaceholder": "Angiv årsag til afvisning (f.eks. upassende indhold, lav kvalitet)",
+    "rejectConfirm": "Bekræft afvisning",
+    "approvedSuccess": "Klistermærkepakke godkendt",
+    "rejectedSuccess": "Klistermærkepakke afvist",
+    "reviewNotes": "Afvisningsårsag",
+    "creator": "Skaber",
+    "sourceInstance": "Instans",
+    "localInstance": "Lokal instans",
+    "viewStickers": "Se klistermærker",
+    "pendingReviewHint": "Hos administrator til gennemgang; vises i Udforsk efter godkendelse"
+  },
+  "poke": {
+    "action": "Prik",
+    "received": "{{actor}} prikkede {{target}}",
+    "disconnected": "Forbindelsen røg. Prikket blev ikke sendt."
+  },
+  "pins": {
+    "title": "Fastgjorte beskeder",
+    "empty": "Ingen fastgjorte beskeder endnu.",
+    "jump": "Spring til besked",
+    "unpin": "Frigør",
+    "deletedMessage": "Besked slettet",
+    "attachmentOnly": "Vedhæftning"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "failure": {
+    "notAuthenticated": "Ei todennettu tälle instanssille",
+    "invalidResponse": "Latausvastausta ei voitu jäsentää",
+    "uploadError": "Latausvirhe",
+    "downloadError": "Latausvirhe",
+    "fileUnavailable": "Tiedosto ei ole enää saatavilla — hylkää ja lataa uudelleen",
+    "noDestination": "Kohdekahvaa ei ole — jatkaminen mahdotonta",
+    "destinationMissing": "Kohdekahva puuttuu",
+    "permissionDenied": "Lupa evätty",
+    "lostDownload": "Latausta ei voi jatkaa — tavut menetetty. Aloita lataus alusta.",
+    "uploadHandleMissing": "Tiedostokahva puuttuu — hylkää ja lataa uudelleen",
+    "downloadHandleMissing": "Kohdekahva puuttuu — aloita lataus alusta",
+    "downloadFailed": "Lataus epäonnistui: {{status}}",
+    "resumeFailed": "Jatkaminen epäonnistui: {{status}}"
+  },
+  "transfers": {
+    "title": "Siirrot",
+    "count_one": "{{count}} siirto",
+    "count_other": "{{count}} siirtoa",
+    "clearCompleted": "Tyhjennä valmistuneet",
+    "empty": "Ei aktiivisia siirtoja.",
+    "status": {
+      "done": "Valmis",
+      "failed": "Epäonnistui: {{reason}}",
+      "aborted": "Keskeytetty",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "Rajaa kuva",
+    "applying": "Käytetään…"
+  }
+}

@@ -1,0 +1,632 @@
+{
+  "soundboardTab": "Äänitaulu",
+  "create": {
+    "title": "Luo tila",
+    "icon": {
+      "upload": "Lataa",
+      "previewAlt": "Kuvakkeen esikatselu",
+      "colorLabel": "Kuvakkeen väri",
+      "cropTitle": "Rajaa tilan kuvake",
+      "uploadFailed": "Kuvakkeen lataus epäonnistui"
+    },
+    "name": {
+      "label": "Tilan nimi",
+      "placeholder": "Mahtava tilani",
+      "required": "Tilan nimi vaaditaan"
+    },
+    "visibilityLabel": "Näkyvyys",
+    "description": {
+      "label": "Kuvaus",
+      "placeholder": "Lyhyt kuvaus tilastasi…",
+      "counter": "{{length}}/{{max}}"
+    },
+    "submit": "Luo",
+    "submitting": "Luodaan…"
+  },
+  "channel": {
+    "create": {
+      "title": "Luo kanava",
+      "typeLabel": "Kanavatyyppi",
+      "types": {
+        "text": {
+          "name": "Teksti",
+          "description": "Lähetä viestejä, kuvia ja tiedostoja"
+        },
+        "voice": {
+          "name": "Ääni",
+          "description": "Hengaile äänen ja videon kanssa"
+        }
+      },
+      "nameLabel": "Kanavan nimi",
+      "namePlaceholder": "uusi-kanava",
+      "topicLabel": "Aihe (valinnainen)",
+      "topicPlaceholder": "Mistä tämä kanava kertoo?",
+      "categoryLabel": "Luokka",
+      "noCategory": "Ei luokkaa",
+      "nameRequired": "Kanavan nimi vaaditaan",
+      "noSpaceSelected": "Tilaa ei valittu",
+      "submit": "Luo kanava",
+      "submitting": "Luodaan…"
+    },
+    "settings": {
+      "title": "Kanava-asetukset",
+      "rename": "Nimeä kanava uudelleen",
+      "nameLabel": "Kanavan nimi",
+      "channelLabel": "Kanava",
+      "topic": {
+        "label": "Aihe",
+        "placeholder": "Mistä tämä kanava kertoo?",
+        "hint": "Näytetään kanavan otsikossa. Jokainen voi avata koko tekstin sieltä.",
+        "counter": "{{used}}/{{max}}",
+        "tooLong": "Lyhennä aihe {{max}} merkkiin tai vähempään tallentaaksesi.",
+        "empty": "Aihetta ei asetettu.",
+        "reset": "Hylkää muutokset"
+      },
+      "private": {
+        "label": "Yksityinen kanava",
+        "description": "Vain valitut jäsenet ja roolit voivat nähdä tämän kanavan.",
+        "note": "Tämä kanava on piilotettu jäseniltä ilman nimenomaista pääsyä. Käyttäjät ylläpitäjän luvalla tai tilojen omistajat näkevät aina kaikki kanavat.",
+        "unhideOnSave": "Tallennus tekee tämän kanavan näkyväksi jokaiselle jäsenelle."
+      },
+      "deleteButton": "Poista kanava"
+    },
+    "delete": {
+      "title": "Poistetaanko #{{name}}?",
+      "description": "Tämä poistaa pysyvästi <strong>#{{name}}</strong> ja kaikki sen viestit. Tätä ei voi perua.",
+      "descriptionVoice": "Tämä poistaa pysyvästi <strong>#{{name}}</strong> ja kaikki sen viestit. Kaikki tällä äänikanavalla katkaistaan. Tätä ei voi perua.",
+      "confirm": "Poista kanava"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "Luo luokka",
+      "nameLabel": "Luokan nimi",
+      "namePlaceholder": "uusi-luokka",
+      "nameRequired": "Luokan nimi vaaditaan",
+      "noSpaceSelected": "Tilaa ei valittu",
+      "submit": "Luo luokka",
+      "submitting": "Luodaan…"
+    },
+    "settings": {
+      "title": "Luokka-asetukset",
+      "rename": "Nimeä luokka uudelleen",
+      "nameLabel": "Luokan nimi",
+      "categoryLabel": "Luokka",
+      "private": {
+        "label": "Yksityinen luokka",
+        "description": "Vain valitut jäsenet ja roolit voivat nähdä kanavat tässä luokassa.",
+        "note": "Tämä luokka on piilotettu jäseniltä ilman nimenomaista pääsyä. Sisällä olevat kanavat perivät tämän rajoituksen, elleivät ne ohita sitä nimenomaisesti.",
+        "unhideOnSave": "Tallennus tekee tämän luokan ja sen kanavat ilman erillistä näkyvyysrajoitusta näkyviksi kaikille."
+      },
+      "deleteButton": "Poista luokka"
+    },
+    "delete": {
+      "title": "Poistetaanko “{{name}}”?",
+      "description": "Tämä poistaa pysyvästi luokan <strong>{{name}}</strong>. Sisällä olevat kanavat siirretään ylimmälle tasolle. Tätä ei voi perua.",
+      "confirm": "Poista luokka"
+    }
+  },
+  "invite": {
+    "title": "Kutsu kavereita",
+    "intro": "Lähetä kavereille tai jaa linkki.",
+    "introRequest": "Lähetä kavereille tai jaa linkki. Avaajat pyytävät liittymistä, ja valvoja hyväksyy jokaisen pyynnön.",
+    "searchPlaceholder": "Hae kavereita…",
+    "noMatches": "Kukaan kaveri ei vastaa hakuasi",
+    "noFriends": "Ei kavereita vielä",
+    "alreadyMember": "Jo tilassa",
+    "removeSelected": "Poista {{name}}",
+    "selectFriends": "Valitse kaverit",
+    "send_one": "Lähetä {{count}} kutsu",
+    "send_other": "Lähetä {{count}} kutsua",
+    "sending": "Lähetetään…",
+    "retryFailed": "Yritä epäonnistuneita kutsuja uudelleen",
+    "status": {
+      "sent": "✓ Lähetetty",
+      "failed": "✗ {{reason}}"
+    },
+    "shareLink": "Tai jaa linkki",
+    "generating": "Luodaan…",
+    "generateFailed": "Kutsulinkin luonti epäonnistui",
+    "failure": {
+      "inviteInvalid": "Kutsulinkki ei ole enää voimassa",
+      "notAFriend": "Ei kaveri",
+      "userNotFound": "Käyttäjää ei löytynyt",
+      "alreadyMember": "Jo jäsen",
+      "upstream": "Kutsua ei voitu vahvistaa, yritä uudelleen",
+      "cannotInviteSelf": "Et voi kutsua itseäsi",
+      "invalidBody": "Virheellinen pyyntö",
+      "invalidTarget": "Virheellinen kohde",
+      "unreachable": "Instanssiisi ei saatu yhteyttä",
+      "serverError": "Lähetys epäonnistui (palvelinvirhe)"
+    }
+  },
+  "inviteFriend": {
+    "title": "Kutsu {{name}} tilaan",
+    "intro": "Valitse yksi tiloistasi lähettääksesi kutsun.",
+    "noSpaces": "Et ole vielä missään tiloissa",
+    "contextMenu": "Kutsu tilaan"
+  },
+  "join": {
+    "validation": {
+      "required": "Kutsukoodi vaaditaan",
+      "invalidLink": "Virheellinen kutsulinkki",
+      "linkFormat": "Virheellinen kutsulinkki — odotettu muoto: https://instance/join/CODE",
+      "qualifiedFormat": "Virheellinen kutsumuoto — odotettu: CODE@domain",
+      "invalidDomain": "Virheellinen verkkotunnus kutsussa"
+    },
+    "title": "Liity tilaan",
+    "invitePlaceholder": "esim. abc123 tai https://instance.com/join/abc123",
+    "submit": "Liity tilaan",
+    "submitting": "Liitytään…",
+    "connect": {
+      "intro": "Yhdistä kohteeseen <host>{{host}}</host> liittyäksesi tähän tilaan.",
+      "passwordLabel": "Anna salasanasi yhdistääksesi",
+      "passwordPlaceholder": "Tilisi salasana",
+      "passwordNote": "Koti-instanssisi tarkistaa salasanasi eikä sitä koskaan lähetetä kohteeseen {{host}}. Se instanssi saa yksilöllisen tunnisteen, joka on luotu vain sitä varten.",
+      "submit": "Yhdistä & liity",
+      "submitting": "Yhdistetään…"
+    },
+    "fallback": {
+      "usernamePlaceholder": "Käyttäjänimesi tällä instanssilla",
+      "passwordLabel": "Tämän instanssin salasana",
+      "passwordPlaceholder": "Etäinstanssin salasana",
+      "submit": "Kirjaudu & liity",
+      "submitting": "Kirjaudutaan…"
+    },
+    "request": {
+      "messagePlaceholder": "Miksi haluat liittyä? (valinnainen)",
+      "send": "Lähetä pyyntö",
+      "sending": "Lähetetään…",
+      "notice": "Tämä tila ottaa vastaan pyyntöjä. Lähetä yksi, niin valvoja tarkistaa sen.",
+      "messageLabel": "Viesti pyyntöösi",
+      "sent": "Pyyntö lähetetty. Valvoja tarkistaa sen, ja tila näkyy luettelossasi hyväksynnän jälkeen.",
+      "pending": "Olet jo pyytänyt liittymistä tähän tilaan. Pyyntösi odottaa valvojaa."
+    }
+  },
+  "settings": {
+    "title": "Tilan asetukset",
+    "backAria": "Takaisin tilan asetusvalikkoon",
+    "nav": {
+      "general": "Yleiset",
+      "management": "Hallinta",
+      "tabs": {
+        "overview": "Yleiskatsaus",
+        "roles": "Roolit",
+        "bans": "Estot"
+      }
+    },
+    "discardChanges": "Hylkää",
+    "overview": {
+      "identity": "Tilan identiteetti",
+      "iconLabel": "Tilan kuvake",
+      "iconAlt": "Tilan kuvake",
+      "colorLabel": "Kuvakkeen väri",
+      "bannerLabel": "Tilan banneri",
+      "bannerAlt": "Tilan banneri",
+      "uploadBanner": "Lataa banneri (16:9)",
+      "removeBanner": "Poista banneri",
+      "nameLabel": "Tilan nimi",
+      "iconUploadFailed": "Kuvakkeen lataus epäonnistui",
+      "bannerUploadFailed": "Bannerin lataus epäonnistui",
+      "cropIconTitle": "Rajaa tilan kuvake",
+      "cropBannerTitle": "Rajaa tilan banneri",
+      "transfer": {
+        "description": "Siirrä omistajuus toiselle jäsenelle. Sinusta tulee tavallinen jäsen.",
+        "prompt": "Siirretäänkö omistajuus käyttäjälle <strong>{{name}}</strong>?",
+        "button": "Siirrä omistajuus",
+        "confirm": "Siirrä",
+        "transferring": "Siirretään…",
+        "success": "Omistajuus siirretty käyttäjälle {{name}}",
+        "failed": "Omistajuuden siirto epäonnistui"
+      },
+      "delete": {
+        "description": "Poista pysyvästi tämä tila ja kaikki sen tiedot. Tätä ei voi perua.",
+        "button": "Poista tila",
+        "confirmAgain": "Vahvista poisto napsauttamalla uudelleen",
+        "failed": "Tilan poisto epäonnistui"
+      }
+    },
+    "access": {
+      "title": "Pääsy ja kuvaus",
+      "visibility": {
+        "label": "Näkyvyys",
+        "hint": "Hallitse miten kutsun saaneet ihmiset tulevat tähän tilaan.",
+        "options": {
+          "private": {
+            "label": "Yksityinen",
+            "description": "Vain kutsulinkilliset voivat liittyä"
+          },
+          "request": {
+            "label": "Pyynnöstä",
+            "description": "Kutsu johtaa pyyntöön, jonka valvojan on hyväksyttävä"
+          },
+          "public": {
+            "label": "Julkinen",
+            "description": "Kutsun saaneet voivat liittyä heti"
+          }
+        }
+      },
+      "description": {
+        "label": "Kuvaus",
+        "hint": "Lyhyt yhteenveto näytetään kutsujen kanssa tähän tilaan.",
+        "placeholder": "Lyhyt kuvaus tästä tilasta…",
+        "counter": "{{length}}/{{max}}"
+      },
+      "requests": {
+        "title": "Vireillä olevat liittymispyynnöt",
+        "empty": "Ei vireillä olevia liittymispyyntöjä",
+        "actionFailed": "Toiminto epäonnistui"
+      }
+    },
+    "members": {
+      "description": "Hallitse tämän tilan jäseniä. Napsauta jäsentä muokataksesi sen rooleja.",
+      "listHeading": "Jäsenet ({{total}})",
+      "owner": "Omistaja",
+      "noRoles": "Ei rooleja",
+      "ban": "Estä",
+      "kick": "Potki ulos",
+      "confirm": {
+        "banTitle": "Estä {{name}}",
+        "kickTitle": "Potki ulos {{name}}",
+        "banDescription": "Tämä henkilö estetään pysyvästi tästä tilasta kunnes esto kumotaan.",
+        "kickDescription": "Tämä henkilö voi liittyä uudelleen kutsulinkillä."
+      },
+      "updateRolesFailed": "Roolien päivitys epäonnistui",
+      "kickFailed": "Jäsenen potkiminen epäonnistui",
+      "banFailed": "Jäsenen esto epäonnistui",
+      "rolesAboveYou": "Roolit korkeimmallasi tai ylempänä ovat lukittuja.",
+      "rolesUnheld": "Rooleja lupineen, joita sinulla ei ole, ei voi antaa.",
+      "rolesManagedByBot": "Botin oma rooli pysyy botilla.",
+      "botInvite": {
+        "warning": "Botista tulee tämän tilan jäsen ja se vastaanottaa viestit ja tapahtumat jokaiselta kanavalta, jonka sen luvat sallivat. Lisää vain botteja, joihin luotat.",
+        "owner": "Omistaja: @{{owner}}",
+        "button": "Lisää botti",
+        "title": "Lisää botti",
+        "searchPlaceholder": "Hae botteja nimellä…",
+        "searching": "Haetaan…",
+        "noResults": "Botteja ei löytynyt",
+        "add": "Lisää",
+        "adding": "Lisätään…",
+        "permissionsTitle": "Luvat käyttäjälle {{name}}",
+        "permissionsIntro": "Botti pyytää näitä lupia. Ne menevät botin mukaan nimettyyn rooliin; poista valinta niistä, joita et halua antaa.",
+        "permissionsUnheld": "Lupia, joita sinulla itselläsi ei ole, ei voi antaa.",
+        "permissionsNone": "Mitään ei valittu: botti liittyy ilman roolia.",
+        "back": "Takaisin"
+      }
+    },
+    "afk": {
+      "title": "AFK-kanava",
+      "channelLabel": "Siirrä toimettomat jäsenet",
+      "disabled": "Pois käytöstä",
+      "timeoutLabel": "Toimettomuuden jälkeen",
+      "minutes": "min",
+      "hint": "Jäsenet ilman äänitoimintaa valitun ajan siirretään automaattisesti tälle äänikanavalle."
+    }
+  },
+  "bans": {
+    "title": "Estot",
+    "description": "Estetyt käyttäjät eivät voi liittyä tähän tilaan uudelleen ennen eston kumoamista.",
+    "loading": "Ladataan estoja…",
+    "empty": "Ei estettyjä käyttäjiä",
+    "listHeading": "Estot ({{total}})",
+    "bannedBy": "Estänyt {{moderator}} {{date}}",
+    "bannedByWithReason": "Estänyt {{moderator}} {{date}}: {{reason}}",
+    "unban": "Kumoa esto",
+    "loadFailed": "Estojen lataus epäonnistui",
+    "unbanFailed": "Eston kumoaminen epäonnistui"
+  },
+  "roles": {
+    "title": "Roolit",
+    "create": "Luo rooli",
+    "creating": "Luodaan…",
+    "listHeading": "Roolit",
+    "description": "Roolit määrittävät mitkä luvat jäsenillä on.",
+    "hierarchyHint": "Roolit korkeammalla listassa ovat alempien yläpuolella.",
+    "defaultName": "uusi rooli",
+    "copyName": "Kopio kohteesta {{name}}",
+    "backToList": "Takaisin rooleihin",
+    "created": "Rooli luotu. Määritä se alla.",
+    "aboveYou": "Tämä rooli on korkeimmallasi tai ylempänä. Voit tarkastella sitä muttet muuttaa sitä.",
+    "managedByBot": "Tätä roolia hallitsee botti ja se poistetaan kun botti poistuu tilasta. Sitä ei voi antaa kenellekään muulle eikä poistaa manuaalisesti. Sen lupia voi muuttaa.",
+    "reorder": {
+      "handle": "Siirrä {{name}}",
+      "handleHint": "Vedä tai käytä ylä- ja alanuolinäppäimiä",
+      "up": "Siirrä {{name}} ylös",
+      "down": "Siirrä {{name}} alas",
+      "locked": "{{name}} on korkeimmalla roolillasi tai ylempänä",
+      "moved": "{{name}} siirretty sijaintiin {{position}} / {{total}}"
+    },
+    "identity": "Identiteetti",
+    "nameLabel": "Roolin nimi",
+    "colorLabel": "Roolin väri",
+    "nameEmpty": "Roolin nimi ei voi olla tyhjä",
+    "nameDuplicate": "Tämän niminen rooli on jo olemassa",
+    "groups": {
+      "general": "Yleiset",
+      "text": "Teksti",
+      "voice": "Ääni"
+    },
+    "saved": "Rooli tallennettu",
+    "copy": "Kopioi rooli",
+    "copying": "Kopioidaan…",
+    "delete": "Poista rooli",
+    "deleting": "Poistetaan…",
+    "confirmDelete": "Vahvista?",
+    "createFailed": "Roolin luonti epäonnistui",
+    "saveFailed": "Roolin tallennus epäonnistui",
+    "deleteFailed": "Roolin poisto epäonnistui",
+    "copyFailed": "Roolin kopiointi epäonnistui",
+    "unheldLocked": "Voit vaihtaa vain lupia, jotka sinulla itselläsi on. Muut ovat lukittuja.",
+    "unheldPermission": "Sinulla ei ole tätä lupaa",
+    "copyUnheld": "Tällä roolilla on lupia, joita sinulla ei ole, joten et voi kopioida sitä.",
+    "copyDeleteUnheld": "Tällä roolilla on lupia, joita sinulla ei ole, joten et voi kopioida tai poistaa sitä."
+  },
+  "memberRoles": {
+    "title": "Muokkaa rooleja käyttäjälle {{name}}",
+    "viewProfile": "Näytä profiili",
+    "affectsAll": "Lupamuutokset koskevat jokaista jäsentä tällä roolilla.",
+    "selectRole": "Valitse rooli muokataksesi sen lupia.",
+    "saved": "Muutokset tallennettu"
+  },
+  "permissions": {
+    "title": "Luvat",
+    "names": {
+      "administrator": "Ylläpitäjä",
+      "viewChannel": "Näe kanavat",
+      "manageChannels": "Hallitse kanavia",
+      "manageRoles": "Hallitse rooleja",
+      "manageSpace": "Hallitse tilaa",
+      "createInvite": "Luo kutsu",
+      "kickMembers": "Potki jäseniä ulos",
+      "banMembers": "Estä jäseniä",
+      "sendMessages": "Lähetä viestejä",
+      "manageMessages": "Hallitse viestejä",
+      "attachFiles": "Liitä tiedostoja",
+      "readMessageHistory": "Lue viestihistoriaa",
+      "addReactions": "Lisää reaktioita",
+      "connect": "Yhdistä",
+      "speak": "Puhu",
+      "muteMembers": "Mykistä jäseniä",
+      "deafenMembers": "Kuurouta jäseniä",
+      "moveMembers": "Siirrä jäseniä",
+      "stream": "Striimaa",
+      "disconnectMembers": "Katkaise jäseniä",
+      "mentionEveryone": "Mainitse @everyone, @here ja roolit"
+    },
+    "tristate": {
+      "deny": "Kiellä",
+      "neutral": "Neutraali (peri)",
+      "allow": "Salli"
+    },
+    "overrideCount_one": "{{count}} ohitus",
+    "overrideCount_other": "{{count}} ohitusta",
+    "removeOverride": "Poista ohitus",
+    "removeOverrideFor": "Poista ohitus käyttäjältä {{name}}",
+    "removeOverrideHint": "Ilman sitä tässä pätevät tilan luvat.",
+    "noRoleOverrides": "Ei rooliohituksia. Jokainen rooli käyttää tässä tilan lupiaan.",
+    "noMemberOverrides": "Ei jäsenohituksia.",
+    "roleOverrides": "Rooliohitukset",
+    "memberOverrides": "Jäsenohitukset",
+    "addRole": "Lisää rooli",
+    "addMember": "Lisää jäsen",
+    "noMoreRoles": "Ei enää lisättäviä rooleja",
+    "loadFailed": "Ohitusten lataus epäonnistui",
+    "saveFailed": "Ohitusten tallennus epäonnistui",
+    "partialFailure_one": "{{count}} ohitus ei tallentunut",
+    "partialFailure_other": "{{count}} ohitusta ei tallentunut",
+    "unheldLocked": "Voit vaihtaa vain lupia, jotka sinulla itselläsi on. Muut ovat lukittuja.",
+    "unheldPermission": "Sinulla ei ole tätä lupaa",
+    "removeUnheld": "Tämä ohitus asettaa lupia, joita sinulla ei ole. Vain se jolla ne on, voi poistaa sen.",
+    "removeUnheldShort": "Vain se jolla nämä luvat on, voi poistaa sen",
+    "aboveYouRole": "Tämä rooli on korkeimmallasi tai ylempänä. Voit tarkastella sen ohitusta muttet muuttaa tai poistaa sitä.",
+    "aboveYouMember": "Tämä jäsen on tasollasi tai ylempänä. Voit tarkastella sen ohitusta muttet muuttaa tai poistaa sitä.",
+    "aboveYouShort": "Korkeimmalla roolillasi tai ylempänä"
+  },
+  "sidebar": {
+    "directMessages": "Suorat viestit",
+    "addSpace": "Lisää tila",
+    "joinSpace": "Liity tilaan",
+    "folder": {
+      "tooltip_one": "Kansio ({{count}})",
+      "tooltip_other": "Kansio ({{count}})",
+      "spaceCount_one": "{{count}} tila",
+      "spaceCount_other": "{{count}} tilaa",
+      "unnamed": "Nimetön kansio",
+      "rename": "Nimeä kansio uudelleen",
+      "color": "Kansion väri",
+      "create": "Luo kansio",
+      "moveTo": "Siirrä kansioon",
+      "removeFrom": "Poista kansiosta",
+      "ungroup": "Pura ryhmä",
+      "created": "Kansio luotu",
+      "moved": "Siirretty kansioon",
+      "removed": "Poistettu kansiosta",
+      "ungrouped": "Ryhmä purettu"
+    },
+    "space": {
+      "inviteCopied": "Kutsulinkki kopioitu leikepöydälle",
+      "inviteCopiedRequest": "Kutsulinkki kopioitu. Avaajat voivat pyytää liittymistä.",
+      "inviteFailed": "Kutsun luonti epäonnistui",
+      "transferOwnership": "Siirrä omistajuus",
+      "settings": "Tilan asetukset",
+      "leave": "Poistu tilasta",
+      "reconnecting": "Yhdistetään uudelleen kohteeseen {{instance}}…",
+      "remoteInstance": "etäinstanssi",
+      "leaveConfirm": {
+        "title": "Poistu tilasta",
+        "titleNamed": "Poistu kohteesta {{name}}",
+        "description": "Haluatko varmasti poistua tästä tilasta? Liittyäksesi uudelleen tarvitset kutsun."
+      },
+      "left": "Poistuttu tilasta",
+      "leaveFailed": "Tilasta poistuminen epäonnistui",
+      "unreadMessages_one": "{{count}} lukematon viesti",
+      "unreadMessages_other": "{{count}} lukematonta viestiä",
+      "unreadMessagesOver99": "Yli 99 lukematonta viestiä"
+    },
+    "dmList": {
+      "newDm": "Uusi suora viesti",
+      "empty": "Ei keskusteluja vielä.",
+      "leaveGroup": "Poistu ryhmästä",
+      "leaveGroupConfirm": {
+        "title": "Poistu ryhmä-YV:stä",
+        "description": "Haluatko varmasti poistua? Et voi liittyä uudelleen ellei joku lisää sinua takaisin."
+      }
+    },
+    "userArea": {
+      "inputDevice": "Syöttölaite",
+      "outputDevice": "Tulostuslaite",
+      "inputDevices": "Syöttölaitteet",
+      "outputDevices": "Tulostuslaitteet",
+      "inputVolume": "Syötön voimakkuus",
+      "outputVolume": "Tulostuksen voimakkuus",
+      "systemDefault": "Järjestelmän oletus",
+      "microphonePermission": "Mikrofonin lupa tarvitaan.",
+      "audioPermission": "Äänen lupa tarvitaan.",
+      "enable": "Ota käyttöön",
+      "voiceSettings": "Ääniasetukset",
+      "mute": "Mykistä",
+      "unmute": "Poista mykistys",
+      "deafen": "Kuurouta",
+      "undeafen": "Poista kuuroutus",
+      "spaceMuted": "Mykistetty tilassa",
+      "spaceDeafened": "Kuuroutettu tilassa",
+      "permissionMuted": "Mykistetty (ei puhelupaa)"
+    },
+    "dmUnreadMessages_one": "{{count}} lukematon suora viesti",
+    "dmUnreadMessages_other": "{{count}} lukematonta suoraa viestiä",
+    "dmUnreadMessagesOver99": "Yli 99 lukematonta suoraa viestiä"
+  },
+  "channels": {
+    "resizeHandle": "Muuta kanavaluettelon kokoa",
+    "loading": "Ladataan kanavia",
+    "create": "Luo kanava",
+    "createCategory": "Luo luokka",
+    "settings": "Kanava-asetukset",
+    "categorySettings": "Luokka-asetukset",
+    "delete": "Poista kanava",
+    "deleteCategory": "Poista luokka",
+    "emptyCategory": "Ei kanavia",
+    "empty": "Ei kanavia vielä.",
+    "deleteConfirm": {
+      "title": "Poista kanava",
+      "description": "Haluatko varmasti? Tämä poistaa pysyvästi kanavan ja kaikki sen viestit."
+    },
+    "deleteCategoryConfirm": {
+      "title": "Poista luokka",
+      "description": "Haluatko varmasti poistaa tämän luokan? Siinä olevat kanavat siirretään luokittelemattomiin — kanavia ei poisteta."
+    },
+    "deleted": "Kanava poistettu",
+    "deleteFailed": "Kanavan poisto epäonnistui",
+    "categoryDeleted": "Luokka poistettu",
+    "categoryDeleteFailed": "Luokan poisto epäonnistui"
+  },
+  "members": {
+    "titleWithCount_one": "Jäsenet — {{count}}",
+    "titleWithCount_other": "Jäsenet — {{count}}",
+    "loading": "Ladataan jäseniä",
+    "resizeHandle": "Muuta jäsenluettelon kokoa",
+    "groups": {
+      "owner": "Omistaja"
+    },
+    "ownerTitle": {
+      "edit": "Muokkaa omistajan titteliä",
+      "label": "Omistajan titteli",
+      "hint": "Näkyvissä kaikille jäsenille tässä tilassa. Käytä 1–{{max}} merkkiä; tämä ei muuta lupia.",
+      "reset": "Nollaa oletukseksi"
+    },
+    "menu": {
+      "profile": "Näytä profiili",
+      "nickname": "Vaihda tilan lempinimi…",
+      "roles": "Roolit"
+    },
+    "nickname": {
+      "title": "Vaihda tilan lempinimi",
+      "label": "Tilan lempinimi",
+      "descriptionSelf": "Koskee vain tätä tilaa. Tilisi nimi ja lempinimesi muissa tiloissa pysyvät. Jätä tyhjäksi näyttääksesi tilin nimen.",
+      "descriptionOther": "Koskee vain tätä tilaa. Tilin {{name}} nimi pysyy. Jätä tyhjäksi näyttääksesi tilin nimen.",
+      "reset": "Nollaa tilin nimeksi",
+      "shownAs": "Lempinimi tässä tilassa: {{nickname}}"
+    }
+  },
+  "mobile": {
+    "addSheet": {
+      "createSpace": "Luo tila",
+      "joinSpace": "Liity tilaan"
+    },
+    "muteUser": "Mykistä käyttäjä"
+  },
+  "main": {
+    "selectChannel": "Valitse kanava",
+    "selectChannelHint": "Valitse teksti- tai äänikanava aloittaaksesi",
+    "notificationSettings": "Ilmoitusasetukset",
+    "topic": {
+      "show": "Näytä koko aihe",
+      "dialogTitle": "#{{name}}"
+    },
+    "voice": {
+      "connectionFailed": "Yhteys epäonnistui",
+      "connected": "Yhdistetty",
+      "connecting": "Yhdistetään…",
+      "participants_one": "{{count}} yhdistetty",
+      "participants_other": "{{count}} yhdistetty",
+      "inCall_one": "{{count}} puhelussa",
+      "inCall_other": "{{count}} puhelussa",
+      "empty": "Kukaan ei ole tällä äänikanavalla juuri nyt.",
+      "join": "Liity ääneen"
+    },
+    "dm": {
+      "fallbackName": "Suora viesti",
+      "composerPlaceholder": "Viesti kohteelle {{target}}",
+      "calling": "Soitetaan {{name}}…",
+      "groupSettings": "Ryhmäasetukset",
+      "openGroupSettings": "Avaa ryhmäasetukset",
+      "memberCount_one": "({{count}} jäsen)",
+      "memberCount_other": "({{count}} jäsentä)",
+      "startVoiceCall": "Aloita äänipuhelu",
+      "joinCall": "Liity puheluun",
+      "startVideoCall": "Aloita videopuhelu",
+      "addFriends": "Lisää kavereita YV:hen"
+    }
+  },
+  "ownership": {
+    "title": "Siirrä omistajuus",
+    "description": "Valitse jäsen uudeksi omistajaksi kohteelle <name>{{name}}</name>",
+    "confirmQuestion": "Siirretäänkö omistajuus kohteesta <name>{{space}}</name> kohteeseen <name>{{member}}</name>?",
+    "regularMember": "Sinusta tulee tavallinen jäsen.",
+    "transferring": "Siirretään…",
+    "confirm": "Siirrä",
+    "loading": "Ladataan jäseniä…",
+    "success": "Omistajuus siirretty käyttäjälle {{name}}",
+    "failed": "Omistajuuden siirto epäonnistui"
+  },
+  "notifications": {
+    "open": "Ilmoitusasetukset",
+    "channelTitle": "Ilmoitukset kanavalle #{{channel}}",
+    "spaceTitle": "Ilmoitukset kohteelle {{space}}",
+    "levelHeading": "Ilmoita minulle",
+    "level": {
+      "all": "Kaikki viestit",
+      "mentions": "Vain @maininnat",
+      "nothing": "Ei mitään",
+      "inherit": "Tilan oletus ({{level}})"
+    },
+    "dmNote": "Suorat viestit ilmoittavat sinulle aina.",
+    "muteHeading": "Mykistys",
+    "mute": {
+      "oneHour": "1 tunniksi",
+      "eightHours": "8 tunniksi",
+      "oneDay": "24 tunniksi",
+      "indefinite": "Kunnes poistan"
+    },
+    "unmute": "Poista mykistys",
+    "mutedUntil": "Mykistetty {{time}} asti",
+    "mutedIndefinitely": "Mykistetty kunnes poistat",
+    "spaceMuted": "Tämä tila on mykistetty, joten sen kanavatkin.",
+    "mutedIndicator": "Mykistetty",
+    "saveFailed": "Ilmoitusasetusten tallennus epäonnistui",
+    "suppressEveryone": "Vaimenna @everyone ja @here",
+    "suppressRoles": "Vaimenna roolimaininnat",
+    "massHeading": "Ryhmämaininnat",
+    "massNote": "@here tavoittaa samat jäsenet kuin @everyone. Nimeltä maininnat sinusta ilmoittavat sinulle aina."
+  }
+}

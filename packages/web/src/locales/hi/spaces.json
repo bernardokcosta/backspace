@@ -1,0 +1,632 @@
+{
+  "soundboardTab": "साउंडबोर्ड",
+  "create": {
+    "title": "स्पेस बनाएं",
+    "icon": {
+      "upload": "अपलोड करें",
+      "previewAlt": "आइकन पूर्वावलोकन",
+      "colorLabel": "आइकन रंग",
+      "cropTitle": "स्पेस आइकन क्रॉप करें",
+      "uploadFailed": "आइकन अपलोड विफल"
+    },
+    "name": {
+      "label": "स्पेस नाम",
+      "placeholder": "मेरा शानदार स्पेस",
+      "required": "स्पेस नाम आवश्यक"
+    },
+    "visibilityLabel": "दृश्यता",
+    "description": {
+      "label": "विवरण",
+      "placeholder": "आपके स्पेस का संक्षिप्त विवरण…",
+      "counter": "{{length}}/{{max}}"
+    },
+    "submit": "बनाएं",
+    "submitting": "बन रहा…"
+  },
+  "channel": {
+    "create": {
+      "title": "चैनल बनाएं",
+      "typeLabel": "चैनल प्रकार",
+      "types": {
+        "text": {
+          "name": "पाठ",
+          "description": "संदेश, छवियां और फ़ाइलें भेजें"
+        },
+        "voice": {
+          "name": "वॉयस",
+          "description": "वॉयस और वीडियो से रहें"
+        }
+      },
+      "nameLabel": "चैनल नाम",
+      "namePlaceholder": "नया-चैनल",
+      "topicLabel": "विषय (वैकल्पिक)",
+      "topicPlaceholder": "यह चैनल किस बारे में है?",
+      "categoryLabel": "श्रेणी",
+      "noCategory": "कोई श्रेणी नहीं",
+      "nameRequired": "चैनल नाम आवश्यक",
+      "noSpaceSelected": "कोई स्पेस नहीं चुना",
+      "submit": "चैनल बनाएं",
+      "submitting": "बन रहा…"
+    },
+    "settings": {
+      "title": "चैनल सेटिंग्स",
+      "rename": "चैनल नाम बदलें",
+      "nameLabel": "चैनल नाम",
+      "channelLabel": "चैनल",
+      "topic": {
+        "label": "विषय",
+        "placeholder": "यह चैनल किस बारे में है?",
+        "hint": "चैनल शीर्षलेख में दिखता है। वहां से हर कोई पूर्ण पाठ खोल सकता है।",
+        "counter": "{{used}}/{{max}}",
+        "tooLong": "सहेजने हेतु विषय {{max}} वर्णों या कम में छोटा करें।",
+        "empty": "कोई विषय सेट नहीं।",
+        "reset": "परिवर्तन खारिज करें"
+      },
+      "private": {
+        "label": "निजी चैनल",
+        "description": "केवल चुने सदस्य और भूमिकाएं यह चैनल देख सकेंगी।",
+        "note": "यह चैनल स्पष्ट पहुंच बिना सदस्यों से छिपा है। व्यवस्थापक अनुमति वाले उपयोगकर्ता या स्पेस स्वामी हमेशा सभी चैनल देखते हैं।",
+        "unhideOnSave": "सहेजने पर यह चैनल प्रत्येक सदस्य को दिखेगा।"
+      },
+      "deleteButton": "चैनल हटाएं"
+    },
+    "delete": {
+      "title": "#{{name}} हटाएं?",
+      "description": "यह स्थायी <strong>#{{name}}</strong> और उसके सभी संदेश हटाएगा। यह पूर्ववत नहीं हो सकता।",
+      "descriptionVoice": "यह स्थायी <strong>#{{name}}</strong> और उसके सभी संदेश हटाएगा। इस वॉयस चैनल में सभी डिस्कनेक्ट होंगे। यह पूर्ववत नहीं हो सकता।",
+      "confirm": "चैनल हटाएं"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "श्रेणी बनाएं",
+      "nameLabel": "श्रेणी नाम",
+      "namePlaceholder": "नई-श्रेणी",
+      "nameRequired": "श्रेणी नाम आवश्यक",
+      "noSpaceSelected": "कोई स्पेस नहीं चुना",
+      "submit": "श्रेणी बनाएं",
+      "submitting": "बन रही…"
+    },
+    "settings": {
+      "title": "श्रेणी सेटिंग्स",
+      "rename": "श्रेणी नाम बदलें",
+      "nameLabel": "श्रेणी नाम",
+      "categoryLabel": "श्रेणी",
+      "private": {
+        "label": "निजी श्रेणी",
+        "description": "केवल चुने सदस्य और भूमिकाएं इस श्रेणी में चैनल देख सकेंगी।",
+        "note": "यह श्रेणी स्पष्ट पहुंच बिना सदस्यों से छिपी है। अंदर चैनल यह प्रतिबंध विरासत में लेते हैं जब तक स्पष्ट ओवरराइड न करें।",
+        "unhideOnSave": "सहेजने पर यह श्रेणी और बिना अलग दृश्यता प्रतिबंध वाले उसके चैनल सभी को दिखेंगे।"
+      },
+      "deleteButton": "श्रेणी हटाएं"
+    },
+    "delete": {
+      "title": "“{{name}}” हटाएं?",
+      "description": "यह श्रेणी <strong>{{name}}</strong> स्थायी हटाएगा। अंदर चैनल शीर्ष स्तर पर ले जाए जाएंगे। यह पूर्ववत नहीं हो सकता।",
+      "confirm": "श्रेणी हटाएं"
+    }
+  },
+  "invite": {
+    "title": "मित्र आमंत्रित करें",
+    "intro": "मित्रों को भेजें, या लिंक साझा करें।",
+    "introRequest": "मित्रों को भेजें, या लिंक साझा करें। जो खोलता है वह जुड़ने का अनुरोध करता है, और प्रबंधक प्रत्येक अनुमोदित करता है।",
+    "searchPlaceholder": "मित्र खोजें…",
+    "noMatches": "खोज से कोई मित्र मेल नहीं खाता",
+    "noFriends": "अभी कोई मित्र नहीं",
+    "alreadyMember": "पहले से स्पेस में",
+    "removeSelected": "{{name}} हटाएं",
+    "selectFriends": "मित्र चुनें",
+    "send_one": "{{count}} आमंत्रण भेजें",
+    "send_other": "{{count}} आमंत्रण भेजें",
+    "sending": "भेजा जा रहा…",
+    "retryFailed": "विफल आमंत्रण पुनः प्रयास करें",
+    "status": {
+      "sent": "✓ भेजा गया",
+      "failed": "✗ {{reason}}"
+    },
+    "shareLink": "या लिंक साझा करें",
+    "generating": "बन रहा…",
+    "generateFailed": "आमंत्रण लिंक बनाना विफल",
+    "failure": {
+      "inviteInvalid": "आमंत्रण लिंक अब मान्य नहीं",
+      "notAFriend": "मित्र नहीं",
+      "userNotFound": "उपयोगकर्ता नहीं मिला",
+      "alreadyMember": "पहले से सदस्य",
+      "upstream": "आमंत्रण सत्यापित नहीं हो सका, पुनः प्रयास करें",
+      "cannotInviteSelf": "आप स्वयं को आमंत्रित नहीं कर सकते",
+      "invalidBody": "अमान्य अनुरोध",
+      "invalidTarget": "अमान्य लक्ष्य",
+      "unreachable": "आपके इंस्टेंस तक नहीं पहुंचा जा सका",
+      "serverError": "नहीं भेजा जा सका (सर्वर त्रुटि)"
+    }
+  },
+  "inviteFriend": {
+    "title": "{{name}} को स्पेस में आमंत्रित करें",
+    "intro": "आमंत्रण भेजने हेतु अपने स्पेस में से एक चुनें।",
+    "noSpaces": "आप अभी किसी स्पेस में नहीं",
+    "contextMenu": "स्पेस में आमंत्रित करें"
+  },
+  "join": {
+    "validation": {
+      "required": "आमंत्रण कोड आवश्यक",
+      "invalidLink": "अमान्य आमंत्रण लिंक",
+      "linkFormat": "अमान्य आमंत्रण लिंक — अपेक्षित प्रारूप: https://instance/join/CODE",
+      "qualifiedFormat": "अमान्य आमंत्रण प्रारूप — अपेक्षित: CODE@domain",
+      "invalidDomain": "आमंत्रण में अमान्य डोमेन"
+    },
+    "title": "स्पेस से जुड़ें",
+    "invitePlaceholder": "जैसे abc123 या https://instance.com/join/abc123",
+    "submit": "स्पेस से जुड़ें",
+    "submitting": "जुड़ रहे…",
+    "connect": {
+      "intro": "इस स्पेस से जुड़ने हेतु <host>{{host}}</host> से कनेक्ट करें।",
+      "passwordLabel": "कनेक्ट हेतु पासवर्ड डालें",
+      "passwordPlaceholder": "आपके खाते का पासवर्ड",
+      "passwordNote": "आपका पासवर्ड होम इंस्टेंस जांचता है और कभी {{host}} को नहीं भेजा जाता। उस इंस्टेंस को केवल उसके लिए बना अद्वितीय प्रमाणपत्र मिलता है।",
+      "submit": "कनेक्ट करें और जुड़ें",
+      "submitting": "कनेक्ट हो रहा…"
+    },
+    "fallback": {
+      "usernamePlaceholder": "इस इंस्टेंस पर आपका उपयोगकर्ता नाम",
+      "passwordLabel": "इस इंस्टेंस का पासवर्ड",
+      "passwordPlaceholder": "रिमोट इंस्टेंस का पासवर्ड",
+      "submit": "लॉगिन करें और जुड़ें",
+      "submitting": "लॉग इन हो रहा…"
+    },
+    "request": {
+      "messagePlaceholder": "आप क्यों जुड़ना चाहते हैं? (वैकल्पिक)",
+      "send": "अनुरोध भेजें",
+      "sending": "भेजा जा रहा…",
+      "notice": "यह स्पेस जुड़ने के अनुरोध लेता है। एक भेजें और प्रबंधक समीक्षा करेगा।",
+      "messageLabel": "अनुरोध के साथ नोट",
+      "sent": "अनुरोध भेजा गया। प्रबंधक समीक्षा करेगा, और अनुमोदन पर स्पेस आपकी सूची में दिखेगा।",
+      "pending": "आप पहले ही इस स्पेस से जुड़ने का अनुरोध कर चुके। आपका अनुरोध प्रबंधक प्रतीक्षारत।"
+    }
+  },
+  "settings": {
+    "title": "स्पेस सेटिंग्स",
+    "backAria": "स्पेस सेटिंग्स मेनू पर वापस",
+    "nav": {
+      "general": "सामान्य",
+      "management": "प्रबंधन",
+      "tabs": {
+        "overview": "अवलोकन",
+        "roles": "भूमिकाएं",
+        "bans": "प्रतिबंध"
+      }
+    },
+    "discardChanges": "खारिज करें",
+    "overview": {
+      "identity": "स्पेस पहचान",
+      "iconLabel": "स्पेस आइकन",
+      "iconAlt": "स्पेस आइकन",
+      "colorLabel": "आइकन रंग",
+      "bannerLabel": "स्पेस बैनर",
+      "bannerAlt": "स्पेस बैनर",
+      "uploadBanner": "बैनर अपलोड करें (16:9)",
+      "removeBanner": "बैनर हटाएं",
+      "nameLabel": "स्पेस नाम",
+      "iconUploadFailed": "आइकन अपलोड विफल",
+      "bannerUploadFailed": "बैनर अपलोड विफल",
+      "cropIconTitle": "स्पेस आइकन क्रॉप करें",
+      "cropBannerTitle": "स्पेस बैनर क्रॉप करें",
+      "transfer": {
+        "description": "स्वामित्व दूसरे सदस्य को स्थानांतरित करें। आप सामान्य सदस्य बनेंगे।",
+        "prompt": "स्वामित्व <strong>{{name}}</strong> को स्थानांतरित करें?",
+        "button": "स्वामित्व स्थानांतरित करें",
+        "confirm": "स्थानांतरित करें",
+        "transferring": "स्थानांतरित हो रहा…",
+        "success": "स्वामित्व {{name}} को दिया गया",
+        "failed": "स्वामित्व स्थानांतरण विफल"
+      },
+      "delete": {
+        "description": "यह स्पेस और उसका समस्त डेटा स्थायी हटाएं। यह पूर्ववत नहीं हो सकता।",
+        "button": "स्पेस हटाएं",
+        "confirmAgain": "हटाने की पुष्टि हेतु पुनः क्लिक करें",
+        "failed": "स्पेस हटाना विफल"
+      }
+    },
+    "access": {
+      "title": "पहुंच और विवरण",
+      "visibility": {
+        "label": "दृश्यता",
+        "hint": "नियंत्रित करें कि आमंत्रण वाले लोग इस स्पेस में कैसे प्रवेश करते हैं।",
+        "options": {
+          "private": {
+            "label": "निजी",
+            "description": "केवल आमंत्रण लिंक वाले लोग जुड़ सकते हैं"
+          },
+          "request": {
+            "label": "अनुरोध पर",
+            "description": "आमंत्रण अनुरोध की ओर ले जाता है जिसे प्रबंधक को अनुमोदित करना होगा"
+          },
+          "public": {
+            "label": "सार्वजनिक",
+            "description": "आमंत्रण वाले लोग तुरंत जुड़ सकते हैं"
+          }
+        }
+      },
+      "description": {
+        "label": "विवरण",
+        "hint": "इस स्पेस के आमंत्रणों के साथ दिखने वाला संक्षिप्त सारांश।",
+        "placeholder": "इस स्पेस का संक्षिप्त विवरण…",
+        "counter": "{{length}}/{{max}}"
+      },
+      "requests": {
+        "title": "लंबित जुड़ने के अनुरोध",
+        "empty": "कोई लंबित जुड़ने के अनुरोध नहीं",
+        "actionFailed": "क्रिया विफल"
+      }
+    },
+    "members": {
+      "description": "इस स्पेस के सदस्य प्रबंधित करें। भूमिकाएं संपादित हेतु सदस्य क्लिक करें।",
+      "listHeading": "सदस्य ({{total}})",
+      "owner": "स्वामी",
+      "noRoles": "कोई भूमिकाएं नहीं",
+      "ban": "प्रतिबंधित करें",
+      "kick": "बाहर करें",
+      "confirm": {
+        "banTitle": "{{name}} प्रतिबंधित करें",
+        "kickTitle": "{{name}} बाहर करें",
+        "banDescription": "यह व्यक्ति अनब्लॉक होने तक इस स्पेस से स्थायी प्रतिबंधित रहेगा।",
+        "kickDescription": "यह व्यक्ति आमंत्रण लिंक से पुनः जुड़ सकता है।"
+      },
+      "updateRolesFailed": "भूमिकाएं अपडेट विफल",
+      "kickFailed": "सदस्य बाहर करना विफल",
+      "banFailed": "सदस्य प्रतिबंधित करना विफल",
+      "rolesAboveYou": "आपकी उच्चतम भूमिका पर या ऊपर की भूमिकाएं लॉक हैं।",
+      "rolesUnheld": "जो अनुमतियां आपके पास नहीं उनकी भूमिकाएं नहीं दी जा सकतीं।",
+      "rolesManagedByBot": "बॉट की अपनी भूमिका बॉट के पास रहती है।",
+      "botInvite": {
+        "warning": "बॉट इस स्पेस का सदस्य बनता है और प्रत्येक चैनल के संदेश और इवेंट प्राप्त करता है जिसकी उसकी अनुमतियां अनुमति देती हैं। केवल विश्वसनीय बॉट जोड़ें।",
+        "owner": "स्वामी: @{{owner}}",
+        "button": "बॉट जोड़ें",
+        "title": "बॉट जोड़ें",
+        "searchPlaceholder": "नाम से बॉट खोजें…",
+        "searching": "खोज हो रही…",
+        "noResults": "कोई बॉट नहीं मिला",
+        "add": "जोड़ें",
+        "adding": "जोड़ा जा रहा…",
+        "permissionsTitle": "{{name}} हेतु अनुमतियां",
+        "permissionsIntro": "बॉट ये अनुमतियां मांगता है। वे बॉट नाम वाली भूमिका में जाती हैं; जो नहीं देना चाहते उसे अनटिक करें।",
+        "permissionsUnheld": "जो अनुमतियां आपके पास नहीं वे नहीं दी जा सकतीं।",
+        "permissionsNone": "कुछ टिक नहीं: बॉट बिना भूमिका जुड़ता है।",
+        "back": "पीछे"
+      }
+    },
+    "afk": {
+      "title": "AFK चैनल",
+      "channelLabel": "निष्क्रिय सदस्यों को ले जाएं",
+      "disabled": "अक्षम",
+      "timeoutLabel": "निष्क्रिय रहने के बाद",
+      "minutes": "मिनट",
+      "hint": "चुने समय तक वॉयस गतिविधि बिना सदस्य स्वतः इस वॉयस चैनल में ले जाए जाते हैं।"
+    }
+  },
+  "bans": {
+    "title": "प्रतिबंध",
+    "description": "प्रतिबंधित उपयोगकर्ता अनब्लॉक होने तक इस स्पेस से पुनः नहीं जुड़ सकते।",
+    "loading": "प्रतिबंध लोड हो रहे…",
+    "empty": "कोई प्रतिबंधित उपयोगकर्ता नहीं",
+    "listHeading": "प्रतिबंध ({{total}})",
+    "bannedBy": "{{moderator}} द्वारा {{date}} को प्रतिबंधित",
+    "bannedByWithReason": "{{moderator}} द्वारा {{date}} को प्रतिबंधित: {{reason}}",
+    "unban": "अनब्लॉक करें",
+    "loadFailed": "प्रतिबंध लोड विफल",
+    "unbanFailed": "उपयोगकर्ता अनब्लॉक विफल"
+  },
+  "roles": {
+    "title": "भूमिकाएं",
+    "create": "भूमिका बनाएं",
+    "creating": "बन रही…",
+    "listHeading": "भूमिकाएं",
+    "description": "भूमिकाएं तय करती हैं कि सदस्यों के पास क्या अनुमतियां हैं।",
+    "hierarchyHint": "सूची में ऊपर की भूमिकाएं नीचे वालों से ऊपर हैं।",
+    "defaultName": "नई भूमिका",
+    "copyName": "{{name}} की प्रति",
+    "backToList": "भूमिकाओं पर वापस",
+    "created": "भूमिका बनाई गई। नीचे कॉन्फ़िगर करें।",
+    "aboveYou": "यह भूमिका आपकी उच्चतम पर या ऊपर है। आप देख सकते हैं पर बदल नहीं सकते।",
+    "managedByBot": "यह भूमिका बॉट प्रबंधित करता है और स्पेस छोड़ने पर हटती है। किसी और को सौंपी या मैन्युअल हटाई नहीं जा सकती। इसकी अनुमतियां बदली जा सकती हैं।",
+    "reorder": {
+      "handle": "{{name}} ले जाएं",
+      "handleHint": "खींचें, या ऊपर और नीचे तीर कुंजियां उपयोग करें",
+      "up": "{{name}} ऊपर ले जाएं",
+      "down": "{{name}} नीचे ले जाएं",
+      "locked": "{{name}} आपकी उच्चतम भूमिका पर या ऊपर",
+      "moved": "{{name}} स्थिति {{position}} / {{total}} पर ले जाया गया"
+    },
+    "identity": "पहचान",
+    "nameLabel": "भूमिका नाम",
+    "colorLabel": "भूमिका रंग",
+    "nameEmpty": "भूमिका नाम खाली नहीं हो सकता",
+    "nameDuplicate": "उस नाम की भूमिका पहले से मौजूद",
+    "groups": {
+      "general": "सामान्य",
+      "text": "पाठ",
+      "voice": "वॉयस"
+    },
+    "saved": "भूमिका सहेजी गई",
+    "copy": "भूमिका कॉपी करें",
+    "copying": "कॉपी हो रही…",
+    "delete": "भूमिका हटाएं",
+    "deleting": "हट रही…",
+    "confirmDelete": "पुष्टि करें?",
+    "createFailed": "भूमिका बनाना विफल",
+    "saveFailed": "भूमिका सहेजना विफल",
+    "deleteFailed": "भूमिका हटाना विफल",
+    "copyFailed": "भूमिका कॉपी विफल",
+    "unheldLocked": "आप केवल वे अनुमतियां बदल सकते हैं जो आपके पास हैं। बाकी लॉक हैं।",
+    "unheldPermission": "आपके पास यह अनुमति नहीं",
+    "copyUnheld": "इस भूमिका में वे अनुमतियां हैं जो आपके पास नहीं, इसलिए कॉपी नहीं कर सकते।",
+    "copyDeleteUnheld": "इस भूमिका में वे अनुमतियां हैं जो आपके पास नहीं, इसलिए कॉपी या हटा नहीं सकते।"
+  },
+  "memberRoles": {
+    "title": "{{name}} हेतु भूमिकाएं संपादित करें",
+    "viewProfile": "प्रोफ़ाइल देखें",
+    "affectsAll": "अनुमति परिवर्तन इस भूमिका वाले प्रत्येक सदस्य पर लागू होते हैं।",
+    "selectRole": "इसकी अनुमतियां संपादित हेतु भूमिका चुनें।",
+    "saved": "परिवर्तन सहेजे गए"
+  },
+  "permissions": {
+    "title": "अनुमतियां",
+    "names": {
+      "administrator": "व्यवस्थापक",
+      "viewChannel": "चैनल देखें",
+      "manageChannels": "चैनल प्रबंधित करें",
+      "manageRoles": "भूमिकाएं प्रबंधित करें",
+      "manageSpace": "स्पेस प्रबंधित करें",
+      "createInvite": "आमंत्रण बनाएं",
+      "kickMembers": "सदस्य बाहर करें",
+      "banMembers": "सदस्य प्रतिबंधित करें",
+      "sendMessages": "संदेश भेजें",
+      "manageMessages": "संदेश प्रबंधित करें",
+      "attachFiles": "फ़ाइलें संलग्न करें",
+      "readMessageHistory": "संदेश इतिहास पढ़ें",
+      "addReactions": "प्रतिक्रियाएं जोड़ें",
+      "connect": "कनेक्ट करें",
+      "speak": "बोलें",
+      "muteMembers": "सदस्य म्यूट करें",
+      "deafenMembers": "सदस्य बहरे करें",
+      "moveMembers": "सदस्य ले जाएं",
+      "stream": "स्ट्रीम करें",
+      "disconnectMembers": "सदस्य डिस्कनेक्ट करें",
+      "mentionEveryone": "@everyone, @here और भूमिकाएं उल्लेख करें"
+    },
+    "tristate": {
+      "deny": "अस्वीकार करें",
+      "neutral": "तटस्थ (विरासत)",
+      "allow": "अनुमति दें"
+    },
+    "overrideCount_one": "{{count}} ओवरराइड",
+    "overrideCount_other": "{{count}} ओवरराइड",
+    "removeOverride": "ओवरराइड हटाएं",
+    "removeOverrideFor": "{{name}} हेतु ओवरराइड हटाएं",
+    "removeOverrideHint": "इसके बिना यहां स्पेस-व्यापी अनुमतियां लागू होती हैं।",
+    "noRoleOverrides": "कोई भूमिका ओवरराइड नहीं। प्रत्येक भूमिका यहां अपनी स्पेस-व्यापी अनुमतियां उपयोग करती है।",
+    "noMemberOverrides": "कोई सदस्य ओवरराइड नहीं।",
+    "roleOverrides": "भूमिका ओवरराइड",
+    "memberOverrides": "सदस्य ओवरराइड",
+    "addRole": "भूमिका जोड़ें",
+    "addMember": "सदस्य जोड़ें",
+    "noMoreRoles": "जोड़ने हेतु और भूमिकाएं नहीं",
+    "loadFailed": "ओवरराइड लोड विफल",
+    "saveFailed": "ओवरराइड सहेजना विफल",
+    "partialFailure_one": "{{count}} ओवरराइड सहेजना विफल",
+    "partialFailure_other": "{{count}} ओवरराइड सहेजना विफल",
+    "unheldLocked": "आप केवल वे अनुमतियां बदल सकते हैं जो आपके पास हैं। बाकी लॉक हैं।",
+    "unheldPermission": "आपके पास यह अनुमति नहीं",
+    "removeUnheld": "यह ओवरराइड वे अनुमतियां सेट करता है जो आपके पास नहीं। केवल जिसके पास हैं वही हटा सकता है।",
+    "removeUnheldShort": "केवल इन अनुमतियों वाला हटा सकता है",
+    "aboveYouRole": "यह भूमिका आपकी उच्चतम पर या ऊपर है। आप इसका ओवरराइड देख सकते हैं पर बदल या हटा नहीं सकते।",
+    "aboveYouMember": "यह सदस्य आप पर या ऊपर है। आप इसका ओवरराइड देख सकते हैं पर बदल या हटा नहीं सकते।",
+    "aboveYouShort": "आपकी उच्चतम भूमिका पर या ऊपर"
+  },
+  "sidebar": {
+    "directMessages": "प्रत्यक्ष संदेश",
+    "addSpace": "स्पेस जोड़ें",
+    "joinSpace": "स्पेस से जुड़ें",
+    "folder": {
+      "tooltip_one": "फ़ोल्डर ({{count}})",
+      "tooltip_other": "फ़ोल्डर ({{count}})",
+      "spaceCount_one": "{{count}} स्पेस",
+      "spaceCount_other": "{{count}} स्पेस",
+      "unnamed": "अनाम फ़ोल्डर",
+      "rename": "फ़ोल्डर नाम बदलें",
+      "color": "फ़ोल्डर रंग",
+      "create": "फ़ोल्डर बनाएं",
+      "moveTo": "फ़ोल्डर में ले जाएं",
+      "removeFrom": "फ़ोल्डर से हटाएं",
+      "ungroup": "समूह हटाएं",
+      "created": "फ़ोल्डर बनाया गया",
+      "moved": "फ़ोल्डर में ले जाया गया",
+      "removed": "फ़ोल्डर से हटाया गया",
+      "ungrouped": "समूह हटाया गया"
+    },
+    "space": {
+      "inviteCopied": "आमंत्रण लिंक क्लिपबोर्ड पर कॉपी हुआ",
+      "inviteCopiedRequest": "आमंत्रण लिंक कॉपी हुआ। जो खोलता है वह जुड़ने का अनुरोध कर सकता है।",
+      "inviteFailed": "आमंत्रण बनाना विफल",
+      "transferOwnership": "स्वामित्व स्थानांतरित करें",
+      "settings": "स्पेस सेटिंग्स",
+      "leave": "स्पेस छोड़ें",
+      "reconnecting": "{{instance}} से पुनः कनेक्ट हो रहा…",
+      "remoteInstance": "रिमोट इंस्टेंस",
+      "leaveConfirm": {
+        "title": "स्पेस छोड़ें",
+        "titleNamed": "{{name}} छोड़ें",
+        "description": "क्या आप वाकई यह स्पेस छोड़ना चाहते हैं? पुनः जुड़ने हेतु आमंत्रण चाहिए होगा।"
+      },
+      "left": "स्पेस छोड़ा गया",
+      "leaveFailed": "स्पेस छोड़ना विफल",
+      "unreadMessages_one": "{{count}} अपठित संदेश",
+      "unreadMessages_other": "{{count}} अपठित संदेश",
+      "unreadMessagesOver99": "99 से अधिक अपठित संदेश"
+    },
+    "dmList": {
+      "newDm": "नया प्रत्यक्ष संदेश",
+      "empty": "अभी कोई वार्तालाप नहीं।",
+      "leaveGroup": "समूह छोड़ें",
+      "leaveGroupConfirm": {
+        "title": "समूह DM छोड़ें",
+        "description": "क्या आप वाकई छोड़ना चाहते हैं? जब तक कोई वापस न जोड़े पुनः जुड़ नहीं सकेंगे।"
+      }
+    },
+    "userArea": {
+      "inputDevice": "इनपुट डिवाइस",
+      "outputDevice": "आउटपुट डिवाइस",
+      "inputDevices": "इनपुट डिवाइस",
+      "outputDevices": "आउटपुट डिवाइस",
+      "inputVolume": "इनपुट वॉल्यूम",
+      "outputVolume": "आउटपुट वॉल्यूम",
+      "systemDefault": "सिस्टम डिफ़ॉल्ट",
+      "microphonePermission": "माइक्रोफ़ोन अनुमति आवश्यक।",
+      "audioPermission": "ऑडियो अनुमति आवश्यक।",
+      "enable": "सक्षम करें",
+      "voiceSettings": "वॉयस सेटिंग्स",
+      "mute": "म्यूट करें",
+      "unmute": "अनम्यूट करें",
+      "deafen": "बहरा करें",
+      "undeafen": "सुनना बहाल करें",
+      "spaceMuted": "स्पेस में म्यूट",
+      "spaceDeafened": "स्पेस में बहरा",
+      "permissionMuted": "म्यूट (बोलने की अनुमति नहीं)"
+    },
+    "dmUnreadMessages_one": "{{count}} अपठित प्रत्यक्ष संदेश",
+    "dmUnreadMessages_other": "{{count}} अपठित प्रत्यक्ष संदेश",
+    "dmUnreadMessagesOver99": "99 से अधिक अपठित प्रत्यक्ष संदेश"
+  },
+  "channels": {
+    "resizeHandle": "चैनल सूची का आकार बदलें",
+    "loading": "चैनल लोड हो रहे",
+    "create": "चैनल बनाएं",
+    "createCategory": "श्रेणी बनाएं",
+    "settings": "चैनल सेटिंग्स",
+    "categorySettings": "श्रेणी सेटिंग्स",
+    "delete": "चैनल हटाएं",
+    "deleteCategory": "श्रेणी हटाएं",
+    "emptyCategory": "कोई चैनल नहीं",
+    "empty": "अभी कोई चैनल नहीं।",
+    "deleteConfirm": {
+      "title": "चैनल हटाएं",
+      "description": "क्या आप निश्चित हैं? यह चैनल और उसके सभी संदेश स्थायी हटाएगा।"
+    },
+    "deleteCategoryConfirm": {
+      "title": "श्रेणी हटाएं",
+      "description": "क्या आप वाकई यह श्रेणी हटाना चाहते हैं? इसमें चैनल अवर्गीकृत में ले जाए जाएंगे — कोई चैनल हटेगा नहीं।"
+    },
+    "deleted": "चैनल हटाया गया",
+    "deleteFailed": "चैनल हटाना विफल",
+    "categoryDeleted": "श्रेणी हटाई गई",
+    "categoryDeleteFailed": "श्रेणी हटाना विफल"
+  },
+  "members": {
+    "titleWithCount_one": "सदस्य — {{count}}",
+    "titleWithCount_other": "सदस्य — {{count}}",
+    "loading": "सदस्य लोड हो रहे",
+    "resizeHandle": "सदस्य सूची का आकार बदलें",
+    "groups": {
+      "owner": "स्वामी"
+    },
+    "ownerTitle": {
+      "edit": "स्वामी शीर्षक संपादित करें",
+      "label": "स्वामी शीर्षक",
+      "hint": "इस स्पेस के सभी सदस्यों को दिखता है। 1–{{max}} वर्ण उपयोग करें; यह अनुमतियां नहीं बदलता।",
+      "reset": "डिफ़ॉल्ट पर रीसेट करें"
+    },
+    "menu": {
+      "profile": "प्रोफ़ाइल देखें",
+      "nickname": "स्पेस उपनाम बदलें…",
+      "roles": "भूमिकाएं"
+    },
+    "nickname": {
+      "title": "स्पेस उपनाम बदलें",
+      "label": "स्पेस उपनाम",
+      "descriptionSelf": "केवल इस स्पेस में लागू। आपके खाते का नाम और दूसरे स्पेस में उपनाम वैसे रहते हैं। खाता नाम दिखाने हेतु खाली छोड़ें।",
+      "descriptionOther": "केवल इस स्पेस में लागू। {{name}} का खाता नाम वैसे रहता है। खाता नाम दिखाने हेतु खाली छोड़ें।",
+      "reset": "खाता नाम पर रीसेट करें",
+      "shownAs": "इस स्पेस में उपनाम: {{nickname}}"
+    }
+  },
+  "mobile": {
+    "addSheet": {
+      "createSpace": "स्पेस बनाएं",
+      "joinSpace": "स्पेस से जुड़ें"
+    },
+    "muteUser": "मेरे लिए म्यूट करें"
+  },
+  "main": {
+    "selectChannel": "चैनल चुनें",
+    "selectChannelHint": "शुरू हेतु पाठ या वॉयस चैनल चुनें",
+    "notificationSettings": "सूचना सेटिंग्स",
+    "topic": {
+      "show": "पूर्ण विषय दिखाएं",
+      "dialogTitle": "#{{name}}"
+    },
+    "voice": {
+      "connectionFailed": "कनेक्शन विफल",
+      "connected": "कनेक्टेड",
+      "connecting": "कनेक्ट हो रहा…",
+      "participants_one": "{{count}} कनेक्टेड",
+      "participants_other": "{{count}} कनेक्टेड",
+      "inCall_one": "{{count}} कॉल में",
+      "inCall_other": "{{count}} कॉल में",
+      "empty": "इस वॉयस चैनल में अभी कोई नहीं।",
+      "join": "वॉयस से जुड़ें"
+    },
+    "dm": {
+      "fallbackName": "प्रत्यक्ष संदेश",
+      "composerPlaceholder": "{{target}} को संदेश",
+      "calling": "{{name}} को कॉल हो रही…",
+      "groupSettings": "समूह सेटिंग्स",
+      "openGroupSettings": "समूह सेटिंग्स खोलें",
+      "memberCount_one": "({{count}} सदस्य)",
+      "memberCount_other": "({{count}} सदस्य)",
+      "startVoiceCall": "वॉयस कॉल शुरू करें",
+      "joinCall": "कॉल से जुड़ें",
+      "startVideoCall": "वीडियो कॉल शुरू करें",
+      "addFriends": "DM में मित्र जोड़ें"
+    }
+  },
+  "ownership": {
+    "title": "स्वामित्व स्थानांतरित करें",
+    "description": "<name>{{name}}</name> का नया स्वामी बनने हेतु सदस्य चुनें",
+    "confirmQuestion": "<name>{{space}}</name> का स्वामित्व <name>{{member}}</name> को स्थानांतरित करें?",
+    "regularMember": "आप सामान्य सदस्य बनेंगे।",
+    "transferring": "स्थानांतरित हो रहा…",
+    "confirm": "स्थानांतरित करें",
+    "loading": "सदस्य लोड हो रहे…",
+    "success": "स्वामित्व {{name}} को दिया गया",
+    "failed": "स्वामित्व स्थानांतरण विफल"
+  },
+  "notifications": {
+    "open": "सूचना सेटिंग्स",
+    "channelTitle": "#{{channel}} हेतु सूचनाएं",
+    "spaceTitle": "{{space}} हेतु सूचनाएं",
+    "levelHeading": "मुझे सूचित करें",
+    "level": {
+      "all": "सभी संदेश",
+      "mentions": "केवल @उल्लेख",
+      "nothing": "कुछ नहीं",
+      "inherit": "स्पेस डिफ़ॉल्ट ({{level}})"
+    },
+    "dmNote": "प्रत्यक्ष संदेश आपको हमेशा सूचित करते हैं।",
+    "muteHeading": "म्यूट करें",
+    "mute": {
+      "oneHour": "1 घंटे हेतु",
+      "eightHours": "8 घंटे हेतु",
+      "oneDay": "24 घंटे हेतु",
+      "indefinite": "जब तक मैं हटाऊं"
+    },
+    "unmute": "अनम्यूट करें",
+    "mutedUntil": "{{time}} तक म्यूट",
+    "mutedIndefinitely": "हटाने तक म्यूट",
+    "spaceMuted": "यह स्पेस म्यूट है, इसलिए उसके चैनल भी।",
+    "mutedIndicator": "म्यूट",
+    "saveFailed": "सूचना सेटिंग्स सहेजना विफल",
+    "suppressEveryone": "@everyone और @here दबाएं",
+    "suppressRoles": "भूमिका उल्लेख दबाएं",
+    "massHeading": "समूह उल्लेख",
+    "massNote": "@here उन्हीं सदस्यों तक पहुंचता है जिन तक @everyone। नाम से आपके उल्लेख हमेशा सूचित करते हैं।"
+  }
+}

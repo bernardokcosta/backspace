@@ -1,0 +1,572 @@
+{
+  "interfaceScale": {
+    "label": "Skala Antarmuka",
+    "description": "Ubah ukuran teks, tombol, dan panel. Tersimpan di peramban atau app ini di perangkat ini.",
+    "reset": "Atur ulang ke 100%"
+  },
+  "voice": {
+    "input": {
+      "title": "Perangkat Input",
+      "checkingAccess": "Memeriksa akses mikrofon…",
+      "accessDenied": {
+        "title": "Akses mikrofon ditolak",
+        "description": "Beri akses mikrofon untuk memilih perangkat input.",
+        "retry": "Coba lagi"
+      },
+      "permissionPrompt": {
+        "description": "Izin mikrofon diperlukan untuk mendaftar dan memilih perangkat input.",
+        "enable": "Aktifkan akses mikrofon"
+      },
+      "device": {
+        "systemDefault": "Bawaan Sistem",
+        "currentlyUsing": "Kini memakai: {{label}}",
+        "none": "Tidak ada mikrofon terdeteksi."
+      },
+      "volume": {
+        "label": "Volume Input"
+      },
+      "meter": {
+        "hint": "Meter level aktif setelah Anda gabung kanal voice."
+      }
+    },
+    "output": {
+      "title": "Perangkat Output",
+      "checkingAccess": "Memeriksa akses audio…",
+      "device": {
+        "systemDefault": "Bawaan Sistem",
+        "unsupported": "Peramban ini tak mendukung pemilihan perangkat output. Audio ke bawaan sistem."
+      },
+      "permissionPrompt": {
+        "description": "Beri akses mikrofon untuk mendaftar perangkat output (peramban menyembunyikan nama output di balik akses mikrofon).",
+        "enable": "Aktifkan akses audio"
+      },
+      "volume": {
+        "label": "Volume Output"
+      },
+      "testSound": "Putar suara uji"
+    },
+    "video": {
+      "title": "Video",
+      "checkingAccess": "Memeriksa akses kamera…",
+      "accessDenied": {
+        "title": "Akses kamera ditolak",
+        "description": "Beri akses kamera untuk memilih kamera.",
+        "retry": "Coba lagi"
+      },
+      "blocked": {
+        "browser": "Kamera diblokir di level peramban. Klik ikon kamera di bilah alamat, atur ulang izin, lalu klik Coba Lagi.",
+        "mac": "Beri akses kamera di Pengaturan Sistem → Privasi & Keamanan → Kamera, lalu mulai ulang app.",
+        "windows": "Beri akses kamera di Pengaturan → Privasi & Keamanan → Kamera, lalu mulai ulang app.",
+        "other": "Izin kamera ditolak. Atur ulang di prompt peramban/Chromium dan coba lagi."
+      },
+      "permissionPrompt": {
+        "description": "Izin kamera diperlukan untuk memilih kamera dan pratinjau.",
+        "enable": "Aktifkan pratinjau kamera"
+      },
+      "camera": {
+        "label": "Kamera",
+        "auto": "Otomatis (bawaan sistem)",
+        "fallbackName": "Kamera {{number}}",
+        "detectedFallback": "kamera terdeteksi",
+        "currentlyUsing": "Kini memakai: {{label}}",
+        "none": "Tidak ada kamera terdeteksi."
+      },
+      "preview": {
+        "testAria": "Uji kamera",
+        "testHint": "Klik untuk menguji kamera",
+        "stop": "Hentikan pratinjau",
+        "retry": "Coba lagi"
+      },
+      "previewError": {
+        "inUse": "Kamera dipakai aplikasi lain.",
+        "unavailable": "Kamera terpilih tidak tersedia.",
+        "notFound": "Tidak ada kamera terdeteksi.",
+        "generic": "Tidak dapat memulai pratinjau kamera."
+      }
+    },
+    "title": "Suara & Video",
+    "volume": {
+      "sectionTitle": "Volume",
+      "soundEffects": {
+        "label": "Volume Efek Suara"
+      },
+      "messageSound": {
+        "label": "Putar suara untuk setiap pesan",
+        "description": "Mati (bawaan): hanya DM dan pesan yang menyebut Anda. Nyala: setiap kanal."
+      }
+    },
+    "pip": {
+      "sectionTitle": "Jendela Terapung",
+      "showOnSwitch": {
+        "label": "Tampilkan jendela terapung saat panggilan",
+        "description": "Saat Anda di kanal voice atau panggilan dan melihat hal lain, jendela kecil menjaga panggilan terlihat."
+      }
+    },
+    "processing": {
+      "sectionTitle": "Pemrosesan Voice",
+      "noiseSuppression": {
+        "label": "Peredam Bising AI",
+        "description": "Penghapusan bising berbasis ML (RNNoise). Menyaring papan ketik, kipas, dan bising latar."
+      },
+      "echoCancellation": {
+        "label": "Pembatalan Gema",
+        "description": "Membatalkan gema dari speaker yang masuk ke mic. Selalu nyala untuk kanal voice dan panggilan."
+      },
+      "autoGain": {
+        "label": "Kontrol Gain Otomatis",
+        "description": "Menyesuaikan volume mic otomatis. Dapat menyebabkan ducking voice saat stream."
+      }
+    }
+  },
+  "nav": {
+    "userSettings": "Pengaturan Pengguna",
+    "appSettings": "Pengaturan App",
+    "administration": "Administrasi",
+    "tabs": {
+      "account": "Akun",
+      "appearance": "Tampilan",
+      "voice": "Suara & Video",
+      "privacy": "Privasi",
+      "connections": "Koneksi",
+      "keybinds": "Keybind",
+      "desktop": "Desktop",
+      "instance": "Instans",
+      "bots": "Bot",
+      "developer": "Pengembang"
+    },
+    "logOut": "Keluar",
+    "backToMenu": "Kembali ke menu pengaturan"
+  },
+  "appearance": {
+    "title": "Tampilan"
+  },
+  "account": {
+    "title": "Akun Saya",
+    "detached": {
+      "notice": "Akun ini terlepas dari instans utamanya.",
+      "explanation": "{{homeInstance}} diatur ulang atau tak lagi tersedia, jadi akun ini kini berjalan lokal di instans ini. Profil dan kata sandi Anda dikelola di sini.",
+      "reattachHint": "Sebagai {{username}} di {{homeInstance}}, Anda dapat menaut ulang akun ini. Profil dan kehadiran akan disinkron dari sana lagi.",
+      "reattachButton": "Taut Ulang ke {{homeInstance}}",
+      "reattachConfirm": "Konfirmasi taut ulang sebagai {{username}}",
+      "reattaching": "Menaut ulang…",
+      "reattachFailed": "Taut ulang gagal",
+      "reattached": "Akun ditaut ulang dengan {{username}}"
+    },
+    "profile": {
+      "sectionTitle": "Kustomisasi Profil",
+      "avatar": {
+        "label": "Avatar",
+        "alt": "Avatar Anda",
+        "change": "Ubah Avatar",
+        "uploadFailed": "Gagal mengunggah avatar",
+        "cropTitle": "Pangkas Avatar"
+      },
+      "banner": {
+        "label": "Banner",
+        "change": "Ubah Banner",
+        "uploadFailed": "Gagal mengunggah banner",
+        "cropTitle": "Pangkas Banner"
+      },
+      "avatarColor": {
+        "label": "Warna Avatar"
+      },
+      "bannerColor": {
+        "label": "Warna Banner",
+        "hexPlaceholder": "#hex"
+      },
+      "bio": {
+        "label": "Tentang Saya",
+        "placeholder": "Ceritakan dunia tentang dirimu…",
+        "counter": "{{used}}/{{max}}"
+      }
+    },
+    "details": {
+      "sectionTitle": "Akun",
+      "status": {
+        "label": "Status",
+        "homeUnavailable": "Status Anda disimpan di {{host}}. Hubungkan ke {{host}} untuk mengubahnya."
+      },
+      "customStatus": {
+        "label": "Status Kustom",
+        "placeholder": "Anda sedang apa?"
+      }
+    },
+    "password": {
+      "current": {
+        "label": "Kata Sandi Kini",
+        "placeholder": "Masukkan kata sandi kini"
+      },
+      "new": {
+        "label": "Kata Sandi Baru",
+        "placeholder": "Minimal {{min}} karakter"
+      },
+      "confirm": {
+        "label": "Konfirmasi Kata Sandi Baru",
+        "placeholder": "Konfirmasi kata sandi baru"
+      },
+      "show": "Tampilkan kata sandi",
+      "hide": "Sembunyikan kata sandi",
+      "tooShort": "Kata sandi baru minimal {{min}} karakter",
+      "mismatch": "Kata sandi tidak cocok",
+      "changed": "Kata sandi diubah",
+      "changeFailed": "Gagal mengubah kata sandi",
+      "submit": "Ubah Kata Sandi",
+      "submitting": "Mengubah…"
+    },
+    "danger": {
+      "description": "Setelah menghapus akun, tidak ada jalan kembali. Pesan Anda tetap tetapi diatribusikan ke “Pengguna Dihapus”.",
+      "deleteButton": "Hapus Akun"
+    },
+    "save": {
+      "updated": "Profil diperbarui",
+      "failed": "Gagal memperbarui profil"
+    },
+    "deletion": {
+      "title": "Hapus Akun",
+      "warning": {
+        "headline": "Ini menghapus akun Anda permanen.",
+        "spaces": "Semua keanggotaan ruang dihapus",
+        "friends": "Semua pertemanan dihapus",
+        "dms": "Semua keanggotaan DM dihapus",
+        "messages": "Pesan Anda tetap tetapi diatribusikan ke “Pengguna Dihapus”"
+      },
+      "ownedSpaces": {
+        "prompt_one": "Anda memiliki {{count}} ruang. Tangani dulu sebelum lanjut:",
+        "prompt_other": "Anda memiliki {{count}} ruang. Tangani tiap sebelum lanjut:",
+        "transfer": "Alihkan",
+        "delete": "Hapus Ruang",
+        "selectOwner": "Pilih pemilik baru…"
+      },
+      "processing": "Memproses…",
+      "confirm": {
+        "permanent": "Aksi ini permanen dan tak dapat dibatalkan.",
+        "usernamePrompt": "Ketik nama pengguna <username>{{username}}</username> untuk konfirmasi",
+        "passwordPlaceholder": "Masukkan kata sandi Anda",
+        "submit": "Hapus Akun Saya",
+        "deleting": "Menghapus…"
+      },
+      "federation": {
+        "removing": "Menghapus akun Anda dari instans terhubung…",
+        "deleteAnyway": "Hapus Akun Kini"
+      },
+      "complete": {
+        "title": "Akun dihapus",
+        "redirecting": "Mengalihkan ke masuk…"
+      },
+      "errors": {
+        "usernameMismatch": "Nama pengguna tidak cocok",
+        "spacesFailed": "Gagal memproses ruang",
+        "deleteFailed": "Gagal menghapus akun"
+      }
+    }
+  },
+  "privacy": {
+    "title": "Privasi",
+    "discovery": {
+      "sectionTitle": "Penemuan",
+      "label": "Biarkan orang menemukan profil saya",
+      "description": "Saat nyala, profil Anda tampil di Temukan Orang. Orang selalu dapat menambah Anda berdasar nama pengguna tepat."
+    },
+    "activity": {
+      "sectionTitle": "Status Aktivitas",
+      "label": "Bagikan Status Aktivitas",
+      "description": "Biarkan orang melihat apa yang Anda lakukan, seperti game yang dimainkan atau musik yang didengar.",
+      "game": {
+        "label": "Dibuat manual",
+        "description": "Tambah game yang tak terdeteksi. Tampil hingga Anda menghapusnya.",
+        "placeholder": "Nama game",
+        "set": "Atur",
+        "detectedLabel": "Terdeteksi kini",
+        "detectedDescription": "Tampilkan game terdeteksi dengan nama lain. Diingat untuk lain kali.",
+        "renamePlaceholder": "Tampilkan sebagai…",
+        "renameLabel": "Tampilkan {{name}} sebagai",
+        "renamedLabel": "Game diganti nama",
+        "renamedItem": "{{detected}} → {{chosen}}",
+        "restore": "Pulihkan",
+        "descriptionBound": "Tambah game yang tak terdeteksi: pilih programnya dan namai. Tampil saat program itu berjalan.",
+        "programLabel": "Aplikasi",
+        "programPlaceholder": "Pilih program berjalan…",
+        "programHint": "Mulai game dulu, lalu pilih programnya dari daftar.",
+        "clearRename": "Bersihkan",
+        "unknownLabel": "Program Wine tak dikenal",
+        "unknownDescription": "Berjalan tetapi tak cocok game dikenal. Jika salah satunya game Anda, tampilkan sebagai game yang Anda mainkan.",
+        "unknownUse": "Tambah ke game saya",
+        "gamesLabel": "Game Anda",
+        "gamesDescription": "Game pertama adalah yang ditampilkan daftar; pindah game untuk mengatur prioritas. Game tersembunyi tak ditampilkan ke orang lain.",
+        "moveUp": "Pindah {{name}} ke atas",
+        "moveDown": "Pindah {{name}} ke bawah",
+        "hide": "Sembunyikan",
+        "show": "Tampilkan",
+        "hideGame": "Sembunyikan {{name}}",
+        "showGame": "Tampilkan {{name}}",
+        "add": "Tambah",
+        "remove": "Hapus",
+        "statusName": "ditampilkan berdasar nama",
+        "statusRunning": "berjalan",
+        "statusWaiting": "menunggu {{program}}",
+        "dragHandle": "Seret {{name}} untuk mengubah prioritas",
+        "manualNameLabel": "Nama {{name}}",
+        "save": "Simpan"
+      }
+    }
+  },
+  "connections": {
+    "title": "Koneksi"
+  },
+  "instance": {
+    "tabs": {
+      "general": "Umum",
+      "registration": "Pendaftaran",
+      "federation": "Federasi",
+      "streaming": "Streaming",
+      "storage": "Penyimpanan",
+      "users": "Pengguna",
+      "updates": "Pembaruan"
+    }
+  },
+  "keybinds": {
+    "portal": {
+      "description": "Di Wayland, desktop mengelola semua shortcut Backspace. Tetapkan, ubah, atau hapus kunci di pengaturan shortcut keyboard sistem, di bawah Backspace. Binding lokal peramban/X11 tak dipakai di sini.",
+      "idle": "Menyiapkan pendaftaran pertama semua aksi tersedia.",
+      "pending": "Menghubungkan ke portal desktop. Jika dialog sistem muncul, pilih shortcut untuk aksi yang ingin dipakai.",
+      "ready": "Backspace terdaftar. Buka pengaturan shortcut keyboard sistem untuk mengubah atau menghapus penetapan. Daftar di bawah hanya-baca dan menyegarkan saat Anda kembali ke Backspace.",
+      "unavailable": "Portal tak tersedia, izin ditolak, atau sesi berakhir. Backend portal Global Shortcuts diperlukan. Binding lokal mati di Wayland.",
+      "retry": "Daftarkan atau hubungkan ulang shortcut",
+      "assigned": "Shortcut sistem: {{shortcut}}",
+      "notAssigned": "Tidak ada penetapan sistem aktif"
+    },
+    "title": "Keybind",
+    "note": {
+      "webOnly": "Shortcut berfungsi saat tab ini fokus. Untuk shortcut global yang berfungsi di app lain, gunakan app desktop."
+    },
+    "section": {
+      "voice": "Shortcut Voice"
+    },
+    "action": {
+      "toggleMute": "Bisukan/Bunyikan",
+      "toggleDeafen": "Tulikan/Dengarkan",
+      "pushToTalk": "Tekan untuk Bicara",
+      "toggleCamera": "Nyalakan/Matikan Kamera",
+      "toggleScreenShare": "Bagikan/Henti Berbagi Layar",
+      "disconnect": "Putuskan"
+    },
+    "row": {
+      "recordingPrompt": "Tekan kombo kunci…",
+      "notBound": "Tak terikat",
+      "record": "Rekam",
+      "escToCancel": "ESC untuk batal"
+    },
+    "key": {
+      "shift": "Shift",
+      "ctrl": "Ctrl",
+      "alt": "Alt",
+      "option": "Option",
+      "cmd": "Cmd",
+      "win": "Win",
+      "space": "Spasi",
+      "middleClick": "Klik Tengah",
+      "mouse4": "Mouse 4",
+      "mouse5": "Mouse 5",
+      "mouseGeneric": "Mouse {{button}}"
+    },
+    "accessibility": {
+      "title": "Izin Aksesibilitas Diperlukan",
+      "description": "Backspace butuh izin aksesibilitas agar shortcut global berfungsi di luar app.",
+      "grant": "Beri Izin"
+    },
+    "hookError": {
+      "title": "Shortcut Global Tak Tersedia",
+      "description": "Gagal memulai pendengar input. Di Linux, pengguna Anda mungkin perlu di grup <code>input</code>."
+    },
+    "conflict": {
+      "message": "<strong>{{combo}}</strong> sudah terikat ke <strong>{{action}}</strong>. Timpa?",
+      "overwrite": "Timpa"
+    }
+  },
+  "desktop": {
+    "title": "Desktop",
+    "autoLaunch": {
+      "openAtLogin": {
+        "label": "Mulai saat masuk",
+        "description": "Otomatis luncurkan Backspace saat Anda masuk"
+      },
+      "startMinimized": {
+        "label": "Mulai diminimalkan",
+        "description": "Mulai tersembunyi di baki sistem alih-alih menampilkan jendela"
+      }
+    },
+    "updates": {
+      "appName": "Backspace Desktop",
+      "versionLabel": "Versi {{version}}",
+      "checking": "Memeriksa pembaruan…",
+      "checkingShort": "Memeriksa…",
+      "checkNow": "Periksa Pembaruan",
+      "downloading": "Mengunduh {{version}}, {{percent}}%",
+      "downloadingWithRate": "Mengunduh {{version}}, {{percent}}% pada {{rate}}",
+      "rateMegabytes": "{{value}} MB/s",
+      "rateKilobytes": "{{value}} KB/s",
+      "upToDate": "Anda termutakhir",
+      "available": "Versi {{version}} tersedia",
+      "readyToInstall": "Versi {{version}} siap diinstal",
+      "installFailed": "Versi {{version}} tidak dapat diinstal",
+      "checkFailed": "Pemeriksaan pembaruan terakhir gagal",
+      "idle": "Periksa versi baru app desktop",
+      "external": "Pembaruan diinstal via manajer perangkat lunak Flatpak Anda",
+      "download": "Unduh",
+      "restart": "Mulai Ulang",
+      "manualNote": "Build ini tidak menginstal pembaruan sendiri. Unduh versi baru dari GitHub dan ganti app manual. Lihat catatan rilis untuk langkah di platform Anda.",
+      "externalNote": "Flatpak menerapkan pembaruan atomik di luar app. Gunakan manajer perangkat lunak atau perintah <code>flatpak update</code> untuk memperbarui Backspace."
+    },
+    "instance": {
+      "current": "Instans terhubung kini",
+      "change": "Ubah Instans"
+    }
+  },
+  "desktopDownload": {
+    "title": "Desktop",
+    "intro": "Shortcut global, mulai saat boot, dan ikon baki sistem.",
+    "unsupported": "App desktop berjalan di Windows, Linux, dan macOS.",
+    "name": {
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux"
+    },
+    "tag": {
+      "windows": "PC Ini",
+      "mac": "Mac Ini",
+      "linux": "Mesin Ini"
+    },
+    "covers": {
+      "windows": "x64 atau arm64",
+      "mac": "Berjalan di Apple Silicon dan Intel Mac",
+      "linux": "Paket AppImage atau deb, x64 atau arm64"
+    },
+    "download": {
+      "windows": "Unduh untuk Windows",
+      "mac": "Unduh untuk macOS",
+      "linux": "Unduh untuk Linux"
+    },
+    "picker": {
+      "architecture": "Arsitektur",
+      "format": "Format paket"
+    },
+    "arch": {
+      "appleSilicon": "Apple Silicon",
+      "intel": "Intel",
+      "x64": "x64",
+      "arm64": "arm64"
+    },
+    "kind": {
+      "appimage": "AppImage",
+      "deb": "deb"
+    },
+    "archGuessed": {
+      "windows": "Peramban Anda tidak menyebut prosesor PC ini, jadi x64 dipilih awal.",
+      "mac": "Peramban Anda tidak menyebut chip Mac ini, jadi Apple Silicon dipilih awal.",
+      "linux": "Peramban Anda tidak menyebut prosesor mesin ini, jadi x64 dipilih awal."
+    },
+    "version": "Versi {{version}}",
+    "allReleases": "Semua rilis di GitHub"
+  },
+  "bots": {
+    "title": "Bot",
+    "description": "Bot adalah akun yang dikendalikan program dengan token. Buat satu, salin tokennya, dan hubungkan program Anda. Bot menjawab di pesan langsung.",
+    "create": {
+      "sectionTitle": "Buat bot",
+      "nameLabel": "Nama pengguna bot",
+      "submit": "Buat bot",
+      "hint": "{{min}} hingga {{max}} karakter: huruf Latin kecil (a–z), digit (0–9), dan garis bawah (_). Anda dapat membuat hingga {{limit}} bot."
+    },
+    "list": {
+      "sectionTitle": "Bot Anda",
+      "empty": "Anda belum punya bot.",
+      "createdOn": "Dibuat {{date}}"
+    },
+    "token": {
+      "title": "Token untuk {{name}}",
+      "warning": "Salin token kini. Ditampilkan hanya sekali, dan siapa pun yang memilikinya mengendalikan bot.",
+      "copy": "Salin token",
+      "copied": "Disalin",
+      "dismiss": "Saya telah menyimpannya"
+    },
+    "tokens": {
+      "title": "Token akses",
+      "loading": "Memuat token",
+      "legacy": "Bot ini masih berjalan pada token lama berumur panjang. Buat token untuk beralih: yang lama langsung berhenti berfungsi.",
+      "empty": "Bot ini tidak punya token.",
+      "unnamed": "Token tanpa nama",
+      "createdOn": "Dibuat {{date}}",
+      "neverUsed": "tidak pernah dipakai",
+      "lastUsed": "terakhir dipakai {{time}}",
+      "revoke": "Cabut",
+      "confirmRevoke": "Konfirmasi pencabutan",
+      "nameLabel": "Label token",
+      "namePlaceholder": "Label (opsional)",
+      "create": "Buat token",
+      "limitHint": "Hingga {{max}} token per bot. Mencabut token memutuskan bot; token lain tetap berfungsi."
+    },
+    "actions": {
+      "regenerate": "Atur ulang semua token",
+      "delete": "Hapus",
+      "confirmDelete": "Konfirmasi hapus",
+      "cancel": "Batal",
+      "edit": "Sunting",
+      "save": "Simpan",
+      "addToServer": "Tambah ke ruang",
+      "tokens": "Token"
+    },
+    "edit": {
+      "nameLabel": "Nama tampilan",
+      "hint": "Nama pengguna @{{username}} tak dapat diubah. Hingga {{max}} karakter.",
+      "bioLabel": "Tentang",
+      "bioPlaceholder": "Apa yang dilakukan bot, perintahnya, tempat mendapat bantuan",
+      "bioCounter": "{{used}}/{{max}}"
+    },
+    "status": {
+      "label": "Status",
+      "none": "Tanpa status",
+      "textLabel": "Teks status",
+      "placeholder": "Apa yang ditampilkan bot di samping namanya",
+      "hint": "Ditampilkan saat bot terhubung. Kode bot dapat menggantinya hingga terhubung berikut.",
+      "types": {
+        "custom": "Kustom",
+        "playing": "Bermain",
+        "listening": "Mendengarkan",
+        "watching": "Menonton"
+      },
+      "display": {
+        "custom": "{{name}}",
+        "playing": "Bermain {{name}}",
+        "listening": "Mendengarkan {{name}}",
+        "watching": "Menonton {{name}}"
+      }
+    },
+    "permissions": {
+      "label": "Izin yang diminta bot",
+      "hint": "Manajer yang menambah bot ke ruang melihatnya tercentang dan dapat menghapus centang apa pun. Mereka masuk ke peran bernama bot. Mengubah nanti tak menyentuh peran yang sudah dibuat."
+    },
+    "avatar": {
+      "change": "Ubah avatar",
+      "remove": "Hapus avatar",
+      "cropTitle": "Pangkas avatar bot",
+      "uploadFailed": "Gagal mengunggah avatar",
+      "notImage": "Pilih berkas gambar"
+    },
+    "spaces": {
+      "title": "Tambah ke ruang",
+      "loading": "Memuat ruang",
+      "empty": "Anda belum mengelola ruang. Menambah bot butuh izin mengelola ruang.",
+      "add": "Tambah",
+      "added": "Ditambah",
+      "remove": "Hapus"
+    }
+  },
+  "developer": {
+    "title": "Pengembang",
+    "mode": {
+      "label": "Mode Pengembang",
+      "description": "Tampilkan alat pengembang, seperti tab Bot, di pengaturan. Mematikan hanya menyembunyikannya; bot Anda tetap berjalan.",
+      "saveFailed": "Gagal menyimpan pengaturan. Coba lagi."
+    }
+  }
+}

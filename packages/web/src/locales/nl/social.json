@@ -1,0 +1,104 @@
+{
+  "tabs": {
+    "all": "Iedereen",
+    "pending": "In afwachting",
+    "add": "Vriend toevoegen",
+    "activity": "Activiteit"
+  },
+  "sections": {
+    "online": "Online — {{n}}",
+    "all": "Alle vrienden — {{n}}",
+    "pending": "In afwachting — {{n}}",
+    "active": "Actief — {{n}}",
+    "offline": "Offline — {{n}}"
+  },
+  "empty": {
+    "online": "Niemand is nu online.",
+    "all": "Nog geen vrienden — voeg iemand toe!",
+    "pending": "Geen openstaande verzoeken — Nori doet een dutje.",
+    "activity": "Het is stil voor nu… Zodra vrienden iets gaan doen, zie je het hier!"
+  },
+  "friend": {
+    "viaInstance": "via {{host}}",
+    "message": "Bericht",
+    "remove": "Vriend verwijderen"
+  },
+  "sendMessage": {
+    "failed": "Kon gesprek niet openen: {{reason}}"
+  },
+  "request": {
+    "incoming": "Inkomend vriendschapsverzoek",
+    "outgoing": "Uitgaand vriendschapsverzoek",
+    "ignore": "Negeren",
+    "cancel": "Verzoek annuleren",
+    "send": "Vriendschapsverzoek sturen",
+    "pending": "Verzoek in afwachting",
+    "sending": "Versturen…",
+    "cancelling": "Annuleren…",
+    "sent": "Vriendschapsverzoek verstuurd!"
+  },
+  "removeFriend": {
+    "title": "Vriend verwijderen",
+    "description": "Weet je zeker dat je {{name}} als vriend wilt verwijderen? Je kunt later altijd een nieuw verzoek sturen.",
+    "fallbackName": "deze gebruiker"
+  },
+  "add": {
+    "title": "Mensen vinden",
+    "hint": "Zoek op gebruikersnaam of gebruik <handle>user@instance</handle> om iemand direct toe te voegen.",
+    "placeholder": "Zoeken of toevoegen op naam…",
+    "direct": "Stuur vriendschapsverzoek naar <handle>{{handle}}</handle>",
+    "sendRequest": "Verzoek sturen",
+    "discover": "Mensen ontdekken",
+    "noSearchResults": "Geen gebruikers voor je zoekopdracht.",
+    "noDiscoverable": "Nog geen vindbare gebruikers — nodig mensen uit om mee te doen!"
+  },
+  "mutuals": {
+    "friends_one": "{{count}} gemeenschappelijke vriend",
+    "friends_other": "{{count}} gemeenschappelijke vrienden",
+    "spaces_one": "{{count}} gemeenschappelijke ruimte",
+    "spaces_other": "{{count}} gemeenschappelijke ruimtes",
+    "noFriends": "Geen gemeenschappelijke vrienden",
+    "noSpaces": "Geen gemeenschappelijke ruimtes"
+  },
+  "profile": {
+    "tabs": {
+      "about": "Over",
+      "mutualFriends": "Gemeenschappelijke vrienden",
+      "mutualSpaces": "Gemeenschappelijke ruimtes"
+    },
+    "aboutMe": "Over mij",
+    "roles": "Rollen",
+    "memberSince": "Lid sinds",
+    "sendMessage": "Bericht sturen",
+    "editRoles": "Rollen bewerken",
+    "viewFull": "Volledig profiel bekijken",
+    "addFriend": "Vriend toevoegen",
+    "playingNow": "Speelt nu"
+  },
+  "activity": {
+    "title": "Nu actief",
+    "quietTitle": "Het is stil voor nu…",
+    "quietDescription": "Zodra een vriend iets gaat doen — een spel spelen of op voice hangen — zie je het hier!",
+    "online": "Online — {{n}}",
+    "offline": "Offline — {{n}}",
+    "resizeHandle": "Vriendenlijst groter of kleiner maken",
+    "types": {
+      "playing": "Speelt een spel",
+      "listening": "Luistert naar muziek",
+      "streaming": "Streamt",
+      "watching": "Kijkt",
+      "custom": "Aangepaste status"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "Track openen"
+  },
+  "instanceNotConnected": "Niet verbonden met {{host}}. Maak opnieuw verbinding en probeer het nog eens."
+}

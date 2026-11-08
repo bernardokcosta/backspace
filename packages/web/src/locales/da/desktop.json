@@ -1,0 +1,31 @@
+{
+  "mediaSetup": {
+    "neteaseSmtc": {
+      "title": "Slå SMTC til i NetEase Cloud Music",
+      "body": "Åbn NetEase Cloud Music → Indstillinger → System → aktiver SMTC, og genstart derefter appen. Backspace har brug for det for at registrere afspilning, pause og fremskridt præcist.",
+      "gotIt": "Forstået",
+      "dontRemind": "Påmind ikke igen",
+      "dismiss": "Luk dette tip"
+    }
+  },
+  "update": {
+    "laterHint": "Du kan installere dette senere under Indstillinger, Computer",
+    "dismiss": "Luk denne opdatering",
+    "failed": {
+      "title": "Opdateringen kunne ikke installeres",
+      "body": "Backspace {{version}} blev downloadet, men installationen mislykkedes. Du kan installere den manuelt i stedet."
+    },
+    "ready": {
+      "title": "Opdatering klar",
+      "body": "Backspace {{version}} er downloadet og klar til at installere."
+    },
+    "available": {
+      "title": "Backspace {{version}} er tilgængelig",
+      "body": "Denne build kan ikke opdatere sig selv, så download den nye version for at komme videre.",
+      "bodyWithCurrent": "Du bruger {{currentVersion}}. Denne build kan ikke opdatere sig selv, så download den nye version for at komme videre."
+    },
+    "restartNow": "Genstart nu",
+    "download": "Hent",
+    "later": "Senere"
+  }
+}

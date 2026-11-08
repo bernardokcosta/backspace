@@ -1,4 +1,11 @@
 {
+  "feedback": {
+    "openedInNewTab": "In einem neuen Tab geöffnet",
+    "copiedGifLink": "GIF-Link kopiert",
+    "copiedImageLink": "Bildlink kopiert",
+    "uploadExpired": "\"{{content}}\" konnte nicht gesendet werden: Der Upload ist abgelaufen.",
+    "attachmentOnly": "(nur Anhänge)"
+  },
   "message": {
     "edit": {
       "hint": "Esc zum <cancel>Abbrechen</cancel> • Enter zum <save>Speichern</save>"
@@ -27,7 +34,7 @@
       "others_other": "{{count}} weitere",
       "bySelf": "Du hast reagiert",
       "byOne": "{{name}} hat reagiert",
-      "byMany": "{{names}} haben reagiert"
+      "byMany": "Reaktionen: {{names}}"
     }
   },
   "list": {
@@ -271,16 +278,16 @@
     "reject": "Ablehnen",
     "rejectTitle": "Sticker-Paket ablehnen",
     "rejectReason": "Ablehnungsgrund",
-    "rejectPlaceholder": "Geben Sie einen Ablehnungsgrund ein",
+    "rejectPlaceholder": "Gib einen Ablehnungsgrund ein (z. B. unangemessene Inhalte oder schlechte Qualität)",
     "rejectConfirm": "Ablehnung bestätigen",
     "approvedSuccess": "Sticker-Paket erfolgreich freigegeben",
     "rejectedSuccess": "Sticker-Paket abgelehnt",
-    "reviewNotes": "Prüfhinweise",
+    "reviewNotes": "Ablehnungsgrund",
     "creator": "Ersteller",
     "sourceInstance": "Instanz",
     "localInstance": "Lokale Instanz",
     "viewStickers": "Sticker ansehen",
-    "pendingReviewHint": "Wartet auf Administrator-Überprüfung"
+    "pendingReviewHint": "Wird von der Administration geprüft und nach der Genehmigung unter „Sticker entdecken“ angezeigt."
   },
   "poke": {
     "action": "Anstupsen",

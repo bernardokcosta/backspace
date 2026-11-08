@@ -1,0 +1,35 @@
+{
+  "failure": {
+    "notAuthenticated": "Non autenticato per questa istanza",
+    "invalidResponse": "Impossibile analizzare la risposta del caricamento",
+    "uploadError": "Errore di caricamento",
+    "downloadError": "Errore di download",
+    "fileUnavailable": "File non più disponibile: scarta e carica di nuovo",
+    "noDestination": "Nessun handle di destinazione: impossibile riprendere",
+    "destinationMissing": "Handle di destinazione mancante",
+    "permissionDenied": "Autorizzazione negata",
+    "lostDownload": "Impossibile riprendere il download: dati persi. Riavvia il download.",
+    "uploadHandleMissing": "Handle del file mancante: scarta e carica di nuovo",
+    "downloadHandleMissing": "Handle di destinazione mancante: riavvia il download",
+    "downloadFailed": "Download non riuscito: {{status}}",
+    "resumeFailed": "Ripresa non riuscita: {{status}}"
+  },
+  "transfers": {
+    "title": "Trasferimenti",
+    "count_one": "{{count}} trasferimento",
+    "count_many": "{{count}} trasferimenti",
+    "count_other": "{{count}} trasferimenti",
+    "clearCompleted": "Cancella completati",
+    "empty": "Nessun trasferimento attivo.",
+    "status": {
+      "done": "Completato",
+      "failed": "Non riuscito: {{reason}}",
+      "aborted": "Annullato",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "Ritaglia immagine",
+    "applying": "Applicazione…"
+  }
+}

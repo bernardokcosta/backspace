@@ -170,7 +170,7 @@ function registrationRefusal(err: unknown): RemoteLoginReason | null {
 /**
  * Canonical origin of a user-typed or stored instance value: scheme added
  * when missing, host lowercased, path and trailing slash dropped. Throws
- * `Invalid URL` when the value does not parse.
+ * a localized validation error when the value does not parse.
  */
 export function normalizeOrigin(url: string): string {
   let normalized = url.trim();
@@ -184,7 +184,7 @@ export function normalizeOrigin(url: string): string {
     const parsed = new URL(normalized);
     return parsed.origin; // "https://domain.com" — no path, no trailing slash
   } catch {
-    throw new Error('Invalid URL');
+    throw new Error(i18n.t('federation:validation.invalidUrl'));
   }
 }
 
@@ -381,7 +381,7 @@ export async function maybeAutoReattach(instance: ConnectedInstance): Promise<vo
       live: { user: res.user, username: res.user.username },
       registry: { username: res.user.username, remoteUserId: res.user.id },
     });
-    useUIStore.getState().addToast(`Account re-linked with ${homeDomain}`, 'success');
+    useUIStore.getState().addToast(i18n.t('federation:feedback.accountRelinked', { instance: homeDomain }), 'success');
     useInstanceStore.getState().syncRegistry().catch(() => {});
     // Re-attach reconciled this connection's 1-on-1 DM federatedIds (merge/re-key
     // on the server); refetch the DM list so the split conversation collapses
@@ -693,14 +693,14 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
 
     // Reject self-connection
     if (isSelfOrigin(url)) {
-      throw new Error("You're already logged into this instance");
+      throw new Error(i18n.t('federation:validation.selfInstance'));
     }
 
     // Reject duplicates — but only if already connected/connecting.
     // Allow re-adding instances that are in error/disconnected state.
     const existing = get().instances.find(i => i.origin === origin);
     if (existing && (existing.status === 'connected' || existing.status === 'connecting')) {
-      throw new Error('This instance is already connected');
+      throw new Error(i18n.t('federation:validation.alreadyConnected'));
     }
 
     // Probe with unauthenticated client
@@ -712,7 +712,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
 
   connectToRemote: async (origin: string, password: string, displayName?: string) => {
     const currentUser = useAuthStore.getState().user;
-    if (!currentUser) throw new Error('Not logged in');
+    if (!currentUser) throw new Error(i18n.t('federation:validation.notLoggedIn'));
 
     set({ isLoading: true, error: null });
 
@@ -755,13 +755,13 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
         homeApi = resolveCredentialHomeApi();
         if (!homeApi) {
           throw new Error(
-            `Connect to your home instance (${trueHomeHost}) first — it issues the credential for ${targetHost}`,
+            i18n.t('federation:validation.connectHomeFirst', { home: trueHomeHost, target: targetHost }),
           );
         }
 
         const { valid } = await homeApi.users.verifyPassword(password);
         if (!valid) {
-          throw new Error('Incorrect password');
+          throw new Error(i18n.t('federation:validation.incorrectPassword'));
         }
 
         const credential = await homeApi.users.federationCredential({ origin });
@@ -804,7 +804,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
       }
 
       if (!response) {
-        throw new Error('Failed to authenticate with remote instance');
+        throw new Error(i18n.t('federation:validation.authenticationFailed'));
       }
 
       // The remote account now authenticates with the issued secret — record it
