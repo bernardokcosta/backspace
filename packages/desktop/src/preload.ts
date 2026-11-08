@@ -221,6 +221,7 @@ contextBridge.exposeInMainWorld('backspace', {
 
   // Language: the renderer owns the choice; main relabels its tray and menus.
   setLanguage: (language: string) => ipcRenderer.send('set-language', language),
+  getSystemLanguages: (): Promise<readonly string[]> => ipcRenderer.invoke('get-system-languages'),
 
   // Auto-launch settings
   getAutoLaunchSettings: () => ipcRenderer.invoke('get-auto-launch-settings'),

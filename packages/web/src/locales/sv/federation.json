@@ -1,0 +1,376 @@
+{
+  "validation": {
+    "invalidUrl": "Ogiltig URL",
+    "selfInstance": "Du är redan inloggad på denna instans",
+    "alreadyConnected": "Denna instans är redan ansluten",
+    "notLoggedIn": "Inte inloggad",
+    "connectHomeFirst": "Anslut först till din hemmainstans ({{home}}) — den utfärdar autentiseringsuppgiften för {{target}}",
+    "incorrectPassword": "Fel lösenord",
+    "authenticationFailed": "Autentiseringen med den externa instansen misslyckades"
+  },
+  "feedback": {
+    "connectionLost": "Anslutningen till {{instance}} förlorad — återansluter…",
+    "connectionRestored": "Återansluten till {{instance}}",
+    "pendingRequests_one": "Du har {{count}} väntande parkopplingsförfrågan",
+    "pendingRequests_other": "Du har {{count}} väntande parkopplingsförfrågningar",
+    "requestApproved": "Din parkopplingsförfrågan godkändes",
+    "requestDenied": "Din parkopplingsförfrågan nekades",
+    "requestExpired": "Din parkopplingsförfrågan gick ut",
+    "friendRequestDeliveryFailed": "Vänförfrågan till {{username}} kunde inte levereras: {{reason}}",
+    "accountRelinked": "Konto omlänkat med {{instance}}"
+  },
+  "connections": {
+    "title": "Anslutna instanser",
+    "description": "Koppla konton över federerade Backspace-instanser.",
+    "empty": "Inga externa instanser anslutna. Lägg till en för att börja federera.",
+    "addButton": "+ Lägg till instans",
+    "home": {
+      "title": "Hemmainstans",
+      "asUser": "som {{username}}",
+      "local": "Lokal"
+    },
+    "status": {
+      "connected": "Ansluten",
+      "disconnected": "Frånkopplad",
+      "unreachable": "Onåbar",
+      "authExpired": "Autentisering utgången"
+    },
+    "add": {
+      "title": "Lägg till extern instans",
+      "urlPlaceholder": "https://instance.example.com",
+      "probing": "Sonderar…",
+      "connect": "Anslut",
+      "connecting": "Ansluter…",
+      "registrationClosed": "Denna instans har stängt av nya federerade registreringar. Befintliga konton kan fortfarande logga in.",
+      "passwordLabel": "Ange ditt lösenord för att ansluta till {{host}}",
+      "passwordPlaceholder": "Det du loggar in med",
+      "passwordHint": "Ditt lösenord kontrolleras av din hemmainstans och skickas aldrig till {{host}}. Den instansen får en unik autentiseringsuppgift skapad bara för den.",
+      "fallbackNotice": {
+        "credentialRefused": "Ett konto finns redan på {{host}} och det accepterar inte autentiseringsuppgiften din hemmainstans utfärdade. Logga in med lösenordet du satte på den instansen. Det växlas sedan till den utfärdade autentiseringsuppgiften.",
+        "registrationClosed": "{{host}} tar inte emot nya konton från andra instanser, så inget skapades åt dig där. Har du redan ett konto på {{host}}, logga in med det nedan."
+      },
+      "usernamePlaceholder": "Ditt användarnamn på denna instans",
+      "remotePasswordLabel": "Lösenord för denna instans",
+      "remotePasswordPlaceholder": "Lösenord på den externa instansen",
+      "loggingIn": "Loggar in…",
+      "loginAndConnect": "Logga in & anslut"
+    },
+    "filter": {
+      "all": "Alla",
+      "connected": "Anslutna",
+      "disconnected": "Frånkopplade",
+      "issues": "Problem",
+      "noMatch": "Inga instanser matchar filtret."
+    },
+    "sort": {
+      "dateAdded": "Datum tillagd",
+      "lastConnected": "Senast ansluten"
+    },
+    "row": {
+      "asUser": "som {{username}}",
+      "added": "Tillagd {{date}}",
+      "connectedAgo": "Ansluten {{time}}",
+      "disconnectedAgo": "Frånkopplad {{time}}",
+      "lastConnectedAgo": "Senast {{time}}",
+      "remoteUserId": "Externt användar-ID",
+      "addedLabel": "Tillagd",
+      "disconnectedLabel": "Frånkopplad",
+      "lastConnectedLabel": "Senast ansluten",
+      "homePasswordLabel": "Ditt hemmakontos lösenord",
+      "disconnect": "Koppla från",
+      "reconnect": "Återanslut",
+      "reauthenticate": "Autentisera igen",
+      "forceRemove": "Tvinga borttagning",
+      "deleteIdentity": "Ta bort identitet",
+      "deleteIdentityDisabled": "Koppla från först för att ta bort identitet",
+      "reason": {
+        "unreachable": "Den instansen kunde inte nås.",
+        "sessionExpired": "Den sparade sessionen gick ut. Autentisera igen för att ansluta.",
+        "reauthenticate": "Autentisera för att ansluta.",
+        "authenticateHome": "Autentisera för att ansluta till din hemmainstans."
+      }
+    },
+    "forceRemove": {
+      "title": "Tvinga borttagning av post",
+      "description": "Detta tar bort registerposten för {{name}}. Den externa instansen meddelas inte. Använd endast om instansen är permanent onåbar.",
+      "confirm": "Tvinga borttagning"
+    },
+    "deleteIdentity": {
+      "title": "Ta bort identitet",
+      "description": "Ta bort din federerade identitet på <name>{{name}}</name>. Välj hur dina data ska hanteras.",
+      "leave": {
+        "title": "Gå tyst",
+        "description": "Koppla från denna instans. Ditt konto och alla data finns kvar."
+      },
+      "soft": {
+        "title": "Ta bort användare",
+        "description": "Ta bort ditt konto men behåll dina meddelanden. Du visas som ‘Borttagen användare’."
+      },
+      "full": {
+        "title": "Förstör allt",
+        "description": "Ta bort ditt konto och alla dina meddelanden, DM, reaktioner och filer. Inget finns kvar."
+      },
+      "scope": {
+        "heading": "Omfattning",
+        "this": "Endast denna instans",
+        "select": "Välj instanser…",
+        "all": "Alla externa instanser"
+      },
+      "deleting": "Tar bort…",
+      "disconnect": "Koppla från",
+      "confirm": "Ta bort identitet",
+      "toast": {
+        "disconnected": "Frånkopplad",
+        "deleted_one": "Identitet borttagen",
+        "deleted_other": "Identitet borttagen på {{count}} instanser",
+        "ownsSpaces": "{{host}}: överför rumsägarskap först",
+        "failed": "{{host}}: {{error}}",
+        "failedGeneric": "Misslyckades"
+      }
+    },
+    "action": {
+      "friendRequest": "vänförfrågan",
+      "spaceJoin": "rumsanslutning",
+      "directMessage": "direktmeddelande",
+      "friendRequestTo": "Vänförfrågan till {{target}}",
+      "joinSpace": "Gå med i {{target}}",
+      "directMessageTo": "Direktmeddelande till {{target}}",
+      "instanceConnect": "anslutning",
+      "connectTo": "Anslut till {{target}}"
+    },
+    "pending": {
+      "title": "Väntande parkopplingsgodkännanden",
+      "description": "Din administratör måste godkänna innan dessa förfrågningar kan gå vidare.",
+      "onPeer": "på <peer>{{peer}}</peer>",
+      "cancelling": "Avbryter…",
+      "cancelled": "Parkopplingsförfrågan avbruten",
+      "cancelFailed": "Avbrytningen misslyckades: {{error}}"
+    },
+    "outcomes": {
+      "title": "Senaste parkopplingsresultat",
+      "approved": "Din parkopplingsförfrågan till {{host}} godkändes av din administratör.",
+      "denied": "Din parkopplingsförfrågan till {{host}} nekades av din administratör.",
+      "expired": "Din parkopplingsförfrågan till {{host}} gick ut utan administratörsåtgärd.",
+      "originalAction": "Ursprunglig åtgärd: {{action}}",
+      "retry": "Försök igen med din {{action}}",
+      "dismissing": "Stänger…",
+      "dismissFailed": "Kunde inte stänga: {{error}}",
+      "dismissAllFailed": "Kunde inte stänga alla: {{error}}"
+    },
+    "peering": {
+      "unavailable": "Meddelanden med personer på {{name}} kan inte vidarebefordras förrän en administratör godkänner parkoppling med den.",
+      "inProgress": "Ställer in parkoppling med {{name}}. Meddelanden med personer där vidarebefordras snart."
+    }
+  },
+  "admin": {
+    "title": "Federation",
+    "description": "Konfigurera federationsrelay, hemlighetsrotation och hantera parkopplade instanser.",
+    "relay": {
+      "title": "Relayinställningar",
+      "description": "Styr DM-relay mellan federerade instanser. När det är aktiverat vidarebefordras DM med användare på peerinstanser server-till-server.",
+      "enable": {
+        "label": "Aktivera DM-relay",
+        "description": "Vidarebefordra direktmeddelanden till och från peerinstanser"
+      },
+      "autoAccept": {
+        "label": "Acceptera parkoppling automatiskt",
+        "description": "Acceptera automatiskt parkopplingsförfrågningar från andra instanser. När det är avstängt tillåts endast manuellt startad parkoppling."
+      },
+      "ttl": {
+        "label": "Relay-TTL (dagar)",
+        "description": "Hur länge vidarebefordrade meddelanden behålls i utkorgen före rensning"
+      },
+      "rotation": {
+        "label": "Standard hemlighetsrotation (dagar)",
+        "description": "Autorotationsintervall för nya peers. Befintliga peers behåller sin aktuella inställning."
+      }
+    },
+    "status": {
+      "active": "Aktiv",
+      "pending": "Väntar",
+      "unreachable": "Onåbar",
+      "rejectedShort": "Avvisad",
+      "revoked": "Återkallad",
+      "awaitingApproval": "Väntar på godkännande",
+      "needsAttention": "Behöver uppmärksamhet"
+    },
+    "filter": {
+      "statusHeading": "Status",
+      "sort": {
+        "domain": "Domän (A–Ö)",
+        "lastSeen": "Senast sedd",
+        "dateAdded": "Datum tillagd",
+        "failures": "Fel",
+        "revokedDate": "Återkallelsedatum"
+      }
+    },
+    "views": {
+      "active": "Aktiva",
+      "revoked": "Återkallade"
+    },
+    "peer": {
+      "instanceName": "Instansnamn",
+      "revokedMeta": "Återkallad: {{revoked}} · Parkopplad: {{peered}}",
+      "unreachableMeta": "Senast sedd: {{lastSeen}} · {{failures}}",
+      "activeMeta": "Senast sedd: {{lastSeen}} · Synkad: {{synced}}",
+      "failures_one": "{{count}} fel",
+      "failures_other": "{{count}} fel",
+      "reinitiate": "Starta parkoppling igen",
+      "deletePermanently": "Ta bort permanent",
+      "consecutiveFailures": "Fel i följd",
+      "authFailures": "Autentiseringsfel",
+      "lastFailure": "Senaste fel",
+      "peeredSince": "Parkopplad sedan",
+      "secretRotated": "Hemlighet roterad",
+      "autoRotate": "Autorotera",
+      "rotationStatus": "Rotationsstatus",
+      "rotateEvery_one": "Varje {{count}} dag",
+      "rotateEvery_other": "Varje {{count}} dagar",
+      "defaultTag": "(standard)",
+      "inProgress": "Pågår",
+      "idle": "Inaktiv",
+      "intervalRange": "Måste vara 1–365",
+      "intervalUpdated": "Rotationsintervall uppdaterat",
+      "checking": "Kontrollerar…",
+      "checkNow": "Kontrollera nu",
+      "resetPeering": "Återställ parkoppling",
+      "rotateSecret": "Rotera hemlighet",
+      "rotationInProgress": "Rotation pågår redan",
+      "revoke": "Återkalla",
+      "editInterval": "Redigera rotationsintervall",
+      "reason": {
+        "auth_failures": "Signerade leveranser misslyckas hela tiden",
+        "peer_reset_detected": "Ominstallerad med ny identitet",
+        "repeer_incomplete": "Återparkopplingen kunde inte verifieras",
+        "denied_by_local_admin": "Nekad av din administratör",
+        "denied_by_remote": "Nekad av deras administratör",
+        "revoked_by_remote": "Återkallad av deras administratör",
+        "expired_on_remote": "Förfrågan gick ut på deras sida",
+        "stale_peering_on_remote": "Deras sida håller en äldre parkoppling"
+      },
+      "reasonDetail": {
+        "auth_failures": "{{host}} avvisade fem signerade leveranser i rad, så de två instanserna delar inte längre samma hemlighet. Återställ parkopplingen och parkoppla igen.",
+        "peer_reset_detected": "{{host}} ominstallerades: den rapporterar en annan instansidentitet än tidigare. Använd “Parkoppla igen” i bannern ovan för att ansluta till den nya instansen och städa den gamlas konton.",
+        "repeer_incomplete": "{{host}} accepterade ett handshake, men en signerad kontroll med den nya hemligheten misslyckades, så parkopplingen används inte. Återställ den och försök igen. Misslyckas det igen måste deras administratör återställa sin sida.",
+        "denied_by_local_admin": "En administratör här nekade parkopplingsförfrågan från {{host}}. Dess förfrågningar nekas tills du startar igen eller tar bort posten.",
+        "denied_by_remote": "Administratören för {{host}} nekade parkoppling med denna instans. Starta igen när de går med på det.",
+        "revoked_by_remote": "Administratören för {{host}} återkallade parkoppling med denna instans. Den kommer tillbaka när de startar.",
+        "expired_on_remote": "Administratören för {{host}} svarade inte på parkopplingsförfrågan inom 30 dagar. Starta igen för att fråga på nytt.",
+        "stale_peering_on_remote": "{{host}} håller fortfarande en äldre parkoppling med denna instans och nekar en ny tills dess administratör återställer den. Denna instans kontrollerar var 15:e minut och ansluter så snart det går."
+      }
+    },
+    "approvals": {
+      "title": "Väntande godkännandeförfrågningar",
+      "outboundTitle_one": "{{name}} — {{count}} användare vill parkoppla med oss",
+      "outboundTitle_other": "{{name}} — {{count}} användare vill parkoppla med oss",
+      "requested": "Begärd {{time}}",
+      "subscriber": {
+        "friendAdd": "vänläggning till {{target}}",
+        "spaceJoin": "vill gå med i {{target}}",
+        "directMessage": "vill skicka DM till {{target}}",
+        "instanceConnect": "anslöt ett konto på {{target}}"
+      },
+      "approve": "Godkänn",
+      "deny": "Neka",
+      "established": "Parkoppling med {{name}} upprättad",
+      "deniedToast": "Nekade parkopplingsförfrågan från {{name}}",
+      "confirm": {
+        "approveTitle": "Godkänn parkopplingsförfrågan",
+        "denyTitle": "Neka parkopplingsförfrågan",
+        "approveOutbound_one": "Detta startar ett parkopplingshandshake med {{name}} för den {{count}} begärande användaren. Den externa instansen måste vara nåbar.",
+        "approveOutbound_other": "Detta startar ett parkopplingshandshake med {{name}} för de {{count}} begärande användarna. Den externa instansen måste vara nåbar.",
+        "approveInbound": "Detta startar ett parkopplingshandshake med {{name}}. Den externa instansen måste vara nåbar.",
+        "denyOutbound_one": "Detta nekar den utgående parkopplingsförfrågan och meddelar den begärande användaren. Den kan fråga igen genom att upprepa vad den gjorde.",
+        "denyOutbound_other": "Detta nekar den utgående parkopplingsförfrågan och meddelar de begärande användarna. De kan fråga igen genom att upprepa vad de gjorde.",
+        "denyInbound": "Detta nekar förfrågan och blockerar framtida automatiska parkopplingsförfrågningar från {{name}}. Du kan avblockera dem senare i listan över nekade peers.",
+        "approveAndPeer": "Godkänn & parkoppla",
+        "approve": "Godkänn",
+        "denyAndNotify": "Neka & meddela",
+        "deny": "Neka"
+      }
+    },
+    "resetCleanup": {
+      "title": "Rensning efter återställning",
+      "peerReset": "{{name}} återställdes",
+      "peerResetDescription": "En ny instans körs på denna domän. Återupprätta federation för att läka inaktuella vänskaper och DM.",
+      "repeer": "Parkoppla igen",
+      "resetToast": "{{host}} återställdes — federation behöver återupprättas",
+      "repeerIncomplete": "Återparkoppling ofullständig — {{name}} håller fortfarande inaktuell parkoppling med dig. Dess administratör måste återställa sin sida, parkoppla sedan igen.",
+      "repeerInitiated": "Återparkoppling med {{name}} startad",
+      "removed": "Tog bort {{username}} och allt innehåll",
+      "ownsSpaces": "{{username}} äger rum — överför ägarskapet först (Rumsinställningar → Ägarskap).",
+      "staleRemote": "Den externa instansen håller fortfarande inaktuell parkoppling med dig. Be dess administratör återställa sin sida, parkoppla sedan igen.",
+      "eventSummary": "<host>{{host}}</host> återställdes — {{identities}} rensades automatiskt, {{accounts}} med lokalt innehåll kopplades loss. Losskopplade konton fungerar lokalt vidare — ägare behåller åtkomst med sitt befintliga lösenord. Ägaren kan återkoppla ett losskopplat konto till sin nya hemidentitet från det kontots inställningar (Konto → meddelande om losskoppling) när inloggad i båda.",
+      "identitiesCleaned_one": "{{count}} replikerad identitet",
+      "identitiesCleaned_other": "{{count}} replikerade identiteter",
+      "accountsDetached_one": "{{count}} konto",
+      "accountsDetached_other": "{{count}} konton",
+      "memberships_one": "{{count}} medlemskap",
+      "memberships_other": "{{count}} medlemskap",
+      "messages_one": "{{count}} meddelande",
+      "messages_other": "{{count}} meddelanden",
+      "owns": "Äger: {{spaces}}",
+      "dismissKeep": "Stäng — behåll alla losskopplade konton",
+      "confirm": {
+        "repeerTitle": "Återupprätta federation",
+        "removeTitle": "Ta bort losskopplat konto",
+        "repeerDescription": "Detta tar bort den lokala parkopplingsposten och startar ett nytt autentiserat handshake med {{origin}}. Den externa instansen måste vara nåbar och (om den inte autoaccepterar) godkänna förfrågan.",
+        "removeDescription": "Ta permanent bort {{username}} och allt dess innehåll på denna instans? Detta kan inte ångras.",
+        "repeerConfirm": "Parkoppla & läk",
+        "removeConfirm": "Ta bort permanent"
+      }
+    },
+    "peers": {
+      "title": "Parkopplade instanser",
+      "empty": "Inga federationspeers inställda. Peers skapas automatiskt när användare ansluter till externa instanser.",
+      "noMatch": "Inga peers matchar filtret.",
+      "noRevoked": "Inga återkallade peers.",
+      "backOnline": "{{name}} är online igen",
+      "stillUnreachable": "{{name}} är fortfarande onåbar",
+      "rotationInitiated": "Hemlighetsrotation startad — 15 minuters respitperiod",
+      "revoked": "Peer återkallad",
+      "reinitiated": "Parkoppling startad igen",
+      "reinitiateFailed": "Peerpost borttagen men handshake misslyckades: {{error}}. Parkoppla manuellt med {{origin}}",
+      "deleted": "Peer permanent borttagen",
+      "resetDone": "Parkoppling med {{name}} återställd",
+      "confirm": {
+        "rotate": {
+          "title": "Rotera HMAC-hemlighet",
+          "description": "Detta genererar en ny HMAC-hemlighet för {{name}}. Båda instanser accepterar gamla och nya hemligheter under en respitperiod på 15 minuter.",
+          "confirm": "Rotera"
+        },
+        "revoke": {
+          "title": "Återkalla peer",
+          "description": "Detta stoppar all federationsrelaytrafik med {{name}}. Väntande utkorgsposter rensas. Du kan parkoppla igen senare.",
+          "confirm": "Återkalla"
+        },
+        "reinitiate": {
+          "title": "Starta parkoppling igen",
+          "description": "Detta tar bort den återkallade posten och startar ett nytt handshake med {{origin}}. Den externa instansen måste vara nåbar.",
+          "confirm": "Starta igen"
+        },
+        "delete": {
+          "title": "Ta bort peerpost",
+          "description": "Detta tar permanent bort peerposten för {{name}}. Detta kan inte ångras.",
+          "confirm": "Ta bort"
+        },
+        "reset": {
+          "title": "Återställ parkoppling",
+          "description": "Återställa parkoppling med {{name}}? Detta tar bort den lokala parkopplingsposten och alla väntande utkorgsposter. Du måste starta parkoppling med den externa administratören utanför systemet efter återställning. Detta kan inte ångras.",
+          "confirm": "Återställ"
+        }
+      }
+    }
+  },
+  "peerRejected": {
+    "auth_failures": "Meddelanden till {{name}} levereras inte: anslutningens delade hemlighet slutade fungera. En administratör måste återställa parkopplingen.",
+    "peer_reset_detected": "Meddelanden till {{name}} levereras inte: den ominstallerades. En administratör måste parkoppla igen.",
+    "repeer_incomplete": "Meddelanden till {{name}} levereras inte: återparkopplingen kunde inte verifieras. En administratör måste återställa parkopplingen.",
+    "denied_by_local_admin": "Meddelanden till {{name}} kan inte levereras: din administratör nekade federation med den.",
+    "denied_by_remote": "Meddelanden till {{name}} kan inte levereras: dess administratör nekade federation med denna instans.",
+    "revoked_by_remote": "Meddelanden till {{name}} kan inte levereras: dess administratör återkallade federation med denna instans.",
+    "expired_on_remote": "Meddelanden till {{name}} kan inte levereras: dess administratör svarade inte på federationsförfrågan i tid.",
+    "stale_peering_on_remote": "Meddelanden till {{name}} kan ännu inte levereras: den håller fortfarande en äldre anslutning till denna instans som dess administratör måste återställa.",
+    "fallback": "Meddelanden till {{name}} kan inte levereras: {{reason}}"
+  }
+}

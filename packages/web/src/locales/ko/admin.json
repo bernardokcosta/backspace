@@ -1,0 +1,417 @@
+{
+  "general": {
+    "title": "일반",
+    "description": "Backspace 인스턴스를 구성하세요. 이 설정은 모든 사용자에게 적용됩니다.",
+    "instanceName": {
+      "label": "인스턴스 이름",
+      "description": "로그인 페이지와 연합 인스턴스에 표시되는 이름.",
+      "counter": "{{length}}/{{max}}"
+    },
+    "gif": {
+      "label": "GIF 검색",
+      "description": "Klipy를 통한 GIF 검색 활성화. Klipy 개발자 포털에서 무료 API 키 받기.",
+      "placeholderSaved": "키 저장됨 — 바꾸려면 새 키 입력",
+      "placeholderKey": "Klipy API 키",
+      "enabled": "활성화됨",
+      "notConfigured": "미구성",
+      "clearKey": "키 지우기"
+    }
+  },
+  "registration": {
+    "title": "가입",
+    "description": "이 인스턴스에서 누가 계정을 만들 수 있는지 제어합니다. 공개 가입은 로컬 가입을 포함하고, 연합 가입은 여기서 계정을 만드는 피어링 인스턴스의 사용자를 포함합니다.",
+    "public": {
+      "label": "공개 가입",
+      "toggleLabel": "새 로컬 계정 허용",
+      "toggleDescription": "누구나 가입 페이지에서 로컬 계정을 만들 수 있습니다. 끄면 새 로컬 계정은 초대 링크로만."
+    },
+    "federated": {
+      "label": "연합 가입",
+      "toggleLabel": "새 연합 계정 허용",
+      "toggleDescription": "다른 인스턴스 사용자는 연결 설정에서 여기서 연합 계정을 만들 수 있습니다. 기존 연합 계정은 이 설정과 관계없이 항상 로그인 가능."
+    },
+    "spaceCreation": {
+      "label": "스페이스 만들기",
+      "toggleLabel": "새 스페이스 허용",
+      "toggleDescription": "사용자는 이 인스턴스에서 새 스페이스를 만들 수 있습니다. 끄면 인스턴스 관리자만 스페이스를 만들고 일반 사용자는 기존에만 참가할 수 있습니다."
+    },
+    "saved": "가입 설정 저장됨",
+    "saveFailed": "가입 설정을 업데이트할 수 없습니다"
+  },
+  "invites": {
+    "label": "초대 링크",
+    "create": "+ 링크 만들기",
+    "tabs": {
+      "active": "활성",
+      "archived": "보관됨"
+    },
+    "loadFailed": "초대를 불러오지 못했습니다",
+    "emptyActive": "활성 초대 링크 없음.",
+    "emptyArchived": "보관된 초대 링크 없음.",
+    "noMatch": "현재 필터와 일치하는 초대 없음.",
+    "filter": {
+      "status": "상태",
+      "sort": {
+        "recent": "최신 순",
+        "oldest": "오래된 순",
+        "name": "이름 (A-Z)",
+        "mostUsed": "가장 많이 사용",
+        "expiringSoonest": "가장 빨리 만료"
+      }
+    },
+    "status": {
+      "active": "활성",
+      "expired": "만료됨",
+      "exhausted": "소진됨",
+      "revoked": "취소됨"
+    },
+    "expiry": {
+      "preset": {
+        "hour1": "1시간",
+        "hours24": "24시간",
+        "days7": "7일",
+        "days30": "30일",
+        "custom": "사용자 지정…"
+      },
+      "keepCurrent": "현재 유지",
+      "invalidFuture": "미래 날짜와 시간을 선택",
+      "invalidSelection": "잘못된 만료 선택",
+      "revokedOn": "{{date}} 취소됨",
+      "expiredOn": "{{date}} 만료됨",
+      "exhausted": "소진됨",
+      "noExpiration": "만료 없음",
+      "inDays_other": "{{count}}일 후 만료",
+      "inHours_other": "{{count}}시간 후 만료"
+    },
+    "form": {
+      "name": "이름",
+      "namePlaceholder": "예: 친구, 파티 1",
+      "maxUses": "최대 사용",
+      "unlimited": "무제한",
+      "uses": "사용",
+      "expires": "만료",
+      "nameLength": "이름은 1~64자",
+      "maxUsesInteger": "최대 사용은 양의 정수"
+    },
+    "createModal": {
+      "title": "초대 링크 만들기",
+      "description": "사람이 이 인스턴스에 가입하도록 공유 링크를 생성합니다. 몇 번 사용할지와 언제 만료되는지 정합니다.",
+      "submit": "링크 만들기",
+      "submitting": "만드는 중…",
+      "createdCopied": "링크 생성됨. 클립보드에 복사됨.",
+      "createdManual": "링크 생성됨. 행에서 수동 복사.",
+      "failed": "초대를 만들 수 없습니다: {{message}}"
+    },
+    "editModal": {
+      "title": "“{{name}}” 편집",
+      "description": "이 링크의 제한을 조정합니다. URL은 동일 — 가진 사람은 새 조건으로 계속 사용할 수 있습니다.",
+      "used": "(사용 {{used}})",
+      "maxUsesBelowUsed": "최대 사용은 현재 사용 ({{used}})보다 낮을 수 없음",
+      "noChanges": "저장할 변경 없음",
+      "updated": "초대 업데이트됨",
+      "failed": "초대를 업데이트할 수 없습니다: {{message}}",
+      "submit": "변경 저장",
+      "submitting": "저장 중…"
+    },
+    "reinstateModal": {
+      "title": "“{{name}}” 복원",
+      "descriptionRevoked": "이 초대는 취소되었습니다. 복원하면 URL이 다른 새 링크를 만듭니다 — 기존 URL은 비활성 유지.",
+      "descriptionLapsed": "이 초대는 만료되었습니다. 복원하면 동일 URL이 다시 활성화 — 저장한 사람은 다시 사용할 수 있습니다.",
+      "newLinkWarning": "새 링크가 만들어집니다. 기존 URL 보유자는 사용할 수 없습니다.",
+      "maxUsesMeta": "(현재: {{max}}, 사용: {{used}})",
+      "maxUsesMin": "최대 사용은 최소 {{min}} (현재: {{used}})",
+      "submit": "복원",
+      "submitNewLink": "새 링크로 복원",
+      "submitting": "복원 중…",
+      "doneCopied": "새 링크로 복원됨. 클립보드에 복사됨.",
+      "doneManual": "새 링크로 복원됨. 행에서 수동 복사.",
+      "doneSameLink": "복원됨. 동일 링크가 다시 활성.",
+      "failed": "복원 불가: {{message}}"
+    },
+    "redemptions": {
+      "title": "“{{name}}” 사용",
+      "description": "이 링크로 가입한 사용자, 가입 순.",
+      "revokedNotice": "이 초대는 취소되었습니다. 아래 사용은 취소 전 가입한 사용자.",
+      "revokedNoticeDated": "이 초대는 {{date}} 취소되었습니다. 아래 사용은 취소 전 가입한 사용자.",
+      "usesOfMax_other": "{{max}} 중 {{count}} 사용",
+      "uses_other": "{{count}} 사용",
+      "loadFailed": "사용을 불러오지 못했습니다",
+      "loadFailedInline": "사용을 불러오지 못했습니다.",
+      "empty": "아직 사용 없음.",
+      "now": "(현재 {{name}})",
+      "deletedUser": "삭제된 사용자"
+    },
+    "row": {
+      "usage": "사용: {{usage}}",
+      "createdBy": "작성: {{name}}",
+      "unknownCreator": "알 수 없음",
+      "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
+      "subtitleArchived": "{{usage}} · {{expiry}} · {{when}}",
+      "used": "사용됨",
+      "expires": "만료",
+      "expiredAt": "만료됨",
+      "revokedAt": "취소됨",
+      "exhausted": "소진됨",
+      "created": "생성됨",
+      "createdByLabel": "작성자",
+      "token": "토큰",
+      "lastRedeemed": "마지막 사용",
+      "copyLink": "링크 복사",
+      "revoke": "취소",
+      "viewRedemptions": "사용 보기",
+      "reinstate": "복원",
+      "deletePermanently": "완전 삭제",
+      "copied": "초대 링크 복사됨",
+      "copyFailed": "링크를 복사할 수 없습니다",
+      "revoked": "초대 취소됨",
+      "revokeFailed": "취소 불가: {{message}}",
+      "deleted": "초대 삭제됨",
+      "deleteFailed": "삭제 불가: {{message}}",
+      "revokeDialog": {
+        "title": "“{{name}}”을(를) 취소?",
+        "description": "링크는 즉시 작동 중지. URL 보유자는 누구도 사용할 수 없습니다.<br/><br/>마음이 바뀌면 <strong>복원</strong>은 이 항목에 새 링크 발행 — 원래 URL은 비활성 유지.",
+        "confirm": "링크 취소"
+      },
+      "deleteDialog": {
+        "title": "“{{name}}”을(를) 완전 삭제?",
+        "description": "되돌릴 수 없습니다. 이 링크의 사용 기록도 삭제. 중지만 하려면 <strong>취소</strong> 사용 — 기록은 유지.",
+        "confirm": "완전 삭제"
+      }
+    }
+  },
+  "storage": {
+    "title": "스토리지",
+    "description": "디스크 사용량을 추적하고 삭제된 콘텐츠나 바뀐 아바타·배너의 고아 파일을 정리.",
+    "loading": "스토리지 통계 불러오는 중…",
+    "loadFailed": "스토리지 통계를 불러오지 못했습니다",
+    "refresh": "통계 새로 고침",
+    "overview": {
+      "label": "스토리지 개요",
+      "totalFiles": "총 파일",
+      "referenced": "참조 있음",
+      "orphanedFiles": "고아 파일",
+      "unlinkedUploads": "연결 안 된 업로드",
+      "danglingRecords": "댕글링 레코드",
+      "staleUploads": "오래된 업로드"
+    },
+    "breakdown": {
+      "label": "파일 형식별 내역",
+      "entry_other": "파일 {{count}} — {{size}}"
+    },
+    "uploadLimit": {
+      "label": "업로드 한도",
+      "maxFileSize": "최대 파일 크기",
+      "maxStickerSize": "최대 스티커 크기",
+      "saved": "업로드 한도를 {{limit}}(으)로 설정",
+      "saveFailed": "업로드 한도를 업데이트할 수 없습니다",
+      "stickerSaved": "스티커 한도를 {{limit}}(으)로 설정",
+      "stickerSaveFailed": "스티커 한도를 업데이트할 수 없습니다"
+    },
+    "cleanup": {
+      "label": "정리",
+      "nothingFound": "고아 파일·오래된 업로드·댕글링 레코드 없음.",
+      "preview": "정리 미리 보기",
+      "run": "지금 정리",
+      "running": "정리 중…",
+      "previewResult": "미리 보기 — 파일 삭제 없음",
+      "complete": "정리 완료",
+      "orphanedFiles_other": "고아 파일 {{count}} ({{size}})",
+      "staleRecords_other": ", 오래된 업로드 레코드 {{count}}",
+      "errors_other": "오류 {{count}}: {{first}}",
+      "cleanedToast_other": "파일 {{count}} 정리됨 ({{size}})",
+      "failed": "정리 실패"
+    },
+    "stale": {
+      "label": "오래된 업로드",
+      "description": "<code>.tus/</code>에 남겨진 tus 업로드 세션 (DELETE 없이 일시 정지·충돌). 자동 정리는 24시간마다 실행; 여기서 미리 정리.",
+      "maxAge": "최대 기간 (시간)",
+      "sessionFiles_other": "세션 파일 {{count}} ({{size}})",
+      "cleanedToast_other": "오래된 업로드 세션 {{count}} 정리됨 ({{size}})",
+      "failed": "오래된 업로드 정리 실패"
+    },
+    "media": {
+      "label": "미디어 저장",
+      "olderThan": "다음보다 오래된 채팅 미디어 삭제",
+      "days": "일",
+      "run": "지금 삭제",
+      "running": "삭제 중…",
+      "files_other": "파일 {{count}} ({{size}})",
+      "deletedToast_other": "파일 {{count}} 삭제됨 ({{size}})",
+      "failed": "미디어 정리 실패"
+    }
+  },
+  "streaming": {
+    "title": "스트리밍",
+    "description": "이 제한은 이 인스턴스의 모든 사용자에게 적용. 사용자는 이 범위에서 값을 선택.",
+    "units": {
+      "fps": "{{value}} fps",
+      "kbpsLabel": "kbps"
+    },
+    "bandwidth": {
+      "label": "대역폭",
+      "description": "비트레이트 최소·최대 한도와 품질 슬라이더 단계.",
+      "customBitrate": {
+        "label": "사용자 지정 비트레이트 허용",
+        "description": "매트릭스 기본값 대신 자체 비트레이트 설정 허용"
+      },
+      "range": "비트레이트 범위",
+      "min": "최소",
+      "max": "최대",
+      "step": "슬라이더 단계"
+    },
+    "quality": {
+      "label": "품질",
+      "description": "화면 공유에 사용 가능한 해상도·프레임레이트 선택지.",
+      "resolutions": "허용 해상도",
+      "framerates": "허용 프레임레이트"
+    },
+    "highEndWarning": {
+      "title": "고사양 설정 활성화됨.",
+      "description": "1080p 초과나 60fps 초과 스트리밍은 클라이언트 CPU/GPU 인코딩 성능을 많이 요구하고 서버 대역폭을 포화시킬 수 있으며, 특히 TURN 경유 시. 고급 구성(예: 120fps 4K)은 활성 스트림당 최대 45Mbps까지 필요할 수 있음. 모든 사용자 활성화 전 인프라가 부하를 감당하는지 확인."
+    },
+    "matrix": {
+      "label": "비트레이트 매트릭스",
+      "description": "각 해상도·프레임레이트의 기본 비트레이트. 개별 셀 편집이나 모든 값 일괄 스케일.",
+      "scaleAll": "모두 스케일",
+      "scaleHint": "드래그하여 모든 비트레이트 스케일. 개별 셀 미세 조정 — 아래.",
+      "cellDefault": "기본값: {{value}} (×를 눌러 초기화)",
+      "cellEdit": "클릭하여 편집",
+      "resetAll": "모두 기본값으로 초기화"
+    },
+    "capWarning": {
+      "title": "매트릭스 값이 전역 한도 초과.",
+      "description": "일부 비트레이트가 최대 {{max}} 초과. 그 조합 스트림은 한도로 낮춰집니다."
+    }
+  },
+  "updates": {
+    "title": "업데이트",
+    "badge": {
+      "settingsAriaLabel": "설정, 인스턴스 업데이트 가능",
+      "toast": "이 인스턴스에 Backspace {{version}} 있음",
+      "toastAction": "보기"
+    },
+    "description": "이 인스턴스에서 실행 중인 버전과 업데이트 방법.",
+    "loading": "업데이트 상태 불러오는 중…",
+    "loadFailed": "업데이트 상태를 불러오지 못했습니다.",
+    "copyFailed": "복사 불가. 명령을 선택하고 수동 복사.",
+    "running": {
+      "label": "실행 중",
+      "commit": "commit {{commit}} · ",
+      "channel": {
+        "prebuilt": "프리빌드 이미지",
+        "source": "소스에서 빌드",
+        "unknown": "설치 방법 미기록"
+      }
+    },
+    "available": {
+      "label": "사용 가능",
+      "version": "Backspace {{version}} 있음",
+      "released": "릴리스 {{date}} · ",
+      "releaseNotes": "릴리스 노트",
+      "fromInstallDir": "설치 디렉터리에서:",
+      "scriptDescription": "데이터베이스 스냅샷을 만들고 새 이미지를 다운로드하며 Backspace 컨테이너만 다시 시작. 새 버전이 정상 시작하지 않거나 기존 코드로 시작하면 현재 버전으로 복귀.",
+      "noScript": "update.sh 없음",
+      "manualIntro": "update.sh는 1.0.5부터 포함. git 복사본에서는 <code>git pull</code>이 추가. 그렇지 않으면 <code>./backup.sh</code>로 스냅샷 후 수동 단계.",
+      "prebuiltInstall": "프리빌드 설치:",
+      "sourceInstall": "소스에서 설치:",
+      "manualWarning": "<code>backspace</code> 서비스를 명시하고 <code>--remove-orphans</code>를 전달하지 마십시오. 이 프로젝트에 다른 컨테이너가 실행 중이면 Compose가 제안하고 삭제합니다."
+    },
+    "upToDate": "최신입니다.",
+    "disabled": {
+      "title": "업데이트 확인 꺼짐",
+      "description": "이 인스턴스는 GitHub에 문의하지 않습니다. 허용하려면 <code>.env</code>에 <code>BACKSPACE_UPDATE_CHECK=true</code>를 설정하거나 릴리스 페이지를 직접 보세요."
+    },
+    "rateLimited": {
+      "title": "GitHub 속도 제한",
+      "description": "업데이트 유무를 나타내지 않습니다. 나중에 시도."
+    },
+    "unreachable": {
+      "title": "업데이트를 확인할 수 없습니다",
+      "description": "GitHub에 도달 불가하므로 업데이트 유무를 나타내지 않습니다. 인스턴스에 영향 없음."
+    },
+    "lastChecked": "마지막 확인: {{when}}",
+    "noLookups": "조회 없음",
+    "checkAgain": "다시 확인",
+    "checking": "확인 중…"
+  },
+  "users": {
+    "title": "사용자",
+    "description": "이 인스턴스의 계정을 보고 관리.",
+    "searchPlaceholder": "사용자 검색…",
+    "loading": "사용자 불러오는 중…",
+    "loadFailed": "사용자를 불러오지 못했습니다",
+    "empty": "사용자 없음",
+    "filters": {
+      "allInstances": "모든 인스턴스",
+      "localOnly": "로컬만",
+      "allRoles": "모든 역할",
+      "admin": "관리자",
+      "nonAdmin": "비관리자",
+      "joinedAfter": "이후 참가",
+      "joinedBefore": "이전 참가",
+      "newest": "최신 순",
+      "oldest": "오래된 순",
+      "nameDesc": "이름 Z-A",
+      "deleted": "삭제됨",
+      "clear": "필터 지우기",
+      "bot": "봇"
+    },
+    "badge": {
+      "admin": "관리자",
+      "deleted": "삭제됨"
+    },
+    "actions": {
+      "demote": "관리자 권한 박탈",
+      "promote": "관리자 권한 부여",
+      "federatedNoAdmin": "연합 사용자는 관리자 불가",
+      "resetPassword": "비밀번호 초기화",
+      "federatedNoReset": "연합 사용자는 홈 인스턴스로 로그인",
+      "delete": "사용자 삭제",
+      "selfDelete": "자신의 삭제는 설정 사용"
+    },
+    "tempPassword": {
+      "label": "임시 비밀번호:",
+      "note": "한 번 표시. 사용자는 연결 끊김; 다시 로그인해야 함."
+    },
+    "pagination": "페이지 {{page}} / {{total}} ({{users}})",
+    "count_other": "사용자 {{count}}명",
+    "roleFailed": "역할을 업데이트할 수 없습니다",
+    "resetFailed": "비밀번호를 초기화할 수 없습니다",
+    "actionFailed": "작업 실패",
+    "resetDialog": {
+      "title": "비밀번호 초기화",
+      "description": "<strong>{{username}}</strong>의 비밀번호를 초기화? 사용자는 즉시 연결 끊기며 새 임시 비밀번호로 다시 로그인해야 함.",
+      "confirm": "비밀번호 초기화"
+    },
+    "demoteDialog": {
+      "title": "관리자 권한 박탈",
+      "description": "<strong>{{username}}</strong>의 관리자 권한을 박탈? 인스턴스 설정 접근을 잃습니다.",
+      "confirm": "권한 박탈"
+    },
+    "deleteDialog": {
+      "title": "사용자 삭제",
+      "description": "<strong>{{username}}</strong>을(를) 완전 삭제? 모든 스페이스·DM·친구 목록에서 제외. 되돌릴 수 없습니다.",
+      "confirm": "사용자 삭제",
+      "blockBot": "이 봇의 재등록 금지",
+      "blockBotHint": "홈 인스턴스 복귀 시 봇은 여기서 계정을 만들 수 없음. 사용자 목록 아래에서 차단 해제."
+    },
+    "blockedBots": {
+      "title": "차단된 봇",
+      "description": "여기 등록할 수 없는 다른 인스턴스의 봇. 다시 허용하려면 차단 해제.",
+      "blockedAt": "차단 {{date}}",
+      "unblock": "차단 해제"
+    }
+  },
+  "mobile": {
+    "title": "인스턴스",
+    "sections": {
+      "general": "일반",
+      "registration": "가입",
+      "federation": "연합",
+      "streaming": "스트리밍",
+      "storage": "스토리지",
+      "users": "사용자",
+      "updates": "업데이트"
+    }
+  }
+}

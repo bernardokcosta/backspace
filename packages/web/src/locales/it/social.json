@@ -1,0 +1,106 @@
+{
+  "tabs": {
+    "all": "Tutti",
+    "pending": "In attesa",
+    "add": "Aggiungi amico",
+    "activity": "Attività"
+  },
+  "sections": {
+    "online": "Online — {{n}}",
+    "all": "Tutti gli amici — {{n}}",
+    "pending": "In attesa — {{n}}",
+    "active": "Attivi — {{n}}",
+    "offline": "Offline — {{n}}"
+  },
+  "empty": {
+    "online": "Nessuno è online in questo momento.",
+    "all": "Non hai ancora amici: aggiungine qualcuno!",
+    "pending": "Nessuna richiesta in attesa: Nori sta facendo un pisolino.",
+    "activity": "Per ora è tutto tranquillo... Quando i tuoi amici inizieranno un’attività, la mostreremo qui!"
+  },
+  "friend": {
+    "viaInstance": "tramite {{host}}",
+    "message": "Messaggio",
+    "remove": "Rimuovi amico"
+  },
+  "sendMessage": {
+    "failed": "Impossibile aprire la conversazione: {{reason}}"
+  },
+  "request": {
+    "incoming": "Richiesta di amicizia ricevuta",
+    "outgoing": "Richiesta di amicizia inviata",
+    "ignore": "Ignora",
+    "cancel": "Annulla richiesta",
+    "send": "Invia richiesta di amicizia",
+    "pending": "Richiesta in attesa",
+    "sending": "Invio…",
+    "cancelling": "Annullamento…",
+    "sent": "Richiesta di amicizia inviata!"
+  },
+  "removeFriend": {
+    "title": "Rimuovi amico",
+    "description": "Vuoi davvero rimuovere {{name}} dai tuoi amici? Potrai sempre inviargli una nuova richiesta in seguito.",
+    "fallbackName": "questo utente"
+  },
+  "add": {
+    "title": "Trova persone",
+    "hint": "Cerca per nome utente oppure usa <handle>utente@istanza</handle> per aggiungere qualcuno direttamente.",
+    "placeholder": "Cerca o aggiungi per nome utente…",
+    "direct": "Invia richiesta di amicizia a <handle>{{handle}}</handle>",
+    "sendRequest": "Invia richiesta",
+    "discover": "Scopri persone",
+    "noSearchResults": "Nessun utente corrisponde alla ricerca.",
+    "noDiscoverable": "Nessun utente scopribile per ora: invita delle persone!"
+  },
+  "mutuals": {
+    "friends_one": "{{count}} amico in comune",
+    "friends_many": "{{count}} amici in comune",
+    "friends_other": "{{count}} amici in comune",
+    "spaces_one": "{{count}} spazio in comune",
+    "spaces_many": "{{count}} spazi in comune",
+    "spaces_other": "{{count}} spazi in comune",
+    "noFriends": "Nessun amico in comune",
+    "noSpaces": "Nessuno spazio in comune"
+  },
+  "profile": {
+    "tabs": {
+      "about": "Informazioni",
+      "mutualFriends": "Amici in comune",
+      "mutualSpaces": "Spazi in comune"
+    },
+    "aboutMe": "Su di me",
+    "roles": "Ruoli",
+    "memberSince": "Membro dal",
+    "sendMessage": "Invia messaggio",
+    "editRoles": "Modifica ruoli",
+    "viewFull": "Visualizza profilo completo",
+    "addFriend": "Aggiungi amico",
+    "playingNow": "In riproduzione"
+  },
+  "activity": {
+    "title": "Attivi ora",
+    "quietTitle": "Per ora è tutto tranquillo...",
+    "quietDescription": "Quando un amico inizia un’attività, come giocare o stare in vocale, la mostreremo qui!",
+    "online": "Online — {{n}}",
+    "offline": "Offline — {{n}}",
+    "resizeHandle": "Ridimensiona elenco amici",
+    "types": {
+      "playing": "Sta giocando",
+      "listening": "Sta ascoltando musica",
+      "streaming": "In diretta",
+      "watching": "Sta guardando",
+      "custom": "Stato personalizzato"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "Apri brano"
+  },
+  "instanceNotConnected": "Non connesso a {{host}}. Riconnettiti e riprova."
+}

@@ -1,0 +1,33 @@
+{
+  "failure": {
+    "notAuthenticated": "ไม่ได้ตรวจสอบสำหรับอินสแตนซ์นี้",
+    "invalidResponse": "แยกวิเคราะห์คำตอบอัปโหลดไม่ได้",
+    "uploadError": "อัปโหลดผิดพลาด",
+    "downloadError": "ดาวน์โหลดผิดพลาด",
+    "fileUnavailable": "ไฟล์ไม่พร้อมแล้ว — ทิ้งแล้วอัปโหลดใหม่",
+    "noDestination": "ไม่มีแฮนเดิลปลายทาง — ดำเนินต่อไม่ได้",
+    "destinationMissing": "แฮนเดิลปลายทางหาย",
+    "permissionDenied": "ปฏิเสธสิทธิ์",
+    "lostDownload": "ดาวน์โหลดต่อไม่ได้ — ข้อมูลหาย เริ่มดาวน์โหลดใหม่",
+    "uploadHandleMissing": "แฮนเดิลไฟล์หาย — ทิ้งแล้วอัปโหลดใหม่",
+    "downloadHandleMissing": "แฮนเดิลปลายทางหาย — เริ่มดาวน์โหลดใหม่",
+    "downloadFailed": "ดาวน์โหลดล้มเหลว: {{status}}",
+    "resumeFailed": "ดำเนินการต่อล้มเหลว: {{status}}"
+  },
+  "transfers": {
+    "title": "ถ่ายโอน",
+    "count_other": "{{count}} รายการ",
+    "clearCompleted": "ล้างที่เสร็จ",
+    "empty": "ไม่มีถ่ายโอนที่ใช้งาน",
+    "status": {
+      "done": "เสร็จ",
+      "failed": "ล้มเหลว: {{reason}}",
+      "aborted": "ยกเลิก",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "ครอบรูป",
+    "applying": "กำลังใช้…"
+  }
+}

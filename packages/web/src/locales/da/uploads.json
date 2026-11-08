@@ -1,0 +1,34 @@
+{
+  "failure": {
+    "notAuthenticated": "Ikke godkendt til denne instans",
+    "invalidResponse": "Kunne ikke fortolke uploadsvaret",
+    "uploadError": "Uploadfejl",
+    "downloadError": "Downloadfejl",
+    "fileUnavailable": "Filen er ikke længere tilgængelig — kassér og upload igen",
+    "noDestination": "Intet destinationshåndtag — kan ikke genoptage",
+    "destinationMissing": "Destinationshåndtag mangler",
+    "permissionDenied": "Adgang nægtet",
+    "lostDownload": "Download kan ikke genoptages — bytes tabt. Start downloadet forfra.",
+    "uploadHandleMissing": "Filhåndtag mangler — kassér og upload igen",
+    "downloadHandleMissing": "Destinationshåndtag mangler — start downloadet forfra",
+    "downloadFailed": "Download mislykkedes: {{status}}",
+    "resumeFailed": "Genoptagelse mislykkedes: {{status}}"
+  },
+  "transfers": {
+    "title": "Overførsler",
+    "count_one": "{{count}} overførsel",
+    "count_other": "{{count}} overførsler",
+    "clearCompleted": "Ryd fuldførte",
+    "empty": "Ingen aktive overførsler.",
+    "status": {
+      "done": "Færdig",
+      "failed": "Mislykkedes: {{reason}}",
+      "aborted": "Afbrudt",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "Beskær billede",
+    "applying": "Anvender…"
+  }
+}

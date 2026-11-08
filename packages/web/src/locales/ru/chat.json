@@ -1,4 +1,11 @@
 {
+  "feedback": {
+    "openedInNewTab": "Открыто в новой вкладке",
+    "copiedGifLink": "Ссылка на GIF скопирована",
+    "copiedImageLink": "Ссылка на изображение скопирована",
+    "uploadExpired": "Не удалось отправить «{{content}}»: срок загрузки истёк.",
+    "attachmentOnly": "(только вложения)"
+  },
   "message": {
     "edit": {
       "hint": "Esc для <cancel>отмены</cancel> • Enter для <save>сохранения</save>"
@@ -184,7 +191,7 @@
     "subcommandsTitle": "Подкоманды",
     "group": "группа",
     "chooseSubcommand": "Выберите подкоманду: {{names}}",
-    "subcommandRefused": "Бот не предлагает эту подкоманду. Выберите её из списка"
+    "subcommandRefused": "Бот не предлагает эту подкоманду. Выберите подкоманду из списка"
   },
   "ephemeral": {
     "onlyYou": "Видно только вам",
@@ -289,20 +296,20 @@
     "reject": "Отклонить",
     "rejectTitle": "Отклонить набор стикеров",
     "rejectReason": "Причина отклонения",
-    "rejectPlaceholder": "Укажите причину отклонения",
+    "rejectPlaceholder": "Укажите причину отклонения (например, неприемлемое содержимое или низкое качество)",
     "rejectConfirm": "Подтвердить отклонение",
     "approvedSuccess": "Набор стикеров успешно одобрен",
     "rejectedSuccess": "Набор стикеров отклонен",
     "reviewNotes": "Причина отклонения",
     "creator": "Создатель",
-    "sourceInstance": "Инстанс",
-    "localInstance": "Локальный инстанс",
+    "sourceInstance": "Сервер",
+    "localInstance": "Локальный сервер",
     "viewStickers": "Смотреть стикеры",
-    "pendingReviewHint": "На модерации администратора"
+    "pendingReviewHint": "На проверке у администратора. После одобрения появится на вкладке «Обзор»."
   },
   "poke": {
     "action": "Толкнуть",
-    "received": "{{actor}} толкнул(а) {{target}}",
+    "received": "{{actor}} толкает {{target}}",
     "disconnected": "Соединение разорвано. Действие не отправлено."
   },
   "pins": {

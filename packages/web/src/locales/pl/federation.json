@@ -1,0 +1,398 @@
+{
+  "validation": {
+    "invalidUrl": "Nieprawidłowy URL",
+    "selfInstance": "Jesteś już zalogowany na tej instancji",
+    "alreadyConnected": "Ta instancja jest już połączona",
+    "notLoggedIn": "Niezalogowany",
+    "connectHomeFirst": "Najpierw połącz się z macierzystą instancją ({{home}}) — ona wystawia poświadczenie dla {{target}}",
+    "incorrectPassword": "Błędne hasło",
+    "authenticationFailed": "Nie udało się uwierzytelnić na zdalnej instancji"
+  },
+  "feedback": {
+    "connectionLost": "Utracono połączenie z {{instance}} — ponawianie…",
+    "connectionRestored": "Połączono ponownie z {{instance}}",
+    "pendingRequests_one": "Masz {{count}} oczekującą prośbę o połączenie",
+    "pendingRequests_few": "Masz {{count}} oczekujące prośby o połączenie",
+    "pendingRequests_many": "Masz {{count}} oczekujących próśb o połączenie",
+    "pendingRequests_other": "Masz {{count}} oczekującej prośby o połączenie",
+    "requestApproved": "Twoja prośba o połączenie została zatwierdzona",
+    "requestDenied": "Twoja prośba o połączenie została odrzucona",
+    "requestExpired": "Twoja prośba o połączenie wygasła",
+    "friendRequestDeliveryFailed": "Nie udało się dostarczyć prośby do {{username}}: {{reason}}",
+    "accountRelinked": "Powiązano konto ponownie z {{instance}}"
+  },
+  "connections": {
+    "title": "Połączone instancje",
+    "description": "Łącz konta między sfederowanymi instancjami Backspace.",
+    "empty": "Brak połączonych zdalnych instancji. Dodaj jedną, aby zacząć federację.",
+    "addButton": "+ Dodaj instancję",
+    "home": {
+      "title": "Macierzysta instancja",
+      "asUser": "jako {{username}}",
+      "local": "Lokalna"
+    },
+    "status": {
+      "connected": "Połączono",
+      "disconnected": "Rozłączono",
+      "unreachable": "Nieosiągalna",
+      "authExpired": "Uwierzytelnienie wygasło"
+    },
+    "add": {
+      "title": "Dodaj zdalną instancję",
+      "urlPlaceholder": "https://instance.example.com",
+      "probing": "Sprawdzanie…",
+      "connect": "Połącz",
+      "connecting": "Łączenie…",
+      "registrationClosed": "Ta instancja wyłączyła nowe sfederowane rejestracje. Istniejące konta wciąż mogą się logować.",
+      "passwordLabel": "Podaj hasło, aby połączyć z {{host}}",
+      "passwordPlaceholder": "To, którym się logujesz",
+      "passwordHint": "Hasło sprawdza Twoja macierzysta instancja i nigdy nie trafia do {{host}}. Tamta instancja dostaje unikalne poświadczenie utworzone tylko dla niej.",
+      "fallbackNotice": {
+        "credentialRefused": "Na {{host}} istnieje już konto, które nie akceptuje poświadczenia wystawionego przez Twoją macierzystą instancję. Zaloguj się hasłem ustawionym na tamtej instancji. Potem zostanie ono przestawione na wystawione poświadczenie.",
+        "registrationClosed": "{{host}} nie przyjmuje nowych kont z innych instancji, więc nie utworzono tam dla Ciebie żadnego. Jeśli masz już konto na {{host}}, zaloguj się nim poniżej."
+      },
+      "usernamePlaceholder": "Twoja nazwa użytkownika na tej instancji",
+      "remotePasswordLabel": "Hasło do tej instancji",
+      "remotePasswordPlaceholder": "Hasło na zdalnej instancji",
+      "loggingIn": "Logowanie…",
+      "loginAndConnect": "Zaloguj i połącz"
+    },
+    "filter": {
+      "all": "Wszystkie",
+      "connected": "Połączone",
+      "disconnected": "Rozłączone",
+      "issues": "Problemy",
+      "noMatch": "Brak instancji pasujących do filtra."
+    },
+    "sort": {
+      "dateAdded": "Data dodania",
+      "lastConnected": "Ostatnie połączenie"
+    },
+    "row": {
+      "asUser": "jako {{username}}",
+      "added": "Dodano {{date}}",
+      "connectedAgo": "Połączono {{time}}",
+      "disconnectedAgo": "Rozłączono {{time}}",
+      "lastConnectedAgo": "Ostatnio {{time}}",
+      "remoteUserId": "Zdalny ID użytkownika",
+      "addedLabel": "Dodano",
+      "disconnectedLabel": "Rozłączono",
+      "lastConnectedLabel": "Ostatnie połączenie",
+      "homePasswordLabel": "Hasło Twojego macierzystego konta",
+      "disconnect": "Rozłącz",
+      "reconnect": "Połącz ponownie",
+      "reauthenticate": "Uwierzytelnij ponownie",
+      "forceRemove": "Usuń wymuszenie",
+      "deleteIdentity": "Usuń tożsamość",
+      "deleteIdentityDisabled": "Najpierw rozłącz, aby usunąć tożsamość",
+      "reason": {
+        "unreachable": "Nie udało się dotrzeć do tej instancji.",
+        "sessionExpired": "Zapisana sesja wygasła. Uwierzytelnij się ponownie, aby połączyć.",
+        "reauthenticate": "Uwierzytelnij się, aby połączyć.",
+        "authenticateHome": "Uwierzytelnij się, aby połączyć z macierzystą instancją."
+      }
+    },
+    "forceRemove": {
+      "title": "Wymuś usunięcie wpisu",
+      "description": "To usunie wpis rejestru dla {{name}}. Zdalna instancja nie zostanie powiadomiona. Użyj tylko, gdy instancja jest trwale nieosiągalna.",
+      "confirm": "Usuń wymuszenie"
+    },
+    "deleteIdentity": {
+      "title": "Usuń tożsamość",
+      "description": "Usuń swoją sfederowaną tożsamość na <name>{{name}}</name>. Wybierz, jak potraktować dane.",
+      "leave": {
+        "title": "Wyjdź po cichu",
+        "description": "Rozłącz się z tą instancją. Twoje konto i wszystkie dane zostają."
+      },
+      "soft": {
+        "title": "Usuń użytkownika",
+        "description": "Usuń konto, ale zachowaj wiadomości. Widniejesz jako „Usunięty użytkownik”."
+      },
+      "full": {
+        "title": "Zniszcz wszystko",
+        "description": "Usuń konto i wszystkie wiadomości, DM-y, reakcje i pliki. Nic nie zostaje."
+      },
+      "scope": {
+        "heading": "Zakres",
+        "this": "Tylko ta instancja",
+        "select": "Wybierz instancje…",
+        "all": "Wszystkie zdalne instancje"
+      },
+      "deleting": "Usuwanie…",
+      "disconnect": "Rozłącz",
+      "confirm": "Usuń tożsamość",
+      "toast": {
+        "disconnected": "Rozłączono",
+        "deleted_one": "Usunięto tożsamość",
+        "deleted_few": "Usunięto tożsamość na {{count}} instancjach",
+        "deleted_many": "Usunięto tożsamość na {{count}} instancjach",
+        "deleted_other": "Usunięto tożsamość na {{count}} instancji",
+        "ownsSpaces": "{{host}}: najpierw przekaż własność przestrzeni",
+        "failed": "{{host}}: {{error}}",
+        "failedGeneric": "Niepowodzenie"
+      }
+    },
+    "action": {
+      "friendRequest": "prośba o znajomość",
+      "spaceJoin": "dołączenie do przestrzeni",
+      "directMessage": "wiadomość bezpośrednia",
+      "friendRequestTo": "Prośba do {{target}}",
+      "joinSpace": "Dołącz do {{target}}",
+      "directMessageTo": "Wiadomość do {{target}}",
+      "instanceConnect": "połączenie",
+      "connectTo": "Połącz z {{target}}"
+    },
+    "pending": {
+      "title": "Oczekujące zgody na połączenie",
+      "description": "Twój administrator musi zatwierdzić, zanim prośby ruszą dalej.",
+      "onPeer": "na <peer>{{peer}}</peer>",
+      "cancelling": "Anulowanie…",
+      "cancelled": "Anulowano prośbę o połączenie",
+      "cancelFailed": "Nie udało się anulować: {{error}}"
+    },
+    "outcomes": {
+      "title": "Ostatnie wyniki połączeń",
+      "approved": "Twój administrator zatwierdził prośbę o połączenie z {{host}}.",
+      "denied": "Twój administrator odrzucił prośbę o połączenie z {{host}}.",
+      "expired": "Twoja prośba o połączenie z {{host}} wygasła bez decyzji administratora.",
+      "originalAction": "Pierwotna akcja: {{action}}",
+      "retry": "Ponów: {{action}}",
+      "dismissing": "Zamykanie…",
+      "dismissFailed": "Nie udało się zamknąć: {{error}}",
+      "dismissAllFailed": "Nie udało się zamknąć wszystkich: {{error}}"
+    },
+    "peering": {
+      "unavailable": "Wiadomości do osób na {{name}} nie mogą być przekazywane, dopóki administrator nie zatwierdzi połączenia.",
+      "inProgress": "Konfigurowanie połączenia z {{name}}. Wiadomości do osób tam wkrótce będą przekazywane."
+    }
+  },
+  "admin": {
+    "title": "Federacja",
+    "description": "Skonfiguruj przekaźnik federacji, rotację sekretów i zarządzaj połączonymi instancjami.",
+    "relay": {
+      "title": "Ustawienia przekaźnika",
+      "description": "Steruj przekaźnikiem DM-ów między sfederowanymi instancjami. Gdy włączony, DM-y z użytkownikami na instancjach partnerskich są przekazywane serwer-serwer.",
+      "enable": {
+        "label": "Włącz przekaźnik DM-ów",
+        "description": "Przekazuj wiadomości bezpośrednie do i z instancji partnerskich"
+      },
+      "autoAccept": {
+        "label": "Automatycznie akceptuj połączenia",
+        "description": "Automatycznie akceptuj prośby o połączenie z innych instancji. Gdy wyłączone, dozwolone są tylko połączenia inicjowane ręcznie."
+      },
+      "ttl": {
+        "label": "TTL przekaźnika (dni)",
+        "description": "Jak długo przekazane wiadomości są trzymane w skrzynce nadawczej przed czyszczeniem"
+      },
+      "rotation": {
+        "label": "Domyślna rotacja sekretów (dni)",
+        "description": "Interwał autorotacji dla nowych połączeń. Istniejące połączenia zachowują bieżące ustawienie."
+      }
+    },
+    "status": {
+      "active": "Aktywne",
+      "pending": "Oczekuje",
+      "unreachable": "Nieosiągalne",
+      "rejectedShort": "Odrzucone",
+      "revoked": "Cofnięte",
+      "awaitingApproval": "Czeka na zgodę",
+      "needsAttention": "Wymaga uwagi"
+    },
+    "filter": {
+      "statusHeading": "Status",
+      "sort": {
+        "domain": "Domena (A–Z)",
+        "lastSeen": "Ostatnio widziano",
+        "dateAdded": "Data dodania",
+        "failures": "Błędy",
+        "revokedDate": "Data cofnięcia"
+      }
+    },
+    "views": {
+      "active": "Aktywne",
+      "revoked": "Cofnięte"
+    },
+    "peer": {
+      "instanceName": "Nazwa instancji",
+      "revokedMeta": "Cofnięto: {{revoked}} · Połączono: {{peered}}",
+      "unreachableMeta": "Ostatnio: {{lastSeen}} · {{failures}}",
+      "activeMeta": "Ostatnio: {{lastSeen}} · Zsynchronizowano: {{synced}}",
+      "failures_one": "{{count}} błąd",
+      "failures_few": "{{count}} błędy",
+      "failures_many": "{{count}} błędów",
+      "failures_other": "{{count}} błędu",
+      "reinitiate": "Zainicjuj połączenie ponownie",
+      "deletePermanently": "Usuń trwale",
+      "consecutiveFailures": "Błędy z rzędu",
+      "authFailures": "Błędy uwierzytelniania",
+      "lastFailure": "Ostatni błąd",
+      "peeredSince": "Połączono od",
+      "secretRotated": "Zrotowano sekret",
+      "autoRotate": "Autorotacja",
+      "rotationStatus": "Stan rotacji",
+      "rotateEvery_one": "Co {{count}} dzień",
+      "rotateEvery_few": "Co {{count}} dni",
+      "rotateEvery_many": "Co {{count}} dni",
+      "rotateEvery_other": "Co {{count}} dnia",
+      "defaultTag": "(domyślne)",
+      "inProgress": "W toku",
+      "idle": "Bezczynny",
+      "intervalRange": "Musi być 1–365",
+      "intervalUpdated": "Zaktualizowano interwał rotacji",
+      "checking": "Sprawdzanie…",
+      "checkNow": "Sprawdź teraz",
+      "resetPeering": "Zresetuj połączenie",
+      "rotateSecret": "Zrotuj sekret",
+      "rotationInProgress": "Rotacja już trwa",
+      "revoke": "Cofnij",
+      "editInterval": "Edytuj interwał rotacji",
+      "reason": {
+        "auth_failures": "Podpisane dostawy wciąż zawodzą",
+        "peer_reset_detected": "Przeinstalowano z nową tożsamością",
+        "repeer_incomplete": "Nie udało się zweryfikować ponownego połączenia",
+        "denied_by_local_admin": "Odrzucone przez Twojego administratora",
+        "denied_by_remote": "Odrzucone przez ich administratora",
+        "revoked_by_remote": "Cofnięte przez ich administratora",
+        "expired_on_remote": "Prośba wygasła po ich stronie",
+        "stale_peering_on_remote": "Po ich stronie tkwi starsze połączenie"
+      },
+      "reasonDetail": {
+        "auth_failures": "{{host}} odrzucił pięć podpisanych dostaw z rzędu, więc instancje nie mają już wspólnego sekretu. Zresetuj połączenie i połącz ponownie.",
+        "peer_reset_detected": "{{host}} przeinstalowano: zgłasza inną tożsamość instancji niż wcześniej. Użyj „Połącz ponownie” w banerze powyżej, aby połączyć z nową instancją i posprzątać konta starej.",
+        "repeer_incomplete": "{{host}} przyjął handshake, ale podpisane sprawdzenie nowym sekretem zawiodło, więc połączenie nie jest używane. Zresetuj je i spróbuj ponownie. Jeśli znowu zawiedzie, ich administrator musi zresetować swoją stronę.",
+        "denied_by_local_admin": "Administrator tutaj odrzucił prośbę o połączenie od {{host}}. Jego prośby będą odrzucane, dopóki nie zainicjujesz ponownie albo nie usuniesz wpisu.",
+        "denied_by_remote": "Administrator {{host}} odrzucił połączenie z tą instancją. Zainicjuj ponownie, gdy wyrażą zgodę.",
+        "revoked_by_remote": "Administrator {{host}} cofnął połączenie z tą instancją. Wróci, gdy je zainicjują.",
+        "expired_on_remote": "Administrator {{host}} nie odpowiedział na prośbę w 30 dni. Zainicjuj ponownie, aby zapytać znowu.",
+        "stale_peering_on_remote": "{{host}} wciąż trzyma starsze połączenie z tą instancją i odmawia nowego, dopóki jego administrator go nie zresetuje. Ta instancja sprawdza co 15 minut i połączy się, gdy tylko będzie można."
+      }
+    },
+    "approvals": {
+      "title": "Prośby czekające na zgodę",
+      "outboundTitle_one": "{{name}} — {{count}} użytkownik chce się z nami połączyć",
+      "outboundTitle_few": "{{name}} — {{count}} użytkowników chce się z nami połączyć",
+      "outboundTitle_many": "{{name}} — {{count}} użytkowników chce się z nami połączyć",
+      "outboundTitle_other": "{{name}} — {{count}} użytkownika chce się z nami połączyć",
+      "requested": "Poproszono {{time}}",
+      "subscriber": {
+        "friendAdd": "dodanie do znajomych {{target}}",
+        "spaceJoin": "chce dołączyć do {{target}}",
+        "directMessage": "chce napisać do {{target}}",
+        "instanceConnect": "połączył konto na {{target}}"
+      },
+      "approve": "Zatwierdź",
+      "deny": "Odrzuć",
+      "established": "Nawiązano połączenie z {{name}}",
+      "deniedToast": "Odrzucono prośbę o połączenie od {{name}}",
+      "confirm": {
+        "approveTitle": "Zatwierdź prośbę o połączenie",
+        "denyTitle": "Odrzuć prośbę o połączenie",
+        "approveOutbound_one": "To zainicjuje handshake połączenia z {{name}} w imieniu {{count}} proszącego użytkownika. Zdalna instancja musi być osiągalna.",
+        "approveOutbound_few": "To zainicjuje handshake połączenia z {{name}} w imieniu {{count}} proszących użytkowników. Zdalna instancja musi być osiągalna.",
+        "approveOutbound_many": "To zainicjuje handshake połączenia z {{name}} w imieniu {{count}} proszących użytkowników. Zdalna instancja musi być osiągalna.",
+        "approveOutbound_other": "To zainicjuje handshake połączenia z {{name}} w imieniu {{count}} proszącego użytkownika. Zdalna instancja musi być osiągalna.",
+        "approveInbound": "To zainicjuje handshake połączenia z {{name}}. Zdalna instancja musi być osiągalna.",
+        "denyOutbound_one": "To odrzuci wychodzącą prośbę i powiadomi proszącego użytkownika. Może poprosić znowu, powtarzając swoją akcję.",
+        "denyOutbound_few": "To odrzuci wychodzącą prośbę i powiadomi proszących użytkowników. Mogą poprosić znowu, powtarzając swoją akcję.",
+        "denyOutbound_many": "To odrzuci wychodzącą prośbę i powiadomi proszących użytkowników. Mogą poprosić znowu, powtarzając swoją akcję.",
+        "denyOutbound_other": "To odrzuci wychodzącą prośbę i powiadomi proszącego użytkownika. Może poprosić znowu, powtarzając swoją akcję.",
+        "denyInbound": "To odrzuci prośbę i zablokuje przyszłe automatyczne prośby od {{name}}. Później możesz je odblokować na liście odrzuconych.",
+        "approveAndPeer": "Zatwierdź i połącz",
+        "approve": "Zatwierdź",
+        "denyAndNotify": "Odrzuć i powiadom",
+        "deny": "Odrzuć"
+      }
+    },
+    "resetCleanup": {
+      "title": "Czyszczenie po resecie",
+      "peerReset": "Zresetowano {{name}}",
+      "peerResetDescription": "Na tej domenie działa nowa instancja. Odbuduj federację, aby uleczyć nieaktualne znajomości i DM-y.",
+      "repeer": "Połącz ponownie",
+      "resetToast": "Zresetowano {{host}} — trzeba odbudować federację",
+      "repeerIncomplete": "Ponowne połączenie niekompletne — {{name}} wciąż trzyma stare połączenie z Tobą. Jego administrator musi zresetować swoją stronę, potem połącz ponownie.",
+      "repeerInitiated": "Zainicjowano ponowne połączenie z {{name}}",
+      "removed": "Usunięto {{username}} i całą zawartość",
+      "ownsSpaces": "{{username}} jest właścicielem przestrzeni — najpierw przekaż własność (Ustawienia przestrzeni → Własność).",
+      "staleRemote": "Zdalna instancja wciąż trzyma stare połączenie z Tobą. Poproś jej administratora o reset strony, potem połącz ponownie.",
+      "eventSummary": "<host>{{host}}</host> zresetowano — wyczyszczono automatycznie {{identities}}, odłączono {{accounts}} z lokalną zawartością. Odłączone konta działają lokalnie dalej — właściciele zachowują dostęp z dotychczasowym hasłem. Właściciel może ponownie podłączyć odłączone konto do nowej macierzystej tożsamości w ustawieniach tego konta (Konto → komunikat o odłączeniu), gdy jest zalogowany w obu.",
+      "identitiesCleaned_one": "{{count}} replikowana tożsamość",
+      "identitiesCleaned_few": "{{count}} replikowane tożsamości",
+      "identitiesCleaned_many": "{{count}} replikowanych tożsamości",
+      "identitiesCleaned_other": "{{count}} replikowanej tożsamości",
+      "accountsDetached_one": "{{count}} konto",
+      "accountsDetached_few": "{{count}} konta",
+      "accountsDetached_many": "{{count}} kont",
+      "accountsDetached_other": "{{count}} konta",
+      "memberships_one": "{{count}} członkostwo",
+      "memberships_few": "{{count}} członkostwa",
+      "memberships_many": "{{count}} członkostw",
+      "memberships_other": "{{count}} członkostwa",
+      "messages_one": "{{count}} wiadomość",
+      "messages_few": "{{count}} wiadomości",
+      "messages_many": "{{count}} wiadomości",
+      "messages_other": "{{count}} wiadomości",
+      "owns": "Właściciel: {{spaces}}",
+      "dismissKeep": "Zamknij — zachowaj wszystkie odłączone konta",
+      "confirm": {
+        "repeerTitle": "Odbuduj federację",
+        "removeTitle": "Usuń odłączone konto",
+        "repeerDescription": "To usunie lokalny wpis połączenia i zacznie nowe uwierzytelnione handshake z {{origin}}. Zdalna instancja musi być osiągalna i (jeśli nie akceptuje automatycznie) zatwierdzić prośbę.",
+        "removeDescription": "Trwale usunąć {{username}} i całą zawartość na tej instancji? Nie można tego cofnąć.",
+        "repeerConfirm": "Połącz i ulecz",
+        "removeConfirm": "Usuń trwale"
+      }
+    },
+    "peers": {
+      "title": "Połączone instancje",
+      "empty": "Brak skonfigurowanych peerów federacji. Tworzą się automatycznie, gdy użytkownicy łączą się ze zdalnymi instancjami.",
+      "noMatch": "Brak peerów pasujących do filtra.",
+      "noRevoked": "Brak cofniętych peerów.",
+      "backOnline": "{{name}} z powrotem online",
+      "stillUnreachable": "{{name}} wciąż nieosiągalny",
+      "rotationInitiated": "Zainicjowano rotację sekretu — 15-minutowy okres karencji",
+      "revoked": "Cofnięto peera",
+      "reinitiated": "Połączono ponownie",
+      "reinitiateFailed": "Usunięto wpis, ale handshake zawiódł: {{error}}. Połącz ręcznie z {{origin}}",
+      "deleted": "Trwale usunięto peera",
+      "resetDone": "Zresetowano połączenie z {{name}}",
+      "confirm": {
+        "rotate": {
+          "title": "Zrotuj sekret HMAC",
+          "description": "To wygeneruje nowy sekret HMAC dla {{name}}. Obie instancje będą akceptować stare i nowe sekrety przez 15-minutowy okres karencji.",
+          "confirm": "Zrotuj"
+        },
+        "revoke": {
+          "title": "Cofnij peera",
+          "description": "To zatrzyma cały ruch przekaźnika federacji z {{name}}. Wpisy w skrzynce nadawczej zostaną wyczyszczone. Później możesz połączyć ponownie.",
+          "confirm": "Cofnij"
+        },
+        "reinitiate": {
+          "title": "Zainicjuj połączenie ponownie",
+          "description": "To usunie cofnięty wpis i zacznie nowy handshake z {{origin}}. Zdalna instancja musi być osiągalna.",
+          "confirm": "Zainicjuj ponownie"
+        },
+        "delete": {
+          "title": "Usuń wpis peera",
+          "description": "To trwale usunie wpis peera dla {{name}}. Nie można tego cofnąć.",
+          "confirm": "Usuń"
+        },
+        "reset": {
+          "title": "Zresetuj połączenie",
+          "description": "Zresetować połączenie z {{name}}? To usuwa lokalny wpis i wszystkie wpisy w skrzynce nadawczej. Po resecie musisz zainicjować połączenie ze zdalnym administratorem poza systemem. Nie można tego cofnąć.",
+          "confirm": "Zresetuj"
+        }
+      }
+    }
+  },
+  "peerRejected": {
+    "auth_failures": "Wiadomości do {{name}} nie docierają: wspólny sekret połączenia przestał działać. Administrator musi zresetować połączenie.",
+    "peer_reset_detected": "Wiadomości do {{name}} nie docierają: przeinstalowano je. Administrator musi połączyć ponownie.",
+    "repeer_incomplete": "Wiadomości do {{name}} nie docierają: nie udało się zweryfikować ponownego połączenia. Administrator musi zresetować połączenie.",
+    "denied_by_local_admin": "Wiadomości do {{name}} nie mogą dotrzeć: Twój administrator odrzucił federację z nim.",
+    "denied_by_remote": "Wiadomości do {{name}} nie mogą dotrzeć: jego administrator odrzucił federację z tą instancją.",
+    "revoked_by_remote": "Wiadomości do {{name}} nie mogą dotrzeć: jego administrator cofnął federację z tą instancją.",
+    "expired_on_remote": "Wiadomości do {{name}} nie mogą dotrzeć: jego administrator nie odpowiedział na prośbę na czas.",
+    "stale_peering_on_remote": "Wiadomości do {{name}} jeszcze nie mogą dotrzeć: wciąż trzyma starsze połączenie z tą instancją, które jego administrator musi zresetować.",
+    "fallback": "Wiadomości do {{name}} nie mogą dotrzeć: {{reason}}"
+  }
+}

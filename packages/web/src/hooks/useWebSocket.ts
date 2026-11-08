@@ -27,6 +27,7 @@ import { ownStatusReport, statusToAssertOnRemote } from '../utils/selfStatus';
 import { getActiveRoom } from './useLiveKit';
 import { useUIStore } from '../stores/uiStore';
 import { describeErrorCode } from '../i18n/errors';
+import i18n from '../i18n';
 import { useActivityStore } from '../stores/activityStore';
 import { presenceSubjectOf, readyActivityEntries, readyRowIndex } from '../utils/presenceSubject';
 import { useDiscoverStore } from '../stores/discoverStore';
@@ -652,7 +653,7 @@ function handleEvent(origin: string, event: ServerEvent, readyAlreadyDelivered =
           const { addToast } = useUIStore.getState();
           const count = event.pendingApprovalCount;
           addToast(
-            `You have ${count} pending peering request${count === 1 ? '' : 's'}`,
+            i18n.t('federation:feedback.pendingRequests', { count }),
             'info',
             5000,
           );
@@ -874,7 +875,7 @@ function handleEvent(origin: string, event: ServerEvent, readyAlreadyDelivered =
           useVoiceStore.getState().handleForceDisconnect();
           getActiveRoom()?.disconnect();
           if (event.reason === 'displaced') {
-            useUIStore.getState().addToast('Voice disconnected — joined from another session', 'info');
+            useUIStore.getState().addToast(i18n.t('voice:feedback.joinedOtherSession'), 'info');
           }
         }
       }
@@ -1005,16 +1006,16 @@ function handleEvent(origin: string, event: ServerEvent, readyAlreadyDelivered =
       // toast — the inline list in the Connections panel is the persistent
       // surface; the toast is opportunistic for online users.
       void useFederationStore.getState().refetchPeeringNotifications();
-      const message =
+      const messageKey =
         event.kind === 'approved'
-          ? 'Your peering request was approved'
+          ? 'federation:feedback.requestApproved'
           : event.kind === 'denied'
-            ? 'Your peering request was denied'
-            : 'Your peering request expired';
+            ? 'federation:feedback.requestDenied'
+            : 'federation:feedback.requestExpired';
       // uiStore exposes 'info' | 'warning' | 'success' — use 'success' for
       // approved, 'warning' for denied/expired (no error severity exists).
       const severity: 'success' | 'warning' = event.kind === 'approved' ? 'success' : 'warning';
-      useUIStore.getState().addToast(message, severity, 4500);
+      useUIStore.getState().addToast(i18n.t(messageKey), severity, 4500);
       break;
     }
 
@@ -1116,7 +1117,7 @@ function handleEvent(origin: string, event: ServerEvent, readyAlreadyDelivered =
       removeRequestById(event.requestId, origin);
       const { addToast } = useUIStore.getState();
       addToast(
-        `Friend request to ${event.targetHandle} could not be delivered: ${event.message}`,
+        i18n.t('federation:feedback.friendRequestDeliveryFailed', { username: event.targetHandle, reason: describeErrorCode(event.reason, event.message) }),
         'warning',
       );
       break;

@@ -3,13 +3,14 @@ import { existsSync } from 'node:fs';
 import { EventEmitter } from 'node:events';
 import { DBusError, Message, MessageBus, MessageType, sessionBus, Variant } from 'dbus-next';
 import { PortalKeybindStatus } from './portalShortcut';
+import { getDesktopLanguage, translateDesktop, type DesktopStringKey } from './l10n';
 
 const SERVICE = 'org.freedesktop.portal.Desktop';
 const PATH = '/org/freedesktop/portal/desktop';
 const INTERFACE = 'org.freedesktop.portal.GlobalShortcuts';
-const ACTIONS: Record<string, string> = {
-  toggleMute: 'Toggle microphone', toggleDeafen: 'Toggle deafen', pushToTalk: 'Push to talk',
-  toggleCamera: 'Toggle camera', toggleScreenShare: 'Toggle screen sharing', disconnect: 'Disconnect from voice',
+const ACTIONS: Record<string, DesktopStringKey> = {
+  toggleMute: 'shortcut.toggleMute', toggleDeafen: 'shortcut.toggleDeafen', pushToTalk: 'shortcut.pushToTalk',
+  toggleCamera: 'shortcut.toggleCamera', toggleScreenShare: 'shortcut.toggleScreenShare', disconnect: 'shortcut.disconnect',
 };
 type Properties = Record<string, Variant<unknown>>;
 type Shortcut = [string, Properties];
@@ -83,8 +84,9 @@ export class GlobalShortcutsPortal {
       this.session = session;
       // Bind every new session so the backend can restore its saved assignments.
       // An empty pre-bind ListShortcuts result must not prevent registration.
-      const shortcuts: Shortcut[] = Object.entries(ACTIONS).map(([id, description]) =>
-        [id, { description: new Variant('s', description) }]);
+      const language = getDesktopLanguage();
+      const shortcuts: Shortcut[] = Object.entries(ACTIONS).map(([id, key]) =>
+        [id, { description: new Variant('s', translateDesktop(language, key)) }]);
       const bound = await this.request('BindShortcuts', 'oa(sa{sv})sa{sv}',
         (token) => [session, shortcuts, '', { handle_token: new Variant('s', token) }]);
       this.bound = true;

@@ -1,0 +1,121 @@
+{
+  "feedback": {
+    "openedInNewTab": "Ouvert dans un nouvel onglet", "copiedGifLink": "Lien du GIF copié", "copiedImageLink": "Lien de l’image copié",
+    "uploadExpired": "Impossible d’envoyer « {{content}} » : l’envoi a expiré.", "attachmentOnly": "(pièces jointes uniquement)"
+  },
+  "message": {
+    "edit": { "hint": "Échap pour <cancel>annuler</cancel> • Entrée pour <save>enregistrer</save>" },
+    "edited": "(modifié)", "rowLabel": "{{author}}, {{time}}", "gifAlt": "GIF",
+    "upload": { "failed": "Échec de l’envoi", "discard": "Abandonner" }, "actions": { "confirmDelete": "Confirmer la suppression" },
+    "reply": { "jump": "Aller au message d’origine" }, "mention": { "unknownUser": "Utilisateur inconnu", "unknownRole": "Rôle inconnu" },
+    "reactions": {
+      "picker": "Sélecteur de réactions", "you": "Toi", "others_one": "{{count}} autre personne", "others_many": "{{count}} autres personnes", "others_other": "{{count}} autres personnes",
+      "bySelf": "Tu as réagi", "byOne": "{{name}} a réagi", "byMany": "Réactions : {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "Tu n’as pas la permission de voir l’historique des messages de ce canal", "loading": "Chargement des messages",
+    "loadingOlder": "Chargement des anciens messages", "loadFailed": "Impossible de charger les messages", "jumpToPresent": "Aller aux derniers messages",
+    "jump": { "unavailable": "Ce message n’est plus disponible", "failed": "Impossible de charger ce message", "presentFailed": "Impossible de charger les derniers messages" },
+    "unread": { "label": "Nouveaux", "divider": "Nouveaux messages", "dividerWithDate": "Nouveaux messages, {{date}}" },
+    "welcome": {
+      "channel": { "title": "Bienvenue dans le canal !", "description": "C’est le début de la conversation." },
+      "group": {
+        "intro": "C’est le début de la conversation de ton groupe.", "owner": "Propriétaire : <owner>@{{name}}</owner>",
+        "federatedNotice": "Les messages sont stockés sur ton instance d’origine et celles des destinataires. Ils ne sont pas chiffrés de bout en bout.",
+        "openSettings": "Ouvrir les paramètres du groupe", "leave": "Quitter le groupe"
+      },
+      "dm": {
+        "fallbackName": "Message privé", "intro": "C’est le début de ton historique de messages privés avec <strong>@{{name}}</strong>.",
+        "federatedNotice": "Les messages sont stockés sur ton instance d’origine et celle de ton destinataire. Ils ne sont pas chiffrés de bout en bout.",
+        "removeFriend": "Retirer des amis"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "Tu n’as pas la permission d’envoyer des messages dans ce canal",
+    "placeholder": { "channel": "Message dans #{{name}}", "dm": "Message à @{{name}}" }, "replyingTo": "En réponse à", "cancelReply": "Annuler la réponse",
+    "removeAttachment": "Retirer la pièce jointe", "attachFile": "Joindre un fichier", "dropTitle": "Envoyer un fichier", "dropHint": "Dépose le fichier pour le joindre",
+    "uploading": "Envoi…", "uploadingLabel": "Envoi", "failedCount_one": "{{count}} en échec", "failedCount_many": "{{count}} en échec", "failedCount_other": "{{count}} en échec",
+    "failedHint": "Retire le fichier en échec ou renvoie-le pour envoyer le message", "gif": "GIF", "gifPicker": "Sélecteur de GIF",
+    "emoji": "Emoji", "emojiPicker": "Sélecteur d’émojis", "send": "Envoyer", "sendMessage": "Envoyer le message",
+    "uploadFailed": "Impossible d’envoyer {{file}} : {{reason}}", "uploadFailedReason": "Échec de l’envoi",
+    "typing": {
+      "named_one": "{{names}} écrit", "named_many": "{{names}} écrivent", "named_other": "{{names}} écrivent", "several": "Plusieurs personnes écrivent"
+    }
+  },
+  "menu": {
+    "saveImage": "Enregistrer l’image", "copyImage": "Copier l’image", "openOriginal": "Ouvrir l’original", "saveVideo": "Enregistrer la vidéo",
+    "saveAudio": "Enregistrer l’audio", "copyLink": "Copier le lien", "openLink": "Ouvrir le lien", "copySelectedText": "Copier le texte sélectionné",
+    "copyText": "Copier le texte", "markUnread": "Marquer comme non lu", "editMessage": "Modifier le message", "deleteMessage": "Supprimer le message",
+    "linkCopied": "Lien copié", "linkCopyFailed": "Impossible de copier le lien", "pinMessage": "Épingler le message", "unpinMessage": "Désépingler le message"
+  },
+  "attachment": {
+    "progress": { "pausedTitle": "En pause — {{percent}}" },
+    "video": { "cannotPlayDownload": "Lecture impossible ici : télécharger", "unsupportedFormat": "Format vidéo non pris en charge", "unsupportedBrowser": "Ton navigateur ne permet pas de lire la vidéo." },
+    "audio": { "unsupportedBrowser": "Ton navigateur ne permet pas de lire l’audio." },
+    "federation": {
+      "remoteNamed": "Hébergé sur l’instance de {{sender}}. Télécharge le fichier pour en garder une copie locale.",
+      "remoteUnknown": "Hébergé sur l’instance de l’expéditeur. Télécharge le fichier pour en garder une copie locale.",
+      "partialGeneric": "Certains destinataires ne peuvent pas conserver ce fichier dans leur cache local.",
+      "partialInstance": "l’instance de {{username}} (limite : {{limit}})",
+      "partialList": "Impossible de mettre le fichier en cache sur {{instances}}. Leurs destinataires peuvent toujours le consulter depuis ton instance.",
+      "listPair": "{{first}} et {{second}}"
+    }
+  },
+  "gif": { "searchPlaceholder": "Rechercher des GIF", "noResults": "Aucun GIF trouvé", "noTrending": "Aucun GIF tendance", "attribution": "Propulsé par Klipy" },
+  "preview": { "save": "Enregistrer l’image", "copy": "Copier l’image", "alt": "Aperçu de l’image" },
+  "invite": {
+    "sentBy": "{{name}} a envoyé une invitation", "memberCount_one": "{{count}} membre", "memberCount_many": "{{count}} membres", "memberCount_other": "{{count}} membres",
+    "revoked": "L’invitation n’est plus valide", "join": "Rejoindre", "joining": "Accès à l’espace…", "joinFailed": "Impossible de rejoindre",
+    "askToJoin": "Demander l’accès", "sendingRequest": "Envoi…", "requestSent": "Demande envoyée", "requestPending": "Demande en attente",
+    "requestNotice": "Cet espace exige une demande d’accès. Une personne chargée de sa gestion doit l’approuver.", "requestReview": "Une personne chargée de la gestion de l’espace examinera ta demande."
+  },
+  "notification": { "unknownSender": "Quelqu’un", "attachmentOnly": "A envoyé une pièce jointe" },
+  "commands": {
+    "title": "Commandes", "failed": "Impossible d’envoyer la commande",
+    "extraText": "Cette commande n’accepte pas de texte libre, mais « {{text}} » reste en trop. Place les options avant le texte",
+    "invalidOption": "La valeur de {{option}} est invalide pour cette commande.", "optionsTitle": "Paramètres", "required": "obligatoire",
+    "subcommandsTitle": "Sous-commandes", "group": "groupe", "chooseSubcommand": "Choisis une sous-commande : {{names}}",
+    "subcommandRefused": "Le bot ne propose pas cette sous-commande. Choisis-en une dans la liste"
+  },
+  "ephemeral": { "onlyYou": "Visible uniquement par toi", "dismiss": "Ignorer", "rowLabel": "Réponse de {{author}} visible uniquement par toi, {{time}}" },
+  "embed": {
+    "loadAction": "Cliquer pour charger", "loadNamed": "Charger {{name}}", "loadUnnamed": "Charger le contenu intégré", "frameTitle": "Contenu intégré",
+    "playNamed": "Lire {{title}}", "playUnnamed": "Lire la vidéo", "videoTitle": "Vidéo"
+  },
+  "stickers": {
+    "title": "Mes autocollants", "upload": "Importer une image", "limits": "PNG, JPEG, WebP ou GIF · 5 Mo maximum", "loading": "Chargement…",
+    "empty": "Ta collection d’autocollants commence ici", "remove": "Retirer", "save": "Ajouter à mes autocollants", "saved": "Ajouté à mes autocollants",
+    "preview": "Aperçu de l’autocollant", "manage": "Gérer", "done": "Terminé",
+    "collectionHint": "Choisis un autocollant pour l’envoyer. Fais de cet endroit un espace à ton image.",
+    "manageHint": "Renomme ou retire des autocollants de ta collection. Les messages déjà envoyés ne changent pas.",
+    "emptyHint": "Enregistre tes moments préférés sous forme d’autocollants pour ta prochaine réponse.",
+    "chooseImage": "Choisir une image", "cancel": "Annuler", "replace": "Remplacer l’image", "name": "Nom de l’autocollant",
+    "dropImage": "Clique ou dépose une image ici", "pasteHint": "Tu peux aussi coller une image depuis le presse-papiers", "uploading": "Ajout de l’autocollant…",
+    "singleImage": "Choisis une image à la fois.", "invalidSize": "Choisis une image non vide de 5 Mo maximum.",
+    "invalidType": "Seules les images PNG, JPEG, WebP et GIF sont prises en charge.", "invalidImage": "Impossible d’afficher un aperçu de cette image. Choisis une image valide.",
+    "removeNamed": "Retirer {{name}}", "addMore": "Ajouter d’autres images", "selectedCount_one": "{{count}} autocollant sélectionné",
+    "selectedCount_many": "{{count}} autocollants sélectionnés", "selectedCount_other": "{{count}} autocollants sélectionnés", "dropMore": "Clique ou dépose d’autres images ici",
+    "sticker": "Autocollant", "downloadFailed": "Impossible de charger l’image.",
+    "batchLimit_one": "Choisis au maximum {{count}} image à la fois.", "batchLimit_many": "Choisis au maximum {{count}} images à la fois.", "batchLimit_other": "Choisis au maximum {{count}} images à la fois.",
+    "capacityLimit_one": "Ta collection peut encore contenir {{count}} autocollant.", "capacityLimit_many": "Ta collection peut encore contenir {{count}} autocollants.", "capacityLimit_other": "Ta collection peut encore contenir {{count}} autocollants.",
+    "full": "Ta collection est pleine. Retire un autocollant pour en ajouter un autre.",
+    "batchFailed_one": "Impossible d’ajouter {{count}} image. Elle reste dans la liste ci-dessous.", "batchFailed_many": "Impossible d’ajouter {{count}} images. Elles restent dans la liste ci-dessous.", "batchFailed_other": "Impossible d’ajouter {{count}} images. Elles restent dans la liste ci-dessous.",
+    "uploadingProgress": "Ajout de {{current}} sur {{total}}…", "rename": "Renommer", "renameNamed": "Renommer {{name}}", "renameTitle": "Renommer l’autocollant",
+    "search": "Rechercher des autocollants", "noResults": "Aucun autocollant trouvé", "store": "Boutique d’autocollants", "myCollection": "Mes autocollants",
+    "packs": "Packs d’autocollants", "explore": "Découvrir", "myPacks": "Mes créations", "install": "Ajouter", "installed": "Ajouté", "uninstall": "Retirer",
+    "createPack": "Créer un pack", "editPack": "Modifier le pack", "packName": "Nom du pack", "packDesc": "Description (facultative)", "submitReview": "Soumettre à validation",
+    "pendingReview": "En attente de validation", "approved": "Approuvé", "rejected": "Refusé", "draft": "Brouillon", "newVersion": "Nouvelle version", "deletePack": "Supprimer le pack",
+    "stickersCount_one": "{{count}} autocollant", "stickersCount_many": "{{count}} autocollants", "stickersCount_other": "{{count}} autocollants",
+    "noPacks": "Aucun pack d’autocollants trouvé", "replicaBadge": "Fédéré", "viewPack": "Voir le pack", "saveDraft": "Enregistrer le brouillon",
+    "packCreated": "Pack créé", "reviewSubmitted": "Soumis à la validation de l’administrateur", "reviews": "Validation", "noReviews": "Aucun pack d’autocollants en attente de validation",
+    "approve": "Approuver", "reject": "Refuser", "rejectTitle": "Refuser le pack d’autocollants", "rejectReason": "Motif du refus",
+    "rejectPlaceholder": "Indique le motif du refus (par ex. contenu inapproprié ou mauvaise qualité)", "rejectConfirm": "Confirmer le refus",
+    "approvedSuccess": "Pack d’autocollants approuvé", "rejectedSuccess": "Pack d’autocollants refusé", "reviewNotes": "Motif du refus",
+    "creator": "Créateur", "sourceInstance": "Instance", "localInstance": "Instance locale", "viewStickers": "Voir les autocollants",
+    "pendingReviewHint": "En cours de validation par l’administrateur. Apparaîtra dans Découvrir après approbation"
+  },
+  "poke": { "action": "Faire un coucou", "received": "{{actor}} fait un coucou à {{target}}", "disconnected": "Hors ligne : le coucou n’a pas été envoyé." },
+  "pins": { "title": "Messages épinglés", "empty": "Aucun message épinglé pour le moment.", "jump": "Aller au message", "unpin": "Désépingler", "deletedMessage": "Message supprimé", "attachmentOnly": "Pièce jointe" }
+}

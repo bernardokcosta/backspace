@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "close": "Sluiten",
+    "delete": "Verwijderen",
+    "bot": "BOT",
+    "confirm": "Bevestigen",
+    "copy": "Kopiëren",
+    "copied": "Gekopieerd",
+    "retry": "Opnieuw proberen",
+    "back": "Terug",
+    "done": "Klaar",
+    "edit": "Bewerken",
+    "remove": "Verwijderen",
+    "add": "Toevoegen",
+    "apply": "Toepassen",
+    "reset": "Resetten",
+    "continue": "Doorgaan",
+    "dismiss": "Sluiten",
+    "ok": "OK",
+    "search": "Zoeken",
+    "clear": "Wissen",
+    "change": "Wijzigen",
+    "refresh": "Vernieuwen",
+    "openLink": "Link openen",
+    "tryAgain": "Probeer opnieuw",
+    "reply": "Beantwoorden",
+    "addReaction": "Reactie toevoegen",
+    "share": "Delen",
+    "accept": "Accepteren",
+    "decline": "Weigeren",
+    "pause": "Pauzeren",
+    "resume": "Hervatten",
+    "abort": "Afbreken",
+    "dismissAll": "Alles sluiten",
+    "filter": "Filter",
+    "sort": "Sorteren",
+    "sortBy": "Sorteren op",
+    "leave": "Verlaten",
+    "invitePeople": "Mensen uitnodigen",
+    "previous": "Vorige",
+    "next": "Volgende",
+    "preview": "Voorbeeld",
+    "logIn": "Inloggen"
+  },
+  "states": {
+    "loading": "Laden…",
+    "saving": "Opslaan…",
+    "saved": "Opgeslagen",
+    "unknown": "Onbekend",
+    "none": "Geen",
+    "enabled": "Ingeschakeld",
+    "disabled": "Uitgeschakeld",
+    "on": "Aan",
+    "off": "Uit",
+    "yes": "Ja",
+    "no": "Nee",
+    "optional": "Optioneel",
+    "required": "Vereist",
+    "default": "Standaard",
+    "recommended": "Aanbevolen",
+    "online": "Online",
+    "idle": "Inactief",
+    "doNotDisturb": "Niet storen",
+    "offline": "Offline",
+    "loadingSettings": "Instellingen laden…",
+    "loadSettingsFailed": "Instellingen konden niet worden geladen.",
+    "settingsSaved": "Instellingen opgeslagen",
+    "saveFailed": "Opslaan mislukt",
+    "scanning": "Scannen…",
+    "pleaseWait": "Even geduld…"
+  },
+  "labels": {
+    "username": "Gebruikersnaam",
+    "password": "Wachtwoord",
+    "displayName": "Weergavenaam",
+    "friends": "Vrienden",
+    "members": "Leden",
+    "settings": "Instellingen",
+    "dangerZone": "Gevarenzone",
+    "searchMembers": "Leden zoeken…",
+    "noMembersFound": "Geen leden gevonden",
+    "or": "of",
+    "nameAZ": "Naam (A-Z)"
+  },
+  "time": {
+    "today": "Vandaag om {{time}}",
+    "yesterday": "Gisteren om {{time}}",
+    "never": "Nooit",
+    "justNow": "Zojuist",
+    "minutesShort": "{{minutes}} min",
+    "hoursMinutesShort": "{{hours}} u {{minutes}} min",
+    "elapsed": "{{duration}} verstreken",
+    "left": "nog {{duration}}"
+  },
+  "units": {
+    "ms": "{{value}} ms",
+    "percent": "{{value}}%",
+    "kbps": "{{value}} kb/s",
+    "mbps": "{{value}} Mb/s"
+  },
+  "colors": {
+    "mint": "Munt",
+    "sky": "Hemel",
+    "lavender": "Lavendel",
+    "coral": "Koraal",
+    "rose": "Roos",
+    "teal": "Blauwgroen",
+    "amber": "Barnsteen",
+    "peach": "Perzik"
+  },
+  "language": {
+    "label": "Taal",
+    "automatic": "Automatisch (systeem)",
+    "description": "Kies de taal voor menu's, knoppen en systeemberichten. Automatisch volgt je systeem- of browservoorkeuren. Berichten van anderen blijven zoals geschreven."
+  },
+  "crash": {
+    "title": "Er ging iets mis",
+    "reload": "Pagina opnieuw laden",
+    "details": "Foutdetails"
+  },
+  "app": {
+    "description": "Het zelfgehoste Discord- en TeamSpeak-alternatief. HD-voice, video en schermdeling — open source en gratis (AGPL-3.0).",
+    "loading": "Backspace laden"
+  },
+  "chrome": {
+    "toggleMemberList": "Ledenlijst tonen of verbergen",
+    "closeSettings": "Instellingen sluiten"
+  },
+  "sourceCode": {
+    "label": "Broncode (AGPL)",
+    "labelWithBuild": "Broncode (AGPL) · {{build}}",
+    "title": "Bekijk de broncode van de versie die op deze instantie draait (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "{{label}} gedetecteerd. Kies het in Spraakinstellingen om over te schakelen.",
+    "unnamedAudioInput": "Nieuw audioapparaat"
+  }
+}

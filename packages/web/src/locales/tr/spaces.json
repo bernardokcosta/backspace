@@ -1,0 +1,632 @@
+{
+  "soundboardTab": "Soundboard",
+  "create": {
+    "title": "Alan oluştur",
+    "icon": {
+      "upload": "Yükle",
+      "previewAlt": "Simge önizlemesi",
+      "colorLabel": "Simge rengi",
+      "cropTitle": "Alan simgesini kırp",
+      "uploadFailed": "Simge yüklenemedi"
+    },
+    "name": {
+      "label": "Alan adı",
+      "placeholder": "Harika alanım",
+      "required": "Alan adı gerekli"
+    },
+    "visibilityLabel": "Görünürlük",
+    "description": {
+      "label": "Açıklama",
+      "placeholder": "Alanın için kısa bir açıklama...",
+      "counter": "{{length}}/{{max}}"
+    },
+    "submit": "Oluştur",
+    "submitting": "Oluşturuluyor..."
+  },
+  "channel": {
+    "create": {
+      "title": "Kanal oluştur",
+      "typeLabel": "Kanal türü",
+      "types": {
+        "text": {
+          "name": "Metin",
+          "description": "Mesaj, görsel ve dosya gönder"
+        },
+        "voice": {
+          "name": "Ses",
+          "description": "Sesli ve görüntülü takıl"
+        }
+      },
+      "nameLabel": "Kanal adı",
+      "namePlaceholder": "yeni-kanal",
+      "topicLabel": "Konu (isteğe bağlı)",
+      "topicPlaceholder": "Bu kanal ne hakkında?",
+      "categoryLabel": "Kategori",
+      "noCategory": "Kategori yok",
+      "nameRequired": "Kanal adı gerekli",
+      "noSpaceSelected": "Alan seçilmedi",
+      "submit": "Kanal oluştur",
+      "submitting": "Oluşturuluyor..."
+    },
+    "settings": {
+      "title": "Kanal ayarları",
+      "rename": "Kanalı yeniden adlandır",
+      "nameLabel": "Kanal adı",
+      "channelLabel": "Kanal",
+      "topic": {
+        "label": "Konu",
+        "placeholder": "Bu kanal ne hakkında?",
+        "hint": "Kanal başlığında gösterilir. Herkes tam metni oradan açabilir.",
+        "counter": "{{used}}/{{max}}",
+        "tooLong": "Kaydetmek için konuyu en fazla {{max}} karaktere kısalt.",
+        "empty": "Konu ayarlanmamış.",
+        "reset": "Değişiklikleri at"
+      },
+      "private": {
+        "label": "Özel kanal",
+        "description": "Bu kanalı yalnızca seçili üyeler ve roller görüntüleyebilir.",
+        "note": "Bu kanal, açık erişimi olmayan üyelerden gizlenir. Yönetici iznine sahip kullanıcılar veya alan sahipleri tüm kanalları her zaman görebilir.",
+        "unhideOnSave": "Kaydetmek bu kanalı her üyeye görünür yapar."
+      },
+      "deleteButton": "Kanalı sil"
+    },
+    "delete": {
+      "title": "#{{name}} silinsin mi?",
+      "description": "Bu, <strong>#{{name}}</strong> kanalını ve tüm mesajlarını kalıcı olarak siler. Bu işlem geri alınamaz.",
+      "descriptionVoice": "Bu, <strong>#{{name}}</strong> kanalını ve tüm mesajlarını kalıcı olarak siler. Şu anda bu ses kanalında olan kullanıcıların bağlantısı kesilecek. Bu işlem geri alınamaz.",
+      "confirm": "Kanalı sil"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "Kategori oluştur",
+      "nameLabel": "Kategori adı",
+      "namePlaceholder": "yeni-kategori",
+      "nameRequired": "Kategori adı gerekli",
+      "noSpaceSelected": "Alan seçilmedi",
+      "submit": "Kategori oluştur",
+      "submitting": "Oluşturuluyor..."
+    },
+    "settings": {
+      "title": "Kategori ayarları",
+      "rename": "Kategoriyi yeniden adlandır",
+      "nameLabel": "Kategori adı",
+      "categoryLabel": "Kategori",
+      "private": {
+        "label": "Özel kategori",
+        "description": "Bu kategorideki kanalları yalnızca seçili üyeler ve roller görüntüleyebilir.",
+        "note": "Bu kategori, açık erişimi olmayan üyelerden gizlenir. İçindeki kanallar, açıkça geçersiz kılmadıkça bu kısıtlamayı devralır.",
+        "unhideOnSave": "Kaydetmek bu kategoriyi ve ayrı bir görünürlük kısıtlaması olmayan kanallarını her üyeye görünür yapar."
+      },
+      "deleteButton": "Kategoriyi sil"
+    },
+    "delete": {
+      "title": "\"{{name}}\" silinsin mi?",
+      "description": "Bu, <strong>{{name}}</strong> kategorisini kalıcı olarak siler. İçindeki kanallar en üst düzeye taşınır. Bu işlem geri alınamaz.",
+      "confirm": "Kategoriyi sil"
+    }
+  },
+  "invite": {
+    "title": "Arkadaşlarını davet et",
+    "intro": "Arkadaşlarına gönder veya bir bağlantı paylaş.",
+    "introRequest": "Arkadaşlarına gönder veya bir bağlantı paylaş. Açan kişiler katılma isteği gönderir ve her isteği bir yönetici onaylar.",
+    "searchPlaceholder": "Arkadaş ara...",
+    "noMatches": "Aramanla eşleşen arkadaş yok",
+    "noFriends": "Henüz arkadaş yok",
+    "alreadyMember": "Zaten alanda",
+    "removeSelected": "{{name}} adlı kişiyi kaldır",
+    "selectFriends": "Arkadaş seç",
+    "send_one": "{{count}} davet gönder",
+    "send_other": "{{count}} davet gönder",
+    "sending": "Gönderiliyor...",
+    "retryFailed": "Başarısız davetleri yeniden dene",
+    "status": {
+      "sent": "✓ Gönderildi",
+      "failed": "✗ {{reason}}"
+    },
+    "shareLink": "Veya bir bağlantı paylaş",
+    "generating": "Oluşturuluyor...",
+    "generateFailed": "Davet bağlantısı oluşturulamadı",
+    "failure": {
+      "inviteInvalid": "Davet bağlantısı artık geçerli değil",
+      "notAFriend": "Arkadaş değil",
+      "userNotFound": "Kullanıcı bulunamadı",
+      "alreadyMember": "Zaten üye",
+      "upstream": "Davet doğrulanamadı, tekrar dene",
+      "cannotInviteSelf": "Kendini davet edemezsin",
+      "invalidBody": "Geçersiz istek",
+      "invalidTarget": "Geçersiz hedef",
+      "unreachable": "Örneğine ulaşılamadı",
+      "serverError": "Gönderilemedi (sunucu hatası)"
+    }
+  },
+  "inviteFriend": {
+    "title": "{{name}} adlı kişiyi bir alana davet et",
+    "intro": "Davet göndermek için alanlarından birini seç.",
+    "noSpaces": "Henüz hiçbir alanda değilsin",
+    "contextMenu": "Alana davet et"
+  },
+  "join": {
+    "validation": {
+      "required": "Davet kodu gerekli",
+      "invalidLink": "Geçersiz davet bağlantısı",
+      "linkFormat": "Geçersiz davet bağlantısı — beklenen biçim: https://instance/join/CODE",
+      "qualifiedFormat": "Geçersiz davet biçimi — beklenen: CODE@domain",
+      "invalidDomain": "Davette geçersiz alan adı"
+    },
+    "title": "Bir alana katıl",
+    "invitePlaceholder": "örn. abc123 veya https://instance.com/join/abc123",
+    "submit": "Alana katıl",
+    "submitting": "Katılınıyor...",
+    "connect": {
+      "intro": "Bu alana katılmak için <host>{{host}}</host> adresine bağlan.",
+      "passwordLabel": "Bağlanmak için parolanı gir",
+      "passwordPlaceholder": "Hesap parolan",
+      "passwordNote": "Parolan ana örneğin tarafından kontrol edilir ve {{host}} adresine asla gönderilmez. O örnek yalnızca kendisi için oluşturulmuş benzersiz bir kimlik bilgisi alır.",
+      "submit": "Bağlan ve katıl",
+      "submitting": "Bağlanılıyor..."
+    },
+    "fallback": {
+      "usernamePlaceholder": "Bu örnekteki kullanıcı adın",
+      "passwordLabel": "Bu örnek için parola",
+      "passwordPlaceholder": "Uzak örnekteki parola",
+      "submit": "Giriş yap ve katıl",
+      "submitting": "Giriş yapılıyor..."
+    },
+    "request": {
+      "messagePlaceholder": "Neden katılmak istiyorsun? (isteğe bağlı)",
+      "send": "İstek gönder",
+      "sending": "Gönderiliyor...",
+      "notice": "Bu alan katılma istekleri alıyor. Bir istek gönder, bir yönetici inceleyecek.",
+      "messageLabel": "İsteğine not ekle",
+      "sent": "İstek gönderildi. Bir yönetici inceleyecek ve onayladığında alan listende görünecek.",
+      "pending": "Bu alana katılmayı zaten istedin. İsteğin bir yöneticiyi bekliyor."
+    }
+  },
+  "settings": {
+    "title": "Alan ayarları",
+    "backAria": "Alan ayarları menüsüne dön",
+    "nav": {
+      "general": "Genel",
+      "management": "Yönetim",
+      "tabs": {
+        "overview": "Genel bakış",
+        "roles": "Roller",
+        "bans": "Yasaklar"
+      }
+    },
+    "discardChanges": "Vazgeç",
+    "overview": {
+      "identity": "Alan kimliği",
+      "iconLabel": "Alan simgesi",
+      "iconAlt": "Alan simgesi",
+      "colorLabel": "Simge rengi",
+      "bannerLabel": "Alan banner'ı",
+      "bannerAlt": "Alan banner'ı",
+      "uploadBanner": "Banner yükle (16:9)",
+      "removeBanner": "Banner'ı kaldır",
+      "nameLabel": "Alan adı",
+      "iconUploadFailed": "Simge yüklenemedi",
+      "bannerUploadFailed": "Banner yüklenemedi",
+      "cropIconTitle": "Alan simgesini kırp",
+      "cropBannerTitle": "Alan banner'ını kırp",
+      "transfer": {
+        "description": "Sahipliği başka bir üyeye devret. Normal üye olacaksın.",
+        "prompt": "Sahiplik <strong>{{name}}</strong> adlı kişiye devredilsin mi?",
+        "button": "Sahipliği devret",
+        "confirm": "Devret",
+        "transferring": "Devrediliyor...",
+        "success": "Sahiplik {{name}} adlı kişiye devredildi",
+        "failed": "Sahiplik devredilemedi"
+      },
+      "delete": {
+        "description": "Bu alanı ve tüm verilerini kalıcı olarak sil. Bu geri alınamaz.",
+        "button": "Alanı sil",
+        "confirmAgain": "Silmeyi onaylamak için tekrar tıkla",
+        "failed": "Alan silinemedi"
+      }
+    },
+    "access": {
+      "title": "Erişim ve açıklama",
+      "visibility": {
+        "label": "Görünürlük",
+        "hint": "Davetiyesi olan kişilerin bu alana nasıl gireceğini kontrol et.",
+        "options": {
+          "private": {
+            "label": "Özel",
+            "description": "Yalnızca davet bağlantısı olan kişiler katılabilir"
+          },
+          "request": {
+            "label": "Katılma isteği",
+            "description": "Davet, bir yöneticinin onaylaması gereken bir isteğe dönüşür"
+          },
+          "public": {
+            "label": "Herkese açık",
+            "description": "Davetiyesi olan kişiler anında katılabilir"
+          }
+        }
+      },
+      "description": {
+        "label": "Açıklama",
+        "hint": "Bu alana davetlerle birlikte gösterilen kısa özet.",
+        "placeholder": "Bu alanın kısa açıklaması...",
+        "counter": "{{length}}/{{max}}"
+      },
+      "requests": {
+        "title": "Bekleyen katılma istekleri",
+        "empty": "Bekleyen katılma isteği yok",
+        "actionFailed": "İşlem başarısız"
+      }
+    },
+    "members": {
+      "description": "Bu alanın üyelerini yönet. Rollerini düzenlemek için bir üyeye tıkla.",
+      "listHeading": "Üyeler ({{total}})",
+      "owner": "Sahip",
+      "noRoles": "Rol yok",
+      "ban": "Yasakla",
+      "kick": "At",
+      "confirm": {
+        "banTitle": "{{name}} adlı kişiyi yasakla",
+        "kickTitle": "{{name}} adlı kişiyi at",
+        "banDescription": "Yasak kaldırılana kadar bu alandan kalıcı olarak yasaklanır.",
+        "kickDescription": "Bir davet bağlantısıyla yeniden katılabilir."
+      },
+      "updateRolesFailed": "Roller güncellenemedi",
+      "kickFailed": "Üye atılamadı",
+      "banFailed": "Üye yasaklanamadı",
+      "rolesAboveYou": "En yüksek rolünle aynı veya üstündeki roller kilitlidir.",
+      "rolesUnheld": "Sende olmayan izinlere sahip roller verilemez.",
+      "rolesManagedByBot": "Bir botun kendi rolü botta kalır.",
+      "botInvite": {
+        "warning": "Bot bu alanın üyesi olur ve izinlerinin kapsadığı her kanalın mesajlarını ve olaylarını alır. Yalnızca güvendiğin botları ekle.",
+        "owner": "Sahip: @{{owner}}",
+        "button": "Bot ekle",
+        "title": "Bot ekle",
+        "searchPlaceholder": "Botları ada göre ara...",
+        "searching": "Aranıyor...",
+        "noResults": "Bot bulunamadı",
+        "add": "Ekle",
+        "adding": "Ekleniyor...",
+        "permissionsTitle": "{{name}} için izinler",
+        "permissionsIntro": "Bot bu izinleri istiyor. Botun adını taşıyan bir role eklenirler; vermek istemediklerinin işaretini kaldır.",
+        "permissionsUnheld": "Kendinde olmayan izinler verilemez.",
+        "permissionsNone": "Hiçbiri işaretli değil: bot rol olmadan katılır.",
+        "back": "Geri"
+      }
+    },
+    "afk": {
+      "title": "AFK kanalı",
+      "channelLabel": "Boşta kalan üyeleri taşı",
+      "disabled": "Devre dışı",
+      "timeoutLabel": "Şu süre boşta kaldıktan sonra",
+      "minutes": "dk",
+      "hint": "Seçilen süre boyunca ses etkinliği olmayan üyeler otomatik olarak bu ses kanalına taşınır."
+    }
+  },
+  "bans": {
+    "title": "Yasaklar",
+    "description": "Yasaklanan kullanıcılar yasak kaldırılana kadar bu alana yeniden katılamaz.",
+    "loading": "Yasaklar yükleniyor...",
+    "empty": "Yasaklanmış kullanıcı yok",
+    "listHeading": "Yasaklar ({{total}})",
+    "bannedBy": "{{moderator}} tarafından {{date}} tarihinde yasaklandı",
+    "bannedByWithReason": "{{moderator}} tarafından {{date}} tarihinde yasaklandı: {{reason}}",
+    "unban": "Yasağı kaldır",
+    "loadFailed": "Yasaklar yüklenemedi",
+    "unbanFailed": "Kullanıcının yasağı kaldırılamadı"
+  },
+  "roles": {
+    "title": "Roller",
+    "create": "Rol oluştur",
+    "creating": "Oluşturuluyor...",
+    "listHeading": "Roller",
+    "description": "Roller, üyelerin hangi izinlere sahip olduğunu tanımlar.",
+    "hierarchyHint": "Listede daha yukarıdaki roller, altındakilerden daha üst sıradadır.",
+    "defaultName": "yeni rol",
+    "copyName": "{{name}} kopyası",
+    "backToList": "Rollere dön",
+    "created": "Rol oluşturuldu. Aşağıdan özelleştir.",
+    "aboveYou": "Bu rol, en yüksek rolünle aynı veya ondan üst sırada. Görüntüleyebilirsin ama değiştiremezsin.",
+    "managedByBot": "Bu rol bir bot tarafından yönetilir ve bot alandan ayrıldığında kaldırılır. Başkasına atanamaz veya elle silinemez. İzinleri değiştirilebilir.",
+    "reorder": {
+      "handle": "{{name}} rolünü taşı",
+      "handleHint": "Sürükle veya yukarı ve aşağı ok tuşlarını kullan",
+      "up": "{{name}} rolünü yukarı taşı",
+      "down": "{{name}} rolünü aşağı taşı",
+      "locked": "{{name}}, en yüksek rolünle aynı veya ondan üst sırada",
+      "moved": "{{name}}, {{total}} rol içinde {{position}}. sıraya taşındı"
+    },
+    "identity": "Kimlik",
+    "nameLabel": "Rol adı",
+    "colorLabel": "Rol rengi",
+    "nameEmpty": "Rol adı boş olamaz",
+    "nameDuplicate": "Bu adda bir rol zaten var",
+    "groups": {
+      "general": "Genel",
+      "text": "Metin",
+      "voice": "Ses"
+    },
+    "saved": "Rol kaydedildi",
+    "copy": "Rolü kopyala",
+    "copying": "Kopyalanıyor...",
+    "delete": "Rolü sil",
+    "deleting": "Siliniyor...",
+    "confirmDelete": "Onayla?",
+    "createFailed": "Rol oluşturulamadı",
+    "saveFailed": "Rol kaydedilemedi",
+    "deleteFailed": "Rol silinemedi",
+    "copyFailed": "Rol kopyalanamadı",
+    "unheldLocked": "Yalnızca kendinde olan izinleri değiştirebilirsin. Diğerleri kilitli.",
+    "unheldPermission": "Bu izne sahip değilsin",
+    "copyUnheld": "Bu rolde sende olmayan izinler var, bu yüzden kopyalayamazsın.",
+    "copyDeleteUnheld": "Bu rolde sende olmayan izinler var, bu yüzden kopyalayamaz veya silemezsin."
+  },
+  "memberRoles": {
+    "title": "{{name}} için rolleri düzenle",
+    "viewProfile": "Profili görüntüle",
+    "affectsAll": "İzin değişiklikleri bu role sahip her üye için geçerlidir.",
+    "selectRole": "İzinlerini düzenlemek için bir rol seç.",
+    "saved": "Değişiklikler kaydedildi"
+  },
+  "permissions": {
+    "title": "İzinler",
+    "names": {
+      "administrator": "Yönetici",
+      "viewChannel": "Kanalları görüntüle",
+      "manageChannels": "Kanalları yönet",
+      "manageRoles": "Rolleri yönet",
+      "manageSpace": "Alanı yönet",
+      "createInvite": "Davet oluştur",
+      "kickMembers": "Üyeleri at",
+      "banMembers": "Üyeleri yasakla",
+      "sendMessages": "Mesaj gönder",
+      "manageMessages": "Mesajları yönet",
+      "attachFiles": "Dosya ekle",
+      "readMessageHistory": "Mesaj geçmişini oku",
+      "addReactions": "Tepki ekle",
+      "connect": "Bağlan",
+      "speak": "Konuş",
+      "muteMembers": "Üyeleri sessize al",
+      "deafenMembers": "Üyeleri sağırlaştır",
+      "moveMembers": "Üyeleri taşı",
+      "stream": "Yayınla",
+      "disconnectMembers": "Üyelerin bağlantısını kes",
+      "mentionEveryone": "@everyone, @here ve rolleri etiketle"
+    },
+    "tristate": {
+      "deny": "Reddet",
+      "neutral": "Nötr (devral)",
+      "allow": "İzin ver"
+    },
+    "overrideCount_one": "{{count}} geçersiz kılma",
+    "overrideCount_other": "{{count}} geçersiz kılma",
+    "removeOverride": "Geçersiz kılmayı kaldır",
+    "removeOverrideFor": "{{name}} için geçersiz kılmayı kaldır",
+    "removeOverrideHint": "O olmadan burada alan geneli izinler geçerli olur.",
+    "noRoleOverrides": "Rol geçersiz kılması yok. Her rol burada alan geneli izinlerini kullanır.",
+    "noMemberOverrides": "Üye geçersiz kılması yok.",
+    "roleOverrides": "Rol geçersiz kılmaları",
+    "memberOverrides": "Üye geçersiz kılmaları",
+    "addRole": "Rol ekle",
+    "addMember": "Üye ekle",
+    "noMoreRoles": "Eklenecek başka rol yok",
+    "loadFailed": "Geçersiz kılmalar yüklenemedi",
+    "saveFailed": "Geçersiz kılmalar kaydedilemedi",
+    "partialFailure_one": "{{count}} geçersiz kılma kaydedilemedi",
+    "partialFailure_other": "{{count}} geçersiz kılma kaydedilemedi",
+    "unheldLocked": "Yalnızca kendinde olan izinleri değiştirebilirsin. Diğerleri kilitli.",
+    "unheldPermission": "Bu izne sahip değilsin",
+    "removeUnheld": "Bu geçersiz kılma sende olmayan izinleri ayarlıyor. Yalnızca bu izinlere sahip biri kaldırabilir.",
+    "removeUnheldShort": "Yalnızca bu izinlere sahip biri kaldırabilir",
+    "aboveYouRole": "Bu rol en yüksek rolünle aynı veya ondan üst sırada. Geçersiz kılmasını görüntüleyebilirsin ama değiştiremez veya kaldıramazsın.",
+    "aboveYouMember": "Bu üye seninle aynı veya senden üst sırada. Geçersiz kılmasını görüntüleyebilirsin ama değiştiremez veya kaldıramazsın.",
+    "aboveYouShort": "En yüksek rolünle aynı veya ondan üst sırada"
+  },
+  "sidebar": {
+    "directMessages": "Doğrudan mesajlar",
+    "addSpace": "Alan ekle",
+    "joinSpace": "Alana katıl",
+    "folder": {
+      "tooltip_one": "Klasör ({{count}})",
+      "tooltip_other": "Klasör ({{count}})",
+      "spaceCount_one": "{{count}} alan",
+      "spaceCount_other": "{{count}} alan",
+      "unnamed": "Adsız klasör",
+      "rename": "Klasörü yeniden adlandır",
+      "color": "Klasör rengi",
+      "create": "Klasör oluştur",
+      "moveTo": "Klasöre taşı",
+      "removeFrom": "Klasörden kaldır",
+      "ungroup": "Gruplamayı çöz",
+      "created": "Klasör oluşturuldu",
+      "moved": "Klasöre taşındı",
+      "removed": "Klasörden kaldırıldı",
+      "ungrouped": "Klasör grubu çözüldü"
+    },
+    "space": {
+      "inviteCopied": "Davet bağlantısı panoya kopyalandı",
+      "inviteCopiedRequest": "Davet bağlantısı kopyalandı. Açan kişiler katılma isteği gönderebilir.",
+      "inviteFailed": "Davet oluşturulamadı",
+      "transferOwnership": "Sahipliği devret",
+      "settings": "Alan ayarları",
+      "leave": "Alandan ayrıl",
+      "reconnecting": "{{instance}} ile yeniden bağlanılıyor…",
+      "remoteInstance": "uzak örnek",
+      "leaveConfirm": {
+        "title": "Alandan ayrıl",
+        "titleNamed": "{{name}} alanından ayrıl",
+        "description": "Bu alandan ayrılmak istediğinden emin misin? Yeniden katılmak için davet gerekecek."
+      },
+      "left": "Alandan ayrıldın",
+      "leaveFailed": "Alandan ayrılınamadı",
+      "unreadMessages_one": "{{count}} okunmamış mesaj",
+      "unreadMessages_other": "{{count}} okunmamış mesaj",
+      "unreadMessagesOver99": "99'dan fazla okunmamış mesaj"
+    },
+    "dmList": {
+      "newDm": "Yeni doğrudan mesaj",
+      "empty": "Henüz konuşma yok.",
+      "leaveGroup": "Gruptan ayrıl",
+      "leaveGroupConfirm": {
+        "title": "Grup DM'sinden ayrıl",
+        "description": "Ayrılmak istediğinden emin misin? Biri seni yeniden eklemedikçe katılamazsın."
+      }
+    },
+    "userArea": {
+      "inputDevice": "Giriş cihazı",
+      "outputDevice": "Çıkış cihazı",
+      "inputDevices": "Giriş cihazları",
+      "outputDevices": "Çıkış cihazları",
+      "inputVolume": "Giriş ses düzeyi",
+      "outputVolume": "Çıkış ses düzeyi",
+      "systemDefault": "Sistem varsayılanı",
+      "microphonePermission": "Mikrofon izni gerekiyor.",
+      "audioPermission": "Ses izni gerekiyor.",
+      "enable": "Etkinleştir",
+      "voiceSettings": "Ses ayarları",
+      "mute": "Sessize al",
+      "unmute": "Sesi aç",
+      "deafen": "Sağırlaştır",
+      "undeafen": "Sağırlığı kaldır",
+      "spaceMuted": "Alan sessiz",
+      "spaceDeafened": "Alan sağır",
+      "permissionMuted": "Sessiz (konuşma izni yok)"
+    },
+    "dmUnreadMessages_one": "{{count}} okunmamış doğrudan mesaj",
+    "dmUnreadMessages_other": "{{count}} okunmamış doğrudan mesaj",
+    "dmUnreadMessagesOver99": "99'dan fazla okunmamış doğrudan mesaj"
+  },
+  "channels": {
+    "resizeHandle": "Kanal listesini yeniden boyutlandır",
+    "loading": "Kanallar yükleniyor",
+    "create": "Kanal oluştur",
+    "createCategory": "Kategori oluştur",
+    "settings": "Kanal ayarları",
+    "categorySettings": "Kategori ayarları",
+    "delete": "Kanalı sil",
+    "deleteCategory": "Kategoriyi sil",
+    "emptyCategory": "Kanal yok",
+    "empty": "Henüz kanal yok.",
+    "deleteConfirm": {
+      "title": "Kanalı sil",
+      "description": "Emin misin? Bu, kanalı ve tüm mesajlarını kalıcı olarak siler."
+    },
+    "deleteCategoryConfirm": {
+      "title": "Kategoriyi sil",
+      "description": "Bu kategoriyi silmek istediğinden emin misin? Bu kategorideki kanallar kategorisiz bölümüne taşınır — hiçbir kanal silinmez."
+    },
+    "deleted": "Kanal silindi",
+    "deleteFailed": "Kanal silinemedi",
+    "categoryDeleted": "Kategori silindi",
+    "categoryDeleteFailed": "Kategori silinemedi"
+  },
+  "members": {
+    "titleWithCount_one": "Üyeler — {{count}}",
+    "titleWithCount_other": "Üyeler — {{count}}",
+    "loading": "Üyeler yükleniyor",
+    "resizeHandle": "Üye listesini yeniden boyutlandır",
+    "groups": {
+      "owner": "Sahip"
+    },
+    "ownerTitle": {
+      "edit": "Sahip unvanını düzenle",
+      "label": "Sahip unvanı",
+      "hint": "Bu alandaki tüm üyelere görünür. 1–{{max}} karakter kullan; bu, izinleri değiştirmez.",
+      "reset": "Varsayılana sıfırla"
+    },
+    "menu": {
+      "profile": "Profili görüntüle",
+      "nickname": "Alan takma adını değiştir…",
+      "roles": "Roller"
+    },
+    "nickname": {
+      "title": "Alan takma adını değiştir",
+      "label": "Alan takma adı",
+      "descriptionSelf": "Yalnızca bu alanda geçerlidir. Hesap adın ve diğer alanlardaki takma adların aynı kalır. Hesap adını göstermek için boş bırak.",
+      "descriptionOther": "Yalnızca bu alanda geçerlidir. {{name}} adlı kişinin hesap adı aynı kalır. Hesap adını göstermek için boş bırak.",
+      "reset": "Hesap adına sıfırla",
+      "shownAs": "Bu alandaki takma ad: {{nickname}}"
+    }
+  },
+  "mobile": {
+    "addSheet": {
+      "createSpace": "Alan oluştur",
+      "joinSpace": "Alana katıl"
+    },
+    "muteUser": "Kullanıcıyı sessize al"
+  },
+  "main": {
+    "selectChannel": "Bir kanal seç",
+    "selectChannelHint": "Başlamak için bir metin veya ses kanalı seç",
+    "notificationSettings": "Bildirim ayarları",
+    "topic": {
+      "show": "Tam konuyu göster",
+      "dialogTitle": "#{{name}}"
+    },
+    "voice": {
+      "connectionFailed": "Bağlantı başarısız",
+      "connected": "Bağlı",
+      "connecting": "Bağlanılıyor…",
+      "participants_one": "{{count}} bağlı",
+      "participants_other": "{{count}} bağlı",
+      "inCall_one": "{{count}} aramada",
+      "inCall_other": "{{count}} aramada",
+      "empty": "Şu anda bu ses kanalında kimse yok.",
+      "join": "Sese katıl"
+    },
+    "dm": {
+      "fallbackName": "Doğrudan mesaj",
+      "composerPlaceholder": "Mesaj gönder: {{target}}",
+      "calling": "{{name}} aranıyor…",
+      "groupSettings": "Grup ayarları",
+      "openGroupSettings": "Grup ayarlarını aç",
+      "memberCount_one": "({{count}} üye)",
+      "memberCount_other": "({{count}} üye)",
+      "startVoiceCall": "Sesli arama başlat",
+      "joinCall": "Aramaya katıl",
+      "startVideoCall": "Görüntülü arama başlat",
+      "addFriends": "DM'ye arkadaş ekle"
+    }
+  },
+  "ownership": {
+    "title": "Sahipliği devret",
+    "description": "<name>{{name}}</name> alanının yeni sahibi olacak bir üye seç",
+    "confirmQuestion": "<name>{{space}}</name> alanının sahipliği <name>{{member}}</name> adlı kişiye devredilsin mi?",
+    "regularMember": "Normal üye olacaksın.",
+    "transferring": "Devrediliyor…",
+    "confirm": "Devret",
+    "loading": "Üyeler yükleniyor…",
+    "success": "Sahiplik {{name}} adlı kişiye devredildi",
+    "failed": "Sahiplik devredilemedi"
+  },
+  "notifications": {
+    "open": "Bildirim ayarları",
+    "channelTitle": "#{{channel}} için bildirimler",
+    "spaceTitle": "{{space}} için bildirimler",
+    "levelHeading": "Şunlar için bildir",
+    "level": {
+      "all": "Tüm mesajlar",
+      "mentions": "Yalnızca @etiketlemeler",
+      "nothing": "Hiçbiri",
+      "inherit": "Alan varsayılanı ({{level}})"
+    },
+    "dmNote": "Doğrudan mesajlar seni her zaman bilgilendirir.",
+    "muteHeading": "Sessize al",
+    "mute": {
+      "oneHour": "1 saat boyunca",
+      "eightHours": "8 saat boyunca",
+      "oneDay": "24 saat boyunca",
+      "indefinite": "Sesi açana kadar"
+    },
+    "unmute": "Sesi aç",
+    "mutedUntil": "{{time}} tarihine kadar sessiz",
+    "mutedIndefinitely": "Sen açana kadar sessiz",
+    "spaceMuted": "Bu alan sessize alınmış, bu yüzden kanalları da öyle.",
+    "mutedIndicator": "Sessiz",
+    "saveFailed": "Bildirim ayarları kaydedilemedi",
+    "suppressEveryone": "@everyone ve @here bildirimlerini bastır",
+    "suppressRoles": "Rol etiketlemelerini bastır",
+    "massHeading": "Grup etiketlemeleri",
+    "massNote": "@here, @everyone ile aynı üyelere ulaşır. Adınla etiketlenmen seni her zaman bilgilendirir."
+  }
+}

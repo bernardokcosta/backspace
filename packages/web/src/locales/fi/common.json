@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "Tallenna",
+    "cancel": "Peruuta",
+    "close": "Sulje",
+    "delete": "Poista",
+    "bot": "BOTTI",
+    "confirm": "Vahvista",
+    "copy": "Kopioi",
+    "copied": "Kopioitu",
+    "retry": "Yritä uudelleen",
+    "back": "Takaisin",
+    "done": "Valmis",
+    "edit": "Muokkaa",
+    "remove": "Poista",
+    "add": "Lisää",
+    "apply": "Käytä",
+    "reset": "Nollaa",
+    "continue": "Jatka",
+    "dismiss": "Sulje",
+    "ok": "OK",
+    "search": "Hae",
+    "clear": "Tyhjennä",
+    "change": "Vaihda",
+    "refresh": "Päivitä",
+    "openLink": "Avaa linkki",
+    "tryAgain": "Yritä uudelleen",
+    "reply": "Vastaa",
+    "addReaction": "Lisää reaktio",
+    "share": "Jaa",
+    "accept": "Hyväksy",
+    "decline": "Hylkää",
+    "pause": "Keskeytä",
+    "resume": "Jatka",
+    "abort": "Keskeytä",
+    "dismissAll": "Sulje kaikki",
+    "filter": "Suodata",
+    "sort": "Järjestä",
+    "sortBy": "Järjestysperuste",
+    "leave": "Poistu",
+    "invitePeople": "Kutsu ihmisiä",
+    "previous": "Edellinen",
+    "next": "Seuraava",
+    "preview": "Esikatselu",
+    "logIn": "Kirjaudu"
+  },
+  "states": {
+    "loading": "Ladataan…",
+    "saving": "Tallennetaan…",
+    "saved": "Tallennettu",
+    "unknown": "Tuntematon",
+    "none": "Ei mitään",
+    "enabled": "Käytössä",
+    "disabled": "Pois käytöstä",
+    "on": "Päällä",
+    "off": "Pois",
+    "yes": "Kyllä",
+    "no": "Ei",
+    "optional": "Valinnainen",
+    "required": "Pakollinen",
+    "default": "Oletus",
+    "recommended": "Suositeltu",
+    "online": "Paikalla",
+    "idle": "Toimeton",
+    "doNotDisturb": "Älä häiritse",
+    "offline": "Poissa",
+    "loadingSettings": "Ladataan asetuksia…",
+    "loadSettingsFailed": "Asetuksia ei voitu ladata.",
+    "settingsSaved": "Asetukset tallennettu",
+    "saveFailed": "Tallennus epäonnistui",
+    "scanning": "Skannataan…",
+    "pleaseWait": "Odota hetki…"
+  },
+  "labels": {
+    "username": "Käyttäjänimi",
+    "password": "Salasana",
+    "displayName": "Näyttönimi",
+    "friends": "Kaverit",
+    "members": "Jäsenet",
+    "settings": "Asetukset",
+    "dangerZone": "Vaaravyöhyke",
+    "searchMembers": "Hae jäseniä…",
+    "noMembersFound": "Jäseniä ei löytynyt",
+    "or": "tai",
+    "nameAZ": "Nimi (A–Ö)"
+  },
+  "time": {
+    "today": "Tänään {{time}}",
+    "yesterday": "Eilen {{time}}",
+    "never": "Ei koskaan",
+    "justNow": "Juuri nyt",
+    "minutesShort": "{{minutes}} min",
+    "hoursMinutesShort": "{{hours}} h {{minutes}} min",
+    "elapsed": "{{duration}} kulunut",
+    "left": "{{duration}} jäljellä"
+  },
+  "units": {
+    "ms": "{{value}} ms",
+    "percent": "{{value}} %",
+    "kbps": "{{value}} kt/s",
+    "mbps": "{{value}} Mt/s"
+  },
+  "colors": {
+    "mint": "Minttu",
+    "sky": "Taivas",
+    "lavender": "Laventeli",
+    "coral": "Koralli",
+    "rose": "Ruusu",
+    "teal": "Petrooli",
+    "amber": "Meripihka",
+    "peach": "Persikka"
+  },
+  "language": {
+    "label": "Kieli",
+    "automatic": "Automaattinen (järjestelmä)",
+    "description": "Valitse valikkojen, painikkeiden ja järjestelmäviestien kieli. Automaattinen noudattaa järjestelmäsi tai selaimesi kieliasetuksia. Muiden viestit pysyvät kirjoitettuina."
+  },
+  "crash": {
+    "title": "Jokin meni pieleen",
+    "reload": "Lataa sivu uudelleen",
+    "details": "Virheen tiedot"
+  },
+  "app": {
+    "description": "Itsehostattu Discord- ja TeamSpeak-vaihtoehto. HD-ääni, video ja näytönjako — avointa lähdekoodia ja ilmainen (AGPL-3.0).",
+    "loading": "Ladataan Backspacea"
+  },
+  "chrome": {
+    "toggleMemberList": "Näytä tai piilota jäsenluettelo",
+    "closeSettings": "Sulje asetukset"
+  },
+  "sourceCode": {
+    "label": "Lähdekoodi (AGPL)",
+    "labelWithBuild": "Lähdekoodi (AGPL) · {{build}}",
+    "title": "Näytä tällä instanssilla käyvän version lähdekoodi (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "{{label}} havaittu. Valitse se ääniasetuksissa vaihtaaksesi.",
+    "unnamedAudioInput": "Uusi äänilaite"
+  }
+}

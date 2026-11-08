@@ -1,0 +1,166 @@
+{
+  "callDelivery": {
+    "remoteInstance": "リモートインスタンス",
+    "hostInstance": "ホストインスタンス",
+    "acceptDropped": "{{instance}} で承諾を確認できませんでした — 通話が切れました。",
+    "rejectFailed": "{{instances}} に拒否を通知できませんでした。発信者にはしばらく鳴っているように見える場合があります。",
+    "endFailed": "{{instances}} に終了を通知できませんでした。リモート参加者には最大60秒通話が見える場合があります。",
+    "hostUnreachable": "通話終了 — ホストインスタンスに到達不可。",
+    "peeringLost": "通話終了 — このインスタンスは {{instance}} とピアリングしていません。",
+    "instanceUnreachable": "通話終了 — {{instance}} に到達不可。",
+    "someUnreachable": "到達できない参加者: {{instances}}。",
+    "multipleUnreachable_other": "{{count}} インスタンスに到達不可: {{instances}}。",
+    "callFailed": "発信できませんでした。",
+    "manualApproval": "{{instance}} に到達不可 — このインスタンスは手動ペアリング承認が必要です。",
+    "awaitingApproval": "{{instance}} の管理者があなたのインスタンスを承認するのを待機中。承認後に通話可能。",
+    "transientFailure": "{{instance}} に到達不可。しばらくして再試行。",
+    "voiceUnavailable": "このインスタンスで音声未設定。",
+    "noRecipient": "{{instance}} は誰にも発信しませんでした。",
+    "targetCallFailed": "{{instance}} への発信不可。"
+  },
+  "feedback": {
+    "relayDenied": "メッセージ中継不可 — 相手サーバーがペアリング拒否。相手管理者に連絡。",
+    "awaitingPeering": "相手管理者がペアリング要求を承認するとメッセージ配信。"
+  },
+  "names": {
+    "group": "グループ",
+    "directMessage": "ダイレクトメッセージ",
+    "theGroup": "グループ",
+    "unknownHandle": "不明",
+    "groupFallback": "グループDM",
+    "emptyGroup": "空のグループ"
+  },
+  "preview": {
+    "image": "画像",
+    "video": "動画",
+    "audio": "音声",
+    "files_other": "📎 {{count}} ファイル",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 {{spaceName}} への招待を送信",
+    "memberAdded": "{{actor}} が {{target}} を追加",
+    "memberAddedToGroup": "{{actor}} が {{target}} をグループに追加",
+    "memberLeft": "{{target}} がグループを退出",
+    "memberRemoved": "{{actor}} が {{target}} を削除",
+    "memberRemovedFromGroup": "{{actor}} が {{target}} をグループから削除",
+    "ownerChanged": "{{newOwner}} がグループ所有者に",
+    "renamed": "{{actor}} がグループ名を変更",
+    "renamedTo": "{{actor}} がグループ名を \"{{name}}\" に変更",
+    "nameCleared": "{{actor}} がグループ名をクリア",
+    "iconChanged": "{{actor}} がグループアイコンを更新",
+    "generic": "システムメッセージ"
+  },
+  "deletedNotice": {
+    "accountDeleted": "このユーザーのアカウントは削除済み"
+  },
+  "memberRow": {
+    "viewProfile": "プロフィール表示",
+    "transferOwnership": "所有権移譲",
+    "removeFromGroup": "グループから削除",
+    "removeFriend": "フレンド削除",
+    "ownerTooltip": "グループ所有者",
+    "actions": "メンバー操作"
+  },
+  "roster": {
+    "owner": "所有者",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "メンバー一覧のサイズ変更"
+  },
+  "kick": {
+    "title": "グループから削除",
+    "description": "このグループから {{name}} を削除? 新規メッセージは見えなくなります。",
+    "success": "{{name}} をグループから削除",
+    "failed": "メンバー削除不可"
+  },
+  "transfer": {
+    "title": "所有権移譲",
+    "description": "所有権を {{name}} に移譲? 所有者権限を失います。",
+    "confirm": "移譲",
+    "success": "所有権を {{name}} に移譲",
+    "failed": "所有権移譲失敗"
+  },
+  "removeFriend": {
+    "failed": "フレンド削除不可"
+  },
+  "leave": {
+    "title": "グループ退出",
+    "description": "“{{name}}” を退出? この会話のメッセージを受信しなくなります。",
+    "inProgress": "退出中…",
+    "failed": "グループ退出不可",
+    "explanation": "この会話のメッセージを受信しなくなります。他メンバーはシステムメッセージを見ます。"
+  },
+  "search": {
+    "trigger": "会話を検索・開始",
+    "placeholder": "検索…",
+    "emptyHint": "ユーザーを検索してチャット",
+    "conversations": "会話",
+    "users": "ユーザー",
+    "searching": "検索中…",
+    "noResults": "結果なし",
+    "createFailed": "DM作成不可"
+  },
+  "list": {
+    "resizeHandle": "DMのサイズ変更",
+    "title": "メッセージ",
+    "empty": "会話はまだありません。",
+    "leaveGroup": "グループ退出",
+    "justNow": "今",
+    "minutesShort_other": "{{count}} 分",
+    "hoursShort_other": "{{count}} 時間",
+    "daysShort_other": "{{count}} 日",
+    "close": "DMを閉じる"
+  },
+  "newDm": {
+    "title": "新規DM",
+    "searchPlaceholder": "ユーザーを検索…",
+    "noUsers": "ユーザーなし"
+  },
+  "addMember": {
+    "title": "DMにフレンド追加",
+    "description": "この会話に追加するフレンドを選択。",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "フレンド検索…",
+    "limitReached": "このグループDMは上限 {{max}} 人に達しました。",
+    "alreadyInDm": "既にこのDMにいます",
+    "noMatch": "検索に合うフレンドなし",
+    "noFriends": "フレンドはまだいません",
+    "selectFriends": "フレンド選択",
+    "addCount_other": "{{count}} 人追加",
+    "adding": "追加中…",
+    "noOtherMember": "この会話の相手を特定できませんでした。",
+    "failed": "メンバー追加不可",
+    "yourBots": "あなたのボット"
+  },
+  "groupSettings": {
+    "title": "グループ設定",
+    "general": "一般",
+    "overview": "概要",
+    "backToMenu": "グループDM設定メニューに戻る",
+    "changeIcon": "グループアイコン変更",
+    "icon": "グループアイコン",
+    "clickToUpload": "クリックでアップロード",
+    "removeIcon": "グループアイコン削除",
+    "nameLabel": "グループ名",
+    "nameAria": "グループ名",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "メンバー追加",
+    "groupFull": "グループ満員",
+    "groupFullSuffix": "— グループ満員",
+    "cropTitle": "グループアイコン切り抜き",
+    "saveFailed": "設定保存不可"
+  },
+  "groupInfo": {
+    "title": "グループ情報",
+    "plainTitle": "情報",
+    "notFound": "会話が見つかりません。",
+    "notGroup": "この会話にグループ情報なし。",
+    "cancelEdit": "編集取消",
+    "federated": "連合グループ",
+    "memberCount_other": "メンバー {{count}} 人"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "このグループは {{host}} で管理。変更はそのインスタンスに接続。",
+    "ownerNotListed": "{{host}} はまだこのグループをあなたに表示していません。しばらくして再試行。"
+  }
+}

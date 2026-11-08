@@ -1,0 +1,431 @@
+{
+  "general": {
+    "title": "Allmänt",
+    "description": "Konfigurera din Backspace-instans. Dessa inställningar gäller alla användare.",
+    "instanceName": {
+      "label": "Instansnamn",
+      "description": "Namnet som visas på inloggningssidan och för federerade instanser.",
+      "counter": "{{length}}/{{max}}"
+    },
+    "gif": {
+      "label": "GIF-sökning",
+      "description": "Aktivera GIF-sökning via Klipy. Hämta en gratis API-nyckel från Klipys utvecklarportal.",
+      "placeholderSaved": "Nyckel sparad — ange ny nyckel för att ersätta",
+      "placeholderKey": "Klipy API-nyckel",
+      "enabled": "Aktiverad",
+      "notConfigured": "Inte inställd",
+      "clearKey": "Rensa nyckel"
+    }
+  },
+  "registration": {
+    "title": "Registrering",
+    "description": "Bestäm vem som kan skapa konton på denna instans. Offentlig registrering täcker lokala registreringar; federerad registrering täcker användare från parkopplade instanser som skapar konto här.",
+    "public": {
+      "label": "Offentlig registrering",
+      "toggleLabel": "Tillåt nya lokala konton",
+      "toggleDescription": "Vem som helst kan skapa ett lokalt konto på registreringssidan. När det är avstängt skapas nya lokala konton endast via inbjudningslänk."
+    },
+    "federated": {
+      "label": "Federerad registrering",
+      "toggleLabel": "Tillåt nya federerade konton",
+      "toggleDescription": "Användare från andra instanser kan skapa ett federerat konto här via sina anslutningsinställningar. Befintliga federerade konton kan alltid logga in, oavsett denna inställning."
+    },
+    "spaceCreation": {
+      "label": "Skapa rum",
+      "toggleLabel": "Tillåt nya rum",
+      "toggleDescription": "Användare kan skapa nya rum på denna instans. När det är avstängt kan endast instansadministratörer skapa rum och vanliga användare bara gå med i befintliga."
+    },
+    "saved": "Registreringsinställningar sparade",
+    "saveFailed": "Kunde inte uppdatera registreringsinställningar"
+  },
+  "invites": {
+    "label": "Inbjudningslänkar",
+    "create": "+ Skapa länk",
+    "tabs": {
+      "active": "Aktiva",
+      "archived": "Arkiverade"
+    },
+    "loadFailed": "Kunde inte ladda inbjudningar",
+    "emptyActive": "Inga aktiva inbjudningslänkar.",
+    "emptyArchived": "Inga arkiverade inbjudningslänkar.",
+    "noMatch": "Ingen inbjudan matchar filtret.",
+    "filter": {
+      "status": "Status",
+      "sort": {
+        "recent": "Nyaste först",
+        "oldest": "Äldsta först",
+        "name": "Namn (A–Ö)",
+        "mostUsed": "Mest använda",
+        "expiringSoonest": "Går ut snabbast"
+      }
+    },
+    "status": {
+      "active": "Aktiva",
+      "expired": "Utgångna",
+      "exhausted": "Förbrukade",
+      "revoked": "Återkallade"
+    },
+    "expiry": {
+      "preset": {
+        "hour1": "1 timme",
+        "hours24": "24 timmar",
+        "days7": "7 dagar",
+        "days30": "30 dagar",
+        "custom": "Anpassad…"
+      },
+      "keepCurrent": "Behåll aktuell",
+      "invalidFuture": "Välj datum och tid i framtiden",
+      "invalidSelection": "Ogiltigt utgångsval",
+      "revokedOn": "Återkallad {{date}}",
+      "expiredOn": "Gick ut {{date}}",
+      "exhausted": "Förbrukad",
+      "noExpiration": "Ingen utgång",
+      "inDays_one": "Går ut om {{count}} dag",
+      "inDays_other": "Går ut om {{count}} dagar",
+      "inHours_one": "Går ut om {{count}} timme",
+      "inHours_other": "Går ut om {{count}} timmar"
+    },
+    "form": {
+      "name": "Namn",
+      "namePlaceholder": "t.ex. Vänner, gäng 1",
+      "maxUses": "Max användning",
+      "unlimited": "Obegränsad",
+      "uses": "användningar",
+      "expires": "Går ut",
+      "nameLength": "Namnet måste vara 1 till 64 tecken",
+      "maxUsesInteger": "Maximal användning måste vara ett positivt heltal"
+    },
+    "createModal": {
+      "title": "Skapa inbjudningslänk",
+      "description": "Generera en länk att dela så folk kan registrera sig på denna instans. Du anger hur många gånger den kan användas och när den går ut.",
+      "submit": "Skapa länk",
+      "submitting": "Skapar…",
+      "createdCopied": "Länk skapad. Kopierad till urklipp.",
+      "createdManual": "Länk skapad. Kopiera manuellt från raden.",
+      "failed": "Kunde inte skapa inbjudan: {{message}}"
+    },
+    "editModal": {
+      "title": "Redigera “{{name}}”",
+      "description": "Justera gränserna för denna länk. URL förblir densamma — alla med den kan fortsätta använda den på nya villkor.",
+      "used": "(använd {{used}})",
+      "maxUsesBelowUsed": "Maximal användning får inte vara lägre än aktuell användning ({{used}})",
+      "noChanges": "Inga ändringar att spara",
+      "updated": "Inbjudan uppdaterad",
+      "failed": "Kunde inte uppdatera inbjudan: {{message}}",
+      "submit": "Spara ändringar",
+      "submitting": "Sparar…"
+    },
+    "reinstateModal": {
+      "title": "Återställ “{{name}}”",
+      "descriptionRevoked": "Denna inbjudan återkallades. Återställning skapar en ny länk med annan URL — den gamla URL förblir inaktiv.",
+      "descriptionLapsed": "Denna inbjudan har gått ut. Återställning aktiverar samma URL igen — alla som sparat den kan använda den igen.",
+      "newLinkWarning": "En ny länk skapas. De med den gamla URL kan inte längre använda den.",
+      "maxUsesMeta": "(nu: {{max}}, använd: {{used}})",
+      "maxUsesMin": "Maximal användning måste vara minst {{min}} (aktuell: {{used}})",
+      "submit": "Återställ",
+      "submitNewLink": "Återställ med ny länk",
+      "submitting": "Återställer…",
+      "doneCopied": "Återställd med ny länk. Kopierad till urklipp.",
+      "doneManual": "Återställd med ny länk. Kopiera manuellt från raden.",
+      "doneSameLink": "Återställd. Samma länk är aktiv igen.",
+      "failed": "Återställningen misslyckades: {{message}}"
+    },
+    "redemptions": {
+      "title": "Inlösen av “{{name}}”",
+      "description": "Användare som registrerade sig via denna länk, i registreringsordning.",
+      "revokedNotice": "Denna inbjudan återkallades. Inlösen nedan gäller användare som registrerade sig före återkallelsen.",
+      "revokedNoticeDated": "Denna inbjudan återkallades {{date}}. Inlösen nedan gäller användare som registrerade sig före återkallelsen.",
+      "usesOfMax_one": "{{count}} av {{max}} användning",
+      "usesOfMax_other": "{{count}} av {{max}} användningar",
+      "uses_one": "{{count}} användning",
+      "uses_other": "{{count}} användningar",
+      "loadFailed": "Kunde inte ladda inlösen",
+      "loadFailedInline": "Kunde inte ladda inlösen.",
+      "empty": "Inga inlösen ännu.",
+      "now": "(nu {{name}})",
+      "deletedUser": "Borttagen användare"
+    },
+    "row": {
+      "usage": "Användning: {{usage}}",
+      "createdBy": "Av: {{name}}",
+      "unknownCreator": "Okänd",
+      "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
+      "subtitleArchived": "{{usage}} · {{expiry}} · {{when}}",
+      "used": "Använd",
+      "expires": "Går ut",
+      "expiredAt": "Gick ut",
+      "revokedAt": "Återkallad",
+      "exhausted": "Förbrukad",
+      "created": "Skapad",
+      "createdByLabel": "Av",
+      "token": "Token",
+      "lastRedeemed": "Senast använd",
+      "copyLink": "Kopiera länk",
+      "revoke": "Återkalla",
+      "viewRedemptions": "Visa inlösen",
+      "reinstate": "Återställ",
+      "deletePermanently": "Ta bort permanent",
+      "copied": "Inbjudningslänk kopierad",
+      "copyFailed": "Kunde inte kopiera länk",
+      "revoked": "Inbjudan återkallad",
+      "revokeFailed": "Återkallelsen misslyckades: {{message}}",
+      "deleted": "Inbjudan borttagen",
+      "deleteFailed": "Borttagningen misslyckades: {{message}}",
+      "revokeDialog": {
+        "title": "Återkalla “{{name}}”?",
+        "description": "Länken slutar fungera direkt. Ingen med URL kan längre använda den.<br/><br/>Ångrar du dig gör <strong>Återställ</strong> en ny länk i detta objekt — den ursprungliga URL förblir inaktiv.",
+        "confirm": "Återkalla länk"
+      },
+      "deleteDialog": {
+        "title": "Ta bort “{{name}}” permanent?",
+        "description": "Detta kan inte ångras. Inlösenhistoriken för denna länk tas också bort. Vill du bara stoppa länken, använd <strong>Återkalla</strong> — då sparas historiken.",
+        "confirm": "Ta bort permanent"
+      }
+    }
+  },
+  "storage": {
+    "title": "Lagring",
+    "description": "Följ diskanvändning och rensa föräldralösa filer från borttaget innehåll eller ersatta avatarer och banners.",
+    "loading": "Laddar lagringsstatistik…",
+    "loadFailed": "Kunde inte ladda lagringsstatistik",
+    "refresh": "Uppdatera statistik",
+    "overview": {
+      "label": "Lagringsöversikt",
+      "totalFiles": "Totalt filer",
+      "referenced": "Med referenser",
+      "orphanedFiles": "Föräldralösa filer",
+      "unlinkedUploads": "Olänkade uppladdningar",
+      "danglingRecords": "Hängande poster",
+      "staleUploads": "Gamla uppladdningar"
+    },
+    "breakdown": {
+      "label": "Fördelning per filtyp",
+      "entry_one": "{{count}} fil — {{size}}",
+      "entry_other": "{{count}} filer — {{size}}"
+    },
+    "uploadLimit": {
+      "label": "Uppladdningsgräns",
+      "maxFileSize": "Maximal filstorlek",
+      "maxStickerSize": "Maximal dekalstorlek",
+      "saved": "Uppladdningsgräns satt till {{limit}}",
+      "saveFailed": "Kunde inte uppdatera uppladdningsgräns",
+      "stickerSaved": "Dekalgräns satt till {{limit}}",
+      "stickerSaveFailed": "Kunde inte uppdatera dekalgräns"
+    },
+    "cleanup": {
+      "label": "Rensning",
+      "nothingFound": "Inga föräldralösa filer, gamla uppladdningar eller hängande poster hittades.",
+      "preview": "Förhandsvisa rensning",
+      "run": "Rensa nu",
+      "running": "Rensar…",
+      "previewResult": "Förhandsvisning — ingen fil togs bort",
+      "complete": "Rensningen klar",
+      "orphanedFiles_one": "{{count}} föräldralös fil ({{size}})",
+      "orphanedFiles_other": "{{count}} föräldralösa filer ({{size}})",
+      "staleRecords_one": ", {{count}} gammal uppladdningspost",
+      "staleRecords_other": ", {{count}} gamla uppladdningsposter",
+      "errors_one": "{{count}} fel: {{first}}",
+      "errors_other": "{{count}} fel: {{first}}",
+      "cleanedToast_one": "Rensade {{count}} fil ({{size}})",
+      "cleanedToast_other": "Rensade {{count}} filer ({{size}})",
+      "failed": "Rensningen misslyckades"
+    },
+    "stale": {
+      "label": "Gamla uppladdningar",
+      "description": "Övergivna tus-uppladdningssessioner i <code>.tus/</code> (pausade eller kraschade utan DELETE). Automatisk rensning körs var 24:e timme; här städar du tidigare.",
+      "maxAge": "Maximal ålder (timmar)",
+      "sessionFiles_one": "{{count}} sessionsfil ({{size}})",
+      "sessionFiles_other": "{{count}} sessionsfiler ({{size}})",
+      "cleanedToast_one": "Rensade {{count}} gammal uppladdningssession ({{size}})",
+      "cleanedToast_other": "Rensade {{count}} gamla uppladdningssessioner ({{size}})",
+      "failed": "Rensningen av gamla uppladdningar misslyckades"
+    },
+    "media": {
+      "label": "Medielagring",
+      "olderThan": "Ta bort chattmedia äldre än",
+      "days": "dagar",
+      "run": "Ta bort nu",
+      "running": "Tar bort…",
+      "files_one": "{{count}} fil ({{size}})",
+      "files_other": "{{count}} filer ({{size}})",
+      "deletedToast_one": "Tog bort {{count}} fil ({{size}})",
+      "deletedToast_other": "Tog bort {{count}} filer ({{size}})",
+      "failed": "Medierensningen misslyckades"
+    }
+  },
+  "streaming": {
+    "title": "Streaming",
+    "description": "Dessa gränser gäller alla användare på denna instans. Användare kan välja värden inom dessa gränser.",
+    "units": {
+      "fps": "{{value}} fps",
+      "kbpsLabel": "kb/s"
+    },
+    "bandwidth": {
+      "label": "Bandbredd",
+      "description": "Minimi- och maximigränser för bitrate samt steget för kvalitetsskjutreglaget.",
+      "customBitrate": {
+        "label": "Tillåt anpassad bitrate",
+        "description": "Låt användare ställa in egen bitrate istället för matrisstandarderna"
+      },
+      "range": "Bitrateintervall",
+      "min": "Minimum",
+      "max": "Maximum",
+      "step": "Skjutreglagesteg"
+    },
+    "quality": {
+      "label": "Kvalitet",
+      "description": "Tillgängliga upplösnings- och bildfrekvensalternativ för skärmdelning.",
+      "resolutions": "Tillåtna upplösningar",
+      "framerates": "Tillåtna bildfrekvenser"
+    },
+    "highEndWarning": {
+      "title": "Krävande inställningar aktiverade.",
+      "description": "Streaming över 1080p eller 60 fps kräver avsevärd kodningskraft från CPU/GPU på klienten och kan mätta serverns bandbredd, särskilt när strömmar går via TURN. Krävande konfigurationer (till exempel 4K med 120 fps) kan kräva upp till 45 Mbps per aktiv ström. Säkerställ att din infrastruktur klarar belastningen innan du aktiverar detta för alla användare."
+    },
+    "matrix": {
+      "label": "Bitratematris",
+      "description": "Standardbitrates för varje upplösning och bildfrekvens. Redigera enskilda celler eller skala alla värden samtidigt.",
+      "scaleAll": "Skala alla",
+      "scaleHint": "Dra för att skala alla bitrates. Finjustering av enskilda celler — nedan.",
+      "cellDefault": "Standard: {{value}} (klicka × för att återställa)",
+      "cellEdit": "Klicka för att redigera",
+      "resetAll": "Återställ allt till standard"
+    },
+    "capWarning": {
+      "title": "Matrisvärden överskrider den globala gränsen.",
+      "description": "Vissa bitrates överskrider ditt maximum {{max}}. Strömmar med dessa kombinationer sänks till din gräns."
+    }
+  },
+  "updates": {
+    "title": "Uppdateringar",
+    "badge": {
+      "settingsAriaLabel": "Inställningar, instansuppdatering tillgänglig",
+      "toast": "Backspace {{version}} är tillgänglig för denna instans",
+      "toastAction": "Visa"
+    },
+    "description": "Vilken version som körs på denna instans och hur du uppdaterar den.",
+    "loading": "Laddar uppdateringsstatus…",
+    "loadFailed": "Kunde inte ladda uppdateringsstatus.",
+    "copyFailed": "Kunde inte kopiera. Markera kommandot och kopiera manuellt.",
+    "running": {
+      "label": "Körs",
+      "commit": "commit {{commit}} · ",
+      "channel": {
+        "prebuilt": "färdig image",
+        "source": "byggd från källkod",
+        "unknown": "installationsmetod ej registrerad"
+      }
+    },
+    "available": {
+      "label": "Tillgänglig",
+      "version": "Backspace {{version}} tillgänglig",
+      "released": "Släppt {{date}} · ",
+      "releaseNotes": "Utgivningsanteckningar",
+      "fromInstallDir": "Från din installationskatalog:",
+      "scriptDescription": "Skapar en ögonblicksbild av databasen, laddar ner den nya imagen och startar bara om Backspace-containern. Om den nya versionen inte startar ordentligt eller startar med gammal kod återställer den den aktuella versionen.",
+      "noScript": "Jag har ingen update.sh",
+      "manualIntro": "update.sh följer med från 1.0.5. I en git-kopia lägger <code>git pull</code> till den. Annars gör stegen manuellt efter ögonblicksbild med <code>./backup.sh</code>.",
+      "prebuiltInstall": "Förbyggd installation:",
+      "sourceInstall": "Installation från källkod:",
+      "manualWarning": "Namnge tjänsten <code>backspace</code> uttryckligen och skicka inte med <code>--remove-orphans</code>. Compose föreslår det om andra containrar körs i detta projekt, och tar då bort dem."
+    },
+    "upToDate": "Du har den senaste versionen.",
+    "disabled": {
+      "title": "Uppdateringskontroll avstängd",
+      "description": "Denna instans kontaktar inte GitHub. Sätt <code>BACKSPACE_UPDATE_CHECK=true</code> i din <code>.env</code> för att tillåta kontroll, eller granska releassidan själv."
+    },
+    "rateLimited": {
+      "title": "GitHub hastighetsbegränsade",
+      "description": "Detta säger inget om uppdatering finns eller inte. Försök senare."
+    },
+    "unreachable": {
+      "title": "Kunde inte kontrollera uppdateringar",
+      "description": "GitHub kunde inte nås, så detta säger inget om uppdatering finns eller inte. Din instans är opåverkad."
+    },
+    "lastChecked": "Senast kontrollerad: {{when}}",
+    "noLookups": "Inga sökningar körs",
+    "checkAgain": "Kontrollera igen",
+    "checking": "Kontrollerar…"
+  },
+  "users": {
+    "title": "Användare",
+    "description": "Visa och hantera konton på denna instans.",
+    "searchPlaceholder": "Sök användare…",
+    "loading": "Laddar användare…",
+    "loadFailed": "Kunde inte ladda användare",
+    "empty": "Inga användare hittades",
+    "filters": {
+      "allInstances": "Alla instanser",
+      "localOnly": "Endast lokala",
+      "allRoles": "Alla roller",
+      "admin": "Administratör",
+      "nonAdmin": "Icke-administratör",
+      "joinedAfter": "Gick med efter",
+      "joinedBefore": "Gick med före",
+      "newest": "Nyaste först",
+      "oldest": "Äldsta först",
+      "nameDesc": "Namn Ö-A",
+      "deleted": "Borttagna",
+      "clear": "Rensa filter",
+      "bot": "Bottar"
+    },
+    "badge": {
+      "admin": "Administratör",
+      "deleted": "Borttagen"
+    },
+    "actions": {
+      "demote": "Ta bort administratörsrättigheter",
+      "promote": "Ge administratörsrättigheter",
+      "federatedNoAdmin": "Federerade användare kan inte vara administratörer",
+      "resetPassword": "Återställ lösenord",
+      "federatedNoReset": "Federerade användare loggar in via sin hemmainstans",
+      "delete": "Ta bort användare",
+      "selfDelete": "Använd inställningar för att ta bort ditt eget konto"
+    },
+    "tempPassword": {
+      "label": "Tillfälligt lösenord:",
+      "note": "Visas en gång. Användaren kopplas från; den måste logga in igen."
+    },
+    "pagination": "Sida {{page}} av {{total}} ({{users}})",
+    "count_one": "{{count}} användare",
+    "count_other": "{{count}} användare",
+    "roleFailed": "Kunde inte uppdatera roll",
+    "resetFailed": "Kunde inte återställa lösenord",
+    "actionFailed": "Åtgärden misslyckades",
+    "resetDialog": {
+      "title": "Återställ lösenord",
+      "description": "Återställa lösenordet för <strong>{{username}}</strong>? Användaren kopplas från direkt och måste logga in med det nya tillfälliga lösenordet.",
+      "confirm": "Återställ lösenord"
+    },
+    "demoteDialog": {
+      "title": "Ta bort administratörsrättigheter",
+      "description": "Ta bort <strong>{{username}}</strong> administratörsrättigheter? Användaren förlorar åtkomst till instansinställningar.",
+      "confirm": "Ta bort rättigheter"
+    },
+    "deleteDialog": {
+      "title": "Ta bort användare",
+      "description": "Ta bort <strong>{{username}}</strong> permanent? Användaren tas bort från alla rum, direktmeddelanden och vänlistor. Detta kan inte ångras.",
+      "confirm": "Ta bort användare",
+      "blockBot": "Låt inte denna bot registrera sig igen",
+      "blockBotHint": "När dess hemmainstans är tillbaka kan botten inte skapa konto här. Avblockera den under användarlistan."
+    },
+    "blockedBots": {
+      "title": "Blockerade bottar",
+      "description": "Bottar från andra instanser som inte får registrera sig här. Avblockera en bot för att ge åtkomst igen.",
+      "blockedAt": "Blockerad {{date}}",
+      "unblock": "Avblockera"
+    }
+  },
+  "mobile": {
+    "title": "Instans",
+    "sections": {
+      "general": "Allmänt",
+      "registration": "Registrering",
+      "federation": "Federation",
+      "streaming": "Streaming",
+      "storage": "Lagring",
+      "updates": "Uppdateringar",
+      "users": "Användare"
+    }
+  }
+}

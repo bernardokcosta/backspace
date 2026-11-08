@@ -1,0 +1,632 @@
+{
+  "soundboardTab": "Ljudtavla",
+  "create": {
+    "title": "Skapa ett rum",
+    "icon": {
+      "upload": "Ladda upp",
+      "previewAlt": "Ikonförhandsvisning",
+      "colorLabel": "Ikonfärg",
+      "cropTitle": "Beskär rumsikon",
+      "uploadFailed": "Kunde inte ladda upp ikon"
+    },
+    "name": {
+      "label": "Rumsnamn",
+      "placeholder": "Mitt coola rum",
+      "required": "Rumsnamn krävs"
+    },
+    "visibilityLabel": "Synlighet",
+    "description": {
+      "label": "Beskrivning",
+      "placeholder": "En kort beskrivning för ditt rum…",
+      "counter": "{{length}}/{{max}}"
+    },
+    "submit": "Skapa",
+    "submitting": "Skapar…"
+  },
+  "channel": {
+    "create": {
+      "title": "Skapa kanal",
+      "typeLabel": "Kanaltyp",
+      "types": {
+        "text": {
+          "name": "Text",
+          "description": "Skicka meddelanden, bilder och filer"
+        },
+        "voice": {
+          "name": "Röst",
+          "description": "Häng med röst och video"
+        }
+      },
+      "nameLabel": "Kanalnamn",
+      "namePlaceholder": "ny-kanal",
+      "topicLabel": "Ämne (valfritt)",
+      "topicPlaceholder": "Vad handlar denna kanal om?",
+      "categoryLabel": "Kategori",
+      "noCategory": "Ingen kategori",
+      "nameRequired": "Kanalnamn krävs",
+      "noSpaceSelected": "Inget rum valt",
+      "submit": "Skapa kanal",
+      "submitting": "Skapar…"
+    },
+    "settings": {
+      "title": "Kanalinställningar",
+      "rename": "Byt namn på kanal",
+      "nameLabel": "Kanalnamn",
+      "channelLabel": "Kanal",
+      "topic": {
+        "label": "Ämne",
+        "placeholder": "Vad handlar denna kanal om?",
+        "hint": "Visas i kanalhuvudet. Alla kan öppna den fulla texten därifrån.",
+        "counter": "{{used}}/{{max}}",
+        "tooLong": "Korta ämnet till {{max}} tecken eller färre för att spara.",
+        "empty": "Inget ämne inställt.",
+        "reset": "Kasta ändringar"
+      },
+      "private": {
+        "label": "Privat kanal",
+        "description": "Endast valda medlemmar och roller kan se denna kanal.",
+        "note": "Denna kanal är dold för medlemmar utan uttrycklig åtkomst. Användare med administratörsbehörighet eller rumsägare ser alltid alla kanaler.",
+        "unhideOnSave": "Sparning gör denna kanal synlig för varje medlem."
+      },
+      "deleteButton": "Ta bort kanal"
+    },
+    "delete": {
+      "title": "Ta bort #{{name}}?",
+      "description": "Detta tar permanent bort <strong>#{{name}}</strong> och alla dess meddelanden. Detta kan inte ångras.",
+      "descriptionVoice": "Detta tar permanent bort <strong>#{{name}}</strong> och alla dess meddelanden. Alla i denna röstkanal kopplas från. Detta kan inte ångras.",
+      "confirm": "Ta bort kanal"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "Skapa kategori",
+      "nameLabel": "Kategorinamn",
+      "namePlaceholder": "ny-kategori",
+      "nameRequired": "Kategorinamn krävs",
+      "noSpaceSelected": "Inget rum valt",
+      "submit": "Skapa kategori",
+      "submitting": "Skapar…"
+    },
+    "settings": {
+      "title": "Kategoriinställningar",
+      "rename": "Byt namn på kategori",
+      "nameLabel": "Kategorinamn",
+      "categoryLabel": "Kategori",
+      "private": {
+        "label": "Privat kategori",
+        "description": "Endast valda medlemmar och roller kan se kanaler i denna kategori.",
+        "note": "Denna kategori är dold för medlemmar utan uttrycklig åtkomst. Kanaler inuti ärver denna begränsning om de inte explicit åsidosätter den.",
+        "unhideOnSave": "Sparning gör denna kategori och dess kanaler utan separat synlighetsbegränsning synliga för alla."
+      },
+      "deleteButton": "Ta bort kategori"
+    },
+    "delete": {
+      "title": "Ta bort “{{name}}”?",
+      "description": "Detta tar permanent bort kategorin <strong>{{name}}</strong>. Kanaler inuti flyttas till högsta nivån. Detta kan inte ångras.",
+      "confirm": "Ta bort kategori"
+    }
+  },
+  "invite": {
+    "title": "Bjud in vänner",
+    "intro": "Skicka till vänner, eller dela en länk.",
+    "introRequest": "Skicka till vänner, eller dela en länk. De som öppnar den ber om att få gå med, och en hanterare godkänner varje förfrågan.",
+    "searchPlaceholder": "Sök vänner…",
+    "noMatches": "Inga vänner matchar din sökning",
+    "noFriends": "Inga vänner ännu",
+    "alreadyMember": "Redan i rummet",
+    "removeSelected": "Ta bort {{name}}",
+    "selectFriends": "Välj vänner",
+    "send_one": "Skicka {{count}} inbjudan",
+    "send_other": "Skicka {{count}} inbjudningar",
+    "sending": "Skickar…",
+    "retryFailed": "Försök misslyckade inbjudningar igen",
+    "status": {
+      "sent": "✓ Skickad",
+      "failed": "✗ {{reason}}"
+    },
+    "shareLink": "Eller dela en länk",
+    "generating": "Genererar…",
+    "generateFailed": "Kunde inte generera inbjudningslänk",
+    "failure": {
+      "inviteInvalid": "Inbjudningslänk inte längre giltig",
+      "notAFriend": "Inte vän",
+      "userNotFound": "Användare hittades inte",
+      "alreadyMember": "Redan medlem",
+      "upstream": "Kunde inte verifiera inbjudan, försök igen",
+      "cannotInviteSelf": "Du kan inte bjuda in dig själv",
+      "invalidBody": "Ogiltig förfrågan",
+      "invalidTarget": "Ogiltigt mål",
+      "unreachable": "Kunde inte nå din instans",
+      "serverError": "Kunde inte skicka (serverfel)"
+    }
+  },
+  "inviteFriend": {
+    "title": "Bjud in {{name}} till ett rum",
+    "intro": "Välj ett av dina rum för att skicka en inbjudan.",
+    "noSpaces": "Du är ännu inte i några rum",
+    "contextMenu": "Bjud in till rum"
+  },
+  "join": {
+    "validation": {
+      "required": "Inbjudningskod krävs",
+      "invalidLink": "Ogiltig inbjudningslänk",
+      "linkFormat": "Ogiltig inbjudningslänk — förväntat format: https://instance/join/CODE",
+      "qualifiedFormat": "Ogiltigt inbjudningsformat — förväntat: CODE@domain",
+      "invalidDomain": "Ogiltig domän i inbjudan"
+    },
+    "title": "Gå med i ett rum",
+    "invitePlaceholder": "t.ex. abc123 eller https://instance.com/join/abc123",
+    "submit": "Gå med i rum",
+    "submitting": "Går med…",
+    "connect": {
+      "intro": "Anslut till <host>{{host}}</host> för att gå med i detta rum.",
+      "passwordLabel": "Ange ditt lösenord för att ansluta",
+      "passwordPlaceholder": "Ditt kontolösenord",
+      "passwordNote": "Ditt lösenord kontrolleras av din hemmainstans och skickas aldrig till {{host}}. Den instansen får en unik autentiseringsuppgift skapad bara för den.",
+      "submit": "Anslut & gå med",
+      "submitting": "Ansluter…"
+    },
+    "fallback": {
+      "usernamePlaceholder": "Ditt användarnamn på denna instans",
+      "passwordLabel": "Lösenord för denna instans",
+      "passwordPlaceholder": "Lösenord på den externa instansen",
+      "submit": "Logga in & gå med",
+      "submitting": "Loggar in…"
+    },
+    "request": {
+      "messagePlaceholder": "Varför vill du gå med? (valfritt)",
+      "send": "Skicka förfrågan",
+      "sending": "Skickar…",
+      "notice": "Detta rum tar emot ansökningar. Skicka en så granskar en hanterare den.",
+      "messageLabel": "Anteckning till din förfrågan",
+      "sent": "Förfrågan skickad. En hanterare granskar den, och rummet visas i din lista när den godkänns.",
+      "pending": "Du har redan bett om att få gå med i detta rum. Din förfrågan väntar på en hanterare."
+    }
+  },
+  "settings": {
+    "title": "Rumsinställningar",
+    "backAria": "Tillbaka till rumsinställningsmenyn",
+    "nav": {
+      "general": "Allmänt",
+      "management": "Hantering",
+      "tabs": {
+        "overview": "Översikt",
+        "roles": "Roller",
+        "bans": "Bannlysningar"
+      }
+    },
+    "discardChanges": "Kasta",
+    "overview": {
+      "identity": "Rumsidentitet",
+      "iconLabel": "Rumsikon",
+      "iconAlt": "Rumsikon",
+      "colorLabel": "Ikonfärg",
+      "bannerLabel": "Rumsbanner",
+      "bannerAlt": "Rumsbanner",
+      "uploadBanner": "Ladda upp banner (16:9)",
+      "removeBanner": "Ta bort banner",
+      "nameLabel": "Rumsnamn",
+      "iconUploadFailed": "Kunde inte ladda upp ikon",
+      "bannerUploadFailed": "Kunde inte ladda upp banner",
+      "cropIconTitle": "Beskär rumsikon",
+      "cropBannerTitle": "Beskär rumsbanner",
+      "transfer": {
+        "description": "Överför ägarskapet till en annan medlem. Du blir en vanlig medlem.",
+        "prompt": "Överföra ägarskapet till <strong>{{name}}</strong>?",
+        "button": "Överför ägarskap",
+        "confirm": "Överför",
+        "transferring": "Överför…",
+        "success": "Ägarskapet överfört till {{name}}",
+        "failed": "Kunde inte överföra ägarskap"
+      },
+      "delete": {
+        "description": "Ta permanent bort detta rum och alla dess data. Detta kan inte ångras.",
+        "button": "Ta bort rum",
+        "confirmAgain": "Klicka igen för att bekräfta borttagning",
+        "failed": "Kunde inte ta bort rum"
+      }
+    },
+    "access": {
+      "title": "Åtkomst och beskrivning",
+      "visibility": {
+        "label": "Synlighet",
+        "hint": "Bestäm hur människor med inbjudan kommer in i detta rum.",
+        "options": {
+          "private": {
+            "label": "Privat",
+            "description": "Endast personer med inbjudningslänk kan gå med"
+          },
+          "request": {
+            "label": "På förfrågan",
+            "description": "En inbjudan leder till en förfrågan som en hanterare måste godkänna"
+          },
+          "public": {
+            "label": "Offentligt",
+            "description": "Personer med inbjudan kan gå med direkt"
+          }
+        }
+      },
+      "description": {
+        "label": "Beskrivning",
+        "hint": "En kort sammanfattning som visas med inbjudningar till detta rum.",
+        "placeholder": "En kort beskrivning av detta rum…",
+        "counter": "{{length}}/{{max}}"
+      },
+      "requests": {
+        "title": "Väntande ansökningar",
+        "empty": "Inga väntande ansökningar",
+        "actionFailed": "Åtgärden misslyckades"
+      }
+    },
+    "members": {
+      "description": "Hantera medlemmar i detta rum. Klicka en medlem för att redigera dess roller.",
+      "listHeading": "Medlemmar ({{total}})",
+      "owner": "Ägare",
+      "noRoles": "Inga roller",
+      "ban": "Bannlys",
+      "kick": "Sparka ut",
+      "confirm": {
+        "banTitle": "Bannlys {{name}}",
+        "kickTitle": "Sparka ut {{name}}",
+        "banDescription": "Denna person blir permanent bannlyst från detta rum tills bannen hävs.",
+        "kickDescription": "Denna person kan gå med igen med en inbjudningslänk."
+      },
+      "updateRolesFailed": "Kunde inte uppdatera roller",
+      "kickFailed": "Kunde inte sparka ut medlem",
+      "banFailed": "Kunde inte bannlysa medlem",
+      "rolesAboveYou": "Roller på eller över din högsta roll är låsta.",
+      "rolesUnheld": "Roller med behörigheter du inte har kan inte ges.",
+      "rolesManagedByBot": "En bots egen roll stannar hos boten.",
+      "botInvite": {
+        "warning": "Boten blir medlem i detta rum och får meddelanden och händelser från varje kanal dess behörigheter tillåter. Lägg bara till bottar du litar på.",
+        "owner": "Ägare: @{{owner}}",
+        "button": "Lägg till bot",
+        "title": "Lägg till en bot",
+        "searchPlaceholder": "Sök bottar på namn…",
+        "searching": "Söker…",
+        "noResults": "Inga bottar hittades",
+        "add": "Lägg till",
+        "adding": "Lägger till…",
+        "permissionsTitle": "Behörigheter för {{name}}",
+        "permissionsIntro": "Boten ber om dessa behörigheter. De hamnar i en roll uppkallad efter boten; kryssa ur dem du inte vill ge.",
+        "permissionsUnheld": "Behörigheter du inte själv har kan inte ges.",
+        "permissionsNone": "Inget ikryssat: boten går med utan roll.",
+        "back": "Tillbaka"
+      }
+    },
+    "afk": {
+      "title": "AFK-kanal",
+      "channelLabel": "Flytta inaktiva medlemmar till",
+      "disabled": "Inaktiverad",
+      "timeoutLabel": "Efter att ha varit inaktiv i",
+      "minutes": "min",
+      "hint": "Medlemmar utan röstaktivitet under den valda tiden flyttas automatiskt till denna röstkanal."
+    }
+  },
+  "bans": {
+    "title": "Bannlysningar",
+    "description": "Bannlysta användare kan inte gå med i detta rum igen förrän bannen hävs.",
+    "loading": "Laddar bannlysningar…",
+    "empty": "Inga bannlysta användare",
+    "listHeading": "Bannlysningar ({{total}})",
+    "bannedBy": "Bannlyst av {{moderator}} den {{date}}",
+    "bannedByWithReason": "Bannlyst av {{moderator}} den {{date}}: {{reason}}",
+    "unban": "Häv bannlysning",
+    "loadFailed": "Kunde inte ladda bannlysningar",
+    "unbanFailed": "Kunde inte häva bannlysning"
+  },
+  "roles": {
+    "title": "Roller",
+    "create": "Skapa roll",
+    "creating": "Skapar…",
+    "listHeading": "Roller",
+    "description": "Roller avgör vilka behörigheter medlemmar har.",
+    "hierarchyHint": "Roller högre i listan står över dem nedanför.",
+    "defaultName": "ny roll",
+    "copyName": "Kopia av {{name}}",
+    "backToList": "Tillbaka till roller",
+    "created": "Roll skapad. Ställ in den nedan.",
+    "aboveYou": "Denna roll ligger på eller över din högsta roll. Du kan visa den men inte ändra den.",
+    "managedByBot": "Denna roll hanteras av en bot och tas bort när boten lämnar rummet. Den kan inte tilldelas någon annan eller tas bort manuellt. Dess behörigheter kan ändras.",
+    "reorder": {
+      "handle": "Flytta {{name}}",
+      "handleHint": "Dra, eller använd upp- och nedpilarna",
+      "up": "Flytta {{name}} uppåt",
+      "down": "Flytta {{name}} nedåt",
+      "locked": "{{name}} ligger på eller över din högsta roll",
+      "moved": "{{name}} flyttad till position {{position}} av {{total}}"
+    },
+    "identity": "Identitet",
+    "nameLabel": "Rollnamn",
+    "colorLabel": "Rollfärg",
+    "nameEmpty": "Rollnamnet får inte vara tomt",
+    "nameDuplicate": "En roll med det namnet finns redan",
+    "groups": {
+      "general": "Allmänt",
+      "text": "Text",
+      "voice": "Röst"
+    },
+    "saved": "Roll sparad",
+    "copy": "Kopiera roll",
+    "copying": "Kopierar…",
+    "delete": "Ta bort roll",
+    "deleting": "Tar bort…",
+    "confirmDelete": "Bekräfta?",
+    "createFailed": "Kunde inte skapa roll",
+    "saveFailed": "Kunde inte spara roll",
+    "deleteFailed": "Kunde inte ta bort roll",
+    "copyFailed": "Kunde inte kopiera roll",
+    "unheldLocked": "Du kan bara växla behörigheter du själv har. Resten är låsta.",
+    "unheldPermission": "Du har inte denna behörighet",
+    "copyUnheld": "Denna roll har behörigheter du inte har, så du kan inte kopiera den.",
+    "copyDeleteUnheld": "Denna roll har behörigheter du inte har, så du kan inte kopiera eller ta bort den."
+  },
+  "memberRoles": {
+    "title": "Redigera roller för {{name}}",
+    "viewProfile": "Visa profil",
+    "affectsAll": "Behörighetsändringar gäller varje medlem med denna roll.",
+    "selectRole": "Välj en roll för att redigera dess behörigheter.",
+    "saved": "Ändringar sparade"
+  },
+  "permissions": {
+    "title": "Behörigheter",
+    "names": {
+      "administrator": "Administratör",
+      "viewChannel": "Visa kanaler",
+      "manageChannels": "Hantera kanaler",
+      "manageRoles": "Hantera roller",
+      "manageSpace": "Hantera rum",
+      "createInvite": "Skapa inbjudan",
+      "kickMembers": "Sparka ut medlemmar",
+      "banMembers": "Bannlys medlemmar",
+      "sendMessages": "Skicka meddelanden",
+      "manageMessages": "Hantera meddelanden",
+      "attachFiles": "Bifoga filer",
+      "readMessageHistory": "Läsa meddelandehistorik",
+      "addReactions": "Lägga till reaktioner",
+      "connect": "Ansluta",
+      "speak": "Tala",
+      "muteMembers": "Muta medlemmar",
+      "deafenMembers": "Döva medlemmar",
+      "moveMembers": "Flytta medlemmar",
+      "stream": "Streama",
+      "disconnectMembers": "Koppla från medlemmar",
+      "mentionEveryone": "Nämna @everyone, @here och roller"
+    },
+    "tristate": {
+      "deny": "Neka",
+      "neutral": "Neutral (ärver)",
+      "allow": "Tillåt"
+    },
+    "overrideCount_one": "{{count}} överskridning",
+    "overrideCount_other": "{{count}} överskridningar",
+    "removeOverride": "Ta bort överskridning",
+    "removeOverrideFor": "Ta bort överskridning för {{name}}",
+    "removeOverrideHint": "Utan den gäller här rummets behörigheter.",
+    "noRoleOverrides": "Inga rollöverskridningar. Varje roll använder här sina rumsbehörigheter.",
+    "noMemberOverrides": "Inga medlemsöverskridningar.",
+    "roleOverrides": "Rollöverskridningar",
+    "memberOverrides": "Medlemsöverskridningar",
+    "addRole": "Lägg till roll",
+    "addMember": "Lägg till medlem",
+    "noMoreRoles": "Inga fler roller att lägga till",
+    "loadFailed": "Kunde inte ladda överskridningar",
+    "saveFailed": "Kunde inte spara överskridningar",
+    "partialFailure_one": "{{count}} överskridning kunde inte sparas",
+    "partialFailure_other": "{{count}} överskridningar kunde inte sparas",
+    "unheldLocked": "Du kan bara växla behörigheter du själv har. Resten är låsta.",
+    "unheldPermission": "Du har inte denna behörighet",
+    "removeUnheld": "Denna överskridning ställer in behörigheter du inte har. Endast den som har dem kan ta bort den.",
+    "removeUnheldShort": "Endast den med dessa behörigheter kan ta bort den",
+    "aboveYouRole": "Denna roll ligger på eller över din högsta roll. Du kan visa dess överskridning men inte ändra eller ta bort den.",
+    "aboveYouMember": "Denna medlem ligger på eller över dig. Du kan visa dess överskridning men inte ändra eller ta bort den.",
+    "aboveYouShort": "På eller över din högsta roll"
+  },
+  "sidebar": {
+    "directMessages": "Direktmeddelanden",
+    "addSpace": "Lägg till ett rum",
+    "joinSpace": "Gå med i ett rum",
+    "folder": {
+      "tooltip_one": "Mapp ({{count}})",
+      "tooltip_other": "Mapp ({{count}})",
+      "spaceCount_one": "{{count}} rum",
+      "spaceCount_other": "{{count}} rum",
+      "unnamed": "Namnlös mapp",
+      "rename": "Byt namn på mapp",
+      "color": "Mappfärg",
+      "create": "Skapa mapp",
+      "moveTo": "Flytta till mapp",
+      "removeFrom": "Ta bort från mapp",
+      "ungroup": "Dela upp",
+      "created": "Mapp skapad",
+      "moved": "Flyttad till mapp",
+      "removed": "Borttagen från mapp",
+      "ungrouped": "Mapp uppdelad"
+    },
+    "space": {
+      "inviteCopied": "Inbjudningslänk kopierad till urklipp",
+      "inviteCopiedRequest": "Inbjudningslänk kopierad. De som öppnar den kan be om att få gå med.",
+      "inviteFailed": "Kunde inte generera inbjudan",
+      "transferOwnership": "Överför ägarskap",
+      "settings": "Rumsinställningar",
+      "leave": "Lämna rum",
+      "reconnecting": "Återansluter till {{instance}}…",
+      "remoteInstance": "extern instans",
+      "leaveConfirm": {
+        "title": "Lämna rum",
+        "titleNamed": "Lämna {{name}}",
+        "description": "Är du säker på att du vill lämna detta rum? För att gå med igen behöver du en inbjudan."
+      },
+      "left": "Lämnade rummet",
+      "leaveFailed": "Kunde inte lämna rummet",
+      "unreadMessages_one": "{{count}} oläst meddelande",
+      "unreadMessages_other": "{{count}} olästa meddelanden",
+      "unreadMessagesOver99": "Fler än 99 olästa meddelanden"
+    },
+    "dmList": {
+      "newDm": "Nytt direktmeddelande",
+      "empty": "Inga konversationer ännu.",
+      "leaveGroup": "Lämna gruppen",
+      "leaveGroupConfirm": {
+        "title": "Lämna grupp-DM",
+        "description": "Är du säker på att du vill gå? Du kan inte gå med igen om inte någon lägger till dig tillbaka."
+      }
+    },
+    "userArea": {
+      "inputDevice": "Inmatningsenhet",
+      "outputDevice": "Utenhet",
+      "inputDevices": "Inmatningsenheter",
+      "outputDevices": "Utenheter",
+      "inputVolume": "Inmatningsvolym",
+      "outputVolume": "Utvolym",
+      "systemDefault": "Systemstandard",
+      "microphonePermission": "Mikrofonbehörighet behövs.",
+      "audioPermission": "Ljudbehörighet behövs.",
+      "enable": "Aktivera",
+      "voiceSettings": "Röstinställningar",
+      "mute": "Muta",
+      "unmute": "Sluta muta",
+      "deafen": "Döva",
+      "undeafen": "Sluta döva",
+      "spaceMuted": "Mutad i rummet",
+      "spaceDeafened": "Dövad i rummet",
+      "permissionMuted": "Mutad (ingen talbehörighet)"
+    },
+    "dmUnreadMessages_one": "{{count}} oläst direktmeddelande",
+    "dmUnreadMessages_other": "{{count}} olästa direktmeddelanden",
+    "dmUnreadMessagesOver99": "Fler än 99 olästa direktmeddelanden"
+  },
+  "channels": {
+    "resizeHandle": "Ändra storlek på kanallistan",
+    "loading": "Laddar kanaler",
+    "create": "Skapa kanal",
+    "createCategory": "Skapa kategori",
+    "settings": "Kanalinställningar",
+    "categorySettings": "Kategoriinställningar",
+    "delete": "Ta bort kanal",
+    "deleteCategory": "Ta bort kategori",
+    "emptyCategory": "Inga kanaler",
+    "empty": "Inga kanaler ännu.",
+    "deleteConfirm": {
+      "title": "Ta bort kanal",
+      "description": "Är du säker? Detta tar permanent bort kanalen och alla dess meddelanden."
+    },
+    "deleteCategoryConfirm": {
+      "title": "Ta bort kategori",
+      "description": "Är du säker på att du vill ta bort denna kategori? Kanaler i den flyttas till okategoriserade — inga kanaler tas bort."
+    },
+    "deleted": "Kanal borttagen",
+    "deleteFailed": "Kunde inte ta bort kanal",
+    "categoryDeleted": "Kategori borttagen",
+    "categoryDeleteFailed": "Kunde inte ta bort kategori"
+  },
+  "members": {
+    "titleWithCount_one": "Medlemmar — {{count}}",
+    "titleWithCount_other": "Medlemmar — {{count}}",
+    "loading": "Laddar medlemmar",
+    "resizeHandle": "Ändra storlek på medlemslistan",
+    "groups": {
+      "owner": "Ägare"
+    },
+    "ownerTitle": {
+      "edit": "Redigera ägartitel",
+      "label": "Ägartitel",
+      "hint": "Synlig för alla medlemmar i detta rum. Använd 1–{{max}} tecken; detta ändrar inte behörigheter.",
+      "reset": "Återställ till standard"
+    },
+    "menu": {
+      "profile": "Visa profil",
+      "nickname": "Ändra rumssmeknamn…",
+      "roles": "Roller"
+    },
+    "nickname": {
+      "title": "Ändra rumssmeknamn",
+      "label": "Rumssmeknamn",
+      "descriptionSelf": "Gäller endast i detta rum. Ditt kontonamn och dina smeknamn i andra rum förblir desamma. Lämna tomt för att visa kontonamnet.",
+      "descriptionOther": "Gäller endast i detta rum. Kontonamnet {{name}} förblir detsamma. Lämna tomt för att visa kontonamnet.",
+      "reset": "Återställ till kontonamn",
+      "shownAs": "Smeknamn i detta rum: {{nickname}}"
+    }
+  },
+  "mobile": {
+    "addSheet": {
+      "createSpace": "Skapa rum",
+      "joinSpace": "Gå med i rum"
+    },
+    "muteUser": "Muta användare"
+  },
+  "main": {
+    "selectChannel": "Välj en kanal",
+    "selectChannelHint": "Välj en text- eller röstkanal för att börja",
+    "notificationSettings": "Aviseringsinställningar",
+    "topic": {
+      "show": "Visa hela ämnet",
+      "dialogTitle": "#{{name}}"
+    },
+    "voice": {
+      "connectionFailed": "Anslutningen misslyckades",
+      "connected": "Ansluten",
+      "connecting": "Ansluter…",
+      "participants_one": "{{count}} ansluten",
+      "participants_other": "{{count}} anslutna",
+      "inCall_one": "{{count}} i samtal",
+      "inCall_other": "{{count}} i samtal",
+      "empty": "Ingen är i denna röstkanal just nu.",
+      "join": "Gå med i röst"
+    },
+    "dm": {
+      "fallbackName": "Direktmeddelande",
+      "composerPlaceholder": "Meddelande till {{target}}",
+      "calling": "Ringer {{name}}…",
+      "groupSettings": "Gruppinställningar",
+      "openGroupSettings": "Öppna gruppinställningar",
+      "memberCount_one": "({{count}} medlem)",
+      "memberCount_other": "({{count}} medlemmar)",
+      "startVoiceCall": "Starta röstsamtal",
+      "joinCall": "Gå med i samtal",
+      "startVideoCall": "Starta videosamtal",
+      "addFriends": "Lägg till vänner i DM"
+    }
+  },
+  "ownership": {
+    "title": "Överför ägarskap",
+    "description": "Välj en medlem som blir ny ägare av <name>{{name}}</name>",
+    "confirmQuestion": "Överföra ägarskapet av <name>{{space}}</name> till <name>{{member}}</name>?",
+    "regularMember": "Du blir en vanlig medlem.",
+    "transferring": "Överför…",
+    "confirm": "Överför",
+    "loading": "Laddar medlemmar…",
+    "success": "Ägarskapet överfört till {{name}}",
+    "failed": "Kunde inte överföra ägarskap"
+  },
+  "notifications": {
+    "open": "Aviseringsinställningar",
+    "channelTitle": "Aviseringar för #{{channel}}",
+    "spaceTitle": "Aviseringar för {{space}}",
+    "levelHeading": "Meddela mig om",
+    "level": {
+      "all": "Alla meddelanden",
+      "mentions": "Endast @omnämnanden",
+      "nothing": "Inget",
+      "inherit": "Rumsstandard ({{level}})"
+    },
+    "dmNote": "Direktmeddelanden meddelar dig alltid.",
+    "muteHeading": "Muta",
+    "mute": {
+      "oneHour": "I 1 timme",
+      "eightHours": "I 8 timmar",
+      "oneDay": "I 24 timmar",
+      "indefinite": "Tills jag slår på aviseringar igen"
+    },
+    "unmute": "Sluta muta",
+    "mutedUntil": "Mutad till {{time}}",
+    "mutedIndefinitely": "Mutad tills du slår på aviseringar igen",
+    "spaceMuted": "Detta rum är mutat, så dess kanaler också.",
+    "mutedIndicator": "Mutad",
+    "saveFailed": "Kunde inte spara aviseringsinställningar",
+    "suppressEveryone": "Tysta @everyone och @here",
+    "suppressRoles": "Tysta rollomnämnanden",
+    "massHeading": "Gruppomnämnanden",
+    "massNote": "@here når samma medlemmar som @everyone. Omnämnanden av dig vid namn meddelar dig alltid."
+  }
+}

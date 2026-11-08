@@ -1,4 +1,5 @@
 import { useInstanceStore } from '../stores/instanceStore';
+import { describeError } from '../i18n/errors';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -32,11 +33,11 @@ export async function deleteAccountOnRemotes(): Promise<FederationOpResult[]> {
         return {
           origin: inst.origin,
           success: false,
-          error: err instanceof Error ? err.message : 'Unknown error',
+          error: describeError(err),
         };
       }
     })
   );
 
-  return results.map(r => r.status === 'fulfilled' ? r.value : { origin: '', success: false, error: 'Unexpected error' });
+  return results.map(r => r.status === 'fulfilled' ? r.value : { origin: '', success: false, error: describeError(r.reason) });
 }

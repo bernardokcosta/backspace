@@ -1,0 +1,621 @@
+{
+  "soundboardTab": "サウンドボード",
+  "create": {
+    "title": "スペース作成",
+    "icon": {
+      "upload": "アップロード",
+      "previewAlt": "アイコンプレビュー",
+      "colorLabel": "アイコン色",
+      "cropTitle": "スペースアイコン切り抜き",
+      "uploadFailed": "アイコンをアップロード不可"
+    },
+    "name": {
+      "label": "スペース名",
+      "placeholder": "素敵なスペース",
+      "required": "スペース名が必要"
+    },
+    "visibilityLabel": "可視性",
+    "description": {
+      "label": "説明",
+      "placeholder": "スペースの短い説明…",
+      "counter": "{{length}}/{{max}}"
+    },
+    "submit": "作成",
+    "submitting": "作成中…"
+  },
+  "channel": {
+    "create": {
+      "title": "チャンネル作成",
+      "typeLabel": "チャンネル種別",
+      "types": {
+        "text": {
+          "name": "テキスト",
+          "description": "メッセージ・画像・ファイル送信"
+        },
+        "voice": {
+          "name": "音声",
+          "description": "音声と映像で交流"
+        }
+      },
+      "nameLabel": "チャンネル名",
+      "namePlaceholder": "新規チャンネル",
+      "topicLabel": "トピック (任意)",
+      "topicPlaceholder": "このチャンネルは何について?",
+      "categoryLabel": "カテゴリ",
+      "noCategory": "カテゴリなし",
+      "nameRequired": "チャンネル名が必要",
+      "noSpaceSelected": "スペース未選択",
+      "submit": "チャンネル作成",
+      "submitting": "作成中…"
+    },
+    "settings": {
+      "title": "チャンネル設定",
+      "rename": "チャンネル名変更",
+      "nameLabel": "チャンネル名",
+      "channelLabel": "チャンネル",
+      "topic": {
+        "label": "トピック",
+        "placeholder": "このチャンネルは何について?",
+        "hint": "チャンネルヘッダーに表示。そこから全員が全文を開けます。",
+        "counter": "{{used}}/{{max}}",
+        "tooLong": "保存にはトピックを {{max}} 文字以下に短縮。",
+        "empty": "トピック未設定。",
+        "reset": "変更を破棄"
+      },
+      "private": {
+        "label": "プライベートチャンネル",
+        "description": "選択メンバーとロールのみ閲覧可能。",
+        "note": "明示アクセスなしのメンバーには非表示。管理者権限ユーザーやスペース所有者は常に全チャンネル閲覧可能。",
+        "unhideOnSave": "保存でこのチャンネルを全メンバーに表示。"
+      },
+      "deleteButton": "チャンネル削除"
+    },
+    "delete": {
+      "title": "#{{name}} を削除?",
+      "description": "<strong>#{{name}}</strong> と全メッセージを完全削除。元に戻せません。",
+      "descriptionVoice": "<strong>#{{name}}</strong> と全メッセージを完全削除。この音声チャンネルの全員が切断。元に戻せません。",
+      "confirm": "チャンネル削除"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "カテゴリ作成",
+      "nameLabel": "カテゴリ名",
+      "namePlaceholder": "新規カテゴリ",
+      "nameRequired": "カテゴリ名が必要",
+      "noSpaceSelected": "スペース未選択",
+      "submit": "カテゴリ作成",
+      "submitting": "作成中…"
+    },
+    "settings": {
+      "title": "カテゴリ設定",
+      "rename": "カテゴリ名変更",
+      "nameLabel": "カテゴリ名",
+      "categoryLabel": "カテゴリ",
+      "private": {
+        "label": "プライベートカテゴリ",
+        "description": "選択メンバーとロールのみこのカテゴリのチャンネルを閲覧可能。",
+        "note": "明示アクセスなしのメンバーには非表示。内側のチャンネルは明示上書きしない限りこの制限を継承。",
+        "unhideOnSave": "保存でこのカテゴリと個別可視性制限なしのそのチャンネルを全員に表示。"
+      },
+      "deleteButton": "カテゴリ削除"
+    },
+    "delete": {
+      "title": "「{{name}}」を削除?",
+      "description": "カテゴリ <strong>{{name}}</strong> を完全削除。内側のチャンネルは最上位に移動。元に戻せません。",
+      "confirm": "カテゴリ削除"
+    }
+  },
+  "invite": {
+    "title": "フレンド招待",
+    "intro": "フレンドに送信、またはリンク共有。",
+    "introRequest": "フレンドに送信、またはリンク共有。開いた人は参加を申請し、管理者が一件ずつ承認。",
+    "searchPlaceholder": "フレンド検索…",
+    "noMatches": "検索に合うフレンドなし",
+    "noFriends": "フレンドはまだいません",
+    "alreadyMember": "既にスペース内",
+    "removeSelected": "{{name}} を削除",
+    "selectFriends": "フレンド選択",
+    "send_other": "招待 {{count}} を送信",
+    "sending": "送信中…",
+    "retryFailed": "失敗した招待を再試行",
+    "status": {
+      "sent": "✓ 送信済み",
+      "failed": "✗ {{reason}}"
+    },
+    "shareLink": "またはリンク共有",
+    "generating": "生成中…",
+    "generateFailed": "招待リンクを生成不可",
+    "failure": {
+      "inviteInvalid": "招待リンクは無効",
+      "notAFriend": "フレンドではない",
+      "userNotFound": "ユーザーなし",
+      "alreadyMember": "既にメンバー",
+      "upstream": "招待を検証不可、再試行",
+      "cannotInviteSelf": "自分を招待不可",
+      "invalidBody": "無効な要求",
+      "invalidTarget": "無効な対象",
+      "unreachable": "インスタンスに到達不可",
+      "serverError": "送信不可 (サーバーエラー)"
+    }
+  },
+  "inviteFriend": {
+    "title": "{{name}} をスペースに招待",
+    "intro": "招待送信のため自分のスペースを1つ選択。",
+    "noSpaces": "まだどのスペースにもいません",
+    "contextMenu": "スペースに招待"
+  },
+  "join": {
+    "validation": {
+      "required": "招待コードが必要",
+      "invalidLink": "無効な招待リンク",
+      "linkFormat": "無効な招待リンク — 期待形式: https://instance/join/CODE",
+      "qualifiedFormat": "無効な招待形式 — 期待: CODE@domain",
+      "invalidDomain": "招待のドメイン無効"
+    },
+    "title": "スペースに参加",
+    "invitePlaceholder": "例 abc123 または https://instance.com/join/abc123",
+    "submit": "スペースに参加",
+    "submitting": "参加中…",
+    "connect": {
+      "intro": "このスペース参加のため <host>{{host}}</host> に接続。",
+      "passwordLabel": "接続用パスワードを入力",
+      "passwordPlaceholder": "アカウントのパスワード",
+      "passwordNote": "パスワードはホームインスタンスが検証し {{host}} には送られません。そのインスタンスはそのためだけに作られた一意の資格情報を受け取ります。",
+      "submit": "接続 & 参加",
+      "submitting": "接続中…"
+    },
+    "fallback": {
+      "usernamePlaceholder": "このインスタンスのユーザー名",
+      "passwordLabel": "このインスタンスのパスワード",
+      "passwordPlaceholder": "リモートインスタンスのパスワード",
+      "submit": "ログイン & 参加",
+      "submitting": "ログイン中…"
+    },
+    "request": {
+      "messagePlaceholder": "参加したい理由は? (任意)",
+      "send": "要求を送信",
+      "sending": "送信中…",
+      "notice": "このスペースは参加申請制。送信すれば管理者が審査。",
+      "messageLabel": "要求のメモ",
+      "sent": "要求を送信。管理者が審査し、承認後にリストに表示。",
+      "pending": "このスペースへの参加を既に申請済み。要求は管理者待ち。"
+    }
+  },
+  "settings": {
+    "title": "スペース設定",
+    "backAria": "スペース設定メニューに戻る",
+    "nav": {
+      "general": "一般",
+      "management": "管理",
+      "tabs": {
+        "overview": "概要",
+        "roles": "ロール",
+        "bans": "禁止"
+      }
+    },
+    "discardChanges": "破棄",
+    "overview": {
+      "identity": "スペース基本情報",
+      "iconLabel": "スペースアイコン",
+      "iconAlt": "スペースアイコン",
+      "colorLabel": "アイコン色",
+      "bannerLabel": "スペースバナー",
+      "bannerAlt": "スペースバナー",
+      "uploadBanner": "バナーアップロード (16:9)",
+      "removeBanner": "バナー削除",
+      "nameLabel": "スペース名",
+      "iconUploadFailed": "アイコンをアップロード不可",
+      "bannerUploadFailed": "バナーをアップロード不可",
+      "cropIconTitle": "スペースアイコン切り抜き",
+      "cropBannerTitle": "スペースバナー切り抜き",
+      "transfer": {
+        "description": "所有権を他メンバーに移譲。あなたは一般メンバーに。",
+        "prompt": "所有権を <strong>{{name}}</strong> に移譲?",
+        "button": "所有権移譲",
+        "confirm": "移譲",
+        "transferring": "移譲中…",
+        "success": "所有権を {{name}} に移譲",
+        "failed": "所有権を移譲不可"
+      },
+      "delete": {
+        "description": "このスペースと全データを完全削除。元に戻せません。",
+        "button": "スペース削除",
+        "confirmAgain": "確認のため再クリック",
+        "failed": "スペースを削除不可"
+      }
+    },
+    "access": {
+      "title": "アクセスと説明",
+      "visibility": {
+        "label": "可視性",
+        "hint": "招待保持者がこのスペースに入る方法を制御。",
+        "options": {
+          "private": {
+            "label": "非公開",
+            "description": "招待リンク保持者のみ参加可能"
+          },
+          "request": {
+            "label": "申請制",
+            "description": "招待は管理者承認が必要な申請につながります"
+          },
+          "public": {
+            "label": "公開",
+            "description": "招待保持者は即参加可能"
+          }
+        }
+      },
+      "description": {
+        "label": "説明",
+        "hint": "このスペースへの招待と共に表示される短い概要。",
+        "placeholder": "このスペースの短い説明…",
+        "counter": "{{length}}/{{max}}"
+      },
+      "requests": {
+        "title": "保留中の参加要求",
+        "empty": "保留中の参加要求なし",
+        "actionFailed": "操作失敗"
+      }
+    },
+    "members": {
+      "description": "このスペースのメンバーを管理。メンバーをクリックしてロール編集。",
+      "listHeading": "メンバー ({{total}})",
+      "owner": "所有者",
+      "noRoles": "ロールなし",
+      "ban": "禁止",
+      "kick": "追放",
+      "confirm": {
+        "banTitle": "{{name}} を禁止",
+        "kickTitle": "{{name}} を追放",
+        "banDescription": "この人は解除までこのスペースから恒久禁止。",
+        "kickDescription": "この人は招待リンクで再参加可能。"
+      },
+      "updateRolesFailed": "ロールを更新不可",
+      "kickFailed": "メンバーを追放不可",
+      "banFailed": "メンバーを禁止不可",
+      "rolesAboveYou": "最高ロール以上はロック。",
+      "rolesUnheld": "自分が持たない権限のロールは付与不可。",
+      "rolesManagedByBot": "ボット自身のロールはボットに残ります。",
+      "botInvite": {
+        "warning": "ボットはこのスペースのメンバーとなり権限が許す各チャンネルのメッセージとイベントを受信。信頼するボットのみ追加。",
+        "owner": "所有者: @{{owner}}",
+        "button": "ボット追加",
+        "title": "ボット追加",
+        "searchPlaceholder": "名前でボット検索…",
+        "searching": "検索中…",
+        "noResults": "ボットなし",
+        "add": "追加",
+        "adding": "追加中…",
+        "permissionsTitle": "{{name}} の権限",
+        "permissionsIntro": "ボットはこれら権限を要求。ボット名ロールに入る; 与えたくないもののチェック外し。",
+        "permissionsUnheld": "自分が持たない権限は付与不可。",
+        "permissionsNone": "無チェック: ボットはロールなしで参加。",
+        "back": "戻る"
+      }
+    },
+    "afk": {
+      "title": "AFKチャンネル",
+      "channelLabel": "非アクティブメンバーを移動",
+      "disabled": "無効",
+      "timeoutLabel": "非アクティブ後",
+      "minutes": "分",
+      "hint": "選択時間、音声活動なしのメンバーは自動でこの音声チャンネルに移動。"
+    }
+  },
+  "bans": {
+    "title": "禁止",
+    "description": "禁止ユーザーは解除までこのスペースに再参加不可。",
+    "loading": "禁止を読み込み中…",
+    "empty": "禁止ユーザーなし",
+    "listHeading": "禁止 ({{total}})",
+    "bannedBy": "{{moderator}} が {{date}} に禁止",
+    "bannedByWithReason": "{{moderator}} が {{date}} に禁止: {{reason}}",
+    "unban": "禁止解除",
+    "loadFailed": "禁止を読み込めません",
+    "unbanFailed": "ユーザーの禁止を解除不可"
+  },
+  "roles": {
+    "title": "ロール",
+    "create": "ロール作成",
+    "creating": "作成中…",
+    "listHeading": "ロール",
+    "description": "ロールはメンバーが持つ権限を決定。",
+    "hierarchyHint": "一覧上位のロールは下位の上位。",
+    "defaultName": "新規ロール",
+    "copyName": "{{name}} のコピー",
+    "backToList": "ロールに戻る",
+    "created": "ロール作成済み。下で設定。",
+    "aboveYou": "このロールは最高ロール以上。表示は可能だが変更不可。",
+    "managedByBot": "このロールはボット管理でボット退出と共に削除。誰にも割当・手動削除不可。権限は変更可。",
+    "reorder": {
+      "handle": "{{name}} を移動",
+      "handleHint": "ドラッグ、または上下キー使用",
+      "up": "{{name}} を上へ",
+      "down": "{{name}} を下へ",
+      "locked": "{{name}} は最高ロール以上",
+      "moved": "{{name}} を位置 {{position}} / {{total}} に移動"
+    },
+    "identity": "基本情報",
+    "nameLabel": "ロール名",
+    "colorLabel": "ロール色",
+    "nameEmpty": "ロール名は空不可",
+    "nameDuplicate": "その名のロールが既存",
+    "groups": {
+      "general": "一般",
+      "text": "テキスト",
+      "voice": "音声"
+    },
+    "saved": "ロールを保存",
+    "copy": "ロールをコピー",
+    "copying": "コピー中…",
+    "delete": "ロール削除",
+    "deleting": "削除中…",
+    "confirmDelete": "確認?",
+    "createFailed": "ロールを作成不可",
+    "saveFailed": "ロールを保存不可",
+    "deleteFailed": "ロールを削除不可",
+    "copyFailed": "ロールをコピー不可",
+    "unheldLocked": "自分が持つ権限のみ切替可。残りはロック。",
+    "unheldPermission": "この権限なし",
+    "copyUnheld": "このロールは自分が持たない権限を持つためコピー不可。",
+    "copyDeleteUnheld": "このロールは自分が持たない権限を持つためコピー・削除不可。"
+  },
+  "memberRoles": {
+    "title": "{{name}} のロールを編集",
+    "viewProfile": "プロフィール表示",
+    "affectsAll": "権限変更はこのロールの全メンバーに適用。",
+    "selectRole": "権限編集のためロールを選択。",
+    "saved": "変更を保存"
+  },
+  "permissions": {
+    "title": "権限",
+    "names": {
+      "administrator": "管理者",
+      "viewChannel": "チャンネル表示",
+      "manageChannels": "チャンネル管理",
+      "manageRoles": "ロール管理",
+      "manageSpace": "スペース管理",
+      "createInvite": "招待作成",
+      "kickMembers": "メンバー追放",
+      "banMembers": "メンバー禁止",
+      "sendMessages": "メッセージ送信",
+      "manageMessages": "メッセージ管理",
+      "attachFiles": "ファイル添付",
+      "readMessageHistory": "履歴閲覧",
+      "addReactions": "リアクション追加",
+      "connect": "接続",
+      "speak": "発言",
+      "muteMembers": "メンバーミュート",
+      "deafenMembers": "メンバーデフェン",
+      "moveMembers": "メンバー移動",
+      "stream": "配信",
+      "disconnectMembers": "メンバー切断",
+      "mentionEveryone": "@everyone・@here・ロールに言及"
+    },
+    "tristate": {
+      "deny": "拒否",
+      "neutral": "中立 (継承)",
+      "allow": "許可"
+    },
+    "overrideCount_other": "上書き {{count}}",
+    "removeOverride": "上書きを削除",
+    "removeOverrideFor": "{{name}} の上書きを削除",
+    "removeOverrideHint": "なければここはスペース全体の権限が適用。",
+    "noRoleOverrides": "ロール上書きなし。各ロールはここでスペース全体の権限を使用。",
+    "noMemberOverrides": "メンバー上書きなし。",
+    "roleOverrides": "ロール上書き",
+    "memberOverrides": "メンバー上書き",
+    "addRole": "ロール追加",
+    "addMember": "メンバー追加",
+    "noMoreRoles": "追加するロールはもうありません",
+    "loadFailed": "上書きを読み込めません",
+    "saveFailed": "上書きを保存不可",
+    "partialFailure_other": "上書き {{count}} の保存に失敗",
+    "unheldLocked": "自分が持つ権限のみ切替可。残りはロック。",
+    "unheldPermission": "この権限なし",
+    "removeUnheld": "この上書きは自分が持たない権限を設定。持つ者のみ削除可能。",
+    "removeUnheldShort": "持つ者のみ削除可能",
+    "aboveYouRole": "このロールは最高ロール以上。表示は可能だが変更・削除不可。",
+    "aboveYouMember": "このメンバーはあなた以上。表示は可能だが変更・削除不可。",
+    "aboveYouShort": "最高ロール以上"
+  },
+  "sidebar": {
+    "directMessages": "ダイレクトメッセージ",
+    "addSpace": "スペース追加",
+    "joinSpace": "スペース参加",
+    "folder": {
+      "tooltip_other": "フォルダ ({{count}})",
+      "spaceCount_other": "スペース {{count}}",
+      "unnamed": "無名フォルダ",
+      "rename": "フォルダ名変更",
+      "color": "フォルダ色",
+      "create": "フォルダ作成",
+      "moveTo": "フォルダへ移動",
+      "removeFrom": "フォルダから削除",
+      "ungroup": "グループ解除",
+      "created": "フォルダ作成済み",
+      "moved": "フォルダへ移動済み",
+      "removed": "フォルダから削除済み",
+      "ungrouped": "グループ解除済み"
+    },
+    "space": {
+      "inviteCopied": "招待リンクをクリップボードにコピー",
+      "inviteCopiedRequest": "招待リンクをコピー。開いた人は参加を申請可能。",
+      "inviteFailed": "招待を生成不可",
+      "transferOwnership": "所有権移譲",
+      "settings": "スペース設定",
+      "leave": "スペース退出",
+      "reconnecting": "{{instance}} に再接続中…",
+      "remoteInstance": "リモートインスタンス",
+      "leaveConfirm": {
+        "title": "スペース退出",
+        "titleNamed": "{{name}} を退出",
+        "description": "本当にこのスペースを退出? 再参加には招待が必要。"
+      },
+      "left": "スペースを退出",
+      "leaveFailed": "スペースを退出不可",
+      "unreadMessages_other": "未読 {{count}}",
+      "unreadMessagesOver99": "未読99超"
+    },
+    "dmList": {
+      "newDm": "新規DM",
+      "empty": "会話はまだありません。",
+      "leaveGroup": "グループ退出",
+      "leaveGroupConfirm": {
+        "title": "グループDM退出",
+        "description": "本当に退出? 誰かに再追加されない限り再参加不可。"
+      }
+    },
+    "userArea": {
+      "inputDevice": "入力機器",
+      "outputDevice": "出力機器",
+      "inputDevices": "入力機器",
+      "outputDevices": "出力機器",
+      "inputVolume": "入力音量",
+      "outputVolume": "出力音量",
+      "systemDefault": "システム既定",
+      "microphonePermission": "マイク権限が必要。",
+      "audioPermission": "音声権限が必要。",
+      "enable": "有効化",
+      "voiceSettings": "音声設定",
+      "mute": "ミュート",
+      "unmute": "ミュート解除",
+      "deafen": "デフェン",
+      "undeafen": "デフェン解除",
+      "spaceMuted": "スペースでミュート",
+      "spaceDeafened": "スペースでデフェン",
+      "permissionMuted": "ミュート (発言権限なし)"
+    },
+    "dmUnreadMessages_other": "未読DM {{count}}",
+    "dmUnreadMessagesOver99": "未読DM99超"
+  },
+  "channels": {
+    "resizeHandle": "チャンネル一覧のサイズ変更",
+    "loading": "チャンネルを読み込み中",
+    "create": "チャンネル作成",
+    "createCategory": "カテゴリ作成",
+    "settings": "チャンネル設定",
+    "categorySettings": "カテゴリ設定",
+    "delete": "チャンネル削除",
+    "deleteCategory": "カテゴリ削除",
+    "emptyCategory": "チャンネルなし",
+    "empty": "チャンネルはまだありません。",
+    "deleteConfirm": {
+      "title": "チャンネル削除",
+      "description": "よろしい? チャンネルと全メッセージを完全削除。"
+    },
+    "deleteCategoryConfirm": {
+      "title": "カテゴリ削除",
+      "description": "このカテゴリを本当に削除? 内側のチャンネルは未分類へ移動 — チャンネルは削除されません。"
+    },
+    "deleted": "チャンネルを削除",
+    "deleteFailed": "チャンネルを削除不可",
+    "categoryDeleted": "カテゴリを削除",
+    "categoryDeleteFailed": "カテゴリを削除不可"
+  },
+  "members": {
+    "titleWithCount_other": "メンバー — {{count}}",
+    "loading": "メンバーを読み込み中",
+    "resizeHandle": "メンバー一覧のサイズ変更",
+    "groups": {
+      "owner": "所有者"
+    },
+    "ownerTitle": {
+      "edit": "所有者称号を編集",
+      "label": "所有者称号",
+      "hint": "このスペースの全メンバーに表示。1–{{max}} 文字を使用; 権限は変更なし。",
+      "reset": "既定にリセット"
+    },
+    "menu": {
+      "profile": "プロフィール表示",
+      "nickname": "スペースニックネーム変更…",
+      "roles": "ロール"
+    },
+    "nickname": {
+      "title": "スペースニックネーム変更",
+      "label": "スペースニックネーム",
+      "descriptionSelf": "このスペースのみ適用。アカウント名や他スペースのニックネームは不変。空でアカウント名表示。",
+      "descriptionOther": "このスペースのみ適用。{{name}} のアカウント名は不変。空でアカウント名表示。",
+      "reset": "アカウント名にリセット",
+      "shownAs": "このスペースのニックネーム: {{nickname}}"
+    }
+  },
+  "mobile": {
+    "addSheet": {
+      "createSpace": "スペース作成",
+      "joinSpace": "スペース参加"
+    },
+    "muteUser": "自分用にミュート"
+  },
+  "main": {
+    "selectChannel": "チャンネルを選択",
+    "selectChannelHint": "開始にはテキストか音声チャンネルを選択",
+    "notificationSettings": "通知設定",
+    "topic": {
+      "show": "全トピックを表示",
+      "dialogTitle": "#{{name}}"
+    },
+    "voice": {
+      "connectionFailed": "接続失敗",
+      "connected": "接続済み",
+      "connecting": "接続中…",
+      "participants_other": "{{count}} 接続中",
+      "inCall_other": "通話中 {{count}}",
+      "empty": "この音声チャンネルに誰もいません。",
+      "join": "音声に参加"
+    },
+    "dm": {
+      "fallbackName": "ダイレクトメッセージ",
+      "composerPlaceholder": "{{target}} にメッセージ",
+      "calling": "{{name}} を呼出中…",
+      "groupSettings": "グループ設定",
+      "openGroupSettings": "グループ設定を開く",
+      "memberCount_other": "(メンバー {{count}} 人)",
+      "startVoiceCall": "音声通話を開始",
+      "joinCall": "通話に参加",
+      "startVideoCall": "ビデオ通話を開始",
+      "addFriends": "DMにフレンド追加"
+    }
+  },
+  "ownership": {
+    "title": "所有権移譲",
+    "description": "<name>{{name}}</name> の新所有者としてメンバーを選択",
+    "confirmQuestion": "<name>{{space}}</name> の所有権を <name>{{member}}</name> に移譲?",
+    "regularMember": "一般メンバーになります。",
+    "transferring": "移譲中…",
+    "confirm": "移譲",
+    "loading": "メンバーを読み込み中…",
+    "success": "所有権を {{name}} に移譲",
+    "failed": "所有権を移譲不可"
+  },
+  "notifications": {
+    "open": "通知設定",
+    "channelTitle": "#{{channel}} の通知",
+    "spaceTitle": "{{space}} の通知",
+    "levelHeading": "通知対象",
+    "level": {
+      "all": "全メッセージ",
+      "mentions": "@言及のみ",
+      "nothing": "なし",
+      "inherit": "スペース既定 ({{level}})"
+    },
+    "dmNote": "DMは常に通知します。",
+    "muteHeading": "ミュート",
+    "mute": {
+      "oneHour": "1時間",
+      "eightHours": "8時間",
+      "oneDay": "24時間",
+      "indefinite": "解除まで"
+    },
+    "unmute": "ミュート解除",
+    "mutedUntil": "{{time}} までミュート",
+    "mutedIndefinitely": "解除までミュート",
+    "spaceMuted": "このスペースはミュートのためそのチャンネルも。",
+    "mutedIndicator": "ミュート",
+    "saveFailed": "通知設定を保存不可",
+    "suppressEveryone": "@everyone と @here を抑制",
+    "suppressRoles": "ロール言及を抑制",
+    "massHeading": "グループ言及",
+    "massNote": "@here は @everyone と同じメンバーに届きます。名指し言及は常に通知します。"
+  }
+}

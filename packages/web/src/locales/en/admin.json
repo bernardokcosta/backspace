@@ -146,7 +146,7 @@
       "deletedUser": "Deleted User"
     },
     "row": {
-      "usage": "{{usage}} uses",
+      "usage": "Uses: {{usage}}",
       "createdBy": "Created by {{name}}",
       "unknownCreator": "Unknown",
       "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",

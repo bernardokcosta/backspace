@@ -4,7 +4,7 @@ import type { AppUpdater } from 'electron-updater';
 import path from 'path';
 import { loadInstanceUrl, clearInstanceUrl, getPickerPath } from './instanceUrl';
 import { RELEASES_URL } from './updateStatus';
-import { getDesktopLanguage, translateDesktop, type DesktopLanguage } from './l10n';
+import { getDesktopLanguageQuery, translateDesktop, type DesktopLanguage } from './l10n';
 
 export type RecoveryReasonCode =
   | 'load-failed'
@@ -204,6 +204,22 @@ export function buildTrayMenuTemplate(
   return items;
 }
 
+export function buildEditMenuTemplate(language: DesktopLanguage = 'en'): MenuItemConstructorOptions {
+  const t = (key: Parameters<typeof translateDesktop>[1]) => translateDesktop(language, key);
+  return {
+    label: t('menu.edit'),
+    submenu: [
+      { role: 'undo', label: t('menu.undo') },
+      { role: 'redo', label: t('menu.redo') },
+      { type: 'separator' },
+      { role: 'cut', label: t('menu.cut') },
+      { role: 'copy', label: t('menu.copy') },
+      { role: 'paste', label: t('menu.paste') },
+      { role: 'selectAll', label: t('menu.selectAll') },
+    ],
+  };
+}
+
 export function buildAppMenuTemplate(
   appName: string,
   state: RecoveryState,
@@ -212,7 +228,7 @@ export function buildAppMenuTemplate(
 ): MenuItemConstructorOptions[] {
   const t = (key: Parameters<typeof translateDesktop>[1]) => translateDesktop(language, key);
   const appSubmenu: MenuItemConstructorOptions[] = [
-    { role: 'about' },
+    { role: 'about', label: translateDesktop(language, 'menu.about', { name: appName }) },
     { label: t('tray.sourceCode'), click: () => actions?.onOpenSource?.() },
   ];
 
@@ -226,34 +242,23 @@ export function buildAppMenuTemplate(
     { type: 'separator' },
     { label: t('tray.changeInstance'), click: actions?.onChangeInstance },
     { type: 'separator' },
-    { role: 'hide' },
-    { role: 'hideOthers' },
-    { role: 'unhide' },
+    { role: 'hide', label: translateDesktop(language, 'menu.hideApp', { name: appName }) },
+    { role: 'hideOthers', label: t('menu.hideOthers') },
+    { role: 'unhide', label: t('menu.showAll') },
     { type: 'separator' },
-    { role: 'quit' },
+    { role: 'quit', label: translateDesktop(language, 'menu.quitApp', { name: appName }) },
   );
 
   return [
     { label: appName, submenu: appSubmenu },
-    {
-      label: t('menu.edit'),
-      submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
-        { role: 'selectAll' },
-      ],
-    },
+    buildEditMenuTemplate(language),
     {
       label: t('menu.window'),
       submenu: [
-        { role: 'minimize' },
-        { role: 'zoom' },
+        { role: 'minimize', label: t('menu.minimize') },
+        { role: 'zoom', label: t('menu.zoom') },
         { type: 'separator' },
-        { role: 'front' },
+        { role: 'front', label: t('menu.front') },
       ],
     },
   ];
@@ -402,7 +407,7 @@ export function enterRecoveryMode(reason: { code: RecoveryReasonCode; detail: st
   if (!mainWindowRef || mainWindowRef.isDestroyed()) return;
 
   mainWindowRef.loadFile(path.join(__dirname, '..', 'resources', 'recovery.html'), {
-    query: { lang: getDesktopLanguage() },
+    query: getDesktopLanguageQuery(),
   });
   // Force-show even when launched hidden (--hidden via autostart) — recovery
   // must be visible regardless of prior visibility state.
@@ -455,7 +460,7 @@ export function handleRecoveryAction(action: RecoveryAction): void {
       recoveryStore.update({ mode: 'normal', reason: null });
       console.log('[recovery] exited (reload)');
       if (!url) {
-        mainWindowRef?.loadFile(getPickerPath(), { query: { lang: getDesktopLanguage() } });
+        mainWindowRef?.loadFile(getPickerPath(), { query: getDesktopLanguageQuery() });
         return;
       }
       mainWindowRef?.loadURL(url);
@@ -486,7 +491,7 @@ export function handleRecoveryAction(action: RecoveryAction): void {
       recoveryStore.markRecoveryExited();
       recoveryStore.update({ mode: 'normal', reason: null });
       console.log('[recovery] exited (change-instance)');
-      mainWindowRef?.loadFile(getPickerPath(), { query: { lang: getDesktopLanguage() } });
+      mainWindowRef?.loadFile(getPickerPath(), { query: getDesktopLanguageQuery() });
       // Ensure visible — tray clicks may happen with window hidden, and the
       // recovery surface should also remain visible during the navigation.
       // When invoked from recovery.html (window already showing), these are

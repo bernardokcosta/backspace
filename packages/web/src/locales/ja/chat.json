@@ -1,0 +1,296 @@
+{
+  "feedback": {
+    "openedInNewTab": "新規タブで開きました",
+    "copiedGifLink": "GIFリンクをコピー",
+    "copiedImageLink": "画像リンクをコピー",
+    "uploadExpired": "「{{content}}」を送信できません — アップロード期限切れ。",
+    "attachmentOnly": "(添付のみ)"
+  },
+  "message": {
+    "edit": {
+      "hint": "escapeで <cancel>取消</cancel> • enterで <save>保存</save>"
+    },
+    "edited": "(編集済)",
+    "rowLabel": "{{author}}、{{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "アップロード失敗",
+      "discard": "破棄"
+    },
+    "actions": {
+      "confirmDelete": "削除を確認"
+    },
+    "reply": {
+      "jump": "元メッセージへ移動"
+    },
+    "mention": {
+      "unknownUser": "不明ユーザー",
+      "unknownRole": "不明ロール"
+    },
+    "reactions": {
+      "picker": "リアクション選択",
+      "you": "あなた",
+      "others_other": "他 {{count}} 人",
+      "bySelf": "あなたが反応",
+      "byOne": "{{name}} が反応",
+      "byMany": "反応: {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "このチャンネルの履歴表示権限がありません",
+    "loading": "メッセージを読み込み中",
+    "loadingOlder": "古いメッセージを読み込み中",
+    "loadFailed": "メッセージを読み込めません",
+    "jumpToPresent": "現在へ移動",
+    "jump": {
+      "unavailable": "そのメッセージは利用不可",
+      "failed": "そのメッセージを読み込めません",
+      "presentFailed": "最新メッセージを読み込めません"
+    },
+    "unread": {
+      "label": "新着",
+      "divider": "新着メッセージ",
+      "dividerWithDate": "新着メッセージ、{{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "チャンネルへようこそ!",
+        "description": "会話の始まりです。"
+      },
+      "group": {
+        "intro": "グループ会話の始まりです。",
+        "owner": "所有者: <owner>@{{name}}</owner>",
+        "federatedNotice": "メッセージはあなたのホームインスタンスと相手のホームインスタンスに保存。エンドツーエンド暗号化なし。",
+        "openSettings": "グループ設定を開く",
+        "leave": "グループ退出"
+      },
+      "dm": {
+        "fallbackName": "ダイレクトメッセージ",
+        "intro": "<strong>@{{name}}</strong> とのDM履歴の始まりです。",
+        "federatedNotice": "メッセージはあなたのホームインスタンスと相手のホームインスタンスに保存。エンドツーエンド暗号化なし。",
+        "removeFriend": "フレンド削除"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "このチャンネルへの送信権限がありません",
+    "placeholder": {
+      "channel": "#{{name}} にメッセージ",
+      "dm": "@{{name}} にメッセージ"
+    },
+    "replyingTo": "返信先",
+    "cancelReply": "返信を取消",
+    "removeAttachment": "添付を削除",
+    "attachFile": "ファイルを添付",
+    "dropTitle": "ファイルをアップロード",
+    "dropHint": "ドロップで添付",
+    "uploading": "アップロード中…",
+    "uploadingLabel": "アップロード中",
+    "failedCount_other": "{{count}} 失敗",
+    "failedHint": "失敗した添付を削除・再試行して送信",
+    "gif": "GIF",
+    "gifPicker": "GIF選択",
+    "emoji": "絵文字",
+    "emojiPicker": "絵文字選択",
+    "send": "送信",
+    "sendMessage": "メッセージ送信",
+    "uploadFailed": "{{file}} をアップロード不可: {{reason}}",
+    "uploadFailedReason": "アップロード失敗",
+    "typing": {
+      "named_other": "{{names}} が入力中",
+      "several": "複数人が入力中"
+    }
+  },
+  "menu": {
+    "saveImage": "画像を保存",
+    "copyImage": "画像をコピー",
+    "openOriginal": "原本を開く",
+    "saveVideo": "動画を保存",
+    "saveAudio": "音声を保存",
+    "copyLink": "リンクをコピー",
+    "openLink": "リンクを開く",
+    "copySelectedText": "選択テキストをコピー",
+    "copyText": "テキストをコピー",
+    "markUnread": "未読にする",
+    "editMessage": "メッセージ編集",
+    "deleteMessage": "メッセージ削除",
+    "linkCopied": "リンクをコピー",
+    "linkCopyFailed": "リンクをコピー不可",
+    "pinMessage": "メッセージをピン留め",
+    "unpinMessage": "ピンを外す"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "一時停止 — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "ここで再生不可 — ダウンロード",
+      "unsupportedFormat": "非対応動画形式",
+      "unsupportedBrowser": "お使いのブラウザは動画再生非対応。"
+    },
+    "audio": {
+      "unsupportedBrowser": "お使いのブラウザは音声再生非対応。"
+    },
+    "federation": {
+      "remoteNamed": "{{sender}} のインスタンスでホスト。ローカル保存用にダウンロード。",
+      "remoteUnknown": "送信者のインスタンスでホスト。ローカル保存用にダウンロード。",
+      "partialGeneric": "一部受信者はこのファイルをローカルにキャッシュ不可。",
+      "partialInstance": "{{username}} のインスタンス (上限: {{limit}})",
+      "partialList": "ファイルは {{instances}} にキャッシュ不可。あなたのものから閲覧可能。",
+      "listPair": "{{first}} と {{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "GIFを検索",
+    "noResults": "GIFなし",
+    "noTrending": "流行GIFなし",
+    "attribution": "Klipy提供"
+  },
+  "preview": {
+    "save": "画像を保存",
+    "copy": "画像をコピー",
+    "alt": "画像プレビュー"
+  },
+  "invite": {
+    "sentBy": "{{name}} が招待を送信",
+    "memberCount_other": "メンバー {{count}} 人",
+    "revoked": "招待は無効",
+    "join": "参加",
+    "joining": "参加中…",
+    "joinFailed": "参加不可",
+    "askToJoin": "参加を申請",
+    "sendingRequest": "送信中…",
+    "requestSent": "要求を送信",
+    "requestPending": "要求保留中",
+    "requestNotice": "このスペースは参加申請制。管理者が一件ずつ承認。",
+    "requestReview": "管理者が要求を審査します。"
+  },
+  "notification": {
+    "unknownSender": "誰か",
+    "attachmentOnly": "添付を送信"
+  },
+  "commands": {
+    "title": "コマンド",
+    "failed": "コマンドを送信できません",
+    "extraText": "このコマンドは自由文を受け付けませんが「{{text}}」が余っています。先に選択肢、文は最後に",
+    "invalidOption": "{{option}} の値はこのコマンドに不適合。",
+    "optionsTitle": "パラメータ",
+    "required": "必須",
+    "subcommandsTitle": "サブコマンド",
+    "group": "グループ",
+    "chooseSubcommand": "サブコマンドを選択: {{names}}",
+    "subcommandRefused": "ボットはそのサブコマンドを提供していません。一覧から選択。"
+  },
+  "ephemeral": {
+    "onlyYou": "あなたのみ閲覧可能",
+    "dismiss": "閉じる",
+    "rowLabel": "あなたのみの回答 {{author}}、{{time}}"
+  },
+  "embed": {
+    "loadAction": "クリックで読み込み",
+    "loadNamed": "{{name}} を読み込み",
+    "loadUnnamed": "埋め込みを読み込み",
+    "frameTitle": "埋め込み",
+    "playNamed": "{{title}} を再生",
+    "playUnnamed": "動画を再生",
+    "videoTitle": "動画"
+  },
+  "stickers": {
+    "title": "マイステッカー",
+    "upload": "画像をアップロード",
+    "limits": "PNG・JPEG・WebP・GIF · 最大5 MB",
+    "loading": "読み込み中…",
+    "empty": "ステッカーコレクションはここから",
+    "remove": "削除",
+    "save": "マイステッカーに追加",
+    "saved": "マイステッカーに追加済み",
+    "preview": "ステッカーをプレビュー",
+    "manage": "管理",
+    "done": "完了",
+    "collectionHint": "送信するステッカーを選択。このスペースを自分のものに。",
+    "manageHint": "コレクションのステッカー名変更・削除。送信済みメッセージは不変。",
+    "emptyHint": "お気に入りの瞬間をステッカー保存、次の返信に備えよう。",
+    "chooseImage": "画像を選択",
+    "cancel": "キャンセル",
+    "replace": "画像を置換",
+    "name": "ステッカー名",
+    "dropImage": "ここにクリックか画像をドロップ",
+    "pasteHint": "クリップボードから画像を貼付も可",
+    "uploading": "ステッカーを追加中…",
+    "singleImage": "一度に1画像を選択。",
+    "invalidSize": "5 MBまでの空でない画像を選択。",
+    "invalidType": "PNG・JPEG・WebP・GIF画像のみ対応。",
+    "invalidImage": "この画像はプレビュー不可。有効な画像を選択。",
+    "removeNamed": "{{name}} を削除",
+    "addMore": "さらに追加",
+    "selectedCount_other": "{{count}} 枚選択",
+    "dropMore": "ここにクリックかさらに画像をドロップ",
+    "sticker": "ステッカー",
+    "downloadFailed": "画像を読み込めません。",
+    "batchLimit_other": "一度に最大 {{count}} 画像を選択。",
+    "capacityLimit_other": "コレクションにあと {{count}} 枚分の余地。",
+    "full": "コレクション満杯。追加には1枚削除。",
+    "batchFailed_other": "{{count}} 画像を追加不可。下に残っています。",
+    "uploadingProgress": "{{current}} / {{total}} を追加中…",
+    "rename": "名前変更",
+    "renameNamed": "{{name}} の名前変更",
+    "renameTitle": "ステッカー名変更",
+    "search": "ステッカーを検索",
+    "noResults": "ステッカーなし",
+    "store": "ステッカーストア",
+    "myCollection": "マイステッカー",
+    "packs": "ステッカーパック",
+    "explore": "探索",
+    "myPacks": "自分作成",
+    "install": "追加",
+    "installed": "追加済み",
+    "uninstall": "削除",
+    "createPack": "パック作成",
+    "editPack": "パック編集",
+    "packName": "パック名",
+    "packDesc": "説明 (任意)",
+    "submitReview": "審査に提出",
+    "pendingReview": "審査待ち",
+    "approved": "承認済み",
+    "rejected": "拒否",
+    "draft": "下書き",
+    "newVersion": "新バージョン",
+    "deletePack": "パック削除",
+    "stickersCount_other": "{{count}} 枚",
+    "noPacks": "ステッカーパックなし",
+    "replicaBadge": "連合",
+    "viewPack": "パック表示",
+    "saveDraft": "下書き保存",
+    "packCreated": "パック作成済み",
+    "reviewSubmitted": "管理者審査に提出",
+    "reviews": "審査",
+    "noReviews": "審査待ちパックなし",
+    "approve": "承認",
+    "reject": "拒否",
+    "rejectTitle": "ステッカーパック拒否",
+    "rejectReason": "拒否理由",
+    "rejectPlaceholder": "拒否理由を入力 (例不適切内容、低品質)",
+    "rejectConfirm": "拒否を確認",
+    "approvedSuccess": "ステッカーパック承認済み",
+    "rejectedSuccess": "ステッカーパック拒否済み",
+    "reviewNotes": "拒否理由",
+    "creator": "作成者",
+    "sourceInstance": "インスタンス",
+    "localInstance": "ローカルインスタンス",
+    "viewStickers": "ステッカー表示",
+    "pendingReviewHint": "管理者審査中; 承認後に探索に表示"
+  },
+  "poke": {
+    "action": "つつく",
+    "received": "{{actor}} が {{target}} をつついた",
+    "disconnected": "切断。つつき未送信。"
+  },
+  "pins": {
+    "title": "ピン留めメッセージ",
+    "empty": "ピン留めメッセージはまだありません。",
+    "jump": "メッセージへ移動",
+    "unpin": "ピン外し",
+    "deletedMessage": "メッセージ削除済み",
+    "attachmentOnly": "添付"
+  }
+}

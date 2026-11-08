@@ -1,0 +1,32 @@
+{
+  "input": {
+    "placeholder": "メッセージを検索…"
+  },
+  "filters": {
+    "toggle": "フィルター",
+    "from": {
+      "label": "差出人",
+      "placeholder": "ユーザー名"
+    },
+    "has": {
+      "label": "含む",
+      "any": "すべて",
+      "file": "ファイル",
+      "image": "画像",
+      "link": "リンク"
+    },
+    "before": {
+      "label": "以前"
+    },
+    "after": {
+      "label": "以後"
+    }
+  },
+  "results": {
+    "empty": "結果なし",
+    "hint": "入力してこのチャンネルのメッセージを検索",
+    "count_other": "{{count}} 件",
+    "loadMore": "さらに読み込む（残り {{remaining}}）",
+    "attachments_other": "添付 {{count}} 件"
+  }
+}

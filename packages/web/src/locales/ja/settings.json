@@ -1,0 +1,571 @@
+{
+  "interfaceScale": {
+    "label": "インターフェースの表示倍率",
+    "description": "テキスト・ボタン・パネルのサイズを変更。このブラウザやアプリにこの機器で保存。",
+    "reset": "100%にリセット"
+  },
+  "voice": {
+    "input": {
+      "title": "入力機器",
+      "checkingAccess": "マイク権限を確認中…",
+      "accessDenied": {
+        "title": "マイク権限が拒否されました",
+        "description": "入力機器選択にはマイク権限を付与。",
+        "retry": "再試行"
+      },
+      "permissionPrompt": {
+        "description": "入力機器の一覧・選択にはマイク権限が必要。",
+        "enable": "マイク権限を有効化"
+      },
+      "device": {
+        "systemDefault": "システム既定",
+        "currentlyUsing": "使用中: {{label}}",
+        "none": "マイクなし。"
+      },
+      "volume": {
+        "label": "入力音量"
+      },
+      "meter": {
+        "hint": "音声チャンネル参加でレベルメーター有効化。"
+      }
+    },
+    "output": {
+      "title": "出力機器",
+      "checkingAccess": "音声権限を確認中…",
+      "device": {
+        "systemDefault": "システム既定",
+        "unsupported": "このブラウザは出力機器選択非対応。音声はシステム既定へ。"
+      },
+      "permissionPrompt": {
+        "description": "出力機器一覧にはマイク権限を付与 (ブラウザは出力名をマイク権限の背後に隠します)。",
+        "enable": "音声権限を有効化"
+      },
+      "volume": {
+        "label": "出力音量"
+      },
+      "testSound": "テスト音を再生"
+    },
+    "video": {
+      "title": "ビデオ",
+      "checkingAccess": "カメラ権限を確認中…",
+      "accessDenied": {
+        "title": "カメラ権限が拒否されました",
+        "description": "カメラ選択にはカメラ権限を付与。",
+        "retry": "再試行"
+      },
+      "blocked": {
+        "browser": "ブラウザ水準でカメラがブロック。アドレスバーのカメラアイコンをクリックし権限をリセットし再試行をクリック。",
+        "mac": "システム設定 → プライバシーとセキュリティ → カメラでカメラ権限を付与し、アプリを再起動。",
+        "windows": "設定 → プライバシーとセキュリティ → カメラでカメラ権限を付与し、アプリを再起動。",
+        "other": "カメラ権限が拒否されました。ブラウザ/Chromiumプロンプトでリセットし再試行。"
+      },
+      "permissionPrompt": {
+        "description": "カメラ選択とプレビューにはカメラ権限が必要。",
+        "enable": "カメラプレビューを有効化"
+      },
+      "camera": {
+        "label": "カメラ",
+        "auto": "自動 (システム既定)",
+        "fallbackName": "カメラ {{number}}",
+        "detectedFallback": "検出カメラ",
+        "currentlyUsing": "使用中: {{label}}",
+        "none": "カメラなし。"
+      },
+      "preview": {
+        "testAria": "カメラをテスト",
+        "testHint": "クリックでカメラをテスト",
+        "stop": "プレビュー停止",
+        "retry": "再試行"
+      },
+      "previewError": {
+        "inUse": "カメラは他アプリ使用中。",
+        "unavailable": "選択カメラは利用不可。",
+        "notFound": "カメラなし。",
+        "generic": "カメラプレビューを開始できません。"
+      }
+    },
+    "title": "音声 & 映像",
+    "volume": {
+      "sectionTitle": "音量",
+      "soundEffects": {
+        "label": "効果音量"
+      },
+      "messageSound": {
+        "label": "毎メッセージで音を再生",
+        "description": "オフ (既定): DMとあなた宛のみ。オン: 全チャンネル。"
+      }
+    },
+    "pip": {
+      "sectionTitle": "フローティングウィンドウ",
+      "showOnSwitch": {
+        "label": "通話中にフローティング表示",
+        "description": "音声チャンネルや通話中に他を見る際、小窓が通話を可視に保ちます。"
+      }
+    },
+    "processing": {
+      "sectionTitle": "音声処理",
+      "noiseSuppression": {
+        "label": "AIノイズ抑制",
+        "description": "MLベース雑音除去 (RNNoise)。キーボード・ファン・背景雑音を除去。"
+      },
+      "echoCancellation": {
+        "label": "エコー除去",
+        "description": "スピーカーからマイクに戻るエコーを除去。音声チャンネル・通話で常時オン。"
+      },
+      "autoGain": {
+        "label": "自動ゲイン制御",
+        "description": "マイク音量を自動調整。配信中に音声ダッキングの可能性。"
+      }
+    }
+  },
+  "nav": {
+    "userSettings": "ユーザー設定",
+    "appSettings": "アプリ設定",
+    "administration": "管理",
+    "tabs": {
+      "account": "アカウント",
+      "appearance": "外観",
+      "voice": "音声 & 映像",
+      "privacy": "プライバシー",
+      "connections": "接続",
+      "keybinds": "キーバインド",
+      "desktop": "デスクトップ",
+      "instance": "インスタンス",
+      "bots": "ボット",
+      "developer": "開発者"
+    },
+    "logOut": "ログアウト",
+    "backToMenu": "設定メニューに戻る"
+  },
+  "appearance": {
+    "title": "外観"
+  },
+  "account": {
+    "title": "マイアカウント",
+    "detached": {
+      "notice": "このアカウントはホームインスタンスから分離。",
+      "explanation": "{{homeInstance}} がリセットか利用不可のため、このアカウントは現在このインスタンスでローカル動作。プロフィールとパスワードはここで管理。",
+      "reattachHint": "{{homeInstance}} 上の {{username}} として再紐付け可能。プロフィールと在席はそこから再同期。",
+      "reattachButton": "{{homeInstance}} に再紐付け",
+      "reattachConfirm": "{{username}} として再紐付けを確認",
+      "reattaching": "再紐付け中…",
+      "reattachFailed": "再紐付け不可",
+      "reattached": "{{username}} と再リンク済み"
+    },
+    "profile": {
+      "sectionTitle": "プロフィールカスタマイズ",
+      "avatar": {
+        "label": "アバター",
+        "alt": "あなたのアバター",
+        "change": "アバターを変更",
+        "uploadFailed": "アバターをアップロード不可",
+        "cropTitle": "アバターを切り抜き"
+      },
+      "banner": {
+        "label": "バナー",
+        "change": "バナーを変更",
+        "uploadFailed": "バナーをアップロード不可",
+        "cropTitle": "バナーを切り抜き"
+      },
+      "avatarColor": {
+        "label": "アバター色"
+      },
+      "bannerColor": {
+        "label": "バナー色",
+        "hexPlaceholder": "#hex"
+      },
+      "bio": {
+        "label": "自己紹介",
+        "placeholder": "世界に自己紹介…",
+        "counter": "{{used}}/{{max}}"
+      }
+    },
+    "details": {
+      "sectionTitle": "アカウント",
+      "status": {
+        "label": "状態",
+        "homeUnavailable": "状態は {{host}} に保持。変更は {{host}} に接続。"
+      },
+      "customStatus": {
+        "label": "カスタム状態",
+        "placeholder": "何をしていますか?"
+      }
+    },
+    "password": {
+      "current": {
+        "label": "現在のパスワード",
+        "placeholder": "現在のパスワードを入力"
+      },
+      "new": {
+        "label": "新パスワード",
+        "placeholder": "最低 {{min}} 文字"
+      },
+      "confirm": {
+        "label": "新パスワードを確認",
+        "placeholder": "新パスワードを確認"
+      },
+      "show": "パスワード表示",
+      "hide": "パスワード非表示",
+      "tooShort": "新パスワードは最低 {{min}} 文字",
+      "mismatch": "パスワード不一致",
+      "changed": "パスワードを変更しました",
+      "changeFailed": "パスワードを変更できません",
+      "submit": "パスワード変更",
+      "submitting": "変更中…"
+    },
+    "danger": {
+      "description": "アカウント削除後は元に戻せません。メッセージは残りますが「削除済みユーザー」に帰属。",
+      "deleteButton": "アカウント削除"
+    },
+    "save": {
+      "updated": "プロフィールを更新",
+      "failed": "プロフィールを更新できません"
+    },
+    "deletion": {
+      "title": "アカウント削除",
+      "warning": {
+        "headline": "あなたのアカウントを完全削除します。",
+        "spaces": "全スペース所属を削除",
+        "friends": "全友情を削除",
+        "dms": "全DM所属を削除",
+        "messages": "メッセージは残りますが「削除済みユーザー」に帰属"
+      },
+      "ownedSpaces": {
+        "prompt_other": "{{count}} スペースを所有。続行前に対処:",
+        "transfer": "移譲",
+        "delete": "スペース削除",
+        "selectOwner": "新所有者を選択…"
+      },
+      "processing": "処理中…",
+      "confirm": {
+        "permanent": "この操作は恒久的で元に戻せません。",
+        "usernamePrompt": "確認のためユーザー名 <username>{{username}}</username> を入力",
+        "passwordPlaceholder": "パスワードを入力",
+        "submit": "マイアカウントを削除",
+        "deleting": "削除中…"
+      },
+      "federation": {
+        "removing": "接続中インスタンスからあなたのアカウントを削除中…",
+        "deleteAnyway": "今すぐ削除"
+      },
+      "complete": {
+        "title": "アカウントを削除",
+        "redirecting": "ログインへリダイレクト中…"
+      },
+      "errors": {
+        "usernameMismatch": "ユーザー名不一致",
+        "spacesFailed": "スペースを処理不可",
+        "deleteFailed": "アカウントを削除不可"
+      }
+    }
+  },
+  "privacy": {
+    "title": "プライバシー",
+    "discovery": {
+      "sectionTitle": "発見",
+      "label": "他者にプロフィール検索を許可",
+      "description": "オンでプロフィールは人発見に表示。他者は正確なユーザー名で常に追加可能。"
+    },
+    "activity": {
+      "sectionTitle": "活動状態",
+      "label": "活動状態を共有",
+      "description": "何をしているか他者に表示、例えば遊ぶゲームや聴く音楽。",
+      "game": {
+        "label": "手動作成",
+        "description": "検出されなかったゲームを追加。削除まで表示。",
+        "placeholder": "ゲーム名",
+        "set": "設定",
+        "detectedLabel": "今検出",
+        "detectedDescription": "検出ゲームを別名で表示。次回記憶。",
+        "renamePlaceholder": "表示名…",
+        "renameLabel": "{{name}} を表示",
+        "renamedLabel": "改名ゲーム",
+        "renamedItem": "{{detected}} → {{chosen}}",
+        "restore": "復元",
+        "descriptionBound": "検出されなかったゲームを追加: プログラムを選択し命名。そのプログラム実行中に表示。",
+        "programLabel": "プログラム",
+        "programPlaceholder": "実行中プログラムを選択…",
+        "programHint": "先にゲームを起動し一覧からそのプログラムを選択。",
+        "clearRename": "クリア",
+        "unknownLabel": "不明なWineプログラム",
+        "unknownDescription": "実行中だが既知ゲームに一致なし。一つがあなたのゲームならプレイ中ゲームとして表示。",
+        "unknownUse": "マイゲームに追加",
+        "gamesLabel": "あなたのゲーム",
+        "gamesDescription": "先頭ゲームは一覧が表示するもの; 移動で優先度設定。非表示ゲームは他者に非表示。",
+        "moveUp": "{{name}} を上へ",
+        "moveDown": "{{name}} を下へ",
+        "hide": "非表示",
+        "show": "表示",
+        "hideGame": "{{name}} を非表示",
+        "showGame": "{{name}} を表示",
+        "add": "追加",
+        "remove": "削除",
+        "statusName": "名で表示",
+        "statusRunning": "実行中",
+        "statusWaiting": "{{program}} を待機",
+        "dragHandle": "{{name}} をドラッグして優先度変更",
+        "manualNameLabel": "{{name}} の名前",
+        "save": "保存"
+      }
+    }
+  },
+  "connections": {
+    "title": "接続"
+  },
+  "instance": {
+    "tabs": {
+      "general": "一般",
+      "registration": "登録",
+      "federation": "連合",
+      "streaming": "配信",
+      "storage": "ストレージ",
+      "users": "ユーザー",
+      "updates": "更新"
+    }
+  },
+  "keybinds": {
+    "portal": {
+      "description": "Waylandではデスクトップが全Backspaceショートカットを管理。システムのキーボードショートカット設定のBackspace下で割当・変更・削除。ここのブラウザ/X11バインドは未使用。",
+      "idle": "全利用可能操作の初回登録を準備。",
+      "pending": "デスクトップポータルに接続中。システムダイアログが出たら使う操作のショートカットを選択。",
+      "ready": "Backspace登録済み。変更・削除はシステムのキーボードショートカット設定を開く。下の一覧は読取専用でBackspace復帰時に更新。",
+      "unavailable": "ポータル不可・権限拒否・セッション終了。Global Shortcutsポータルバックエンドが必要。Waylandではローカルバインド無効。",
+      "retry": "ショートカット登録・再接続",
+      "assigned": "システムショートカット: {{shortcut}}",
+      "notAssigned": "有効なシステム割当なし"
+    },
+    "title": "キーバインド",
+    "note": {
+      "webOnly": "ショートカットはこのタブ注視時に動作。他アプリで働く全体用はデスクトップアプリを使用。"
+    },
+    "section": {
+      "voice": "音声ショートカット"
+    },
+    "action": {
+      "toggleMute": "ミュート切替",
+      "toggleDeafen": "デフェン切替",
+      "pushToTalk": "押して話す",
+      "toggleCamera": "カメラ切替",
+      "toggleScreenShare": "画面共有切替",
+      "disconnect": "切断"
+    },
+    "row": {
+      "recordingPrompt": "キー組合せを押下…",
+      "notBound": "未割当",
+      "record": "記録",
+      "escToCancel": "ESCで取消"
+    },
+    "key": {
+      "shift": "Shift",
+      "ctrl": "Ctrl",
+      "alt": "Alt",
+      "option": "Option",
+      "cmd": "Cmd",
+      "win": "Win",
+      "space": "空白",
+      "middleClick": "中クリック",
+      "mouse4": "マウス4",
+      "mouse5": "マウス5",
+      "mouseGeneric": "マウス {{button}}"
+    },
+    "accessibility": {
+      "title": "アクセシビリティ権限が必要",
+      "description": "全体ショートカットがアプリ外で働くにはBackspaceにアクセシビリティ権限が必要。",
+      "grant": "権限を付与"
+    },
+    "hookError": {
+      "title": "全体ショートカット不可",
+      "description": "入力リスナーを開始不可。Linuxではユーザーが <code>input</code> グループ所属の必要の可能性。"
+    },
+    "conflict": {
+      "message": "<strong>{{combo}}</strong> は既に <strong>{{action}}</strong> に割当。上書き?",
+      "overwrite": "上書き"
+    }
+  },
+  "desktop": {
+    "title": "デスクトップ",
+    "autoLaunch": {
+      "openAtLogin": {
+        "label": "ログイン時に起動",
+        "description": "ログイン時にBackspaceを自動起動"
+      },
+      "startMinimized": {
+        "label": "最小化で起動",
+        "description": "ウィンドウ表示の代わりにトレイに隠して起動"
+      }
+    },
+    "updates": {
+      "appName": "Backspace Desktop",
+      "versionLabel": "バージョン {{version}}",
+      "checking": "更新を確認中…",
+      "checkingShort": "確認中…",
+      "checkNow": "更新を確認",
+      "downloading": "{{version}} をダウンロード中、{{percent}}%",
+      "downloadingWithRate": "{{version}} をダウンロード中、{{percent}}% {{rate}} で",
+      "rateMegabytes": "{{value}} MB/s",
+      "rateKilobytes": "{{value}} KB/s",
+      "upToDate": "最新です",
+      "available": "バージョン {{version}} あり",
+      "readyToInstall": "バージョン {{version}} はインストール可能",
+      "installFailed": "バージョン {{version}} をインストール不可",
+      "checkFailed": "最終更新確認失敗",
+      "idle": "デスクトップアプリの新版を確認",
+      "external": "更新はFlatpakソフトウェア管理でインストール",
+      "download": "ダウンロード",
+      "restart": "再起動",
+      "manualNote": "このビルドは自動で更新をインストールしません。GitHubから新版をダウンロードし手動置換。手順はお使いのプラットフォームのリリースノートを参照。",
+      "externalNote": "Flatpakはアプリ外で原子的に更新適用。更新はソフトウェア管理か <code>flatpak update</code> コマンドを使用。"
+    },
+    "instance": {
+      "current": "現在接続中インスタンス",
+      "change": "インスタンス変更"
+    }
+  },
+  "desktopDownload": {
+    "title": "デスクトップ",
+    "intro": "全体ショートカット、起動時開始、トレイアイコン。",
+    "unsupported": "デスクトップアプリはWindows・Linux・macOSで動作。",
+    "name": {
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux"
+    },
+    "tag": {
+      "windows": "このPC",
+      "mac": "このMac",
+      "linux": "このマシン"
+    },
+    "covers": {
+      "windows": "x64またはarm64",
+      "mac": "Apple SiliconおよびIntel Macで動作",
+      "linux": "AppImageまたはdebパッケージ、x64またはarm64"
+    },
+    "download": {
+      "windows": "Windows用ダウンロード",
+      "mac": "macOS用ダウンロード",
+      "linux": "Linux用ダウンロード"
+    },
+    "picker": {
+      "architecture": "アーキテクチャ",
+      "format": "パッケージ形式"
+    },
+    "arch": {
+      "appleSilicon": "Apple Silicon",
+      "intel": "Intel",
+      "x64": "x64",
+      "arm64": "arm64"
+    },
+    "kind": {
+      "appimage": "AppImage",
+      "deb": "deb"
+    },
+    "archGuessed": {
+      "windows": "ブラウザはこのPCのプロセッサを示さなかったためx64を事前選択。",
+      "mac": "ブラウザはこのMacのチップを示さなかったためApple Siliconを事前選択。",
+      "linux": "ブラウザはこのマシンのプロセッサを示さなかったためx64を事前選択。"
+    },
+    "version": "バージョン {{version}}",
+    "allReleases": "GitHubの全リリース"
+  },
+  "bots": {
+    "title": "ボット",
+    "description": "ボットはプログラムがトークンで制御するアカウント。作成しトークンをコピーしプログラムを接続。ボットはDMで応答。",
+    "create": {
+      "sectionTitle": "ボット作成",
+      "nameLabel": "ボットユーザー名",
+      "submit": "ボット作成",
+      "hint": "{{min}}〜{{max}} 文字: 小文字ラテン字 (a–z)・数字 (0–9)・_。最大 {{limit}} ボットまで作成可能。"
+    },
+    "list": {
+      "sectionTitle": "あなたのボット",
+      "empty": "ボットはまだいません。",
+      "createdOn": "作成 {{date}}"
+    },
+    "token": {
+      "title": "{{name}} のトークン",
+      "warning": "今トークンをコピー。一度だけ表示され、持つ者がボットを制御。",
+      "copy": "トークンをコピー",
+      "copied": "コピー済み",
+      "dismiss": "保存済み"
+    },
+    "tokens": {
+      "title": "アクセストークン",
+      "loading": "トークンを読み込み中",
+      "legacy": "このボットは旧長期トークンで動作中。切替はトークン作成: 旧は即無効。",
+      "empty": "このボットにトークンなし。",
+      "unnamed": "無名トークン",
+      "createdOn": "作成 {{date}}",
+      "neverUsed": "未使用",
+      "lastUsed": "最終使用 {{time}}",
+      "revoke": "取消",
+      "confirmRevoke": "取消を確認",
+      "nameLabel": "トークンラベル",
+      "namePlaceholder": "ラベル (任意)",
+      "create": "トークン作成",
+      "limitHint": "ボット毎最大 {{max}} トークン。取消でボット切断; 他トークンは継続。"
+    },
+    "actions": {
+      "regenerate": "全トークンをリセット",
+      "delete": "削除",
+      "confirmDelete": "削除を確認",
+      "cancel": "キャンセル",
+      "edit": "編集",
+      "save": "保存",
+      "addToServer": "スペースに追加",
+      "tokens": "トークン"
+    },
+    "edit": {
+      "nameLabel": "表示名",
+      "hint": "@{{username}} ユーザー名は変更不可。最大 {{max}} 文字。",
+      "bioLabel": "概要",
+      "bioPlaceholder": "ボットの機能・コマンド・ヘルプ入手先",
+      "bioCounter": "{{used}}/{{max}}"
+    },
+    "status": {
+      "label": "状態",
+      "none": "状態なし",
+      "textLabel": "状態文",
+      "placeholder": "ボットが名の横に示すもの",
+      "hint": "ボット接続中に表示。ボットコードは次回接続まで置換可能。",
+      "types": {
+        "custom": "カスタム",
+        "playing": "プレイ中",
+        "listening": "聴取中",
+        "watching": "視聴中"
+      },
+      "display": {
+        "custom": "{{name}}",
+        "playing": "{{name}} をプレイ中",
+        "listening": "{{name}} を聴取中",
+        "watching": "{{name}} を視聴中"
+      }
+    },
+    "permissions": {
+      "label": "ボットが求める権限",
+      "hint": "スペースに追加する管理者はチェック済みで見え、任意のチェック外し可能。ボット名ロールに入る。後の変更は作成済みロールに触れません。"
+    },
+    "avatar": {
+      "change": "アバターを変更",
+      "remove": "アバターを削除",
+      "cropTitle": "ボットアバターを切り抜き",
+      "uploadFailed": "アバターをアップロード不可",
+      "notImage": "画像ファイルを選択"
+    },
+    "spaces": {
+      "title": "スペースに追加",
+      "loading": "スペースを読み込み中",
+      "empty": "まだスペースを管理していません。ボット追加にはスペース管理権限が必要。",
+      "add": "追加",
+      "added": "追加済み",
+      "remove": "削除"
+    }
+  },
+  "developer": {
+    "title": "開発者",
+    "mode": {
+      "label": "開発者モード",
+      "description": "ボットタブなど開発者ツールを表示。オフは非表示のみ; ボットは継続動作。",
+      "saveFailed": "設定を保存できません。再試行。"
+    }
+  }
+}

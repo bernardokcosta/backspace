@@ -1,6 +1,75 @@
 {
+  "feedback": {
+    "micDeniedListener": "Der Mikrofonzugriff wurde verweigert. Du bist nur zum Zuhören beigetreten. Tippe auf \"Mikrofon erlauben\", um den Zugriff zu gewähren.",
+    "micRestoreFailed": "Das Mikrofon konnte nicht wiederhergestellt werden",
+    "micPermissionRevoked": "Die Mikrofonberechtigung wurde entzogen",
+    "micDisconnectedDefault": "Mikrofon getrennt. Auf das Standardgerät des Systems umgeschaltet.",
+    "micDisconnected": "Mikrofon getrennt",
+    "cameraSwitchFailed": "Die Kamera konnte nicht gewechselt werden",
+    "cameraUnavailable": "Kamera nicht verfügbar",
+    "cameraPermissionRevoked": "Die Kameraberechtigung wurde entzogen",
+    "cameraDisconnected": "Kamera getrennt",
+    "joinedOtherSession": "Sprachverbindung getrennt: Du bist über eine andere Sitzung beigetreten"
+  },
   "juno": {
-    "memory": { "title": "Nebliges Gedächtnis", "hiddenCard": "Verdeckte Karte {{number}}", "hiddenPile": "Verdeckte letzte Karte", "instruction": "Blind spielen. Falsch: +2 und aussetzen.", "affected": "{{name}} steht unter dem Gedächtnisfluch.", "miss": "{{name}} verfehlte die Farbe und zog {{amount}}.", "rules": "Eine seltene Alzheimer-Karte behält die aktuelle Farbe und verbirgt Hand und Farbe vor der nächsten Person. Spiele blind: die richtige Farbe oder eine erlaubte Farbwahlkarte beendet den Fluch. Bei einem Fehler bleibt die Karte auf der Hand, du ziehst zwei und setzt aus. Ziehen oder Passen umgeht den Fluch nicht; Zeitablauf zieht ebenfalls zwei. Eine blind gespielte Farbwahlkarte behält die Farbe. Rundenende oder Verlassen der betroffenen Person beendet den Effekt." },
+    "guide": {
+      "subtitle": "Lerne den Tisch kennen, verstehe die Karten und plane deinen nächsten Zug.", "contents": "Inhaltsverzeichnis",
+      "sections": { "start": "Der Einstieg", "turn": "Dein Zug", "special": "Aktionskarten", "juno": "JUNO ansagen", "memory": "Spezialkarten", "score": "Ergebnis und XP", "table": "Rund um den Tisch" },
+      "start": {
+        "goal": "Werde als erste Person alle Karten los.",
+        "deal": "Alle beginnen mit sieben Karten. Es gibt vier Farben; das klassische Deck hat 108 Karten. Die erste offene Karte ist eine Zahl, gespielt wird zunächst im Uhrzeigersinn.",
+        "setup": "Juno bietet zwei bis vier Plätze in einem Sprachkanal des Spaces. Der Gastgeber erstellt den Tisch und startet die Runde, sobald die Spieler beigetreten sind."
+      },
+      "turn": {
+        "match": "Lege die aktive Farbe oder dieselbe Zahl beziehungsweise dasselbe Symbol wie auf der letzten Karte. Auch ein erlaubter Joker ist möglich. Diese Beispiele passen alle auf eine blaue 5:",
+        "draw": "Du darfst eine Karte ziehen, aber nicht so lange ziehen, bis eine passt. Ist die neue Karte spielbar, lege genau diese oder passe; nach dem Ziehen darfst du keine andere Handkarte legen. Passt sie nicht, endet dein Zug automatisch. Ohne zuvor eine spielbare Karte gezogen zu haben, kannst du nicht einfach passen.",
+        "clock": "Du hast {{seconds}} Sekunden für den gesamten Zug, einschließlich der Entscheidung nach dem Ziehen. Läuft die Zeit ab, ziehst du eine Karte und passt; hast du schon gezogen, passt du nur. Die JUNO-Ansage setzt die Zeit nicht zurück. Für den Gedächtnisfluch gilt eine andere Zeitstrafe."
+      },
+      "examples": { "top": "Blaue 5 · letzte Karte", "color": "Blaue 9 · gleiche Farbe", "number": "Rote 5 · gleiche Zahl", "wild": "Joker · Farbe wählen" },
+      "effects": {
+        "skip": "Der nächste Spieler setzt aus. Zu zweit bist du erneut am Zug.",
+        "reverse": "Kehrt die Spielrichtung um. Zu zweit setzt dein Gegner aus und du bist erneut am Zug.",
+        "draw2": "Der nächste Spieler zieht zwei Karten und setzt aus. Er kann nicht mit einer weiteren Ziehkarte antworten.",
+        "wild": "Passt auf jede Farbe und jedes Symbol. Du wählst die nächste aktive Farbe.",
+        "draw4": "Wähle eine Farbe; der nächste Spieler zieht vier Karten und setzt aus. Du darfst sie nur legen, wenn du keine Karte der aktiven Farbe hast, selbst wenn eine andersfarbige Zahl oder ein Symbol passen würde.",
+        "limits": "Ziehstrafen werden nicht gestapelt und +4 kann nicht angefochten werden. Ist deine letzte Karte +2 oder +4, wird die Ziehstrafe vor der Berechnung der Endplatzierungen ausgeführt."
+      },
+      "announce": "Drücke bei zwei Karten vor dem Ablegen auf die JUNO-Schaltfläche, sodass dir eine Karte bleibt. Das ist eine Schaltfläche, keine Spracherkennung. Eine spätere Ansage behebt das Versäumnis nicht; neue Karten löschen deine bisherige Ansage.",
+      "reporting": {
+        "unknown": "Das hängt vom Tisch ab: Neuere Server verwenden Meldungen durch Spieler, ältere die unten beschriebene automatische Strafe. Sobald ein Tisch verfügbar ist, steht die geltende Regel fest.",
+        "detail": "Die erste gültige Meldung lässt den Betroffenen zwei Karten ziehen, ohne den aktuellen Zug oder dessen Uhr zu verändern. Du darfst außerhalb deines Zuges melden, aber nicht dich selbst. Zuschauer dürfen nicht melden. Die Gelegenheit endet nach zehn Sekunden, wenn der Betroffene Karten erhält oder geht, oder wenn die Runde endet. Ein Sieg wird durch eine Meldung nicht rückgängig gemacht."
+      },
+      "memory": {
+        "intro": "Das erweiterte Deck ergänzt die 108 klassischen Karten um genau eine seltene Alzheimer-Karte. Sie passt auf jede Karte, behält die aktive Farbe bei und lässt den nächsten Spieler in der aktuellen Richtung blind spielen. Nur dessen Hand, mittlere Karte und aktive Farbe werden verdeckt.",
+        "play": "Wähle eine deiner verdeckten Karten, ohne sie anzusehen. Eine gültige Karte oder ein erlaubter Joker beendet den Fluch und führt den normalen Karteneffekt aus. Ein blinder Joker behält die bisherige Farbe ohne Farbauswahl bei; die +4-Einschränkung gilt weiterhin.",
+        "miss": "Bei einer falschen Wahl bleibt die gewählte Karte verdeckt auf deiner Hand. Du ziehst zwei, der Fluch endet und der Zug geht einmal weiter. Bei Zeitablauf ziehst du ebenfalls zwei, beendest den Fluch und setzt aus.",
+        "limits": "Durch Ziehen oder Passen lässt sich der blinde Versuch nicht umgehen. Meldungen heilen den Fluch nicht. Ist die Gedächtniskarte deine letzte Karte, gewinnst du, ohne jemanden verflucht zurückzulassen.",
+        "inactive": "In dieser Runde nicht aktiv: Ihr klassisches Deck enthält keine seltene Gedächtniskarte.",
+        "lobby": "Die seltene Karte wird nur aktiviert, wenn die Apps aller menschlichen Spieler sie unterstützen. Bei gemischten Versionen kann das klassische Deck gelten; das Deck bleibt während der Runde unverändert."
+      },
+      "score": {
+        "ranking": "Die erste leere Hand gewinnt. Die übrigen Plätze richten sich nach der Zahl der restlichen Karten, einschließlich einer Ziehstrafe durch die letzte Karte.",
+        "award": "Vergebene XP",
+        "ties": "Bei Gleichstand werden Platz und XP geteilt: Zwei Zweitplatzierte erhalten jeweils 80 XP, der nächste Platz ist der vierte. Nur abgeschlossene reine Menschenrunden mit Gewinner zählen; nur der Gewinner erhält einen Sieg. Wer vorher geht, bekommt weder Platz noch XP.",
+        "practice": "Eine mit Bot gestartete Runde bleibt eine Übung, auch wenn der Bot später geht: keine XP, Siege oder gewerteten Runden. XP gehören zu diesem Space und werden über seine Sprachkanäle summiert, nicht über andere Spaces.",
+        "pending": "Solange das Ergebnis gespeichert wird, sind die XP noch ausstehend und nicht bereits verdient. Ein neuer Tisch ist verfügbar, sobald das Ergebnis abschließend verarbeitet wurde."
+      },
+      "table": {
+        "seats": "Laufenden Runden darfst du zusehen, aber nicht nachträglich einen Platz belegen. Nach dem Ergebnis öffnet der Gastgeber eine neue Lobby; alle anderen treten diesem neuen Tisch ausdrücklich bei.",
+        "leave": "Beim Verlassen des Spiels wird dein Platz frei und deine Hand kommt in den Ziehstapel zurück; die Sprachverbindung wird dadurch nicht getrennt. Die Rückkehr zur Kachelansicht blendet den Tisch nur aus und verlässt das Spiel nicht. Mit weniger als zwei Spielern endet die Runde ohne Gewinner.",
+        "deck": "Ist der Ziehstapel leer, werden die Ablagen bis auf die oberste Karte neu eingemischt. Reichen die Karten für eine Strafe nicht aus, werden nur die verfügbaren gezogen. Gibt es einen ganzen Umlauf lang weder einen möglichen Zug noch eine ziehbare Karte, endet die Runde unentschieden und ohne XP.",
+        "connection": "Eine kurze Wiederverbindung erhält deinen Platz nur innerhalb der bestehenden Kulanzzeit. Laufende Tische sind vorübergehend: Ein Serverneustart beendet sie.",
+        "expiry": "Eine Runde läuft außerdem nach zwei Stunden ohne Gewinner und XP ab. Auch Runden, die wegen ausgeschiedener Spieler oder fehlender Züge enden, vergeben keine XP."
+      }
+    },
+    "settings": {
+      "title": "Juno-Einstellungen",
+      "languageGroup": "Sprache", "language": "Spielsprache", "automatic": "Automatisch (Backspace)", "automaticDubbing": "Automatisch (Backspace)",
+      "dubbing": "Sprachausgabe und Kartentext", "brazilianPortuguese": "Portugiesisch (Brasilien)",
+      "audioGroup": "Ton", "effects": "Soundeffekte", "music": "Hintergrundmusik",
+      "autoplayBlocked": "Der Browser hat die Musik angehalten. Zum Aktivieren Wiedergabe drücken.", "musicFailed": "Die Musik konnte nicht abgespielt werden. Du kannst es erneut versuchen.", "playMusic": "Musik abspielen"
+    },
+    "memory": { "title": "Nebliges Gedächtnis", "hiddenCard": "Verdeckte Karte {{number}}", "hiddenPile": "Verdeckte letzte Karte", "instruction": "Blind spielen. Falsch: +2 und aussetzen.", "affected": "{{name}} steht unter dem Gedächtnisfluch.", "miss": "{{name}} lag beim blinden Versuch falsch und zog {{amount}}.", "rules": "Eine seltene Alzheimer-Karte behält die aktuelle Farbe und verbirgt Hand und Farbe vor der nächsten Person. Spiele blind: die richtige Farbe oder eine erlaubte Farbwahlkarte beendet den Fluch. Bei einem Fehler bleibt die Karte auf der Hand, du ziehst zwei und setzt aus. Ziehen oder Passen umgeht den Fluch nicht; Zeitablauf zieht ebenfalls zwei. Eine blind gespielte Farbwahlkarte behält die Farbe. Rundenende oder Verlassen der betroffenen Person beendet den Effekt." },
     "addBot": "Computergegner hinzufügen", "removeBot": "Computergegner {{name}} entfernen", "botName": "Juno-Bot {{number}}",
     "practice": "Training", "practiceHint": "Runden mit Computergegnern sind Training: keine XP, Siege oder Ranglistenrunden.",
     "nextTurn": "Nächster Spieler", "turnTime": "Verbleibende Zugzeit", "announcedBy": "{{name}} ruft JUNO!",
@@ -8,15 +77,15 @@
     "reportConfirmed": "{{reporter}} hat {{target}} wegen fehlendem JUNO gemeldet: +{{amount}}.",
     "legacyJunoRules": "Mit zwei Karten vor dem Ablegen die JUNO-Taste drücken, sonst zwei Strafkarten ziehen.",
     "reportRules": "Mit zwei Karten vor dem Ablegen auf eine Karte JUNO drücken. Wer es vergisst, kann innerhalb von 10 Sekunden von einem anderen Mitspieler gemeldet werden und zieht dann zwei Karten. Ohne Meldung keine Strafe. Das Spiel läuft weiter; zusätzliche Karten, Verlassen oder Rundenende schließen das Zeitfenster. Computer melden nicht automatisch.",
-    "rankingTitle": "Bereichsrangliste", "spaceRanking": "Rangliste · {{space}}", "roundResults": "Rundenergebnis", "victory": "Sieg!",
+    "rankingTitle": "Space-Rangliste", "spaceRanking": "Rangliste · {{space}}", "roundResults": "Rundenergebnis", "victory": "Sieg!",
     "xpEarned": "+{{xp}} XP erhalten", "totalXp": "Gesamte XP", "rank": "Platz", "noRank": "Noch nicht platziert", "yourStats": "Dein Fortschritt",
     "winsLabel": "Siege", "roundsLabel": "Runden", "wins_one": "{{count}} Sieg", "wins_other": "{{count}} Siege",
     "rounds_one": "{{count}} Runde", "rounds_other": "{{count}} Runden",
-    "emptyRanking": "Noch keine abgeschlossene Runde. Spiele die erste Runde, um die Rangliste dieses Bereichs zu beginnen.",
+    "emptyRanking": "Noch keine abgeschlossene Runde. Spiele die erste Runde, um die Rangliste dieses Space zu beginnen.",
     "creditPending": "Die XP dieser Runde werden gespeichert. Warte, bevor du eine neue Lobby öffnest.",
-    "abandoned": "Runde verlassen", "unranked": "Keine XP in dieser Runde", "rankingUnavailable": "Der Server dieses Bereichs unterstützt die Juno-Rangliste noch nicht.",
+    "abandoned": "Runde verlassen", "unranked": "Keine XP in dieser Runde", "rankingUnavailable": "Der Server dieses Space unterstützt die Juno-Rangliste noch nicht.",
     "backToGame": "Zurück zum Tisch", "previousPage": "Vorherige Seite", "nextPage": "Nächste Seite",
-    "scoreHint": "Juno-XP gelten für diesen Bereich und alle seine Sprachkanäle.",
+    "scoreHint": "Juno-XP gelten für diesen Space und alle seine Sprachkanäle.",
     "scoreRules": "1. Platz: 120 XP · 2.: 80 XP · 3.: 40 XP · 4.: 20 XP. Gleichstände teilen Platz und XP. Nur abgeschlossene Runden mit Sieger zählen; vorzeitiges Verlassen gibt keine XP.",
     "chooseGame": "Wähle ein Spiel, um mit den Personen im Anruf zu spielen.",
     "name": "Juno", "games": "Spiele", "open": "Juno öffnen", "tagline": "Ein freundschaftliches Kräftemessen",
@@ -37,17 +106,17 @@
     "rules": "Spielregeln", "rulesText": "Jeder erhält 7 Karten. Lege die gleiche Farbe oder das gleiche Symbol wie die letzte Karte ab, oder spiele eine Farbwahlkarte. Wer zuerst keine Karten mehr hat, gewinnt.\nAussetzen überspringt den Nächsten; Richtungswechsel ändert die Richtung (zu zweit überspringt er den Gegner). +2 und +4 lassen den Nächsten sofort ziehen und aussetzen. Kein Stapeln. +4 ist nur ohne Karte der aktiven Farbe erlaubt; keine Herausforderungen.\nZiehe eine Karte: Nur diese darf noch gespielt werden, wenn sie passt; sonst passe. Eine unpassende gezogene Karte beendet den Zug automatisch.\n45 Sekunden pro Zug. Nach Ablauf wird eine Karte gezogen und gepasst; nach dem Ziehen wird nur gepasst. Wer geht, gibt seine Karten in den Stapel zurück. Bei weniger als zwei Spielern endet die Runde ohne Gewinner. Kurze Sprach-Wiederverbindungen behalten den Platz. Ein Serverneustart beendet Spiele."
   },
   "soundboard": {
-    "title": "Klangtafel", "description": "Spiele einen Klang für alle in deinem Sprachkanal. Die Vorschau hörst nur du.",
-    "manageDescription": "Verwalte die gemeinsamen Klänge dieses Raums. Mitglieder können eigene Uploads entfernen.",
+    "title": "Soundboard", "description": "Spiele einen Klang für alle in deinem Sprachkanal. Die Vorschau hörst nur du.",
+    "manageDescription": "Verwalte die gemeinsamen Klänge dieses Space. Mitglieder können eigene Uploads entfernen.",
     "add": "Klang hinzufügen", "chooseFile": "Audio auswählen", "uploadHint": "Vor dem Hochladen zuschneiden. Im Browser abspielbares Audio bis {{max}}. Erst die Bestätigung sendet die Datei.",
     "fileTooLarge": "Wähle eine Datei unter {{max}}.", "decodeFailed": "Dieses Audio lässt sich hier nicht öffnen oder ist zu groß. Versuche eine kürzere MP3-, WAV- oder Ogg-Datei.",
     "name": "Bezeichnung", "emoji": "Symbol", "start": "Anfang (Sekunden)", "end": "Ende (Sekunden)", "selection": "{{duration}} Sek.", "limit": "Bis {{max}} Sek.", "resetSelection": "Gesamtes Audio verwenden", "dragHint": "Über die Wellenform ziehen, um auszuwählen", "maxDurationHint": "Bis zu 30 Sekunden", 
     "preview": "Vorhören", "stop": "Anhalten", "playFailed": "Dieser Klang konnte nicht abgespielt werden. Prüfe die Audioausgabe und versuche es erneut.",
-    "search": "Klänge suchen", "disabled": "Die Klangtafel ist in diesem Raum deaktiviert.", "cannotPlay": "Du brauchst Sprechrechte und darfst nicht vom Server stummgeschaltet oder taubgeschaltet sein.",
+    "search": "Klänge suchen", "disabled": "Das Soundboard ist in diesem Space deaktiviert.", "cannotPlay": "Du brauchst Sprechrechte und darfst nicht vom Server stummgeschaltet oder taubgeschaltet sein.",
     "playNamed": "{{name}} abspielen", "overLimit": "Überschreitet die aktuelle Zeitbegrenzung", "shortcut": "Tastenkürzel festlegen", "shortcutNamed": "Tastenkürzel für {{name}}", "pressKey": "Taste drücken…",
     "shortcutConflict": "Dieses Tastenkürzel wird bereits von einem Klang oder einer Sprachsteuerung verwendet.", "clearShortcut": "Tastenkürzel löschen", "shortcutHint": "Tastenkürzel gelten für dieses Konto und Gerät, nur bei fokussierter App und nicht beim Tippen. Die Rücktaste löscht ein Kürzel.",
     "deleteConfirm": "Diesen Klang für alle entfernen?", "noResults": "Keine passenden Klänge gefunden.", "empty": "Noch keine Klänge. Füge den ersten hinzu!", "volume": "Klanglautstärke",
-    "enabled": "Klangtafel aktivieren", "memberUploads": "Mitgliedern Audio-Uploads erlauben", "maxDuration": "Maximale Dauer (Sekunden)", "maxSounds": "Maximale Anzahl der Klänge",
+    "enabled": "Soundboard aktivieren", "memberUploads": "Mitgliedern Audio-Uploads erlauben", "maxDuration": "Maximale Dauer (Sekunden)", "maxSounds": "Maximale Anzahl der Klänge",
     "policyHint": "Clips sind auf 30 Sekunden begrenzt, Dateigrößenlimits gelten weiterhin. Eine kürzere Begrenzung behält bestehende Klänge, sperrt aber zu lange Clips. Uploads benötigen Dateien anhängen; Wiedergabe benötigt Sprechen."
   },
   "chatPanel": {
@@ -128,7 +197,7 @@
       "deniedUser": "Die Freigabe ohne Windows-Aufnahmerahmen wurde nicht erlaubt. Die Übertragung ist blockiert.",
       "deniedSystem": "Windows oder ein Administrator hat die rahmenlose Aufnahme blockiert. Erlaube den Zugriff, bevor du es erneut versuchst.",
       "notDeclared": "Diese Installation kann keine rahmenlose Aufnahme anfordern. Aktualisiere oder repariere die Desktop-App.",
-      "unsupported": "Diese App oder Windows-Version unterstützt keine rahmenlose SDR-Aufnahme. Aktualisiere sie vor einer Freigabe mit SDR erzwingen.",
+      "unsupported": "Diese App oder Windows-Version kann keine rahmenlose SDR-Aufnahme garantieren. Aktualisiere sie vor einer Übertragung mit SDR erzwingen.",
       "cancelled": "Die Anfrage zur rahmenlosen Aufnahme wurde abgebrochen. Es wurde keine Übertragung gestartet.",
       "timeout": "Windows hat die Berechtigungsanfrage nicht rechtzeitig abgeschlossen. Es wurde keine Übertragung gestartet.",
       "failed": "Die Berechtigung zur rahmenlosen Aufnahme konnte nicht bestätigt werden. Die Übertragung bleibt blockiert.",
@@ -262,7 +331,7 @@
     "cameraOn": "Kamera einschalten",
     "stopSharing": "Teilen beenden",
     "shareScreen": "Bildschirm teilen",
-    "shareOptions": "Bildschirmfreigabe-Optionen",
+    "shareOptions": "Optionen zur Bildschirmübertragung",
     "toggleChat": "Chat ein- oder ausblenden",
     "exitFullscreen": "Vollbild verlassen (Esc)",
     "fullscreen": "Vollbild",

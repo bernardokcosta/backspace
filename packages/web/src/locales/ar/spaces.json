@@ -1,0 +1,676 @@
+{
+  "soundboardTab": "لوحة الصوت",
+  "create": {
+    "title": "إنشاء مساحة",
+    "icon": {
+      "upload": "رفع",
+      "previewAlt": "معاينة الأيقونة",
+      "colorLabel": "لون الأيقونة",
+      "cropTitle": "قص أيقونة المساحة",
+      "uploadFailed": "تعذّر رفع الأيقونة"
+    },
+    "name": {
+      "label": "اسم المساحة",
+      "placeholder": "مساحتي الرائعة",
+      "required": "اسم المساحة مطلوب"
+    },
+    "visibilityLabel": "الرؤية",
+    "description": {
+      "label": "الوصف",
+      "placeholder": "وصف قصير لمساحتك…",
+      "counter": "{{length}}/{{max}}"
+    },
+    "submit": "إنشاء",
+    "submitting": "جارٍ الإنشاء…"
+  },
+  "channel": {
+    "create": {
+      "title": "إنشاء قناة",
+      "typeLabel": "نوع القناة",
+      "types": {
+        "text": {
+          "name": "نصية",
+          "description": "أرسل رسائل وصورًا وملفات"
+        },
+        "voice": {
+          "name": "صوتية",
+          "description": "تواجد بالصوت والفيديو"
+        }
+      },
+      "nameLabel": "اسم القناة",
+      "namePlaceholder": "قناة-جديدة",
+      "topicLabel": "الموضوع (اختياري)",
+      "topicPlaceholder": "عن ماذا هذه القناة؟",
+      "categoryLabel": "الفئة",
+      "noCategory": "بلا فئة",
+      "nameRequired": "اسم القناة مطلوب",
+      "noSpaceSelected": "لم تُختر مساحة",
+      "submit": "إنشاء القناة",
+      "submitting": "جارٍ الإنشاء…"
+    },
+    "settings": {
+      "title": "إعدادات القناة",
+      "rename": "إعادة تسمية القناة",
+      "nameLabel": "اسم القناة",
+      "channelLabel": "القناة",
+      "topic": {
+        "label": "الموضوع",
+        "placeholder": "عن ماذا هذه القناة؟",
+        "hint": "يُعرض في رأس القناة. يمكن للجميع فتح النص الكامل من هناك.",
+        "counter": "{{used}}/{{max}}",
+        "tooLong": "اختصر الموضوع إلى {{max}} حرفًا أو أقل للحفظ.",
+        "empty": "لا موضوع محدد.",
+        "reset": "تجاهل التغييرات"
+      },
+      "private": {
+        "label": "قناة خاصة",
+        "description": "فقط الأعضاء والأدوار المحددة يمكنهم رؤية هذه القناة.",
+        "note": "هذه القناة مخفية عن الأعضاء دون وصول صريح. يمكن للمستخدمين بإذن المسؤول أو مالكي المساحة رؤية كل القنوات دائمًا.",
+        "unhideOnSave": "يجعل الحفظ هذه القناة مرئية لكل عضو."
+      },
+      "deleteButton": "حذف القناة"
+    },
+    "delete": {
+      "title": "حذف #{{name}}؟",
+      "description": "سيحذف هذا <strong>#{{name}}</strong> وكل رسائلها نهائيًا. لا يمكن التراجع.",
+      "descriptionVoice": "سيحذف هذا <strong>#{{name}}</strong> وكل رسائلها نهائيًا. سيُفصل كل من في هذه القناة الصوتية. لا يمكن التراجع.",
+      "confirm": "حذف القناة"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "إنشاء فئة",
+      "nameLabel": "اسم الفئة",
+      "namePlaceholder": "فئة-جديدة",
+      "nameRequired": "اسم الفئة مطلوب",
+      "noSpaceSelected": "لم تُختر مساحة",
+      "submit": "إنشاء الفئة",
+      "submitting": "جارٍ الإنشاء…"
+    },
+    "settings": {
+      "title": "إعدادات الفئة",
+      "rename": "إعادة تسمية الفئة",
+      "nameLabel": "اسم الفئة",
+      "categoryLabel": "الفئة",
+      "private": {
+        "label": "فئة خاصة",
+        "description": "فقط الأعضاء والأدوار المحددة يمكنهم رؤية القنوات في هذه الفئة.",
+        "note": "هذه الفئة مخفية عن الأعضاء دون وصول صريح. ترث القنوات داخلها هذا التقييد ما لم تتجاوزه صراحة.",
+        "unhideOnSave": "يجعل الحفظ هذه الفئة وقنواتها دون تقييد رؤية منفصل مرئية للجميع."
+      },
+      "deleteButton": "حذف الفئة"
+    },
+    "delete": {
+      "title": "حذف “{{name}}”؟",
+      "description": "سيحذف هذا الفئة <strong>{{name}}</strong> نهائيًا. ستُنقل القنوات داخلها إلى المستوى الأعلى. لا يمكن التراجع.",
+      "confirm": "حذف الفئة"
+    }
+  },
+  "invite": {
+    "title": "دعوة الأصدقاء",
+    "intro": "أرسل للأصدقاء أو شارك رابطًا.",
+    "introRequest": "أرسل للأصدقاء أو شارك رابطًا. من يفتحه يطلب الانضمام، ويوافق المشرف على كل طلب.",
+    "searchPlaceholder": "ابحث عن الأصدقاء…",
+    "noMatches": "لا أصدقاء يطابقون بحثك",
+    "noFriends": "لا أصدقاء بعد",
+    "alreadyMember": "في المساحة",
+    "removeSelected": "إزالة {{name}}",
+    "selectFriends": "اختيار الأصدقاء",
+    "send_zero": "لا ترسل ({{count}})",
+    "send_one": "إرسال دعوة {{count}}",
+    "send_two": "إرسال دعوتين ({{count}})",
+    "send_few": "إرسال {{count}} دعوات",
+    "send_many": "إرسال {{count}} دعوة",
+    "send_other": "إرسال {{count}} دعوة",
+    "sending": "جارٍ الإرسال…",
+    "retryFailed": "إعادة المحاولات الفاشلة",
+    "status": {
+      "sent": "✓ أُرسلت",
+      "failed": "✗ {{reason}}"
+    },
+    "shareLink": "أو شارك رابطًا",
+    "generating": "جارٍ التوليد…",
+    "generateFailed": "تعذّر توليد رابط الدعوة",
+    "failure": {
+      "inviteInvalid": "رابط الدعوة لم يعد صالحًا",
+      "notAFriend": "ليس صديقًا",
+      "userNotFound": "لم يتم العثور على المستخدم",
+      "alreadyMember": "عضو",
+      "upstream": "تعذّر التحقق من الدعوة، حاول مجددًا",
+      "cannotInviteSelf": "لا يمكنك دعوة نفسك",
+      "invalidBody": "طلب غير صالح",
+      "invalidTarget": "هدف غير صالح",
+      "unreachable": "تعذّر الوصول إلى نسختك",
+      "serverError": "تعذّر الإرسال (خطأ خادم)"
+    }
+  },
+  "inviteFriend": {
+    "title": "دعوة {{name}} إلى مساحة",
+    "intro": "اختر إحدى مساحاتك لإرسال دعوة.",
+    "noSpaces": "لست في أي مساحات بعد",
+    "contextMenu": "دعوة إلى مساحة"
+  },
+  "join": {
+    "validation": {
+      "required": "رمز الدعوة مطلوب",
+      "invalidLink": "رابط دعوة غير صالح",
+      "linkFormat": "رابط دعوة غير صالح — الصيغة المتوقعة: https://instance/join/CODE",
+      "qualifiedFormat": "صيغة دعوة غير صالحة — المتوقع: CODE@domain",
+      "invalidDomain": "نطاق غير صالح في الدعوة"
+    },
+    "title": "الانضمام إلى مساحة",
+    "invitePlaceholder": "مثل abc123 أو https://instance.com/join/abc123",
+    "submit": "الانضمام إلى مساحة",
+    "submitting": "جارٍ الانضمام…",
+    "connect": {
+      "intro": "اتصل بـ <host>{{host}}</host> للانضمام إلى هذه المساحة.",
+      "passwordLabel": "أدخل كلمتك للاتصال",
+      "passwordPlaceholder": "كلمة مرور حسابك",
+      "passwordNote": "تتحقق نسختك الرئيسية من كلمتك ولا تُرسَل أبدًا إلى {{host}}. تحصل تلك النسخة على اعتماد فريد مُنشأ لها وحدها.",
+      "submit": "اتصل وانضم",
+      "submitting": "جارٍ الاتصال…"
+    },
+    "fallback": {
+      "usernamePlaceholder": "اسم المستخدم في هذه النسخة",
+      "passwordLabel": "كلمة مرور هذه النسخة",
+      "passwordPlaceholder": "كلمة المرور في النسخة البعيدة",
+      "submit": "سجّل الدخول وانضم",
+      "submitting": "جارٍ تسجيل الدخول…"
+    },
+    "request": {
+      "messagePlaceholder": "لماذا تريد الانضمام؟ (اختياري)",
+      "send": "إرسال الطلب",
+      "sending": "جارٍ الإرسال…",
+      "notice": "تقبل هذه المساحة طلبات الانضمام. أرسل واحدًا وسيراجعه المشرف.",
+      "messageLabel": "ملاحظة مع طلبك",
+      "sent": "أُرسل الطلب. سيراجعه المشرف، وتظهر المساحة في قائمتك بعد الموافقة.",
+      "pending": "طلبت الانضمام إلى هذه المساحة. طلبك بانتظار المشرف."
+    }
+  },
+  "settings": {
+    "title": "إعدادات المساحة",
+    "backAria": "عودة إلى قائمة إعدادات المساحة",
+    "nav": {
+      "general": "عام",
+      "management": "الإدارة",
+      "tabs": {
+        "overview": "نظرة عامة",
+        "roles": "الأدوار",
+        "bans": "الحظر"
+      }
+    },
+    "discardChanges": "تجاهل",
+    "overview": {
+      "identity": "هوية المساحة",
+      "iconLabel": "أيقونة المساحة",
+      "iconAlt": "أيقونة المساحة",
+      "colorLabel": "لون الأيقونة",
+      "bannerLabel": "بانر المساحة",
+      "bannerAlt": "بانر المساحة",
+      "uploadBanner": "رفع بانر (16:9)",
+      "removeBanner": "إزالة البانر",
+      "nameLabel": "اسم المساحة",
+      "iconUploadFailed": "تعذّر رفع الأيقونة",
+      "bannerUploadFailed": "تعذّر رفع البانر",
+      "cropIconTitle": "قص أيقونة المساحة",
+      "cropBannerTitle": "قص بانر المساحة",
+      "transfer": {
+        "description": "انقل الملكية إلى عضو آخر. ستصبح عضوًا عاديًا.",
+        "prompt": "نقل الملكية إلى <strong>{{name}}</strong>؟",
+        "button": "نقل الملكية",
+        "confirm": "نقل",
+        "transferring": "جارٍ النقل…",
+        "success": "نُقلت الملكية إلى {{name}}",
+        "failed": "تعذّر نقل الملكية"
+      },
+      "delete": {
+        "description": "حذف هذه المساحة وكل بياناتها نهائيًا. لا يمكن التراجع.",
+        "button": "حذف المساحة",
+        "confirmAgain": "انقر مجددًا لتأكيد الحذف",
+        "failed": "تعذّر حذف المساحة"
+      }
+    },
+    "access": {
+      "title": "الوصول والوصف",
+      "visibility": {
+        "label": "الرؤية",
+        "hint": "تحكم في كيفية دخول من معهم دعوة إلى هذه المساحة.",
+        "options": {
+          "private": {
+            "label": "خاصة",
+            "description": "فقط من معهم رابط دعوة يمكنهم الانضمام"
+          },
+          "request": {
+            "label": "بطلب",
+            "description": "تؤدي الدعوة إلى طلب يجب أن يوافق عليه المشرف"
+          },
+          "public": {
+            "label": "عامة",
+            "description": "يمكن لمن معهم دعوة الانضمام فورًا"
+          }
+        }
+      },
+      "description": {
+        "label": "الوصف",
+        "hint": "ملخص قصير يُعرض مع الدعوات إلى هذه المساحة.",
+        "placeholder": "وصف قصير لهذه المساحة…",
+        "counter": "{{length}}/{{max}}"
+      },
+      "requests": {
+        "title": "طلبات الانضمام المعلقة",
+        "empty": "لا طلبات انضمام معلقة",
+        "actionFailed": "فشل الإجراء"
+      }
+    },
+    "members": {
+      "description": "أدر أعضاء هذه المساحة. انقر عضوًا لتعديل أدواره.",
+      "listHeading": "الأعضاء ({{total}})",
+      "owner": "المالك",
+      "noRoles": "لا أدوار",
+      "ban": "حظر",
+      "kick": "طرد",
+      "confirm": {
+        "banTitle": "حظر {{name}}",
+        "kickTitle": "طرد {{name}}",
+        "banDescription": "سيُحظر هذا الشخص نهائيًا من هذه المساحة حتى يُلغى الحظر.",
+        "kickDescription": "يمكن لهذا الشخص الانضمام مجددًا برابط دعوة."
+      },
+      "updateRolesFailed": "تعذّر تحديث الأدوار",
+      "kickFailed": "تعذّر طرد العضو",
+      "banFailed": "تعذّر حظر العضو",
+      "rolesAboveYou": "الأدوار على مستوى أعلى دور لك أو فوقه مقفلة.",
+      "rolesUnheld": "لا يمكن منح الأدوار بأذونات لا تملكها.",
+      "rolesManagedByBot": "يبقى الدور الخاص للبوت مع البوت.",
+      "botInvite": {
+        "warning": "يصبح البوت عضوًا في هذه المساحة ويتلقى رسائل وأحداث كل قناة تسمح بها أذوناته. أضف فقط بوتات تثق بها.",
+        "owner": "المالك: @{{owner}}",
+        "button": "إضافة بوت",
+        "title": "إضافة بوت",
+        "searchPlaceholder": "ابحث عن البوتات بالاسم…",
+        "searching": "جارٍ البحث…",
+        "noResults": "لم يتم العثور على بوتات",
+        "add": "إضافة",
+        "adding": "جارٍ الإضافة…",
+        "permissionsTitle": "أذونات {{name}}",
+        "permissionsIntro": "يطلب البوت هذه الأذونات. تدخل في دور باسم البوت؛ ألغِ تحديد ما لا تريد منحه.",
+        "permissionsUnheld": "لا يمكن منح الأذونات التي لا تملكها.",
+        "permissionsNone": "لا شيء محدد: ينضم البوت بلا دور.",
+        "back": "رجوع"
+      }
+    },
+    "afk": {
+      "title": "قناة AFK",
+      "channelLabel": "نقل الأعضاء الخاملين إلى",
+      "disabled": "معطلة",
+      "timeoutLabel": "بعد الخمول لمدة",
+      "minutes": "د",
+      "hint": "يُنقل الأعضاء دون نشاط صوتي للمدة المختارة تلقائيًا إلى هذه القناة الصوتية."
+    }
+  },
+  "bans": {
+    "title": "الحظر",
+    "description": "لا يمكن للمستخدمين المحظورين الانضمام مجددًا حتى يُلغى الحظر.",
+    "loading": "جارٍ تحميل الحظر…",
+    "empty": "لا مستخدمون محظورون",
+    "listHeading": "الحظر ({{total}})",
+    "bannedBy": "حظر {{moderator}} في {{date}}",
+    "bannedByWithReason": "حظر {{moderator}} في {{date}}: {{reason}}",
+    "unban": "إلغاء الحظر",
+    "loadFailed": "تعذّر تحميل الحظر",
+    "unbanFailed": "تعذّر إلغاء حظر المستخدم"
+  },
+  "roles": {
+    "title": "الأدوار",
+    "create": "إنشاء دور",
+    "creating": "جارٍ الإنشاء…",
+    "listHeading": "الأدوار",
+    "description": "تحدد الأدوار الأذونات التي يملكها الأعضاء.",
+    "hierarchyHint": "الأدوار الأعلى في القائمة فوق التي تحتها.",
+    "defaultName": "دور جديد",
+    "copyName": "نسخة من {{name}}",
+    "backToList": "عودة إلى الأدوار",
+    "created": "أُنشئ الدور. اضبطه أدناه.",
+    "aboveYou": "هذا الدور على مستوى أعلى دور لك أو فوقه. يمكنك عرضه لكن لا تغييره.",
+    "managedByBot": "يُدار هذا الدور بواسطة بوت ويُزال عندما يغادر البوت المساحة. لا يمكن إسناده لأحد آخر أو حذفه يدويًا. يمكن تغيير أذوناته.",
+    "reorder": {
+      "handle": "نقل {{name}}",
+      "handleHint": "اسحب أو استخدم سهمي أعلى وأسفل",
+      "up": "نقل {{name}} لأعلى",
+      "down": "نقل {{name}} لأسفل",
+      "locked": "{{name}} على مستوى أعلى دور لك أو فوقه",
+      "moved": "نُقل {{name}} إلى الموضع {{position}} من {{total}}"
+    },
+    "identity": "الهوية",
+    "nameLabel": "اسم الدور",
+    "colorLabel": "لون الدور",
+    "nameEmpty": "لا يمكن أن يكون اسم الدور فارغًا",
+    "nameDuplicate": "يوجد دور بهذا الاسم",
+    "groups": {
+      "general": "عام",
+      "text": "نص",
+      "voice": "صوت"
+    },
+    "saved": "حُفظ الدور",
+    "copy": "نسخ الدور",
+    "copying": "جارٍ النسخ…",
+    "delete": "حذف الدور",
+    "deleting": "جارٍ الحذف…",
+    "confirmDelete": "تأكيد؟",
+    "createFailed": "تعذّر إنشاء الدور",
+    "saveFailed": "تعذّر حفظ الدور",
+    "deleteFailed": "تعذّر حذف الدور",
+    "copyFailed": "تعذّر نسخ الدور",
+    "unheldLocked": "يمكنك تبديل الأذونات التي تملكها فقط. الباقي مقفل.",
+    "unheldPermission": "لا تملك هذا الإذن",
+    "copyUnheld": "يمتلك هذا الدور أذونات لا تملكها، فلا يمكنك نسخه.",
+    "copyDeleteUnheld": "يمتلك هذا الدور أذونات لا تملكها، فلا يمكنك نسخه أو حذفه."
+  },
+  "memberRoles": {
+    "title": "تعديل أدوار {{name}}",
+    "viewProfile": "عرض الملف",
+    "affectsAll": "تنطبق تغييرات الأذونات على كل عضو بهذا الدور.",
+    "selectRole": "اختر دورًا لتعديل أذوناته.",
+    "saved": "حُفظت التغييرات"
+  },
+  "permissions": {
+    "title": "الأذونات",
+    "names": {
+      "administrator": "مسؤول",
+      "viewChannel": "عرض القنوات",
+      "manageChannels": "إدارة القنوات",
+      "manageRoles": "إدارة الأدوار",
+      "manageSpace": "إدارة المساحة",
+      "createInvite": "إنشاء دعوة",
+      "kickMembers": "طرد الأعضاء",
+      "banMembers": "حظر الأعضاء",
+      "sendMessages": "إرسال الرسائل",
+      "manageMessages": "إدارة الرسائل",
+      "attachFiles": "إرفاق الملفات",
+      "readMessageHistory": "قراءة سجل الرسائل",
+      "addReactions": "إضافة التفاعلات",
+      "connect": "اتصال",
+      "speak": "تحدث",
+      "muteMembers": "كتم الأعضاء",
+      "deafenMembers": "صم الأعضاء",
+      "moveMembers": "نقل الأعضاء",
+      "stream": "بث",
+      "disconnectMembers": "فصل الأعضاء",
+      "mentionEveryone": "ذكر @everyone و@here والأدوار"
+    },
+    "tristate": {
+      "deny": "رفض",
+      "neutral": "محايد (يرث)",
+      "allow": "سماح"
+    },
+    "overrideCount_zero": "لا تجاوزات ({{count}})",
+    "overrideCount_one": "تجاوز {{count}}",
+    "overrideCount_two": "تجاوزان ({{count}})",
+    "overrideCount_few": "{{count}} تجاوزات",
+    "overrideCount_many": "{{count}} تجاوزًا",
+    "overrideCount_other": "{{count}} تجاوز",
+    "removeOverride": "إزالة التجاوز",
+    "removeOverrideFor": "إزالة التجاوز لـ {{name}}",
+    "removeOverrideHint": "بدونه تنطبق هنا أذونات المساحة.",
+    "noRoleOverrides": "لا تجاوزات أدوار. يستخدم كل دور أذونات مساحته هنا.",
+    "noMemberOverrides": "لا تجاوزات أعضاء.",
+    "roleOverrides": "تجاوزات الأدوار",
+    "memberOverrides": "تجاوزات الأعضاء",
+    "addRole": "إضافة دور",
+    "addMember": "إضافة عضو",
+    "noMoreRoles": "لا أدوار أخرى للإضافة",
+    "loadFailed": "تعذّر تحميل التجاوزات",
+    "saveFailed": "تعذّر حفظ التجاوزات",
+    "partialFailure_zero": "لا فشل ({{count}})",
+    "partialFailure_one": "تعذّر حفظ تجاوز {{count}}",
+    "partialFailure_two": "تعذّر حفظ تجاوزين ({{count}})",
+    "partialFailure_few": "تعذّر حفظ {{count}} تجاوزات",
+    "partialFailure_many": "تعذّر حفظ {{count}} تجاوزًا",
+    "partialFailure_other": "تعذّر حفظ {{count}} تجاوز",
+    "unheldLocked": "يمكنك تبديل الأذونات التي تملكها فقط. الباقي مقفل.",
+    "unheldPermission": "لا تملك هذا الإذن",
+    "removeUnheld": "يضبط هذا التجاوز أذونات لا تملكها. فقط من يملكها يمكنه إزالته.",
+    "removeUnheldShort": "فقط من يملك هذه الأذونات يمكنه إزالته",
+    "aboveYouRole": "هذا الدور على مستوى أعلى دور لك أو فوقه. يمكنك عرض تجاوزه لكن لا تغييره أو إزالته.",
+    "aboveYouMember": "هذا العضو على مستواك أو فوقك. يمكنك عرض تجاوزه لكن لا تغييره أو إزالته.",
+    "aboveYouShort": "على مستوى أعلى دور لك أو فوقه"
+  },
+  "sidebar": {
+    "directMessages": "الرسائل المباشرة",
+    "addSpace": "إضافة مساحة",
+    "joinSpace": "الانضمام إلى مساحة",
+    "folder": {
+      "tooltip_zero": "لا مجلدات ({{count}})",
+      "tooltip_one": "مجلد {{count}}",
+      "tooltip_two": "مجلدان ({{count}})",
+      "tooltip_few": "{{count}} مجلدات",
+      "tooltip_many": "{{count}} مجلدًا",
+      "tooltip_other": "{{count}} مجلد",
+      "spaceCount_zero": "لا مساحات ({{count}})",
+      "spaceCount_one": "مساحة {{count}}",
+      "spaceCount_two": "مساحتان ({{count}})",
+      "spaceCount_few": "{{count}} مساحات",
+      "spaceCount_many": "{{count}} مساحة",
+      "spaceCount_other": "{{count}} مساحة",
+      "unnamed": "مجلد بلا اسم",
+      "rename": "إعادة تسمية المجلد",
+      "color": "لون المجلد",
+      "create": "إنشاء مجلد",
+      "moveTo": "نقل إلى مجلد",
+      "removeFrom": "إزالة من مجلد",
+      "ungroup": "فك التجميع",
+      "created": "أُنشئ المجلد",
+      "moved": "نُقل إلى مجلد",
+      "removed": "أُزيل من مجلد",
+      "ungrouped": "فُك تجميع المجلد"
+    },
+    "space": {
+      "inviteCopied": "نُسخ رابط الدعوة إلى الحافظة",
+      "inviteCopiedRequest": "نُسخ رابط الدعوة. من يفتحه يمكنه طلب الانضمام.",
+      "inviteFailed": "تعذّر توليد الدعوة",
+      "transferOwnership": "نقل الملكية",
+      "settings": "إعدادات المساحة",
+      "leave": "مغادرة المساحة",
+      "reconnecting": "جارٍ إعادة الاتصال بـ {{instance}}…",
+      "remoteInstance": "نسخة بعيدة",
+      "leaveConfirm": {
+        "title": "مغادرة المساحة",
+        "titleNamed": "مغادرة {{name}}",
+        "description": "هل أنت متأكد من مغادرة هذه المساحة؟ ستحتاج دعوة للانضمام مجددًا."
+      },
+      "left": "غادرت المساحة",
+      "leaveFailed": "تعذّرت مغادرة المساحة",
+      "unreadMessages_zero": "لا رسائل غير مقروءة ({{count}})",
+      "unreadMessages_one": "رسالة غير مقروءة {{count}}",
+      "unreadMessages_two": "رسالتان غير مقروءتين ({{count}})",
+      "unreadMessages_few": "{{count}} رسائل غير مقروءة",
+      "unreadMessages_many": "{{count}} رسالة غير مقروءة",
+      "unreadMessages_other": "{{count}} رسالة غير مقروءة",
+      "unreadMessagesOver99": "أكثر من 99 رسالة غير مقروءة"
+    },
+    "dmList": {
+      "newDm": "رسالة مباشرة جديدة",
+      "empty": "لا محادثات بعد.",
+      "leaveGroup": "مغادرة المجموعة",
+      "leaveGroupConfirm": {
+        "title": "مغادرة رسالة المجموعة",
+        "description": "هل أنت متأكد من المغادرة؟ لن تتمكن من الانضمام مجددًا ما لم يضفك أحد."
+      }
+    },
+    "userArea": {
+      "inputDevice": "جهاز الإدخال",
+      "outputDevice": "جهاز الإخراج",
+      "inputDevices": "أجهزة الإدخال",
+      "outputDevices": "أجهزة الإخراج",
+      "inputVolume": "مستوى الإدخال",
+      "outputVolume": "مستوى الإخراج",
+      "systemDefault": "افتراضي النظام",
+      "microphonePermission": "يلزم إذن الميكروفون.",
+      "audioPermission": "يلزم إذن الصوت.",
+      "enable": "تفعيل",
+      "voiceSettings": "إعدادات الصوت",
+      "mute": "كتم",
+      "unmute": "إلغاء الكتم",
+      "deafen": "صم",
+      "undeafen": "إلغاء الصم",
+      "spaceMuted": "مكتوم في المساحة",
+      "spaceDeafened": "أصم في المساحة",
+      "permissionMuted": "مكتوم (بلا إذن تحدث)"
+    },
+    "dmUnreadMessages_zero": "لا رسائل مباشرة غير مقروءة ({{count}})",
+    "dmUnreadMessages_one": "رسالة مباشرة غير مقروءة {{count}}",
+    "dmUnreadMessages_two": "رسالتان مباشرتان غير مقروءتين ({{count}})",
+    "dmUnreadMessages_few": "{{count}} رسائل مباشرة غير مقروءة",
+    "dmUnreadMessages_many": "{{count}} رسالة مباشرة غير مقروءة",
+    "dmUnreadMessages_other": "{{count}} رسالة مباشرة غير مقروءة",
+    "dmUnreadMessagesOver99": "أكثر من 99 رسالة مباشرة غير مقروءة"
+  },
+  "channels": {
+    "resizeHandle": "تغيير حجم قائمة القنوات",
+    "loading": "جارٍ تحميل القنوات",
+    "create": "إنشاء قناة",
+    "createCategory": "إنشاء فئة",
+    "settings": "إعدادات القناة",
+    "categorySettings": "إعدادات الفئة",
+    "delete": "حذف القناة",
+    "deleteCategory": "حذف الفئة",
+    "emptyCategory": "لا قنوات",
+    "empty": "لا قنوات بعد.",
+    "deleteConfirm": {
+      "title": "حذف القناة",
+      "description": "هل أنت متأكد؟ سيحذف هذا القناة وكل رسائلها نهائيًا."
+    },
+    "deleteCategoryConfirm": {
+      "title": "حذف الفئة",
+      "description": "هل أنت متأكد من حذف هذه الفئة؟ ستُنقل القنوات فيها إلى غير المصنفة — لن تُحذف قنوات."
+    },
+    "deleted": "حُذفت القناة",
+    "deleteFailed": "تعذّر حذف القناة",
+    "categoryDeleted": "حُذفت الفئة",
+    "categoryDeleteFailed": "تعذّر حذف الفئة"
+  },
+  "members": {
+    "titleWithCount_zero": "لا أعضاء ({{count}})",
+    "titleWithCount_one": "الأعضاء — {{count}}",
+    "titleWithCount_two": "عضوان ({{count}})",
+    "titleWithCount_few": "الأعضاء — {{count}}",
+    "titleWithCount_many": "الأعضاء — {{count}}",
+    "titleWithCount_other": "الأعضاء — {{count}}",
+    "loading": "جارٍ تحميل الأعضاء",
+    "resizeHandle": "تغيير حجم قائمة الأعضاء",
+    "groups": {
+      "owner": "المالك"
+    },
+    "ownerTitle": {
+      "edit": "تعديل لقب المالك",
+      "label": "لقب المالك",
+      "hint": "مرئي لكل أعضاء هذه المساحة. استخدم 1–{{max}} حرفًا؛ لا يغيّر الأذونات.",
+      "reset": "إعادة إلى الافتراضي"
+    },
+    "menu": {
+      "profile": "عرض الملف",
+      "nickname": "تغيير لقب المساحة…",
+      "roles": "الأدوار"
+    },
+    "nickname": {
+      "title": "تغيير لقب المساحة",
+      "label": "لقب المساحة",
+      "descriptionSelf": "ينطبق فقط في هذه المساحة. يبقى اسم حسابك وألقابك في المساحات الأخرى. اتركه فارغًا لعرض اسم الحساب.",
+      "descriptionOther": "ينطبق فقط في هذه المساحة. يبقى اسم الحساب {{name}}. اتركه فارغًا لعرض اسم الحساب.",
+      "reset": "إعادة إلى اسم الحساب",
+      "shownAs": "اللقب في هذه المساحة: {{nickname}}"
+    }
+  },
+  "mobile": {
+    "addSheet": {
+      "createSpace": "إنشاء مساحة",
+      "joinSpace": "الانضمام إلى مساحة"
+    },
+    "muteUser": "كتم المستخدم"
+  },
+  "main": {
+    "selectChannel": "اختر قناة",
+    "selectChannelHint": "اختر قناة نصية أو صوتية للبدء",
+    "notificationSettings": "إعدادات الإشعارات",
+    "topic": {
+      "show": "إظهار الموضوع الكامل",
+      "dialogTitle": "#{{name}}"
+    },
+    "voice": {
+      "connectionFailed": "فشل الاتصال",
+      "connected": "متصل",
+      "connecting": "جارٍ الاتصال…",
+      "participants_zero": "لا مشاركون ({{count}})",
+      "participants_one": "مشارك {{count}}",
+      "participants_two": "مشاركان ({{count}})",
+      "participants_few": "{{count}} مشاركين",
+      "participants_many": "{{count}} مشاركًا",
+      "participants_other": "{{count}} مشارك",
+      "inCall_zero": "لا أحد في المكالمة ({{count}})",
+      "inCall_one": "{{count}} في المكالمة",
+      "inCall_two": "{{count}} في المكالمة (اثنان)",
+      "inCall_few": "{{count}} في المكالمة",
+      "inCall_many": "{{count}} في المكالمة",
+      "inCall_other": "{{count}} في المكالمة",
+      "empty": "لا أحد في هذه القناة الصوتية الآن.",
+      "join": "الانضمام إلى الصوت"
+    },
+    "dm": {
+      "fallbackName": "رسالة مباشرة",
+      "composerPlaceholder": "رسالة إلى {{target}}",
+      "calling": "جارٍ الاتصال بـ {{name}}…",
+      "groupSettings": "إعدادات المجموعة",
+      "openGroupSettings": "فتح إعدادات المجموعة",
+      "memberCount_zero": "(لا أعضاء {{count}})",
+      "memberCount_one": "(عضو {{count}})",
+      "memberCount_two": "(عضوان {{count}})",
+      "memberCount_few": "({{count}} أعضاء)",
+      "memberCount_many": "({{count}} عضوًا)",
+      "memberCount_other": "({{count}} عضو)",
+      "startVoiceCall": "بدء مكالمة صوتية",
+      "joinCall": "الانضمام إلى المكالمة",
+      "startVideoCall": "بدء مكالمة فيديو",
+      "addFriends": "إضافة أصدقاء إلى المراسلة"
+    }
+  },
+  "ownership": {
+    "title": "نقل الملكية",
+    "description": "اختر عضوًا ليصبح المالك الجديد لـ <name>{{name}}</name>",
+    "confirmQuestion": "نقل ملكية <name>{{space}}</name> إلى <name>{{member}}</name>؟",
+    "regularMember": "ستصبح عضوًا عاديًا.",
+    "transferring": "جارٍ النقل…",
+    "confirm": "نقل",
+    "loading": "جارٍ تحميل الأعضاء…",
+    "success": "نُقلت الملكية إلى {{name}}",
+    "failed": "تعذّر نقل الملكية"
+  },
+  "notifications": {
+    "open": "إعدادات الإشعارات",
+    "channelTitle": "إشعارات #{{channel}}",
+    "spaceTitle": "إشعارات {{space}}",
+    "levelHeading": "أعلمني عن",
+    "level": {
+      "all": "كل الرسائل",
+      "mentions": "الإشارات فقط",
+      "nothing": "لا شيء",
+      "inherit": "افتراضي المساحة ({{level}})"
+    },
+    "dmNote": "تُعلمك الرسائل المباشرة دائمًا.",
+    "muteHeading": "كتم",
+    "mute": {
+      "oneHour": "لساعة",
+      "eightHours": "لـ 8 ساعات",
+      "oneDay": "لـ 24 ساعة",
+      "indefinite": "حتى ألغي"
+    },
+    "unmute": "إلغاء الكتم",
+    "mutedUntil": "مكتوم حتى {{time}}",
+    "mutedIndefinitely": "مكتوم حتى تلغي",
+    "spaceMuted": "هذه المساحة مكتومة، فقنواتها كذلك.",
+    "mutedIndicator": "مكتوم",
+    "saveFailed": "تعذّر حفظ إعدادات الإشعارات",
+    "suppressEveryone": "قمع @everyone و@here",
+    "suppressRoles": "قمع إشارات الأدوار",
+    "massHeading": "إشارات جماعية",
+    "massNote": "تصل @here إلى نفس الأعضاء مثل @everyone. إشاراتك بالاسم تُعلمك دائمًا."
+  }
+}

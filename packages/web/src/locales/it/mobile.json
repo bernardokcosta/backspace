@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "spaces": "Spazi",
+    "dms": "Messaggi privati",
+    "you": "Tu"
+  },
+  "you": {
+    "editProfile": "Modifica profilo",
+    "homeInstance": "Istanza principale: {{domain}}",
+    "logOutConfirm": "Vuoi davvero uscire?"
+  },
+  "chat": {
+    "openCall": "Apri chiamata",
+    "cancelCall": "Annulla chiamata",
+    "unknownChannel": "canale"
+  }
+}

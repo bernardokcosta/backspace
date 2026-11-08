@@ -3,6 +3,8 @@
 Source files:
 - `packages/desktop/src/main.ts` — Main process: window management, tray, IPC handlers, auto-update, deep links, app lifecycle
 - `packages/desktop/src/preload.ts` — Context bridge: exposes `window.backspace` API to renderer
+- `packages/desktop/src/l10n.ts` — Native catalogs, explicit/Automatic preference mirror and OS UI-language resolution
+- `packages/desktop/src/languageIpc.ts` — Sender-guarded language-only IPC registration
 - `packages/desktop/src/updateCapability.ts` — Signature probe: can this build install its own updates
 - `packages/desktop/src/updateStatus.ts` — Update status union, store, and the shared prompt predicate
 - `packages/desktop/src/updateDismissal.ts` — Per-version dismissal persisted to userData
@@ -149,6 +151,23 @@ The desktop package compiles to CommonJS (`module: "commonjs"`) targeting ES2022
 ---
 
 ## Window Management
+
+### Device language
+
+The renderer synchronizes its actual language preference, including `auto`, over
+the existing `set-language` channel. Native `language.json` retains old concrete
+choices; Automatic uses `app.getPreferredSystemLanguages()`, not formatting-region
+or application locale. Menus refresh on focus/resume, and live mode survives a
+failed disk write. All 25 language entries are released; the per-language flag
+remains so a future language can land surface by surface without advertising
+support early. Registration alone never advertised support.
+
+The optional read-only `getSystemLanguages()` bridge returns only UI-language tags.
+Both language channels require the live main window/main frame. All native HTML
+loads receive effective language, preference mode and released-code query data;
+recovery/picker relabel on Automatic refocus without reload, input loss or actions.
+Old web clients can still send concrete strings. Old desktop binaries do not gain
+native Automatic/25-language support merely by loading a newer web client.
 
 ### Creation (`main.ts:createWindow()`)
 

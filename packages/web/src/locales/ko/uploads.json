@@ -1,0 +1,33 @@
+{
+  "failure": {
+    "notAuthenticated": "이 인스턴스에 인증되지 않음",
+    "invalidResponse": "업로드 응답을 구문 분석할 수 없음",
+    "uploadError": "업로드 오류",
+    "downloadError": "다운로드 오류",
+    "fileUnavailable": "파일을 더 이상 사용할 수 없음 — 버리고 다시 업로드",
+    "noDestination": "대상 핸들 없음 — 계속 불가",
+    "destinationMissing": "대상 핸들 누락",
+    "permissionDenied": "권한 거부됨",
+    "lostDownload": "다운로드를 계속할 수 없음 — 바이트 손실. 처음부터 다시 시작하세요.",
+    "uploadHandleMissing": "파일 핸들 누락 — 버리고 다시 업로드",
+    "downloadHandleMissing": "대상 핸들 누락 — 다운로드를 처음부터 시작",
+    "downloadFailed": "다운로드 실패: {{status}}",
+    "resumeFailed": "계속 실패: {{status}}"
+  },
+  "transfers": {
+    "title": "전송",
+    "count_other": "{{count}}건 전송",
+    "clearCompleted": "완료 지우기",
+    "empty": "활성 전송 없음.",
+    "status": {
+      "done": "완료",
+      "failed": "실패: {{reason}}",
+      "aborted": "중단됨",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "이미지 자르기",
+    "applying": "적용 중…"
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "callDelivery": {
+    "remoteInstance": "den externa instansen",
+    "hostInstance": "värdinstansen",
+    "acceptDropped": "Kunde inte bekräfta din acceptans hos {{instance}} — samtalet bröts.",
+    "rejectFailed": "Kunde inte meddela {{instances}} att du avböjde. Uppringaren kan se dig som ringande en stund.",
+    "endFailed": "Kunde inte meddela {{instances}} att du lade på. Externa deltagare kan se samtalet i upp till 60 sekunder.",
+    "hostUnreachable": "Samtalet avslutat — värdinstansen blev onåbar.",
+    "peeringLost": "Samtalet avslutat — denna instans är inte längre parkopplad med {{instance}}.",
+    "instanceUnreachable": "Samtalet avslutat — {{instance}} blev onåbar.",
+    "someUnreachable": "Vissa deltagare kunde inte nås: {{instances}}.",
+    "multipleUnreachable_one": "Kunde inte nå {{count}} instans: {{instances}}.",
+    "multipleUnreachable_other": "Kunde inte nå {{count}} instanser: {{instances}}.",
+    "callFailed": "Samtalet kunde inte genomföras.",
+    "manualApproval": "Kan inte nå {{instance}} — denna instans kräver manuellt godkännande för parkoppling.",
+    "awaitingApproval": "Väntar på att administratören för {{instance}} godkänner din instans. Samtal fungerar efter godkännandet.",
+    "transientFailure": "Kan inte nå {{instance}}. Försök om en stund.",
+    "voiceUnavailable": "Röst är inte inställd på denna instans.",
+    "noRecipient": "{{instance}} ringde ingen.",
+    "targetCallFailed": "Samtalet till {{instance}} kunde inte genomföras."
+  },
+  "feedback": {
+    "relayDenied": "Kan inte vidarebefordra meddelanden — deras server nekade parkoppling. Kontakta deras administratör.",
+    "awaitingPeering": "Meddelanden levereras när deras administratör godkänner parkopplingsförfrågan."
+  },
+  "names": {
+    "group": "Grupp",
+    "directMessage": "Direktmeddelande",
+    "theGroup": "gruppen",
+    "unknownHandle": "okänd",
+    "groupFallback": "Grupp-DM",
+    "emptyGroup": "Tom grupp"
+  },
+  "preview": {
+    "image": "Bild",
+    "video": "Video",
+    "audio": "Ljud",
+    "files_one": "📎 {{count}} fil",
+    "files_other": "📎 {{count}} filer",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 Inbjudan till {{spaceName}} skickad",
+    "memberAdded": "{{actor}} lade till {{target}}",
+    "memberAddedToGroup": "{{actor}} lade till {{target}} i gruppen",
+    "memberLeft": "{{target}} lämnade gruppen",
+    "memberRemoved": "{{actor}} tog bort {{target}}",
+    "memberRemovedFromGroup": "{{actor}} tog bort {{target}} från gruppen",
+    "ownerChanged": "{{newOwner}} är nu gruppens ägare",
+    "renamed": "{{actor}} bytte namn på gruppen",
+    "renamedTo": "{{actor}} bytte namn på gruppen till \"{{name}}\"",
+    "nameCleared": "{{actor}} rensade gruppens namn",
+    "iconChanged": "{{actor}} uppdaterade gruppens ikon",
+    "generic": "Systemmeddelande"
+  },
+  "deletedNotice": {
+    "accountDeleted": "Denna användares konto har tagits bort"
+  },
+  "memberRow": {
+    "viewProfile": "Visa profil",
+    "transferOwnership": "Överför ägarskap",
+    "removeFromGroup": "Ta bort från gruppen",
+    "removeFriend": "Ta bort vän",
+    "ownerTooltip": "Gruppägare",
+    "actions": "Medlemsåtgärder"
+  },
+  "roster": {
+    "owner": "Ägare",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "Ändra storlek på medlemslistan"
+  },
+  "kick": {
+    "title": "Ta bort från gruppen",
+    "description": "Ta bort {{name}} från denna grupp? Nya meddelanden syns inte.",
+    "success": "{{name}} togs bort från gruppen",
+    "failed": "Kunde inte ta bort medlem"
+  },
+  "transfer": {
+    "title": "Överför ägarskap",
+    "description": "Överföra ägarskapet till {{name}}? Du förlorar ägarrättigheter.",
+    "confirm": "Överför",
+    "success": "Ägarskapet överfört till {{name}}",
+    "failed": "Kunde inte överföra ägarskap"
+  },
+  "removeFriend": {
+    "failed": "Kunde inte ta bort vän"
+  },
+  "leave": {
+    "title": "Lämna gruppen",
+    "description": "Lämna “{{name}}”? Du får då inga meddelanden från denna konversation.",
+    "inProgress": "Lämnar…",
+    "failed": "Kunde inte lämna gruppen",
+    "explanation": "Du får då inga meddelanden från denna konversation. Andra medlemmar ser ett systemmeddelande."
+  },
+  "search": {
+    "trigger": "Hitta eller starta en konversation",
+    "placeholder": "Sök…",
+    "emptyHint": "Sök en användare för att börja chatta",
+    "conversations": "Konversationer",
+    "users": "Användare",
+    "searching": "Söker…",
+    "noResults": "Inga resultat",
+    "createFailed": "Kunde inte skapa direktmeddelande"
+  },
+  "list": {
+    "resizeHandle": "Ändra storlek på direktmeddelanden",
+    "title": "Meddelanden",
+    "empty": "Inga konversationer ännu.",
+    "leaveGroup": "Lämna gruppen",
+    "justNow": "nu",
+    "minutesShort_one": "{{count}} min",
+    "minutesShort_other": "{{count}} min",
+    "hoursShort_one": "{{count}} tim",
+    "hoursShort_other": "{{count}} tim",
+    "daysShort_one": "{{count}} d",
+    "daysShort_other": "{{count}} d",
+    "close": "Stäng direktmeddelande"
+  },
+  "newDm": {
+    "title": "Nytt direktmeddelande",
+    "searchPlaceholder": "Sök en användare…",
+    "noUsers": "Inga användare hittades"
+  },
+  "addMember": {
+    "title": "Lägg till vänner i DM",
+    "description": "Välj vänner att lägga till i denna konversation.",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "Sök vänner…",
+    "limitReached": "Denna grupp-DM har nått gränsen {{max}} medlemmar.",
+    "alreadyInDm": "Redan i denna DM",
+    "noMatch": "Inga vänner matchar din sökning",
+    "noFriends": "Inga vänner ännu",
+    "selectFriends": "Välj vänner",
+    "addCount_one": "Lägg till {{count}} vän",
+    "addCount_other": "Lägg till {{count}} vänner",
+    "adding": "Lägger till…",
+    "noOtherMember": "Kunde inte avgöra den andra deltagaren i denna konversation.",
+    "failed": "Kunde inte lägga till medlemmar",
+    "yourBots": "Dina bottar"
+  },
+  "groupSettings": {
+    "title": "Gruppinställningar",
+    "general": "Allmänt",
+    "overview": "Översikt",
+    "backToMenu": "Tillbaka till inställningsmenyn för grupp-DM",
+    "changeIcon": "Byt gruppikon",
+    "icon": "Gruppikon",
+    "clickToUpload": "Klicka för att ladda upp",
+    "removeIcon": "Ta bort gruppikon",
+    "nameLabel": "Gruppnamn",
+    "nameAria": "Gruppnamn",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "Lägg till medlem",
+    "groupFull": "Gruppen är full",
+    "groupFullSuffix": "— Gruppen är full",
+    "cropTitle": "Beskär gruppikon",
+    "saveFailed": "Kunde inte spara inställningar"
+  },
+  "groupInfo": {
+    "title": "Gruppinfo",
+    "plainTitle": "Info",
+    "notFound": "Konversationen hittades inte.",
+    "notGroup": "Denna konversation har ingen gruppinfo.",
+    "cancelEdit": "Avbryt redigering",
+    "federated": "Federerad grupp",
+    "memberCount_one": "{{count}} medlem",
+    "memberCount_other": "{{count}} medlemmar"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "Denna grupp hanteras på {{host}}. Anslut dit för att ändra den.",
+    "ownerNotListed": "{{host}} visar ännu inte denna grupp för dig. Försök om en stund."
+  }
+}

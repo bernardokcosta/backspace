@@ -1,0 +1,431 @@
+{
+  "general": {
+    "title": "Algemeen",
+    "description": "Configureer je Backspace-instantie. Deze instellingen gelden voor alle gebruikers.",
+    "instanceName": {
+      "label": "Instantienaam",
+      "description": "De naam op de inlogpagina en voor gefedereerde instanties.",
+      "counter": "{{length}}/{{max}}"
+    },
+    "gif": {
+      "label": "GIF zoeken",
+      "description": "Schakel GIF zoeken via Klipy in. Haal een gratis API-sleutel op via het Klipy-ontwikkelaarsportaal.",
+      "placeholderSaved": "Sleutel opgeslagen — voer een nieuwe in om te vervangen",
+      "placeholderKey": "Klipy API-sleutel",
+      "enabled": "Ingeschakeld",
+      "notConfigured": "Niet ingesteld",
+      "clearKey": "Sleutel wissen"
+    }
+  },
+  "registration": {
+    "title": "Registratie",
+    "description": "Bepaal wie accounts kan aanmaken op deze instantie. Openbare registratie dekt lokale aanmeldingen; gefedereerde registratie dekt gebruikers van gekoppelde instanties die hier een account aanmaken.",
+    "public": {
+      "label": "Openbare registratie",
+      "toggleLabel": "Nieuwe lokale accounts toestaan",
+      "toggleDescription": "Iedereen kan een lokaal account maken op de registratiepagina. Bij uit staan nieuwe lokale accounts alleen via een uitnodigingslink."
+    },
+    "federated": {
+      "label": "Gefedereerde registratie",
+      "toggleLabel": "Nieuwe gefedereerde accounts toestaan",
+      "toggleDescription": "Gebruikers van andere instanties kunnen hier een gefedereerd account maken via hun verbindingsinstellingen. Bestaande gefedereerde accounts kunnen altijd inloggen, ongeacht deze instelling."
+    },
+    "spaceCreation": {
+      "label": "Ruimtes aanmaken",
+      "toggleLabel": "Nieuwe ruimtes toestaan",
+      "toggleDescription": "Gebruikers kunnen nieuwe ruimtes aanmaken op deze instantie. Bij uit kunnen alleen instantiebeheerders ruimtes aanmaken en kunnen gewone gebruikers alleen deelnemen aan bestaande."
+    },
+    "saved": "Registratie-instellingen opgeslagen",
+    "saveFailed": "Registratie-instellingen bijwerken mislukt"
+  },
+  "invites": {
+    "label": "Uitnodigingslinks",
+    "create": "+ Link aanmaken",
+    "tabs": {
+      "active": "Actief",
+      "archived": "Gearchiveerd"
+    },
+    "loadFailed": "Uitnodigingen laden mislukt",
+    "emptyActive": "Geen actieve uitnodigingslinks.",
+    "emptyArchived": "Geen gearchiveerde uitnodigingslinks.",
+    "noMatch": "Geen uitnodiging past bij het filter.",
+    "filter": {
+      "status": "Status",
+      "sort": {
+        "recent": "Nieuwste eerst",
+        "oldest": "Oudste eerst",
+        "name": "Naam (A–Z)",
+        "mostUsed": "Meest gebruikt",
+        "expiringSoonest": "Verloopt het snelst"
+      }
+    },
+    "status": {
+      "active": "Actief",
+      "expired": "Verlopen",
+      "exhausted": "Opgebruikt",
+      "revoked": "Ingetrokken"
+    },
+    "expiry": {
+      "preset": {
+        "hour1": "1 uur",
+        "hours24": "24 uur",
+        "days7": "7 dagen",
+        "days30": "30 dagen",
+        "custom": "Aangepast…"
+      },
+      "keepCurrent": "Huidige behouden",
+      "invalidFuture": "Kies een datum en tijd in de toekomst",
+      "invalidSelection": "Ongeldige verloopkeuze",
+      "revokedOn": "Ingetrokken {{date}}",
+      "expiredOn": "Verlopen {{date}}",
+      "exhausted": "Opgebruikt",
+      "noExpiration": "Geen verloop",
+      "inDays_one": "Verloopt over {{count}} dag",
+      "inDays_other": "Verloopt over {{count}} dagen",
+      "inHours_one": "Verloopt over {{count}} uur",
+      "inHours_other": "Verloopt over {{count}} uur"
+    },
+    "form": {
+      "name": "Naam",
+      "namePlaceholder": "bijv. Vrienden, groep 1",
+      "maxUses": "Max. gebruik",
+      "unlimited": "Onbeperkt",
+      "uses": "gebruik",
+      "expires": "Verloopt",
+      "nameLength": "Naam moet 1 tot 64 tekens zijn",
+      "maxUsesInteger": "Maximaal gebruik moet een positief geheel getal zijn"
+    },
+    "createModal": {
+      "title": "Uitnodigingslink aanmaken",
+      "description": "Genereer een link waarmee mensen zich op deze instantie kunnen registreren. Je stelt in hoe vaak hij gebruikt mag worden en wanneer hij verloopt.",
+      "submit": "Link aanmaken",
+      "submitting": "Aanmaken…",
+      "createdCopied": "Link aangemaakt. Naar klembord gekopieerd.",
+      "createdManual": "Link aangemaakt. Kopieer handmatig uit de rij.",
+      "failed": "Uitnodiging aanmaken mislukt: {{message}}"
+    },
+    "editModal": {
+      "title": "“{{name}}” bewerken",
+      "description": "Pas de limieten van deze link aan. De URL blijft hetzelfde — iedereen met de link kan hem onder de nieuwe voorwaarden blijven gebruiken.",
+      "used": "({{used}} gebruikt)",
+      "maxUsesBelowUsed": "Maximaal gebruik mag niet lager zijn dan huidig gebruik ({{used}})",
+      "noChanges": "Geen wijzigingen om op te slaan",
+      "updated": "Uitnodiging bijgewerkt",
+      "failed": "Uitnodiging bijwerken mislukt: {{message}}",
+      "submit": "Wijzigingen opslaan",
+      "submitting": "Opslaan…"
+    },
+    "reinstateModal": {
+      "title": "“{{name}}” herstellen",
+      "descriptionRevoked": "Deze uitnodiging is ingetrokken. Herstellen maakt een nieuwe link met een andere URL — de oude URL blijft inactief.",
+      "descriptionLapsed": "Deze uitnodiging is verlopen. Herstellen activeert dezelfde URL opnieuw — iedereen die hem bewaarde kan hem weer gebruiken.",
+      "newLinkWarning": "Er wordt een nieuwe link gemaakt. Wie de oude URL had kan hem niet meer gebruiken.",
+      "maxUsesMeta": "(nu: {{max}}, gebruikt: {{used}})",
+      "maxUsesMin": "Maximaal gebruik moet minstens {{min}} zijn (huidig: {{used}})",
+      "submit": "Herstellen",
+      "submitNewLink": "Herstellen met nieuwe link",
+      "submitting": "Herstellen…",
+      "doneCopied": "Hersteld met nieuwe link. Naar klembord gekopieerd.",
+      "doneManual": "Hersteld met nieuwe link. Kopieer handmatig uit de rij.",
+      "doneSameLink": "Hersteld. Dezelfde link is weer actief.",
+      "failed": "Herstellen mislukt: {{message}}"
+    },
+    "redemptions": {
+      "title": "Inwisselingen van “{{name}}”",
+      "description": "Gebruikers die zich via deze link registreerden, op volgorde van registratie.",
+      "revokedNotice": "Deze uitnodiging is ingetrokken. Onderstaande inwisselingen zijn van gebruikers die zich vóór intrekking registreerden.",
+      "revokedNoticeDated": "Deze uitnodiging is {{date}} ingetrokken. Onderstaande inwisselingen zijn van gebruikers die zich vóór intrekking registreerden.",
+      "usesOfMax_one": "{{count}} van {{max}} keer gebruikt",
+      "usesOfMax_other": "{{count}} van {{max}} keer gebruikt",
+      "uses_one": "{{count}} keer gebruikt",
+      "uses_other": "{{count}} keer gebruikt",
+      "loadFailed": "Inwisselingen laden mislukt",
+      "loadFailedInline": "Inwisselingen laden mislukt.",
+      "empty": "Nog geen inwisselingen.",
+      "now": "(nu {{name}})",
+      "deletedUser": "Verwijderde gebruiker"
+    },
+    "row": {
+      "usage": "Gebruik: {{usage}}",
+      "createdBy": "Door: {{name}}",
+      "unknownCreator": "Onbekend",
+      "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
+      "subtitleArchived": "{{usage}} · {{expiry}} · {{when}}",
+      "used": "Gebruikt",
+      "expires": "Verloopt",
+      "expiredAt": "Verlopen",
+      "revokedAt": "Ingetrokken",
+      "exhausted": "Opgebruikt",
+      "created": "Aangemaakt",
+      "createdByLabel": "Door",
+      "token": "Token",
+      "lastRedeemed": "Laatst gebruikt",
+      "copyLink": "Link kopiëren",
+      "revoke": "Intrekken",
+      "viewRedemptions": "Inwisselingen bekijken",
+      "reinstate": "Herstellen",
+      "deletePermanently": "Definitief verwijderen",
+      "copied": "Uitnodigingslink gekopieerd",
+      "copyFailed": "Link kopiëren mislukt",
+      "revoked": "Uitnodiging ingetrokken",
+      "revokeFailed": "Intrekken mislukt: {{message}}",
+      "deleted": "Uitnodiging verwijderd",
+      "deleteFailed": "Verwijderen mislukt: {{message}}",
+      "revokeDialog": {
+        "title": "“{{name}}” intrekken?",
+        "description": "De link stopt direct met werken. Niemand met de URL kan hem meer gebruiken.<br/><br/>Bedenk je je, dan maakt <strong>Herstellen</strong> een nieuwe link in dit item — de oorspronkelijke URL blijft inactief.",
+        "confirm": "Link intrekken"
+      },
+      "deleteDialog": {
+        "title": "“{{name}}” definitief verwijderen?",
+        "description": "Dit kan niet ongedaan worden gemaakt. De inwisselgeschiedenis van deze link wordt ook verwijderd. Wil je alleen dat de link stopt, gebruik dan <strong>Intrekken</strong> — dan blijft de geschiedenis bewaard.",
+        "confirm": "Definitief verwijderen"
+      }
+    }
+  },
+  "storage": {
+    "title": "Opslag",
+    "description": "Volg schijfgebruik en ruim verweesde bestanden op van verwijderde inhoud of vervangen avatars en banners.",
+    "loading": "Opslagstatistieken laden…",
+    "loadFailed": "Opslagstatistieken laden mislukt",
+    "refresh": "Statistieken vernieuwen",
+    "overview": {
+      "label": "Opslagoverzicht",
+      "totalFiles": "Totaal bestanden",
+      "referenced": "Met verwijzingen",
+      "orphanedFiles": "Verweesde bestanden",
+      "unlinkedUploads": "Niet-gekoppelde uploads",
+      "danglingRecords": "Bungelende records",
+      "staleUploads": "Oude uploads"
+    },
+    "breakdown": {
+      "label": "Verdeling per bestandstype",
+      "entry_one": "{{count}} bestand — {{size}}",
+      "entry_other": "{{count}} bestanden — {{size}}"
+    },
+    "uploadLimit": {
+      "label": "Uploadlimiet",
+      "maxFileSize": "Maximale bestandsgrootte",
+      "maxStickerSize": "Maximale stickergrootte",
+      "saved": "Uploadlimiet ingesteld op {{limit}}",
+      "saveFailed": "Uploadlimiet bijwerken mislukt",
+      "stickerSaved": "Stickerlimiet ingesteld op {{limit}}",
+      "stickerSaveFailed": "Stickerlimiet bijwerken mislukt"
+    },
+    "cleanup": {
+      "label": "Opschonen",
+      "nothingFound": "Geen verweesde bestanden, oude uploads of bungelende records gevonden.",
+      "preview": "Voorbeeld opschonen",
+      "run": "Nu opschonen",
+      "running": "Opschonen…",
+      "previewResult": "Voorbeeld — geen bestand verwijderd",
+      "complete": "Opschonen voltooid",
+      "orphanedFiles_one": "{{count}} verweesd bestand ({{size}})",
+      "orphanedFiles_other": "{{count}} verweesde bestanden ({{size}})",
+      "staleRecords_one": ", {{count}} oud uploadrecord",
+      "staleRecords_other": ", {{count}} oude uploadrecords",
+      "errors_one": "{{count}} fout: {{first}}",
+      "errors_other": "{{count}} fouten: {{first}}",
+      "cleanedToast_one": "{{count}} bestand opgeschoond ({{size}})",
+      "cleanedToast_other": "{{count}} bestanden opgeschoond ({{size}})",
+      "failed": "Opschonen mislukt"
+    },
+    "stale": {
+      "label": "Oude uploads",
+      "description": "Achtergelaten tus-uploadsessies in <code>.tus/</code> (gepauzeerd of gecrasht zonder DELETE). Automatisch opschonen draait elke 24 uur; hiermee ruim je eerder op.",
+      "maxAge": "Maximale leeftijd (uren)",
+      "sessionFiles_one": "{{count}} sessiebestand ({{size}})",
+      "sessionFiles_other": "{{count}} sessiebestanden ({{size}})",
+      "cleanedToast_one": "{{count}} oude uploadsessie opgeschoond ({{size}})",
+      "cleanedToast_other": "{{count}} oude uploadsessies opgeschoond ({{size}})",
+      "failed": "Oude uploads opschonen mislukt"
+    },
+    "media": {
+      "label": "Mediaopslag",
+      "olderThan": "Chatmedia ouder dan zoveel verwijderen",
+      "days": "dagen",
+      "run": "Nu verwijderen",
+      "running": "Verwijderen…",
+      "files_one": "{{count}} bestand ({{size}})",
+      "files_other": "{{count}} bestanden ({{size}})",
+      "deletedToast_one": "{{count}} bestand verwijderd ({{size}})",
+      "deletedToast_other": "{{count}} bestanden verwijderd ({{size}})",
+      "failed": "Media opschonen mislukt"
+    }
+  },
+  "streaming": {
+    "title": "Streamen",
+    "description": "Deze limieten gelden voor alle gebruikers van deze instantie. Gebruikers kunnen binnen deze grenzen kiezen.",
+    "units": {
+      "fps": "{{value}} fps",
+      "kbpsLabel": "kb/s"
+    },
+    "bandwidth": {
+      "label": "Bandbreedte",
+      "description": "Minimale en maximale bitrategrenzen en de stap van de kwaliteitsschuif.",
+      "customBitrate": {
+        "label": "Aangepaste bitrate toestaan",
+        "description": "Gebruikers hun eigen bitrate laten instellen in plaats van de matrixstandaarden"
+      },
+      "range": "Bitratebereik",
+      "min": "Minimum",
+      "max": "Maximum",
+      "step": "Schuifstap"
+    },
+    "quality": {
+      "label": "Kwaliteit",
+      "description": "Beschikbare resolutie- en framerate-opties voor schermdeling.",
+      "resolutions": "Toegestane resoluties",
+      "framerates": "Toegestane framerates"
+    },
+    "highEndWarning": {
+      "title": "Zware instellingen ingeschakeld.",
+      "description": "Streamen boven 1080p of 60 fps vraagt veel encoderkracht van CPU/GPU op de client en kan de serverbandbreedte verzadigen, zeker als stromen via TURN lopen. Zware configuraties (bijv. 4K met 120 fps) kunnen tot 45 Mbps per actieve stroom vragen. Zorg dat je infrastructuur dit aankan voordat je dit voor alle gebruikers inschakelt."
+    },
+    "matrix": {
+      "label": "Bitratematrix",
+      "description": "Standaardbitrates voor elke resolutie en framerate. Bewerk losse cellen of schaal alle waarden tegelijk.",
+      "scaleAll": "Alles schalen",
+      "scaleHint": "Sleep om alle bitrates te schalen. Fijnafstelling per cel — hieronder.",
+      "cellDefault": "Standaard: {{value}} (klik × om te resetten)",
+      "cellEdit": "Klik om te bewerken",
+      "resetAll": "Alles naar standaard resetten"
+    },
+    "capWarning": {
+      "title": "Matrixwaarden overschrijden de globale limiet.",
+      "description": "Sommige bitrates overschrijden je maximum {{max}}. Stromen met die combinaties worden naar je limiet verlaagd."
+    }
+  },
+  "updates": {
+    "title": "Updates",
+    "badge": {
+      "settingsAriaLabel": "Instellingen, instantie-update beschikbaar",
+      "toast": "Voor deze instantie is Backspace {{version}} beschikbaar",
+      "toastAction": "Bekijken"
+    },
+    "description": "Welke versie op deze instantie draait en hoe je hem bijwerkt.",
+    "loading": "Updatestatus laden…",
+    "loadFailed": "Updatestatus laden mislukt.",
+    "copyFailed": "Kopiëren mislukt. Selecteer het commando en kopieer handmatig.",
+    "running": {
+      "label": "Draait",
+      "commit": "commit {{commit}} · ",
+      "channel": {
+        "prebuilt": "prebuilt-image",
+        "source": "gebouwd uit broncode",
+        "unknown": "installatiemethode niet vastgelegd"
+      }
+    },
+    "available": {
+      "label": "Beschikbaar",
+      "version": "Backspace {{version}} beschikbaar",
+      "released": "Uitgebracht {{date}} · ",
+      "releaseNotes": "Releasenotes",
+      "fromInstallDir": "Vanuit je installatiemap:",
+      "scriptDescription": "Maakt een snapshot van de database, downloadt de nieuwe image en herstart alleen de Backspace-container. Als de nieuwe versie niet goed start of met oude code start, zet hij de huidige versie terug.",
+      "noScript": "Ik heb geen update.sh",
+      "manualIntro": "update.sh zit erbij sinds 1.0.5. In een git-kopie voegt <code>git pull</code> hem toe. Doe de stappen anders handmatig, na eerst een snapshot met <code>./backup.sh</code>.",
+      "prebuiltInstall": "Prebuilt-installatie:",
+      "sourceInstall": "Installatie uit broncode:",
+      "manualWarning": "Noem expliciet de service <code>backspace</code> en geef geen <code>--remove-orphans</code> mee. Compose stelt dit voor als er andere containers in dit project draaien, en verwijdert ze dan."
+    },
+    "upToDate": "Je hebt de nieuwste versie.",
+    "disabled": {
+      "title": "Updatecontrole staat uit",
+      "description": "Deze instantie neemt geen contact op met GitHub. Zet <code>BACKSPACE_UPDATE_CHECK=true</code> in je <code>.env</code> om controle toe te staan, of bekijk zelf de releasespagina."
+    },
+    "rateLimited": {
+      "title": "GitHub ratelimiet",
+      "description": "Dit zegt niets over wel of geen update. Probeer later opnieuw."
+    },
+    "unreachable": {
+      "title": "Updates controleren mislukt",
+      "description": "GitHub was onbereikbaar, dus dit zegt niets over wel of geen update. Je instantie is niet aangetast."
+    },
+    "lastChecked": "Laatst gecontroleerd: {{when}}",
+    "noLookups": "Geen lookups uitgevoerd",
+    "checkAgain": "Opnieuw controleren",
+    "checking": "Controleren…"
+  },
+  "users": {
+    "title": "Gebruikers",
+    "description": "Accounts op deze instantie bekijken en beheren.",
+    "searchPlaceholder": "Gebruikers zoeken…",
+    "loading": "Gebruikers laden…",
+    "loadFailed": "Gebruikers laden mislukt",
+    "empty": "Geen gebruikers gevonden",
+    "filters": {
+      "allInstances": "Alle instanties",
+      "localOnly": "Alleen lokaal",
+      "allRoles": "Alle rollen",
+      "admin": "Beheerder",
+      "nonAdmin": "Geen beheerder",
+      "joinedAfter": "Deelgenomen na",
+      "joinedBefore": "Deelgenomen voor",
+      "newest": "Nieuwste eerst",
+      "oldest": "Oudste eerst",
+      "nameDesc": "Naam Z-A",
+      "deleted": "Verwijderd",
+      "clear": "Filters wissen",
+      "bot": "Bots"
+    },
+    "badge": {
+      "admin": "Beheerder",
+      "deleted": "Verwijderd"
+    },
+    "actions": {
+      "demote": "Beheerdersrechten afnemen",
+      "promote": "Beheerdersrechten geven",
+      "federatedNoAdmin": "Gefedereerde gebruikers kunnen geen beheerders zijn",
+      "resetPassword": "Wachtwoord resetten",
+      "federatedNoReset": "Gefedereerde gebruikers loggen in via hun thuisbasis",
+      "delete": "Gebruiker verwijderen",
+      "selfDelete": "Gebruik instellingen om je eigen account te verwijderen"
+    },
+    "tempPassword": {
+      "label": "Tijdelijk wachtwoord:",
+      "note": "Eén keer getoond. De gebruiker is afgemeld; hij moet opnieuw inloggen."
+    },
+    "pagination": "Pagina {{page}} van {{total}} ({{users}})",
+    "count_one": "{{count}} gebruiker",
+    "count_other": "{{count}} gebruikers",
+    "roleFailed": "Rol bijwerken mislukt",
+    "resetFailed": "Wachtwoord resetten mislukt",
+    "actionFailed": "Actie mislukt",
+    "resetDialog": {
+      "title": "Wachtwoord resetten",
+      "description": "Wachtwoord resetten voor <strong>{{username}}</strong>? De gebruiker wordt direct afgemeld en moet met het nieuwe tijdelijke wachtwoord inloggen.",
+      "confirm": "Wachtwoord resetten"
+    },
+    "demoteDialog": {
+      "title": "Beheerdersrechten afnemen",
+      "description": "<strong>{{username}}</strong> beheerdersrechten afnemen? De gebruiker verliest toegang tot instantie-instellingen.",
+      "confirm": "Rechten afnemen"
+    },
+    "deleteDialog": {
+      "title": "Gebruiker verwijderen",
+      "description": "<strong>{{username}}</strong> definitief verwijderen? De gebruiker wordt uit alle ruimtes, privéberichten en vriendenlijsten gehaald. Dit kan niet ongedaan worden gemaakt.",
+      "confirm": "Gebruiker verwijderen",
+      "blockBot": "Deze bot niet opnieuw laten registreren",
+      "blockBotHint": "Zodra zijn thuisbasis terug is, kan de bot hier geen account aanmaken. Deblokkeer hem onder de gebruikerslijst."
+    },
+    "blockedBots": {
+      "title": "Geblokkeerde bots",
+      "description": "Bots van andere instanties die zich hier niet mogen registreren. Deblokkeer een bot om weer toegang te geven.",
+      "blockedAt": "Geblokkeerd {{date}}",
+      "unblock": "Deblokkeren"
+    }
+  },
+  "mobile": {
+    "title": "Instantie",
+    "sections": {
+      "general": "Algemeen",
+      "registration": "Registratie",
+      "federation": "Federatie",
+      "streaming": "Streamen",
+      "storage": "Opslag",
+      "updates": "Updates",
+      "users": "Gebruikers"
+    }
+  }
+}

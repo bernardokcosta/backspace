@@ -1,0 +1,34 @@
+{
+  "failure": {
+    "notAuthenticated": "इस इंस्टेंस के लिए प्रमाणित नहीं",
+    "invalidResponse": "अपलोड प्रतिक्रिया पार्स नहीं हो सकी",
+    "uploadError": "अपलोड त्रुटि",
+    "downloadError": "डाउनलोड त्रुटि",
+    "fileUnavailable": "फ़ाइल अब उपलब्ध नहीं — खारिज करें और पुनः अपलोड करें",
+    "noDestination": "कोई गंतव्य हैंडल नहीं — पुनः शुरू नहीं हो सकता",
+    "destinationMissing": "गंतव्य हैंडल गुम",
+    "permissionDenied": "अनुमति अस्वीकृत",
+    "lostDownload": "डाउनलोड पुनः शुरू नहीं हो सकता — बाइट्स खो गए। डाउनलोड पुनः प्रारंभ करें।",
+    "uploadHandleMissing": "फ़ाइल हैंडल गुम — खारिज करें और पुनः अपलोड करें",
+    "downloadHandleMissing": "गंतव्य हैंडल गुम — डाउनलोड पुनः प्रारंभ करें",
+    "downloadFailed": "डाउनलोड विफल: {{status}}",
+    "resumeFailed": "पुनः शुरू विफल: {{status}}"
+  },
+  "transfers": {
+    "title": "स्थानांतरण",
+    "count_one": "{{count}} स्थानांतरण",
+    "count_other": "{{count}} स्थानांतरण",
+    "clearCompleted": "पूर्ण साफ़ करें",
+    "empty": "कोई सक्रिय स्थानांतरण नहीं।",
+    "status": {
+      "done": "पूर्ण",
+      "failed": "विफल: {{reason}}",
+      "aborted": "निरस्त",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "छवि क्रॉप करें",
+    "applying": "लागू हो रहा…"
+  }
+}

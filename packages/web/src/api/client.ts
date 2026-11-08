@@ -4,6 +4,7 @@ import type { SoundboardDocument, SoundboardSettings, SoundboardSound } from '@b
 import type { GameIconUpload } from '@backspace/shared/src/gameIcons';
 import type { JunoCommand, JunoSnapshot, JunoRankingPage } from '@backspace/shared/src/juno';
 import { isErrorCode, type ErrorCode, type ErrorDetails } from '@backspace/shared/src/errors';
+import i18n from '../i18n';
 import type {
   NotificationSetting,
   NotificationSettingsResponse,
@@ -559,7 +560,7 @@ export class BackspaceApiClient {
       } catch (err) {
         recordDiagnostic({ event: 'api-failed', subsystem: 'api', level: 'error', method, route: path, ...diagnosticError(err) });
         if (err instanceof DOMException && err.name === 'AbortError') {
-          throw new Error('Request timed out');
+          throw new Error(i18n.t('errors:clientRequestTimeout'));
         }
         throw err;
       } finally {

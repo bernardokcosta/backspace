@@ -1,0 +1,20 @@
+{
+  "mediaSetup": {
+    "neteaseSmtc": {
+      "title": "Activer SMTC dans NetEase Cloud Music",
+      "body": "Ouvre NetEase Cloud Music → Paramètres → Système → Activer SMTC, puis redémarre l’application. Backspace en a besoin pour détecter précisément la lecture, les pauses et la progression.",
+      "gotIt": "Compris", "dontRemind": "Ne plus me le rappeler", "dismiss": "Ignorer ce conseil"
+    }
+  },
+  "update": {
+    "laterHint": "Tu peux l’installer plus tard dans Paramètres → Bureau", "dismiss": "Ignorer cette mise à jour",
+    "failed": { "title": "Impossible d’installer la mise à jour", "body": "Backspace {{version}} a été téléchargé, mais l’installation a échoué. Tu peux l’installer manuellement." },
+    "ready": { "title": "Mise à jour prête", "body": "Backspace {{version}} a été téléchargé et peut être installé." },
+    "available": {
+      "title": "Backspace {{version}} est disponible",
+      "body": "Cette version ne peut pas se mettre à jour toute seule. Télécharge la nouvelle version pour la remplacer.",
+      "bodyWithCurrent": "Tu utilises {{currentVersion}}. Cette version ne peut pas se mettre à jour toute seule. Télécharge la nouvelle version pour la remplacer."
+    },
+    "restartNow": "Redémarrer maintenant", "download": "Télécharger", "later": "Plus tard"
+  }
+}

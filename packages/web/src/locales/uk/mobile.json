@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "spaces": "Простори",
+    "dms": "Особисті",
+    "you": "Ви"
+  },
+  "you": {
+    "editProfile": "Редагувати профіль",
+    "homeInstance": "Домашня інстанція: {{domain}}",
+    "logOutConfirm": "Ви впевнені, що хочете вийти?"
+  },
+  "chat": {
+    "openCall": "Відкрити дзвінок",
+    "cancelCall": "Скасувати дзвінок",
+    "unknownChannel": "канал"
+  }
+}

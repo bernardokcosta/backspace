@@ -1,0 +1,305 @@
+{
+  "feedback": {
+    "openedInNewTab": "Geopend in nieuw tabblad",
+    "copiedGifLink": "GIF-link gekopieerd",
+    "copiedImageLink": "Afbeeldingslink gekopieerd",
+    "uploadExpired": "Kon “{{content}}” niet versturen — upload is verlopen.",
+    "attachmentOnly": "(alleen bijlage)"
+  },
+  "message": {
+    "edit": {
+      "hint": "escape om te <cancel>annuleren</cancel> • enter om op te <save>slaan</save>"
+    },
+    "edited": "(bewerkt)",
+    "rowLabel": "{{author}}, {{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "Upload mislukt",
+      "discard": "Verwijderen"
+    },
+    "actions": {
+      "confirmDelete": "Verwijderen bevestigen"
+    },
+    "reply": {
+      "jump": "Naar het oorspronkelijke bericht springen"
+    },
+    "mention": {
+      "unknownUser": "Onbekende gebruiker",
+      "unknownRole": "Onbekende rol"
+    },
+    "reactions": {
+      "picker": "Reactiekiezer",
+      "you": "Jij",
+      "others_one": "{{count}} ander",
+      "others_other": "{{count}} anderen",
+      "bySelf": "Jij reageerde",
+      "byOne": "{{name}} reageerde",
+      "byMany": "Reacties: {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "Je mag de berichtgeschiedenis in dit kanaal niet bekijken",
+    "loading": "Berichten laden",
+    "loadingOlder": "Oudere berichten laden",
+    "loadFailed": "Berichten laden mislukt",
+    "jumpToPresent": "Naar het heden springen",
+    "jump": {
+      "unavailable": "Dat bericht is niet meer beschikbaar",
+      "failed": "Dat bericht kon niet worden geladen",
+      "presentFailed": "De nieuwste berichten konden niet worden geladen"
+    },
+    "unread": {
+      "label": "Nieuw",
+      "divider": "Nieuwe berichten",
+      "dividerWithDate": "Nieuwe berichten, {{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "Welkom in het kanaal!",
+        "description": "Dit is het begin van het gesprek."
+      },
+      "group": {
+        "intro": "Dit is het begin van je groepsgesprek.",
+        "owner": "Eigenaar: <owner>@{{name}}</owner>",
+        "federatedNotice": "Berichten worden opgeslagen op jouw thuisbasis en die van ontvangers. Ze zijn niet end-to-end versleuteld.",
+        "openSettings": "Groepsinstellingen openen",
+        "leave": "Groep verlaten"
+      },
+      "dm": {
+        "fallbackName": "Privébericht",
+        "intro": "Dit is het begin van je privéberichtgeschiedenis met <strong>@{{name}}</strong>.",
+        "federatedNotice": "Berichten worden opgeslagen op jouw thuisbasis en die van de ontvanger. Ze zijn niet end-to-end versleuteld.",
+        "removeFriend": "Vriend verwijderen"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "Je mag geen berichten versturen in dit kanaal",
+    "placeholder": {
+      "channel": "Bericht #{{name}}",
+      "dm": "Bericht @{{name}}"
+    },
+    "replyingTo": "Reageren op",
+    "cancelReply": "Beantwoording annuleren",
+    "removeAttachment": "Bijlage verwijderen",
+    "attachFile": "Bestand bijvoegen",
+    "dropTitle": "Bestand uploaden",
+    "dropHint": "Loslaten om bij te voegen",
+    "uploading": "Uploaden…",
+    "uploadingLabel": "Uploaden",
+    "failedCount_one": "{{count}} mislukt",
+    "failedCount_other": "{{count}} mislukt",
+    "failedHint": "Verwijder of herhaal de mislukte bijlage om te versturen",
+    "gif": "GIF",
+    "gifPicker": "GIF-kiezer",
+    "emoji": "Emoji",
+    "emojiPicker": "Emoji-kiezer",
+    "send": "Versturen",
+    "sendMessage": "Bericht versturen",
+    "uploadFailed": "Upload van {{file}} mislukt: {{reason}}",
+    "uploadFailedReason": "Upload mislukt",
+    "typing": {
+      "named_one": "{{names}} typt",
+      "named_other": "{{names}} typen",
+      "several": "Meerdere mensen typen"
+    }
+  },
+  "menu": {
+    "saveImage": "Afbeelding opslaan",
+    "copyImage": "Afbeelding kopiëren",
+    "openOriginal": "Origineel openen",
+    "saveVideo": "Video opslaan",
+    "saveAudio": "Audio opslaan",
+    "copyLink": "Link kopiëren",
+    "openLink": "Link openen",
+    "copySelectedText": "Geselecteerde tekst kopiëren",
+    "copyText": "Tekst kopiëren",
+    "markUnread": "Als ongelezen markeren",
+    "editMessage": "Bericht bewerken",
+    "deleteMessage": "Bericht verwijderen",
+    "linkCopied": "Link gekopieerd",
+    "linkCopyFailed": "Link kopiëren mislukt",
+    "pinMessage": "Bericht vastpinnen",
+    "unpinMessage": "Bericht lospinnen"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "Gepauzeerd — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "Kan hier niet afspelen — downloaden",
+      "unsupportedFormat": "Niet-ondersteund videoformaat",
+      "unsupportedBrowser": "Je browser ondersteunt geen videoweergave."
+    },
+    "audio": {
+      "unsupportedBrowser": "Je browser ondersteunt geen audioweergave."
+    },
+    "federation": {
+      "remoteNamed": "Gehost op de instantie van {{sender}}. Download voor een lokale kopie.",
+      "remoteUnknown": "Gehost op de instantie van de afzender. Download voor een lokale kopie.",
+      "partialGeneric": "Sommige ontvangers kunnen dit bestand niet lokaal cachen.",
+      "partialInstance": "Instantie van {{username}} (limiet: {{limit}})",
+      "partialList": "Bestand kon niet op {{instances}} worden gecachet. Ze kunnen het nog wel van jou bekijken.",
+      "listPair": "{{first}} en {{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "GIF's zoeken",
+    "noResults": "Geen GIF's gevonden",
+    "noTrending": "Geen trending GIF's",
+    "attribution": "Mogelijk gemaakt door Klipy"
+  },
+  "preview": {
+    "save": "Afbeelding opslaan",
+    "copy": "Afbeelding kopiëren",
+    "alt": "Afbeeldingsvoorbeeld"
+  },
+  "invite": {
+    "sentBy": "Uitnodiging van {{name}}",
+    "memberCount_one": "{{count}} lid",
+    "memberCount_other": "{{count}} leden",
+    "revoked": "Uitnodiging niet meer geldig",
+    "join": "Deelnemen",
+    "joining": "Deelnemen…",
+    "joinFailed": "Deelnemen mislukt",
+    "askToJoin": "Vragen om deel te nemen",
+    "sendingRequest": "Versturen…",
+    "requestSent": "Verzoek verstuurd",
+    "requestPending": "Verzoek in behandeling",
+    "requestNotice": "Deze ruimte werkt met deelnameverzoeken. Een beheerder keurt elk verzoek goed.",
+    "requestReview": "Een beheerder beoordeelt je verzoek."
+  },
+  "notification": {
+    "unknownSender": "Iemand",
+    "attachmentOnly": "Heeft een bijlage gestuurd"
+  },
+  "commands": {
+    "title": "Commando's",
+    "failed": "Het commando kon niet worden verstuurd",
+    "extraText": "Dit commando neemt geen vrije tekst, maar “{{text}}” blijft over. Zet eerst de opties, de tekst als laatste",
+    "invalidOption": "De waarde van {{option}} past niet bij dit commando.",
+    "optionsTitle": "Parameters",
+    "required": "vereist",
+    "subcommandsTitle": "Subcommando's",
+    "group": "groep",
+    "chooseSubcommand": "Kies een subcommando: {{names}}",
+    "subcommandRefused": "De bot biedt dit subcommando niet aan. Kies er een uit de lijst"
+  },
+  "ephemeral": {
+    "onlyYou": "Alleen jij kunt dit zien",
+    "dismiss": "Sluiten",
+    "rowLabel": "Antwoord dat alleen jij ziet van {{author}}, {{time}}"
+  },
+  "embed": {
+    "loadAction": "Klik om te laden",
+    "loadNamed": "{{name}} laden",
+    "loadUnnamed": "Embed laden",
+    "frameTitle": "Ingesloten inhoud",
+    "playNamed": "{{title}} afspelen",
+    "playUnnamed": "Video afspelen",
+    "videoTitle": "Video"
+  },
+  "stickers": {
+    "title": "Mijn stickers",
+    "upload": "Afbeelding uploaden",
+    "limits": "PNG, JPEG, WebP of GIF · tot 5 MB",
+    "loading": "Laden…",
+    "empty": "Je stickercollectie begint hier",
+    "remove": "Verwijderen",
+    "save": "Aan mijn stickers toevoegen",
+    "saved": "Aan mijn stickers toegevoegd",
+    "preview": "Sticker bekijken",
+    "manage": "Beheren",
+    "done": "Klaar",
+    "collectionHint": "Kies een sticker om te versturen. Maak deze ruimte van jou.",
+    "manageHint": "Hernoem of verwijder stickers in je collectie. Al verstuurde berichten blijven ongewijzigd.",
+    "emptyHint": "Bewaar je favoriete momenten als stickers, klaar voor je volgende reactie.",
+    "chooseImage": "Afbeelding kiezen",
+    "cancel": "Annuleren",
+    "replace": "Afbeelding vervangen",
+    "name": "Stickernaam",
+    "dropImage": "Klik of sleep hier een afbeelding",
+    "pasteHint": "Je kunt ook een afbeelding van je klembord plakken",
+    "uploading": "Sticker toevoegen…",
+    "singleImage": "Kies één afbeelding tegelijk.",
+    "invalidSize": "Kies een niet-lege afbeelding tot 5 MB.",
+    "invalidType": "Alleen PNG-, JPEG-, WebP- en GIF-afbeeldingen worden ondersteund.",
+    "invalidImage": "Deze afbeelding kan niet worden bekeken. Kies een geldige afbeelding.",
+    "removeNamed": "{{name}} verwijderen",
+    "addMore": "Meer toevoegen",
+    "selectedCount_one": "{{count}} sticker geselecteerd",
+    "selectedCount_other": "{{count}} stickers geselecteerd",
+    "dropMore": "Klik of sleep hier meer afbeeldingen",
+    "sticker": "Sticker",
+    "downloadFailed": "De afbeelding kon niet worden geladen.",
+    "batchLimit_one": "Kies hooguit {{count}} afbeelding tegelijk.",
+    "batchLimit_other": "Kies hooguit {{count}} afbeeldingen tegelijk.",
+    "capacityLimit_one": "Je collectie heeft nog ruimte voor {{count}} sticker.",
+    "capacityLimit_other": "Je collectie heeft nog ruimte voor {{count}} stickers.",
+    "full": "Je collectie is vol. Verwijder een sticker om een andere toe te voegen.",
+    "batchFailed_one": "{{count}} afbeelding kon niet worden toegevoegd. Hij staat nog hieronder.",
+    "batchFailed_other": "{{count}} afbeeldingen konden niet worden toegevoegd. Ze staan nog hieronder.",
+    "uploadingProgress": "{{current}} van {{total}} toevoegen…",
+    "rename": "Hernoemen",
+    "renameNamed": "{{name}} hernoemen",
+    "renameTitle": "Sticker hernoemen",
+    "search": "Stickers zoeken",
+    "noResults": "Geen stickers gevonden",
+    "store": "Stickerwinkel",
+    "myCollection": "Mijn stickers",
+    "packs": "Stickerpakketten",
+    "explore": "Verkennen",
+    "myPacks": "Door mij gemaakt",
+    "install": "Toevoegen",
+    "installed": "Toegevoegd",
+    "uninstall": "Verwijderen",
+    "createPack": "Pakket aanmaken",
+    "editPack": "Pakket bewerken",
+    "packName": "Pakketnaam",
+    "packDesc": "Beschrijving (optioneel)",
+    "submitReview": "Ter beoordeling indienen",
+    "pendingReview": "In beoordeling",
+    "approved": "Goedgekeurd",
+    "rejected": "Afgewezen",
+    "draft": "Concept",
+    "newVersion": "Nieuwe versie",
+    "deletePack": "Pakket verwijderen",
+    "stickersCount_one": "{{count}} sticker",
+    "stickersCount_other": "{{count}} stickers",
+    "noPacks": "Geen stickerpakketten gevonden",
+    "replicaBadge": "Gefedereerd",
+    "viewPack": "Pakket bekijken",
+    "saveDraft": "Als concept opslaan",
+    "packCreated": "Pakket aangemaakt",
+    "reviewSubmitted": "Ter beoordeling bij beheerder ingediend",
+    "reviews": "Beoordeling",
+    "noReviews": "Geen stickerpakketten wachten op beoordeling",
+    "approve": "Goedkeuren",
+    "reject": "Afwijzen",
+    "rejectTitle": "Stickerpakket afwijzen",
+    "rejectReason": "Reden voor afwijzing",
+    "rejectPlaceholder": "Voer reden voor afwijzing in (bijv. ongepaste inhoud, lage kwaliteit)",
+    "rejectConfirm": "Afwijzing bevestigen",
+    "approvedSuccess": "Stickerpakket goedgekeurd",
+    "rejectedSuccess": "Stickerpakket afgewezen",
+    "reviewNotes": "Reden voor afwijzing",
+    "creator": "Maker",
+    "sourceInstance": "Instantie",
+    "localInstance": "Lokale instantie",
+    "viewStickers": "Stickers bekijken",
+    "pendingReviewHint": "In beoordeling bij beheerder, na goedkeuring zichtbaar bij Verkennen"
+  },
+  "poke": {
+    "action": "Porren",
+    "received": "{{actor}} heeft {{target}} gepord",
+    "disconnected": "Verbinding verbroken. Por is niet verstuurd."
+  },
+  "pins": {
+    "title": "Vastgepinde berichten",
+    "empty": "Nog geen vastgepinde berichten.",
+    "jump": "Naar bericht springen",
+    "unpin": "Lospinnen",
+    "deletedMessage": "Bericht verwijderd",
+    "attachmentOnly": "Bijlage"
+  }
+}

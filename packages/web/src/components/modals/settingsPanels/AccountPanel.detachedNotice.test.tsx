@@ -133,6 +133,14 @@ beforeEach(() => {
 });
 
 describe('AccountPanel detached-account notice', () => {
+  it('isolates the complete account handle from RTL interface direction', () => {
+    currentUser = makeUser({ username: 'alice@orbit.test' });
+    render(<div dir="rtl"><AccountPanel /></div>);
+    const handle = screen.getByText('@alice@orbit.test');
+    expect(handle.tagName).toBe('BDI');
+    expect(handle).toHaveAttribute('dir', 'ltr');
+  });
+
   it('renders the notice when the account is detached and carries a home instance', () => {
     currentUser = makeUser({ federationHomeOrphaned: true, homeInstance: 'old.example.net' });
     render(<AccountPanel />);

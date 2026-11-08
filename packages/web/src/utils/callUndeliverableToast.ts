@@ -1,3 +1,6 @@
+import i18n from '../i18n';
+import { formatters } from '../i18n/formatters';
+
 /**
  * Builds a user-facing toast message from a `dm_call_undeliverable` event.
  *
@@ -23,21 +26,22 @@ export function buildCallUndeliverableToast(
 ): string {
   const primary = failures[0];
   const labelFor = (f: { peerLabel?: string; peerOrigin?: string }) =>
-    f.peerLabel ?? f.peerOrigin?.replace(/^https?:\/\//, '') ?? 'the remote instance';
+    f.peerLabel ?? f.peerOrigin?.replace(/^https?:\/\//, '') ?? i18n.t('dm:callDelivery.remoteInstance');
+  const labelsFor = () => formatters.formatList(failures.map(labelFor));
 
   if (phase === 'accept' && terminal) {
-    const label = primary ? labelFor(primary) : 'the host instance';
-    return `Couldn't confirm your accept with ${label} — the call was dropped.`;
+    const label = primary ? labelFor(primary) : i18n.t('dm:callDelivery.hostInstance');
+    return i18n.t('dm:callDelivery.acceptDropped', { instance: label });
   }
 
   if (phase === 'reject') {
-    const labels = failures.map(labelFor).join(', ') || 'the host instance';
-    return `Couldn't notify ${labels} that you declined. Caller may still see you as ringing briefly.`;
+    const labels = labelsFor() || i18n.t('dm:callDelivery.hostInstance');
+    return i18n.t('dm:callDelivery.rejectFailed', { instances: labels });
   }
 
   if (phase === 'end') {
-    const labels = failures.map(labelFor).join(', ') || 'the host instance';
-    return `Couldn't notify ${labels} that you hung up. Remote participants may see the call for up to 60 seconds.`;
+    const labels = labelsFor() || i18n.t('dm:callDelivery.hostInstance');
+    return i18n.t('dm:callDelivery.endFailed', { instances: labels });
   }
 
   // host_unreachable: call terminated because the host peer became unreachable.
@@ -46,39 +50,37 @@ export function buildCallUndeliverableToast(
   if (phase === 'host_unreachable') {
     const [f] = failures;
     if (!f || failures.length !== 1) {
-      return 'Call ended — host instance became unreachable.';
+      return i18n.t('dm:callDelivery.hostUnreachable');
     }
-    const label = f.peerLabel || f.peerOrigin?.replace(/^https?:\/\//, '') || 'the host instance';
+    const label = f.peerLabel || f.peerOrigin?.replace(/^https?:\/\//, '') || i18n.t('dm:callDelivery.hostInstance');
     if (f.reason === 'peer_rejected') {
-      return `Call ended — this instance is no longer peered with ${label}.`;
+      return i18n.t('dm:callDelivery.peeringLost', { instance: label });
     }
-    return `Call ended — ${label} became unreachable.`;
+    return i18n.t('dm:callDelivery.instanceUnreachable', { instance: label });
   }
 
   // phase === 'start' (default + legacy)
   if (!terminal) {
-    const labels = failures.map(labelFor).join(', ');
-    return `Some participants could not be reached: ${labels}.`;
+    return i18n.t('dm:callDelivery.someUnreachable', { instances: labelsFor() });
   }
   if (failures.length > 1) {
-    const labels = failures.map(labelFor).join(', ');
-    return `Could not reach ${failures.length} instances: ${labels}.`;
+    return i18n.t('dm:callDelivery.multipleUnreachable', { count: failures.length, instances: labelsFor() });
   }
-  if (!primary) return 'Call could not be placed.';
+  if (!primary) return i18n.t('dm:callDelivery.callFailed');
 
   const label = labelFor(primary);
   switch (primary.reason) {
     case 'peer_rejected':
-      return `Cannot reach ${label} — this instance requires manual peering approval.`;
+      return i18n.t('dm:callDelivery.manualApproval', { instance: label });
     case 'peer_awaiting_approval':
-      return `Waiting for ${label} admin to approve your instance. Calls will work once approved.`;
+      return i18n.t('dm:callDelivery.awaitingApproval', { instance: label });
     case 'peer_transient_failure':
-      return `Could not reach ${label}. Try again in a moment.`;
+      return i18n.t('dm:callDelivery.transientFailure', { instance: label });
     case 'livekit_unavailable':
-      return 'Voice is not configured on this instance.';
+      return i18n.t('dm:callDelivery.voiceUnavailable');
     case 'no_recipient':
-      return `${label} couldn't ring anyone.`;
+      return i18n.t('dm:callDelivery.noRecipient', { instance: label });
     default:
-      return `Call to ${label} could not be placed.`;
+      return i18n.t('dm:callDelivery.targetCallFailed', { instance: label });
   }
 }

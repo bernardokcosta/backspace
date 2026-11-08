@@ -1,0 +1,376 @@
+{
+  "validation": {
+    "invalidUrl": "Virheellinen URL",
+    "selfInstance": "Olet jo kirjautunut tälle instanssille",
+    "alreadyConnected": "Tämä instanssi on jo yhdistetty",
+    "notLoggedIn": "Ei kirjautunut",
+    "connectHomeFirst": "Yhdistä ensin koti-instanssiisi ({{home}}) — se myöntää tunnisteen kohteelle {{target}}",
+    "incorrectPassword": "Väärä salasana",
+    "authenticationFailed": "Todennus etäinstanssilla epäonnistui"
+  },
+  "feedback": {
+    "connectionLost": "Yhteys kohteeseen {{instance}} menetetty — yhdistetään uudelleen…",
+    "connectionRestored": "Yhdistetty uudelleen kohteeseen {{instance}}",
+    "pendingRequests_one": "Sinulla on {{count}} vireillä oleva yhdistämispyyntö",
+    "pendingRequests_other": "Sinulla on {{count}} vireillä olevaa yhdistämispyyntöä",
+    "requestApproved": "Yhdistämispyyntösi hyväksyttiin",
+    "requestDenied": "Yhdistämispyyntösi hylättiin",
+    "requestExpired": "Yhdistämispyyntösi vanhentui",
+    "friendRequestDeliveryFailed": "Kaveripyyntöä käyttäjälle {{username}} ei voitu toimittaa: {{reason}}",
+    "accountRelinked": "Tili linkitetty uudelleen kohteeseen {{instance}}"
+  },
+  "connections": {
+    "title": "Yhdistetyt instanssit",
+    "description": "Linkitä tilejä federoitujen Backspace-instanssien välillä.",
+    "empty": "Etäinstansseja ei yhdistetty. Lisää yksi aloittaaksesi federoinnin.",
+    "addButton": "+ Lisää instanssi",
+    "home": {
+      "title": "Koti-instanssi",
+      "asUser": "nimellä {{username}}",
+      "local": "Paikallinen"
+    },
+    "status": {
+      "connected": "Yhdistetty",
+      "disconnected": "Katkaistu",
+      "unreachable": "Tavoittamaton",
+      "authExpired": "Todennus vanhentunut"
+    },
+    "add": {
+      "title": "Lisää etäinstanssi",
+      "urlPlaceholder": "https://instance.example.com",
+      "probing": "Tutkitaan…",
+      "connect": "Yhdistä",
+      "connecting": "Yhdistetään…",
+      "registrationClosed": "Tämä instanssi on poistanut uudet federoidut rekisteröinnit käytöstä. Olemassa olevat tilit voivat yhä kirjautua.",
+      "passwordLabel": "Anna salasanasi yhdistääksesi kohteeseen {{host}}",
+      "passwordPlaceholder": "Se jolla kirjaudut",
+      "passwordHint": "Koti-instanssisi tarkistaa salasanasi eikä sitä koskaan lähetetä kohteeseen {{host}}. Se instanssi saa yksilöllisen tunnisteen, joka on luotu vain sitä varten.",
+      "fallbackNotice": {
+        "credentialRefused": "Kohteessa {{host}} on jo tili, joka ei hyväksy koti-instanssisi myöntämää tunnistetta. Kirjaudu salasanalla, jonka asetit tuossa instanssissa. Se vaihdetaan sen jälkeen myönnettyyn tunnisteeseen.",
+        "registrationClosed": "{{host}} ei ota vastaan uusia tilejä muista instansseista, joten sinulle ei luotu yhtään siellä. Jos sinulla on jo tili kohteessa {{host}}, kirjaudu sillä alle."
+      },
+      "usernamePlaceholder": "Käyttäjänimesi tällä instanssilla",
+      "remotePasswordLabel": "Tämän instanssin salasana",
+      "remotePasswordPlaceholder": "Etäinstanssin salasana",
+      "loggingIn": "Kirjaudutaan…",
+      "loginAndConnect": "Kirjaudu & yhdistä"
+    },
+    "filter": {
+      "all": "Kaikki",
+      "connected": "Yhdistetyt",
+      "disconnected": "Katkaistut",
+      "issues": "Ongelmat",
+      "noMatch": "Yksikään instanssi ei vastaa suodatinta."
+    },
+    "sort": {
+      "dateAdded": "Lisäyspäivä",
+      "lastConnected": "Viimeksi yhdistetty"
+    },
+    "row": {
+      "asUser": "nimellä {{username}}",
+      "added": "Lisätty {{date}}",
+      "connectedAgo": "Yhdistetty {{time}}",
+      "disconnectedAgo": "Katkaistu {{time}}",
+      "lastConnectedAgo": "Viimeksi {{time}}",
+      "remoteUserId": "Etäkäyttäjän tunnus",
+      "addedLabel": "Lisätty",
+      "disconnectedLabel": "Katkaistu",
+      "lastConnectedLabel": "Viimeksi yhdistetty",
+      "homePasswordLabel": "Kotitilisi salasana",
+      "disconnect": "Katkaise",
+      "reconnect": "Yhdistä uudelleen",
+      "reauthenticate": "Todenna uudelleen",
+      "forceRemove": "Pakota poisto",
+      "deleteIdentity": "Poista identiteetti",
+      "deleteIdentityDisabled": "Katkaise ensin identiteetin poistamiseksi",
+      "reason": {
+        "unreachable": "Tähän instanssiin ei saatu yhteyttä.",
+        "sessionExpired": "Tallennettu istunto vanhentui. Todenna uudelleen yhdistääksesi.",
+        "reauthenticate": "Todenna yhdistääksesi.",
+        "authenticateHome": "Todenna yhdistääksesi koti-instanssiisi."
+      }
+    },
+    "forceRemove": {
+      "title": "Pakota tietueen poisto",
+      "description": "Tämä poistaa rekisteritietueen kohteelle {{name}}. Etäinstanssille ei ilmoiteta. Käytä vain jos instanssi on pysyvästi tavoittamattomissa.",
+      "confirm": "Pakota poisto"
+    },
+    "deleteIdentity": {
+      "title": "Poista identiteetti",
+      "description": "Poista federoitu identiteettisi kohteessa <name>{{name}}</name>. Valitse miten tietojasi käsitellään.",
+      "leave": {
+        "title": "Poistu hiljaa",
+        "description": "Katkaise yhteys tähän instanssiin. Tilisi ja kaikki tiedot jäävät."
+      },
+      "soft": {
+        "title": "Poista käyttäjä",
+        "description": "Poista tilisi mutta säilytä viestisi. Näyt kuin “Poistettu käyttäjä”."
+      },
+      "full": {
+        "title": "Tuhota kaikki",
+        "description": "Poista tilisi ja kaikki viestisi, YV:si, reaktiosi ja tiedostosi. Mitään ei jää."
+      },
+      "scope": {
+        "heading": "Laajuus",
+        "this": "Vain tämä instanssi",
+        "select": "Valitse instanssit…",
+        "all": "Kaikki etäinstanssit"
+      },
+      "deleting": "Poistetaan…",
+      "disconnect": "Katkaise",
+      "confirm": "Poista identiteetti",
+      "toast": {
+        "disconnected": "Katkaistu",
+        "deleted_one": "Identiteetti poistettu",
+        "deleted_other": "Identiteetti poistettu {{count}} instanssista",
+        "ownsSpaces": "{{host}}: siirrä ensin tilojen omistajuus",
+        "failed": "{{host}}: {{error}}",
+        "failedGeneric": "Epäonnistui"
+      }
+    },
+    "action": {
+      "friendRequest": "kaveripyyntö",
+      "spaceJoin": "tilaan liittyminen",
+      "directMessage": "suora viesti",
+      "friendRequestTo": "Kaveripyyntö kohteelle {{target}}",
+      "joinSpace": "Liity kohteeseen {{target}}",
+      "directMessageTo": "Suora viesti kohteelle {{target}}",
+      "instanceConnect": "yhteys",
+      "connectTo": "Yhdistä kohteeseen {{target}}"
+    },
+    "pending": {
+      "title": "Vireillä olevat yhdistämishyväksynnät",
+      "description": "Ylläpitäjäsi on hyväksyttävä ennen kuin nämä pyynnöt voivat edetä.",
+      "onPeer": "kohteessa <peer>{{peer}}</peer>",
+      "cancelling": "Perutaan…",
+      "cancelled": "Yhdistämispyyntö peruttu",
+      "cancelFailed": "Peruminen epäonnistui: {{error}}"
+    },
+    "outcomes": {
+      "title": "Viimeisimmät yhdistämistulokset",
+      "approved": "Yhdistämispyyntösi kohteeseen {{host}} hyväksyttiin ylläpitäjäsi toimesta.",
+      "denied": "Yhdistämispyyntösi kohteeseen {{host}} hylättiin ylläpitäjäsi toimesta.",
+      "expired": "Yhdistämispyyntösi kohteeseen {{host}} vanhentui ilman ylläpitäjän toimia.",
+      "originalAction": "Alkuperäinen toiminto: {{action}}",
+      "retry": "Yritä uudelleen: {{action}}",
+      "dismissing": "Suljetaan…",
+      "dismissFailed": "Sulkeminen epäonnistui: {{error}}",
+      "dismissAllFailed": "Kaikkien sulkeminen epäonnistui: {{error}}"
+    },
+    "peering": {
+      "unavailable": "Viestejä ihmisille kohteessa {{name}} ei voi välittää ennen kuin ylläpitäjä hyväksyy yhdistämisen siihen.",
+      "inProgress": "Määritetään yhdistämistä kohteeseen {{name}}. Viestit ihmisille siellä välitetään pian."
+    }
+  },
+  "admin": {
+    "title": "Federointi",
+    "description": "Määritä federoinnin välitys, salaisuuden kierto ja hallitse yhdistettyjä instansseja.",
+    "relay": {
+      "title": "Välitysasetukset",
+      "description": "Hallitse YV-välitystä federoitujen instanssien välillä. Kun käytössä, YV:t yhdistettyjen instanssien käyttäjien kanssa välitetään palvelimelta palvelimelle.",
+      "enable": {
+        "label": "Ota YV-välitys käyttöön",
+        "description": "Välitä suoria viestejä yhdistettyihin instansseihin ja niistä"
+      },
+      "autoAccept": {
+        "label": "Hyväksy yhdistäminen automaattisesti",
+        "description": "Hyväksy automaattisesti yhdistämispyynnöt muista instansseista. Kun pois, vain manuaalisesti aloitettu yhdistäminen sallitaan."
+      },
+      "ttl": {
+        "label": "Välityksen TTL (päivää)",
+        "description": "Kuinka kauan välitettyjä viestejä säilytetään lähtöjonossa ennen siivousta"
+      },
+      "rotation": {
+        "label": "Salaisuuden oletuskierto (päivää)",
+        "description": "Uusien vertaisten automaattikiertoväli. Olemassa olevat vertaiset pitävät nykyisen asetuksensa."
+      }
+    },
+    "status": {
+      "active": "Aktiivinen",
+      "pending": "Odottaa",
+      "unreachable": "Tavoittamaton",
+      "rejectedShort": "Hylätty",
+      "revoked": "Peruttu",
+      "awaitingApproval": "Odottaa hyväksyntää",
+      "needsAttention": "Vaatii huomiota"
+    },
+    "filter": {
+      "statusHeading": "Tila",
+      "sort": {
+        "domain": "Verkkotunnus (A–Ö)",
+        "lastSeen": "Viimeksi nähty",
+        "dateAdded": "Lisäyspäivä",
+        "failures": "Virheet",
+        "revokedDate": "Perumispäivä"
+      }
+    },
+    "views": {
+      "active": "Aktiiviset",
+      "revoked": "Perutut"
+    },
+    "peer": {
+      "instanceName": "Instanssin nimi",
+      "revokedMeta": "Peruttu: {{revoked}} · Yhdistetty: {{peered}}",
+      "unreachableMeta": "Viimeksi nähty: {{lastSeen}} · {{failures}}",
+      "activeMeta": "Viimeksi nähty: {{lastSeen}} · Synkronoitu: {{synced}}",
+      "failures_one": "{{count}} virhe",
+      "failures_other": "{{count}} virhettä",
+      "reinitiate": "Aloita yhdistäminen uudelleen",
+      "deletePermanently": "Poista pysyvästi",
+      "consecutiveFailures": "Peräkkäiset virheet",
+      "authFailures": "Todennusvirheet",
+      "lastFailure": "Viimeisin virhe",
+      "peeredSince": "Yhdistetty alkaen",
+      "secretRotated": "Salaisuus kierretty",
+      "autoRotate": "Automaattikierto",
+      "rotationStatus": "Kierron tila",
+      "rotateEvery_one": "{{count}} päivän välein",
+      "rotateEvery_other": "{{count}} päivän välein",
+      "defaultTag": "(oletus)",
+      "inProgress": "Käynnissä",
+      "idle": "Toimeton",
+      "intervalRange": "On oltava 1–365",
+      "intervalUpdated": "Kiertoväli päivitetty",
+      "checking": "Tarkistetaan…",
+      "checkNow": "Tarkista nyt",
+      "resetPeering": "Nollaa yhdistäminen",
+      "rotateSecret": "Kierrä salaisuus",
+      "rotationInProgress": "Kierto jo käynnissä",
+      "revoke": "Peruuta",
+      "editInterval": "Muokkaa kiertoväliä",
+      "reason": {
+        "auth_failures": "Allekirjoitetut toimitukset epäonnistuvat jatkuvasti",
+        "peer_reset_detected": "Asennettu uudelleen uudella identiteetillä",
+        "repeer_incomplete": "Uudelleenyhdistämistä ei voitu vahvistaa",
+        "denied_by_local_admin": "Hylätty ylläpitäjäsi toimesta",
+        "denied_by_remote": "Hylätty heidän ylläpitäjänsä toimesta",
+        "revoked_by_remote": "Peruttu heidän ylläpitäjänsä toimesta",
+        "expired_on_remote": "Pyyntö vanhentui heidän puolellaan",
+        "stale_peering_on_remote": "Heidän puolellaan on vanha yhdistäminen"
+      },
+      "reasonDetail": {
+        "auth_failures": "{{host}} hylkäsi viisi allekirjoitettua toimitusta peräkkäin, joten kahdella instanssilla ei ole enää samaa salaisuutta. Nollaa yhdistäminen ja yhdistä uudelleen.",
+        "peer_reset_detected": "{{host}} asennettiin uudelleen: se raportoi eri instanssi-identiteetin kuin ennen. Käytä yllä olevaa “Yhdistä uudelleen” -painiketta yhdistääksesi uuteen instanssiin ja siivotaksesi vanhan tilit.",
+        "repeer_incomplete": "{{host}} hyväksyi kättelyn, mutta allekirjoitettu tarkistus uudella salaisuudella epäonnistui, joten yhdistämistä ei käytetä. Nollaa se ja yritä uudelleen. Jos epäonnistuu uudelleen, heidän ylläpitäjänsä on nollattava puolensa.",
+        "denied_by_local_admin": "Ylläpitäjä täällä hylkäsi yhdistämispyynnön kohteelta {{host}}. Sen pyynnöt hylätään kunnes aloitat uudelleen tai poistat tietueen.",
+        "denied_by_remote": "Kohteen {{host}} ylläpitäjä hylkäsi yhdistämisen tähän instanssiin. Aloita uudelleen kun he suostuvat.",
+        "revoked_by_remote": "Kohteen {{host}} ylläpitäjä perui yhdistämisen tähän instanssiin. Se palaa kun he aloittavat.",
+        "expired_on_remote": "Kohteen {{host}} ylläpitäjä ei vastannut yhdistämispyyntöön 30 päivän kuluessa. Aloita uudelleen kysyäksesi uudelleen.",
+        "stale_peering_on_remote": "{{host}} pitää yhä vanhempaa yhdistämistä tähän instanssiin eikä suostu uuteen, ennen kuin sen ylläpitäjä nollaa sen. Tämä instanssi tarkistaa 15 minuutin välein ja yhdistyy heti kun se onnistuu."
+      }
+    },
+    "approvals": {
+      "title": "Vireillä olevat hyväksymispyynnöt",
+      "outboundTitle_one": "{{name}} — {{count}} käyttäjä haluaa yhdistyä kanssamme",
+      "outboundTitle_other": "{{name}} — {{count}} käyttäjää haluaa yhdistyä kanssamme",
+      "requested": "Pyydetty {{time}}",
+      "subscriber": {
+        "friendAdd": "kaverilisäys kohteelle {{target}}",
+        "spaceJoin": "haluaa liittyä kohteeseen {{target}}",
+        "directMessage": "haluaa lähettää YV:n kohteelle {{target}}",
+        "instanceConnect": "yhdisti tilin kohteessa {{target}}"
+      },
+      "approve": "Hyväksy",
+      "deny": "Hylkää",
+      "established": "Yhdistäminen kohteeseen {{name}} muodostettu",
+      "deniedToast": "Hylätty yhdistämispyyntö kohteelta {{name}}",
+      "confirm": {
+        "approveTitle": "Hyväksy yhdistämispyyntö",
+        "denyTitle": "Hylkää yhdistämispyyntö",
+        "approveOutbound_one": "Tämä aloittaa yhdistämiskättelyn kohteen {{name}} kanssa {{count}} pyytävän käyttäjän puolesta. Etäinstanssin on oltava tavoitettavissa.",
+        "approveOutbound_other": "Tämä aloittaa yhdistämiskättelyn kohteen {{name}} kanssa {{count}} pyytävän käyttäjän puolesta. Etäinstanssin on oltava tavoitettavissa.",
+        "approveInbound": "Tämä aloittaa yhdistämiskättelyn kohteen {{name}} kanssa. Etäinstanssin on oltava tavoitettavissa.",
+        "denyOutbound_one": "Tämä hylkää lähtevän yhdistämispyynnön ja ilmoittaa pyytävälle käyttäjälle. Hän voi pyytää uudelleen toistamalla tekonsa.",
+        "denyOutbound_other": "Tämä hylkää lähtevän yhdistämispyynnön ja ilmoittaa pyytäville käyttäjille. He voivat pyytää uudelleen toistamalla tekonsa.",
+        "denyInbound": "Tämä hylkää pyynnön ja estää tulevat automaattiset yhdistämispyynnöt kohteelta {{name}}. Voit kumota eston myöhemmin hylättyjen vertaisten luettelosta.",
+        "approveAndPeer": "Hyväksy & yhdistä",
+        "approve": "Hyväksy",
+        "denyAndNotify": "Hylkää & ilmoita",
+        "deny": "Hylkää"
+      }
+    },
+    "resetCleanup": {
+      "title": "Siivous nollauksen jälkeen",
+      "peerReset": "{{name}} nollattiin",
+      "peerResetDescription": "Tässä verkkotunnuksessa käy uusi instanssi. Palauta federointi parantaaksesi vanhentuneet ystävyydet ja YV:t.",
+      "repeer": "Yhdistä uudelleen",
+      "resetToast": "{{host}} nollattiin — federointi on palautettava",
+      "repeerIncomplete": "Uudelleenyhdistäminen epätäydellinen — {{name}} pitää yhä vanhentunutta yhdistämistä kanssasi. Sen ylläpitäjän on nollattava puolensa, yhdistä sitten uudelleen.",
+      "repeerInitiated": "Uudelleenyhdistäminen kohteeseen {{name}} aloitettu",
+      "removed": "Poistettu {{username}} ja kaikki sisältö",
+      "ownsSpaces": "{{username}} omistaa tiloja — siirrä ensin omistajuus (Tilan asetukset → Omistajuus).",
+      "staleRemote": "Etäinstanssi pitää yhä vanhentunutta yhdistämistä kanssasi. Pyydä sen ylläpitäjää nollaamaan puolensa, yhdistä sitten uudelleen.",
+      "eventSummary": "<host>{{host}}</host> nollattiin — {{identities}} siivottu automaattisesti, {{accounts}} paikallisella sisällöllä irrotettu. Irrotetut tilit toimivat paikallisesti edelleen — omistajat säilyttävät pääsyn nykyisellä salasanallaan. Omistaja voi liittää irrotetun tilin uudelleen uuteen koti-identiteettiinsä sen tilin asetuksista (Tili → irrotusilmoitus), kun kirjautunut molempiin.",
+      "identitiesCleaned_one": "{{count}} replikoitu identiteetti",
+      "identitiesCleaned_other": "{{count}} replikoitua identiteettiä",
+      "accountsDetached_one": "{{count}} tili",
+      "accountsDetached_other": "{{count}} tiliä",
+      "memberships_one": "{{count}} jäsenyys",
+      "memberships_other": "{{count}} jäsenyyttä",
+      "messages_one": "{{count}} viesti",
+      "messages_other": "{{count}} viestiä",
+      "owns": "Omistaa: {{spaces}}",
+      "dismissKeep": "Sulje — pidä kaikki irrotetut tilit",
+      "confirm": {
+        "repeerTitle": "Palauta federointi",
+        "removeTitle": "Poista irrotettu tili",
+        "repeerDescription": "Tämä poistaa paikallisen yhdistämistietueen ja aloittaa uuden todennetun kättelyn kohteen {{origin}} kanssa. Etäinstanssin on oltava tavoitettavissa ja (jos se ei hyväksy automaattisesti) hyväksyttävä pyyntö.",
+        "removeDescription": "Poistetaanko {{username}} ja kaikki sen sisältö pysyvästi tällä instanssilla? Tätä ei voi perua.",
+        "repeerConfirm": "Yhdistä & paranna",
+        "removeConfirm": "Poista pysyvästi"
+      }
+    },
+    "peers": {
+      "title": "Yhdistetyt instanssit",
+      "empty": "Fedoroinnin vertaisia ei määritetty. Vertaiset luodaan automaattisesti, kun käyttäjät yhdistävät etäinstansseihin.",
+      "noMatch": "Yksikään vertainen ei vastaa suodatinta.",
+      "noRevoked": "Ei peruttuja vertaisia.",
+      "backOnline": "{{name}} on taas paikalla",
+      "stillUnreachable": "{{name}} on yhä tavoittamaton",
+      "rotationInitiated": "Salaisuuden kierto aloitettu — 15 minuutin siirtymäaika",
+      "revoked": "Vertainen peruttu",
+      "reinitiated": "Yhdistäminen aloitettu uudelleen",
+      "reinitiateFailed": "Vertaistietue poistettu, mutta kättely epäonnistui: {{error}}. Yhdistä manuaalisesti kohteeseen {{origin}}",
+      "deleted": "Vertainen poistettu pysyvästi",
+      "resetDone": "Yhdistäminen kohteeseen {{name}} nollattu",
+      "confirm": {
+        "rotate": {
+          "title": "Kierrä HMAC-salaisuus",
+          "description": "Tämä luo uuden HMAC-salaisuuden kohteelle {{name}}. Molemmat instanssit hyväksyvät vanhat ja uudet salaisuudet 15 minuutin siirtymäajan.",
+          "confirm": "Kierrä"
+        },
+        "revoke": {
+          "title": "Peruuta vertainen",
+          "description": "Tämä pysäyttää kaiken federoinnin välitysliikenteen kohteen {{name}} kanssa. Jonottavat lähtöjonon kohteet tyhjennetään. Voit yhdistää uudelleen myöhemmin.",
+          "confirm": "Peruuta"
+        },
+        "reinitiate": {
+          "title": "Aloita yhdistäminen uudelleen",
+          "description": "Tämä poistaa perutun tietueen ja aloittaa uuden kättelyn kohteen {{origin}} kanssa. Etäinstanssin on oltava tavoitettavissa.",
+          "confirm": "Aloita uudelleen"
+        },
+        "delete": {
+          "title": "Poista vertaistietue",
+          "description": "Tämä poistaa pysyvästi vertaistietueen kohteelle {{name}}. Tätä ei voi perua.",
+          "confirm": "Poista"
+        },
+        "reset": {
+          "title": "Nollaa yhdistäminen",
+          "description": "Nollataanko yhdistäminen kohteeseen {{name}}? Tämä poistaa paikallisen yhdistämistietueen ja kaikki jonottavat lähtöjonon kohteet. Sinun on aloitettava yhdistäminen etäylläpitäjän kanssa järjestelmän ulkopuolella nollauksen jälkeen. Tätä ei voi perua.",
+          "confirm": "Nollaa"
+        }
+      }
+    }
+  },
+  "peerRejected": {
+    "auth_failures": "Viestejä kohteeseen {{name}} ei toimiteta: yhteyden jaettu salaisuus lakkasi toimimasta. Ylläpitäjän on nollattava yhdistäminen.",
+    "peer_reset_detected": "Viestejä kohteeseen {{name}} ei toimiteta: se asennettiin uudelleen. Ylläpitäjän on yhdistettävä uudelleen.",
+    "repeer_incomplete": "Viestejä kohteeseen {{name}} ei toimiteta: uudelleenyhdistämistä ei voitu vahvistaa. Ylläpitäjän on nollattava yhdistäminen.",
+    "denied_by_local_admin": "Viestejä kohteeseen {{name}} ei voi toimittaa: ylläpitäjäsi hylkäsi federoinnin sen kanssa.",
+    "denied_by_remote": "Viestejä kohteeseen {{name}} ei voi toimittaa: sen ylläpitäjä hylkäsi federoinnin tähän instanssiin.",
+    "revoked_by_remote": "Viestejä kohteeseen {{name}} ei voi toimittaa: sen ylläpitäjä perui federoinnin tähän instanssiin.",
+    "expired_on_remote": "Viestejä kohteeseen {{name}} ei voi toimittaa: sen ylläpitäjä ei vastannut federointipyyntöön ajoissa.",
+    "stale_peering_on_remote": "Viestejä kohteeseen {{name}} ei voi vielä toimittaa: se pitää yhä vanhempaa yhteyttä tähän instanssiin, jonka sen ylläpitäjän on nollattava.",
+    "fallback": "Viestejä kohteeseen {{name}} ei voi toimittaa: {{reason}}"
+  }
+}

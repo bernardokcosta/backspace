@@ -1,0 +1,643 @@
+{
+  "soundboardTab": "Soundboard",
+  "create": {
+    "title": "Creează un spațiu",
+    "icon": {
+      "upload": "Încarcă",
+      "previewAlt": "Previzualizarea pictogramei",
+      "colorLabel": "Culoarea pictogramei",
+      "cropTitle": "Decupează pictograma spațiului",
+      "uploadFailed": "Încărcarea pictogramei a eșuat"
+    },
+    "name": {
+      "label": "Numele spațiului",
+      "placeholder": "Spațiul meu minunat",
+      "required": "Numele spațiului este obligatoriu"
+    },
+    "visibilityLabel": "Vizibilitate",
+    "description": {
+      "label": "Descriere",
+      "placeholder": "O scurtă descriere pentru spațiul tău...",
+      "counter": "{{length}}/{{max}}"
+    },
+    "submit": "Creează",
+    "submitting": "Se creează..."
+  },
+  "channel": {
+    "create": {
+      "title": "Creează un canal",
+      "typeLabel": "Tipul canalului",
+      "types": {
+        "text": {
+          "name": "Text",
+          "description": "Trimite mesaje, imagini și fișiere"
+        },
+        "voice": {
+          "name": "Voce",
+          "description": "Petrece timp împreună cu voce și video"
+        }
+      },
+      "nameLabel": "Numele canalului",
+      "namePlaceholder": "canal-nou",
+      "topicLabel": "Subiect (opțional)",
+      "topicPlaceholder": "Despre ce este acest canal?",
+      "categoryLabel": "Categorie",
+      "noCategory": "Fără categorie",
+      "nameRequired": "Numele canalului este obligatoriu",
+      "noSpaceSelected": "Niciun spațiu selectat",
+      "submit": "Creează canalul",
+      "submitting": "Se creează..."
+    },
+    "settings": {
+      "title": "Setările canalului",
+      "rename": "Redenumește canalul",
+      "nameLabel": "Numele canalului",
+      "channelLabel": "Canal",
+      "topic": {
+        "label": "Subiect",
+        "placeholder": "Despre ce este acest canal?",
+        "hint": "Afișat în antetul canalului. Oricine poate deschide textul complet de acolo.",
+        "counter": "{{used}}/{{max}}",
+        "tooLong": "Scurtează subiectul la cel mult {{max}} caractere pentru a-l salva.",
+        "empty": "Niciun subiect setat.",
+        "reset": "Renunță la modificări"
+      },
+      "private": {
+        "label": "Canal privat",
+        "description": "Doar membrii și rolurile selectate vor putea vedea acest canal.",
+        "note": "Acest canal este ascuns membrilor fără acces explicit. Utilizatorii cu permisiunea Administrator sau proprietarii spațiului pot vedea întotdeauna toate canalele.",
+        "unhideOnSave": "Salvarea face acest canal vizibil pentru toți membrii."
+      },
+      "deleteButton": "Șterge canalul"
+    },
+    "delete": {
+      "title": "Ștergi #{{name}}?",
+      "description": "Aceasta va șterge definitiv <strong>#{{name}}</strong> și toate mesajele sale. Această acțiune nu poate fi anulată.",
+      "descriptionVoice": "Aceasta va șterge definitiv <strong>#{{name}}</strong> și toate mesajele sale. Utilizatorii aflați acum în acest canal vocal vor fi deconectați. Această acțiune nu poate fi anulată.",
+      "confirm": "Șterge canalul"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "Creează o categorie",
+      "nameLabel": "Numele categoriei",
+      "namePlaceholder": "categorie-nouă",
+      "nameRequired": "Numele categoriei este obligatoriu",
+      "noSpaceSelected": "Niciun spațiu selectat",
+      "submit": "Creează categoria",
+      "submitting": "Se creează..."
+    },
+    "settings": {
+      "title": "Setările categoriei",
+      "rename": "Redenumește categoria",
+      "nameLabel": "Numele categoriei",
+      "categoryLabel": "Categorie",
+      "private": {
+        "label": "Categorie privată",
+        "description": "Doar membrii și rolurile selectate vor putea vedea canalele din această categorie.",
+        "note": "Această categorie este ascunsă membrilor fără acces explicit. Canalele din ea moștenesc această restricție dacă nu o suprascriu explicit.",
+        "unhideOnSave": "Salvarea face această categorie și canalele sale fără o restricție de vizibilitate separată vizibile pentru toți membrii."
+      },
+      "deleteButton": "Șterge categoria"
+    },
+    "delete": {
+      "title": "Ștergi „{{name}}”?",
+      "description": "Aceasta va șterge definitiv categoria <strong>{{name}}</strong>. Canalele din ea vor fi mutate la nivelul superior. Această acțiune nu poate fi anulată.",
+      "confirm": "Șterge categoria"
+    }
+  },
+  "invite": {
+    "title": "Invită prieteni",
+    "intro": "Trimite prietenilor sau partajează un link.",
+    "introRequest": "Trimite prietenilor sau partajează un link. Cei care îl deschid cer să se alăture, iar un manager aprobă fiecare cerere.",
+    "searchPlaceholder": "Caută prieteni...",
+    "noMatches": "Niciun prieten nu corespunde căutării",
+    "noFriends": "Încă niciun prieten",
+    "alreadyMember": "Deja în spațiu",
+    "removeSelected": "Elimină {{name}}",
+    "selectFriends": "Selectează prieteni",
+    "send_one": "Trimite {{count}} invitație",
+    "send_few": "Trimite {{count}} invitații",
+    "send_other": "Trimite {{count}} de invitații",
+    "sending": "Se trimite...",
+    "retryFailed": "Reîncearcă invitațiile eșuate",
+    "status": {
+      "sent": "✓ Trimisă",
+      "failed": "✗ {{reason}}"
+    },
+    "shareLink": "Sau partajează un link",
+    "generating": "Se generează...",
+    "generateFailed": "Generarea linkului de invitație a eșuat",
+    "failure": {
+      "inviteInvalid": "Linkul de invitație nu mai este valid",
+      "notAFriend": "Nu este prieten",
+      "userNotFound": "Utilizatorul nu a fost găsit",
+      "alreadyMember": "Deja membru",
+      "upstream": "Invitația nu a putut fi verificată, încearcă din nou",
+      "cannotInviteSelf": "Nu te poți invita pe tine",
+      "invalidBody": "Cerere nevalidă",
+      "invalidTarget": "Destinație nevalidă",
+      "unreachable": "Instanța ta nu a putut fi contactată",
+      "serverError": "Trimiterea a eșuat (eroare de server)"
+    }
+  },
+  "inviteFriend": {
+    "title": "Invită {{name}} într-un spațiu",
+    "intro": "Alege unul dintre spațiile tale pentru a trimite o invitație.",
+    "noSpaces": "Nu faci încă parte din niciun spațiu",
+    "contextMenu": "Invită într-un spațiu"
+  },
+  "join": {
+    "validation": {
+      "required": "Codul de invitație este obligatoriu",
+      "invalidLink": "Link de invitație nevalid",
+      "linkFormat": "Link de invitație nevalid — format așteptat: https://instance/join/CODE",
+      "qualifiedFormat": "Format de invitație nevalid — așteptat: CODE@domain",
+      "invalidDomain": "Domeniu nevalid în invitație"
+    },
+    "title": "Alătură-te unui spațiu",
+    "invitePlaceholder": "de ex. abc123 sau https://instance.com/join/abc123",
+    "submit": "Alătură-te spațiului",
+    "submitting": "Se alătură...",
+    "connect": {
+      "intro": "Conectează-te la <host>{{host}}</host> pentru a te alătura acestui spațiu.",
+      "passwordLabel": "Introdu parola pentru a te conecta",
+      "passwordPlaceholder": "Parola contului tău",
+      "passwordNote": "Parola ta este verificată de instanța ta principală și nu este trimisă niciodată către {{host}}. Acea instanță primește o acreditare unică, generată exclusiv pentru ea.",
+      "submit": "Conectează-te și alătură-te",
+      "submitting": "Se conectează..."
+    },
+    "fallback": {
+      "usernamePlaceholder": "Numele tău de utilizator pe această instanță",
+      "passwordLabel": "Parola pentru această instanță",
+      "passwordPlaceholder": "Parola pe instanța la distanță",
+      "submit": "Autentifică-te și alătură-te",
+      "submitting": "Se autentifică..."
+    },
+    "request": {
+      "messagePlaceholder": "De ce vrei să te alături? (opțional)",
+      "send": "Trimite cererea",
+      "sending": "Se trimite...",
+      "notice": "Acest spațiu acceptă cereri de alăturare. Trimite una și un manager o va analiza.",
+      "messageLabel": "Notă cu cererea ta",
+      "sent": "Cerere trimisă. Un manager o va analiza, iar spațiul apare în lista ta după ce o aprobă.",
+      "pending": "Ai cerut deja să te alături acestui spațiu. Cererea ta așteaptă un manager."
+    }
+  },
+  "settings": {
+    "title": "Setările spațiului",
+    "backAria": "Înapoi la meniul de setări ale spațiului",
+    "nav": {
+      "general": "General",
+      "management": "Administrare",
+      "tabs": {
+        "overview": "Prezentare generală",
+        "roles": "Roluri",
+        "bans": "Interziceri"
+      }
+    },
+    "discardChanges": "Renunță",
+    "overview": {
+      "identity": "Identitatea spațiului",
+      "iconLabel": "Pictograma spațiului",
+      "iconAlt": "Pictograma spațiului",
+      "colorLabel": "Culoarea pictogramei",
+      "bannerLabel": "Bannerul spațiului",
+      "bannerAlt": "Bannerul spațiului",
+      "uploadBanner": "Încarcă bannerul (16:9)",
+      "removeBanner": "Elimină bannerul",
+      "nameLabel": "Numele spațiului",
+      "iconUploadFailed": "Încărcarea pictogramei a eșuat",
+      "bannerUploadFailed": "Încărcarea bannerului a eșuat",
+      "cropIconTitle": "Decupează pictograma spațiului",
+      "cropBannerTitle": "Decupează bannerul spațiului",
+      "transfer": {
+        "description": "Transferă proprietatea altui membru. Vei deveni membru obișnuit.",
+        "prompt": "Transferi proprietatea către <strong>{{name}}</strong>?",
+        "button": "Transferă proprietatea",
+        "confirm": "Transferă",
+        "transferring": "Se transferă...",
+        "success": "Proprietatea a fost transferată către {{name}}",
+        "failed": "Transferul proprietății a eșuat"
+      },
+      "delete": {
+        "description": "Șterge definitiv acest spațiu și toate datele sale. Această acțiune nu poate fi anulată.",
+        "button": "Șterge spațiul",
+        "confirmAgain": "Fă clic din nou pentru a confirma ștergerea",
+        "failed": "Ștergerea spațiului a eșuat"
+      }
+    },
+    "access": {
+      "title": "Acces și descriere",
+      "visibility": {
+        "label": "Vizibilitate",
+        "hint": "Controlează modul în care intră în acest spațiu persoanele care au o invitație.",
+        "options": {
+          "private": {
+            "label": "Privat",
+            "description": "Doar persoanele cu un link de invitație se pot alătura"
+          },
+          "request": {
+            "label": "Cerere de alăturare",
+            "description": "O invitație duce la o cerere pe care un manager trebuie să o aprobe"
+          },
+          "public": {
+            "label": "Public",
+            "description": "Persoanele cu o invitație se pot alătura imediat"
+          }
+        }
+      },
+      "description": {
+        "label": "Descriere",
+        "hint": "Un scurt rezumat afișat împreună cu invitațiile la acest spațiu.",
+        "placeholder": "O scurtă descriere a acestui spațiu...",
+        "counter": "{{length}}/{{max}}"
+      },
+      "requests": {
+        "title": "Cereri de alăturare în așteptare",
+        "empty": "Nicio cerere de alăturare în așteptare",
+        "actionFailed": "Acțiunea a eșuat"
+      }
+    },
+    "members": {
+      "description": "Gestionează membrii acestui spațiu. Fă clic pe un membru pentru a-i edita rolurile.",
+      "listHeading": "Membri ({{total}})",
+      "owner": "Proprietar",
+      "noRoles": "Fără roluri",
+      "ban": "Interzice",
+      "kick": "Exclude",
+      "confirm": {
+        "banTitle": "Interzice {{name}}",
+        "kickTitle": "Exclude {{name}}",
+        "banDescription": "Va fi interzis definitiv în acest spațiu până când interdicția este anulată.",
+        "kickDescription": "Poate reveni cu un link de invitație."
+      },
+      "updateRolesFailed": "Rolurile nu au putut fi actualizate",
+      "kickFailed": "Excluderea membrului a eșuat",
+      "banFailed": "Interzicerea membrului a eșuat",
+      "rolesAboveYou": "Rolurile egale sau superioare rolului tău cel mai înalt sunt blocate.",
+      "rolesUnheld": "Rolurile cu permisiuni pe care nu le ai nu pot fi acordate.",
+      "rolesManagedByBot": "Rolul propriu al unui bot rămâne la bot.",
+      "botInvite": {
+        "warning": "Botul devine membru al acestui spațiu și primește mesajele și evenimentele fiecărui canal la care îi permit accesul permisiunile. Adaugă doar boți în care ai încredere.",
+        "owner": "Proprietar: @{{owner}}",
+        "button": "Adaugă bot",
+        "title": "Adaugă un bot",
+        "searchPlaceholder": "Caută boți după nume...",
+        "searching": "Se caută...",
+        "noResults": "Niciun bot găsit",
+        "add": "Adaugă",
+        "adding": "Se adaugă...",
+        "permissionsTitle": "Permisiunile pentru {{name}}",
+        "permissionsIntro": "Botul cere aceste permisiuni. Ele intră într-un rol numit după bot; debifează-le pe cele pe care nu vrei să le acorzi.",
+        "permissionsUnheld": "Permisiunile pe care nu le ai tu însuți nu pot fi acordate.",
+        "permissionsNone": "Nimic bifat: botul se alătură fără rol.",
+        "back": "Înapoi"
+      }
+    },
+    "afk": {
+      "title": "Canal AFK",
+      "channelLabel": "Mută membrii inactivi în",
+      "disabled": "Dezactivat",
+      "timeoutLabel": "După inactivitate de",
+      "minutes": "min",
+      "hint": "Membrii fără activitate vocală pentru durata aleasă sunt mutați automat în acest canal vocal."
+    }
+  },
+  "bans": {
+    "title": "Interziceri",
+    "description": "Utilizatorii interziși nu pot reveni în acest spațiu până când interdicția este anulată.",
+    "loading": "Se încarcă interdicțiile...",
+    "empty": "Niciun utilizator interzis",
+    "listHeading": "Interziceri ({{total}})",
+    "bannedBy": "Interzis de {{moderator}} pe {{date}}",
+    "bannedByWithReason": "Interzis de {{moderator}} pe {{date}}: {{reason}}",
+    "unban": "Anulează interdicția",
+    "loadFailed": "Interdicțiile nu au putut fi încărcate",
+    "unbanFailed": "Anularea interdicției a eșuat"
+  },
+  "roles": {
+    "title": "Roluri",
+    "create": "Creează un rol",
+    "creating": "Se creează...",
+    "listHeading": "Roluri",
+    "description": "Rolurile definesc ce permisiuni au membrii.",
+    "hierarchyHint": "Rolurile mai sus în listă au rang mai înalt decât cele de dedesubt.",
+    "defaultName": "rol nou",
+    "copyName": "Copie a {{name}}",
+    "backToList": "Înapoi la roluri",
+    "created": "Rol creat. Personalizează-l mai jos.",
+    "aboveYou": "Acest rol are rang egal sau mai înalt decât rolul tău cel mai înalt. Îl poți vedea, dar nu îl poți modifica.",
+    "managedByBot": "Acest rol este gestionat de un bot și este eliminat când botul părăsește spațiul. Nu poate fi atribuit altcuiva și nu poate fi șters manual. Permisiunile sale pot fi modificate.",
+    "reorder": {
+      "handle": "Mută {{name}}",
+      "handleHint": "Trage sau folosește tastele săgeți sus și jos",
+      "up": "Mută {{name}} mai sus",
+      "down": "Mută {{name}} mai jos",
+      "locked": "{{name}} are rang egal sau mai înalt decât rolul tău cel mai înalt",
+      "moved": "{{name}} a fost mutat pe poziția {{position}} din {{total}}"
+    },
+    "identity": "Identitate",
+    "nameLabel": "Numele rolului",
+    "colorLabel": "Culoarea rolului",
+    "nameEmpty": "Numele rolului nu poate fi gol",
+    "nameDuplicate": "Există deja un rol cu acest nume",
+    "groups": {
+      "general": "General",
+      "text": "Text",
+      "voice": "Voce"
+    },
+    "saved": "Rol salvat",
+    "copy": "Copiază rolul",
+    "copying": "Se copiază...",
+    "delete": "Șterge rolul",
+    "deleting": "Se șterge...",
+    "confirmDelete": "Confirmi?",
+    "createFailed": "Crearea rolului a eșuat",
+    "saveFailed": "Salvarea rolului a eșuat",
+    "deleteFailed": "Ștergerea rolului a eșuat",
+    "copyFailed": "Copierea rolului a eșuat",
+    "unheldLocked": "Poți comuta doar permisiunile pe care le ai tu însuți. Celelalte sunt blocate.",
+    "unheldPermission": "Nu ai această permisiune",
+    "copyUnheld": "Acest rol are permisiuni pe care nu le ai, așa că nu îl poți copia.",
+    "copyDeleteUnheld": "Acest rol are permisiuni pe care nu le ai, așa că nu îl poți copia sau șterge."
+  },
+  "memberRoles": {
+    "title": "Editează rolurile pentru {{name}}",
+    "viewProfile": "Vezi profilul",
+    "affectsAll": "Modificările de permisiuni se aplică fiecărui membru cu acest rol.",
+    "selectRole": "Selectează un rol pentru a-i edita permisiunile.",
+    "saved": "Modificări salvate"
+  },
+  "permissions": {
+    "title": "Permisiuni",
+    "names": {
+      "administrator": "Administrator",
+      "viewChannel": "Vezi canalele",
+      "manageChannels": "Gestionează canalele",
+      "manageRoles": "Gestionează rolurile",
+      "manageSpace": "Gestionează spațiul",
+      "createInvite": "Creează invitație",
+      "kickMembers": "Exclude membri",
+      "banMembers": "Interzice membri",
+      "sendMessages": "Trimite mesaje",
+      "manageMessages": "Gestionează mesajele",
+      "attachFiles": "Atașează fișiere",
+      "readMessageHistory": "Citește istoricul mesajelor",
+      "addReactions": "Adaugă reacții",
+      "connect": "Conectează-te",
+      "speak": "Vorbește",
+      "muteMembers": "Oprește microfoanele membrilor",
+      "deafenMembers": "Oprește sunetul membrilor",
+      "moveMembers": "Mută membri",
+      "stream": "Transmite",
+      "disconnectMembers": "Deconectează membri",
+      "mentionEveryone": "Menționează @everyone, @here și rolurile"
+    },
+    "tristate": {
+      "deny": "Interzice",
+      "neutral": "Neutru (moștenește)",
+      "allow": "Permite"
+    },
+    "overrideCount_one": "{{count}} suprascriere",
+    "overrideCount_few": "{{count}} suprascrieri",
+    "overrideCount_other": "{{count}} de suprascrieri",
+    "removeOverride": "Elimină suprascrierea",
+    "removeOverrideFor": "Elimină suprascrierea pentru {{name}}",
+    "removeOverrideHint": "Fără ea, aici se aplică permisiunile la nivel de spațiu.",
+    "noRoleOverrides": "Nicio suprascriere de rol. Fiecare rol folosește aici permisiunile sale la nivel de spațiu.",
+    "noMemberOverrides": "Nicio suprascriere de membru.",
+    "roleOverrides": "Suprascrieri de rol",
+    "memberOverrides": "Suprascrieri de membru",
+    "addRole": "Adaugă rol",
+    "addMember": "Adaugă membru",
+    "noMoreRoles": "Niciun rol de adăugat",
+    "loadFailed": "Suprascrierile nu au putut fi încărcate",
+    "saveFailed": "Suprascrierile nu au putut fi salvate",
+    "partialFailure_one": "{{count}} suprascriere nu a putut fi salvată",
+    "partialFailure_few": "{{count}} suprascrieri nu au putut fi salvate",
+    "partialFailure_other": "{{count}} de suprascrieri nu au putut fi salvate",
+    "unheldLocked": "Poți comuta doar permisiunile pe care le ai tu însuți. Celelalte sunt blocate.",
+    "unheldPermission": "Nu ai această permisiune",
+    "removeUnheld": "Această suprascriere setează permisiuni pe care nu le ai. Doar cineva care le are o poate elimina.",
+    "removeUnheldShort": "Doar cineva cu aceste permisiuni o poate elimina",
+    "aboveYouRole": "Acest rol are rang egal sau mai înalt decât rolul tău cel mai înalt. Îi poți vedea suprascrierea, dar nu o poți modifica sau elimina.",
+    "aboveYouMember": "Acest membru are rang egal sau mai înalt decât tine. Îi poți vedea suprascrierea, dar nu o poți modifica sau elimina.",
+    "aboveYouShort": "Rang egal sau mai înalt decât rolul tău cel mai înalt"
+  },
+  "sidebar": {
+    "directMessages": "Mesaje directe",
+    "addSpace": "Adaugă un spațiu",
+    "joinSpace": "Alătură-te unui spațiu",
+    "folder": {
+      "tooltip_one": "Dosar ({{count}})",
+      "tooltip_few": "Dosar ({{count}})",
+      "tooltip_other": "Dosar ({{count}})",
+      "spaceCount_one": "{{count}} spațiu",
+      "spaceCount_few": "{{count}} spații",
+      "spaceCount_other": "{{count}} de spații",
+      "unnamed": "Dosar fără nume",
+      "rename": "Redenumește dosarul",
+      "color": "Culoarea dosarului",
+      "create": "Creează dosar",
+      "moveTo": "Mută în dosar",
+      "removeFrom": "Elimină din dosar",
+      "ungroup": "Anulează gruparea",
+      "created": "Dosar creat",
+      "moved": "Mutat în dosar",
+      "removed": "Eliminat din dosar",
+      "ungrouped": "Dosarul a fost desfăcut"
+    },
+    "space": {
+      "inviteCopied": "Link de invitație copiat în clipboard",
+      "inviteCopiedRequest": "Link de invitație copiat. Cei care îl deschid pot cere să se alăture.",
+      "inviteFailed": "Generarea invitației a eșuat",
+      "transferOwnership": "Transferă proprietatea",
+      "settings": "Setările spațiului",
+      "leave": "Părăsește spațiul",
+      "reconnecting": "Se reconectează la {{instance}}…",
+      "remoteInstance": "instanță la distanță",
+      "leaveConfirm": {
+        "title": "Părăsește spațiul",
+        "titleNamed": "Părăsește {{name}}",
+        "description": "Sigur vrei să părăsești acest spațiu? Vei avea nevoie de o invitație pentru a reveni."
+      },
+      "left": "Ai părăsit spațiul",
+      "leaveFailed": "Părăsirea spațiului a eșuat",
+      "unreadMessages_one": "{{count}} mesaj necitit",
+      "unreadMessages_few": "{{count}} mesaje necitite",
+      "unreadMessages_other": "{{count}} de mesaje necitite",
+      "unreadMessagesOver99": "Peste 99 de mesaje necitite"
+    },
+    "dmList": {
+      "newDm": "Mesaj direct nou",
+      "empty": "Nicio conversație încă.",
+      "leaveGroup": "Părăsește grupul",
+      "leaveGroupConfirm": {
+        "title": "Părăsește DM-ul de grup",
+        "description": "Sigur vrei să pleci? Nu vei putea reveni decât dacă cineva te adaugă din nou."
+      }
+    },
+    "userArea": {
+      "inputDevice": "Dispozitiv de intrare",
+      "outputDevice": "Dispozitiv de ieșire",
+      "inputDevices": "Dispozitive de intrare",
+      "outputDevices": "Dispozitive de ieșire",
+      "inputVolume": "Volumul de intrare",
+      "outputVolume": "Volumul de ieșire",
+      "systemDefault": "Implicitul sistemului",
+      "microphonePermission": "Este nevoie de permisiunea pentru microfon.",
+      "audioPermission": "Este nevoie de permisiunea pentru audio.",
+      "enable": "Activează",
+      "voiceSettings": "Setările vocii",
+      "mute": "Oprește microfonul",
+      "unmute": "Pornește microfonul",
+      "deafen": "Oprește sunetul",
+      "undeafen": "Pornește sunetul",
+      "spaceMuted": "Microfon oprit pentru spațiu",
+      "spaceDeafened": "Sunet oprit pentru spațiu",
+      "permissionMuted": "Microfon oprit (fără permisiunea de a vorbi)"
+    },
+    "dmUnreadMessages_one": "{{count}} mesaj direct necitit",
+    "dmUnreadMessages_few": "{{count}} mesaje directe necitite",
+    "dmUnreadMessages_other": "{{count}} de mesaje directe necitite",
+    "dmUnreadMessagesOver99": "Peste 99 de mesaje directe necitite"
+  },
+  "channels": {
+    "resizeHandle": "Redimensionează lista de canale",
+    "loading": "Se încarcă canalele",
+    "create": "Creează un canal",
+    "createCategory": "Creează o categorie",
+    "settings": "Setările canalului",
+    "categorySettings": "Setările categoriei",
+    "delete": "Șterge canalul",
+    "deleteCategory": "Șterge categoria",
+    "emptyCategory": "Niciun canal",
+    "empty": "Încă niciun canal.",
+    "deleteConfirm": {
+      "title": "Șterge canalul",
+      "description": "Sigur? Aceasta va șterge definitiv canalul și toate mesajele sale."
+    },
+    "deleteCategoryConfirm": {
+      "title": "Șterge categoria",
+      "description": "Sigur vrei să ștergi această categorie? Canalele din ea vor fi mutate în afara categoriilor — niciun canal nu va fi șters."
+    },
+    "deleted": "Canal șters",
+    "deleteFailed": "Ștergerea canalului a eșuat",
+    "categoryDeleted": "Categorie ștearsă",
+    "categoryDeleteFailed": "Ștergerea categoriei a eșuat"
+  },
+  "members": {
+    "titleWithCount_one": "Membri — {{count}}",
+    "titleWithCount_few": "Membri — {{count}}",
+    "titleWithCount_other": "Membri — {{count}}",
+    "loading": "Se încarcă membrii",
+    "resizeHandle": "Redimensionează lista de membri",
+    "groups": {
+      "owner": "Proprietar"
+    },
+    "ownerTitle": {
+      "edit": "Editează titlul de proprietar",
+      "label": "Titlul de proprietar",
+      "hint": "Vizibil pentru toți membrii acestui spațiu. Folosește 1–{{max}} caractere; acesta nu schimbă permisiunile.",
+      "reset": "Resetează la implicit"
+    },
+    "menu": {
+      "profile": "Vezi profilul",
+      "nickname": "Schimbă porecla în spațiu…",
+      "roles": "Roluri"
+    },
+    "nickname": {
+      "title": "Schimbă porecla în spațiu",
+      "label": "Porecla în spațiu",
+      "descriptionSelf": "Se aplică doar în acest spațiu. Numele contului tău și poreclele tale din alte spații rămân aceleași. Lasă gol pentru a afișa numele contului.",
+      "descriptionOther": "Se aplică doar în acest spațiu. Numele contului lui {{name}} rămâne același. Lasă gol pentru a afișa numele contului.",
+      "reset": "Resetează la numele contului",
+      "shownAs": "Porecla în acest spațiu: {{nickname}}"
+    }
+  },
+  "mobile": {
+    "addSheet": {
+      "createSpace": "Creează un spațiu",
+      "joinSpace": "Alătură-te unui spațiu"
+    },
+    "muteUser": "Silențiază utilizatorul"
+  },
+  "main": {
+    "selectChannel": "Selectează un canal",
+    "selectChannelHint": "Selectează un canal text sau vocal pentru a începe",
+    "notificationSettings": "Setările notificărilor",
+    "topic": {
+      "show": "Arată subiectul complet",
+      "dialogTitle": "#{{name}}"
+    },
+    "voice": {
+      "connectionFailed": "Conectarea a eșuat",
+      "connected": "Conectat",
+      "connecting": "Se conectează…",
+      "participants_one": "Conectați: {{count}}",
+      "participants_few": "Conectați: {{count}}",
+      "participants_other": "Conectați: {{count}}",
+      "inCall_one": "În apel: {{count}}",
+      "inCall_few": "În apel: {{count}}",
+      "inCall_other": "În apel: {{count}}",
+      "empty": "Nimeni nu este acum în acest canal vocal.",
+      "join": "Alătură-te vocii"
+    },
+    "dm": {
+      "fallbackName": "Mesaj direct",
+      "composerPlaceholder": "Mesaj către {{target}}",
+      "calling": "Se apelează {{name}}…",
+      "groupSettings": "Setările grupului",
+      "openGroupSettings": "Deschide setările grupului",
+      "memberCount_one": "({{count}} membru)",
+      "memberCount_few": "({{count}} membri)",
+      "memberCount_other": "({{count}} de membri)",
+      "startVoiceCall": "Începe un apel vocal",
+      "joinCall": "Alătură-te apelului",
+      "startVideoCall": "Începe un apel video",
+      "addFriends": "Adaugă prieteni în DM"
+    }
+  },
+  "ownership": {
+    "title": "Transferă proprietatea",
+    "description": "Alege un membru care să devină noul proprietar al <name>{{name}}</name>",
+    "confirmQuestion": "Transferi proprietatea <name>{{space}}</name> către <name>{{member}}</name>?",
+    "regularMember": "Vei deveni membru obișnuit.",
+    "transferring": "Se transferă…",
+    "confirm": "Transferă",
+    "loading": "Se încarcă membrii…",
+    "success": "Proprietatea a fost transferată către {{name}}",
+    "failed": "Transferul proprietății a eșuat"
+  },
+  "notifications": {
+    "open": "Setările notificărilor",
+    "channelTitle": "Notificări pentru #{{channel}}",
+    "spaceTitle": "Notificări pentru {{space}}",
+    "levelHeading": "Anunță-mă despre",
+    "level": {
+      "all": "Toate mesajele",
+      "mentions": "Doar @mențiuni",
+      "nothing": "Nimic",
+      "inherit": "Implicitul spațiului ({{level}})"
+    },
+    "dmNote": "Mesajele directe te notifică întotdeauna.",
+    "muteHeading": "Oprește notificările",
+    "mute": {
+      "oneHour": "Timp de 1 oră",
+      "eightHours": "Timp de 8 ore",
+      "oneDay": "Timp de 24 de ore",
+      "indefinite": "Până le pornesc din nou"
+    },
+    "unmute": "Pornește notificările",
+    "mutedUntil": "Oprite până la {{time}}",
+    "mutedIndefinitely": "Oprite până le pornești",
+    "spaceMuted": "Acest spațiu are notificările oprite, deci și canalele sale.",
+    "mutedIndicator": "Notificări oprite",
+    "saveFailed": "Setările de notificare nu au putut fi salvate",
+    "suppressEveryone": "Suprimă @everyone și @here",
+    "suppressRoles": "Suprimă mențiunile de rol",
+    "massHeading": "Mențiuni de grup",
+    "massNote": "@here ajunge la aceiași membri ca @everyone. Mențiunile cu numele tău te notifică întotdeauna."
+  }
+}

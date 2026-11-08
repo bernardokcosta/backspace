@@ -96,7 +96,7 @@
         "label": "Private Category",
         "description": "Only selected members and roles will be able to view channels in this category.",
         "note": "This category is hidden from members without explicit access. Channels inside inherit this restriction unless they explicitly override it.",
-        "unhideOnSave": "Saving makes this category and the channels in it that don't hide themselves visible to every member."
+        "unhideOnSave": "Saving makes this category and its channels without a separate visibility restriction visible to every member."
       },
       "deleteButton": "Delete Category"
     },
@@ -119,7 +119,7 @@
     "send_one": "Send {{count}} Invite",
     "send_other": "Send {{count}} Invites",
     "sending": "Sending...",
-    "retryFailed": "Retry failed",
+    "retryFailed": "Retry failed invites",
     "status": {
       "sent": "✓ Sent",
       "failed": "✗ {{reason}}"
@@ -147,6 +147,13 @@
     "contextMenu": "Invite to Space"
   },
   "join": {
+    "validation": {
+      "required": "Invite code is required",
+      "invalidLink": "Invalid invite link",
+      "linkFormat": "Invalid invite link — expected format: https://instance/join/CODE",
+      "qualifiedFormat": "Invalid invite format — expected: CODE@domain",
+      "invalidDomain": "Invalid domain in invite"
+    },
     "title": "Join a Space",
     "invitePlaceholder": "e.g. abc123 or https://instance.com/join/abc123",
     "submit": "Join Space",
@@ -271,7 +278,7 @@
       "rolesUnheld": "Roles with permissions you do not have cannot be given.",
       "rolesManagedByBot": "A bot's own role stays with the bot.",
       "botInvite": {
-        "warning": "The bot becomes a member of this server and receives the messages and events of every channel its permissions allow. Only add bots you trust.",
+        "warning": "The bot becomes a member of this space and receives the messages and events of every channel its permissions allow. Only add bots you trust.",
         "owner": "Owner: @{{owner}}",
         "button": "Add Bot",
         "title": "Add a Bot",
@@ -320,7 +327,7 @@
     "backToList": "Back to roles",
     "created": "Role created. Customize it below.",
     "aboveYou": "This role ranks at or above your highest role. You can view it but not change it.",
-    "managedByBot": "This role belongs to a bot. It goes when the bot leaves the space and cannot be given to anyone else or deleted. Its permissions can be changed.",
+    "managedByBot": "This role is managed by a bot and is removed when the bot leaves the space. It cannot be assigned to anyone else or deleted manually. Its permissions can be changed.",
     "reorder": {
       "handle": "Move {{name}}",
       "handleHint": "Drag, or use the up and down arrow keys",
@@ -448,7 +455,7 @@
       "leaveConfirm": {
         "title": "Leave Space",
         "titleNamed": "Leave {{name}}",
-        "description": "Are you sure you want to leave this space? You'll need a new invite to rejoin."
+          "description": "Are you sure you want to leave this space? You'll need an invite to rejoin."
       },
       "left": "Left space",
       "leaveFailed": "Failed to leave space",

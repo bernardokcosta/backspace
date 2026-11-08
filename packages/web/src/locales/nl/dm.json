@@ -1,0 +1,173 @@
+{
+  "callDelivery": {
+    "remoteInstance": "de externe instantie",
+    "hostInstance": "de hostinstantie",
+    "acceptDropped": "Kon je acceptatie niet bevestigen bij {{instance}} — het gesprek is weggevallen.",
+    "rejectFailed": "Kon {{instances}} niet laten weten dat je weigerde. De beller ziet je mogelijk kort als rinkelend.",
+    "endFailed": "Kon {{instances}} niet laten weten dat je ophing. Externe deelnemers zien het gesprek mogelijk tot 60 seconden.",
+    "hostUnreachable": "Gesprek beëindigd — hostinstantie onbereikbaar.",
+    "peeringLost": "Gesprek beëindigd — deze instantie is niet meer gekoppeld met {{instance}}.",
+    "instanceUnreachable": "Gesprek beëindigd — {{instance}} is onbereikbaar geworden.",
+    "someUnreachable": "Sommige deelnemers waren onbereikbaar: {{instances}}.",
+    "multipleUnreachable_one": "Kon {{count}} instantie niet bereiken: {{instances}}.",
+    "multipleUnreachable_other": "Kon {{count}} instanties niet bereiken: {{instances}}.",
+    "callFailed": "Gesprek kon niet worden gestart.",
+    "manualApproval": "Kan {{instance}} niet bereiken — deze instantie vereist handmatige goedkeuring voor koppeling.",
+    "awaitingApproval": "Wachten tot de beheerder van {{instance}} je instantie goedkeurt. Gesprekken werken na goedkeuring.",
+    "transientFailure": "Kon {{instance}} niet bereiken. Probeer het zo opnieuw.",
+    "voiceUnavailable": "Voice is niet ingesteld op deze instantie.",
+    "noRecipient": "{{instance}} kon niemand bellen.",
+    "targetCallFailed": "Gesprek naar {{instance}} kon niet worden gestart."
+  },
+  "feedback": {
+    "relayDenied": "Kan berichten niet doorsturen — hun server weigerde koppeling. Neem contact op met hun beheerder.",
+    "awaitingPeering": "Berichten worden afgeleverd zodra hun beheerder het koppelverzoek goedkeurt."
+  },
+  "names": {
+    "group": "Groep",
+    "directMessage": "Privébericht",
+    "theGroup": "de groep",
+    "unknownHandle": "onbekend",
+    "groupFallback": "Groeps-DM",
+    "emptyGroup": "Lege groep"
+  },
+  "preview": {
+    "image": "Afbeelding",
+    "video": "Video",
+    "audio": "Audio",
+    "files_one": "📎 {{count}} bestand",
+    "files_other": "📎 {{count}} bestanden",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 Uitnodiging voor {{spaceName}} verstuurd",
+    "memberAdded": "{{actor}} heeft {{target}} toegevoegd",
+    "memberAddedToGroup": "{{actor}} heeft {{target}} aan de groep toegevoegd",
+    "memberLeft": "{{target}} heeft de groep verlaten",
+    "memberRemoved": "{{actor}} heeft {{target}} verwijderd",
+    "memberRemovedFromGroup": "{{actor}} heeft {{target}} uit de groep verwijderd",
+    "ownerChanged": "{{newOwner}} is nu de groepseigenaar",
+    "renamed": "{{actor}} heeft de groep hernoemd",
+    "renamedTo": "{{actor}} heeft de groep hernoemd naar \"{{name}}\"",
+    "nameCleared": "{{actor}} heeft de groepsnaam gewist",
+    "iconChanged": "{{actor}} heeft het groepspictogram gewijzigd",
+    "generic": "Systeembericht"
+  },
+  "deletedNotice": {
+    "accountDeleted": "Het account van deze gebruiker is verwijderd"
+  },
+  "memberRow": {
+    "viewProfile": "Profiel bekijken",
+    "transferOwnership": "Eigendom overdragen",
+    "removeFromGroup": "Uit groep verwijderen",
+    "removeFriend": "Vriend verwijderen",
+    "ownerTooltip": "Groepseigenaar",
+    "actions": "Lidacties"
+  },
+  "roster": {
+    "owner": "Eigenaar",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "Ledenlijst groter of kleiner maken"
+  },
+  "kick": {
+    "title": "Uit groep verwijderen",
+    "description": "{{name}} uit deze groep verwijderen? Nieuwe berichten zijn dan niet meer zichtbaar.",
+    "success": "{{name}} uit de groep verwijderd",
+    "failed": "Lid verwijderen mislukt"
+  },
+  "transfer": {
+    "title": "Eigendom overdragen",
+    "description": "Eigendom overdragen aan {{name}}? Je verliest eigenaarsrechten.",
+    "confirm": "Overdragen",
+    "success": "Eigendom overgedragen aan {{name}}",
+    "failed": "Eigendom overdragen mislukt"
+  },
+  "removeFriend": {
+    "failed": "Vriend verwijderen mislukt"
+  },
+  "leave": {
+    "title": "Groep verlaten",
+    "description": "“{{name}}” verlaten? Je ontvangt dan geen berichten meer uit dit gesprek.",
+    "inProgress": "Verlaten…",
+    "failed": "Groep verlaten mislukt",
+    "explanation": "Je ontvangt dan geen berichten meer uit dit gesprek. Andere leden zien een systeembericht."
+  },
+  "search": {
+    "trigger": "Gesprek vinden of starten",
+    "placeholder": "Zoeken…",
+    "emptyHint": "Zoek een gebruiker om te chatten",
+    "conversations": "Gesprekken",
+    "users": "Gebruikers",
+    "searching": "Zoeken…",
+    "noResults": "Geen resultaten gevonden",
+    "createFailed": "Privégesprek aanmaken mislukt"
+  },
+  "list": {
+    "resizeHandle": "Privéberichten groter of kleiner maken",
+    "title": "Berichten",
+    "empty": "Nog geen gesprekken.",
+    "leaveGroup": "Groep verlaten",
+    "justNow": "nu",
+    "minutesShort_one": "{{count}} min",
+    "minutesShort_other": "{{count}} min",
+    "hoursShort_one": "{{count}} u",
+    "hoursShort_other": "{{count}} u",
+    "daysShort_one": "{{count}} d",
+    "daysShort_other": "{{count}} d",
+    "close": "Privégesprek sluiten"
+  },
+  "newDm": {
+    "title": "Nieuw privébericht",
+    "searchPlaceholder": "Zoek een gebruiker…",
+    "noUsers": "Geen gebruikers gevonden"
+  },
+  "addMember": {
+    "title": "Vrienden aan DM toevoegen",
+    "description": "Selecteer vrienden om aan dit gesprek toe te voegen.",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "Vrienden zoeken…",
+    "limitReached": "Deze groeps-DM heeft de limiet van {{max}} leden bereikt.",
+    "alreadyInDm": "Al in deze DM",
+    "noMatch": "Geen vrienden voor je zoekopdracht",
+    "noFriends": "Nog geen vrienden",
+    "selectFriends": "Vrienden selecteren",
+    "addCount_one": "{{count}} vriend toevoegen",
+    "addCount_other": "{{count}} vrienden toevoegen",
+    "adding": "Toevoegen…",
+    "noOtherMember": "Kon het andere lid van dit gesprek niet bepalen.",
+    "failed": "Leden toevoegen mislukt",
+    "yourBots": "Je bots"
+  },
+  "groupSettings": {
+    "title": "Groepsinstellingen",
+    "general": "Algemeen",
+    "overview": "Overzicht",
+    "backToMenu": "Terug naar instellingenmenu van groeps-DM",
+    "changeIcon": "Groepspictogram wijzigen",
+    "icon": "Groepspictogram",
+    "clickToUpload": "Klik om te uploaden",
+    "removeIcon": "Groepspictogram verwijderen",
+    "nameLabel": "Groepsnaam",
+    "nameAria": "Groepsnaam",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "Lid toevoegen",
+    "groupFull": "Groep is vol",
+    "groupFullSuffix": "— Groep is vol",
+    "cropTitle": "Groepspictogram bijsnijden",
+    "saveFailed": "Instellingen opslaan mislukt"
+  },
+  "groupInfo": {
+    "title": "Groepsinfo",
+    "plainTitle": "Info",
+    "notFound": "Gesprek niet gevonden.",
+    "notGroup": "Dit gesprek heeft geen groepsinfo.",
+    "cancelEdit": "Bewerken annuleren",
+    "federated": "Gefedereerde groep",
+    "memberCount_one": "{{count}} lid",
+    "memberCount_other": "{{count}} leden"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "Deze groep wordt beheerd op {{host}}. Maak verbinding met die instantie om dit te wijzigen.",
+    "ownerNotListed": "{{host}} vermeldt deze groep nog niet voor je. Probeer het zo opnieuw."
+  }
+}

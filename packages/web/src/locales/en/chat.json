@@ -1,4 +1,11 @@
 {
+  "feedback": {
+    "openedInNewTab": "Opened in new tab",
+    "copiedGifLink": "Copied GIF link",
+    "copiedImageLink": "Copied image link",
+    "uploadExpired": "Couldn't send \"{{content}}\" — upload expired.",
+    "attachmentOnly": "(attachment-only)"
+  },
   "message": {
     "edit": {
       "hint": "escape to <cancel>cancel</cancel> • enter to <save>save</save>"

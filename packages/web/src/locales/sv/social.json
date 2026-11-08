@@ -1,0 +1,104 @@
+{
+  "tabs": {
+    "all": "Alla",
+    "pending": "Väntande",
+    "add": "Lägg till vän",
+    "activity": "Aktivitet"
+  },
+  "sections": {
+    "online": "Online — {{n}}",
+    "all": "Alla vänner — {{n}}",
+    "pending": "Väntande — {{n}}",
+    "active": "Aktiva — {{n}}",
+    "offline": "Offline — {{n}}"
+  },
+  "empty": {
+    "online": "Ingen är online just nu.",
+    "all": "Inga vänner ännu — lägg till någon!",
+    "pending": "Inga väntande förfrågningar — Nori nappar.",
+    "activity": "Det är tyst för nu… När vänner startar en aktivitet visar vi den här!"
+  },
+  "friend": {
+    "viaInstance": "via {{host}}",
+    "message": "Meddelande",
+    "remove": "Ta bort vän"
+  },
+  "sendMessage": {
+    "failed": "Kunde inte öppna konversationen: {{reason}}"
+  },
+  "request": {
+    "incoming": "Inkommande vänförfrågan",
+    "outgoing": "Utgående vänförfrågan",
+    "ignore": "Ignorera",
+    "cancel": "Avbryt förfrågan",
+    "send": "Skicka vänförfrågan",
+    "pending": "Förfrågan väntar",
+    "sending": "Skickar…",
+    "cancelling": "Avbryter…",
+    "sent": "Vänförfrågan skickad!"
+  },
+  "removeFriend": {
+    "title": "Ta bort vän",
+    "description": "Är du säker på att du vill ta bort {{name}} som vän? Du kan alltid skicka en ny vänförfrågan senare.",
+    "fallbackName": "denna användare"
+  },
+  "add": {
+    "title": "Hitta människor",
+    "hint": "Sök på användarnamn eller använd <handle>user@instance</handle> för att lägga till någon direkt.",
+    "placeholder": "Sök eller lägg till med användarnamn…",
+    "direct": "Skicka vänförfrågan till <handle>{{handle}}</handle>",
+    "sendRequest": "Skicka förfrågan",
+    "discover": "Upptäck människor",
+    "noSearchResults": "Inga användare matchar din sökning.",
+    "noDiscoverable": "Inga upptäckbara användare ännu — bjud in folk att gå med!"
+  },
+  "mutuals": {
+    "friends_one": "{{count}} gemensam vän",
+    "friends_other": "{{count}} gemensamma vänner",
+    "spaces_one": "{{count}} gemensamt rum",
+    "spaces_other": "{{count}} gemensamma rum",
+    "noFriends": "Inga gemensamma vänner",
+    "noSpaces": "Inga gemensamma rum"
+  },
+  "profile": {
+    "tabs": {
+      "about": "Om",
+      "mutualFriends": "Gemensamma vänner",
+      "mutualSpaces": "Gemensamma rum"
+    },
+    "aboutMe": "Om mig",
+    "roles": "Roller",
+    "memberSince": "Medlem sedan",
+    "sendMessage": "Skicka meddelande",
+    "editRoles": "Redigera roller",
+    "viewFull": "Visa full profil",
+    "addFriend": "Lägg till vän",
+    "playingNow": "Spelar nu"
+  },
+  "activity": {
+    "title": "Aktiva nu",
+    "quietTitle": "Det är tyst för nu…",
+    "quietDescription": "När en vän startar en aktivitet — till exempel spelar eller hänger i röstkanal — visar vi den här!",
+    "online": "Online — {{n}}",
+    "offline": "Offline — {{n}}",
+    "resizeHandle": "Ändra storlek på vänlistan",
+    "types": {
+      "playing": "Spelar ett spel",
+      "listening": "Lyssnar på musik",
+      "streaming": "Streamar",
+      "watching": "Tittar",
+      "custom": "Anpassad status"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "Öppna låt"
+  },
+  "instanceNotConnected": "Inte ansluten till {{host}}. Anslut igen och försök igen."
+}

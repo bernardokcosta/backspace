@@ -98,6 +98,19 @@ afterEach(() => {
 });
 
 describe('what the role list offers', () => {
+  it('isolates role names and the everyone identifier inside an RTL interface', () => {
+    seed('owner');
+    const name = 'مرحبا alice@example.test';
+    useSpaceStore.setState({ roles: [role('mixed', name, 1), EVERYONE] });
+    render(<div dir="rtl"><RolesPanel spaceId={SPACE_ID} /></div>);
+    for (const text of ['@everyone', name]) {
+      const label = screen.getByText(text);
+      expect(label.tagName).toBe('BDI');
+      expect(label).toHaveAttribute('dir', 'auto');
+      expect(label.textContent).toBe(text);
+    }
+  });
+
   it('says that the order is the hierarchy', () => {
     seed('owner');
     render(<RolesPanel spaceId={SPACE_ID} />);

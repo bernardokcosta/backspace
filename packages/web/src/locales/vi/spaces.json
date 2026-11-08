@@ -1,0 +1,632 @@
+{
+  "soundboardTab": "Bảng âm thanh",
+  "create": {
+    "title": "Tạo không gian",
+    "icon": {
+      "upload": "Tải lên",
+      "previewAlt": "Xem trước biểu tượng",
+      "colorLabel": "Màu biểu tượng",
+      "cropTitle": "Cắt biểu tượng không gian",
+      "uploadFailed": "Tải biểu tượng thất bại"
+    },
+    "name": {
+      "label": "Tên không gian",
+      "placeholder": "Không gian tuyệt vời của tôi",
+      "required": "Cần tên không gian"
+    },
+    "visibilityLabel": "Hiển thị",
+    "description": {
+      "label": "Mô tả",
+      "placeholder": "Mô tả ngắn cho không gian của bạn…",
+      "counter": "{{length}}/{{max}}"
+    },
+    "submit": "Tạo",
+    "submitting": "Đang tạo…"
+  },
+  "channel": {
+    "create": {
+      "title": "Tạo kênh",
+      "typeLabel": "Loại kênh",
+      "types": {
+        "text": {
+          "name": "Văn bản",
+          "description": "Gửi tin nhắn, hình và tệp"
+        },
+        "voice": {
+          "name": "Thoại",
+          "description": "Tụ họp bằng voice và video"
+        }
+      },
+      "nameLabel": "Tên kênh",
+      "namePlaceholder": "kenh-moi",
+      "topicLabel": "Chủ đề (tùy chọn)",
+      "topicPlaceholder": "Kênh này về gì?",
+      "categoryLabel": "Hạng mục",
+      "noCategory": "Không hạng mục",
+      "nameRequired": "Cần tên kênh",
+      "noSpaceSelected": "Chưa chọn không gian",
+      "submit": "Tạo kênh",
+      "submitting": "Đang tạo…"
+    },
+    "settings": {
+      "title": "Cài đặt kênh",
+      "rename": "Đổi tên kênh",
+      "nameLabel": "Tên kênh",
+      "channelLabel": "Kênh",
+      "topic": {
+        "label": "Chủ đề",
+        "placeholder": "Kênh này về gì?",
+        "hint": "Hiện trong đầu kênh. Mọi người mở được văn bản đầy đủ từ đó.",
+        "counter": "{{used}}/{{max}}",
+        "tooLong": "Rút chủ đề còn {{max}} ký tự trở xuống để lưu.",
+        "empty": "Chưa đặt chủ đề.",
+        "reset": "Bỏ thay đổi"
+      },
+      "private": {
+        "label": "Kênh riêng",
+        "description": "Chỉ thành viên và vai trò được chọn mới thấy kênh này.",
+        "note": "Kênh này ẩn với thành viên không có quyền rõ ràng. Người có quyền quản trị hay chủ không gian luôn thấy mọi kênh.",
+        "unhideOnSave": "Lưu làm kênh này hiện với mọi thành viên."
+      },
+      "deleteButton": "Xóa kênh"
+    },
+    "delete": {
+      "title": "Xóa #{{name}}?",
+      "description": "Điều này xóa vĩnh viễn <strong>#{{name}}</strong> và mọi tin nhắn của nó. Không thể hoàn tác.",
+      "descriptionVoice": "Điều này xóa vĩnh viễn <strong>#{{name}}</strong> và mọi tin nhắn của nó. Mọi người trong kênh voice này sẽ bị ngắt. Không thể hoàn tác.",
+      "confirm": "Xóa kênh"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "Tạo hạng mục",
+      "nameLabel": "Tên hạng mục",
+      "namePlaceholder": "hang-muc-moi",
+      "nameRequired": "Cần tên hạng mục",
+      "noSpaceSelected": "Chưa chọn không gian",
+      "submit": "Tạo hạng mục",
+      "submitting": "Đang tạo…"
+    },
+    "settings": {
+      "title": "Cài đặt hạng mục",
+      "rename": "Đổi tên hạng mục",
+      "nameLabel": "Tên hạng mục",
+      "categoryLabel": "Hạng mục",
+      "private": {
+        "label": "Hạng mục riêng",
+        "description": "Chỉ thành viên và vai trò được chọn mới thấy kênh trong hạng mục này.",
+        "note": "Hạng mục này ẩn với thành viên không có quyền rõ ràng. Kênh bên trong thừa hưởng giới hạn này trừ khi ghi đè rõ ràng.",
+        "unhideOnSave": "Lưu làm hạng mục này và kênh của nó không giới hạn hiển thị riêng hiện với mọi người."
+      },
+      "deleteButton": "Xóa hạng mục"
+    },
+    "delete": {
+      "title": "Xóa “{{name}}”?",
+      "description": "Điều này xóa vĩnh viễn hạng mục <strong>{{name}}</strong>. Kênh bên trong chuyển lên cấp cao nhất. Không thể hoàn tác.",
+      "confirm": "Xóa hạng mục"
+    }
+  },
+  "invite": {
+    "title": "Mời bạn bè",
+    "intro": "Gửi cho bạn bè, hoặc chia sẻ liên kết.",
+    "introRequest": "Gửi cho bạn bè, hoặc chia sẻ liên kết. Người mở nó xin tham gia, và người quản lý duyệt từng yêu cầu.",
+    "searchPlaceholder": "Tìm bạn…",
+    "noMatches": "Không có bạn khớp tìm kiếm",
+    "noFriends": "Chưa có bạn",
+    "alreadyMember": "Đã trong không gian",
+    "removeSelected": "Xóa {{name}}",
+    "selectFriends": "Chọn bạn",
+    "send_one": "Gửi {{count}} thư mời",
+    "send_other": "Gửi {{count}} thư mời",
+    "sending": "Đang gửi…",
+    "retryFailed": "Thử lại thư mời thất bại",
+    "status": {
+      "sent": "✓ Đã gửi",
+      "failed": "✗ {{reason}}"
+    },
+    "shareLink": "Hoặc chia sẻ liên kết",
+    "generating": "Đang tạo…",
+    "generateFailed": "Tạo liên kết thư mời thất bại",
+    "failure": {
+      "inviteInvalid": "Liên kết thư mời không còn hiệu lực",
+      "notAFriend": "Không phải bạn",
+      "userNotFound": "Không tìm thấy người dùng",
+      "alreadyMember": "Đã là thành viên",
+      "upstream": "Không thể xác minh thư mời, thử lại",
+      "cannotInviteSelf": "Bạn không thể mời chính mình",
+      "invalidBody": "Yêu cầu không hợp lệ",
+      "invalidTarget": "Mục tiêu không hợp lệ",
+      "unreachable": "Không thể tới máy chủ của bạn",
+      "serverError": "Không thể gửi (lỗi máy chủ)"
+    }
+  },
+  "inviteFriend": {
+    "title": "Mời {{name}} vào không gian",
+    "intro": "Chọn một không gian của bạn để gửi thư mời.",
+    "noSpaces": "Bạn chưa ở trong không gian nào",
+    "contextMenu": "Mời vào không gian"
+  },
+  "join": {
+    "validation": {
+      "required": "Cần mã thư mời",
+      "invalidLink": "Liên kết thư mời không hợp lệ",
+      "linkFormat": "Liên kết thư mời không hợp lệ — dạng mong đợi: https://instance/join/CODE",
+      "qualifiedFormat": "Định dạng thư mời không hợp lệ — mong đợi: CODE@domain",
+      "invalidDomain": "Domain không hợp lệ trong thư mời"
+    },
+    "title": "Tham gia không gian",
+    "invitePlaceholder": "ví dụ abc123 hoặc https://instance.com/join/abc123",
+    "submit": "Tham gia không gian",
+    "submitting": "Đang tham gia…",
+    "connect": {
+      "intro": "Kết nối tới <host>{{host}}</host> để tham gia không gian này.",
+      "passwordLabel": "Nhập mật khẩu để kết nối",
+      "passwordPlaceholder": "Mật khẩu tài khoản của bạn",
+      "passwordNote": "Mật khẩu của bạn do máy chủ chính kiểm tra và không bao giờ gửi tới {{host}}. Máy chủ đó nhận một chứng chỉ riêng tạo chỉ cho nó.",
+      "submit": "Kết nối & tham gia",
+      "submitting": "Đang kết nối…"
+    },
+    "fallback": {
+      "usernamePlaceholder": "Tên người dùng của bạn trên máy chủ này",
+      "passwordLabel": "Mật khẩu cho máy chủ này",
+      "passwordPlaceholder": "Mật khẩu trên máy chủ xa",
+      "submit": "Đăng nhập & tham gia",
+      "submitting": "Đang đăng nhập…"
+    },
+    "request": {
+      "messagePlaceholder": "Tại sao bạn muốn tham gia? (tùy chọn)",
+      "send": "Gửi yêu cầu",
+      "sending": "Đang gửi…",
+      "notice": "Không gian này nhận yêu cầu tham gia. Hãy gửi một và người quản lý sẽ duyệt.",
+      "messageLabel": "Ghi chú kèm yêu cầu",
+      "sent": "Đã gửi yêu cầu. Người quản lý sẽ duyệt, và không gian hiện trong danh sách của bạn sau duyệt.",
+      "pending": "Bạn đã xin tham gia không gian này. Yêu cầu của bạn đang chờ người quản lý."
+    }
+  },
+  "settings": {
+    "title": "Cài đặt không gian",
+    "backAria": "Về menu cài đặt không gian",
+    "nav": {
+      "general": "Chung",
+      "management": "Quản lý",
+      "tabs": {
+        "overview": "Tổng quan",
+        "roles": "Vai trò",
+        "bans": "Cấm"
+      }
+    },
+    "discardChanges": "Bỏ",
+    "overview": {
+      "identity": "Danh tính không gian",
+      "iconLabel": "Biểu tượng không gian",
+      "iconAlt": "Biểu tượng không gian",
+      "colorLabel": "Màu biểu tượng",
+      "bannerLabel": "Banner không gian",
+      "bannerAlt": "Banner không gian",
+      "uploadBanner": "Tải banner lên (16:9)",
+      "removeBanner": "Xóa banner",
+      "nameLabel": "Tên không gian",
+      "iconUploadFailed": "Tải biểu tượng thất bại",
+      "bannerUploadFailed": "Tải banner thất bại",
+      "cropIconTitle": "Cắt biểu tượng không gian",
+      "cropBannerTitle": "Cắt banner không gian",
+      "transfer": {
+        "description": "Chuyển quyền sở hữu cho thành viên khác. Bạn thành thành viên thường.",
+        "prompt": "Chuyển quyền sở hữu cho <strong>{{name}}</strong>?",
+        "button": "Chuyển quyền sở hữu",
+        "confirm": "Chuyển",
+        "transferring": "Đang chuyển…",
+        "success": "Đã chuyển quyền sở hữu cho {{name}}",
+        "failed": "Chuyển quyền sở hữu thất bại"
+      },
+      "delete": {
+        "description": "Xóa vĩnh viễn không gian này và mọi dữ liệu của nó. Không thể hoàn tác.",
+        "button": "Xóa không gian",
+        "confirmAgain": "Nhấn lại để xác nhận xóa",
+        "failed": "Xóa không gian thất bại"
+      }
+    },
+    "access": {
+      "title": "Truy cập và mô tả",
+      "visibility": {
+        "label": "Hiển thị",
+        "hint": "Kiểm soát cách người có thư mời vào không gian này.",
+        "options": {
+          "private": {
+            "label": "Riêng tư",
+            "description": "Chỉ người có liên kết thư mời mới tham gia được"
+          },
+          "request": {
+            "label": "Theo yêu cầu",
+            "description": "Thư mời dẫn tới yêu cầu mà người quản lý phải duyệt"
+          },
+          "public": {
+            "label": "Công khai",
+            "description": "Người có thư mời tham gia ngay được"
+          }
+        }
+      },
+      "description": {
+        "label": "Mô tả",
+        "hint": "Tóm tắt ngắn hiện cùng thư mời tới không gian này.",
+        "placeholder": "Mô tả ngắn về không gian này…",
+        "counter": "{{length}}/{{max}}"
+      },
+      "requests": {
+        "title": "Yêu cầu tham gia chờ",
+        "empty": "Không có yêu cầu tham gia chờ",
+        "actionFailed": "Hành động thất bại"
+      }
+    },
+    "members": {
+      "description": "Quản lý thành viên không gian này. Nhấn thành viên để sửa vai trò của họ.",
+      "listHeading": "Thành viên ({{total}})",
+      "owner": "Chủ",
+      "noRoles": "Không có vai trò",
+      "ban": "Cấm",
+      "kick": "Đuổi",
+      "confirm": {
+        "banTitle": "Cấm {{name}}",
+        "kickTitle": "Đuổi {{name}}",
+        "banDescription": "Người này sẽ bị cấm vĩnh viễn khỏi không gian này cho tới khi bỏ cấm.",
+        "kickDescription": "Người này tham gia lại được bằng liên kết thư mời."
+      },
+      "updateRolesFailed": "Cập nhật vai trò thất bại",
+      "kickFailed": "Đuổi thành viên thất bại",
+      "banFailed": "Cấm thành viên thất bại",
+      "rolesAboveYou": "Vai trò ở hoặc trên vai trò cao nhất của bạn bị khóa.",
+      "rolesUnheld": "Vai trò có quyền bạn không có không thể cho.",
+      "rolesManagedByBot": "Vai trò riêng của bot ở lại với bot.",
+      "botInvite": {
+        "warning": "Bot thành thành viên không gian này và nhận tin nhắn và sự kiện của mọi kênh mà quyền của nó cho phép. Chỉ thêm bot bạn tin.",
+        "owner": "Chủ: @{{owner}}",
+        "button": "Thêm bot",
+        "title": "Thêm bot",
+        "searchPlaceholder": "Tìm bot theo tên…",
+        "searching": "Đang tìm…",
+        "noResults": "Không tìm thấy bot",
+        "add": "Thêm",
+        "adding": "Đang thêm…",
+        "permissionsTitle": "Quyền cho {{name}}",
+        "permissionsIntro": "Bot xin các quyền này. Chúng vào vai trò mang tên bot; bỏ tích cái bạn không muốn cho.",
+        "permissionsUnheld": "Quyền bạn không có không thể cho.",
+        "permissionsNone": "Không tích gì: bot tham gia không vai trò.",
+        "back": "Quay lại"
+      }
+    },
+    "afk": {
+      "title": "Kênh AFK",
+      "channelLabel": "Chuyển thành viên rảnh tới",
+      "disabled": "Đã tắt",
+      "timeoutLabel": "Sau khi rảnh",
+      "minutes": "phút",
+      "hint": "Thành viên không có hoạt động voice trong thời gian chọn tự chuyển tới kênh voice này."
+    }
+  },
+  "bans": {
+    "title": "Cấm",
+    "description": "Người dùng bị cấm không tham gia lại không gian này được cho tới khi bỏ cấm.",
+    "loading": "Đang tải lệnh cấm…",
+    "empty": "Không có người dùng bị cấm",
+    "listHeading": "Lệnh cấm ({{total}})",
+    "bannedBy": "Bị cấm bởi {{moderator}} lúc {{date}}",
+    "bannedByWithReason": "Bị cấm bởi {{moderator}} lúc {{date}}: {{reason}}",
+    "unban": "Bỏ cấm",
+    "loadFailed": "Tải lệnh cấm thất bại",
+    "unbanFailed": "Bỏ cấm người dùng thất bại"
+  },
+  "roles": {
+    "title": "Vai trò",
+    "create": "Tạo vai trò",
+    "creating": "Đang tạo…",
+    "listHeading": "Vai trò",
+    "description": "Vai trò quyết định thành viên có quyền gì.",
+    "hierarchyHint": "Vai trò cao hơn trong danh sách đứng trên cái dưới.",
+    "defaultName": "vai trò mới",
+    "copyName": "Bản sao của {{name}}",
+    "backToList": "Về vai trò",
+    "created": "Đã tạo vai trò. Thiết lập bên dưới.",
+    "aboveYou": "Vai trò này ở hoặc trên vai trò cao nhất của bạn. Bạn xem được nhưng không đổi được.",
+    "managedByBot": "Vai trò này do bot quản lý và xóa khi bot rời không gian. Không gán được cho ai khác hay xóa thủ công. Quyền của nó đổi được.",
+    "reorder": {
+      "handle": "Chuyển {{name}}",
+      "handleHint": "Kéo, hoặc dùng phím mũi tên lên và xuống",
+      "up": "Chuyển {{name}} lên",
+      "down": "Chuyển {{name}} xuống",
+      "locked": "{{name}} ở hoặc trên vai trò cao nhất của bạn",
+      "moved": "{{name}} đã chuyển tới vị trí {{position}} trên {{total}}"
+    },
+    "identity": "Danh tính",
+    "nameLabel": "Tên vai trò",
+    "colorLabel": "Màu vai trò",
+    "nameEmpty": "Tên vai trò không được trống",
+    "nameDuplicate": "Đã có vai trò tên đó",
+    "groups": {
+      "general": "Chung",
+      "text": "Văn bản",
+      "voice": "Thoại"
+    },
+    "saved": "Đã lưu vai trò",
+    "copy": "Sao chép vai trò",
+    "copying": "Đang sao chép…",
+    "delete": "Xóa vai trò",
+    "deleting": "Đang xóa…",
+    "confirmDelete": "Xác nhận?",
+    "createFailed": "Tạo vai trò thất bại",
+    "saveFailed": "Lưu vai trò thất bại",
+    "deleteFailed": "Xóa vai trò thất bại",
+    "copyFailed": "Sao chép vai trò thất bại",
+    "unheldLocked": "Bạn chỉ bật/tắt được quyền mình có. Còn lại bị khóa.",
+    "unheldPermission": "Bạn không có quyền này",
+    "copyUnheld": "Vai trò này có quyền bạn không có, nên bạn không sao chép được.",
+    "copyDeleteUnheld": "Vai trò này có quyền bạn không có, nên bạn không sao chép hay xóa được."
+  },
+  "memberRoles": {
+    "title": "Sửa vai trò cho {{name}}",
+    "viewProfile": "Xem hồ sơ",
+    "affectsAll": "Thay đổi quyền áp dụng mọi thành viên có vai trò này.",
+    "selectRole": "Chọn vai trò để sửa quyền của nó.",
+    "saved": "Đã lưu thay đổi"
+  },
+  "permissions": {
+    "title": "Quyền",
+    "names": {
+      "administrator": "Quản trị",
+      "viewChannel": "Xem kênh",
+      "manageChannels": "Quản lý kênh",
+      "manageRoles": "Quản lý vai trò",
+      "manageSpace": "Quản lý không gian",
+      "createInvite": "Tạo thư mời",
+      "kickMembers": "Đuổi thành viên",
+      "banMembers": "Cấm thành viên",
+      "sendMessages": "Gửi tin nhắn",
+      "manageMessages": "Quản lý tin nhắn",
+      "attachFiles": "Đính kèm tệp",
+      "readMessageHistory": "Đọc lịch sử tin nhắn",
+      "addReactions": "Thêm biểu tượng",
+      "connect": "Kết nối",
+      "speak": "Nói",
+      "muteMembers": "Tắt tiếng thành viên",
+      "deafenMembers": "Điếc thành viên",
+      "moveMembers": "Chuyển thành viên",
+      "stream": "Phát trực tiếp",
+      "disconnectMembers": "Ngắt thành viên",
+      "mentionEveryone": "Nhắc @everyone, @here và vai trò"
+    },
+    "tristate": {
+      "deny": "Từ chối",
+      "neutral": "Trung lập (thừa hưởng)",
+      "allow": "Cho phép"
+    },
+    "overrideCount_one": "{{count}} ghi đè",
+    "overrideCount_other": "{{count}} ghi đè",
+    "removeOverride": "Xóa ghi đè",
+    "removeOverrideFor": "Xóa ghi đè cho {{name}}",
+    "removeOverrideHint": "Không có nó, quyền toàn không gian áp dụng ở đây.",
+    "noRoleOverrides": "Không có ghi đè vai trò. Mỗi vai trò dùng quyền toàn không gian của nó ở đây.",
+    "noMemberOverrides": "Không có ghi đè thành viên.",
+    "roleOverrides": "Ghi đè vai trò",
+    "memberOverrides": "Ghi đè thành viên",
+    "addRole": "Thêm vai trò",
+    "addMember": "Thêm thành viên",
+    "noMoreRoles": "Không còn vai trò để thêm",
+    "loadFailed": "Tải ghi đè thất bại",
+    "saveFailed": "Lưu ghi đè thất bại",
+    "partialFailure_one": "{{count}} ghi đè lưu thất bại",
+    "partialFailure_other": "{{count}} ghi đè lưu thất bại",
+    "unheldLocked": "Bạn chỉ bật/tắt được quyền mình có. Còn lại bị khóa.",
+    "unheldPermission": "Bạn không có quyền này",
+    "removeUnheld": "Ghi đè này đặt quyền bạn không có. Chỉ người có chúng mới xóa được.",
+    "removeUnheldShort": "Chỉ người có các quyền này mới xóa được",
+    "aboveYouRole": "Vai trò này ở hoặc trên vai trò cao nhất của bạn. Bạn xem được ghi đè của nó nhưng không đổi hay xóa được.",
+    "aboveYouMember": "Thành viên này ở hoặc trên bạn. Bạn xem được ghi đè của họ nhưng không đổi hay xóa được.",
+    "aboveYouShort": "Ở hoặc trên vai trò cao nhất của bạn"
+  },
+  "sidebar": {
+    "directMessages": "Tin nhắn trực tiếp",
+    "addSpace": "Thêm không gian",
+    "joinSpace": "Tham gia không gian",
+    "folder": {
+      "tooltip_one": "Thư mục ({{count}})",
+      "tooltip_other": "Thư mục ({{count}})",
+      "spaceCount_one": "{{count}} không gian",
+      "spaceCount_other": "{{count}} không gian",
+      "unnamed": "Thư mục không tên",
+      "rename": "Đổi tên thư mục",
+      "color": "Màu thư mục",
+      "create": "Tạo thư mục",
+      "moveTo": "Chuyển tới thư mục",
+      "removeFrom": "Xóa khỏi thư mục",
+      "ungroup": "Rã nhóm",
+      "created": "Đã tạo thư mục",
+      "moved": "Đã chuyển tới thư mục",
+      "removed": "Đã xóa khỏi thư mục",
+      "ungrouped": "Đã rã nhóm thư mục"
+    },
+    "space": {
+      "inviteCopied": "Đã sao chép liên kết thư mời vào khay nhớ",
+      "inviteCopiedRequest": "Đã sao chép liên kết thư mời. Người mở nó có thể xin tham gia.",
+      "inviteFailed": "Tạo thư mời thất bại",
+      "transferOwnership": "Chuyển quyền sở hữu",
+      "settings": "Cài đặt không gian",
+      "leave": "Rời không gian",
+      "reconnecting": "Đang kết nối lại tới {{instance}}…",
+      "remoteInstance": "máy chủ xa",
+      "leaveConfirm": {
+        "title": "Rời không gian",
+        "titleNamed": "Rời {{name}}",
+        "description": "Bạn chắc chắn muốn rời không gian này? Để tham gia lại bạn cần thư mời."
+      },
+      "left": "Đã rời không gian",
+      "leaveFailed": "Rời không gian thất bại",
+      "unreadMessages_one": "{{count}} tin chưa đọc",
+      "unreadMessages_other": "{{count}} tin chưa đọc",
+      "unreadMessagesOver99": "Hơn 99 tin chưa đọc"
+    },
+    "dmList": {
+      "newDm": "Tin nhắn trực tiếp mới",
+      "empty": "Chưa có cuộc trò chuyện.",
+      "leaveGroup": "Rời nhóm",
+      "leaveGroupConfirm": {
+        "title": "Rời DM nhóm",
+        "description": "Bạn chắc chắn muốn đi? Bạn không tham gia lại được trừ khi ai đó thêm bạn lại."
+      }
+    },
+    "userArea": {
+      "inputDevice": "Thiết bị vào",
+      "outputDevice": "Thiết bị ra",
+      "inputDevices": "Thiết bị vào",
+      "outputDevices": "Thiết bị ra",
+      "inputVolume": "Âm lượng vào",
+      "outputVolume": "Âm lượng ra",
+      "systemDefault": "Mặc định hệ thống",
+      "microphonePermission": "Cần quyền micro.",
+      "audioPermission": "Cần quyền âm thanh.",
+      "enable": "Bật",
+      "voiceSettings": "Cài đặt voice",
+      "mute": "Tắt tiếng",
+      "unmute": "Bật tiếng",
+      "deafen": "Điếc",
+      "undeafen": "Hết điếc",
+      "spaceMuted": "Tắt tiếng trong không gian",
+      "spaceDeafened": "Điếc trong không gian",
+      "permissionMuted": "Tắt tiếng (không quyền nói)"
+    },
+    "dmUnreadMessages_one": "{{count}} DM chưa đọc",
+    "dmUnreadMessages_other": "{{count}} DM chưa đọc",
+    "dmUnreadMessagesOver99": "Hơn 99 DM chưa đọc"
+  },
+  "channels": {
+    "resizeHandle": "Đổi cỡ danh sách kênh",
+    "loading": "Đang tải kênh",
+    "create": "Tạo kênh",
+    "createCategory": "Tạo hạng mục",
+    "settings": "Cài đặt kênh",
+    "categorySettings": "Cài đặt hạng mục",
+    "delete": "Xóa kênh",
+    "deleteCategory": "Xóa hạng mục",
+    "emptyCategory": "Không có kênh",
+    "empty": "Chưa có kênh.",
+    "deleteConfirm": {
+      "title": "Xóa kênh",
+      "description": "Bạn chắc chứ? Điều này xóa vĩnh viễn kênh và mọi tin nhắn của nó."
+    },
+    "deleteCategoryConfirm": {
+      "title": "Xóa hạng mục",
+      "description": "Bạn chắc chắn muốn xóa hạng mục này? Kênh trong nó chuyển thành chưa phân loại — không có kênh nào bị xóa."
+    },
+    "deleted": "Đã xóa kênh",
+    "deleteFailed": "Xóa kênh thất bại",
+    "categoryDeleted": "Đã xóa hạng mục",
+    "categoryDeleteFailed": "Xóa hạng mục thất bại"
+  },
+  "members": {
+    "titleWithCount_one": "Thành viên — {{count}}",
+    "titleWithCount_other": "Thành viên — {{count}}",
+    "loading": "Đang tải thành viên",
+    "resizeHandle": "Đổi cỡ danh sách thành viên",
+    "groups": {
+      "owner": "Chủ"
+    },
+    "ownerTitle": {
+      "edit": "Sửa tiêu đề chủ",
+      "label": "Tiêu đề chủ",
+      "hint": "Hiện với mọi thành viên trong không gian này. Dùng 1–{{max}} ký tự; điều này không đổi quyền.",
+      "reset": "Đặt lại về mặc định"
+    },
+    "menu": {
+      "profile": "Xem hồ sơ",
+      "nickname": "Đổi biệt danh không gian…",
+      "roles": "Vai trò"
+    },
+    "nickname": {
+      "title": "Đổi biệt danh không gian",
+      "label": "Biệt danh không gian",
+      "descriptionSelf": "Chỉ áp dụng trong không gian này. Tên tài khoản và biệt danh ở không gian khác giữ nguyên. Để trống để hiện tên tài khoản.",
+      "descriptionOther": "Chỉ áp dụng trong không gian này. Tên tài khoản {{name}} giữ nguyên. Để trống để hiện tên tài khoản.",
+      "reset": "Đặt lại thành tên tài khoản",
+      "shownAs": "Biệt danh trong không gian này: {{nickname}}"
+    }
+  },
+  "mobile": {
+    "addSheet": {
+      "createSpace": "Tạo không gian",
+      "joinSpace": "Tham gia không gian"
+    },
+    "muteUser": "Tắt tiếng cho tôi"
+  },
+  "main": {
+    "selectChannel": "Chọn kênh",
+    "selectChannelHint": "Chọn kênh văn bản hay voice để bắt đầu",
+    "notificationSettings": "Cài đặt thông báo",
+    "topic": {
+      "show": "Hiện đầy đủ chủ đề",
+      "dialogTitle": "#{{name}}"
+    },
+    "voice": {
+      "connectionFailed": "Kết nối thất bại",
+      "connected": "Đã kết nối",
+      "connecting": "Đang kết nối…",
+      "participants_one": "{{count}} đã kết nối",
+      "participants_other": "{{count}} đã kết nối",
+      "inCall_one": "{{count}} trong cuộc gọi",
+      "inCall_other": "{{count}} trong cuộc gọi",
+      "empty": "Không ai trong kênh voice này lúc này.",
+      "join": "Tham gia voice"
+    },
+    "dm": {
+      "fallbackName": "Tin nhắn trực tiếp",
+      "composerPlaceholder": "Nhắn {{target}}",
+      "calling": "Đang gọi {{name}}…",
+      "groupSettings": "Cài đặt nhóm",
+      "openGroupSettings": "Mở cài đặt nhóm",
+      "memberCount_one": "({{count}} thành viên)",
+      "memberCount_other": "({{count}} thành viên)",
+      "startVoiceCall": "Bắt đầu cuộc gọi voice",
+      "joinCall": "Tham gia cuộc gọi",
+      "startVideoCall": "Bắt đầu cuộc gọi video",
+      "addFriends": "Thêm bạn vào DM"
+    }
+  },
+  "ownership": {
+    "title": "Chuyển quyền sở hữu",
+    "description": "Chọn thành viên thành chủ mới của <name>{{name}}</name>",
+    "confirmQuestion": "Chuyển quyền sở hữu <name>{{space}}</name> cho <name>{{member}}</name>?",
+    "regularMember": "Bạn thành thành viên thường.",
+    "transferring": "Đang chuyển…",
+    "confirm": "Chuyển",
+    "loading": "Đang tải thành viên…",
+    "success": "Đã chuyển quyền sở hữu cho {{name}}",
+    "failed": "Chuyển quyền sở hữu thất bại"
+  },
+  "notifications": {
+    "open": "Cài đặt thông báo",
+    "channelTitle": "Thông báo cho #{{channel}}",
+    "spaceTitle": "Thông báo cho {{space}}",
+    "levelHeading": "Báo tôi về",
+    "level": {
+      "all": "Mọi tin nhắn",
+      "mentions": "Chỉ @nhắc",
+      "nothing": "Không gì",
+      "inherit": "Mặc định không gian ({{level}})"
+    },
+    "dmNote": "Tin nhắn trực tiếp luôn báo bạn.",
+    "muteHeading": "Tắt tiếng",
+    "mute": {
+      "oneHour": "Trong 1 giờ",
+      "eightHours": "Trong 8 giờ",
+      "oneDay": "Trong 24 giờ",
+      "indefinite": "Tới khi tôi bật"
+    },
+    "unmute": "Bật tiếng",
+    "mutedUntil": "Tắt tiếng tới {{time}}",
+    "mutedIndefinitely": "Tắt tiếng tới khi bạn bật",
+    "spaceMuted": "Không gian này tắt tiếng, nên kênh của nó cũng vậy.",
+    "mutedIndicator": "Tắt tiếng",
+    "saveFailed": "Lưu cài đặt thông báo thất bại",
+    "suppressEveryone": "Chặn @everyone và @here",
+    "suppressRoles": "Chặn nhắc vai trò",
+    "massHeading": "Nhắc nhóm",
+    "massNote": "@here tới cùng thành viên như @everyone. Nhắc bạn đích danh luôn báo bạn."
+  }
+}

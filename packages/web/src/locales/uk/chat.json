@@ -1,0 +1,323 @@
+{
+  "feedback": {
+    "openedInNewTab": "Відкрито в новій вкладці",
+    "copiedGifLink": "Посилання на GIF скопійовано",
+    "copiedImageLink": "Посилання на зображення скопійовано",
+    "uploadExpired": "Не вдалося надіслати «{{content}}» — термін завантаження минув.",
+    "attachmentOnly": "(лише вкладення)"
+  },
+  "message": {
+    "edit": {
+      "hint": "Esc — <cancel>скасувати</cancel> • Enter — <save>зберегти</save>"
+    },
+    "edited": "(ред.)",
+    "rowLabel": "{{author}}, {{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "Не вдалося завантажити",
+      "discard": "Відхилити"
+    },
+    "actions": {
+      "confirmDelete": "Підтвердити видалення"
+    },
+    "reply": {
+      "jump": "Перейти до оригінального повідомлення"
+    },
+    "mention": {
+      "unknownUser": "Невідомий користувач",
+      "unknownRole": "Невідома роль"
+    },
+    "reactions": {
+      "picker": "Вибір реакції",
+      "you": "Ви",
+      "others_one": "{{count}} інший",
+      "others_few": "{{count}} інші",
+      "others_many": "{{count}} інших",
+      "others_other": "{{count}} іншого",
+      "bySelf": "Ваша реакція",
+      "byOne": "Реакція від {{name}}",
+      "byMany": "Реакції: {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "У вас немає дозволу переглядати історію повідомлень у цьому каналі",
+    "loading": "Завантаження повідомлень",
+    "loadingOlder": "Завантаження старіших повідомлень",
+    "loadFailed": "Не вдалося завантажити повідомлення",
+    "jumpToPresent": "Перейти до останніх",
+    "jump": {
+      "unavailable": "Це повідомлення більше недоступне",
+      "failed": "Не вдалося завантажити це повідомлення",
+      "presentFailed": "Не вдалося завантажити останні повідомлення"
+    },
+    "unread": {
+      "label": "Нові",
+      "divider": "Нові повідомлення",
+      "dividerWithDate": "Нові повідомлення, {{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "Вітаємо в каналі!",
+        "description": "Це початок розмови."
+      },
+      "group": {
+        "intro": "Це початок вашої групової розмови.",
+        "owner": "Власник: <owner>@{{name}}</owner>",
+        "federatedNotice": "Повідомлення зберігаються на вашій домашній інстанції та домашніх інстанціях отримувачів. Вони не мають наскрізного шифрування.",
+        "openSettings": "Відкрити налаштування групи",
+        "leave": "Вийти з групи"
+      },
+      "dm": {
+        "fallbackName": "Особисте повідомлення",
+        "intro": "Це початок історії особистих повідомлень із <strong>@{{name}}</strong>.",
+        "federatedNotice": "Повідомлення зберігаються на вашій домашній інстанції та домашній інстанції отримувача. Вони не мають наскрізного шифрування.",
+        "removeFriend": "Видалити друга"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "У вас немає дозволу надсилати повідомлення в цьому каналі",
+    "placeholder": {
+      "channel": "Повідомлення в #{{name}}",
+      "dm": "Повідомлення для @{{name}}"
+    },
+    "replyingTo": "Відповідь на",
+    "cancelReply": "Скасувати відповідь",
+    "removeAttachment": "Прибрати вкладення",
+    "attachFile": "Прикріпити файл",
+    "dropTitle": "Завантажити файл",
+    "dropHint": "Відпустіть, щоб прикріпити",
+    "uploading": "Завантаження…",
+    "uploadingLabel": "Завантаження",
+    "failedCount_one": "{{count}} з помилкою",
+    "failedCount_few": "{{count}} з помилкою",
+    "failedCount_many": "{{count}} з помилкою",
+    "failedCount_other": "{{count}} з помилкою",
+    "failedHint": "Приберіть або повторіть невдале вкладення, щоб надіслати",
+    "gif": "GIF",
+    "gifPicker": "Вибір GIF",
+    "emoji": "Емодзі",
+    "emojiPicker": "Вибір емодзі",
+    "send": "Надіслати",
+    "sendMessage": "Надіслати повідомлення",
+    "uploadFailed": "Не вдалося завантажити {{file}}: {{reason}}",
+    "uploadFailedReason": "Не вдалося завантажити",
+    "typing": {
+      "named_one": "{{names}} друкує",
+      "named_few": "{{names}} друкують",
+      "named_many": "{{names}} друкують",
+      "named_other": "{{names}} друкує",
+      "several": "Кілька людей друкують"
+    }
+  },
+  "menu": {
+    "saveImage": "Зберегти зображення",
+    "copyImage": "Копіювати зображення",
+    "openOriginal": "Відкрити оригінал",
+    "saveVideo": "Зберегти відео",
+    "saveAudio": "Зберегти аудіо",
+    "copyLink": "Копіювати посилання",
+    "openLink": "Відкрити посилання",
+    "copySelectedText": "Копіювати виділений текст",
+    "copyText": "Копіювати текст",
+    "markUnread": "Позначити як непрочитане",
+    "editMessage": "Редагувати повідомлення",
+    "deleteMessage": "Видалити повідомлення",
+    "linkCopied": "Посилання скопійовано",
+    "linkCopyFailed": "Не вдалося скопіювати посилання",
+    "pinMessage": "Закріпити повідомлення",
+    "unpinMessage": "Відкріпити повідомлення"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "Призупинено — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "Не відтворюється тут — завантажте",
+      "unsupportedFormat": "Непідтримуваний формат відео",
+      "unsupportedBrowser": "Ваш браузер не підтримує відтворення відео."
+    },
+    "audio": {
+      "unsupportedBrowser": "Ваш браузер не підтримує відтворення аудіо."
+    },
+    "federation": {
+      "remoteNamed": "Розміщено на інстанції {{sender}}. Завантажте, щоб мати локальну копію.",
+      "remoteUnknown": "Розміщено на інстанції відправника. Завантажте, щоб мати локальну копію.",
+      "partialGeneric": "Деякі отримувачі не можуть кешувати цей файл локально.",
+      "partialInstance": "Інстанція {{username}} (ліміт: {{limit}})",
+      "partialList": "Файл не вдалося закешувати на {{instances}}. Вони все одно можуть переглянути його з вашої.",
+      "listPair": "{{first}} і {{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "Пошук GIF",
+    "noResults": "GIF не знайдено",
+    "noTrending": "Немає популярних GIF",
+    "attribution": "Працює на Klipy"
+  },
+  "preview": {
+    "save": "Зберегти зображення",
+    "copy": "Копіювати зображення",
+    "alt": "Перегляд зображення"
+  },
+  "invite": {
+    "sentBy": "Запрошення від {{name}}",
+    "memberCount_one": "{{count}} учасник",
+    "memberCount_few": "{{count}} учасники",
+    "memberCount_many": "{{count}} учасників",
+    "memberCount_other": "{{count}} учасника",
+    "revoked": "Запрошення більше недійсне",
+    "join": "Приєднатися",
+    "joining": "Приєднання…",
+    "joinFailed": "Не вдалося приєднатися",
+    "askToJoin": "Подати запит на приєднання",
+    "sendingRequest": "Надсилання…",
+    "requestSent": "Запит надіслано",
+    "requestPending": "Запит очікує",
+    "requestNotice": "У цьому просторі приймають запити на приєднання. Керівник схвалює кожен.",
+    "requestReview": "Керівник розгляне ваш запит."
+  },
+  "notification": {
+    "unknownSender": "Хтось",
+    "attachmentOnly": "Надіслано вкладення"
+  },
+  "commands": {
+    "title": "Команди",
+    "failed": "Не вдалося надіслати команду",
+    "extraText": "Ця команда не приймає вільного тексту, але «{{text}}» залишилося. Спочатку вкажіть параметри, текст — останнім",
+    "invalidOption": "Значення {{option}} не підходить для цієї команди.",
+    "optionsTitle": "Параметри",
+    "required": "обов'язково",
+    "subcommandsTitle": "Підкоманди",
+    "group": "група",
+    "chooseSubcommand": "Виберіть підкоманду: {{names}}",
+    "subcommandRefused": "Бот не пропонує цю підкоманду. Виберіть одну зі списку"
+  },
+  "ephemeral": {
+    "onlyYou": "Це бачите лише ви",
+    "dismiss": "Закрити",
+    "rowLabel": "Відповідь, яку бачите лише ви, від {{author}}, {{time}}"
+  },
+  "embed": {
+    "loadAction": "Натисніть, щоб завантажити",
+    "loadNamed": "Завантажити {{name}}",
+    "loadUnnamed": "Завантажити вбудований вміст",
+    "frameTitle": "Вбудований вміст",
+    "playNamed": "Відтворити {{title}}",
+    "playUnnamed": "Відтворити відео",
+    "videoTitle": "Відео"
+  },
+  "stickers": {
+    "title": "Мої стікери",
+    "upload": "Завантажити зображення",
+    "limits": "PNG, JPEG, WebP або GIF · до 5 МБ",
+    "loading": "Завантаження…",
+    "empty": "Ваша колекція стікерів починається тут",
+    "remove": "Прибрати",
+    "save": "Додати до моїх стікерів",
+    "saved": "Додано до моїх стікерів",
+    "preview": "Перегляд стікера",
+    "manage": "Керувати",
+    "done": "Готово",
+    "collectionHint": "Виберіть стікер, щоб надіслати. Зробіть цей простір своїм.",
+    "manageHint": "Перейменуйте або приберіть стікери з колекції. Уже надіслані повідомлення не зміняться.",
+    "emptyHint": "Зберігайте улюблені моменти як стікери для наступної відповіді.",
+    "chooseImage": "Вибрати зображення",
+    "cancel": "Скасувати",
+    "replace": "Замінити зображення",
+    "name": "Назва стікера",
+    "dropImage": "Натисніть або перетягніть зображення сюди",
+    "pasteHint": "Також можна вставити зображення з буфера обміну",
+    "uploading": "Додавання стікера…",
+    "singleImage": "Виберіть по одному зображенню за раз.",
+    "invalidSize": "Виберіть непорожнє зображення розміром до 5 МБ.",
+    "invalidType": "Підтримуються лише зображення PNG, JPEG, WebP і GIF.",
+    "invalidImage": "Це зображення не можна переглянути. Виберіть коректне зображення.",
+    "removeNamed": "Прибрати {{name}}",
+    "addMore": "Додати ще",
+    "selectedCount_one": "Вибрано {{count}} стікер",
+    "selectedCount_few": "Вибрано {{count}} стікери",
+    "selectedCount_many": "Вибрано {{count}} стікерів",
+    "selectedCount_other": "Вибрано {{count}} стікера",
+    "dropMore": "Натисніть або перетягніть більше зображень сюди",
+    "sticker": "Стікер",
+    "downloadFailed": "Не вдалося завантажити зображення.",
+    "batchLimit_one": "Виберіть до {{count}} зображення за раз.",
+    "batchLimit_few": "Виберіть до {{count}} зображень за раз.",
+    "batchLimit_many": "Виберіть до {{count}} зображень за раз.",
+    "batchLimit_other": "Виберіть до {{count}} зображення за раз.",
+    "capacityLimit_one": "У вашій колекції є місце ще для {{count}} стікера.",
+    "capacityLimit_few": "У вашій колекції є місце ще для {{count}} стікерів.",
+    "capacityLimit_many": "У вашій колекції є місце ще для {{count}} стікерів.",
+    "capacityLimit_other": "У вашій колекції є місце ще для {{count}} стікера.",
+    "full": "Ваша колекція заповнена. Приберіть стікер, щоб додати інший.",
+    "batchFailed_one": "{{count}} зображення не вдалося додати. Його досі показано нижче.",
+    "batchFailed_few": "{{count}} зображення не вдалося додати. Їх досі показано нижче.",
+    "batchFailed_many": "{{count}} зображень не вдалося додати. Їх досі показано нижче.",
+    "batchFailed_other": "{{count}} зображення не вдалося додати. Його досі показано нижче.",
+    "uploadingProgress": "Додавання {{current}} з {{total}}…",
+    "rename": "Перейменувати",
+    "renameNamed": "Перейменувати {{name}}",
+    "renameTitle": "Перейменувати стікер",
+    "search": "Пошук стікерів",
+    "noResults": "Стікерів не знайдено",
+    "store": "Магазин стікерів",
+    "myCollection": "Мої стікери",
+    "packs": "Набори стікерів",
+    "explore": "Огляд",
+    "myPacks": "Створені мною",
+    "install": "Додати",
+    "installed": "Додано",
+    "uninstall": "Прибрати",
+    "createPack": "Створити набір",
+    "editPack": "Редагувати набір",
+    "packName": "Назва набору",
+    "packDesc": "Опис (необов'язково)",
+    "submitReview": "Надіслати на розгляд",
+    "pendingReview": "Очікує розгляду",
+    "approved": "Схвалено",
+    "rejected": "Відхилено",
+    "draft": "Чернетка",
+    "newVersion": "Нова версія",
+    "deletePack": "Видалити набір",
+    "stickersCount_one": "{{count}} стікер",
+    "stickersCount_few": "{{count}} стікери",
+    "stickersCount_many": "{{count}} стікерів",
+    "stickersCount_other": "{{count}} стікера",
+    "noPacks": "Наборів стікерів не знайдено",
+    "replicaBadge": "Федеративний",
+    "viewPack": "Переглянути набір",
+    "saveDraft": "Зберегти як чернетку",
+    "packCreated": "Набір створено",
+    "reviewSubmitted": "Надіслано на розгляд адміністратора",
+    "reviews": "Розгляд",
+    "noReviews": "Немає наборів стікерів, що очікують розгляду",
+    "approve": "Схвалити",
+    "reject": "Відхилити",
+    "rejectTitle": "Відхилити набір стікерів",
+    "rejectReason": "Причина відхилення",
+    "rejectPlaceholder": "Вкажіть причину відхилення (напр., неприйнятний вміст, низька якість)",
+    "rejectConfirm": "Підтвердити відхилення",
+    "approvedSuccess": "Набір стікерів схвалено",
+    "rejectedSuccess": "Набір стікерів відхилено",
+    "reviewNotes": "Причина відхилення",
+    "creator": "Автор",
+    "sourceInstance": "Інстанція",
+    "localInstance": "Локальна інстанція",
+    "viewStickers": "Переглянути стікери",
+    "pendingReviewHint": "На розгляді адміністратора; після схвалення з'явиться в огляді"
+  },
+  "poke": {
+    "action": "Тицьнути",
+    "received": "{{actor}} тицяє {{target}}",
+    "disconnected": "З'єднання втрачено. Тиць не надіслано."
+  },
+  "pins": {
+    "title": "Закріплені повідомлення",
+    "empty": "Закріплених повідомлень ще немає.",
+    "jump": "Перейти до повідомлення",
+    "unpin": "Відкріпити",
+    "deletedMessage": "Повідомлення видалено",
+    "attachmentOnly": "Вкладення"
+  }
+}

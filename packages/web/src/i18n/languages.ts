@@ -13,14 +13,35 @@ export const supportedLanguages = [
   // Brazilian Portuguese. Detection sends every pt-* tag here, as with zh
   // below: a pt-PT reader gets Portuguese rather than English, and the picker
   // names the variant.
-  { code: 'pt', nativeName: 'Português do Brasil', dir: 'ltr', released: true },
+  { code: 'pt', nativeName: 'Português (Brasil)', dir: 'ltr', released: true },
   // Simplified Chinese. Detection sends every zh-* tag here, Traditional
   // included: a zh-TW reader gets a script they can read rather than English,
   // and the picker names the variant so they know what they got.
   { code: 'zh', nativeName: '简体中文', dir: 'ltr', released: true },
+  { code: 'es', nativeName: 'Español', dir: 'ltr', released: true },
+  { code: 'fr', nativeName: 'Français', dir: 'ltr', released: true },
+  { code: 'it', nativeName: 'Italiano', dir: 'ltr', released: true },
+  { code: 'uk', nativeName: 'Українська', dir: 'ltr', released: true },
+  { code: 'pl', nativeName: 'Polski', dir: 'ltr', released: true },
+  { code: 'nl', nativeName: 'Nederlands', dir: 'ltr', released: true },
+  { code: 'sv', nativeName: 'Svenska', dir: 'ltr', released: true },
+  { code: 'da', nativeName: 'Dansk', dir: 'ltr', released: true },
+  { code: 'nb', nativeName: 'Norsk (bokmål)', dir: 'ltr', released: true },
+  { code: 'fi', nativeName: 'Suomi', dir: 'ltr', released: true },
+  { code: 'cs', nativeName: 'Čeština', dir: 'ltr', released: true },
+  { code: 'ro', nativeName: 'Română', dir: 'ltr', released: true },
+  { code: 'tr', nativeName: 'Türkçe', dir: 'ltr', released: true },
+  { code: 'ar', nativeName: 'العربية', dir: 'rtl', released: true },
+  { code: 'hi', nativeName: 'हिन्दी', dir: 'ltr', released: true },
+  { code: 'id', nativeName: 'Bahasa Indonesia', dir: 'ltr', released: true },
+  { code: 'vi', nativeName: 'Tiếng Việt', dir: 'ltr', released: true },
+  { code: 'th', nativeName: 'ไทย', dir: 'ltr', released: true },
+  { code: 'ja', nativeName: '日本語', dir: 'ltr', released: true },
+  { code: 'ko', nativeName: '한국어', dir: 'ltr', released: true },
 ] as const satisfies readonly { code: string; nativeName: string; dir: 'ltr' | 'rtl'; released: boolean }[];
 
 export type SupportedLanguage = (typeof supportedLanguages)[number]['code'];
+export type LanguagePreference = 'auto' | SupportedLanguage;
 
 export const DEFAULT_LANGUAGE: SupportedLanguage = 'en';
 
@@ -38,13 +59,18 @@ export function isSupportedLanguage(value: unknown): value is SupportedLanguage 
   return typeof value === 'string' && (supportedLanguageCodes as readonly string[]).includes(value);
 }
 
+export function isLanguagePreference(value: unknown): value is LanguagePreference {
+  return value === 'auto' || isSupportedLanguage(value);
+}
+
 /**
  * Map a BCP 47 tag such as `de-CH` onto a shipped language, or null when the
  * base language is not shipped. Regional variants are not distinguished: a
  * Swiss German user gets German.
  */
 export function resolveSupportedLanguage(tag: string): SupportedLanguage | null {
-  const base = tag.trim().toLowerCase().split('-')[0] ?? '';
+  const part = tag.trim().toLowerCase().split('-')[0] ?? '';
+  const base = part === 'no' ? 'nb' : part;
   return isSupportedLanguage(base) ? base : null;
 }
 

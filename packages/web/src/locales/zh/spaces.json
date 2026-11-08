@@ -141,11 +141,18 @@
   },
   "inviteFriend": {
     "title": "邀请 {{name}} 加入空间",
-    "intro": "选择一个你的空间来发送邀请。",
-    "noSpaces": "你还没有加入任何空间",
+    "intro": "选择一个您已加入的空间来发送邀请。",
+    "noSpaces": "您还没有加入任何空间",
     "contextMenu": "邀请加入空间"
   },
   "join": {
+    "validation": {
+      "required": "请输入邀请码。",
+      "invalidLink": "邀请链接无效。",
+      "linkFormat": "邀请链接无效，请使用 https://instance/join/CODE 格式。",
+      "qualifiedFormat": "邀请格式无效，请使用 CODE@domain 格式。",
+      "invalidDomain": "邀请中的域名无效。"
+    },
     "title": "加入空间",
     "invitePlaceholder": "例如 abc123 或 https://instance.com/join/abc123",
     "submit": "加入空间",
@@ -154,7 +161,7 @@
       "intro": "连接到 <host>{{host}}</host> 以加入此空间。",
       "passwordLabel": "输入您的密码以连接",
       "passwordPlaceholder": "您的账号密码",
-      "passwordNote": "您的密码由主实例校验，绝不会发送给 {{host}}。该实例将获得为其专有的凭据。",
+      "passwordNote": "您的密码由主实例验证，绝不会发送给 {{host}}。该实例会收到专门为它生成的独立凭据。",
       "submit": "连接并加入",
       "submitting": "正在连接…"
     },
@@ -268,9 +275,9 @@
       "banFailed": "封禁成员失败",
       "rolesAboveYou": "与您的最高身份组同级或更高的身份组已锁定。",
       "rolesUnheld": "无法授予拥有您没有的权限的身份组。",
-      "rolesManagedByBot": "机器人自己的角色始终属于该机器人。",
+      "rolesManagedByBot": "机器人专属身份组只能由该机器人持有。",
       "botInvite": {
-        "warning": "该机器人将成为此服务器的成员，并接收其权限允许的所有频道的消息和事件。请仅添加你信任的机器人。",
+        "warning": "该机器人将成为此空间的成员，并接收其权限允许的所有频道的消息和事件。请仅添加您信任的机器人。",
         "owner": "所有者：@{{owner}}",
         "button": "添加机器人",
         "title": "添加机器人",
@@ -280,9 +287,9 @@
         "add": "添加",
         "adding": "添加中...",
         "permissionsTitle": "{{name}} 的权限",
-        "permissionsIntro": "机器人请求以下权限。它们会放入以机器人命名的角色；取消勾选你不想授予的权限。",
-        "permissionsUnheld": "你自己没有的权限无法授予。",
-        "permissionsNone": "未勾选任何权限：机器人将不带角色加入。",
+        "permissionsIntro": "机器人请求以下权限。这些权限会赋予以机器人命名的身份组；请取消勾选您不想授予的权限。",
+        "permissionsUnheld": "您自己没有的权限无法授予。",
+        "permissionsNone": "未勾选任何权限：机器人将不带身份组加入。",
         "back": "返回"
       }
     },
@@ -319,7 +326,7 @@
     "backToList": "返回身份组列表",
     "created": "身份组已创建。请在下方进行个性化配置。",
     "aboveYou": "此身份组与您的最高身份组同级或更高。您可以查看，但无法更改。",
-    "managedByBot": "此角色属于一个机器人。机器人离开空间时它会被移除，不能分配给他人或删除。可以更改其权限。",
+    "managedByBot": "此身份组由机器人管理，机器人离开空间时会被移除。不能将其分配给其他用户，也不能手动删除。可以更改其权限。",
     "reorder": {
       "handle": "移动 {{name}}",
       "handleHint": "拖动，或使用上下方向键",
@@ -379,7 +386,7 @@
       "connect": "连接语音",
       "speak": "语音发言",
       "muteMembers": "静音成员",
-      "deafenMembers": "拒听成员",
+      "deafenMembers": "将成员设为禁听",
       "moveMembers": "移动成员",
       "stream": "视频推流",
       "disconnectMembers": "断开成员连接",
@@ -443,7 +450,7 @@
       "leaveConfirm": {
         "title": "退出空间",
         "titleNamed": "退出 {{name}}",
-        "description": "确定要退出此空间吗？重新加入需要新的邀请链接。"
+          "description": "确定要退出此空间吗？重新加入需要邀请链接。"
       },
       "left": "已退出空间",
       "leaveFailed": "退出空间失败",
@@ -473,10 +480,10 @@
       "voiceSettings": "语音设置",
       "mute": "静音",
       "unmute": "取消静音",
-      "deafen": "拒听",
-      "undeafen": "取消拒听",
+      "deafen": "禁听",
+      "undeafen": "取消禁听",
       "spaceMuted": "已被空间静音",
-      "spaceDeafened": "已被空间拒听",
+      "spaceDeafened": "已被空间禁听",
       "permissionMuted": "已静音（无发言权限）"
     },
     "dmUnreadMessages_other": "{{count}} 条未读私信",
@@ -527,7 +534,7 @@
     "nickname": {
       "title": "修改空间昵称",
       "label": "空间昵称",
-      "descriptionSelf": "仅在当前空间生效，不会修改你的账号名称或你在其他空间的昵称。留空则显示账号名称。",
+      "descriptionSelf": "仅在当前空间生效，不会修改您的账号名称或您在其他空间的昵称。留空则显示账号名称。",
       "descriptionOther": "仅在当前空间生效，不会修改 {{name}} 的账号名称。留空则显示账号名称。",
       "reset": "恢复为账号名称",
       "shownAs": "在此空间的昵称：{{nickname}}"
@@ -592,7 +599,7 @@
       "nothing": "不通知",
       "inherit": "空间默认（{{level}}）"
     },
-    "dmNote": "私信始终会通知你。",
+    "dmNote": "私信始终会通知您。",
     "muteHeading": "静音",
     "mute": {
       "oneHour": "1 小时",
@@ -602,13 +609,13 @@
     },
     "unmute": "取消静音",
     "mutedUntil": "静音至 {{time}}",
-    "mutedIndefinitely": "已静音，直到你取消",
+    "mutedIndefinitely": "已静音，直到您取消",
     "spaceMuted": "此空间已静音，其频道也随之静音。",
     "mutedIndicator": "已静音",
     "saveFailed": "无法保存通知设置",
     "suppressEveryone": "屏蔽 @everyone 和 @here 提醒",
     "suppressRoles": "屏蔽 @身份组 提醒",
     "massHeading": "群组提及",
-    "massNote": "@here 与 @everyone 通知的成员相同。直接提及你的消息始终会通知你。"
+    "massNote": "@here 与 @everyone 通知的成员相同。直接提及您的消息始终会通知您。"
   }
 }

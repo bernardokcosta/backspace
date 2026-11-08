@@ -1,4 +1,11 @@
 {
+  "feedback": {
+    "openedInNewTab": "Aberto em uma nova aba",
+    "copiedGifLink": "Link do GIF copiado",
+    "copiedImageLink": "Link da imagem copiado",
+    "uploadExpired": "Não foi possível enviar \"{{content}}\": o upload expirou.",
+    "attachmentOnly": "(somente anexos)"
+  },
   "message": {
     "edit": {
       "hint": "esc para <cancel>cancelar</cancel> • enter para <save>salvar</save>"
@@ -36,7 +43,7 @@
     "loading": "Carregando mensagens",
     "loadingOlder": "Carregando mensagens mais antigas",
     "loadFailed": "Não foi possível carregar as mensagens",
-    "jumpToPresent": "Ir para o presente",
+    "jumpToPresent": "Ir para as mensagens recentes",
     "jump": {
       "unavailable": "Essa mensagem não está mais disponível",
       "failed": "Não foi possível carregar essa mensagem",
@@ -55,14 +62,14 @@
       "group": {
         "intro": "Este é o começo da conversa do seu grupo.",
         "owner": "Dono: <owner>@{{name}}</owner>",
-        "federatedNotice": "As mensagens ficam armazenadas na sua instância e nas instâncias de origem dos seus destinatários. Elas não têm criptografia de ponta a ponta.",
+        "federatedNotice": "As mensagens ficam armazenadas na sua instância de origem e nas instâncias de origem dos seus destinatários. Elas não têm criptografia de ponta a ponta.",
         "openSettings": "Abrir configurações do grupo",
         "leave": "Sair do grupo"
       },
       "dm": {
         "fallbackName": "Mensagem direta",
         "intro": "Este é o começo do seu histórico de mensagens diretas com <strong>@{{name}}</strong>.",
-        "federatedNotice": "As mensagens ficam armazenadas na sua instância e na instância de origem do seu destinatário. Elas não têm criptografia de ponta a ponta.",
+        "federatedNotice": "As mensagens ficam armazenadas na sua instância de origem e na instância de origem do seu destinatário. Elas não têm criptografia de ponta a ponta.",
         "removeFriend": "Remover amigo"
       }
     }
@@ -268,16 +275,16 @@
     "reject": "Rejeitar",
     "rejectTitle": "Rejeitar Pacote de Figurinhas",
     "rejectReason": "Motivo da rejeição",
-    "rejectPlaceholder": "Insira o motivo da rejeição",
+    "rejectPlaceholder": "Insira o motivo da rejeição (por exemplo, conteúdo inadequado ou baixa qualidade)",
     "rejectConfirm": "Confirmar Rejeição",
     "approvedSuccess": "Pacote de figurinhas aprovado com sucesso",
     "rejectedSuccess": "Pacote de figurinhas rejeitado",
-    "reviewNotes": "Notas da revisão",
+    "reviewNotes": "Motivo da rejeição",
     "creator": "Criador",
     "sourceInstance": "Instância",
     "localInstance": "Instância local",
     "viewStickers": "Ver figurinhas",
-    "pendingReviewHint": "Em revisão do administrador"
+    "pendingReviewHint": "Em análise pelo administrador. Será exibido em Explorar após a aprovação."
   },
   "poke": {
     "action": "Cutucar",

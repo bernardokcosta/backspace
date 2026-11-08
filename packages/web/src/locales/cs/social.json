@@ -1,0 +1,108 @@
+{
+  "tabs": {
+    "all": "Všichni",
+    "pending": "Čekající",
+    "add": "Přidat přítele",
+    "activity": "Aktivita"
+  },
+  "sections": {
+    "online": "Online — {{n}}",
+    "all": "Všichni přátelé — {{n}}",
+    "pending": "Čekající — {{n}}",
+    "active": "Aktivní — {{n}}",
+    "offline": "Offline — {{n}}"
+  },
+  "empty": {
+    "online": "Právě není nikdo online.",
+    "all": "Zatím žádné přátele — někoho přidej!",
+    "pending": "Žádné čekající žádosti — Nori si zdříml.",
+    "activity": "Zatím je tu klid… Když přátelé začnou aktivitu, ukážeme ji tady!"
+  },
+  "friend": {
+    "viaInstance": "přes {{host}}",
+    "message": "Zpráva",
+    "remove": "Odebrat přítele"
+  },
+  "sendMessage": {
+    "failed": "Nepodařilo se otevřít konverzaci: {{reason}}"
+  },
+  "request": {
+    "incoming": "Příchozí žádost o přátelství",
+    "outgoing": "Odchozí žádost o přátelství",
+    "ignore": "Ignorovat",
+    "cancel": "Zrušit žádost",
+    "send": "Poslat žádost o přátelství",
+    "pending": "Žádost čeká",
+    "sending": "Posílání…",
+    "cancelling": "Rušení…",
+    "sent": "Žádost o přátelství odeslána!"
+  },
+  "removeFriend": {
+    "title": "Odebrat přítele",
+    "description": "Opravdu chceš odebrat {{name}} z přátel? Později mu vždy můžeš poslat novou žádost.",
+    "fallbackName": "tohoto uživatele"
+  },
+  "add": {
+    "title": "Najít lidi",
+    "hint": "Hledej podle uživatelského jména nebo použij <handle>user@instance</handle> a přidej někoho přímo.",
+    "placeholder": "Hledat či přidat podle jména…",
+    "direct": "Poslat žádost o přátelství <handle>{{handle}}</handle>",
+    "sendRequest": "Poslat žádost",
+    "discover": "Objevit lidi",
+    "noSearchResults": "Hledání neodpovídá žádní uživatelé.",
+    "noDiscoverable": "Zatím žádní uživatelé k objevení — pozvi lidi, ať se přidají!"
+  },
+  "mutuals": {
+    "friends_one": "{{count}} společný přítel",
+    "friends_few": "{{count}} společní přátelé",
+    "friends_many": "{{count}} společných přátel",
+    "friends_other": "{{count}} společného přítele",
+    "spaces_one": "{{count}} společný prostor",
+    "spaces_few": "{{count}} společné prostory",
+    "spaces_many": "{{count}} společných prostorů",
+    "spaces_other": "{{count}} společného prostoru",
+    "noFriends": "Žádní společní přátelé",
+    "noSpaces": "Žádné společné prostory"
+  },
+  "profile": {
+    "tabs": {
+      "about": "O mně",
+      "mutualFriends": "Společní přátelé",
+      "mutualSpaces": "Společné prostory"
+    },
+    "aboutMe": "O mně",
+    "roles": "Role",
+    "memberSince": "Členem od",
+    "sendMessage": "Poslat zprávu",
+    "editRoles": "Upravit role",
+    "viewFull": "Zobrazit celý profil",
+    "addFriend": "Přidat přítele",
+    "playingNow": "Právě hraje"
+  },
+  "activity": {
+    "title": "Právě aktivní",
+    "quietTitle": "Zatím je tu klid…",
+    "quietDescription": "Když přítel začne aktivitu — třeba hru nebo hlasový pokec — ukážeme ji tady!",
+    "online": "Online — {{n}}",
+    "offline": "Offline — {{n}}",
+    "resizeHandle": "Změnit velikost seznamu přátel",
+    "types": {
+      "playing": "Hraje hru",
+      "listening": "Poslouchá hudbu",
+      "streaming": "Streamuje",
+      "watching": "Sleduje",
+      "custom": "Vlastní stav"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "Otevřít skladbu"
+  },
+  "instanceNotConnected": "K {{host}} nejsi připojen. Připoj se znovu a zkus to ještě jednou."
+}

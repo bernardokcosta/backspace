@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "delete": "Eliminar",
+    "bot": "BOT",
+    "confirm": "Confirmar",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "retry": "Reintentar",
+    "back": "Volver",
+    "done": "Listo",
+    "edit": "Editar",
+    "remove": "Quitar",
+    "add": "Añadir",
+    "apply": "Aplicar",
+    "reset": "Restablecer",
+    "continue": "Continuar",
+    "dismiss": "Descartar",
+    "ok": "Aceptar",
+    "search": "Buscar",
+    "clear": "Borrar",
+    "change": "Cambiar",
+    "refresh": "Actualizar",
+    "openLink": "Abrir enlace",
+    "tryAgain": "Volver a intentar",
+    "reply": "Responder",
+    "addReaction": "Añadir reacción",
+    "share": "Compartir",
+    "accept": "Aceptar",
+    "decline": "Rechazar",
+    "pause": "Pausar",
+    "resume": "Reanudar",
+    "abort": "Cancelar transferencia",
+    "dismissAll": "Descartar todo",
+    "filter": "Filtrar",
+    "sort": "Ordenar",
+    "sortBy": "Ordenar por",
+    "leave": "Salir",
+    "invitePeople": "Invitar personas",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "preview": "Vista previa",
+    "logIn": "Iniciar sesión"
+  },
+  "states": {
+    "loading": "Cargando…",
+    "saving": "Guardando…",
+    "saved": "Guardado",
+    "unknown": "Desconocido",
+    "none": "Ninguno",
+    "enabled": "Activado",
+    "disabled": "Desactivado",
+    "on": "Activado",
+    "off": "Desactivado",
+    "yes": "Sí",
+    "no": "No",
+    "optional": "Opcional",
+    "required": "Obligatorio",
+    "default": "Predeterminado",
+    "recommended": "Recomendado",
+    "online": "En línea",
+    "idle": "Ausente",
+    "doNotDisturb": "No molestar",
+    "offline": "Desconectado",
+    "loadingSettings": "Cargando ajustes…",
+    "loadSettingsFailed": "No se pudieron cargar los ajustes.",
+    "settingsSaved": "Ajustes guardados",
+    "saveFailed": "No se pudo guardar",
+    "scanning": "Analizando…",
+    "pleaseWait": "Espera un momento…"
+  },
+  "labels": {
+    "username": "Nombre de usuario",
+    "password": "Contraseña",
+    "displayName": "Nombre visible",
+    "friends": "Amigos",
+    "members": "Miembros",
+    "settings": "Ajustes",
+    "dangerZone": "Zona de peligro",
+    "searchMembers": "Buscar miembros…",
+    "noMembersFound": "No se encontraron miembros",
+    "or": "o",
+    "nameAZ": "Nombre (A-Z)"
+  },
+  "time": {
+    "today": "Hoy a las {{time}}",
+    "yesterday": "Ayer a las {{time}}",
+    "never": "Nunca",
+    "justNow": "Ahora mismo",
+    "minutesShort": "{{minutes}} min",
+    "hoursMinutesShort": "{{hours}} h {{minutes}} min",
+    "elapsed": "Tiempo transcurrido: {{duration}}",
+    "left": "Tiempo restante: {{duration}}"
+  },
+  "units": {
+    "ms": "{{value}} ms",
+    "percent": "{{value}}%",
+    "kbps": "{{value}} kbps",
+    "mbps": "{{value}} Mbps"
+  },
+  "colors": {
+    "mint": "Menta",
+    "sky": "Celeste",
+    "lavender": "Lavanda",
+    "coral": "Coral",
+    "rose": "Rosa",
+    "teal": "Verde azulado",
+    "amber": "Ámbar",
+    "peach": "Melocotón"
+  },
+  "language": {
+    "label": "Idioma",
+    "automatic": "Automático (sistema)",
+    "description": "Elige el idioma de los menús, botones y mensajes del sistema. Automático sigue las preferencias de idioma de tu sistema o navegador. Los mensajes de otras personas se mantienen tal como los escribieron."
+  },
+  "crash": {
+    "title": "Se produjo un error",
+    "reload": "Recargar página",
+    "details": "Detalles del error"
+  },
+  "app": {
+    "description": "La alternativa autoalojada a Discord y TeamSpeak. Voz HD, vídeo y pantalla compartida: de código abierto y gratuita (AGPL-3.0).",
+    "loading": "Cargando Backspace"
+  },
+  "chrome": {
+    "toggleMemberList": "Mostrar u ocultar la lista de miembros",
+    "closeSettings": "Cerrar ajustes"
+  },
+  "sourceCode": {
+    "label": "Código fuente (AGPL)",
+    "labelWithBuild": "Código fuente (AGPL) · {{build}}",
+    "title": "Ver el código fuente de la versión que ejecuta esta instancia (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "Se ha detectado {{label}}. Selecciónalo en los ajustes de voz para cambiar de dispositivo.",
+    "unnamedAudioInput": "Nuevo dispositivo de audio"
+  }
+}

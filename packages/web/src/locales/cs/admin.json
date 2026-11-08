@@ -1,0 +1,459 @@
+{
+  "general": {
+    "title": "Obecné",
+    "description": "Nastav svou instanci Backspace. Tato nastavení platí pro všechny uživatele.",
+    "instanceName": {
+      "label": "Název instance",
+      "description": "Název zobrazený na přihlašovací stránce a federovaným instancím.",
+      "counter": "{{length}}/{{max}}"
+    },
+    "gif": {
+      "label": "Hledání GIFů",
+      "description": "Zapni hledání GIFů od Klipy. Klíč API zdarma získáš na vývojářském portálu Klipy.",
+      "placeholderSaved": "Klíč uložen — zadáním nového jej nahradíš",
+      "placeholderKey": "Klíč API Klipy",
+      "enabled": "Zapnuto",
+      "notConfigured": "Nenastaveno",
+      "clearKey": "Vymazat klíč"
+    }
+  },
+  "registration": {
+    "title": "Registrace",
+    "description": "Urči, kdo si na této instanci smí vytvářet účty. Veřejná registrace kryje místní registrace; federovaná registrace kryje uživatele ze spřátelených instancí, kteří si tu vytvářejí účet.",
+    "public": {
+      "label": "Veřejná registrace",
+      "toggleLabel": "Povolit nové místní účty",
+      "toggleDescription": "Kdokoliv si může vytvořit místní účet na registrační stránce. Po vypnutí vznikají nové místní účty jen z odkazu s pozvánkou."
+    },
+    "federated": {
+      "label": "Federovaná registrace",
+      "toggleLabel": "Povolit nové federované účty",
+      "toggleDescription": "Uživatelé z jiných instancí si tu mohou vytvořit federovaný účet v nastavení Připojení. Stávající federované účty se přihlašují vždy, bez ohledu na toto nastavení."
+    },
+    "spaceCreation": {
+      "label": "Vytváření prostorů",
+      "toggleLabel": "Povolit vytváření nových prostorů",
+      "toggleDescription": "Uživatelé mohou na této instanci vytvářet nové prostory. Po vypnutí je vytvářejí jen správci instance a běžní uživatelé se smějí jen přidávat ke stávajícím."
+    },
+    "saved": "Nastavení registrace uloženo",
+    "saveFailed": "Nepodařilo se aktualizovat nastavení registrace"
+  },
+  "invites": {
+    "label": "Odkazy s pozvánkami",
+    "create": "+ Vytvořit odkaz",
+    "tabs": {
+      "active": "Aktivní",
+      "archived": "Archivované"
+    },
+    "loadFailed": "Nepodařilo se načíst pozvánky",
+    "emptyActive": "Žádné aktivní odkazy s pozvánkami.",
+    "emptyArchived": "Žádné archivované odkazy s pozvánkami.",
+    "noMatch": "Filtrování neodpovídá žádná pozvánka.",
+    "filter": {
+      "status": "Stav",
+      "sort": {
+        "recent": "Nejnovější",
+        "oldest": "Nejstarší",
+        "name": "Název (A–Z)",
+        "mostUsed": "Nejčastěji použité",
+        "expiringSoonest": "Nejříve expirující"
+      }
+    },
+    "status": {
+      "active": "Aktivní",
+      "expired": "Vypršelé",
+      "exhausted": "Vyčerpané",
+      "revoked": "Odvolané"
+    },
+    "expiry": {
+      "preset": {
+        "hour1": "1 hodina",
+        "hours24": "24 hodin",
+        "days7": "7 dní",
+        "days30": "30 dní",
+        "custom": "Vlastní…"
+      },
+      "keepCurrent": "Zachovat aktuální",
+      "invalidFuture": "Vyber budoucí datum a čas",
+      "invalidSelection": "Neplatná volba expirace",
+      "revokedOn": "Odvoláno {{date}}",
+      "expiredOn": "Vypršelo {{date}}",
+      "exhausted": "Vyčerpáno",
+      "noExpiration": "Bez expirace",
+      "inDays_one": "Vyprší za {{count}} den",
+      "inDays_few": "Vyprší za {{count}} dny",
+      "inDays_many": "Vyprší za {{count}} dnů",
+      "inDays_other": "Vyprší za {{count}} dne",
+      "inHours_one": "Vyprší za {{count}} hodinu",
+      "inHours_few": "Vyprší za {{count}} hodiny",
+      "inHours_many": "Vyprší za {{count}} hodin",
+      "inHours_other": "Vyprší za {{count}} hodiny"
+    },
+    "form": {
+      "name": "Název",
+      "namePlaceholder": "např. Kamarádi, parta 1",
+      "maxUses": "Max. použití",
+      "unlimited": "Bez limitu",
+      "uses": "použití",
+      "expires": "Vyprší",
+      "nameLength": "Název musí mít 1 až 64 znaků",
+      "maxUsesInteger": "Maximum použití musí být kladné celé číslo"
+    },
+    "createModal": {
+      "title": "Vytvořit odkaz s pozvánkou",
+      "description": "Vygeneruj odkaz ke sdílení, přes nějž se lidé zaregistrují na této instanci. Nastavíš, kolikrát jej lze použít a kdy vyprší.",
+      "submit": "Vytvořit odkaz",
+      "submitting": "Vytváření…",
+      "createdCopied": "Odkaz vytvořen. Zkopírován do schránky.",
+      "createdManual": "Odkaz vytvořen. Zkopíruj jej ručně z řádku.",
+      "failed": "Pozvánku se nepodařilo vytvořit: {{message}}"
+    },
+    "editModal": {
+      "title": "Upravit „{{name}}”",
+      "description": "Uprav limity tohoto odkazu. URL zůstává stejné — každý, kdo je má, je dál použije v nových mezích.",
+      "used": "(použito {{used}})",
+      "maxUsesBelowUsed": "Maximum použití nesmí být menší než aktuální použití ({{used}})",
+      "noChanges": "Žádné změny k uložení",
+      "updated": "Pozvánka aktualizována",
+      "failed": "Pozvánku se nepodařilo aktualizovat: {{message}}",
+      "submit": "Uložit změny",
+      "submitting": "Ukládání…"
+    },
+    "reinstateModal": {
+      "title": "Obnovit „{{name}}”",
+      "descriptionRevoked": "Tato pozvánka byla odvolána. Obnovením vznikne nový odkaz s jinou URL — původní URL zůstane neaktivní.",
+      "descriptionLapsed": "Platnost této pozvánky vypršela. Obnovením se tatáž URL zase aktivuje — každý, kdo si ji uložil, ji bude moci znovu použít.",
+      "newLinkWarning": "Vznikne nový odkaz. Ti, kdo měli starou URL, jej nebudou moci použít.",
+      "maxUsesMeta": "(nyní: {{max}}, použito: {{used}})",
+      "maxUsesMin": "Maximum použití musí být aspoň {{min}} (aktuálně: {{used}})",
+      "submit": "Obnovit",
+      "submitNewLink": "Obnovit s novým odkazem",
+      "submitting": "Obnovování…",
+      "doneCopied": "Obnoveno s novým odkazem. Zkopírováno do schránky.",
+      "doneManual": "Obnoveno s novým odkazem. Zkopíruj jej ručně z řádku.",
+      "doneSameLink": "Obnoveno. Tentýž odkaz je zase aktivní.",
+      "failed": "Obnovení se nezdařilo: {{message}}"
+    },
+    "redemptions": {
+      "title": "Využití „{{name}}”",
+      "description": "Uživatelé, kteří se přes tento odkaz zaregistrovali, podle registrace.",
+      "revokedNotice": "Tato pozvánka byla odvolána. Níže jsou využití uživatelů, kteří se zaregistrovali před odvoláním.",
+      "revokedNoticeDated": "Tato pozvánka byla odvolána {{date}}. Níže jsou využití uživatelů, kteří se zaregistrovali před odvoláním.",
+      "usesOfMax_one": "{{count}} z {{max}} použití",
+      "usesOfMax_few": "{{count}} ze {{max}} použití",
+      "usesOfMax_many": "{{count}} z {{max}} použití",
+      "usesOfMax_other": "{{count}} ze {{max}} použití",
+      "uses_one": "{{count}} použití",
+      "uses_few": "{{count}} použití",
+      "uses_many": "{{count}} použití",
+      "uses_other": "{{count}} použití",
+      "loadFailed": "Využití se nepodařilo načíst",
+      "loadFailedInline": "Využití se nepodařilo načíst.",
+      "empty": "Zatím žádná využití.",
+      "now": "(nyní {{name}})",
+      "deletedUser": "Smazaný uživatel"
+    },
+    "row": {
+      "usage": "Použití: {{usage}}",
+      "createdBy": "Autor: {{name}}",
+      "unknownCreator": "Neznámý",
+      "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
+      "subtitleArchived": "{{usage}} · {{expiry}} · {{when}}",
+      "used": "Použito",
+      "expires": "Vyprší",
+      "expiredAt": "Vypršelo",
+      "revokedAt": "Odvoláno",
+      "exhausted": "Vyčerpáno",
+      "created": "Vytvořeno",
+      "createdByLabel": "Autor",
+      "token": "Token",
+      "lastRedeemed": "Poslední využití",
+      "copyLink": "Kopírovat odkaz",
+      "revoke": "Odvolat",
+      "viewRedemptions": "Zobrazit využití",
+      "reinstate": "Obnovit",
+      "deletePermanently": "Smazat trvale",
+      "copied": "Odkaz s pozvánkou zkopírován",
+      "copyFailed": "Odkaz se nepodařilo zkopírovat",
+      "revoked": "Pozvánka odvolána",
+      "revokeFailed": "Odvolání se nezdařilo: {{message}}",
+      "deleted": "Pozvánka smazána",
+      "deleteFailed": "Smazání se nezdařilo: {{message}}",
+      "revokeDialog": {
+        "title": "Odvolat „{{name}}”?",
+        "description": "Odkaz okamžitě přestane fungovat. Nikdo s touto URL jej už nebude moci použít.<br/><br/>Rozmyslíš-li si to, <strong>Obnovit</strong> vydá v tomto záznamu nový odkaz — původní URL zůstane neaktivní.",
+        "confirm": "Odvolat odkaz"
+      },
+      "deleteDialog": {
+        "title": "Smazat „{{name}}” trvale?",
+        "description": "Toto nelze vrátit zpět. Historie využití tohoto odkazu bude také smazána. Chceš-li jen, aby odkaz přestal fungovat, použij <strong>Odvolat</strong> — historie využití zůstane.",
+        "confirm": "Smazat trvale"
+      }
+    }
+  },
+  "storage": {
+    "title": "Úložiště",
+    "description": "Sleduj využití disku a čistí osiřelé soubory po smazaném obsahu či nahrazených avatarech a bannerech.",
+    "loading": "Načítání statistik úložiště…",
+    "loadFailed": "Statistiky úložiště se nepodařilo načíst",
+    "refresh": "Obnovit statistiky",
+    "overview": {
+      "label": "Přehled úložiště",
+      "totalFiles": "Celkem souborů",
+      "referenced": "S odkazy",
+      "orphanedFiles": "Osiřelé soubory",
+      "unlinkedUploads": "Nepřipojená nahrání",
+      "danglingRecords": "Visící záznamy",
+      "staleUploads": "Zastaralá nahrání"
+    },
+    "breakdown": {
+      "label": "Rozpis podle typů souborů",
+      "entry_one": "{{count}} soubor — {{size}}",
+      "entry_few": "{{count}} soubory — {{size}}",
+      "entry_many": "{{count}} souborů — {{size}}",
+      "entry_other": "{{count}} souboru — {{size}}"
+    },
+    "uploadLimit": {
+      "label": "Limit nahrávání",
+      "maxFileSize": "Maximální velikost souboru",
+      "maxStickerSize": "Maximální velikost nálepky",
+      "saved": "Limit nahrávání nastaven na {{limit}}",
+      "saveFailed": "Limit nahrávání se nepodařilo aktualizovat",
+      "stickerSaved": "Limit velikosti nálepky nastaven na {{limit}}",
+      "stickerSaveFailed": "Limit velikosti nálepky se nepodařilo aktualizovat"
+    },
+    "cleanup": {
+      "label": "Čištění",
+      "nothingFound": "Nenalezeny žádné osiřelé soubory, zastaralá nahrání ani visící záznamy.",
+      "preview": "Náhled čištění",
+      "run": "Vyčistit nyní",
+      "running": "Čištění…",
+      "previewResult": "Náhled — žádný soubor nesmazán",
+      "complete": "Čištění dokončeno",
+      "orphanedFiles_one": "{{count}} osiřelý soubor ({{size}})",
+      "orphanedFiles_few": "{{count}} osiřelé soubory ({{size}})",
+      "orphanedFiles_many": "{{count}} osiřelých souborů ({{size}})",
+      "orphanedFiles_other": "{{count}} osiřelého souboru ({{size}})",
+      "staleRecords_one": ", {{count}} zastaralý záznam nahrání",
+      "staleRecords_few": ", {{count}} zastaralé záznamy nahrání",
+      "staleRecords_many": ", {{count}} zastaralých záznamů nahrání",
+      "staleRecords_other": ", {{count}} zastaralého záznamu nahrání",
+      "errors_one": "{{count}} chyba: {{first}}",
+      "errors_few": "{{count}} chyby: {{first}}",
+      "errors_many": "{{count}} chyb: {{first}}",
+      "errors_other": "{{count}} chyby: {{first}}",
+      "cleanedToast_one": "Vyčištěn {{count}} soubor ({{size}})",
+      "cleanedToast_few": "Vyčištěny {{count}} soubory ({{size}})",
+      "cleanedToast_many": "Vyčištěno {{count}} souborů ({{size}})",
+      "cleanedToast_other": "Vyčištěn {{count}} soubor ({{size}})",
+      "failed": "Čištění se nezdařilo"
+    },
+    "stale": {
+      "label": "Zastaralá nahrání",
+      "description": "Opuštěné tus relace v <code>.tus/</code> (pozastavené či havarované bez DELETE). Automatické čištění běží každých 24 hodin; tady uklízíš dřív.",
+      "maxAge": "Maximální stáří (hodiny)",
+      "sessionFiles_one": "{{count}} soubor relace ({{size}})",
+      "sessionFiles_few": "{{count}} soubory relace ({{size}})",
+      "sessionFiles_many": "{{count}} souborů relace ({{size}})",
+      "sessionFiles_other": "{{count}} souboru relace ({{size}})",
+      "cleanedToast_one": "Vyčištěna {{count}} zastaralá relace nahrávání ({{size}})",
+      "cleanedToast_few": "Vyčištěny {{count}} zastaralé relace nahrávání ({{size}})",
+      "cleanedToast_many": "Vyčištěno {{count}} zastaralých relací nahrávání ({{size}})",
+      "cleanedToast_other": "Vyčištěna {{count}} zastaralá relace nahrávání ({{size}})",
+      "failed": "Čištění zastaralých nahrávání se nezdařilo"
+    },
+    "media": {
+      "label": "Ukládání médií",
+      "olderThan": "Mazat média chatu starší než",
+      "days": "dní",
+      "run": "Smazat nyní",
+      "running": "Mazání…",
+      "files_one": "{{count}} soubor ({{size}})",
+      "files_few": "{{count}} soubory ({{size}})",
+      "files_many": "{{count}} souborů ({{size}})",
+      "files_other": "{{count}} souboru ({{size}})",
+      "deletedToast_one": "Smazán {{count}} soubor ({{size}})",
+      "deletedToast_few": "Smazány {{count}} soubory ({{size}})",
+      "deletedToast_many": "Smazáno {{count}} souborů ({{size}})",
+      "deletedToast_other": "Smazán {{count}} soubor ({{size}})",
+      "failed": "Čištění médií se nezdařilo"
+    }
+  },
+  "streaming": {
+    "title": "Streamování",
+    "description": "Tato omezení platí pro všechny uživatele této instance. Uživatelé si smějí vybírat hodnoty v těchto mezích.",
+    "units": {
+      "fps": "{{value}} sn./s",
+      "kbpsLabel": "kb/s"
+    },
+    "bandwidth": {
+      "label": "Šířka pásma",
+      "description": "Minimální a maximální meze bitrate a krok posuvníku kvality.",
+      "customBitrate": {
+        "label": "Povolit vlastní bitrate",
+        "description": "Povolit uživatelům nastavit vlastní bitrate místo výchozích hodnot matice"
+      },
+      "range": "Rozsah bitrate",
+      "min": "Minimum",
+      "max": "Maximum",
+      "step": "Krok posuvníku"
+    },
+    "quality": {
+      "label": "Kvalita",
+      "description": "Dostupné volby rozlišení a snímkové frekvence pro sdílení obrazovky.",
+      "resolutions": "Povolená rozlišení",
+      "framerates": "Povolené snímkové frekvence"
+    },
+    "highEndWarning": {
+      "title": "Zapnuta vysoce náročná nastavení.",
+      "description": "Streamování nad 1080p či 60 sn./s potřebuje značný kódovací výkon CPU/GPU na klientovi a může nasytit šířku pásma serveru, zvlášť když toky procházejí TURN. Špičkové konfigurace (třeba 4K se 120 sn./s) mohou žádat až 45 Mb/s na aktivní tok. Než tato nastavení povolíš všem uživatelům, ověř, že to tvá infrastruktura zvládne."
+    },
+    "matrix": {
+      "label": "Matice bitrate",
+      "description": "Výchozí bitrate pro každé rozlišení a snímkovou frekvenci. Uprav jednotlivé buňky či škáluj všechny hodnoty najednou.",
+      "scaleAll": "Škálovat vše",
+      "scaleHint": "Táhni pro škálování všech bitrate. Jemné ladění jednotlivých buněk — níže.",
+      "cellDefault": "Výchozí: {{value}} (kliknutím × resetuješ)",
+      "cellEdit": "Klikni pro úpravu",
+      "resetAll": "Resetovat vše na výchozí"
+    },
+    "capWarning": {
+      "title": "Hodnoty matice přesahují globální limit.",
+      "description": "Některé bitrate přesahují tvé maximum {{max}}. Toky s těmito kombinacemi budou sníženy na tvou mez."
+    }
+  },
+  "updates": {
+    "title": "Aktualizace",
+    "badge": {
+      "settingsAriaLabel": "Nastavení, dostupná aktualizace instance",
+      "toast": "Pro tuto instanci je dostupný Backspace {{version}}",
+      "toastAction": "Zobrazit"
+    },
+    "description": "Jaká verze na této instanci běží a jak ji aktualizovat.",
+    "loading": "Načítání stavu aktualizací…",
+    "loadFailed": "Stav aktualizací se nepodařilo načíst.",
+    "copyFailed": "Nepodařilo se zkopírovat. Vyber příkaz a zkopíruj jej ručně.",
+    "running": {
+      "label": "Běží",
+      "commit": "commit {{commit}} · ",
+      "channel": {
+        "prebuilt": "předpřipravený obraz",
+        "source": "sestaveno ze zdrojáků",
+        "unknown": "způsob instalace nezaznamenán"
+      }
+    },
+    "available": {
+      "label": "Dostupné",
+      "version": "Dostupný Backspace {{version}}",
+      "released": "Vydáno {{date}} · ",
+      "releaseNotes": "Poznámky k vydání",
+      "fromInstallDir": "Z tvého instalačního adresáře:",
+      "scriptDescription": "Vytvoří snímek databáze, stáhne nový obraz a restartuje jen kontejner Backspace. Pokud se nová verze nespustí dobře či naběhne se starým kódem, vrátí aktuální verzi.",
+      "noScript": "Nemám update.sh",
+      "manualIntro": "update.sh se dodává od 1.0.5. V git kopii jej přidá <code>git pull</code>. Jinak proveď kroky ručně po snímku pomocí <code>./backup.sh</code>.",
+      "prebuiltInstall": "Instalace předpřipraveného obrazu:",
+      "sourceInstall": "Instalace ze zdrojáků:",
+      "manualWarning": "Výslovně uveď službu <code>backspace</code> a nepředávej <code>--remove-orphans</code>. Compose to navrhne, když v tomto projektu běží jiné kontejnery, a smazal by je."
+    },
+    "upToDate": "Máš nejnovější verzi.",
+    "disabled": {
+      "title": "Kontrola aktualizací vypnuta",
+      "description": "Tato instance se GitHubu ptát nebude. Povol kontrolu pomocí <code>BACKSPACE_UPDATE_CHECK=true</code> ve svém <code>.env</code>, nebo si stránku vydání prohlédni sám."
+    },
+    "rateLimited": {
+      "title": "GitHub omezil frekvenci",
+      "description": "To nesvědčí o tom, zda aktualizace je, či není. Zkus to později."
+    },
+    "unreachable": {
+      "title": "Nepodařilo se ověřit aktualizace",
+      "description": "GitHub se nepodařilo zastihnout, takže to nesvědčí o tom, zda aktualizace je, či není. Tvá instance je v pořádku."
+    },
+    "lastChecked": "Naposledy zkontrolováno: {{when}}",
+    "noLookups": "Dotazy neběží",
+    "checkAgain": "Zkontrolovat znovu",
+    "checking": "Kontrolování…"
+  },
+  "users": {
+    "title": "Uživatelé",
+    "description": "Prohlížej a spravuj účty na této instanci.",
+    "searchPlaceholder": "Hledat uživatele…",
+    "loading": "Načítání uživatelů…",
+    "loadFailed": "Uživatele se nepodařilo načíst",
+    "empty": "Nenalezeni žádní uživatelé",
+    "filters": {
+      "allInstances": "Všechny instance",
+      "localOnly": "Jen místní",
+      "allRoles": "Všechny role",
+      "admin": "Správce",
+      "nonAdmin": "Nesprávce",
+      "joinedAfter": "Připojeni po",
+      "joinedBefore": "Připojeni před",
+      "newest": "Nejnovější",
+      "oldest": "Nejstarší",
+      "nameDesc": "Název Z–A",
+      "deleted": "Smazaní",
+      "clear": "Vymazat filtry",
+      "bot": "Boti"
+    },
+    "badge": {
+      "admin": "Správce",
+      "deleted": "Smazáno"
+    },
+    "actions": {
+      "demote": "Odebrat práva správce",
+      "promote": "Dát práva správce",
+      "federatedNoAdmin": "Federovaní uživatelé nemohou být správci",
+      "resetPassword": "Resetovat heslo",
+      "federatedNoReset": "Federovaní uživatelé se přihlašují přes domovskou instanci",
+      "delete": "Smazat uživatele",
+      "selfDelete": "Pro smazání vlastního účtu použij nastavení"
+    },
+    "tempPassword": {
+      "label": "Dočasné heslo:",
+      "note": "Zobrazeno jednou. Uživatel je odpojen; musí se přihlásit znovu."
+    },
+    "pagination": "Stránka {{page}} z {{total}} ({{users}})",
+    "count_one": "{{count}} uživatel",
+    "count_few": "{{count}} uživatelé",
+    "count_many": "{{count}} uživatelů",
+    "count_other": "{{count}} uživatele",
+    "roleFailed": "Roli se nepodařilo aktualizovat",
+    "resetFailed": "Heslo se nepodařilo resetovat",
+    "actionFailed": "Akce selhala",
+    "resetDialog": {
+      "title": "Resetovat heslo",
+      "description": "Resetovat heslo pro <strong>{{username}}</strong>? Uživatel bude okamžitě odpojen a musí se přihlásit novým dočasným heslem.",
+      "confirm": "Resetovat heslo"
+    },
+    "demoteDialog": {
+      "title": "Odebrat práva správce",
+      "description": "Odebrat <strong>{{username}}</strong> práva správce? Uživatel ztratí přístup k nastavení instance.",
+      "confirm": "Odebrat práva"
+    },
+    "deleteDialog": {
+      "title": "Smazat uživatele",
+      "description": "Trvale smazat <strong>{{username}}</strong>? Uživatel bude odebrán ze všech prostorů, přímých zpráv a seznamů přátel. Toto nelze vrátit.",
+      "confirm": "Smazat uživatele",
+      "blockBot": "Nedovolit tomuto botovi se znovu registrovat",
+      "blockBotHint": "Až jeho domovská instance ožije, bot si tu nebude moci vytvořit účet. Odblokuješ jej pod seznamem uživatelů."
+    },
+    "blockedBots": {
+      "title": "Blokovaní boti",
+      "description": "Boti jiných instancí, kteří se tu nesmějí registrovat. Odblokováním mu zase povolíš přístup.",
+      "blockedAt": "Blokováno {{date}}",
+      "unblock": "Odblokovat"
+    }
+  },
+  "mobile": {
+    "title": "Instance",
+    "sections": {
+      "general": "Obecné",
+      "registration": "Registrace",
+      "federation": "Federace",
+      "streaming": "Streamování",
+      "storage": "Úložiště",
+      "updates": "Aktualizace",
+      "users": "Uživatelé"
+    }
+  }
+}

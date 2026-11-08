@@ -1,0 +1,34 @@
+{
+  "input": {
+    "placeholder": "Cari pesan…"
+  },
+  "filters": {
+    "toggle": "Filter",
+    "from": {
+      "label": "Dari",
+      "placeholder": "nama pengguna"
+    },
+    "has": {
+      "label": "Berisi",
+      "any": "Apa pun",
+      "file": "Berkas",
+      "image": "Gambar",
+      "link": "Tautan"
+    },
+    "before": {
+      "label": "Sebelum"
+    },
+    "after": {
+      "label": "Sesudah"
+    }
+  },
+  "results": {
+    "empty": "Tidak ada hasil",
+    "hint": "Ketik untuk mencari pesan di kanal ini",
+    "count_one": "{{count}} hasil",
+    "count_other": "{{count}} hasil",
+    "loadMore": "Muat lebih banyak (tersisa {{remaining}})",
+    "attachments_one": "{{count}} lampiran",
+    "attachments_other": "{{count}} lampiran"
+  }
+}

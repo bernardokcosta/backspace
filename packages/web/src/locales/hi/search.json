@@ -1,0 +1,34 @@
+{
+  "input": {
+    "placeholder": "संदेश खोजें…"
+  },
+  "filters": {
+    "toggle": "फ़िल्टर",
+    "from": {
+      "label": "प्रेषक",
+      "placeholder": "उपयोगकर्ता नाम"
+    },
+    "has": {
+      "label": "शामिल",
+      "any": "कुछ भी",
+      "file": "फ़ाइल",
+      "image": "छवि",
+      "link": "लिंक"
+    },
+    "before": {
+      "label": "पहले"
+    },
+    "after": {
+      "label": "बाद में"
+    }
+  },
+  "results": {
+    "empty": "कोई परिणाम नहीं",
+    "hint": "इस चैनल में संदेश खोजने के लिए लिखें",
+    "count_one": "{{count}} परिणाम",
+    "count_other": "{{count}} परिणाम",
+    "loadMore": "और लोड करें ({{remaining}} शेष)",
+    "attachments_one": "{{count}} अनुलग्नक",
+    "attachments_other": "{{count}} अनुलग्नक"
+  }
+}

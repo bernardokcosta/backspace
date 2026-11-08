@@ -1,0 +1,314 @@
+{
+  "feedback": {
+    "openedInNewTab": "Abierto en una pestaña nueva",
+    "copiedGifLink": "Enlace del GIF copiado",
+    "copiedImageLink": "Enlace de la imagen copiado",
+    "uploadExpired": "No se pudo enviar «{{content}}» porque la subida ha caducado.",
+    "attachmentOnly": "(solo archivos adjuntos)"
+  },
+  "message": {
+    "edit": {
+      "hint": "Esc para <cancel>cancelar</cancel> • Intro para <save>guardar</save>"
+    },
+    "edited": "(editado)",
+    "rowLabel": "{{author}}, {{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "No se pudo subir el archivo",
+      "discard": "Descartar"
+    },
+    "actions": {
+      "confirmDelete": "Confirmar eliminación"
+    },
+    "reply": {
+      "jump": "Ir al mensaje original"
+    },
+    "mention": {
+      "unknownUser": "Usuario desconocido",
+      "unknownRole": "Rol desconocido"
+    },
+    "reactions": {
+      "picker": "Selector de reacciones",
+      "you": "Tú",
+      "others_one": "{{count}} persona más",
+      "others_many": "{{count}} personas más",
+      "others_other": "{{count}} personas más",
+      "bySelf": "Has reaccionado",
+      "byOne": "{{name}} ha reaccionado",
+      "byMany": "{{names}} han reaccionado"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "No tienes permiso para ver el historial de mensajes de este canal",
+    "loading": "Cargando mensajes",
+    "loadingOlder": "Cargando mensajes anteriores",
+    "loadFailed": "No se pudieron cargar los mensajes",
+    "jumpToPresent": "Ir a los mensajes más recientes",
+    "jump": {
+      "unavailable": "Ese mensaje ya no está disponible",
+      "failed": "No se pudo cargar ese mensaje",
+      "presentFailed": "No se pudieron cargar los mensajes más recientes"
+    },
+    "unread": {
+      "label": "Nuevos",
+      "divider": "Mensajes nuevos",
+      "dividerWithDate": "Mensajes nuevos, {{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "¡Te damos la bienvenida al canal!",
+        "description": "Este es el comienzo de la conversación."
+      },
+      "group": {
+        "intro": "Este es el comienzo de la conversación de tu grupo.",
+        "owner": "Propietario: <owner>@{{name}}</owner>",
+        "federatedNotice": "Los mensajes se almacenan en tu instancia de origen y en las de los destinatarios. No están cifrados de extremo a extremo.",
+        "openSettings": "Abrir ajustes del grupo",
+        "leave": "Salir del grupo"
+      },
+      "dm": {
+        "fallbackName": "Mensaje directo",
+        "intro": "Este es el comienzo de tu historial de mensajes directos con <strong>@{{name}}</strong>.",
+        "federatedNotice": "Los mensajes se almacenan en tu instancia de origen y en la del destinatario. No están cifrados de extremo a extremo.",
+        "removeFriend": "Eliminar de amigos"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "No tienes permiso para enviar mensajes en este canal",
+    "placeholder": {
+      "channel": "Mensaje en #{{name}}",
+      "dm": "Mensaje para @{{name}}"
+    },
+    "replyingTo": "Respondiendo a",
+    "cancelReply": "Cancelar respuesta",
+    "removeAttachment": "Quitar archivo adjunto",
+    "attachFile": "Adjuntar archivo",
+    "dropTitle": "Subir archivo",
+    "dropHint": "Suelta para adjuntar",
+    "uploading": "Subiendo…",
+    "uploadingLabel": "Subiendo",
+    "failedCount_one": "{{count}} con error",
+    "failedCount_many": "{{count}} con error",
+    "failedCount_other": "{{count}} con error",
+    "failedHint": "Quita el archivo que ha fallado o vuelve a subirlo para enviar el mensaje",
+    "gif": "GIF",
+    "gifPicker": "Selector de GIF",
+    "emoji": "Emoji",
+    "emojiPicker": "Selector de emojis",
+    "send": "Enviar",
+    "sendMessage": "Enviar mensaje",
+    "uploadFailed": "No se pudo subir {{file}}: {{reason}}",
+    "uploadFailedReason": "No se pudo subir el archivo",
+    "typing": {
+      "named_one": "{{names}} está escribiendo",
+      "named_many": "{{names}} están escribiendo",
+      "named_other": "{{names}} están escribiendo",
+      "several": "Varias personas están escribiendo"
+    }
+  },
+  "menu": {
+    "saveImage": "Guardar imagen",
+    "copyImage": "Copiar imagen",
+    "openOriginal": "Abrir original",
+    "saveVideo": "Guardar vídeo",
+    "saveAudio": "Guardar audio",
+    "copyLink": "Copiar enlace",
+    "openLink": "Abrir enlace",
+    "copySelectedText": "Copiar texto seleccionado",
+    "copyText": "Copiar texto",
+    "markUnread": "Marcar como no leído",
+    "editMessage": "Editar mensaje",
+    "deleteMessage": "Eliminar mensaje",
+    "linkCopied": "Enlace copiado",
+    "linkCopyFailed": "No se pudo copiar el enlace",
+    "pinMessage": "Fijar mensaje",
+    "unpinMessage": "Desfijar mensaje"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "En pausa — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "No se puede reproducir aquí. Descárgalo.",
+      "unsupportedFormat": "Formato de vídeo no compatible",
+      "unsupportedBrowser": "Tu navegador no permite reproducir vídeo."
+    },
+    "audio": {
+      "unsupportedBrowser": "Tu navegador no permite reproducir audio."
+    },
+    "federation": {
+      "remoteNamed": "Alojado en la instancia de {{sender}}. Descárgalo para conservar una copia local.",
+      "remoteUnknown": "Alojado en la instancia de quien lo envió. Descárgalo para conservar una copia local.",
+      "partialGeneric": "Algunos destinatarios no pueden guardar este archivo en su caché local.",
+      "partialInstance": "la instancia de {{username}} (límite: {{limit}})",
+      "partialList": "No se pudo guardar el archivo en la caché de {{instances}}. Sus destinatarios podrán seguir viéndolo desde tu instancia.",
+      "listPair": "{{first}} y {{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "Buscar GIF",
+    "noResults": "No se encontraron GIF",
+    "noTrending": "No hay GIF en tendencia",
+    "attribution": "Con tecnología de Klipy"
+  },
+  "preview": {
+    "save": "Guardar imagen",
+    "copy": "Copiar imagen",
+    "alt": "Vista previa de la imagen"
+  },
+  "invite": {
+    "sentBy": "{{name}} ha enviado una invitación",
+    "memberCount_one": "{{count}} miembro",
+    "memberCount_many": "{{count}} miembros",
+    "memberCount_other": "{{count}} miembros",
+    "revoked": "La invitación ya no es válida",
+    "join": "Entrar",
+    "joining": "Entrando…",
+    "joinFailed": "No se pudo entrar",
+    "askToJoin": "Solicitar acceso",
+    "sendingRequest": "Enviando…",
+    "requestSent": "Solicitud enviada",
+    "requestPending": "Solicitud pendiente",
+    "requestNotice": "Este espacio requiere una solicitud de acceso. Una persona con permisos de gestión debe aprobarla.",
+    "requestReview": "Una persona con permisos de gestión revisará tu solicitud."
+  },
+  "notification": {
+    "unknownSender": "Alguien",
+    "attachmentOnly": "Ha enviado un archivo adjunto"
+  },
+  "commands": {
+    "title": "Comandos",
+    "failed": "No se pudo enviar el comando",
+    "extraText": "Este comando no admite texto libre, pero sobra «{{text}}». Coloca primero las opciones y después el texto",
+    "invalidOption": "El valor de {{option}} no es válido para este comando.",
+    "optionsTitle": "Parámetros",
+    "required": "obligatorio",
+    "subcommandsTitle": "Subcomandos",
+    "group": "grupo",
+    "chooseSubcommand": "Elige un subcomando: {{names}}",
+    "subcommandRefused": "El bot no ofrece este subcomando. Elige uno de la lista"
+  },
+  "ephemeral": {
+    "onlyYou": "Solo tú puedes ver esto",
+    "dismiss": "Descartar",
+    "rowLabel": "Respuesta de {{author}} que solo tú puedes ver, {{time}}"
+  },
+  "embed": {
+    "loadAction": "Haz clic para cargar",
+    "loadNamed": "Cargar {{name}}",
+    "loadUnnamed": "Cargar contenido incrustado",
+    "frameTitle": "Contenido incrustado",
+    "playNamed": "Reproducir {{title}}",
+    "playUnnamed": "Reproducir vídeo",
+    "videoTitle": "Vídeo"
+  },
+  "stickers": {
+    "title": "Mis stickers",
+    "upload": "Subir imagen",
+    "limits": "PNG, JPEG, WebP o GIF · hasta 5 MB",
+    "loading": "Cargando…",
+    "empty": "Tu colección de stickers empieza aquí",
+    "remove": "Quitar",
+    "save": "Añadir a mis stickers",
+    "saved": "Añadido a mis stickers",
+    "preview": "Vista previa del sticker",
+    "manage": "Gestionar",
+    "done": "Listo",
+    "collectionHint": "Elige un sticker para enviarlo. Dale tu toque personal a este espacio.",
+    "manageHint": "Cambia el nombre o quita stickers de tu colección. Los mensajes ya enviados no cambian.",
+    "emptyHint": "Guarda tus momentos favoritos como stickers para usarlos en tu próxima respuesta.",
+    "chooseImage": "Elegir imagen",
+    "cancel": "Cancelar",
+    "replace": "Sustituir imagen",
+    "name": "Nombre del sticker",
+    "dropImage": "Haz clic o suelta una imagen aquí",
+    "pasteHint": "También puedes pegar una imagen del portapapeles",
+    "uploading": "Añadiendo sticker…",
+    "singleImage": "Elige una imagen cada vez.",
+    "invalidSize": "Elige una imagen que no esté vacía y ocupe como máximo 5 MB.",
+    "invalidType": "Solo se admiten imágenes PNG, JPEG, WebP y GIF.",
+    "invalidImage": "No se puede mostrar una vista previa de esta imagen. Elige una imagen válida.",
+    "removeNamed": "Quitar {{name}}",
+    "addMore": "Añadir más",
+    "selectedCount_one": "{{count}} sticker seleccionado",
+    "selectedCount_many": "{{count}} stickers seleccionados",
+    "selectedCount_other": "{{count}} stickers seleccionados",
+    "dropMore": "Haz clic o suelta más imágenes aquí",
+    "sticker": "Sticker",
+    "downloadFailed": "No se pudo cargar la imagen.",
+    "batchLimit_one": "Elige como máximo {{count}} imagen cada vez.",
+    "batchLimit_many": "Elige como máximo {{count}} imágenes cada vez.",
+    "batchLimit_other": "Elige como máximo {{count}} imágenes cada vez.",
+    "capacityLimit_one": "En tu colección cabe {{count}} sticker más.",
+    "capacityLimit_many": "En tu colección caben {{count}} stickers más.",
+    "capacityLimit_other": "En tu colección caben {{count}} stickers más.",
+    "full": "Tu colección está llena. Quita un sticker para añadir otro.",
+    "batchFailed_one": "No se pudo añadir {{count}} imagen. Sigue en la lista de abajo.",
+    "batchFailed_many": "No se pudieron añadir {{count}} imágenes. Siguen en la lista de abajo.",
+    "batchFailed_other": "No se pudieron añadir {{count}} imágenes. Siguen en la lista de abajo.",
+    "uploadingProgress": "Añadiendo {{current}} de {{total}}…",
+    "rename": "Cambiar nombre",
+    "renameNamed": "Cambiar el nombre de {{name}}",
+    "renameTitle": "Cambiar el nombre del sticker",
+    "search": "Buscar stickers",
+    "noResults": "No se encontraron stickers",
+    "store": "Tienda de stickers",
+    "myCollection": "Mis stickers",
+    "packs": "Paquetes de stickers",
+    "explore": "Explorar",
+    "myPacks": "Creados por mí",
+    "install": "Añadir",
+    "installed": "Añadido",
+    "uninstall": "Quitar",
+    "createPack": "Crear paquete",
+    "editPack": "Editar paquete",
+    "packName": "Nombre del paquete",
+    "packDesc": "Descripción (opcional)",
+    "submitReview": "Enviar a revisión",
+    "pendingReview": "Pendiente de revisión",
+    "approved": "Aprobado",
+    "rejected": "Rechazado",
+    "draft": "Borrador",
+    "newVersion": "Nueva versión",
+    "deletePack": "Eliminar paquete",
+    "stickersCount_one": "{{count}} sticker",
+    "stickersCount_many": "{{count}} stickers",
+    "stickersCount_other": "{{count}} stickers",
+    "noPacks": "No se encontraron paquetes de stickers",
+    "replicaBadge": "Federado",
+    "viewPack": "Ver paquete",
+    "saveDraft": "Guardar como borrador",
+    "packCreated": "Paquete creado correctamente",
+    "reviewSubmitted": "Enviado a revisión del administrador",
+    "reviews": "Revisión",
+    "noReviews": "No hay paquetes de stickers pendientes de revisión",
+    "approve": "Aprobar",
+    "reject": "Rechazar",
+    "rejectTitle": "Rechazar paquete de stickers",
+    "rejectReason": "Motivo del rechazo",
+    "rejectPlaceholder": "Introduce el motivo del rechazo (p. ej., contenido inapropiado o mala calidad)",
+    "rejectConfirm": "Confirmar rechazo",
+    "approvedSuccess": "Paquete de stickers aprobado correctamente",
+    "rejectedSuccess": "Paquete de stickers rechazado",
+    "reviewNotes": "Motivo del rechazo",
+    "creator": "Creador",
+    "sourceInstance": "Instancia",
+    "localInstance": "Instancia local",
+    "viewStickers": "Ver stickers",
+    "pendingReviewHint": "El administrador lo está revisando. Aparecerá en Explorar cuando se apruebe"
+  },
+  "poke": {
+    "action": "Dar un toque",
+    "received": "{{actor}} ha dado un toque a {{target}}",
+    "disconnected": "Sin conexión. No se ha enviado el toque."
+  },
+  "pins": {
+    "title": "Mensajes fijados",
+    "empty": "Aún no hay mensajes fijados.",
+    "jump": "Ir al mensaje",
+    "unpin": "Desfijar",
+    "deletedMessage": "Mensaje eliminado",
+    "attachmentOnly": "Archivo adjunto"
+  }
+}

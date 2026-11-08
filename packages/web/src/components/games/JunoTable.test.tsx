@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { JunoView } from '@backspace/shared/src/juno';
 import { useJunoStore } from '../../stores/junoStore';
@@ -20,6 +20,20 @@ beforeEach(() => {
     connected: true, snapshot: { revision: 1, game: game() }, observedAt: Date.now(), command, open: true });
 });
 describe('Juno native table', () => {
+  it('groups accessible icon-only header actions on the right, including settings', () => {
+    useJunoStore.setState({ snapshot: { revision: 1, game: game('playing') } });
+    const { container } = render(<JunoTable />);
+    const actions = container.querySelector('.juno-header-actions');
+    for (const name of ['Space ranking', 'Juno settings', 'Leave game', 'Back to mosaic']) {
+      const button = screen.getByRole('button', { name });
+      expect(actions).toContainElement(button); expect(button).toHaveClass('juno-icon-button');
+      expect(button.querySelector('svg[aria-hidden="true"]')).not.toBeNull(); expect(button.textContent).toBe('');
+    }
+    const rules = container.querySelector('.juno-rules summary');
+    expect(actions).toContainElement(rules as HTMLElement); expect(rules).toHaveClass('juno-icon-button');
+    expect(rules?.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
+    expect(within(actions as HTMLElement).getByText('How to play')).toHaveClass('sr-only');
+  });
   it('focuses a leave confirmation and consumes Escape without mutating the game', async () => {
     render(<JunoTable />); const leave = screen.getByRole('button', { name: 'Leave game' });
     await userEvent.click(leave);
@@ -65,6 +79,7 @@ describe('Juno native table', () => {
   it('shows report rules only for a capable host, retaining legacy host rules', async () => {
     const current = game('playing');
     useJunoStore.setState({ snapshot: { revision: 1, game: current } }); render(<JunoTable />);
+    await userEvent.click(screen.getByText('How to play'));
     expect(screen.getByText(/otherwise you draw two/i)).toBeInTheDocument();
     useJunoStore.setState({ snapshot: { revision: 2, game: { ...current, supportsReports: true } } });
     expect(await screen.findByText(/another player.*10 seconds/i)).toBeInTheDocument();

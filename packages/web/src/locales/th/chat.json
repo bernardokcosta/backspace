@@ -1,0 +1,296 @@
+{
+  "feedback": {
+    "openedInNewTab": "เปิดในแท็บใหม่",
+    "copiedGifLink": "คัดลอกลิงก์ GIF แล้ว",
+    "copiedImageLink": "คัดลอกลิงก์รูปแล้ว",
+    "uploadExpired": "ส่ง \"{{content}}\" ไม่ได้ — อัปโหลดหมดอายุ",
+    "attachmentOnly": "(ไฟล์แนบเท่านั้น)"
+  },
+  "message": {
+    "edit": {
+      "hint": "escape เพื่อ <cancel>ยกเลิก</cancel> • enter เพื่อ <save>บันทึก</save>"
+    },
+    "edited": "(แก้ไข)",
+    "rowLabel": "{{author}}, {{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "อัปโหลดล้มเหลว",
+      "discard": "ทิ้ง"
+    },
+    "actions": {
+      "confirmDelete": "ยืนยันลบ"
+    },
+    "reply": {
+      "jump": "ข้ามไปข้อความเดิม"
+    },
+    "mention": {
+      "unknownUser": "ผู้ใช้ไม่ทราบ",
+      "unknownRole": "บทบาทไม่ทราบ"
+    },
+    "reactions": {
+      "picker": "เลือกปฏิกิริยา",
+      "you": "คุณ",
+      "others_other": "อื่น {{count}} คน",
+      "bySelf": "คุณตอบสนอง",
+      "byOne": "{{name}} ตอบสนอง",
+      "byMany": "ปฏิกิริยา: {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "คุณไม่มีสิทธิ์ดูประวัติข้อความในช่องนี้",
+    "loading": "กำลังโหลดข้อความ",
+    "loadingOlder": "กำลังโหลดข้อความเก่า",
+    "loadFailed": "โหลดข้อความไม่ได้",
+    "jumpToPresent": "ข้ามสู่ปัจจุบัน",
+    "jump": {
+      "unavailable": "ข้อความนั้นไม่พร้อมแล้ว",
+      "failed": "โหลดข้อความนั้นไม่ได้",
+      "presentFailed": "โหลดข้อความล่าสุดไม่ได้"
+    },
+    "unread": {
+      "label": "ใหม่",
+      "divider": "ข้อความใหม่",
+      "dividerWithDate": "ข้อความใหม่ {{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "ยินดีต้อนรับสู่ช่อง!",
+        "description": "นี่คือจุดเริ่มบทสนทนา"
+      },
+      "group": {
+        "intro": "นี่คือจุดเริ่มบทสนทนากลุ่มของคุณ",
+        "owner": "เจ้าของ: <owner>@{{name}}</owner>",
+        "federatedNotice": "ข้อความเก็บในอินสแตนซ์หลักของคุณและของผู้รับ ไม่เข้ารหัสต้นถึงปลาย",
+        "openSettings": "เปิดตั้งค่ากลุ่ม",
+        "leave": "ออกจากกลุ่ม"
+      },
+      "dm": {
+        "fallbackName": "ข้อความตรง",
+        "intro": "นี่คือจุดเริ่มประวัติข้อความตรงกับ <strong>@{{name}}</strong>",
+        "federatedNotice": "ข้อความเก็บในอินสแตนซ์หลักของคุณและของผู้รับ ไม่เข้ารหัสต้นถึงปลาย",
+        "removeFriend": "ลบเพื่อน"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "คุณไม่มีสิทธิ์ส่งข้อความในช่องนี้",
+    "placeholder": {
+      "channel": "ข้อความ #{{name}}",
+      "dm": "ข้อความ @{{name}}"
+    },
+    "replyingTo": "กำลังตอบ",
+    "cancelReply": "ยกเลิกตอบ",
+    "removeAttachment": "ลบไฟล์แนบ",
+    "attachFile": "แนบไฟล์",
+    "dropTitle": "อัปโหลดไฟล์",
+    "dropHint": "ปล่อยเพื่อแนบ",
+    "uploading": "กำลังอัปโหลด…",
+    "uploadingLabel": "กำลังอัปโหลด",
+    "failedCount_other": "ล้มเหลว {{count}}",
+    "failedHint": "ลบหรือลองไฟล์แนบที่เสียเพื่อส่ง",
+    "gif": "GIF",
+    "gifPicker": "เลือก GIF",
+    "emoji": "อีโมจิ",
+    "emojiPicker": "เลือกอีโมจิ",
+    "send": "ส่ง",
+    "sendMessage": "ส่งข้อความ",
+    "uploadFailed": "อัปโหลด {{file}} ไม่ได้: {{reason}}",
+    "uploadFailedReason": "อัปโหลดล้มเหลว",
+    "typing": {
+      "named_other": "{{names}} กำลังพิมพ์",
+      "several": "หลายคนกำลังพิมพ์"
+    }
+  },
+  "menu": {
+    "saveImage": "บันทึกรูป",
+    "copyImage": "คัดลอกรูป",
+    "openOriginal": "เปิดต้นฉบับ",
+    "saveVideo": "บันทึกวิดีโอ",
+    "saveAudio": "บันทึกเสียง",
+    "copyLink": "คัดลอกลิงก์",
+    "openLink": "เปิดลิงก์",
+    "copySelectedText": "คัดลอกข้อความที่เลือก",
+    "copyText": "คัดลอกข้อความ",
+    "markUnread": "ทำเป็นยังไม่อ่าน",
+    "editMessage": "แก้ไขข้อความ",
+    "deleteMessage": "ลบข้อความ",
+    "linkCopied": "คัดลอกลิงก์แล้ว",
+    "linkCopyFailed": "คัดลอกลิงก์ไม่ได้",
+    "pinMessage": "ปักหมุดข้อความ",
+    "unpinMessage": "ถอนหมุดข้อความ"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "หยุดชั่วคราว — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "เล่นที่นี่ไม่ได้ — ดาวน์โหลด",
+      "unsupportedFormat": "รูปแบบวิดีโอไม่รองรับ",
+      "unsupportedBrowser": "เบราว์เซอร์คุณไม่รองรับเล่นวิดีโอ"
+    },
+    "audio": {
+      "unsupportedBrowser": "เบราว์เซอร์คุณไม่รองรับเล่นเสียง"
+    },
+    "federation": {
+      "remoteNamed": "โฮสต์บนอินสแตนซ์ของ {{sender}} ดาวน์โหลดเพื่อเก็บสำเนา",
+      "remoteUnknown": "โฮสต์บนอินสแตนซ์ผู้ส่ง ดาวน์โหลดเพื่อเก็บสำเนา",
+      "partialGeneric": "ผู้รับบางคนแคชไฟล์นี้ในเครื่องไม่ได้",
+      "partialInstance": "อินสแตนซ์ของ {{username}} (ขีด: {{limit}})",
+      "partialList": "แคชไฟล์บน {{instances}} ไม่ได้ พวกเขายังดูจากของคุณได้",
+      "listPair": "{{first}} และ {{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "ค้นหา GIF",
+    "noResults": "ไม่พบ GIF",
+    "noTrending": "ไม่มี GIF มาแรง",
+    "attribution": "โดย Klipy"
+  },
+  "preview": {
+    "save": "บันทึกรูป",
+    "copy": "คัดลอกรูป",
+    "alt": "ดูตัวอย่างรูป"
+  },
+  "invite": {
+    "sentBy": "{{name}} ส่งคำเชิญ",
+    "memberCount_other": "สมาชิก {{count}} คน",
+    "revoked": "คำเชิญใช้ไม่ได้แล้ว",
+    "join": "เข้าร่วม",
+    "joining": "กำลังเข้าร่วม…",
+    "joinFailed": "เข้าร่วมไม่ได้",
+    "askToJoin": "ขอเข้าร่วม",
+    "sendingRequest": "กำลังส่ง…",
+    "requestSent": "ส่งคำขอแล้ว",
+    "requestPending": "คำขอรอดำเนินการ",
+    "requestNotice": "สเปซนี้รับคำขอเข้าร่วม ผู้ดูแลอนุมัติแต่ละรายการ",
+    "requestReview": "ผู้ดูแลจะตรวจคำขอของคุณ"
+  },
+  "notification": {
+    "unknownSender": "ใครบางคน",
+    "attachmentOnly": "ส่งไฟล์แนบ"
+  },
+  "commands": {
+    "title": "คำสั่ง",
+    "failed": "ส่งคำสั่งไม่ได้",
+    "extraText": "คำสั่งนี้ไม่รับข้อความอิสระ แต่เหลือ \"{{text}}\" ใส่ออปชันก่อน ข้อความสุดท้าย",
+    "invalidOption": "ค่าของ {{option}} ไม่เหมาะกับคำสั่งนี้",
+    "optionsTitle": "พารามิเตอร์",
+    "required": "จำเป็น",
+    "subcommandsTitle": "คำสั่งย่อย",
+    "group": "กลุ่ม",
+    "chooseSubcommand": "เลือกคำสั่งย่อย: {{names}}",
+    "subcommandRefused": "บอทไม่มีคำสั่งย่อยนี้ เลือกจากรายการ"
+  },
+  "ephemeral": {
+    "onlyYou": "มีแค่คุณเห็น",
+    "dismiss": "ปิด",
+    "rowLabel": "คำตอบที่แค่คุณเห็นจาก {{author}}, {{time}}"
+  },
+  "embed": {
+    "loadAction": "คลิกเพื่อโหลด",
+    "loadNamed": "โหลด {{name}}",
+    "loadUnnamed": "โหลดฝัง",
+    "frameTitle": "ฝัง",
+    "playNamed": "เล่น {{title}}",
+    "playUnnamed": "เล่นวิดีโอ",
+    "videoTitle": "วิดีโอ"
+  },
+  "stickers": {
+    "title": "สติกเกอร์ของฉัน",
+    "upload": "อัปโหลดรูป",
+    "limits": "PNG JPEG WebP หรือ GIF · ถึง 5 MB",
+    "loading": "กำลังโหลด…",
+    "empty": "คอลเลกชันสติกเกอร์ของคุณเริ่มที่นี่",
+    "remove": "ลบ",
+    "save": "เพิ่มในสติกเกอร์ของฉัน",
+    "saved": "เพิ่มในสติกเกอร์ของฉันแล้ว",
+    "preview": "ดูตัวอย่างสติกเกอร์",
+    "manage": "จัดการ",
+    "done": "เสร็จ",
+    "collectionHint": "เลือกสติกเกอร์ส่ง ทำให้สเปซนี้เป็นของคุณ",
+    "manageHint": "เปลี่ยนชื่อหรือลบสติกเกอร์ในคอลเลกชัน ข้อความที่ส่งแล้วไม่เปลี่ยน",
+    "emptyHint": "บันทึกช่วงโปรดเป็นสติกเกอร์ พร้อมตอบครั้งหน้า",
+    "chooseImage": "เลือกรูป",
+    "cancel": "ยกเลิก",
+    "replace": "แทนรูป",
+    "name": "ชื่อสติกเกอร์",
+    "dropImage": "คลิกหรือลากรูปมาที่นี่",
+    "pasteHint": "วางรูปจากคลิปบอร์ดได้",
+    "uploading": "กำลังเพิ่มสติกเกอร์…",
+    "singleImage": "เลือกทีละรูป",
+    "invalidSize": "เลือกรูปไม่ว่างถึง 5 MB",
+    "invalidType": "รองรับเฉพาะรูป PNG JPEG WebP และ GIF",
+    "invalidImage": "ดูตัวอย่างรูปนี้ไม่ได้ เลือกรูปถูกต้อง",
+    "removeNamed": "ลบ {{name}}",
+    "addMore": "เพิ่มอีก",
+    "selectedCount_other": "เลือก {{count}} สติกเกอร์",
+    "dropMore": "คลิกหรือลากรูปเพิ่มมาที่นี่",
+    "sticker": "สติกเกอร์",
+    "downloadFailed": "โหลดรูปไม่ได้",
+    "batchLimit_other": "เลือกถึง {{count}} รูปต่อครั้ง",
+    "capacityLimit_other": "คอลเลกชันคุณมีที่อีก {{count}} สติกเกอร์",
+    "full": "คอลเลกชันเต็ม ลบสติกเกอร์เพื่อเพิ่มอีก",
+    "batchFailed_other": "เพิ่ม {{count}} รูปไม่ได้ ยังแสดงด้านล่าง",
+    "uploadingProgress": "กำลังเพิ่ม {{current}} จาก {{total}}…",
+    "rename": "เปลี่ยนชื่อ",
+    "renameNamed": "เปลี่ยนชื่อ {{name}}",
+    "renameTitle": "เปลี่ยนชื่อสติกเกอร์",
+    "search": "ค้นหาสติกเกอร์",
+    "noResults": "ไม่พบสติกเกอร์",
+    "store": "ร้านสติกเกอร์",
+    "myCollection": "สติกเกอร์ของฉัน",
+    "packs": "แพ็กสติกเกอร์",
+    "explore": "สำรวจ",
+    "myPacks": "ฉันสร้าง",
+    "install": "เพิ่ม",
+    "installed": "เพิ่มแล้ว",
+    "uninstall": "ลบ",
+    "createPack": "สร้างแพ็ก",
+    "editPack": "แก้ไขแพ็ก",
+    "packName": "ชื่อแพ็ก",
+    "packDesc": "คำอธิบาย (ไม่บังคับ)",
+    "submitReview": "ส่งตรวจ",
+    "pendingReview": "รอตรวจ",
+    "approved": "อนุมัติ",
+    "rejected": "ปฏิเสธ",
+    "draft": "ฉบับร่าง",
+    "newVersion": "เวอร์ชันใหม่",
+    "deletePack": "ลบแพ็ก",
+    "stickersCount_other": "สติกเกอร์ {{count}}",
+    "noPacks": "ไม่พบแพ็กสติกเกอร์",
+    "replicaBadge": "สหพันธ์",
+    "viewPack": "ดูแพ็ก",
+    "saveDraft": "บันทึกเป็นร่าง",
+    "packCreated": "สร้างแพ็กแล้ว",
+    "reviewSubmitted": "ส่งผู้ดูแลตรวจแล้ว",
+    "reviews": "ตรวจ",
+    "noReviews": "ไม่มีแพ็กสติกเกอร์รอตรวจ",
+    "approve": "อนุมัติ",
+    "reject": "ปฏิเสธ",
+    "rejectTitle": "ปฏิเสธแพ็กสติกเกอร์",
+    "rejectReason": "เหตุผลปฏิเสธ",
+    "rejectPlaceholder": "กรอกเหตุผลปฏิเสธ (เช่น เนื้อหาไม่เหมาะ คุณภาพต่ำ)",
+    "rejectConfirm": "ยืนยันปฏิเสธ",
+    "approvedSuccess": "อนุมัติแพ็กสติกเกอร์แล้ว",
+    "rejectedSuccess": "ปฏิเสธแพ็กสติกเกอร์แล้ว",
+    "reviewNotes": "เหตุผลปฏิเสธ",
+    "creator": "ผู้สร้าง",
+    "sourceInstance": "อินสแตนซ์",
+    "localInstance": "อินสแตนซ์ท้องถิ่น",
+    "viewStickers": "ดูสติกเกอร์",
+    "pendingReviewHint": "ผู้ดูแลกำลังตรวจ; แสดงที่สำรวจหลังอนุมัติ"
+  },
+  "poke": {
+    "action": "สะกิด",
+    "received": "{{actor}} สะกิด {{target}}",
+    "disconnected": "ตัดเชื่อม สะกิดไม่ส่ง"
+  },
+  "pins": {
+    "title": "ข้อความปักหมุด",
+    "empty": "ยังไม่มีข้อความปักหมุด",
+    "jump": "ข้ามไปข้อความ",
+    "unpin": "ถอนหมุด",
+    "deletedMessage": "ลบข้อความแล้ว",
+    "attachmentOnly": "ไฟล์แนบ"
+  }
+}

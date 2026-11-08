@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { soundboardWavDuration } from '@backspace/shared/src/soundboard';
 import { audioBase64, encodePcmWav, encodeSoundboardClip, soundboardSelectionSamples } from './soundboardAudio';
+import i18n, { setLanguage } from '../i18n';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -40,6 +41,12 @@ describe('soundboard audio encoding', () => {
   });
   it.each([[0.5, 0.5999], [-0.01, 1], [1, 0.5], [0, 21], [NaN, 1], [0, Infinity]])('rejects invalid selection %s → %s', async (start, end) => {
     expect(soundboardSelectionSamples(20, start, end)).toBeNull();
-    await expect(encodeSoundboardClip({ duration: 20 } as AudioBuffer, start, end)).rejects.toThrow('Invalid selection');
+    await expect(encodeSoundboardClip({ duration: 20 } as AudioBuffer, start, end)).rejects.toThrow(i18n.t('errors:soundboard_invalid_audio'));
+  });
+  it('translates encoding validation without attempting audio work', async () => {
+    await setLanguage('pt');
+    try {
+      await expect(encodeSoundboardClip({ duration: 20 } as AudioBuffer, -1, 2)).rejects.toThrow(i18n.t('errors:soundboard_invalid_audio'));
+    } finally { await setLanguage('en'); }
   });
 });

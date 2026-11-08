@@ -1,0 +1,31 @@
+{
+  "mediaSetup": {
+    "neteaseSmtc": {
+      "title": "Activează SMTC în NetEase Cloud Music",
+      "body": "Deschide NetEase Cloud Music → Setări → Sistem → Activează SMTC, apoi repornește aplicația. Backspace are nevoie de această opțiune pentru a detecta corect redarea, pauza și progresul.",
+      "gotIt": "Am înțeles",
+      "dontRemind": "Nu-mi mai reaminti",
+      "dismiss": "Ignoră acest indiciu"
+    }
+  },
+  "update": {
+    "laterHint": "Poți instala mai târziu din Setări → Desktop",
+    "dismiss": "Ignoră această actualizare",
+    "failed": {
+      "title": "Actualizarea nu a putut fi instalată",
+      "body": "Backspace {{version}} a fost descărcat, dar instalarea a eșuat. O poți instala manual."
+    },
+    "ready": {
+      "title": "Actualizare pregătită",
+      "body": "Backspace {{version}} a fost descărcat și este pregătit pentru instalare."
+    },
+    "available": {
+      "title": "Backspace {{version}} este disponibil",
+      "body": "Această versiune nu se poate actualiza singură, așa că descarcă versiunea nouă pentru a trece la următoarea.",
+      "bodyWithCurrent": "Folosești {{currentVersion}}. Această versiune nu se poate actualiza singură, așa că descarcă versiunea nouă pentru a trece la următoarea."
+    },
+    "restartNow": "Repornește acum",
+    "download": "Descarcă",
+    "later": "Mai târziu"
+  }
+}

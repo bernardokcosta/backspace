@@ -1,4 +1,19 @@
 {
+  "failure": {
+    "notAuthenticated": "Du bist auf dieser Instanz nicht angemeldet.",
+    "invalidResponse": "Die Upload-Antwort konnte nicht verarbeitet werden.",
+    "uploadError": "Uploadfehler",
+    "downloadError": "Downloadfehler",
+    "fileUnavailable": "Die Datei ist nicht mehr verfügbar. Verwirf den Upload und lade die Datei erneut hoch.",
+    "noDestination": "Ohne Zugriff auf die Zieldatei kann der Download nicht fortgesetzt werden.",
+    "destinationMissing": "Die Zieldatei ist nicht mehr zugänglich.",
+    "permissionDenied": "Zugriff verweigert",
+    "lostDownload": "Die heruntergeladenen Daten sind verloren gegangen. Starte den Download neu.",
+    "uploadHandleMissing": "Der Dateizugriff ist verloren gegangen. Verwirf den Upload und lade die Datei erneut hoch.",
+    "downloadHandleMissing": "Der Zugriff auf die Zieldatei ist verloren gegangen. Starte den Download neu.",
+    "downloadFailed": "Download fehlgeschlagen: {{status}}",
+    "resumeFailed": "Fortsetzen fehlgeschlagen: {{status}}"
+  },
   "transfers": {
     "title": "Übertragungen",
     "count_one": "{{count}} Übertragung",

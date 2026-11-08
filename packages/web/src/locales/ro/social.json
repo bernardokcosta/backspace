@@ -1,0 +1,106 @@
+{
+  "tabs": {
+    "all": "Toate",
+    "pending": "În așteptare",
+    "add": "Adaugă prieten",
+    "activity": "Activitate"
+  },
+  "sections": {
+    "online": "Online — {{n}}",
+    "all": "Toți prietenii — {{n}}",
+    "pending": "În așteptare — {{n}}",
+    "active": "Activi — {{n}}",
+    "offline": "Offline — {{n}}"
+  },
+  "empty": {
+    "online": "Nimeni nu este online acum.",
+    "all": "Nu ai încă prieteni — adaugă pe cineva!",
+    "pending": "Nicio cerere în așteptare — Nori face un pui de somn.",
+    "activity": "Este liniște deocamdată... Când prietenii încep o activitate, o vom afișa aici!"
+  },
+  "friend": {
+    "viaInstance": "prin {{host}}",
+    "message": "Mesaj",
+    "remove": "Elimină prietenul"
+  },
+  "sendMessage": {
+    "failed": "Conversația nu a putut fi deschisă: {{reason}}"
+  },
+  "request": {
+    "incoming": "Cerere de prietenie primită",
+    "outgoing": "Cerere de prietenie trimisă",
+    "ignore": "Ignoră",
+    "cancel": "Anulează cererea",
+    "send": "Trimite cerere de prietenie",
+    "pending": "Cerere în așteptare",
+    "sending": "Se trimite...",
+    "cancelling": "Se anulează...",
+    "sent": "Cerere de prietenie trimisă!"
+  },
+  "removeFriend": {
+    "title": "Elimină prietenul",
+    "description": "Sigur vrei să elimini {{name}} din prieteni? Îi poți trimite oricând o nouă cerere de prietenie.",
+    "fallbackName": "acest utilizator"
+  },
+  "add": {
+    "title": "Găsește persoane",
+    "hint": "Caută după nume de utilizator sau folosește <handle>user@instance</handle> pentru a adăuga direct.",
+    "placeholder": "Caută sau adaugă după nume de utilizator...",
+    "direct": "Trimite cerere de prietenie către <handle>{{handle}}</handle>",
+    "sendRequest": "Trimite cererea",
+    "discover": "Descoperă persoane",
+    "noSearchResults": "Niciun utilizator nu corespunde căutării.",
+    "noDiscoverable": "Nu există încă utilizatori descoperibili — invită persoane să se alăture!"
+  },
+  "mutuals": {
+    "friends_one": "{{count}} prieten comun",
+    "friends_few": "{{count}} prieteni comuni",
+    "friends_other": "{{count}} de prieteni comuni",
+    "spaces_one": "{{count}} spațiu comun",
+    "spaces_few": "{{count}} spații comune",
+    "spaces_other": "{{count}} de spații comune",
+    "noFriends": "Niciun prieten comun",
+    "noSpaces": "Niciun spațiu comun"
+  },
+  "profile": {
+    "tabs": {
+      "about": "Despre",
+      "mutualFriends": "Prieteni comuni",
+      "mutualSpaces": "Spații comune"
+    },
+    "aboutMe": "Despre mine",
+    "roles": "Roluri",
+    "memberSince": "Membru din",
+    "sendMessage": "Trimite mesaj",
+    "editRoles": "Editează rolurile",
+    "viewFull": "Vezi profilul complet",
+    "addFriend": "Adaugă prieten",
+    "playingNow": "Joacă acum"
+  },
+  "activity": {
+    "title": "Activ acum",
+    "quietTitle": "Este liniște deocamdată...",
+    "quietDescription": "Când un prieten începe o activitate — de exemplu un joc sau o conversație vocală — o vom afișa aici!",
+    "online": "Online — {{n}}",
+    "offline": "Offline — {{n}}",
+    "resizeHandle": "Redimensionează lista de prieteni",
+    "types": {
+      "playing": "Joacă un joc",
+      "listening": "Ascultă muzică",
+      "streaming": "Transmite live",
+      "watching": "Se uită",
+      "custom": "Stare personalizată"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "Deschide piesa"
+  },
+  "instanceNotConnected": "Nu ești conectat la {{host}}. Conectează-te din nou și reîncearcă."
+}

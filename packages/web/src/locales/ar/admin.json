@@ -1,0 +1,487 @@
+{
+  "general": {
+    "title": "عام",
+    "description": "اضبط نسخة Backspace الخاصة بك. تنطبق هذه الإعدادات على جميع المستخدمين.",
+    "instanceName": {
+      "label": "اسم النسخة",
+      "description": "الاسم المعروض في صفحة الدخول وللنسخ المفدرلة.",
+      "counter": "{{length}}/{{max}}"
+    },
+    "gif": {
+      "label": "بحث GIF",
+      "description": "فعّل بحث GIF عبر Klipy. احصل على مفتاح API مجاني من بوابة مطوري Klipy.",
+      "placeholderSaved": "حُفظ المفتاح — أدخل مفتاحًا جديدًا للاستبدال",
+      "placeholderKey": "مفتاح API لـ Klipy",
+      "enabled": "مفعّل",
+      "notConfigured": "غير معد",
+      "clearKey": "مسح المفتاح"
+    }
+  },
+  "registration": {
+    "title": "التسجيل",
+    "description": "تحكم في من يمكنه إنشاء حسابات في هذه النسخة. يغطي التسجيل العام التسجيلات المحلية؛ ويغطي التسجيل المفدرل مستخدمي النسخ المترابطة الذين ينشئون حسابًا هنا.",
+    "public": {
+      "label": "التسجيل العام",
+      "toggleLabel": "السماح بالحسابات المحلية الجديدة",
+      "toggleDescription": "يمكن لأي شخص إنشاء حساب محلي في صفحة التسجيل. عند التعطيل، تُنشأ الحسابات المحلية الجديدة برابط دعوة فقط."
+    },
+    "federated": {
+      "label": "التسجيل المفدرل",
+      "toggleLabel": "السماح بالحسابات المفدرلة الجديدة",
+      "toggleDescription": "يمكن لمستخدمي النسخ الأخرى إنشاء حساب مفدرل هنا عبر إعدادات اتصالاتهم. يمكن للحسابات المفدرلة الحالية تسجيل الدخول دائمًا بغض النظر عن هذا الإعداد."
+    },
+    "spaceCreation": {
+      "label": "إنشاء المساحات",
+      "toggleLabel": "السماح بإنشاء مساحات جديدة",
+      "toggleDescription": "يمكن للمستخدمين إنشاء مساحات جديدة في هذه النسخة. عند التعطيل، ينشئ المساحات مسؤولو النسخة فقط، وينضم المستخدمون العاديون إلى الموجودة فقط."
+    },
+    "saved": "حُفظت إعدادات التسجيل",
+    "saveFailed": "تعذّر تحديث إعدادات التسجيل"
+  },
+  "invites": {
+    "label": "روابط الدعوة",
+    "create": "+ إنشاء رابط",
+    "tabs": {
+      "active": "نشطة",
+      "archived": "مؤرشفة"
+    },
+    "loadFailed": "تعذّر تحميل الدعوات",
+    "emptyActive": "لا روابط دعوة نشطة.",
+    "emptyArchived": "لا روابط دعوة مؤرشفة.",
+    "noMatch": "لا دعوة تطابق المرشح الحالي.",
+    "filter": {
+      "status": "الحالة",
+      "sort": {
+        "recent": "الأحدث أولًا",
+        "oldest": "الأقدم أولًا",
+        "name": "الاسم (أ–ي)",
+        "mostUsed": "الأكثر استخدامًا",
+        "expiringSoonest": "تنتهي الأسرع"
+      }
+    },
+    "status": {
+      "active": "نشطة",
+      "expired": "منتهية",
+      "exhausted": "مستنفدة",
+      "revoked": "مُلغاة"
+    },
+    "expiry": {
+      "preset": {
+        "hour1": "ساعة",
+        "hours24": "24 ساعة",
+        "days7": "7 أيام",
+        "days30": "30 يومًا",
+        "custom": "مخصص…"
+      },
+      "keepCurrent": "الاحتفاظ بالحالي",
+      "invalidFuture": "اختر تاريخًا ووقتًا مستقبليين",
+      "invalidSelection": "اختيار انتهاء غير صالح",
+      "revokedOn": "أُلغيت {{date}}",
+      "expiredOn": "انتهت {{date}}",
+      "exhausted": "مستنفدة",
+      "noExpiration": "بلا انتهاء",
+      "inDays_zero": "تنتهي بعد صفر يوم ({{count}})",
+      "inDays_one": "تنتهي بعد يوم {{count}}",
+      "inDays_two": "تنتهي بعد يومين ({{count}})",
+      "inDays_few": "تنتهي بعد {{count}} أيام",
+      "inDays_many": "تنتهي بعد {{count}} يومًا",
+      "inDays_other": "تنتهي بعد {{count}} يوم",
+      "inHours_zero": "تنتهي بعد صفر ساعة ({{count}})",
+      "inHours_one": "تنتهي بعد ساعة {{count}}",
+      "inHours_two": "تنتهي بعد ساعتين ({{count}})",
+      "inHours_few": "تنتهي بعد {{count}} ساعات",
+      "inHours_many": "تنتهي بعد {{count}} ساعة",
+      "inHours_other": "تنتهي بعد {{count}} ساعة"
+    },
+    "form": {
+      "name": "الاسم",
+      "namePlaceholder": "مثال: الأصدقاء، المجموعة 1",
+      "maxUses": "أقصى استخدام",
+      "unlimited": "بلا حد",
+      "uses": "استخدام",
+      "expires": "ينتهي",
+      "nameLength": "يجب أن يكون الاسم 1 إلى 64 حرفًا",
+      "maxUsesInteger": "يجب أن يكون أقصى استخدام عددًا صحيحًا موجبًا"
+    },
+    "createModal": {
+      "title": "إنشاء رابط دعوة",
+      "description": "أنشئ رابطًا لمشاركته ليسجّل الناس في هذه النسخة. ستحدد مرات الاستخدام وموعد الانتهاء.",
+      "submit": "إنشاء الرابط",
+      "submitting": "جارٍ الإنشاء…",
+      "createdCopied": "أُنشئ الرابط. نُسخ إلى الحافظة.",
+      "createdManual": "أُنشئ الرابط. انسخه يدويًا من السطر.",
+      "failed": "تعذّر إنشاء الدعوة: {{message}}"
+    },
+    "editModal": {
+      "title": "تعديل “{{name}}”",
+      "description": "اضبط حدود هذا الرابط. يبقى URL نفسه — يمكن لمن معه استخدامه بالشروط الجديدة.",
+      "used": "(استُخدم {{used}})",
+      "maxUsesBelowUsed": "لا يمكن أن يكون أقصى استخدام أقل من الاستخدام الحالي ({{used}})",
+      "noChanges": "لا تغييرات للحفظ",
+      "updated": "حُدّثت الدعوة",
+      "failed": "تعذّر تحديث الدعوة: {{message}}",
+      "submit": "حفظ التغييرات",
+      "submitting": "جارٍ الحفظ…"
+    },
+    "reinstateModal": {
+      "title": "استعادة “{{name}}”",
+      "descriptionRevoked": "أُلغيت هذه الدعوة. تنشئ الاستعادة رابطًا جديدًا بعنوان مختلف — يبقى العنوان الأصلي غير نشط.",
+      "descriptionLapsed": "انتهت هذه الدعوة. تعيد الاستعادة تفعيل العنوان نفسه — يمكن لمن حفظه استخدامه مجددًا.",
+      "newLinkWarning": "سيُنشأ رابط جديد. من معه العنوان القديم لن يتمكن من استخدامه.",
+      "maxUsesMeta": "(حاليًا: {{max}}، استُخدم: {{used}})",
+      "maxUsesMin": "يجب أن يكون أقصى استخدام {{min}} على الأقل (الحالي: {{used}})",
+      "submit": "استعادة",
+      "submitNewLink": "استعادة برابط جديد",
+      "submitting": "جارٍ الاستعادة…",
+      "doneCopied": "استُعيد برابط جديد. نُسخ إلى الحافظة.",
+      "doneManual": "استُعيد برابط جديد. انسخه يدويًا من السطر.",
+      "doneSameLink": "استُعيد. الرابط نفسه نشط مجددًا.",
+      "failed": "تعذّرت الاستعادة: {{message}}"
+    },
+    "redemptions": {
+      "title": "استخدامات “{{name}}”",
+      "description": "المستخدمون الذين سجّلوا عبر هذا الرابط، بترتيب التسجيل.",
+      "revokedNotice": "أُلغيت هذه الدعوة. الاستخدامات أدناه لمستخدمين سجّلوا قبل الإلغاء.",
+      "revokedNoticeDated": "أُلغيت هذه الدعوة {{date}}. الاستخدامات أدناه لمستخدمين سجّلوا قبل الإلغاء.",
+      "usesOfMax_zero": "لا استخدام من {{max}} ({{count}})",
+      "usesOfMax_one": "{{count}} من {{max}} استخدام",
+      "usesOfMax_two": "{{count}} من {{max}} (اثنان)",
+      "usesOfMax_few": "{{count}} من {{max}} استخدامات",
+      "usesOfMax_many": "{{count}} من {{max}} استخدامًا",
+      "usesOfMax_other": "{{count}} من {{max}} استخدام",
+      "uses_zero": "لا استخدام ({{count}})",
+      "uses_one": "استخدام {{count}}",
+      "uses_two": "استخدامان ({{count}})",
+      "uses_few": "{{count}} استخدامات",
+      "uses_many": "{{count}} استخدامًا",
+      "uses_other": "{{count}} استخدام",
+      "loadFailed": "تعذّر تحميل الاستخدامات",
+      "loadFailedInline": "تعذّر تحميل الاستخدامات.",
+      "empty": "لا استخدامات بعد.",
+      "now": "(الآن {{name}})",
+      "deletedUser": "مستخدم محذوف"
+    },
+    "row": {
+      "usage": "الاستخدام: {{usage}}",
+      "createdBy": "بواسطة: {{name}}",
+      "unknownCreator": "غير معروف",
+      "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
+      "subtitleArchived": "{{usage}} · {{expiry}} · {{when}}",
+      "used": "مستخدم",
+      "expires": "ينتهي",
+      "expiredAt": "انتهى",
+      "revokedAt": "أُلغي",
+      "exhausted": "مستنفد",
+      "created": "أُنشئ",
+      "createdByLabel": "بواسطة",
+      "token": "الرمز",
+      "lastRedeemed": "آخر استخدام",
+      "copyLink": "نسخ الرابط",
+      "revoke": "إلغاء",
+      "viewRedemptions": "عرض الاستخدامات",
+      "reinstate": "استعادة",
+      "deletePermanently": "حذف نهائي",
+      "copied": "نُسخ رابط الدعوة",
+      "copyFailed": "تعذّر نسخ الرابط",
+      "revoked": "أُلغيت الدعوة",
+      "revokeFailed": "تعذّر الإلغاء: {{message}}",
+      "deleted": "حُذفت الدعوة",
+      "deleteFailed": "تعذّر الحذف: {{message}}",
+      "revokeDialog": {
+        "title": "إلغاء “{{name}}”؟",
+        "description": "سيتوقف الرابط عن العمل فورًا. لن يتمكن من معه العنوان من استخدامه.<br/><br/>إذا غيّرت رأيك، تنشئ <strong>استعادة</strong> رابطًا جديدًا في هذا العنصر — يبقى العنوان الأصلي غير نشط.",
+        "confirm": "إلغاء الرابط"
+      },
+      "deleteDialog": {
+        "title": "حذف “{{name}}” نهائيًا؟",
+        "description": "لا يمكن التراجع. سيُحذف سجل استخدامات الرابط أيضًا. إذا أردت إيقاف الرابط فقط، استخدم <strong>إلغاء</strong> — فيبقى سجل الاستخدامات.",
+        "confirm": "حذف نهائي"
+      }
+    }
+  },
+  "storage": {
+    "title": "التخزين",
+    "description": "تتبع استخدام القرص ونظّف الملفات اليتيمة من المحتوى المحذوف أو الصور المستبدلة.",
+    "loading": "جارٍ تحميل إحصاءات التخزين…",
+    "loadFailed": "تعذّر تحميل إحصاءات التخزين",
+    "refresh": "تحديث الإحصاءات",
+    "overview": {
+      "label": "نظرة التخزين",
+      "totalFiles": "إجمالي الملفات",
+      "referenced": "ذات مراجع",
+      "orphanedFiles": "ملفات يتيمة",
+      "unlinkedUploads": "رفوعات غير مرتبطة",
+      "danglingRecords": "سجلات معلقة",
+      "staleUploads": "رفوعات قديمة"
+    },
+    "breakdown": {
+      "label": "التوزيع حسب أنواع الملفات",
+      "entry_zero": "لا ملفات ({{count}}) — {{size}}",
+      "entry_one": "ملف {{count}} — {{size}}",
+      "entry_two": "ملفان ({{count}}) — {{size}}",
+      "entry_few": "{{count}} ملفات — {{size}}",
+      "entry_many": "{{count}} ملفًا — {{size}}",
+      "entry_other": "ملف {{count}} — {{size}}"
+    },
+    "uploadLimit": {
+      "label": "حد الرفع",
+      "maxFileSize": "أقصى حجم ملف",
+      "maxStickerSize": "أقصى حجم ملصق",
+      "saved": "ضُبط حد الرفع على {{limit}}",
+      "saveFailed": "تعذّر تحديث حد الرفع",
+      "stickerSaved": "ضُبط حد حجم الملصق على {{limit}}",
+      "stickerSaveFailed": "تعذّر تحديث حد حجم الملصق"
+    },
+    "cleanup": {
+      "label": "التنظيف",
+      "nothingFound": "لم يتم العثور على ملفات يتيمة أو رفوعات قديمة أو سجلات معلقة.",
+      "preview": "معاينة التنظيف",
+      "run": "نظّف الآن",
+      "running": "جارٍ التنظيف…",
+      "previewResult": "معاينة — لم يُحذف ملف",
+      "complete": "اكتمل التنظيف",
+      "orphanedFiles_zero": "لا ملفات يتيمة ({{count}}) ({{size}})",
+      "orphanedFiles_one": "ملف يتيم {{count}} ({{size}})",
+      "orphanedFiles_two": "ملفان يتيمان ({{count}}) ({{size}})",
+      "orphanedFiles_few": "{{count}} ملفات يتيمة ({{size}})",
+      "orphanedFiles_many": "{{count}} ملفًا يتيمًا ({{size}})",
+      "orphanedFiles_other": "{{count}} ملف يتيم ({{size}})",
+      "staleRecords_zero": "، لا سجلات رفع قديمة ({{count}})",
+      "staleRecords_one": "، سجل رفع قديم {{count}}",
+      "staleRecords_two": "، سجلا رفع قديمان ({{count}})",
+      "staleRecords_few": "، {{count}} سجلات رفع قديمة",
+      "staleRecords_many": "، {{count}} سجل رفع قديم",
+      "staleRecords_other": "، {{count}} سجل رفع قديم",
+      "errors_zero": "لا أخطاء ({{count}}): {{first}}",
+      "errors_one": "خطأ {{count}}: {{first}}",
+      "errors_two": "خطآن ({{count}}): {{first}}",
+      "errors_few": "{{count}} أخطاء: {{first}}",
+      "errors_many": "{{count}} خطأ: {{first}}",
+      "errors_other": "{{count}} خطأ: {{first}}",
+      "cleanedToast_zero": "لا ملفات نُظفت ({{count}}) ({{size}})",
+      "cleanedToast_one": "نُظف ملف {{count}} ({{size}})",
+      "cleanedToast_two": "نُظف ملفان ({{count}}) ({{size}})",
+      "cleanedToast_few": "نُظفت {{count}} ملفات ({{size}})",
+      "cleanedToast_many": "نُظف {{count}} ملفًا ({{size}})",
+      "cleanedToast_other": "نُظف {{count}} ملف ({{size}})",
+      "failed": "فشل التنظيف"
+    },
+    "stale": {
+      "label": "الرفوعات القديمة",
+      "description": "جلسات رفع tus المهجورة في <code>.tus/</code> (موقوفة أو متعطلة دون DELETE). يعمل التنظيف التلقائي كل 24 ساعة؛ وهذا ينظف مبكرًا.",
+      "maxAge": "أقصى عمر (ساعات)",
+      "sessionFiles_zero": "لا ملفات جلسة ({{count}}) ({{size}})",
+      "sessionFiles_one": "ملف جلسة {{count}} ({{size}})",
+      "sessionFiles_two": "ملفا جلسة ({{count}}) ({{size}})",
+      "sessionFiles_few": "{{count}} ملفات جلسة ({{size}})",
+      "sessionFiles_many": "{{count}} ملف جلسة ({{size}})",
+      "sessionFiles_other": "ملف جلسة {{count}} ({{size}})",
+      "cleanedToast_zero": "لا جلسات قديمة نُظفت ({{count}}) ({{size}})",
+      "cleanedToast_one": "نُظفت جلسة رفع قديمة {{count}} ({{size}})",
+      "cleanedToast_two": "نُظفت جلستا رفع ({{count}}) ({{size}})",
+      "cleanedToast_few": "نُظفت {{count}} جلسات رفع قديمة ({{size}})",
+      "cleanedToast_many": "نُظف {{count}} جلسة رفع قديمة ({{size}})",
+      "cleanedToast_other": "نُظفت جلسة رفع قديمة {{count}} ({{size}})",
+      "failed": "فشل تنظيف الرفوعات القديمة"
+    },
+    "media": {
+      "label": "تخزين الوسائط",
+      "olderThan": "احذف وسائط الدردشة الأقدم من",
+      "days": "أيام",
+      "run": "احذف الآن",
+      "running": "جارٍ الحذف…",
+      "files_zero": "لا ملفات ({{count}}) ({{size}})",
+      "files_one": "ملف {{count}} ({{size}})",
+      "files_two": "ملفان ({{count}}) ({{size}})",
+      "files_few": "{{count}} ملفات ({{size}})",
+      "files_many": "{{count}} ملفًا ({{size}})",
+      "files_other": "ملف {{count}} ({{size}})",
+      "deletedToast_zero": "لا ملفات حُذفت ({{count}}) ({{size}})",
+      "deletedToast_one": "حُذف ملف {{count}} ({{size}})",
+      "deletedToast_two": "حُذف ملفان ({{count}}) ({{size}})",
+      "deletedToast_few": "حُذفت {{count}} ملفات ({{size}})",
+      "deletedToast_many": "حُذف {{count}} ملفًا ({{size}})",
+      "deletedToast_other": "حُذف {{count}} ملف ({{size}})",
+      "failed": "فشل تنظيف الوسائط"
+    }
+  },
+  "streaming": {
+    "title": "البث",
+    "description": "تنطبق هذه الحدود على جميع مستخدمي هذه النسخة. يمكن للمستخدمين الاختيار ضمنها.",
+    "units": {
+      "fps": "{{value}} إطار/ث",
+      "kbpsLabel": "كب/ث"
+    },
+    "bandwidth": {
+      "label": "النطاق",
+      "description": "حدود معدل البت الدنيا والقصوى وخطوة منزلق الجودة.",
+      "customBitrate": {
+        "label": "السماح بمعدل بت مخصص",
+        "description": "السماح للمستخدمين بضبط معدل بت خاص بدل قيم المصفوفة الافتراضية"
+      },
+      "range": "نطاق معدل البت",
+      "min": "أدنى",
+      "max": "أقصى",
+      "step": "خطوة المنزلق"
+    },
+    "quality": {
+      "label": "الجودة",
+      "description": "خيارات الدقة ومعدل الإطارات المتاحة لمشاركة الشاشة.",
+      "resolutions": "الدقات المسموحة",
+      "framerates": "معدلات الإطارات المسموحة"
+    },
+    "highEndWarning": {
+      "title": "إعدادات عالية الأداء مفعّلة.",
+      "description": "يتطلب البث فوق 1080p أو 60 إطارًا/ث قدرة ترميز كبيرة من CPU/GPU العميل وقد يشبع نطاق الخادم، خاصة عندما تمر التدفقات عبر TURN. قد تتطلب الإعدادات العالية (مثل 4K بمعدل 120 إطارًا/ث) حتى 45 مب/ث لكل تدفق نشط. تأكد أن بنيتك تتحمل الحمل قبل تفعيلها لجميع المستخدمين."
+    },
+    "matrix": {
+      "label": "مصفوفة معدلات البت",
+      "description": "معدلات البت الافتراضية لكل دقة ومعدل إطارات. عدّل الخلايا أو وسّع كل القيم مرة واحدة.",
+      "scaleAll": "توسيع الكل",
+      "scaleHint": "اسحب لتوسيع كل معدلات البت. الضبط الدقيق للخلايا — أدناه.",
+      "cellDefault": "افتراضي: {{value}} (انقر × لإعادة الضبط)",
+      "cellEdit": "انقر للتعديل",
+      "resetAll": "إعادة الكل إلى الافتراضي"
+    },
+    "capWarning": {
+      "title": "تجاوزت قيم المصفوفة الحد العالمي.",
+      "description": "تتجاوز بعض معدلات البت حدك الأقصى {{max}}. ستُخفض التدفقات بتلك التركيبات إلى حدك."
+    }
+  },
+  "updates": {
+    "title": "التحديثات",
+    "badge": {
+      "settingsAriaLabel": "الإعدادات، يتوفر تحديث للنسخة",
+      "toast": "يتوفر Backspace {{version}} لهذه النسخة",
+      "toastAction": "عرض"
+    },
+    "description": "أي نسخة تعمل على هذه النسخة وكيف تحدّثها.",
+    "loading": "جارٍ تحميل حالة التحديث…",
+    "loadFailed": "تعذّر تحميل حالة التحديث.",
+    "copyFailed": "تعذّر النسخ. حدد الأمر وانسخه يدويًا.",
+    "running": {
+      "label": "يعمل",
+      "commit": "commit {{commit}} · ",
+      "channel": {
+        "prebuilt": "صورة جاهزة",
+        "source": "مبني من الشيفرة",
+        "unknown": "طريقة التثبيت غير مسجلة"
+      }
+    },
+    "available": {
+      "label": "متاح",
+      "version": "يتوفر Backspace {{version}}",
+      "released": "أُصدر {{date}} · ",
+      "releaseNotes": "ملاحظات الإصدار",
+      "fromInstallDir": "من دليل التثبيت:",
+      "scriptDescription": "ينشئ لقطة لقاعدة البيانات، وينزّل الصورة الجديدة ويعيد تشغيل حاوية Backspace فقط. إذا لم تعمل النسخة الجديدة جيدًا أو عملت بكود قديم، يعيد النسخة الحالية.",
+      "noScript": "ليس لدي update.sh",
+      "manualIntro": "يأتي update.sh منذ 1.0.5. في نسخة git يضيفه <code>git pull</code>. وإلا نفّذ الخطوات يدويًا بعد لقطة بـ <code>./backup.sh</code>.",
+      "prebuiltInstall": "تثبيت الصورة الجاهزة:",
+      "sourceInstall": "التثبيت من الشيفرة:",
+      "manualWarning": "حدد الخدمة <code>backspace</code> صراحة ولا تمرر <code>--remove-orphans</code>. يقترح Compose ذلك إذا عملت حاويات أخرى في هذا المشروع، فيزيلها."
+    },
+    "upToDate": "لديك أحدث نسخة.",
+    "disabled": {
+      "title": "التحقق من التحديثات معطل",
+      "description": "لن تتصل هذه النسخة بـ GitHub. عيّن <code>BACKSPACE_UPDATE_CHECK=true</code> في <code>.env</code> للسماح بالتحقق، أو راجع صفحة الإصدارات بنفسك."
+    },
+    "rateLimited": {
+      "title": "قيّد GitHub المعدل",
+      "description": "لا يدل على وجود تحديث أو لا. حاول لاحقًا."
+    },
+    "unreachable": {
+      "title": "تعذّر التحقق من التحديثات",
+      "description": "تعذّر الوصول إلى GitHub، فلا يدل على وجود تحديث أو لا. نسختك بخير."
+    },
+    "lastChecked": "آخر تحقق: {{when}}",
+    "noLookups": "لا عمليات بحث",
+    "checkAgain": "تحقق مجددًا",
+    "checking": "جارٍ التحقق…"
+  },
+  "users": {
+    "title": "المستخدمون",
+    "description": "عرض حسابات هذه النسخة وإدارتها.",
+    "searchPlaceholder": "ابحث عن المستخدمين…",
+    "loading": "جارٍ تحميل المستخدمين…",
+    "loadFailed": "تعذّر تحميل المستخدمين",
+    "empty": "لم يتم العثور على مستخدمين",
+    "filters": {
+      "allInstances": "كل النسخ",
+      "localOnly": "المحلية فقط",
+      "allRoles": "كل الأدوار",
+      "admin": "مسؤول",
+      "nonAdmin": "غير مسؤول",
+      "joinedAfter": "انضموا بعد",
+      "joinedBefore": "انضموا قبل",
+      "newest": "الأحدث أولًا",
+      "oldest": "الأقدم أولًا",
+      "nameDesc": "الاسم ي–أ",
+      "deleted": "المحذوفون",
+      "clear": "مسح المرشحات",
+      "bot": "البوتات"
+    },
+    "badge": {
+      "admin": "مسؤول",
+      "deleted": "محذوف"
+    },
+    "actions": {
+      "demote": "سحب حقوق المسؤول",
+      "promote": "منح حقوق المسؤول",
+      "federatedNoAdmin": "لا يمكن لمستخدمي النسخ الأخرى أن يكونوا مسؤولين",
+      "resetPassword": "إعادة ضبط كلمة المرور",
+      "federatedNoReset": "يسجّل المستخدمون المفدرلون الدخول عبر نسختهم الرئيسية",
+      "delete": "حذف المستخدم",
+      "selfDelete": "استخدم الإعدادات لحذف حسابك"
+    },
+    "tempPassword": {
+      "label": "كلمة مرور مؤقتة:",
+      "note": "تُعرض مرة واحدة. يُفصل المستخدم؛ عليه تسجيل الدخول مجددًا."
+    },
+    "pagination": "صفحة {{page}} من {{total}} ({{users}})",
+    "count_zero": "لا مستخدمين ({{count}})",
+    "count_one": "مستخدم {{count}}",
+    "count_two": "مستخدمان ({{count}})",
+    "count_few": "{{count}} مستخدمين",
+    "count_many": "{{count}} مستخدمًا",
+    "count_other": "{{count}} مستخدم",
+    "roleFailed": "تعذّر تحديث الدور",
+    "resetFailed": "تعذّرت إعادة ضبط كلمة المرور",
+    "actionFailed": "فشل الإجراء",
+    "resetDialog": {
+      "title": "إعادة ضبط كلمة المرور",
+      "description": "إعادة ضبط كلمة المرور لـ <strong>{{username}}</strong>؟ سيُفصل المستخدم فورًا وعليه الدخول بكلمة المرور المؤقتة الجديدة.",
+      "confirm": "إعادة ضبط كلمة المرور"
+    },
+    "demoteDialog": {
+      "title": "سحب حقوق المسؤول",
+      "description": "سحب حقوق المسؤول من <strong>{{username}}</strong>؟ سيفقد المستخدم الوصول إلى إعدادات النسخة.",
+      "confirm": "سحب الحقوق"
+    },
+    "deleteDialog": {
+      "title": "حذف المستخدم",
+      "description": "حذف <strong>{{username}}</strong> نهائيًا؟ سيُزال المستخدم من كل المساحات والرسائل المباشرة وقوائم الأصدقاء. لا يمكن التراجع.",
+      "confirm": "حذف المستخدم",
+      "blockBot": "عدم السماح لهذا البوت بالتسجيل مجددًا",
+      "blockBotHint": "عندما تعود نسخته الرئيسية، لن يتمكن البوت من إنشاء حساب هنا. ألغِ حظره تحت قائمة المستخدمين."
+    },
+    "blockedBots": {
+      "title": "البوتات المحظورة",
+      "description": "بوتات النسخ الأخرى التي لا يمكنها التسجيل هنا. ألغِ حظر بوت للسماح بالوصول مجددًا.",
+      "blockedAt": "حُظر {{date}}",
+      "unblock": "إلغاء الحظر"
+    }
+  },
+  "mobile": {
+    "title": "النسخة",
+    "sections": {
+      "general": "عام",
+      "registration": "التسجيل",
+      "federation": "الفيدرالية",
+      "streaming": "البث",
+      "storage": "التخزين",
+      "updates": "التحديثات",
+      "users": "المستخدمون"
+    }
+  }
+}

@@ -1,0 +1,632 @@
+{
+  "soundboardTab": "Soundboard",
+  "create": {
+    "title": "Een ruimte aanmaken",
+    "icon": {
+      "upload": "Uploaden",
+      "previewAlt": "Pictogramvoorbeeld",
+      "colorLabel": "Pictogramkleur",
+      "cropTitle": "Ruimtepictogram bijsnijden",
+      "uploadFailed": "Pictogram uploaden mislukt"
+    },
+    "name": {
+      "label": "Ruimtenaam",
+      "placeholder": "Mijn toffe ruimte",
+      "required": "Ruimtenaam is vereist"
+    },
+    "visibilityLabel": "Zichtbaarheid",
+    "description": {
+      "label": "Beschrijving",
+      "placeholder": "Een korte beschrijving voor je ruimte…",
+      "counter": "{{length}}/{{max}}"
+    },
+    "submit": "Aanmaken",
+    "submitting": "Aanmaken…"
+  },
+  "channel": {
+    "create": {
+      "title": "Kanaal aanmaken",
+      "typeLabel": "Kanaaltype",
+      "types": {
+        "text": {
+          "name": "Tekst",
+          "description": "Verstuur berichten, afbeeldingen en bestanden"
+        },
+        "voice": {
+          "name": "Spraak",
+          "description": "Hang rond met voice en video"
+        }
+      },
+      "nameLabel": "Kanaalnaam",
+      "namePlaceholder": "nieuw-kanaal",
+      "topicLabel": "Onderwerp (optioneel)",
+      "topicPlaceholder": "Waar gaat dit kanaal over?",
+      "categoryLabel": "Categorie",
+      "noCategory": "Geen categorie",
+      "nameRequired": "Kanaalnaam is vereist",
+      "noSpaceSelected": "Geen ruimte geselecteerd",
+      "submit": "Kanaal aanmaken",
+      "submitting": "Aanmaken…"
+    },
+    "settings": {
+      "title": "Kanaalinstellingen",
+      "rename": "Kanaal hernoemen",
+      "nameLabel": "Kanaalnaam",
+      "channelLabel": "Kanaal",
+      "topic": {
+        "label": "Onderwerp",
+        "placeholder": "Waar gaat dit kanaal over?",
+        "hint": "Getoond in de kanaalkop. Iedereen kan vanaf daar de volledige tekst openen.",
+        "counter": "{{used}}/{{max}}",
+        "tooLong": "Kort het onderwerp tot {{max}} tekens of minder in om het op te slaan.",
+        "empty": "Geen onderwerp ingesteld.",
+        "reset": "Wijzigingen verwerpen"
+      },
+      "private": {
+        "label": "Privékanaal",
+        "description": "Alleen geselecteerde leden en rollen kunnen dit kanaal bekijken.",
+        "note": "Dit kanaal is verborgen voor leden zonder expliciete toegang. Gebruikers met beheerdersrechten of ruimte-eigenaars zien altijd alle kanalen.",
+        "unhideOnSave": "Opslaan maakt dit kanaal voor elk lid zichtbaar."
+      },
+      "deleteButton": "Kanaal verwijderen"
+    },
+    "delete": {
+      "title": "#{{name}} verwijderen?",
+      "description": "Dit verwijdert <strong>#{{name}}</strong> en al zijn berichten definitief. Dit kan niet ongedaan worden gemaakt.",
+      "descriptionVoice": "Dit verwijdert <strong>#{{name}}</strong> en al zijn berichten definitief. Iedereen in dit spraakkanaal wordt verbroken. Dit kan niet ongedaan worden gemaakt.",
+      "confirm": "Kanaal verwijderen"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "Categorie aanmaken",
+      "nameLabel": "Categorienaam",
+      "namePlaceholder": "nieuwe-categorie",
+      "nameRequired": "Categorienaam is vereist",
+      "noSpaceSelected": "Geen ruimte geselecteerd",
+      "submit": "Categorie aanmaken",
+      "submitting": "Aanmaken…"
+    },
+    "settings": {
+      "title": "Categorie-instellingen",
+      "rename": "Categorie hernoemen",
+      "nameLabel": "Categorienaam",
+      "categoryLabel": "Categorie",
+      "private": {
+        "label": "Privécategorie",
+        "description": "Alleen geselecteerde leden en rollen kunnen kanalen in deze categorie bekijken.",
+        "note": "Deze categorie is verborgen voor leden zonder expliciete toegang. Kanalen erin erven deze beperking tenzij ze hem expliciet overrulen.",
+        "unhideOnSave": "Opslaan maakt deze categorie en zijn kanalen zonder aparte zichtbaarheidsbeperking voor iedereen zichtbaar."
+      },
+      "deleteButton": "Categorie verwijderen"
+    },
+    "delete": {
+      "title": "“{{name}}” verwijderen?",
+      "description": "Dit verwijdert de categorie <strong>{{name}}</strong> definitief. Kanalen erin verhuizen naar het hoogste niveau. Dit kan niet ongedaan worden gemaakt.",
+      "confirm": "Categorie verwijderen"
+    }
+  },
+  "invite": {
+    "title": "Vrienden uitnodigen",
+    "intro": "Stuur naar vrienden, of deel een link.",
+    "introRequest": "Stuur naar vrienden, of deel een link. Wie hem opent vraagt om deel te nemen, en een beheerder keurt elk verzoek goed.",
+    "searchPlaceholder": "Vrienden zoeken…",
+    "noMatches": "Geen vrienden voor je zoekopdracht",
+    "noFriends": "Nog geen vrienden",
+    "alreadyMember": "Al in ruimte",
+    "removeSelected": "{{name}} verwijderen",
+    "selectFriends": "Vrienden selecteren",
+    "send_one": "{{count}} uitnodiging versturen",
+    "send_other": "{{count}} uitnodigingen versturen",
+    "sending": "Versturen…",
+    "retryFailed": "Mislukte uitnodigingen opnieuw proberen",
+    "status": {
+      "sent": "✓ Verstuurd",
+      "failed": "✗ {{reason}}"
+    },
+    "shareLink": "Of deel een link",
+    "generating": "Genereren…",
+    "generateFailed": "Uitnodigingslink genereren mislukt",
+    "failure": {
+      "inviteInvalid": "Uitnodigingslink niet meer geldig",
+      "notAFriend": "Geen vriend",
+      "userNotFound": "Gebruiker niet gevonden",
+      "alreadyMember": "Al lid",
+      "upstream": "Uitnodiging kon niet worden geverifieerd, probeer opnieuw",
+      "cannotInviteSelf": "Je kunt jezelf niet uitnodigen",
+      "invalidBody": "Ongeldig verzoek",
+      "invalidTarget": "Ongeldig doel",
+      "unreachable": "Kon je instantie niet bereiken",
+      "serverError": "Kon niet versturen (serverfout)"
+    }
+  },
+  "inviteFriend": {
+    "title": "{{name}} voor een ruimte uitnodigen",
+    "intro": "Kies een van je ruimtes om een uitnodiging te sturen.",
+    "noSpaces": "Je zit nog in geen enkele ruimte",
+    "contextMenu": "Voor ruimte uitnodigen"
+  },
+  "join": {
+    "validation": {
+      "required": "Uitnodigingscode is vereist",
+      "invalidLink": "Ongeldige uitnodigingslink",
+      "linkFormat": "Ongeldige uitnodigingslink — verwacht formaat: https://instance/join/CODE",
+      "qualifiedFormat": "Ongeldig uitnodigingsformaat — verwacht: CODE@domain",
+      "invalidDomain": "Ongeldig domein in uitnodiging"
+    },
+    "title": "Deelnemen aan een ruimte",
+    "invitePlaceholder": "bijv. abc123 of https://instance.com/join/abc123",
+    "submit": "Deelnemen aan ruimte",
+    "submitting": "Deelnemen…",
+    "connect": {
+      "intro": "Maak verbinding met <host>{{host}}</host> om aan deze ruimte deel te nemen.",
+      "passwordLabel": "Voer je wachtwoord in om te verbinden",
+      "passwordPlaceholder": "Je accountwachtwoord",
+      "passwordNote": "Je wachtwoord wordt door je thuisbasis gecontroleerd en nooit naar {{host}} gestuurd. Die instantie krijgt een unieke referentie die alleen voor hem is gemaakt.",
+      "submit": "Verbinden & deelnemen",
+      "submitting": "Verbinden…"
+    },
+    "fallback": {
+      "usernamePlaceholder": "Je gebruikersnaam op deze instantie",
+      "passwordLabel": "Wachtwoord voor deze instantie",
+      "passwordPlaceholder": "Wachtwoord op de externe instantie",
+      "submit": "Inloggen & deelnemen",
+      "submitting": "Inloggen…"
+    },
+    "request": {
+      "messagePlaceholder": "Waarom wil je deelnemen? (optioneel)",
+      "send": "Verzoek sturen",
+      "sending": "Versturen…",
+      "notice": "Deze ruimte neemt deelnameverzoeken aan. Stuur er een en een beheerder beoordeelt het.",
+      "messageLabel": "Bericht bij je verzoek",
+      "sent": "Verzoek verstuurd. Een beheerder beoordeelt het, en de ruimte verschijnt in je lijst zodra hij is goedgekeurd.",
+      "pending": "Je hebt al gevraagd om aan deze ruimte deel te nemen. Je verzoek wacht op een beheerder."
+    }
+  },
+  "settings": {
+    "title": "Ruimte-instellingen",
+    "backAria": "Terug naar ruimte-instellingenmenu",
+    "nav": {
+      "general": "Algemeen",
+      "management": "Beheer",
+      "tabs": {
+        "overview": "Overzicht",
+        "roles": "Rollen",
+        "bans": "Verbanningen"
+      }
+    },
+    "discardChanges": "Verwerpen",
+    "overview": {
+      "identity": "Ruimte-identiteit",
+      "iconLabel": "Ruimtepictogram",
+      "iconAlt": "Ruimtepictogram",
+      "colorLabel": "Pictogramkleur",
+      "bannerLabel": "Ruimtebanner",
+      "bannerAlt": "Ruimtebanner",
+      "uploadBanner": "Banner uploaden (16:9)",
+      "removeBanner": "Banner verwijderen",
+      "nameLabel": "Ruimtenaam",
+      "iconUploadFailed": "Pictogram uploaden mislukt",
+      "bannerUploadFailed": "Banner uploaden mislukt",
+      "cropIconTitle": "Ruimtepictogram bijsnijden",
+      "cropBannerTitle": "Ruimtebanner bijsnijden",
+      "transfer": {
+        "description": "Eigendom overdragen aan een ander lid. Je wordt een gewoon lid.",
+        "prompt": "Eigendom overdragen aan <strong>{{name}}</strong>?",
+        "button": "Eigendom overdragen",
+        "confirm": "Overdragen",
+        "transferring": "Overdragen…",
+        "success": "Eigendom overgedragen aan {{name}}",
+        "failed": "Eigendom overdragen mislukt"
+      },
+      "delete": {
+        "description": "Deze ruimte en al zijn gegevens definitief verwijderen. Dit kan niet ongedaan worden gemaakt.",
+        "button": "Ruimte verwijderen",
+        "confirmAgain": "Klik opnieuw om verwijderen te bevestigen",
+        "failed": "Ruimte verwijderen mislukt"
+      }
+    },
+    "access": {
+      "title": "Toegang en beschrijving",
+      "visibility": {
+        "label": "Zichtbaarheid",
+        "hint": "Bepaal hoe mensen met een uitnodiging deze ruimte binnenkomen.",
+        "options": {
+          "private": {
+            "label": "Privé",
+            "description": "Alleen mensen met een uitnodigingslink kunnen deelnemen"
+          },
+          "request": {
+            "label": "Op verzoek",
+            "description": "Een uitnodiging leidt tot een verzoek dat een beheerder moet goedkeuren"
+          },
+          "public": {
+            "label": "Openbaar",
+            "description": "Mensen met een uitnodiging kunnen direct deelnemen"
+          }
+        }
+      },
+      "description": {
+        "label": "Beschrijving",
+        "hint": "Een korte samenvatting bij uitnodigingen voor deze ruimte.",
+        "placeholder": "Een korte beschrijving van deze ruimte…",
+        "counter": "{{length}}/{{max}}"
+      },
+      "requests": {
+        "title": "Openstaande deelnameverzoeken",
+        "empty": "Geen openstaande deelnameverzoeken",
+        "actionFailed": "Actie mislukt"
+      }
+    },
+    "members": {
+      "description": "Leden van deze ruimte beheren. Klik een lid om zijn rollen te bewerken.",
+      "listHeading": "Leden ({{total}})",
+      "owner": "Eigenaar",
+      "noRoles": "Geen rollen",
+      "ban": "Verbannen",
+      "kick": "Verwijderen",
+      "confirm": {
+        "banTitle": "{{name}} verbannen",
+        "kickTitle": "{{name}} verwijderen",
+        "banDescription": "Deze persoon wordt definitief uit deze ruimte verbannen tot de ban wordt opgeheven.",
+        "kickDescription": "Deze persoon kan met een uitnodigingslink opnieuw deelnemen."
+      },
+      "updateRolesFailed": "Rollen bijwerken mislukt",
+      "kickFailed": "Lid verwijderen mislukt",
+      "banFailed": "Lid verbannen mislukt",
+      "rolesAboveYou": "Rollen op of boven je hoogste rol zijn vergrendeld.",
+      "rolesUnheld": "Rollen met permissies die je niet hebt kunnen niet worden gegeven.",
+      "rolesManagedByBot": "De eigen rol van een bot blijft bij de bot.",
+      "botInvite": {
+        "warning": "De bot wordt lid van deze ruimte en ontvangt berichten en events van elk kanaal dat zijn permissies toestaan. Voeg alleen bots toe die je vertrouwt.",
+        "owner": "Eigenaar: @{{owner}}",
+        "button": "Bot toevoegen",
+        "title": "Een bot toevoegen",
+        "searchPlaceholder": "Bots zoeken op naam…",
+        "searching": "Zoeken…",
+        "noResults": "Geen bots gevonden",
+        "add": "Toevoegen",
+        "adding": "Toevoegen…",
+        "permissionsTitle": "Permissies voor {{name}}",
+        "permissionsIntro": "De bot vraagt deze permissies. Ze gaan in een rol naar de bot vernoemd; vink uit wat je niet wilt geven.",
+        "permissionsUnheld": "Permissies die je zelf niet hebt kunnen niet worden gegeven.",
+        "permissionsNone": "Niets aangevinkt: de bot joint zonder rol.",
+        "back": "Terug"
+      }
+    },
+    "afk": {
+      "title": "AFK-kanaal",
+      "channelLabel": "Inactieve leden verplaatsen naar",
+      "disabled": "Uitgeschakeld",
+      "timeoutLabel": "Na inactief te zijn gedurende",
+      "minutes": "min",
+      "hint": "Leden zonder spraakactiviteit gedurende de gekozen tijd worden automatisch naar dit spraakkanaal verplaatst."
+    }
+  },
+  "bans": {
+    "title": "Verbanningen",
+    "description": "Verbannen gebruikers kunnen niet opnieuw aan deze ruimte deelnemen tot de ban wordt opgeheven.",
+    "loading": "Bans laden…",
+    "empty": "Geen verbannen gebruikers",
+    "listHeading": "Verbanningen ({{total}})",
+    "bannedBy": "Verbannen door {{moderator}} op {{date}}",
+    "bannedByWithReason": "Verbannen door {{moderator}} op {{date}}: {{reason}}",
+    "unban": "Debannen",
+    "loadFailed": "Bans laden mislukt",
+    "unbanFailed": "Gebruiker debannen mislukt"
+  },
+  "roles": {
+    "title": "Rollen",
+    "create": "Rol aanmaken",
+    "creating": "Aanmaken…",
+    "listHeading": "Rollen",
+    "description": "Rollen bepalen welke permissies leden hebben.",
+    "hierarchyHint": "Rollen hoger in de lijst staan boven die eronder.",
+    "defaultName": "nieuwe rol",
+    "copyName": "Kopie van {{name}}",
+    "backToList": "Terug naar rollen",
+    "created": "Rol aangemaakt. Stel hem hieronder in.",
+    "aboveYou": "Deze rol staat op of boven je hoogste rol. Je kunt hem bekijken maar niet wijzigen.",
+    "managedByBot": "Deze rol wordt door een bot beheerd en verwijderd als de bot de ruimte verlaat. Hij kan aan niemand anders worden toegewezen of handmatig verwijderd. Zijn permissies kunnen worden gewijzigd.",
+    "reorder": {
+      "handle": "{{name}} verplaatsen",
+      "handleHint": "Sleep, of gebruik pijltjes omhoog en omlaag",
+      "up": "{{name}} omhoog verplaatsen",
+      "down": "{{name}} omlaag verplaatsen",
+      "locked": "{{name}} staat op of boven je hoogste rol",
+      "moved": "{{name}} verplaatst naar positie {{position}} van {{total}}"
+    },
+    "identity": "Identiteit",
+    "nameLabel": "Rolnaam",
+    "colorLabel": "Rolkleur",
+    "nameEmpty": "Rolnaam mag niet leeg zijn",
+    "nameDuplicate": "Er bestaat al een rol met deze naam",
+    "groups": {
+      "general": "Algemeen",
+      "text": "Tekst",
+      "voice": "Spraak"
+    },
+    "saved": "Rol opgeslagen",
+    "copy": "Rol kopiëren",
+    "copying": "Kopiëren…",
+    "delete": "Rol verwijderen",
+    "deleting": "Verwijderen…",
+    "confirmDelete": "Bevestigen?",
+    "createFailed": "Rol aanmaken mislukt",
+    "saveFailed": "Rol opslaan mislukt",
+    "deleteFailed": "Rol verwijderen mislukt",
+    "copyFailed": "Rol kopiëren mislukt",
+    "unheldLocked": "Je kunt alleen permissies wisselen die je zelf hebt. De rest is vergrendeld.",
+    "unheldPermission": "Je hebt deze permissie niet",
+    "copyUnheld": "Deze rol heeft permissies die je niet hebt, dus je kunt hem niet kopiëren.",
+    "copyDeleteUnheld": "Deze rol heeft permissies die je niet hebt, dus je kunt hem niet kopiëren of verwijderen."
+  },
+  "memberRoles": {
+    "title": "Rollen bewerken voor {{name}}",
+    "viewProfile": "Profiel bekijken",
+    "affectsAll": "Permissiewijzigingen gelden voor elk lid met deze rol.",
+    "selectRole": "Selecteer een rol om zijn permissies te bewerken.",
+    "saved": "Wijzigingen opgeslagen"
+  },
+  "permissions": {
+    "title": "Permissies",
+    "names": {
+      "administrator": "Beheerder",
+      "viewChannel": "Kanalen bekijken",
+      "manageChannels": "Kanalen beheren",
+      "manageRoles": "Rollen beheren",
+      "manageSpace": "Ruimte beheren",
+      "createInvite": "Uitnodiging aanmaken",
+      "kickMembers": "Leden verwijderen",
+      "banMembers": "Leden verbannen",
+      "sendMessages": "Berichten versturen",
+      "manageMessages": "Berichten beheren",
+      "attachFiles": "Bestanden bijvoegen",
+      "readMessageHistory": "Berichtgeschiedenis lezen",
+      "addReactions": "Reacties toevoegen",
+      "connect": "Verbinden",
+      "speak": "Spreken",
+      "muteMembers": "Leden dempen",
+      "deafenMembers": "Leden doven",
+      "moveMembers": "Leden verplaatsen",
+      "stream": "Streamen",
+      "disconnectMembers": "Leden verbreken",
+      "mentionEveryone": "@everyone, @here en rollen noemen"
+    },
+    "tristate": {
+      "deny": "Weigeren",
+      "neutral": "Neutraal (erven)",
+      "allow": "Toestaan"
+    },
+    "overrideCount_one": "{{count}} override",
+    "overrideCount_other": "{{count}} overrides",
+    "removeOverride": "Override verwijderen",
+    "removeOverrideFor": "Override verwijderen voor {{name}}",
+    "removeOverrideHint": "Zonder hem gelden hier de ruimtebrede permissies.",
+    "noRoleOverrides": "Geen roloverrides. Elke rol gebruikt hier zijn ruimtebrede permissies.",
+    "noMemberOverrides": "Geen lidoverrides.",
+    "roleOverrides": "Roloverrides",
+    "memberOverrides": "Lidoverrides",
+    "addRole": "Rol toevoegen",
+    "addMember": "Lid toevoegen",
+    "noMoreRoles": "Geen rollen meer om toe te voegen",
+    "loadFailed": "Overrides laden mislukt",
+    "saveFailed": "Overrides opslaan mislukt",
+    "partialFailure_one": "{{count}} override opslaan mislukt",
+    "partialFailure_other": "{{count}} overrides opslaan mislukt",
+    "unheldLocked": "Je kunt alleen permissies wisselen die je zelf hebt. De rest is vergrendeld.",
+    "unheldPermission": "Je hebt deze permissie niet",
+    "removeUnheld": "Deze override stelt permissies in die je niet hebt. Alleen wie ze heeft kan hem verwijderen.",
+    "removeUnheldShort": "Alleen wie deze permissies heeft kan hem verwijderen",
+    "aboveYouRole": "Deze rol staat op of boven je hoogste rol. Je kunt zijn override bekijken maar niet wijzigen of verwijderen.",
+    "aboveYouMember": "Dit lid staat op of boven jou. Je kunt zijn override bekijken maar niet wijzigen of verwijderen.",
+    "aboveYouShort": "Op of boven je hoogste rol"
+  },
+  "sidebar": {
+    "directMessages": "Privéberichten",
+    "addSpace": "Een ruimte toevoegen",
+    "joinSpace": "Aan een ruimte deelnemen",
+    "folder": {
+      "tooltip_one": "Map ({{count}})",
+      "tooltip_other": "Map ({{count}})",
+      "spaceCount_one": "{{count}} ruimte",
+      "spaceCount_other": "{{count}} ruimtes",
+      "unnamed": "Naamloze map",
+      "rename": "Map hernoemen",
+      "color": "Mapkleur",
+      "create": "Map aanmaken",
+      "moveTo": "Naar map verplaatsen",
+      "removeFrom": "Uit map verwijderen",
+      "ungroup": "Degroeperen",
+      "created": "Map aangemaakt",
+      "moved": "Naar map verplaatst",
+      "removed": "Uit map verwijderd",
+      "ungrouped": "Map gedegroepeerd"
+    },
+    "space": {
+      "inviteCopied": "Uitnodigingslink naar klembord gekopieerd",
+      "inviteCopiedRequest": "Uitnodigingslink gekopieerd. Wie hem opent kan vragen om deel te nemen.",
+      "inviteFailed": "Uitnodiging genereren mislukt",
+      "transferOwnership": "Eigendom overdragen",
+      "settings": "Ruimte-instellingen",
+      "leave": "Ruimte verlaten",
+      "reconnecting": "Opnieuw verbinden met {{instance}}…",
+      "remoteInstance": "externe instantie",
+      "leaveConfirm": {
+        "title": "Ruimte verlaten",
+        "titleNamed": "{{name}} verlaten",
+        "description": "Weet je zeker dat je deze ruimte wilt verlaten? Om opnieuw deel te nemen heb je een uitnodiging nodig."
+      },
+      "left": "Ruimte verlaten",
+      "leaveFailed": "Ruimte verlaten mislukt",
+      "unreadMessages_one": "{{count}} ongelezen bericht",
+      "unreadMessages_other": "{{count}} ongelezen berichten",
+      "unreadMessagesOver99": "Meer dan 99 ongelezen berichten"
+    },
+    "dmList": {
+      "newDm": "Nieuw privébericht",
+      "empty": "Nog geen gesprekken.",
+      "leaveGroup": "Groep verlaten",
+      "leaveGroupConfirm": {
+        "title": "Groeps-DM verlaten",
+        "description": "Weet je zeker dat je wilt vertrekken? Je kunt niet opnieuw joinen tenzij iemand je terug toevoegt."
+      }
+    },
+    "userArea": {
+      "inputDevice": "Invoerapparaat",
+      "outputDevice": "Uitvoerapparaat",
+      "inputDevices": "Invoerapparaten",
+      "outputDevices": "Uitvoerapparaten",
+      "inputVolume": "Invoervolume",
+      "outputVolume": "Uitvoervolume",
+      "systemDefault": "Systeemstandaard",
+      "microphonePermission": "Microfoontoestemming nodig.",
+      "audioPermission": "Audiotoestemming nodig.",
+      "enable": "Inschakelen",
+      "voiceSettings": "Spraakinstellingen",
+      "mute": "Dempen",
+      "unmute": "Dempen opheffen",
+      "deafen": "Doven",
+      "undeafen": "Doven opheffen",
+      "spaceMuted": "In ruimte gedempt",
+      "spaceDeafened": "In ruimte doof",
+      "permissionMuted": "Gedempt (geen spreekrechten)"
+    },
+    "dmUnreadMessages_one": "{{count}} ongelezen privébericht",
+    "dmUnreadMessages_other": "{{count}} ongelezen privéberichten",
+    "dmUnreadMessagesOver99": "Meer dan 99 ongelezen privéberichten"
+  },
+  "channels": {
+    "resizeHandle": "Kanallijst groter of kleiner maken",
+    "loading": "Kanalen laden",
+    "create": "Kanaal aanmaken",
+    "createCategory": "Categorie aanmaken",
+    "settings": "Kanaalinstellingen",
+    "categorySettings": "Categorie-instellingen",
+    "delete": "Kanaal verwijderen",
+    "deleteCategory": "Categorie verwijderen",
+    "emptyCategory": "Geen kanalen",
+    "empty": "Nog geen kanalen.",
+    "deleteConfirm": {
+      "title": "Kanaal verwijderen",
+      "description": "Weet je het zeker? Dit verwijdert het kanaal en al zijn berichten definitief."
+    },
+    "deleteCategoryConfirm": {
+      "title": "Categorie verwijderen",
+      "description": "Weet je zeker dat je deze categorie wilt verwijderen? Kanalen erin verhuizen naar ongecategoriseerd — er worden geen kanalen verwijderd."
+    },
+    "deleted": "Kanaal verwijderd",
+    "deleteFailed": "Kanaal verwijderen mislukt",
+    "categoryDeleted": "Categorie verwijderd",
+    "categoryDeleteFailed": "Categorie verwijderen mislukt"
+  },
+  "members": {
+    "titleWithCount_one": "Leden — {{count}}",
+    "titleWithCount_other": "Leden — {{count}}",
+    "loading": "Leden laden",
+    "resizeHandle": "Ledenlijst groter of kleiner maken",
+    "groups": {
+      "owner": "Eigenaar"
+    },
+    "ownerTitle": {
+      "edit": "Eigenaarstitel bewerken",
+      "label": "Eigenaarstitel",
+      "hint": "Zichtbaar voor alle leden in deze ruimte. Gebruik 1–{{max}} tekens; dit wijzigt geen permissies.",
+      "reset": "Naar standaard resetten"
+    },
+    "menu": {
+      "profile": "Profiel bekijken",
+      "nickname": "Ruimtebijnaam wijzigen…",
+      "roles": "Rollen"
+    },
+    "nickname": {
+      "title": "Ruimtebijnaam wijzigen",
+      "label": "Ruimtebijnaam",
+      "descriptionSelf": "Geldt alleen in deze ruimte. Je accountnaam en je bijnamen in andere ruimtes blijven. Laat leeg om je accountnaam te tonen.",
+      "descriptionOther": "Geldt alleen in deze ruimte. De accountnaam van {{name}} blijft. Laat leeg om de accountnaam te tonen.",
+      "reset": "Naar accountnaam resetten",
+      "shownAs": "Bijnaam in deze ruimte: {{nickname}}"
+    }
+  },
+  "mobile": {
+    "addSheet": {
+      "createSpace": "Ruimte aanmaken",
+      "joinSpace": "Aan ruimte deelnemen"
+    },
+    "muteUser": "Gebruiker dempen"
+  },
+  "main": {
+    "selectChannel": "Selecteer een kanaal",
+    "selectChannelHint": "Selecteer een tekst- of spraakkanaal om te beginnen",
+    "notificationSettings": "Meldingsinstellingen",
+    "topic": {
+      "show": "Volledig onderwerp tonen",
+      "dialogTitle": "#{{name}}"
+    },
+    "voice": {
+      "connectionFailed": "Verbinding mislukt",
+      "connected": "Verbonden",
+      "connecting": "Verbinden…",
+      "participants_one": "{{count}} verbonden",
+      "participants_other": "{{count}} verbonden",
+      "inCall_one": "{{count}} in gesprek",
+      "inCall_other": "{{count}} in gesprek",
+      "empty": "Niemand is nu in dit spraakkanaal.",
+      "join": "Aan voice deelnemen"
+    },
+    "dm": {
+      "fallbackName": "Privébericht",
+      "composerPlaceholder": "Bericht aan {{target}}",
+      "calling": "{{name}} bellen…",
+      "groupSettings": "Groepsinstellingen",
+      "openGroupSettings": "Groepsinstellingen openen",
+      "memberCount_one": "({{count}} lid)",
+      "memberCount_other": "({{count}} leden)",
+      "startVoiceCall": "Spraakoproep starten",
+      "joinCall": "Aan oproep deelnemen",
+      "startVideoCall": "Video-oproep starten",
+      "addFriends": "Vrienden aan DM toevoegen"
+    }
+  },
+  "ownership": {
+    "title": "Eigendom overdragen",
+    "description": "Kies een lid als nieuwe eigenaar van <name>{{name}}</name>",
+    "confirmQuestion": "Eigendom van <name>{{space}}</name> overdragen aan <name>{{member}}</name>?",
+    "regularMember": "Je wordt een gewoon lid.",
+    "transferring": "Overdragen…",
+    "confirm": "Overdragen",
+    "loading": "Leden laden…",
+    "success": "Eigendom overgedragen aan {{name}}",
+    "failed": "Eigendom overdragen mislukt"
+  },
+  "notifications": {
+    "open": "Meldingsinstellingen",
+    "channelTitle": "Meldingen voor #{{channel}}",
+    "spaceTitle": "Meldingen voor {{space}}",
+    "levelHeading": "Meld mij over",
+    "level": {
+      "all": "Alle berichten",
+      "mentions": "Alleen @vermeldingen",
+      "nothing": "Niets",
+      "inherit": "Ruimte-standaard ({{level}})"
+    },
+    "dmNote": "Privéberichten melden je altijd.",
+    "muteHeading": "Dempen",
+    "mute": {
+      "oneHour": "Voor 1 uur",
+      "eightHours": "Voor 8 uur",
+      "oneDay": "Voor 24 uur",
+      "indefinite": "Tot ik het ophef"
+    },
+    "unmute": "Dempen opheffen",
+    "mutedUntil": "Gedempt tot {{time}}",
+    "mutedIndefinitely": "Gedempt tot je het opheft",
+    "spaceMuted": "Deze ruimte is gedempt, dus zijn kanalen ook.",
+    "mutedIndicator": "Gedempt",
+    "saveFailed": "Meldingsinstellingen opslaan mislukt",
+    "suppressEveryone": "@everyone en @here onderdrukken",
+    "suppressRoles": "Rol-vermeldingen onderdrukken",
+    "massHeading": "Groepsvermeldingen",
+    "massNote": "@here bereikt dezelfde leden als @everyone. Vermeldingen van jou bij naam melden je altijd."
+  }
+}

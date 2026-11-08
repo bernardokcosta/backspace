@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "spaces": "Alanlar",
+    "dms": "DM'ler",
+    "you": "Sen"
+  },
+  "you": {
+    "editProfile": "Profili düzenle",
+    "homeInstance": "Ana örnek: {{domain}}",
+    "logOutConfirm": "Çıkış yapmak istediğine emin misin?"
+  },
+  "chat": {
+    "openCall": "Aramayı aç",
+    "cancelCall": "Aramayı iptal et",
+    "unknownChannel": "kanal"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "spaces": "สเปซ",
+    "dms": "DM",
+    "you": "คุณ"
+  },
+  "you": {
+    "editProfile": "แก้ไขโปรไฟล์",
+    "homeInstance": "อินสแตนซ์หลัก: {{domain}}",
+    "logOutConfirm": "แน่ใจหรือไม่ว่าต้องการออกจากระบบ?"
+  },
+  "chat": {
+    "openCall": "เปิดการโทร",
+    "cancelCall": "ยกเลิกการโทร",
+    "unknownChannel": "ช่อง"
+  }
+}

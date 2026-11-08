@@ -1,4 +1,19 @@
 {
+  "failure": {
+    "notAuthenticated": "Você não está autenticado nesta instância.",
+    "invalidResponse": "Não foi possível interpretar a resposta do upload.",
+    "uploadError": "Erro no upload",
+    "downloadError": "Erro no download",
+    "fileUnavailable": "O arquivo não está mais disponível. Descarte este upload e envie o arquivo novamente.",
+    "noDestination": "Não é possível retomar o download sem acesso ao arquivo de destino.",
+    "destinationMissing": "O arquivo de destino não está mais acessível.",
+    "permissionDenied": "Permissão negada",
+    "lostDownload": "Não é possível retomar o download porque os dados foram perdidos. Reinicie o download.",
+    "uploadHandleMissing": "O acesso ao arquivo foi perdido. Descarte este upload e envie o arquivo novamente.",
+    "downloadHandleMissing": "O acesso ao arquivo de destino foi perdido. Reinicie o download.",
+    "downloadFailed": "Falha no download: {{status}}",
+    "resumeFailed": "Falha ao retomar: {{status}}"
+  },
   "transfers": {
     "title": "Transferências",
     "count_one": "{{count}} transferência",

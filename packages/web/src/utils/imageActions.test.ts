@@ -22,6 +22,7 @@ vi.mock('../stores/transferStore', () => ({
 
 import { saveImage, copyImageToClipboard } from './imageActions';
 import { useUIStore } from '../stores/uiStore';
+import { setLanguage } from '../i18n';
 
 describe('saveImage', () => {
   beforeEach(() => {
@@ -132,6 +133,19 @@ describe('copyImageToClipboard', () => {
 
     expect(mockWriteText).toHaveBeenCalledWith('https://media.tenor.com/abc/tenor.gif');
     expect(mockAddToast).toHaveBeenCalledWith('Copied GIF link', 'success', 3000);
+  });
+
+  it('translates clipboard feedback without changing the copied URL', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+    const addToast = vi.fn();
+    vi.mocked(useUIStore.getState).mockReturnValue({ addToast } as ReturnType<typeof useUIStore.getState>);
+    await setLanguage('pt');
+    try {
+      await copyImageToClipboard('https://media.tenor.com/example/tenor.gif');
+      expect(writeText).toHaveBeenCalledWith('https://media.tenor.com/example/tenor.gif');
+      expect(addToast).toHaveBeenCalledWith('Link do GIF copiado', 'success', 3000);
+    } finally { await setLanguage('en'); }
   });
 
   it('falls back to copying URL as text on failure and shows toast', async () => {

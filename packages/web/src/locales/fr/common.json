@@ -1,0 +1,56 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "Enregistrer", "cancel": "Annuler", "close": "Fermer", "delete": "Supprimer", "bot": "BOT",
+    "confirm": "Confirmer", "copy": "Copier", "copied": "Copié", "retry": "Réessayer", "back": "Retour",
+    "done": "Terminé", "edit": "Modifier", "remove": "Retirer", "add": "Ajouter", "apply": "Appliquer",
+    "reset": "Réinitialiser", "continue": "Continuer", "dismiss": "Ignorer", "ok": "OK", "search": "Rechercher",
+    "clear": "Effacer", "change": "Changer", "refresh": "Actualiser", "openLink": "Ouvrir le lien",
+    "tryAgain": "Réessayer", "reply": "Répondre", "addReaction": "Ajouter une réaction", "share": "Partager",
+    "accept": "Accepter", "decline": "Refuser", "pause": "Mettre en pause", "resume": "Reprendre",
+    "abort": "Annuler le transfert", "dismissAll": "Tout ignorer", "filter": "Filtrer", "sort": "Trier",
+    "sortBy": "Trier par", "leave": "Quitter", "invitePeople": "Inviter des personnes", "previous": "Précédent",
+    "next": "Suivant", "preview": "Aperçu", "logIn": "Se connecter"
+  },
+  "states": {
+    "loading": "Chargement…", "saving": "Enregistrement…", "saved": "Enregistré", "unknown": "Inconnu", "none": "Aucun",
+    "enabled": "Activé", "disabled": "Désactivé", "on": "Activé", "off": "Désactivé", "yes": "Oui", "no": "Non",
+    "optional": "Facultatif", "required": "Obligatoire", "default": "Par défaut", "recommended": "Recommandé",
+    "online": "En ligne", "idle": "Absent", "doNotDisturb": "Ne pas déranger", "offline": "Hors ligne",
+    "loadingSettings": "Chargement des paramètres…", "loadSettingsFailed": "Impossible de charger les paramètres.",
+    "settingsSaved": "Paramètres enregistrés", "saveFailed": "Échec de l’enregistrement", "scanning": "Analyse…", "pleaseWait": "Un instant…"
+  },
+  "labels": {
+    "username": "Nom d’utilisateur", "password": "Mot de passe", "displayName": "Nom affiché", "friends": "Amis",
+    "members": "Membres", "settings": "Paramètres", "dangerZone": "Zone dangereuse", "searchMembers": "Rechercher des membres…",
+    "noMembersFound": "Aucun membre trouvé", "or": "ou", "nameAZ": "Nom (A-Z)"
+  },
+  "time": {
+    "today": "Aujourd’hui à {{time}}", "yesterday": "Hier à {{time}}", "never": "Jamais", "justNow": "À l’instant",
+    "minutesShort": "{{minutes}} min", "hoursMinutesShort": "{{hours}} h {{minutes}} min",
+    "elapsed": "Temps écoulé : {{duration}}", "left": "Temps restant : {{duration}}"
+  },
+  "units": { "ms": "{{value}} ms", "percent": "{{value}}%", "kbps": "{{value}} kbps", "mbps": "{{value}} Mbps" },
+  "colors": {
+    "mint": "Menthe", "sky": "Bleu ciel", "lavender": "Lavande", "coral": "Corail", "rose": "Rose",
+    "teal": "Bleu canard", "amber": "Ambre", "peach": "Pêche"
+  },
+  "language": {
+    "label": "Langue", "automatic": "Automatique (système)",
+    "description": "Choisis la langue des menus, des boutons et des messages système. Automatique suit les préférences linguistiques de ton système ou navigateur. Les messages des autres restent tels qu’ils ont été écrits."
+  },
+  "crash": { "title": "Une erreur est survenue", "reload": "Recharger la page", "details": "Détails de l’erreur" },
+  "app": {
+    "description": "L’alternative auto-hébergée à Discord et TeamSpeak. Voix HD, vidéo et partage d’écran : libre et gratuite (AGPL-3.0).",
+    "loading": "Chargement de Backspace"
+  },
+  "chrome": { "toggleMemberList": "Afficher ou masquer la liste des membres", "closeSettings": "Fermer les paramètres" },
+  "sourceCode": {
+    "label": "Code source (AGPL)", "labelWithBuild": "Code source (AGPL) · {{build}}",
+    "title": "Voir le code source de la version exécutée par cette instance (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "{{label}} a été détecté. Sélectionne ce périphérique dans les paramètres vocaux pour l’utiliser.",
+    "unnamedAudioInput": "Nouveau périphérique audio"
+  }
+}

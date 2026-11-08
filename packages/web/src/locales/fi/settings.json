@@ -1,0 +1,572 @@
+{
+  "interfaceScale": {
+    "label": "Käyttöliittymän koko",
+    "description": "Muuta tekstin, painikkeiden ja paneelien kokoa. Tallennettu tähän selaimeen tai sovellukseen tällä laitteella.",
+    "reset": "Nollaa 100 %:iin"
+  },
+  "voice": {
+    "input": {
+      "title": "Syöttölaite",
+      "checkingAccess": "Tarkistetaan mikrofonin käyttöä…",
+      "accessDenied": {
+        "title": "Mikrofonin käyttö evätty",
+        "description": "Myönnä mikrofonin käyttö valitaksesi syöttölaitteen.",
+        "retry": "Yritä uudelleen"
+      },
+      "permissionPrompt": {
+        "description": "Mikrofonin lupa tarvitaan syöttölaitteen listaamiseen ja valintaan.",
+        "enable": "Ota mikrofonin käyttö käyttöön"
+      },
+      "device": {
+        "systemDefault": "Järjestelmän oletus",
+        "currentlyUsing": "Käytössä nyt: {{label}}",
+        "none": "Mikrofoneja ei havaittu."
+      },
+      "volume": {
+        "label": "Syötön voimakkuus"
+      },
+      "meter": {
+        "hint": "Tasomittari aktivoituu kun liityt äänikanavalle."
+      }
+    },
+    "output": {
+      "title": "Tulostuslaite",
+      "checkingAccess": "Tarkistetaan äänen käyttöä…",
+      "device": {
+        "systemDefault": "Järjestelmän oletus",
+        "unsupported": "Tämä selain ei tue tulostuslaitteen valintaa. Ääni menee järjestelmän oletukseen."
+      },
+      "permissionPrompt": {
+        "description": "Myönnä mikrofonin käyttö listataksesi tulostuslaitteet (selaimet piilottavat tulosten nimet mikrofonin käytön taakse).",
+        "enable": "Ota äänen käyttö käyttöön"
+      },
+      "volume": {
+        "label": "Tulostuksen voimakkuus"
+      },
+      "testSound": "Toista testausääni"
+    },
+    "video": {
+      "title": "Video",
+      "checkingAccess": "Tarkistetaan kameran käyttöä…",
+      "accessDenied": {
+        "title": "Kameran käyttö evätty",
+        "description": "Myönnä kameran käyttö valitaksesi kameran.",
+        "retry": "Yritä uudelleen"
+      },
+      "blocked": {
+        "browser": "Kamera estetty selaintasolla. Napsauta kamerakuvaketta osoitepalkissa, nollaa lupa ja napsauta Yritä uudelleen.",
+        "mac": "Myönnä kameran käyttö kohdassa Järjestelmäasetukset → Tietosuoja ja suojaus → Kamera, ja käynnistä sitten sovellus uudelleen.",
+        "windows": "Myönnä kameran käyttö kohdassa Asetukset → Tietosuoja ja suojaus → Kamera, ja käynnistä sitten sovellus uudelleen.",
+        "other": "Kameran lupa evättiin. Nollaa se selain/Chromium-kehotteessasi ja yritä uudelleen."
+      },
+      "permissionPrompt": {
+        "description": "Kameran lupa tarvitaan kameran valintaan ja esikatseluun.",
+        "enable": "Ota kameran esikatselu käyttöön"
+      },
+      "camera": {
+        "label": "Kamera",
+        "auto": "Auto (järjestelmän oletus)",
+        "fallbackName": "Kamera {{number}}",
+        "detectedFallback": "havaittu kamera",
+        "currentlyUsing": "Käytössä nyt: {{label}}",
+        "none": "Kameroita ei havaittu."
+      },
+      "preview": {
+        "testAria": "Testaa kamera",
+        "testHint": "Testaa kamera napsauttamalla",
+        "stop": "Pysäytä esikatselu",
+        "retry": "Yritä uudelleen"
+      },
+      "previewError": {
+        "inUse": "Kamera on toisen sovelluksen käytössä.",
+        "unavailable": "Valittu kamera ei ole käytettävissä.",
+        "notFound": "Kameraa ei havaittu.",
+        "generic": "Kameran esikatselua ei voitu käynnistää."
+      }
+    },
+    "title": "Ääni & video",
+    "volume": {
+      "sectionTitle": "Voimakkuus",
+      "soundEffects": {
+        "label": "Ääniefektien voimakkuus"
+      },
+      "messageSound": {
+        "label": "Toista ääni jokaisesta viestistä",
+        "description": "Pois (oletus): vain YV:t ja sinut mainitsevat viestit. Päällä: jokainen kanava."
+      }
+    },
+    "pip": {
+      "sectionTitle": "Kelluva ikkuna",
+      "showOnSwitch": {
+        "label": "Näytä kelluva ikkuna puheluissa",
+        "description": "Kun olet äänikanavalla tai puhelussa ja katsot muualle, pieni ikkuna pitää puhelun näkyvissä."
+      }
+    },
+    "processing": {
+      "sectionTitle": "Äänenkäsittely",
+      "noiseSuppression": {
+        "label": "Tekoälykohinanvaimennus",
+        "description": "Koneoppimiseen perustuva kohinanpoisto (RNNoise). Suodattaa näppäimistön, tuulettimet ja taustamelun."
+      },
+      "echoCancellation": {
+        "label": "Kaiunpoisto",
+        "description": "Poistaa kaiuttimistasi mikrofoniin palaavan kaiun. Aina päällä äänikanavilla ja puheluissa."
+      },
+      "autoGain": {
+        "label": "Automaattinen vahvistuksen hallinta",
+        "description": "Säätää mikrofonin voimakkuutta automaattisesti. Voi aiheuttaa äänen vaimentumista striimien aikana."
+      }
+    }
+  },
+  "nav": {
+    "userSettings": "Käyttäjäasetukset",
+    "appSettings": "Sovellusasetukset",
+    "administration": "Hallinta",
+    "tabs": {
+      "account": "Tili",
+      "appearance": "Ulkoasu",
+      "voice": "Ääni & video",
+      "privacy": "Yksityisyys",
+      "connections": "Yhteydet",
+      "keybinds": "Näppäinsidokset",
+      "desktop": "Työpöytä",
+      "instance": "Instanssi",
+      "bots": "Botit",
+      "developer": "Kehittäjä"
+    },
+    "logOut": "Kirjaudu ulos",
+    "backToMenu": "Takaisin asetusvalikkoon"
+  },
+  "appearance": {
+    "title": "Ulkoasu"
+  },
+  "account": {
+    "title": "Oma tili",
+    "detached": {
+      "notice": "Tämä tili on irrotettu koti-instanssistaan.",
+      "explanation": "{{homeInstance}} nollattiin tai se ei ole enää saatavilla, joten tämä tili toimii nyt paikallisesti tällä instanssilla. Profiiliasi ja salasanaasi hallitaan täällä.",
+      "reattachHint": "{{username}}:nä kohteessa {{homeInstance}} voit liittää tämän tilin uudelleen. Profiili ja läsnäolo synkronoituvat sieltä jälleen.",
+      "reattachButton": "Liitä uudelleen kohteeseen {{homeInstance}}",
+      "reattachConfirm": "Vahvista uudelleenliittäminen nimellä {{username}}",
+      "reattaching": "Liitetään uudelleen…",
+      "reattachFailed": "Uudelleenliittäminen epäonnistui",
+      "reattached": "Tili linkitetty uudelleen käyttäjään {{username}}"
+    },
+    "profile": {
+      "sectionTitle": "Profiilin mukautus",
+      "avatar": {
+        "label": "Avatari",
+        "alt": "Avatarisi",
+        "change": "Vaihda avatari",
+        "uploadFailed": "Avatarin lataus epäonnistui",
+        "cropTitle": "Rajaa avatari"
+      },
+      "banner": {
+        "label": "Banneri",
+        "change": "Vaihda banneri",
+        "uploadFailed": "Bannerin lataus epäonnistui",
+        "cropTitle": "Rajaa banneri"
+      },
+      "avatarColor": {
+        "label": "Avatarin väri"
+      },
+      "bannerColor": {
+        "label": "Bannerin väri",
+        "hexPlaceholder": "#hex"
+      },
+      "bio": {
+        "label": "Tietoa minusta",
+        "placeholder": "Kerro maailmalle itsestäsi…",
+        "counter": "{{used}}/{{max}}"
+      }
+    },
+    "details": {
+      "sectionTitle": "Tili",
+      "status": {
+        "label": "Tila",
+        "homeUnavailable": "Tilasi pidetään kohteessa {{host}}. Yhdistä kohteeseen {{host}} muuttaaksesi sitä."
+      },
+      "customStatus": {
+        "label": "Mukautettu tila",
+        "placeholder": "Mitä puuhaat?"
+      }
+    },
+    "password": {
+      "current": {
+        "label": "Nykyinen salasana",
+        "placeholder": "Anna nykyinen salasana"
+      },
+      "new": {
+        "label": "Uusi salasana",
+        "placeholder": "Vähintään {{min}} merkkiä"
+      },
+      "confirm": {
+        "label": "Vahvista uusi salasana",
+        "placeholder": "Vahvista uusi salasana"
+      },
+      "show": "Näytä salasana",
+      "hide": "Piilota salasana",
+      "tooShort": "Uuden salasanan on oltava vähintään {{min}} merkkiä",
+      "mismatch": "Salasanat eivät täsmää",
+      "changed": "Salasana vaihdettu",
+      "changeFailed": "Salasanan vaihto epäonnistui",
+      "submit": "Vaihda salasana",
+      "submitting": "Vaihdetaan…"
+    },
+    "danger": {
+      "description": "Kun poistat tilisi, paluuta ei ole. Viestisi jäävät, mutta ne liitetään “Poistettuun käyttäjään”.",
+      "deleteButton": "Poista tili"
+    },
+    "save": {
+      "updated": "Profiili päivitetty",
+      "failed": "Profiilin päivitys epäonnistui"
+    },
+    "deletion": {
+      "title": "Poista tili",
+      "warning": {
+        "headline": "Tämä poistaa tilisi pysyvästi.",
+        "spaces": "Kaikki tilajäsenyydet poistetaan",
+        "friends": "Kaikki kaveruudet poistetaan",
+        "dms": "Kaikki YV-jäsenyydet poistetaan",
+        "messages": "Viestisi jäävät, mutta ne liitetään “Poistettuun käyttäjään”"
+      },
+      "ownedSpaces": {
+        "prompt_one": "Omistat {{count}} tilan. Hoida se ennen jatkamista:",
+        "prompt_other": "Omistat {{count}} tilaa. Hoida jokainen ennen jatkamista:",
+        "transfer": "Siirrä",
+        "delete": "Poista tila",
+        "selectOwner": "Valitse uusi omistaja…"
+      },
+      "processing": "Käsitellään…",
+      "confirm": {
+        "permanent": "Tämä toiminto on pysyvä eikä sitä voi perua.",
+        "usernamePrompt": "Kirjoita käyttäjänimesi <username>{{username}}</username> vahvistaaksesi",
+        "passwordPlaceholder": "Anna salasanasi",
+        "submit": "Poista tilini",
+        "deleting": "Poistetaan…"
+      },
+      "federation": {
+        "removing": "Poistetaan tiliäsi yhdistetyistä instansseista…",
+        "deleteAnyway": "Poista tili nyt"
+      },
+      "complete": {
+        "title": "Tili poistettu",
+        "redirecting": "Ohjataan kirjautumiseen…"
+      },
+      "errors": {
+        "usernameMismatch": "Käyttäjänimi ei täsmää",
+        "spacesFailed": "Tilojen käsittely epäonnistui",
+        "deleteFailed": "Tilin poisto epäonnistui"
+      }
+    }
+  },
+  "privacy": {
+    "title": "Yksityisyys",
+    "discovery": {
+      "sectionTitle": "Löytäminen",
+      "label": "Anna muiden löytää profiilini",
+      "description": "Kun käytössä, profiilisi näkyy kohdassa Löydä ihmisiä. Muut voivat aina lisätä sinut tarkalla käyttäjänimellä."
+    },
+    "activity": {
+      "sectionTitle": "Aktiivisuustila",
+      "label": "Jaa aktiivisuustila",
+      "description": "Anna muiden nähdä mitä puuhaat, esimerkiksi mitä pelejä pelaat tai mitä musiikkia kuuntelet.",
+      "game": {
+        "label": "Luotu manuaalisesti",
+        "description": "Lisää peli, jota ei havaittu. Se näkyy kunnes poistat sen.",
+        "placeholder": "Pelin nimi",
+        "set": "Aseta",
+        "detectedLabel": "Havaittu juuri nyt",
+        "detectedDescription": "Näytä havaittu peli eri nimellä. Se muistetaan ensi kerralla.",
+        "renamePlaceholder": "Näytä nimellä…",
+        "renameLabel": "Näytä {{name}} nimellä",
+        "renamedLabel": "Uudelleennimetyt pelit",
+        "renamedItem": "{{detected}} → {{chosen}}",
+        "restore": "Palauta",
+        "descriptionBound": "Lisää peli, jota ei havaittu: valitse sen ohjelma ja nimeä se. Se näkyy kun ohjelma käy.",
+        "programLabel": "Ohjelma",
+        "programPlaceholder": "Valitse käyvä ohjelma…",
+        "programHint": "Käynnistä ensin peli, valitse sitten sen ohjelma luettelosta.",
+        "clearRename": "Tyhjennä",
+        "unknownLabel": "Tunnistamattomat Wine-ohjelmat",
+        "unknownDescription": "Ne käyvät, mutta eivät vastaa tunnettua peliä. Jos yksi on pelisi, näytä se pelattavana pelinä.",
+        "unknownUse": "Lisää peleihini",
+        "gamesLabel": "Pelisi",
+        "gamesDescription": "Ensimmäinen peli on se jonka listat näyttävät; siirrä pelejä asettaaksesi prioriteetin. Piilotettu peli ei näy muille.",
+        "moveUp": "Siirrä {{name}} ylös",
+        "moveDown": "Siirrä {{name}} alas",
+        "hide": "Piilota",
+        "show": "Näytä",
+        "hideGame": "Piilota {{name}}",
+        "showGame": "Näytä {{name}}",
+        "add": "Lisää",
+        "remove": "Poista",
+        "statusName": "näytetty nimellä",
+        "statusRunning": "käy",
+        "statusWaiting": "odottaa kohdetta {{program}}",
+        "dragHandle": "Vedä {{name}} vaihtaaksesi prioriteettia",
+        "manualNameLabel": "Kohteen {{name}} nimi",
+        "save": "Tallenna"
+      }
+    }
+  },
+  "connections": {
+    "title": "Yhteydet"
+  },
+  "instance": {
+    "tabs": {
+      "general": "Yleiset",
+      "registration": "Rekisteröinti",
+      "federation": "Federointi",
+      "streaming": "Striimaus",
+      "storage": "Tallennus",
+      "users": "Käyttäjät",
+      "updates": "Päivitykset"
+    }
+  },
+  "keybinds": {
+    "portal": {
+      "description": "Waylandilla tietokone hallitsee kaikkia Backspace-pikanäppäimiä. Määritä, muuta tai poista näppäimiä järjestelmän näppäinoikinasetuksissa, kohdassa Backspace. Paikallisia selain/X11-sidoksia ei käytetä tässä.",
+      "idle": "Valmistellaan kaikkien käytettävissä olevien toimintojen ensimmäistä rekisteröintiä.",
+      "pending": "Yhdistetään työpöytäportaaliin. Jos järjestelmäikkuna tulee, valitse pikanäppäimet haluamillesi toiminnoille.",
+      "ready": "Backspace on rekisteröity. Avaa järjestelmän näppäinoikinasetukset muuttaaksesi tai poistaaksesi määrityksiä. Alla oleva luettelo on vain luku -tilassa ja päivittyy kun palaat Backspaceen.",
+      "unavailable": "Portaali ei ole käytettävissä, lupa evätty tai istunto päättyi. Global Shortcuts -portaalitausta vaaditaan. Paikalliset sidokset pois Waylandilla.",
+      "retry": "Rekisteröi tai yhdistä pikanäppäimet uudelleen",
+      "assigned": "Järjestelmäpikanäppäin: {{shortcut}}",
+      "notAssigned": "Ei aktiivista järjestelmämääritystä"
+    },
+    "title": "Näppäinsidokset",
+    "note": {
+      "webOnly": "Pikanäppäimet toimivat kun tämä välilehti on aktiivinen. Globaaleihin muihin sovelluksiin toimiviin pikanäppäimiin käytä työpöytäsovellusta."
+    },
+    "section": {
+      "voice": "Äänipikanäppäimet"
+    },
+    "action": {
+      "toggleMute": "Vaihda mykistys",
+      "toggleDeafen": "Vaihda kuuroutus",
+      "pushToTalk": "Puhu painaessa",
+      "toggleCamera": "Vaihda kamera",
+      "toggleScreenShare": "Vaihda näytönjako",
+      "disconnect": "Katkaise"
+    },
+    "row": {
+      "recordingPrompt": "Paina näppäinyhdistelmää…",
+      "notBound": "Ei sidottu",
+      "record": "Tallenna",
+      "escToCancel": "ESC peruuttaaksesi"
+    },
+    "key": {
+      "shift": "Shift",
+      "ctrl": "Ctrl",
+      "alt": "Alt",
+      "option": "Option",
+      "cmd": "Cmd",
+      "win": "Win",
+      "space": "Välilyönti",
+      "middleClick": "Keskinapsautus",
+      "mouse4": "Hiiri 4",
+      "mouse5": "Hiiri 5",
+      "mouseGeneric": "Hiiri {{button}}"
+    },
+    "accessibility": {
+      "title": "Esteettömyyslupa vaaditaan",
+      "description": "Backspace tarvitsee esteettömyysluvan, jotta globaalit pikanäppäimet toimivat sovelluksen ulkopuolella.",
+      "grant": "Myönnä lupa"
+    },
+    "hookError": {
+      "title": "Globaalit pikanäppäimet eivät käytettävissä",
+      "description": "Syötteen kuuntelijaa ei voitu käynnistää. Linuxissa käyttäjäsi on ehkä oltava <code>input</code>-ryhmässä."
+    },
+    "conflict": {
+      "message": "<strong>{{combo}}</strong> on jo sidottu kohteeseen <strong>{{action}}</strong>. Korvataanko?",
+      "overwrite": "Korvaa"
+    }
+  },
+  "desktop": {
+    "title": "Työpöytä",
+    "autoLaunch": {
+      "openAtLogin": {
+        "label": "Käynnistä kirjautuessa",
+        "description": "Käynnistä Backspace automaattisesti kun kirjaudut"
+      },
+      "startMinimized": {
+        "label": "Käynnistä pienennettynä",
+        "description": "Käynnistä piilotettuna ilmaisinalueelle ikkunan näyttämisen sijaan"
+      }
+    },
+    "updates": {
+      "appName": "Backspace Desktop",
+      "versionLabel": "Versio {{version}}",
+      "checking": "Tarkistetaan päivityksiä…",
+      "checkingShort": "Tarkistetaan…",
+      "checkNow": "Tarkista päivitykset",
+      "downloading": "Ladataan {{version}}, {{percent}} %",
+      "downloadingWithRate": "Ladataan {{version}}, {{percent}} % nopeudella {{rate}}",
+      "rateMegabytes": "{{value}} Mt/s",
+      "rateKilobytes": "{{value}} kt/s",
+      "upToDate": "Sinulla on uusin versio",
+      "available": "Versio {{version}} saatavilla",
+      "readyToInstall": "Versio {{version}} valmis asennettavaksi",
+      "installFailed": "Versiota {{version}} ei voitu asentaa",
+      "checkFailed": "Viimeisin päivitystarkistus epäonnistui",
+      "idle": "Tarkista työpöytäsovelluksen uudet versiot",
+      "external": "Päivitykset asentaa Flatpak-ohjelmistonhallintasi",
+      "download": "Lataa",
+      "restart": "Käynnistä uudelleen",
+      "manualNote": "Tämä koontiversio ei asenna päivityksiä itse. Lataa uudet versiot GitHubista ja korvaa sovellus manuaalisesti. Katso julkaisutiedoista vaiheet alustallasi.",
+      "externalNote": "Flatpak käyttää päivitykset atomisesti sovelluksen ulkopuolella. Käytä ohjelmistonhallintaasi tai <code>flatpak update</code>-komentoa päivittääksesi Backspacen."
+    },
+    "instance": {
+      "current": "Yhdistetty instanssi nyt",
+      "change": "Vaihda instanssi"
+    }
+  },
+  "desktopDownload": {
+    "title": "Työpöytä",
+    "intro": "Globaalit pikanäppäimet, käynnistys kirjautuessa ja ilmaisinalueen kuvake.",
+    "unsupported": "Työpöytäsovellus toimii Windowsissa, Linuxissa ja macOS:ssä.",
+    "name": {
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux"
+    },
+    "tag": {
+      "windows": "Tämä PC",
+      "mac": "Tämä Mac",
+      "linux": "Tämä kone"
+    },
+    "covers": {
+      "windows": "x64 tai arm64",
+      "mac": "Toimii Apple Silicon- ja Intel-Maceissa",
+      "linux": "AppImage- tai deb-paketti, x64 tai arm64"
+    },
+    "download": {
+      "windows": "Lataa Windowsille",
+      "mac": "Lataa macOS:lle",
+      "linux": "Lataa Linuxille"
+    },
+    "picker": {
+      "architecture": "Arkkitehtuuri",
+      "format": "Pakettimuoto"
+    },
+    "arch": {
+      "appleSilicon": "Apple Silicon",
+      "intel": "Intel",
+      "x64": "x64",
+      "arm64": "arm64"
+    },
+    "kind": {
+      "appimage": "AppImage",
+      "deb": "deb"
+    },
+    "archGuessed": {
+      "windows": "Selaimesi ei kertonut mikä prosessori tässä PC:ssä on, joten x64 on esivalittu.",
+      "mac": "Selaimesi ei kertonut mikä siru tässä Macissa on, joten Apple Silicon on esivalittu.",
+      "linux": "Selaimesi ei kertonut mikä prosessori tässä koneessa on, joten x64 on esivalittu."
+    },
+    "version": "Versio {{version}}",
+    "allReleases": "Kaikki julkaisut GitHubissa"
+  },
+  "bots": {
+    "title": "Botit",
+    "description": "Botti on tili, jota ohjelma ohjaa tokenilla. Luo yksi, kopioi sen tokeni ja yhdistä ohjelmasi. Botit vastaavat suorissa viesteissä.",
+    "create": {
+      "sectionTitle": "Luo botti",
+      "nameLabel": "Botin käyttäjänimi",
+      "submit": "Luo botti",
+      "hint": "{{min}}–{{max}} merkkiä: pieniä latinalaisia kirjaimia (a–z), numeroita (0–9) ja alaviivoja (_). Voit luoda enintään {{limit}} bottia."
+    },
+    "list": {
+      "sectionTitle": "Bottisi",
+      "empty": "Sinulla ei ole vielä botteja.",
+      "createdOn": "Luotu {{date}}"
+    },
+    "token": {
+      "title": "Tokeni käyttäjälle {{name}}",
+      "warning": "Kopioi tokeni nyt. Se näytetään vain kerran, ja kenellä tahansa jolla se on, ohjaa bottia.",
+      "copy": "Kopioi tokeni",
+      "copied": "Kopioitu",
+      "dismiss": "Olen tallentanut sen"
+    },
+    "tokens": {
+      "title": "Käyttötokeneita",
+      "loading": "Ladataan tokeneita",
+      "legacy": "Tämä botti toimii yhä vanhalla pitkäikäisellä tokenilla. Luo tokeni vaihtaaksesi: vanha lakkaa toimimasta heti.",
+      "empty": "Tällä botilla ei ole tokeneita.",
+      "unnamed": "Nimetön tokeni",
+      "createdOn": "Luotu {{date}}",
+      "neverUsed": "ei koskaan käytetty",
+      "lastUsed": "viimeksi käytetty {{time}}",
+      "revoke": "Peruuta",
+      "confirmRevoke": "Vahvista peruminen",
+      "nameLabel": "Tokenin nimi",
+      "namePlaceholder": "Nimi (valinnainen)",
+      "create": "Luo tokeni",
+      "limitHint": "Enintään {{max}} tokenia per botti. Tokenin peruminen katkaisee botin; muut tokenit toimivat edelleen."
+    },
+    "actions": {
+      "regenerate": "Nollaa kaikki tokenit",
+      "delete": "Poista",
+      "confirmDelete": "Vahvista poisto",
+      "cancel": "Peruuta",
+      "edit": "Muokkaa",
+      "save": "Tallenna",
+      "addToServer": "Lisää tilaan",
+      "tokens": "Tokenit"
+    },
+    "edit": {
+      "nameLabel": "Näyttönimi",
+      "hint": "Käyttäjänimeä @{{username}} ei voi muuttaa. Enintään {{max}} merkkiä.",
+      "bioLabel": "Botista",
+      "bioPlaceholder": "Mitä botti tekee, sen komennot, mistä saa apua",
+      "bioCounter": "{{used}}/{{max}}"
+    },
+    "status": {
+      "label": "Tila",
+      "none": "Ei tilaa",
+      "textLabel": "Tilan teksti",
+      "placeholder": "Mitä botti näyttää nimensä vieressä",
+      "hint": "Näytetään kun botti on yhdistetty. Botin koodi voi korvata sen seuraavaan yhdistämiseen asti.",
+      "types": {
+        "custom": "Mukautettu",
+        "playing": "Pelaa",
+        "listening": "Kuuntelee",
+        "watching": "Katsoo"
+      },
+      "display": {
+        "custom": "{{name}}",
+        "playing": "Pelaa {{name}}",
+        "listening": "Kuuntelee {{name}}",
+        "watching": "Katsoo {{name}}"
+      }
+    },
+    "permissions": {
+      "label": "Luvat joita botti pyytää",
+      "hint": "Botin tilaan lisäävä valvoja näkee ne valittuina ja voi poistaa valinnan. Ne menevät botin mukaan nimettyyn rooliin. Myöhempi muutos ei kosketa jo luotuja rooleja."
+    },
+    "avatar": {
+      "change": "Vaihda avatari",
+      "remove": "Poista avatari",
+      "cropTitle": "Rajaa botin avatari",
+      "uploadFailed": "Avatarin lataus epäonnistui",
+      "notImage": "Valitse kuvatiedosto"
+    },
+    "spaces": {
+      "title": "Lisää tilaan",
+      "loading": "Ladataan tiloja",
+      "empty": "Et hallitse vielä tiloja. Botin lisääminen vaatii luvan hallita tilaa.",
+      "add": "Lisää",
+      "added": "Lisätty",
+      "remove": "Poista"
+    }
+  },
+  "developer": {
+    "title": "Kehittäjä",
+    "mode": {
+      "label": "Kehittäjätila",
+      "description": "Näytä kehitystyökalut, kuten Botit-välilehti, asetuksissa. Pois päältä piilottaa ne vain; bottisi toimivat edelleen.",
+      "saveFailed": "Asetuksen tallennus epäonnistui. Yritä uudelleen."
+    }
+  }
+}

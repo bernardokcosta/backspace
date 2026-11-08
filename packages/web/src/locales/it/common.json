@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "Salva",
+    "cancel": "Annulla",
+    "close": "Chiudi",
+    "delete": "Elimina",
+    "bot": "BOT",
+    "confirm": "Conferma",
+    "copy": "Copia",
+    "copied": "Copiato",
+    "retry": "Riprova",
+    "back": "Indietro",
+    "done": "Fatto",
+    "edit": "Modifica",
+    "remove": "Rimuovi",
+    "add": "Aggiungi",
+    "apply": "Applica",
+    "reset": "Reimposta",
+    "continue": "Continua",
+    "dismiss": "Ignora",
+    "ok": "OK",
+    "search": "Cerca",
+    "clear": "Cancella",
+    "change": "Cambia",
+    "refresh": "Aggiorna",
+    "openLink": "Apri link",
+    "tryAgain": "Riprova",
+    "reply": "Rispondi",
+    "addReaction": "Aggiungi reazione",
+    "share": "Condividi",
+    "accept": "Accetta",
+    "decline": "Rifiuta",
+    "pause": "Pausa",
+    "resume": "Riprendi",
+    "abort": "Interrompi",
+    "dismissAll": "Ignora tutto",
+    "filter": "Filtra",
+    "sort": "Ordina",
+    "sortBy": "Ordina per",
+    "leave": "Esci",
+    "invitePeople": "Invita persone",
+    "previous": "Precedente",
+    "next": "Successivo",
+    "preview": "Anteprima",
+    "logIn": "Accedi"
+  },
+  "states": {
+    "loading": "Caricamento…",
+    "saving": "Salvataggio…",
+    "saved": "Salvato",
+    "unknown": "Sconosciuto",
+    "none": "Nessuno",
+    "enabled": "Attivato",
+    "disabled": "Disattivato",
+    "on": "Sì",
+    "off": "No",
+    "yes": "Sì",
+    "no": "No",
+    "optional": "Facoltativo",
+    "required": "Obbligatorio",
+    "default": "Predefinito",
+    "recommended": "Consigliato",
+    "online": "Online",
+    "idle": "Inattivo",
+    "doNotDisturb": "Non disturbare",
+    "offline": "Offline",
+    "loadingSettings": "Caricamento impostazioni…",
+    "loadSettingsFailed": "Impossibile caricare le impostazioni.",
+    "settingsSaved": "Impostazioni salvate",
+    "saveFailed": "Salvataggio non riuscito",
+    "scanning": "Scansione…",
+    "pleaseWait": "Attendi…"
+  },
+  "labels": {
+    "username": "Nome utente",
+    "password": "Password",
+    "displayName": "Nome visualizzato",
+    "friends": "Amici",
+    "members": "Membri",
+    "settings": "Impostazioni",
+    "dangerZone": "Zona pericolosa",
+    "searchMembers": "Cerca membri…",
+    "noMembersFound": "Nessun membro trovato",
+    "or": "oppure",
+    "nameAZ": "Nome (A-Z)"
+  },
+  "time": {
+    "today": "Oggi alle {{time}}",
+    "yesterday": "Ieri alle {{time}}",
+    "never": "Mai",
+    "justNow": "Adesso",
+    "minutesShort": "{{minutes}} min",
+    "hoursMinutesShort": "{{hours}} h {{minutes}} min",
+    "elapsed": "{{duration}} trascorsi",
+    "left": "{{duration}} rimanenti"
+  },
+  "units": {
+    "ms": "{{value}} ms",
+    "percent": "{{value}}%",
+    "kbps": "{{value}} kbps",
+    "mbps": "{{value}} Mbps"
+  },
+  "colors": {
+    "mint": "Menta",
+    "sky": "Cielo",
+    "lavender": "Lavanda",
+    "coral": "Corallo",
+    "rose": "Rosa",
+    "teal": "Verde acqua",
+    "amber": "Ambra",
+    "peach": "Pesca"
+  },
+  "language": {
+    "label": "Lingua",
+    "automatic": "Automatico (sistema)",
+    "description": "Scegli la lingua per menu, pulsanti e messaggi di sistema. Automatico segue le preferenze linguistiche del sistema o del browser. I messaggi degli altri utenti restano come scritti."
+  },
+  "crash": {
+    "title": "Qualcosa è andato storto",
+    "reload": "Ricarica pagina",
+    "details": "Dettagli dell’errore"
+  },
+  "app": {
+    "description": "L’alternativa self-hosted a Discord e TeamSpeak. Voce HD, video e condivisione dello schermo: open source e gratuita (AGPL-3.0).",
+    "loading": "Caricamento di Backspace"
+  },
+  "chrome": {
+    "toggleMemberList": "Mostra/nascondi elenco membri",
+    "closeSettings": "Chiudi impostazioni"
+  },
+  "sourceCode": {
+    "label": "Codice sorgente (AGPL)",
+    "labelWithBuild": "Codice sorgente (AGPL) · {{build}}",
+    "title": "Visualizza il codice sorgente della versione in esecuzione su questa istanza (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "{{label}} rilevato. Sceglilo nelle impostazioni voce per passare.",
+    "unnamedAudioInput": "Nuovo dispositivo audio"
+  }
+}

@@ -1,0 +1,305 @@
+{
+  "feedback": {
+    "openedInNewTab": "Avattu uudessa välilehdessä",
+    "copiedGifLink": "GIF-linkki kopioitu",
+    "copiedImageLink": "Kuvalinkki kopioitu",
+    "uploadExpired": "Kohdetta \"{{content}}\" ei voitu lähettää — lataus vanhentui.",
+    "attachmentOnly": "(vain liite)"
+  },
+  "message": {
+    "edit": {
+      "hint": "esc <cancel>peruuta</cancel> • enter <save>tallenna</save>"
+    },
+    "edited": "(muokattu)",
+    "rowLabel": "{{author}}, {{time}}",
+    "gifAlt": "GIF",
+    "upload": {
+      "failed": "Lataus epäonnistui",
+      "discard": "Hylkää"
+    },
+    "actions": {
+      "confirmDelete": "Vahvista poisto"
+    },
+    "reply": {
+      "jump": "Siirry alkuperäiseen viestiin"
+    },
+    "mention": {
+      "unknownUser": "Tuntematon käyttäjä",
+      "unknownRole": "Tuntematon rooli"
+    },
+    "reactions": {
+      "picker": "Reaktionvalitsin",
+      "you": "Sinä",
+      "others_one": "{{count}} muu",
+      "others_other": "{{count}} muuta",
+      "bySelf": "Sinä reagoit",
+      "byOne": "{{name}} reagoi",
+      "byMany": "Reaktiot: {{names}}"
+    }
+  },
+  "list": {
+    "noHistoryPermission": "Sinulla ei ole lupaa tarkastella viestihistoriaa tällä kanavalla",
+    "loading": "Ladataan viestejä",
+    "loadingOlder": "Ladataan vanhempia viestejä",
+    "loadFailed": "Viestejä ei voitu ladata",
+    "jumpToPresent": "Siirry nykyhetkeen",
+    "jump": {
+      "unavailable": "Tämä viesti ei ole enää saatavilla",
+      "failed": "Tätä viestiä ei voitu ladata",
+      "presentFailed": "Uusimpia viestejä ei voitu ladata"
+    },
+    "unread": {
+      "label": "Uudet",
+      "divider": "Uudet viestit",
+      "dividerWithDate": "Uudet viestit, {{date}}"
+    },
+    "welcome": {
+      "channel": {
+        "title": "Tervetuloa kanavalle!",
+        "description": "Tämä on keskustelun alku."
+      },
+      "group": {
+        "intro": "Tämä on ryhmäkeskustelusi alku.",
+        "owner": "Omistaja: <owner>@{{name}}</owner>",
+        "federatedNotice": "Viestit tallennetaan koti-instanssiisi ja vastaanottajien koti-instansseihin. Niissä ei ole päästä-päähän-salausta.",
+        "openSettings": "Avaa ryhmäasetukset",
+        "leave": "Poistu ryhmästä"
+      },
+      "dm": {
+        "fallbackName": "Suora viesti",
+        "intro": "Tämä on suoraviestihistoriasi alku käyttäjän <strong>@{{name}}</strong> kanssa.",
+        "federatedNotice": "Viestit tallennetaan koti-instanssiisi ja vastaanottajan koti-instanssiin. Niissä ei ole päästä-päähän-salausta.",
+        "removeFriend": "Poista kaveri"
+      }
+    }
+  },
+  "composer": {
+    "noPermission": "Sinulla ei ole lupaa lähettää viestejä tälle kanavalle",
+    "placeholder": {
+      "channel": "Viesti #{{name}}",
+      "dm": "Viesti @{{name}}"
+    },
+    "replyingTo": "Vastataan",
+    "cancelReply": "Peruuta vastaus",
+    "removeAttachment": "Poista liite",
+    "attachFile": "Liitä tiedosto",
+    "dropTitle": "Lataa tiedosto",
+    "dropHint": "Pudota liittääksesi",
+    "uploading": "Ladataan…",
+    "uploadingLabel": "Ladataan",
+    "failedCount_one": "{{count}} epäonnistui",
+    "failedCount_other": "{{count}} epäonnistui",
+    "failedHint": "Poista tai yritä viallista liitettä uudelleen lähettääksesi",
+    "gif": "GIF",
+    "gifPicker": "GIF-valitsin",
+    "emoji": "Emoji",
+    "emojiPicker": "Emojivalitsin",
+    "send": "Lähetä",
+    "sendMessage": "Lähetä viesti",
+    "uploadFailed": "Kohdetta {{file}} ei voitu ladata: {{reason}}",
+    "uploadFailedReason": "Lataus epäonnistui",
+    "typing": {
+      "named_one": "{{names}} kirjoittaa",
+      "named_other": "{{names}} kirjoittavat",
+      "several": "Useat ihmiset kirjoittavat"
+    }
+  },
+  "menu": {
+    "saveImage": "Tallenna kuva",
+    "copyImage": "Kopioi kuva",
+    "openOriginal": "Avaa alkuperäinen",
+    "saveVideo": "Tallenna video",
+    "saveAudio": "Tallenna ääni",
+    "copyLink": "Kopioi linkki",
+    "openLink": "Avaa linkki",
+    "copySelectedText": "Kopioi valittu teksti",
+    "copyText": "Kopioi teksti",
+    "markUnread": "Merkitse lukemattomaksi",
+    "editMessage": "Muokkaa viestiä",
+    "deleteMessage": "Poista viesti",
+    "linkCopied": "Linkki kopioitu",
+    "linkCopyFailed": "Linkin kopiointi epäonnistui",
+    "pinMessage": "Kiinnitä viesti",
+    "unpinMessage": "Irrota viesti"
+  },
+  "attachment": {
+    "progress": {
+      "pausedTitle": "Tauotettu — {{percent}}"
+    },
+    "video": {
+      "cannotPlayDownload": "Ei voi toistaa tässä — lataa",
+      "unsupportedFormat": "Tukematon videoformaatti",
+      "unsupportedBrowser": "Selaimesi ei tue videotoistoa."
+    },
+    "audio": {
+      "unsupportedBrowser": "Selaimesi ei tue äänentoistoa."
+    },
+    "federation": {
+      "remoteNamed": "Isännöity lähettäjän {{sender}} instanssilla. Lataa pitääksesi paikallisen kopion.",
+      "remoteUnknown": "Isännöity lähettäjän instanssilla. Lataa pitääksesi paikallisen kopion.",
+      "partialGeneric": "Jotkin vastaanottajat eivät voi tallentaa tätä tiedostoa paikallisesti.",
+      "partialInstance": "Käyttäjän {{username}} instanssi (raja: {{limit}})",
+      "partialList": "Tiedostoa ei voitu tallentaa kohteisiin {{instances}}. He voivat silti tarkastella sitä sinun kauttasi.",
+      "listPair": "{{first}} ja {{second}}"
+    }
+  },
+  "gif": {
+    "searchPlaceholder": "Hae GIFejä",
+    "noResults": "GIFejä ei löytynyt",
+    "noTrending": "Ei trendaavia GIFejä",
+    "attribution": "Toimii Klipyllä"
+  },
+  "preview": {
+    "save": "Tallenna kuva",
+    "copy": "Kopioi kuva",
+    "alt": "Kuvan esikatselu"
+  },
+  "invite": {
+    "sentBy": "Kutsu käyttäjältä {{name}}",
+    "memberCount_one": "{{count}} jäsen",
+    "memberCount_other": "{{count}} jäsentä",
+    "revoked": "Kutsu ei ole enää voimassa",
+    "join": "Liity",
+    "joining": "Liitytään…",
+    "joinFailed": "Liittyminen epäonnistui",
+    "askToJoin": "Pyydä liittymistä",
+    "sendingRequest": "Lähetetään…",
+    "requestSent": "Pyyntö lähetetty",
+    "requestPending": "Pyyntö odottaa",
+    "requestNotice": "Tämä tila ottaa vastaan pyyntöjä. Valvoja hyväksyy jokaisen.",
+    "requestReview": "Valvoja tarkistaa pyyntösi."
+  },
+  "notification": {
+    "unknownSender": "Joku",
+    "attachmentOnly": "Lähetti liitteen"
+  },
+  "commands": {
+    "title": "Komennot",
+    "failed": "Komentoa ei voitu lähettää",
+    "extraText": "Tämä komento ei ota vapaata tekstiä, mutta \"{{text}}\" jäi yli. Laita valinnat ensin, teksti viimeiseksi",
+    "invalidOption": "Kohteen {{option}} arvo ei sovi tähän komentoon.",
+    "optionsTitle": "Parametrit",
+    "required": "pakollinen",
+    "subcommandsTitle": "Alikomennot",
+    "group": "ryhmä",
+    "chooseSubcommand": "Valitse alikomento: {{names}}",
+    "subcommandRefused": "Botti ei tarjoa tätä alikomentoa. Valitse yksi luettelosta"
+  },
+  "ephemeral": {
+    "onlyYou": "Vain sinä näet tämän",
+    "dismiss": "Sulje",
+    "rowLabel": "Vastaus vain sinulle käyttäjältä {{author}}, {{time}}"
+  },
+  "embed": {
+    "loadAction": "Lataa napsauttamalla",
+    "loadNamed": "Lataa {{name}}",
+    "loadUnnamed": "Lataa upotus",
+    "frameTitle": "Upotus",
+    "playNamed": "Toista {{title}}",
+    "playUnnamed": "Toista video",
+    "videoTitle": "Video"
+  },
+  "stickers": {
+    "title": "Omat tarrat",
+    "upload": "Lataa kuva",
+    "limits": "PNG, JPEG, WebP tai GIF · enintään 5 Mt",
+    "loading": "Ladataan…",
+    "empty": "Tarrakokoelmasi alkaa tästä",
+    "remove": "Poista",
+    "save": "Lisää omiin tarroihin",
+    "saved": "Lisätty omiin tarroihin",
+    "preview": "Esikatsele tarra",
+    "manage": "Hallitse",
+    "done": "Valmis",
+    "collectionHint": "Valitse lähetettävä tarra. Tee tästä tilasta omasi.",
+    "manageHint": "Nimeä uudelleen tai poista tarroja kokoelmasta. Jo lähetetyt viestit pysyvät muuttumattomina.",
+    "emptyHint": "Tallenna suosikkihetkesi tarroina valmiiksi seuraavaa vastaustasi varten.",
+    "chooseImage": "Valitse kuva",
+    "cancel": "Peruuta",
+    "replace": "Korvaa kuva",
+    "name": "Tarran nimi",
+    "dropImage": "Napsauta tai pudota kuva tähän",
+    "pasteHint": "Voit myös liittää kuvan leikepöydältä",
+    "uploading": "Lisätään tarraa…",
+    "singleImage": "Valitse yksi kuva kerrallaan.",
+    "invalidSize": "Valitse ei-tyhjä kuva enintään 5 Mt.",
+    "invalidType": "Vain PNG-, JPEG-, WebP- ja GIF-kuvia tuetaan.",
+    "invalidImage": "Tätä kuvaa ei voi esikatsella. Valitse kelvollinen kuva.",
+    "removeNamed": "Poista {{name}}",
+    "addMore": "Lisää lisää",
+    "selectedCount_one": "{{count}} tarra valittu",
+    "selectedCount_other": "{{count}} tarraa valittu",
+    "dropMore": "Napsauta tai pudota lisää kuvia tähän",
+    "sticker": "Tarra",
+    "downloadFailed": "Kuvaa ei voitu ladata.",
+    "batchLimit_one": "Valitse kerralla enintään {{count}} kuva.",
+    "batchLimit_other": "Valitse kerralla enintään {{count}} kuvaa.",
+    "capacityLimit_one": "Kokoelmassasi on tilaa vielä {{count}} tarralle.",
+    "capacityLimit_other": "Kokoelmassasi on tilaa vielä {{count}} tarralle.",
+    "full": "Kokoelmasi on täynnä. Poista tarra lisätäksesi toisen.",
+    "batchFailed_one": "{{count}} kuvaa ei voitu lisätä. Se on yhä alla.",
+    "batchFailed_other": "{{count}} kuvaa ei voitu lisätä. Ne ovat yhä alla.",
+    "uploadingProgress": "Lisätään {{current}} / {{total}}…",
+    "rename": "Nimeä uudelleen",
+    "renameNamed": "Nimeä uudelleen {{name}}",
+    "renameTitle": "Nimeä tarra uudelleen",
+    "search": "Hae tarroja",
+    "noResults": "Tarroja ei löytynyt",
+    "store": "Tarrakauppa",
+    "myCollection": "Omat tarrat",
+    "packs": "Tarrapaketit",
+    "explore": "Selaa",
+    "myPacks": "Luomani",
+    "install": "Lisää",
+    "installed": "Lisätty",
+    "uninstall": "Poista",
+    "createPack": "Luo paketti",
+    "editPack": "Muokkaa pakettia",
+    "packName": "Paketin nimi",
+    "packDesc": "Kuvaus (valinnainen)",
+    "submitReview": "Lähetä tarkistettavaksi",
+    "pendingReview": "Odottaa tarkistusta",
+    "approved": "Hyväksytty",
+    "rejected": "Hylätty",
+    "draft": "Luonnos",
+    "newVersion": "Uusi versio",
+    "deletePack": "Poista paketti",
+    "stickersCount_one": "{{count}} tarra",
+    "stickersCount_other": "{{count}} tarraa",
+    "noPacks": "Tarrapaketteja ei löytynyt",
+    "replicaBadge": "Federoitu",
+    "viewPack": "Näytä paketti",
+    "saveDraft": "Tallenna luonnoksena",
+    "packCreated": "Paketti luotu",
+    "reviewSubmitted": "Lähetetty ylläpitäjän tarkistettavaksi",
+    "reviews": "Tarkistus",
+    "noReviews": "Yksikään tarrapaketti ei odota tarkistusta",
+    "approve": "Hyväksy",
+    "reject": "Hylkää",
+    "rejectTitle": "Hylkää tarrapaketti",
+    "rejectReason": "Hylkäyssyy",
+    "rejectPlaceholder": "Anna hylkäyssyy (esim. sopimaton sisältö, huono laatu)",
+    "rejectConfirm": "Vahvista hylkäys",
+    "approvedSuccess": "Tarrapaketti hyväksytty",
+    "rejectedSuccess": "Tarrapaketti hylätty",
+    "reviewNotes": "Hylkäyssyy",
+    "creator": "Tekijä",
+    "sourceInstance": "Instanssi",
+    "localInstance": "Paikallinen instanssi",
+    "viewStickers": "Näytä tarrat",
+    "pendingReviewHint": "Ylläpitäjän tarkistettavana; näkyy Selaa-kohdassa hyväksynnän jälkeen"
+  },
+  "poke": {
+    "action": "Tökkää",
+    "received": "{{actor}} tökkäsi {{target}}",
+    "disconnected": "Yhteys katkesi. Tökkäystä ei lähetetty."
+  },
+  "pins": {
+    "title": "Kiinnitetyt viestit",
+    "empty": "Ei kiinnitettyjä viestejä vielä.",
+    "jump": "Siirry viestiin",
+    "unpin": "Irrota",
+    "deletedMessage": "Viesti poistettu",
+    "attachmentOnly": "Liite"
+  }
+}

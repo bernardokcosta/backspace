@@ -3,7 +3,8 @@ import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { JUNO_COLORS, type JunoFace } from '@backspace/shared/src/juno';
-import { junoCardUrl, JUNO_ASSETS } from './junoAssets';
+import { junoCardUrl, JUNO_ASSETS, JUNO_DUBBINGS, resolveJunoDubbing } from './junoAssets';
+import { supportedLanguages } from '../../i18n/languages';
 
 const root = path.resolve(import.meta.dirname, '../../../public/games/juno');
 interface Manifest {
@@ -11,6 +12,20 @@ interface Manifest {
   memoryAudio: { path: string; sha256: string; sourceSha256: string; bytes: number; durationSeconds: number };
 }
 describe('supplied Juno asset inventory', () => {
+  it('resolves Automatic dubbing to the only real pt-BR edition for every interface language', () => {
+    expect(JUNO_DUBBINGS['pt-BR'].languageCode).toBe('pt');
+    for (const { code: language } of supportedLanguages) {
+      expect(resolveJunoDubbing('auto', language)).toBe('pt-BR');
+      expect(JUNO_DUBBINGS[resolveJunoDubbing('auto', language)].memorySound).toBe('juno_memory');
+    }
+    expect(resolveJunoDubbing('pt-BR', 'en')).toBe('pt-BR');
+  });
+  it('ships the original music unchanged, outside the short card/cue inventory', () => {
+    const manifest = JSON.parse(readFileSync(path.join(root, 'manifest.json'), 'utf8')) as { music: { path: string; sourceFile: string; bytes: number; sha256: string; unchanged: boolean } };
+    const music = manifest.music, bytes = readFileSync(path.resolve(root, '../..', music.path.slice(1)));
+    expect(music).toMatchObject({ sourceFile: 'Charting_the_Dark.mp3', bytes: 4363065, sha256: '5c1d9c0b04da244f5e55d91340b638bc05469352ce7a3d5cb79d5f115f1912bf', unchanged: true });
+    expect(bytes.length).toBe(music.bytes); expect(createHash('sha256').update(bytes).digest('hex')).toBe(music.sha256);
+  });
   it('preserves the supplied memory media provenance and serves real Vorbis bytes', () => {
     const manifest = JSON.parse(readFileSync(path.join(root, 'manifest.json'), 'utf8')) as Manifest;
     expect(manifest.files.find(f => f.path === 'cards/memory.webp')).toMatchObject({

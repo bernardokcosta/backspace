@@ -1,10 +1,10 @@
 # Localization
 
 Native Juno UI/rules/card names live under `voice:juno`; `juno_*` error codes
-have entries in all five error catalogs. The invariant game name "Juno" follows
+have entries in all 25 error catalogs. The invariant game name "Juno" follows
 the existing brand-name allowlist convention; its surrounding copy is translated.
 Juno result/XP/ranking/loading/unavailable text and win/round plurals use the same
-five catalogs. Wire colors stay coral/amber/mint/sky, but their translated labels
+25 catalogs. Wire colors stay coral/amber/mint/sky, but their translated labels
 are red/yellow/green/blue to match the supplied original art. Button/score labels
 are real localized DOM text, not baked-in Portuguese preview text.
 Missed-JUNO reports use the same catalogs for action/target, relative remaining
@@ -13,17 +13,71 @@ legacy automatic-penalty text from the hosting game's optional supportsReports
 capability; translations must not claim a rule that the remote host lacks.
 Memory-curse card names, neutral hidden-slot labels/instructions, affected-player
 and actual-draw miss feedback, plus enhanced-only rules use `voice:juno.memory`
-and `juno.faces.memory` in all five catalogs. Hidden slots never name color/face;
+and `juno.faces.memory` in all 25 catalogs. Hidden slots never name color/face;
 `errors:juno_update_required` explains incompatible enhanced rounds without
 retaining the old private view. The supplied card artwork/clip is not translated
 or regenerated; its provenance is recorded in the Juno asset manifest.
 
+Juno now has a game-local locale boundary (`JunoLocale`), sharing the existing
+catalog loader/resources but not the app's selected language. Device preference
+`language: auto` follows current/later Backspace language; an explicit existing
+released language scopes table/tile, rules, settings, result/ranking, formatted
+counts/percentages and coded game errors only. It does not change app storage,
+document lang/dir, generic Games/voice chrome or desktop language notification.
+`useFormatters()` honors its contextual i18n instance through `createFormatters`;
+the default exported/app formatters remain tied to app language. Existing
+`describeError(error, instance)` is reused, not a separate error translator.
+
+Game roots carry their own `lang`/`dir` from `useJunoLanguage()` (game
+preference, else app language): the table section, the tile button and the
+portalled settings dialog root. React context crosses the settings portal but
+DOM inheritance does not, so the dialog sets them explicitly. Physical game
+geometry stays LTR (`.juno-arena { direction: ltr }` with direction reapplied
+only inside prose roots): named seats, orbit art and direction arrows encode
+positions, not reading order. Header logo/actions also keep their physical LTR
+order, while Arabic guide/practice prose remains RTL. Long card-example captions
+wrap within their grid cells without shrinking the text. User-authored names and message text use
+`dir="auto"` isolation (PersonName, message content, composer mirror and
+textarea, edit textarea) so Arabic usernames/URLs keep readable order without
+rewriting content or escaping HTML by string injection. The composer mirror uses
+`unicode-bidi: plaintext` to match the native textarea's per-paragraph layout.
+Full account handles in account/settings cards use `<bdi dir="ltr">`, preserving
+the leading `@` and federated handle rather than letting surrounding RTL reorder it.
+Role-list names and the unchanged `@everyone` identifier use `bdi dir="auto"`,
+so each role keeps its own reading direction independently of the settings UI.
+
+Font stacks are per script, not per brand: DM Sans stays only where the bundled
+subset covers the script (Latin and Vietnamese); Russian and Ukrainian use the
+bundled Inter Cyrillic range (U+0400-052F); Simplified Chinese, Arabic, Hindi,
+Thai, Japanese and Korean use platform stacks on the app root, the scoped
+game/settings roots and the emoji-picker variable. No webfont is downloaded
+for those scripts.
+
+Structural coverage and rendered acceptance are separate gates; catalog checks
+cannot establish layout. The initiative validation ledger records the actual
+browser matrix, native HTML captures and isolated Windows Electron/production-
+preload checks, including controlled IPC/network limits. Simulated language
+changes do not establish a real OS-settings change, installed updater action,
+other operating systems or live multi-device calls.
+
+The gear/modal copy is `voice:juno.settings` in all 25 catalogs; language
+options retain each language's native name. Per user refinement the modal omits
+the personal-storage, dubbing and comfortable-volume explanatory paragraphs.
+Dubbing/card text is a separate Automatic-or-pt-BR preference. Automatic matches
+an actually supplied edition for the effective game UI language, falling back to
+pt-BR (currently the result for every UI language). `JUNO_DUBBINGS` supplies the
+edition's canonical registry language code and actual memory artwork/clip. Its
+label reuses `Português (Brasil)` from the registry in every UI language, not a
+second translated name. No nonexistent language/media is
+advertised, translated or requested. The settings changes are local and never
+change a server snapshot/round's language or game commands.
+
 Soundboard playback refusals distinguish missing/reconnecting voice ownership,
 moderation/permission mute and deafen with three stable error codes and text in
-all five catalogs. Ordinary self microphone mute remains allowed.
+all 25 catalogs. Ordinary self microphone mute remains allowed.
 
 The retired desktop minimum-version policy's mandatory-screen copy and error
-code have been removed from all five catalogs. Optional desktop update prompts
+code have been removed from all 25 catalogs. Optional desktop update prompts
 and settings remain localized.
 
 How Backspace is translated, and the rules every string, count, date and
@@ -31,13 +85,18 @@ error message follows so that the translations stay correct as the product
 moves. This spec is the contract; the foundation PR implements it and each
 surface sweep PR extends it.
 
-Shipped languages: English (`en`, the source language and the fallback),
-Russian (`ru`), German (`de`), Brazilian Portuguese (`pt`), Simplified Chinese
-(`zh`). Adding a language is a catalog directory plus one entry in
-`supportedLanguages`; nothing else in the code should need to know the list.
+Shipped languages: all 25 registry entries are released — English (`en`, the
+source language and the fallback), Russian (`ru`), German (`de`), Brazilian
+Portuguese (`pt`), Simplified Chinese (`zh`), Spanish (`es`), French (`fr`),
+Italian (`it`), Ukrainian (`uk`), Polish (`pl`), Dutch (`nl`), Swedish (`sv`),
+Danish (`da`), Norwegian Bokmål (`nb`), Finnish (`fi`), Czech (`cs`), Romanian
+(`ro`), Turkish (`tr`), Arabic (`ar`, RTL), Hindi (`hi`), Indonesian (`id`),
+Vietnamese (`vi`), Thai (`th`), Japanese (`ja`) and Korean (`ko`). The
+`released` flag mechanism stays in place for future languages; registration
+alone was never delivered language support.
 
 The project-hub `project` namespace and Support-card-only admin copy were
-retired in 1.15.2 across all five languages; they are not registered or loaded.
+retired in 1.15.2 across all 25 languages; they are not registered or loaded.
 Space discovery/Explore/directory-only copy is also removed. Invitation request
 actions live under `spaces:join.request`, and retained space access/description
 controls under `spaces:settings.access`. Social Discover People is independent
@@ -55,13 +114,15 @@ Portuguese has two written standards, Brazilian (`pt-BR`) and European
 (`pt-PT`), which differ in spelling, vocabulary and forms of address but are
 mutually readable. Detection maps every `pt-*` tag onto the one catalog: a
 `pt-PT` browser gets Portuguese its user can read rather than English, and the
-picker says Português do Brasil so they know which variant they have.
+picker says Português (Brasil) so they know which variant they have.
 
 Source files:
 - Runtime setup: `packages/web/src/i18n/index.ts` (`initI18n`, `setLanguage`,
   `getLanguage`; detection, persistence, `<html lang>`/`dir` sync, desktop IPC)
 - Language list: `packages/web/src/i18n/languages.ts` (`supportedLanguages`,
-  `SupportedLanguage`, `resolveSupportedLanguage`, `pickLanguage`)
+  `SupportedLanguage`, `LanguagePreference`, `resolveSupportedLanguage`, `pickLanguage`)
+- Preference subscription: `packages/web/src/i18n/useLanguagePreference.ts`; the
+  existing i18n owner exposes get/subscribe/setLanguagePreference. No second store.
 - Lazy catalog loader: `packages/web/src/i18n/loader.ts` (`LazyCatalogBackend`)
 - Typed keys: `packages/web/src/i18n/resources.ts` and
   `packages/web/src/i18n/i18next.d.ts` (`CustomTypeOptions`)
@@ -72,12 +133,12 @@ Source files:
 - Catalogs: `packages/web/src/locales/<lng>/<namespace>.json`
 - The shared Games picker prompt uses `voice:juno.chooseGame`; the voice
   sidebar's RNNoise description uses `voice:controls.audioTreatmentHint` and
-  explicitly distinguishes processing from muting in all five catalogs.
+  explicitly distinguishes processing from muting in all 25 catalogs.
 - Screen-share Force SDR controls/failures use `voice:streamSettings.forceSdr*`
-  in all five catalogs; capability/unavailable and restart-share copy describe
+  in all 25 catalogs; capability/unavailable and restart-share copy describe
   effective behavior without changing the saved device preference.
 - Screen-share HEVC capability/fallback help uses `voice:streamSettings.h265*`
-  in all five catalogs. `codecOption.h265` is the invariant codec name
+  in all 25 catalogs. `codecOption.h265` is the invariant codec name
   "H265 (HEVC)", allowlisted like VP9/H264; the explanatory text is translated.
 - Shared error codes: `packages/shared/src/errors.ts` (`ERROR_CODES`,
   `ErrorCode`, `ApiErrorBody`, `isErrorCode`)
@@ -230,7 +291,8 @@ script enforces this.
 
 The formatters take the locale from the selected language, not from the
 browser default, so a German user on an English OS sees German dates. Each
-formatter reads `i18n.resolvedLanguage` at call time; components use the
+formatter reads requested `i18n.language` at call time (English text fallback does
+not erase the chosen script/number locale); components use the
 `useFormatters()` hook, which subscribes to language changes and re-renders.
 
 | Function | Use | Backing API |
@@ -286,20 +348,29 @@ makes keys typed without maintaining a parallel type by hand.
 
 Detection order on startup:
 
-1. Stored choice under `localStorage['backspace-language']`.
-2. `navigator.languages`, first entry whose base language is supported.
+1. Stored released explicit choice under `localStorage['backspace-language']`.
+2. Automatic (also the missing/invalid default): on updated Electron use the ordered
+   OS UI languages from the optional `getSystemLanguages()` bridge; in browsers or
+   disconnected/older bridges use `navigator.languages`/`language`.
 3. `en`.
+
+Persist `auto` as a mode, never its current resolved language. Explicit selections
+ignore later system changes. Automatic refreshes on `languagechange`, foreground
+focus and visible-document changes without polling. Normalize Norwegian `no-*` to
+the Bokmål `nb` entry; unsupported/unreleased tags continue to the next preference.
+Browser language preferences may differ from the OS and are the only browser data
+available. Platform changes may require restart before Electron reports them.
 
 Each entry in `supportedLanguages` carries a `released` flag. Only released
 languages appear in the picker (`availableLanguages`) or can be chosen by
-detection; a stored choice for an unreleased language is ignored. English,
-Russian, German, Brazilian Portuguese and Chinese are all released. The flag
-exists for the next language: it lands surface by surface with
+detection; a stored choice for an unreleased language is ignored. All 25
+registry entries are released. The flag exists for the next language: it lands
+surface by surface with
 `released: false`, so a release cut in between stays free of that language
 rather than shipping it half translated, and the PR that finishes it flips the
-flag. Tests reach an
-unreleased language with `setLanguage` or `initI18n({ releasedLanguages })`;
-people reach it with `?lang=<code>` on the URL, which works in development
+flag. Tests reach a
+hypothetically unreleased language with `setLanguage` or `initI18n({ releasedLanguages })`;
+people reached unreleased ones with `?lang=<code>` on the URL, which works in development
 builds only and is never persisted.
 
 Detection alone never writes the stored choice. A user who has not picked a
@@ -308,17 +379,28 @@ language keeps following their browser; only the picker persists.
 `main.tsx` awaits it before the first render, so there is no English flash.
 
 The selector lives in the user settings modal, Account panel, section
-"Language". It lists `supportedLanguages`, showing each language by its
-`nativeName` (English, Русский, Deutsch, Português do Brasil, 简体中文); the
+"Language". It offers localized Automatic (system) plus released entries, showing each by its
+`nativeName` (English, Русский, Deutsch, Português (Brasil), 简体中文, Español,
+Français, Italiano, Українська, Polski, Nederlands, Svenska, Dansk,
+Norsk (bokmål), Suomi, Čeština, Română, Türkçe, العربية, हिन्दी,
+Bahasa Indonesia, Tiếng Việt, ไทย, 日本語, 한국어); the
 list is not translated, because a user who cannot read the current language needs to find their own.
 
 Changing the language:
 - Persists the choice.
+- Notifies preference subscribers even if Automatic and explicit resolve to the
+  same language; React's selector is not driven only by languageChanged.
 - Sets `document.documentElement.lang` and `dir` (from the language's `dir`
-  field; all shipped languages are `ltr`, the field exists so an RTL language
-  is one catalog and one entry).
+  field; Arabic is `rtl`, while the other shipped languages are `ltr`).
 - In the desktop app, sends `set-language` over IPC so the main process
-  relabels the tray and application menus.
+  relabels the tray and application menus. New shells receive the mode; old
+  bridges receive the effective concrete language, with old native limitations.
+
+Language loads are preloaded and commits serialized/generation-guarded; older
+OS/catalog replies cannot overwrite a newer choice. Development URL previews are
+neither persisted nor sent to native and ignore Automatic refresh until the user
+makes a real selection. An absent target namespace is an empty bundle so English
+fallback works without repeated backend errors; real failed imports stay bounded.
 
 The choice is per device, not per account. It is not synced to the server;
 a user's language is a property of the machine in front of them.
@@ -368,8 +450,8 @@ Components render an error with `describeError(err)` from `i18n/errors.ts`,
 which returns the localized `errors:` string for the code, interpolating
 `details`, and falls back to the server's English `error` text when there is
 no code or the catalog has no entry. A `code` that is missing from the
-`errors` namespace is a check-script failure, so every code shipped by the
-server has words in every language.
+`errors` English namespace is a check-script failure. Missing target translations
+use bundled English; explicit strict coverage reports them as debt, not translated.
 
 A surface whose own failure text says more than an uncoded failure would (a
 browser exception from a clipboard write, a server's bare English `error`)
@@ -504,24 +586,58 @@ The main process shows a handful of strings outside the renderer: tray menu
 items, the application menu (macOS, and the accelerator-only Edit menu on
 Windows and Linux), the update items, the recovery page and the instance
 picker. The menu strings live in `packages/desktop/src/l10n.ts` as a small
-typed catalog with `en`, `ru`, `de`, `pt` and `zh` entries;
+typed catalog with all 25 languages;
 `translateDesktop(language, key, values?)` reads it. The recovery and instance-picker pages carry their
 own inline `STRINGS` tables, because they are shown precisely when the
 renderer is unavailable.
 
-Language source, in order: the last `set-language` IPC message from the
-renderer, persisted as `language.json` next to `instance-url.json` in
-userData, then `app.getLocale()` mapped through the same base-language rule
-as the web, then `en`. `getDesktopLanguage()` resolves it; the pages receive
-it as `?lang=` on their `loadFile` URL. On `set-language`, main persists the
-choice and rebuilds every menu it owns.
+Native preference is the last validated `set-language` mode, persisted as
+`{ language: 'auto' | code }` in `language.json` next to `instance-url.json`.
+Existing concrete JSON values remain explicit. Missing/invalid values mean auto;
+the live cache updates before saving so a disk failure cannot freeze the old mode.
+Automatic resolves `app.getPreferredSystemLanguages()` in order, then English.
+`app.getLocale()` is the application locale, not necessarily the OS UI preference.
+On focus/resume main refreshes its existing menus without changing update state.
+
+`getDesktopLanguageQuery()` supplies `lang`, `preference` and the released code
+list to every recovery/picker load. HTML keeps inline catalogs, relabels in place
+on Automatic focus via the same named getter, and preserves typed URL, disabled
+controls, state/errors/diagnostic values and actions. Titles and diagnostic labels
+are localizable too; technical error data remains external content. Query language
+lookup checks own catalog properties, not inherited object names. No external
+font request is needed by the picker. The native CommonJS package still imports
+neither renderer/shared TypeScript nor i18next.
 
 `buildTrayMenuTemplate` and `buildAppMenuTemplate` take the language as a
 trailing parameter that defaults to English, so the pure template builders
 stay testable without Electron.
 
-Notification titles are composed by the renderer and passed to
-`showNotification`, so they need no main-process work.
+Ordinary message notification titles are composed by the renderer and passed to
+`showNotification`. App-owned update notifications, updater failures, About source
+attribution and native menu role labels use the native catalog explicitly; role
+behavior/accelerators remain unchanged. Windows/Linux Edit and the macOS Edit
+submenu reuse the same pure menu builder instead of maintaining parallel labels.
+Linux global-shortcut dialog descriptions are app-owned native catalog entries
+too; the portal/OS owns the actual assigned-key labels. Descriptions use the mode
+at session binding and appear in that language on the next registration/session;
+switching the language does not re-request OS permissions or reset shortcuts.
+
+### Install and bootstrap copy
+
+`common:app.description` supplies the HTML description and localized install
+description. `src/build/localizedManifests.ts` owns one existing install template
+reused by VitePWA plus one static `manifest-<released-code>.webmanifest` per released
+locale. Name, start URL, icons, colors, standalone display and effective app identity
+stay identical; only description/lang/dir vary. The current i18n document owner
+selects the manifest link and description meta after a locale commit. Future
+missing descriptions fall back honestly to English metadata. Development serves
+the same generated content, and the existing Workbox precache extension/budget
+includes `.webmanifest` so metadata remains offline-capable. No extra service
+worker, translation framework, remote font or server route is introduced.
+
+Existing renderer-owned bootstrap/crash/offline prompts already use their catalog
+keys. OS install prompt chrome, browser-generated network/permission errors,
+external technical diagnostic values and user/external content are not translated.
 
 ---
 
@@ -530,19 +646,25 @@ Notification titles are composed by the renderer and passed to
 `scripts/check-i18n.mjs` runs in `pnpm typecheck` and before the web build.
 It fails on:
 
-1. A key present in `en` and missing from another language, or vice versa.
-2. A `{{placeholder}}` set that differs between languages for the same key.
+1. A target key/namespace without English source. Missing target keys/namespaces
+   are permitted for future English-only features; `--strict` reports coverage debt.
+2. Broken `{{placeholder}}` values in any supplied form, not merely a family union.
+   Arabic one/two and implicit-number source singulars may omit `count`, not names
+   or other interpolation values. Every other provided variable remains checked.
 3. A plural key missing a CLDR category for its language.
 4. A `t()` call that passes `count` to a key without plural forms.
 5. A non-English value byte-identical to the English one, outside the
    allowlist in `scripts/i18n-allowlist.json` (brand names, "OK", URLs, and
-   the words German shares with English such as Link, Info, Token, Codec).
+   legitimate shared terms). Exact `{ language, namespace, key, value, reason }`
+   allowances scope context-sensitive matches; blanket prose exemptions are audited.
 6. A direct `toLocale*` or `Intl.*` call in the web package outside
    `formatters.ts`.
 7. An `ErrorCode` with no entry in `errors.json`.
 8. A literal user-facing string in JSX or in an `addToast(...)` call (bare or
    through a store, `useUIStore.getState().addToast(...)`), in any
-   file not listed in `scripts/i18n-pending.txt`. The rule reads each
+   production `.ts`/`.tsx` file not listed in `scripts/i18n-pending.txt`, including
+   hooks and helpers rather than only JSX-bearing modules. Tooltip `content`
+   literals are checked alongside title/placeholder/aria/alt. The rule reads each
    component's TypeScript syntax tree (the compiler is resolved from the web
    package), so it sees text wherever JSX puts it: JSX text inside
    conditionals and maps, literal JSX children (`{open ? 'Open' : t('x')}`),
@@ -562,13 +684,30 @@ It fails on:
    `packages/web/src/dev/` are exempt from this rule alone: each is the entry
    of a design workbench page that the app never imports, and their copy
    addresses whoever is building the component rather than a user.
-9. Translation markup that differs from English, or a paired HTML void tag
+9. Translation markup that differs from English in any supplied form, or a paired HTML void tag
    (such as `<link>...</link>`) used as a `Trans` component wrapper. Void tags
    are parsed as empty HTML elements, so wrapper components use distinctive
    names such as `<actionLink>...</actionLink>` instead.
 
 The check reports every finding at once, with file and line, so a sweep PR
 can be fixed in one pass.
+
+Namespace roots/values must be valid JSON objects/nonempty strings; malformed
+catalogs produce findings rather than a parser stack trace. Omitted target keys,
+empty namespaces and empty target grouping branches may use English, but a
+supplied object at a source string/plural leaf is invalid: i18next treats it as
+an object, not as missing copy. Structural validation retains those paths before
+flattening can discard empty objects or their empty descendants. Strict coverage reads
+the registry too, so a missing whole locale directory cannot disappear from the
+denominator. `--locales=en,pt,...` limits completeness reporting only; it never
+hides invalid supplied data elsewhere. Unknown flags/codes are errors.
+
+`node scripts/check-i18n.mjs --strict --include-desktop` also inspects native main
+and inline recovery/picker tables without executing Electron/HTML code. The static
+reader rejects executable values, checks native call-site English, placeholders,
+shared-term allowances and registry/release mirrors. It is opt-in so normal
+web-only Docker builds need no desktop source. English native catalogs remain
+exhaustive, target tables may be partial with tested per-key English fallback.
 
 ---
 
@@ -577,8 +716,11 @@ can be fixed in one pass.
 Surfaces are converted one PR at a time, in the order users meet them: auth,
 settings (done in the foundation PR as the reference), chat, dm, voice,
 spaces, social, search, uploads, mobile, federation, admin, desktop. Each
-PR ships every language in `supportedLanguages` for its namespace; the parity
-rule fails the PR otherwise.
+feature requires English copy; translations may follow later while valid supplied
+entries and English fallback remain mandatory. This 25-language initiative is
+stricter at delivery: every current surface must have actual reviewed translations.
+New languages stay unreleased until the explicit complete-baseline gate passes;
+passing the normal build does not prove translation completeness or naturalness.
 
 The Russian translation comes from the community. st7105 translated the
 whole app in PR #45, and that PR also established the detection order, the
@@ -666,7 +808,8 @@ is omitted, so the Russian page uses it and the English page does not.
 2. Add `{ code, nativeName, dir }` to `supportedLanguages`.
 3. Add the entry to the desktop catalog in `l10n.ts` and to the inline
    catalogs of the recovery window and the instance picker.
-4. Run `pnpm typecheck`; the check script confirms parity.
+4. Run `pnpm typecheck`, then explicit `node scripts/check-i18n.mjs --strict --include-desktop`
+   and contextual/script/layout acceptance before marking the language released.
 
 Nothing else. If a fifth step turns out to be needed, the fix is to remove
 the need, not to document the step.

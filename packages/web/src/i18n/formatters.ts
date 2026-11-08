@@ -181,7 +181,7 @@ export function createFormatters(getLocale: () => string): Formatters {
 }
 
 /** The app-wide formatters, bound to the selected language. */
-export const formatters: Formatters = createFormatters(() => i18n.resolvedLanguage ?? i18n.language ?? 'en');
+export const formatters: Formatters = createFormatters(() => i18n.language || 'en');
 
 /**
  * The same formatters for components. Subscribes to language changes so a
@@ -189,6 +189,6 @@ export const formatters: Formatters = createFormatters(() => i18n.resolvedLangua
  */
 export function useFormatters(): Formatters {
   const { i18n: instance } = useTranslation();
-  const language = instance.resolvedLanguage ?? instance.language;
-  return useMemo(() => formatters, [language]);
+  const language = instance.language;
+  return useMemo(() => instance === i18n ? formatters : createFormatters(() => language || 'en'), [instance, language]);
 }

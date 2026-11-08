@@ -1,0 +1,34 @@
+{
+  "failure": {
+    "notAuthenticated": "Bu örnek için kimlik doğrulanmadı",
+    "invalidResponse": "Yükleme yanıtı ayrıştırılamadı",
+    "uploadError": "Yükleme hatası",
+    "downloadError": "İndirme hatası",
+    "fileUnavailable": "Dosya artık kullanılamıyor — kaldırıp yeniden yükle",
+    "noDestination": "Hedef tanımlayıcısı yok — devam ettirilemiyor",
+    "destinationMissing": "Hedef tanımlayıcısı eksik",
+    "permissionDenied": "İzin reddedildi",
+    "lostDownload": "İndirme devam ettirilemiyor — veriler kayboldu. İndirmeyi yeniden başlat.",
+    "uploadHandleMissing": "Dosya tanımlayıcısı eksik — kaldırıp yeniden yükle",
+    "downloadHandleMissing": "Hedef tanımlayıcısı eksik — indirmeyi yeniden başlat",
+    "downloadFailed": "İndirme başarısız: {{status}}",
+    "resumeFailed": "Devam ettirme başarısız: {{status}}"
+  },
+  "transfers": {
+    "title": "Aktarımlar",
+    "count_one": "{{count}} aktarım",
+    "count_other": "{{count}} aktarım",
+    "clearCompleted": "Tamamlananları temizle",
+    "empty": "Etkin aktarım yok.",
+    "status": {
+      "done": "Tamamlandı",
+      "failed": "Başarısız: {{reason}}",
+      "aborted": "İptal edildi",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "Görseli kırp",
+    "applying": "Uygulanıyor…"
+  }
+}

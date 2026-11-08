@@ -1,0 +1,34 @@
+{
+  "input": {
+    "placeholder": "Berichten zoeken…"
+  },
+  "filters": {
+    "toggle": "Filters",
+    "from": {
+      "label": "Van",
+      "placeholder": "gebruikersnaam"
+    },
+    "has": {
+      "label": "Bevat",
+      "any": "Alles",
+      "file": "Bestand",
+      "image": "Afbeelding",
+      "link": "Link"
+    },
+    "before": {
+      "label": "Voor"
+    },
+    "after": {
+      "label": "Na"
+    }
+  },
+  "results": {
+    "empty": "Geen resultaten gevonden",
+    "hint": "Typ om berichten in dit kanaal te zoeken",
+    "count_one": "{{count}} resultaat",
+    "count_other": "{{count}} resultaten",
+    "loadMore": "Meer laden (nog {{remaining}})",
+    "attachments_one": "{{count}} bijlage",
+    "attachments_other": "{{count}} bijlagen"
+  }
+}

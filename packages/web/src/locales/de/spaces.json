@@ -1,5 +1,5 @@
 {
-  "soundboardTab": "Klangtafel",
+  "soundboardTab": "Soundboard",
   "create": {
     "title": "Space erstellen",
     "icon": {
@@ -96,7 +96,7 @@
         "label": "Private Kategorie",
         "description": "Nur ausgewählte Mitglieder und Rollen können die Kanäle in dieser Kategorie sehen.",
         "note": "Diese Kategorie ist für Mitglieder ohne ausdrücklichen Zugriff verborgen. Die Kanäle darin erben diese Einschränkung, sofern sie sie nicht ausdrücklich überschreiben.",
-        "unhideOnSave": "Beim Speichern werden diese Kategorie und die Kanäle darin, die sich nicht selbst verbergen, für alle Mitglieder sichtbar."
+        "unhideOnSave": "Beim Speichern werden diese Kategorie und ihre Kanäle ohne eigene Sichtbarkeitseinschränkung für alle Mitglieder sichtbar."
       },
       "deleteButton": "Kategorie löschen"
     },
@@ -147,6 +147,13 @@
     "contextMenu": "Zu Space einladen"
   },
   "join": {
+    "validation": {
+      "required": "Ein Einladungscode ist erforderlich.",
+      "invalidLink": "Ungültiger Einladungslink.",
+      "linkFormat": "Ungültiger Einladungslink. Verwende das Format https://instance/join/CODE",
+      "qualifiedFormat": "Ungültiges Einladungsformat. Verwende CODE@domain",
+      "invalidDomain": "Die Domain der Einladung ist ungültig."
+    },
     "title": "Einem Space beitreten",
     "invitePlaceholder": "z. B. abc123 oder https://instance.com/join/abc123",
     "submit": "Space beitreten",
@@ -271,7 +278,7 @@
       "rolesUnheld": "Rollen mit Berechtigungen, die du nicht hast, kannst du nicht vergeben.",
       "rolesManagedByBot": "Die eigene Rolle eines Bots bleibt beim Bot.",
       "botInvite": {
-        "warning": "Der Bot wird Mitglied dieses Servers und erhält die Nachrichten und Ereignisse aller Kanäle, die seine Berechtigungen erlauben. Füge nur Bots hinzu, denen du vertraust.",
+        "warning": "Der Bot wird Mitglied dieses Space und erhält die Nachrichten und Ereignisse aller Kanäle, die seine Berechtigungen erlauben. Füge nur Bots hinzu, denen du vertraust.",
         "owner": "Besitzer: @{{owner}}",
         "button": "Bot hinzufügen",
         "title": "Bot hinzufügen",
@@ -320,7 +327,7 @@
     "backToList": "Zurück zu den Rollen",
     "created": "Rolle erstellt. Passe sie unten an.",
     "aboveYou": "Diese Rolle steht auf oder über deiner höchsten Rolle. Du kannst sie ansehen, aber nicht ändern.",
-    "managedByBot": "Diese Rolle gehört zu einem Bot. Sie verschwindet, wenn der Bot den Space verlässt, und kann weder vergeben noch gelöscht werden. Ihre Berechtigungen lassen sich ändern.",
+    "managedByBot": "Diese Rolle wird von einem Bot verwaltet und entfernt, wenn der Bot den Space verlässt. Sie kann weder anderen zugewiesen noch manuell gelöscht werden. Ihre Berechtigungen lassen sich ändern.",
     "reorder": {
       "handle": "{{name}} verschieben",
       "handleHint": "Ziehen oder mit den Pfeiltasten nach oben und unten verschieben",
@@ -448,7 +455,7 @@
       "leaveConfirm": {
         "title": "Space verlassen",
         "titleNamed": "{{name}} verlassen",
-        "description": "Willst du diesen Space wirklich verlassen? Zum erneuten Beitreten brauchst du eine neue Einladung."
+          "description": "Willst du diesen Space wirklich verlassen? Zum erneuten Beitreten brauchst du eine Einladung."
       },
       "left": "Du hast den Space verlassen",
       "leaveFailed": "Space konnte nicht verlassen werden",
@@ -476,7 +483,7 @@
       "microphonePermission": "Mikrofonzugriff wird benötigt.",
       "audioPermission": "Audiozugriff wird benötigt.",
       "enable": "Erlauben",
-      "voiceSettings": "Spracheinstellungen",
+      "voiceSettings": "Sprach- und Videoeinstellungen",
       "mute": "Stummschalten",
       "unmute": "Stummschaltung aufheben",
       "deafen": "Ton ausschalten",

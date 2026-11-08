@@ -39,7 +39,8 @@ export class LazyCatalogBackend {
   async read(language: string, namespace: string): Promise<Record<string, unknown>> {
     const load = catalogs[`../locales/${language}/${namespace}.json`];
     if (!load) {
-      throw new Error(`No catalog for ${language}/${namespace}`);
+      // A future feature can intentionally have only an English namespace.
+      return {};
     }
     return load();
   }

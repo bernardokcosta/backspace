@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "close": "Zamknij",
+    "delete": "Usuń",
+    "bot": "BOT",
+    "confirm": "Potwierdź",
+    "copy": "Kopiuj",
+    "copied": "Skopiowano",
+    "retry": "Spróbuj ponownie",
+    "back": "Wstecz",
+    "done": "Gotowe",
+    "edit": "Edytuj",
+    "remove": "Usuń",
+    "add": "Dodaj",
+    "apply": "Zastosuj",
+    "reset": "Zresetuj",
+    "continue": "Kontynuuj",
+    "dismiss": "Odrzuć",
+    "ok": "OK",
+    "search": "Szukaj",
+    "clear": "Wyczyść",
+    "change": "Zmień",
+    "refresh": "Odśwież",
+    "openLink": "Otwórz link",
+    "tryAgain": "Spróbuj ponownie",
+    "reply": "Odpowiedz",
+    "addReaction": "Dodaj reakcję",
+    "share": "Udostępnij",
+    "accept": "Akceptuj",
+    "decline": "Odrzuć",
+    "pause": "Wstrzymaj",
+    "resume": "Wznów",
+    "abort": "Przerwij",
+    "dismissAll": "Odrzuć wszystkie",
+    "filter": "Filtruj",
+    "sort": "Sortuj",
+    "sortBy": "Sortuj według",
+    "leave": "Opuść",
+    "invitePeople": "Zaproś osoby",
+    "previous": "Poprzedni",
+    "next": "Następny",
+    "preview": "Podgląd",
+    "logIn": "Zaloguj się"
+  },
+  "states": {
+    "loading": "Ładowanie…",
+    "saving": "Zapisywanie…",
+    "saved": "Zapisano",
+    "unknown": "Nieznany",
+    "none": "Brak",
+    "enabled": "Włączone",
+    "disabled": "Wyłączone",
+    "on": "Wł.",
+    "off": "Wył.",
+    "yes": "Tak",
+    "no": "Nie",
+    "optional": "Opcjonalnie",
+    "required": "Wymagane",
+    "default": "Domyślne",
+    "recommended": "Zalecane",
+    "online": "Online",
+    "idle": "Bezczynny",
+    "doNotDisturb": "Nie przeszkadzać",
+    "offline": "Offline",
+    "loadingSettings": "Ładowanie ustawień…",
+    "loadSettingsFailed": "Nie udało się wczytać ustawień.",
+    "settingsSaved": "Zapisano ustawienia",
+    "saveFailed": "Nie udało się zapisać",
+    "scanning": "Skanowanie…",
+    "pleaseWait": "Czekaj…"
+  },
+  "labels": {
+    "username": "Nazwa użytkownika",
+    "password": "Hasło",
+    "displayName": "Wyświetlana nazwa",
+    "friends": "Znajomi",
+    "members": "Członkowie",
+    "settings": "Ustawienia",
+    "dangerZone": "Strefa niebezpieczna",
+    "searchMembers": "Szukaj członków…",
+    "noMembersFound": "Nie znaleziono członków",
+    "or": "lub",
+    "nameAZ": "Nazwa (A-Z)"
+  },
+  "time": {
+    "today": "Dziś o {{time}}",
+    "yesterday": "Wczoraj o {{time}}",
+    "never": "Nigdy",
+    "justNow": "Przed chwilą",
+    "minutesShort": "{{minutes}} min",
+    "hoursMinutesShort": "{{hours}} godz. {{minutes}} min",
+    "elapsed": "Minęło {{duration}}",
+    "left": "Zostało {{duration}}"
+  },
+  "units": {
+    "ms": "{{value}} ms",
+    "percent": "{{value}}%",
+    "kbps": "{{value}} kbps",
+    "mbps": "{{value}} Mbps"
+  },
+  "colors": {
+    "mint": "Miętowy",
+    "sky": "Niebieski",
+    "lavender": "Lawendowy",
+    "coral": "Koralowy",
+    "rose": "Różany",
+    "teal": "Morski",
+    "amber": "Bursztynowy",
+    "peach": "Brzoskwiniowy"
+  },
+  "language": {
+    "label": "Język",
+    "automatic": "Automatycznie (systemowy)",
+    "description": "Wybierz język menu, przycisków i komunikatów systemowych. Opcja Automatycznie podąża za językiem systemu lub przeglądarki. Wiadomości innych osób pozostają bez zmian."
+  },
+  "crash": {
+    "title": "Coś poszło nie tak",
+    "reload": "Odśwież stronę",
+    "details": "Szczegóły błędu"
+  },
+  "app": {
+    "description": "Samodzielnie hostowana alternatywa dla Discorda i TeamSpeaka. Głos w HD, wideo i udostępnianie ekranu — otwarte oprogramowanie, darmowe (AGPL-3.0).",
+    "loading": "Ładowanie Backspace"
+  },
+  "chrome": {
+    "toggleMemberList": "Pokaż/ukryj listę członków",
+    "closeSettings": "Zamknij ustawienia"
+  },
+  "sourceCode": {
+    "label": "Kod źródłowy (AGPL)",
+    "labelWithBuild": "Kod źródłowy (AGPL) · {{build}}",
+    "title": "Zobacz kod źródłowy wersji, na której działa ta instancja (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "Wykryto {{label}}. Wybierz je w ustawieniach głosu, aby przełączyć.",
+    "unnamedAudioInput": "Nowe urządzenie audio"
+  }
+}

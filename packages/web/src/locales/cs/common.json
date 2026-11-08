@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "Uložit",
+    "cancel": "Zrušit",
+    "close": "Zavřít",
+    "delete": "Smazat",
+    "bot": "BOT",
+    "confirm": "Potvrdit",
+    "copy": "Kopírovat",
+    "copied": "Zkopírováno",
+    "retry": "Zkusit znovu",
+    "back": "Zpět",
+    "done": "Hotovo",
+    "edit": "Upravit",
+    "remove": "Odebrat",
+    "add": "Přidat",
+    "apply": "Použít",
+    "reset": "Resetovat",
+    "continue": "Pokračovat",
+    "dismiss": "Skrýt",
+    "ok": "OK",
+    "search": "Hledat",
+    "clear": "Vymazat",
+    "change": "Změnit",
+    "refresh": "Obnovit",
+    "openLink": "Otevřít odkaz",
+    "tryAgain": "Zkusit znovu",
+    "reply": "Odpovědět",
+    "addReaction": "Přidat reakci",
+    "share": "Sdílet",
+    "accept": "Přijmout",
+    "decline": "Odmítnout",
+    "pause": "Pozastavit",
+    "resume": "Pokračovat",
+    "abort": "Přerušit",
+    "dismissAll": "Skrýt vše",
+    "filter": "Filtr",
+    "sort": "Řadit",
+    "sortBy": "Řadit podle",
+    "leave": "Odejít",
+    "invitePeople": "Pozvat lidi",
+    "previous": "Předchozí",
+    "next": "Další",
+    "preview": "Náhled",
+    "logIn": "Přihlásit"
+  },
+  "states": {
+    "loading": "Načítání…",
+    "saving": "Ukládání…",
+    "saved": "Uloženo",
+    "unknown": "Neznámé",
+    "none": "Žádné",
+    "enabled": "Zapnuto",
+    "disabled": "Vypnuto",
+    "on": "Zap",
+    "off": "Vyp",
+    "yes": "Ano",
+    "no": "Ne",
+    "optional": "Volitelné",
+    "required": "Povinné",
+    "default": "Výchozí",
+    "recommended": "Doporučeno",
+    "online": "Online",
+    "idle": "Nečinný",
+    "doNotDisturb": "Nerušit",
+    "offline": "Offline",
+    "loadingSettings": "Načítání nastavení…",
+    "loadSettingsFailed": "Nastavení se nepodařilo načíst.",
+    "settingsSaved": "Nastavení uloženo",
+    "saveFailed": "Uložení selhalo",
+    "scanning": "Skenování…",
+    "pleaseWait": "Čekej prosím…"
+  },
+  "labels": {
+    "username": "Uživatelské jméno",
+    "password": "Heslo",
+    "displayName": "Zobrazované jméno",
+    "friends": "Přátelé",
+    "members": "Členové",
+    "settings": "Nastavení",
+    "dangerZone": "Nebezpečná zóna",
+    "searchMembers": "Hledat členy…",
+    "noMembersFound": "Nenalezeni žádní členové",
+    "or": "nebo",
+    "nameAZ": "Název (A–Z)"
+  },
+  "time": {
+    "today": "Dnes v {{time}}",
+    "yesterday": "Včera v {{time}}",
+    "never": "Nikdy",
+    "justNow": "Právě teď",
+    "minutesShort": "{{minutes}} min",
+    "hoursMinutesShort": "{{hours}} h {{minutes}} min",
+    "elapsed": "Uplynulo {{duration}}",
+    "left": "Zbývá {{duration}}"
+  },
+  "units": {
+    "ms": "{{value}} ms",
+    "percent": "{{value}} %",
+    "kbps": "{{value}} kb/s",
+    "mbps": "{{value}} Mb/s"
+  },
+  "colors": {
+    "mint": "Máta",
+    "sky": "Nebe",
+    "lavender": "Levandule",
+    "coral": "Korál",
+    "rose": "Růže",
+    "teal": "Petrol",
+    "amber": "Jantar",
+    "peach": "Broskev"
+  },
+  "language": {
+    "label": "Jazyk",
+    "automatic": "Automaticky (systém)",
+    "description": "Vyber jazyk nabídek, tlačítek a systémových zpráv. Automaticky se řídí jazykem systému či prohlížeče. Cizí zprávy zůstávají tak, jak byly napsány."
+  },
+  "crash": {
+    "title": "Něco se pokazilo",
+    "reload": "Znovu načíst stránku",
+    "details": "Podrobnosti o chybě"
+  },
+  "app": {
+    "description": "Samohostovaná alternativa Discordu a TeamSpeaku. HD hlas, video a sdílení obrazovky — open source a zdarma (AGPL-3.0).",
+    "loading": "Načítání Backspace"
+  },
+  "chrome": {
+    "toggleMemberList": "Zobrazit či skrýt seznam členů",
+    "closeSettings": "Zavřít nastavení"
+  },
+  "sourceCode": {
+    "label": "Zdrojový kód (AGPL)",
+    "labelWithBuild": "Zdrojový kód (AGPL) · {{build}}",
+    "title": "Zobrazit zdrojový kód verze, která běží na této instanci (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "Nalezeno {{label}}. Vyber je v nastavení hlasu pro přepnutí.",
+    "unnamedAudioInput": "Nové zvukové zařízení"
+  }
+}

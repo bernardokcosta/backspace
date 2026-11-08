@@ -1,0 +1,574 @@
+{
+  "interfaceScale": {
+    "label": "Měřítko rozhraní",
+    "description": "Změň velikost textu, tlačítek a panelů. Ukládá se v tomto prohlížeči či aplikaci na tomto zařízení.",
+    "reset": "Resetovat na 100 %"
+  },
+  "voice": {
+    "input": {
+      "title": "Vstupní zařízení",
+      "checkingAccess": "Ověřování přístupu k mikrofonu…",
+      "accessDenied": {
+        "title": "Přístup k mikrofonu odepřen",
+        "description": "Uděl přístup k mikrofonu pro výběr vstupního zařízení.",
+        "retry": "Zkusit znovu"
+      },
+      "permissionPrompt": {
+        "description": "K výpisu a výběru vstupního zařízení je potřeba povolení mikrofonu.",
+        "enable": "Povolit přístup k mikrofonu"
+      },
+      "device": {
+        "systemDefault": "Systémové výchozí",
+        "currentlyUsing": "Aktuálně používáno: {{label}}",
+        "none": "Nenalezeny žádné mikrofony."
+      },
+      "volume": {
+        "label": "Hlasitost vstupu"
+      },
+      "meter": {
+        "hint": "Měřič úrovně se aktivuje po vstupu do hlasového kanálu."
+      }
+    },
+    "output": {
+      "title": "Výstupní zařízení",
+      "checkingAccess": "Ověřování přístupu ke zvuku…",
+      "device": {
+        "systemDefault": "Systémové výchozí",
+        "unsupported": "Tento prohlížeč výběr výstupního zařízení neumí. Zvuk jde do systémového výchozího."
+      },
+      "permissionPrompt": {
+        "description": "Uděl přístup k mikrofonu pro výpis výstupních zařízení (prohlížeče kryjí jejich názvy za přístupem k mikrofonu).",
+        "enable": "Povolit přístup ke zvuku"
+      },
+      "volume": {
+        "label": "Hlasitost výstupu"
+      },
+      "testSound": "Přehrát zkušební zvuk"
+    },
+    "video": {
+      "title": "Video",
+      "checkingAccess": "Ověřování přístupu ke kameře…",
+      "accessDenied": {
+        "title": "Přístup ke kameře odepřen",
+        "description": "Uděl přístup ke kameře pro výběr kamery.",
+        "retry": "Zkusit znovu"
+      },
+      "blocked": {
+        "browser": "Kamera blokována na úrovni prohlížeče. Klikni na ikonu kamery v adresním řádku, povolení resetuj a klikni Zkusit znovu.",
+        "mac": "Uděl přístup ke kameře v Nastavení systému → Soukromí a zabezpečení → Kamera, pak aplikaci restartuj.",
+        "windows": "Uděl přístup ke kameře v Nastavení → Soukromí a zabezpečení → Kamera, pak aplikaci restartuj.",
+        "other": "Povolení kamery bylo odepřeno. Resetuj je v okně prohlížeče/Chromium a zkus znovu."
+      },
+      "permissionPrompt": {
+        "description": "K výběru kamery a náhledu je potřeba povolení kamery.",
+        "enable": "Povolit náhled kamery"
+      },
+      "camera": {
+        "label": "Kamera",
+        "auto": "Auto (systémová výchozí)",
+        "fallbackName": "Kamera {{number}}",
+        "detectedFallback": "nalezená kamera",
+        "currentlyUsing": "Aktuálně používána: {{label}}",
+        "none": "Nenalezeny žádné kamery."
+      },
+      "preview": {
+        "testAria": "Vyzkoušet kameru",
+        "testHint": "Klikni pro vyzkoušení kamery",
+        "stop": "Zastavit náhled",
+        "retry": "Zkusit znovu"
+      },
+      "previewError": {
+        "inUse": "Kameru používá jiná aplikace.",
+        "unavailable": "Vybraná kamera je nedostupná.",
+        "notFound": "Nenalezena žádná kamera.",
+        "generic": "Náhled kamery se nepodařilo spustit."
+      }
+    },
+    "title": "Hlas a video",
+    "volume": {
+      "sectionTitle": "Hlasitost",
+      "soundEffects": {
+        "label": "Hlasitost zvukových efektů"
+      },
+      "messageSound": {
+        "label": "Přehrávat zvuk u každé zprávy",
+        "description": "Vypnuto (výchozí): jen přímé zprávy a zprávy se zmínkou o tobě. Zapnuto: každý kanál."
+      }
+    },
+    "pip": {
+      "sectionTitle": "Plovoucí okno",
+      "showOnSwitch": {
+        "label": "Zobrazovat plovoucí okno během hovorů",
+        "description": "Když jsi v hlasovém kanálu či hovoru a díváš se jinam, malé okno drží hovor na očích."
+      }
+    },
+    "processing": {
+      "sectionTitle": "Zpracování hlasu",
+      "noiseSuppression": {
+        "label": "AI potlačení hluku",
+        "description": "Odstraňování hluku pomocí ML (RNNoise). Filtruje klávesnici, větráky a hluk pozadí."
+      },
+      "echoCancellation": {
+        "label": "Potlačení ozvěny",
+        "description": "Ruší ozvěnu z reproduktorů vracející se do mikrofonu. Vždy zapnuto pro hlasové kanály a hovory."
+      },
+      "autoGain": {
+        "label": "Automatické řízení zisku",
+        "description": "Automaticky reguluje hlasitost mikrofonu. Může způsobit ducking hlasu během streamů."
+      }
+    }
+  },
+  "nav": {
+    "userSettings": "Uživatelská nastavení",
+    "appSettings": "Nastavení aplikace",
+    "administration": "Správa",
+    "tabs": {
+      "account": "Účet",
+      "appearance": "Vzhled",
+      "voice": "Hlas a video",
+      "privacy": "Soukromí",
+      "connections": "Připojení",
+      "keybinds": "Klávesové zkratky",
+      "desktop": "Počítač",
+      "instance": "Instance",
+      "bots": "Boti",
+      "developer": "Vývojář"
+    },
+    "logOut": "Odhlásit",
+    "backToMenu": "Zpět do nabídky nastavení"
+  },
+  "appearance": {
+    "title": "Vzhled"
+  },
+  "account": {
+    "title": "Můj účet",
+    "detached": {
+      "notice": "Tento účet je odpojen od domovské instance.",
+      "explanation": "{{homeInstance}} byla resetována či je nedostupná, takže tento účet teď funguje místně na této instanci. Tvůj profil a heslo se spravují zde.",
+      "reattachHint": "Jako {{username}} na {{homeInstance}} můžeš účet znovu připojit. Profil a přítomnost se zas budou synchronizovat odtamtud.",
+      "reattachButton": "Připojit znovu k {{homeInstance}}",
+      "reattachConfirm": "Potvrdit nové připojení jako {{username}}",
+      "reattaching": "Nové připojování…",
+      "reattachFailed": "Nové připojení selhalo",
+      "reattached": "Účet znovu propojen s {{username}}"
+    },
+    "profile": {
+      "sectionTitle": "Úprava profilu",
+      "avatar": {
+        "label": "Avatar",
+        "alt": "Tvůj avatar",
+        "change": "Změnit avatara",
+        "uploadFailed": "Avatara se nepodařilo nahrát",
+        "cropTitle": "Oříznout avatara"
+      },
+      "banner": {
+        "label": "Banner",
+        "change": "Změnit banner",
+        "uploadFailed": "Banner se nepodařilo nahrát",
+        "cropTitle": "Oříznout banner"
+      },
+      "avatarColor": {
+        "label": "Barva avatara"
+      },
+      "bannerColor": {
+        "label": "Barva banneru",
+        "hexPlaceholder": "#hex"
+      },
+      "bio": {
+        "label": "O mně",
+        "placeholder": "Řekni o sobě světu…",
+        "counter": "{{used}}/{{max}}"
+      }
+    },
+    "details": {
+      "sectionTitle": "Účet",
+      "status": {
+        "label": "Stav",
+        "homeUnavailable": "Tvůj stav je držen na {{host}}. Připoj se k {{host}} pro změnu."
+      },
+      "customStatus": {
+        "label": "Vlastní stav",
+        "placeholder": "Co právě děláš?"
+      }
+    },
+    "password": {
+      "current": {
+        "label": "Aktuální heslo",
+        "placeholder": "Zadej aktuální heslo"
+      },
+      "new": {
+        "label": "Nové heslo",
+        "placeholder": "Alespoň {{min}} znaků"
+      },
+      "confirm": {
+        "label": "Potvrdit nové heslo",
+        "placeholder": "Potvrď nové heslo"
+      },
+      "show": "Zobrazit heslo",
+      "hide": "Skrýt heslo",
+      "tooShort": "Nové heslo musí mít aspoň {{min}} znaků",
+      "mismatch": "Hesla se neshodují",
+      "changed": "Heslo změněno",
+      "changeFailed": "Heslo se nepodařilo změnit",
+      "submit": "Změnit heslo",
+      "submitting": "Měnění…"
+    },
+    "danger": {
+      "description": "Po smazání účtu není návratu. Tvé zprávy zůstanou, ale budou patřit „Smazanému uživateli”.",
+      "deleteButton": "Smazat účet"
+    },
+    "save": {
+      "updated": "Profil aktualizován",
+      "failed": "Profil se nepodařilo aktualizovat"
+    },
+    "deletion": {
+      "title": "Smazat účet",
+      "warning": {
+        "headline": "Tím se tvůj účet trvale smaže.",
+        "spaces": "Všechna členství v prostorech se odeberou",
+        "friends": "Všechna přátelství se odeberou",
+        "dms": "Všechna členství v přímých zprávách se odeberou",
+        "messages": "Tvé zprávy zůstanou, ale budou patřit „Smazanému uživateli”"
+      },
+      "ownedSpaces": {
+        "prompt_one": "Vlastníš {{count}} prostor. Než budeš pokračovat, vyřiď jej:",
+        "prompt_few": "Vlastníš {{count}} prostory. Než budeš pokračovat, vyřiď každý:",
+        "prompt_many": "Vlastníš {{count}} prostorů. Než budeš pokračovat, vyřiď každý:",
+        "prompt_other": "Vlastníš {{count}} prostoru. Než budeš pokračovat, vyřiď každý:",
+        "transfer": "Předat",
+        "delete": "Smazat prostor",
+        "selectOwner": "Vybrat nového vlastníka…"
+      },
+      "processing": "Zpracování…",
+      "confirm": {
+        "permanent": "Tato akce je trvalá a nelze ji vrátit.",
+        "usernamePrompt": "Pro potvrzení zadej své uživatelské jméno <username>{{username}}</username>",
+        "passwordPlaceholder": "Zadej své heslo",
+        "submit": "Smazat můj účet",
+        "deleting": "Mazání…"
+      },
+      "federation": {
+        "removing": "Odebírání tvého účtu z připojených instancí…",
+        "deleteAnyway": "Smazat účet nyní"
+      },
+      "complete": {
+        "title": "Účet smazán",
+        "redirecting": "Přesměrování k přihlášení…"
+      },
+      "errors": {
+        "usernameMismatch": "Uživatelské jméno nesouhlasí",
+        "spacesFailed": "Prostory se nepodařilo zpracovat",
+        "deleteFailed": "Účet se nepodařilo smazat"
+      }
+    }
+  },
+  "privacy": {
+    "title": "Soukromí",
+    "discovery": {
+      "sectionTitle": "Objevování",
+      "label": "Dovolit ostatním najít můj profil",
+      "description": "Po zapnutí se tvůj profil objevuje v Objevit lidi. Ostatní tě vždy mohou přidat přesným jménem."
+    },
+    "activity": {
+      "sectionTitle": "Stav aktivity",
+      "label": "Sdílet stav aktivity",
+      "description": "Dovol ostatním vidět, co děláš, třeba jaké hry hraješ či jakou hudbu posloucháš.",
+      "game": {
+        "label": "Vytvořeno ručně",
+        "description": "Přidej hru, která nebyla zjištěna. Zobrazuje se, dokud ji neodebereš.",
+        "placeholder": "Název hry",
+        "set": "Nastavit",
+        "detectedLabel": "Zjištěno právě teď",
+        "detectedDescription": "Zobrazuj zjištěnou hru pod jiným názvem. Příště si jej zapamatujeme.",
+        "renamePlaceholder": "Zobrazovat jako…",
+        "renameLabel": "Zobrazovat {{name}} jako",
+        "renamedLabel": "Přejmenované hry",
+        "renamedItem": "{{detected}} → {{chosen}}",
+        "restore": "Obnovit",
+        "descriptionBound": "Přidej hru, která nebyla zjištěna: vyber její program a pojmenuj ji. Zobrazuje se, když ten program běží.",
+        "programLabel": "Aplikace",
+        "programPlaceholder": "Vyber běžící program…",
+        "programHint": "Nejprve hru spusť, pak vyber její program ze seznamu.",
+        "clearRename": "Vymazat",
+        "unknownLabel": "Nerozpoznané programy Wine",
+        "unknownDescription": "Běží, ale neodpovídají žádné známé hře. Je-li jedna tvou hrou, zobraz ji jako hranou.",
+        "unknownUse": "Přidat do mých her",
+        "gamesLabel": "Tvé hry",
+        "gamesDescription": "První hra je ta, kterou ukazují seznamy; přesouváním her nastav prioritu. Skrytá hra se ostatním neukazuje.",
+        "moveUp": "Přesunout {{name}} nahoru",
+        "moveDown": "Přesunout {{name}} dolů",
+        "hide": "Skrýt",
+        "show": "Zobrazit",
+        "hideGame": "Skrýt {{name}}",
+        "showGame": "Zobrazit {{name}}",
+        "add": "Přidat",
+        "remove": "Odebrat",
+        "statusName": "zobrazena podle jména",
+        "statusRunning": "běží",
+        "statusWaiting": "čekání na {{program}}",
+        "dragHandle": "Přetáhni {{name}} pro změnu priority",
+        "manualNameLabel": "Název {{name}}",
+        "save": "Uložit"
+      }
+    }
+  },
+  "connections": {
+    "title": "Připojení"
+  },
+  "instance": {
+    "tabs": {
+      "general": "Obecné",
+      "registration": "Registrace",
+      "federation": "Federace",
+      "streaming": "Streamování",
+      "storage": "Úložiště",
+      "users": "Uživatelé",
+      "updates": "Aktualizace"
+    }
+  },
+  "keybinds": {
+    "portal": {
+      "description": "Na Waylandu všechny zkratky Backspace spravuje počítač. Přiřazuj, měň či odebírej klávesy v systémovém nastavení klávesových zkratek, v Backspace. Místní vazby prohlížeče/X11 se tu nepoužívají.",
+      "idle": "Příprava první registrace všech dostupných akcí.",
+      "pending": "Připojování k systémovému portálu. Objeví-li se systémové okno, vyber zkratky pro potřebné akce.",
+      "ready": "Backspace registrován. Otevři systémové nastavení klávesových zkratek pro změnu či odebrání přiřazení. Seznam níže je jen ke čtení a obnoví se po návratu do Backspace.",
+      "unavailable": "Portál nedostupný, povolení odepřeno či relace skončila. Je potřeba backend portálu globálních zkratek. Místní vazby jsou na Waylandu vypnuté.",
+      "retry": "Registrovat či připojit zkratky znovu",
+      "assigned": "Systémová zkratka: {{shortcut}}",
+      "notAssigned": "Žádné aktivní systémové přiřazení"
+    },
+    "title": "Klávesové zkratky",
+    "note": {
+      "webOnly": "Zkratky fungují, když je tato karta aktivní. Pro globální zkratky fungující v jiných aplikacích použij aplikaci pro počítač."
+    },
+    "section": {
+      "voice": "Hlasové zkratky"
+    },
+    "action": {
+      "toggleMute": "Přepnout ztlumení",
+      "toggleDeafen": "Přepnout ohluchnutí",
+      "pushToTalk": "Stiskni a mluv",
+      "toggleCamera": "Přepnout kameru",
+      "toggleScreenShare": "Přepnout sdílení obrazovky",
+      "disconnect": "Odpojit"
+    },
+    "row": {
+      "recordingPrompt": "Stiskni kombinaci…",
+      "notBound": "Nepřiřazeno",
+      "record": "Nahrát",
+      "escToCancel": "ESC pro zrušení"
+    },
+    "key": {
+      "shift": "Shift",
+      "ctrl": "Ctrl",
+      "alt": "Alt",
+      "option": "Option",
+      "cmd": "Cmd",
+      "win": "Win",
+      "space": "Mezerník",
+      "middleClick": "Prostřední tlačítko myši",
+      "mouse4": "Myš 4",
+      "mouse5": "Myš 5",
+      "mouseGeneric": "Myš {{button}}"
+    },
+    "accessibility": {
+      "title": "Vyžadováno povolení přístupnosti",
+      "description": "Backspace potřebuje povolení přístupnosti, aby globální zkratky fungovaly mimo aplikaci.",
+      "grant": "Udělit povolení"
+    },
+    "hookError": {
+      "title": "Globální zkratky nedostupné",
+      "description": "Nepodařilo se spustit naslouchání vstupu. Na Linuxu může tvůj uživatel muset být ve skupině <code>input</code>."
+    },
+    "conflict": {
+      "message": "<strong>{{combo}}</strong> je už přiřazeno k <strong>{{action}}</strong>. Přepsat?",
+      "overwrite": "Přepsat"
+    }
+  },
+  "desktop": {
+    "title": "Počítač",
+    "autoLaunch": {
+      "openAtLogin": {
+        "label": "Spouštět při přihlášení",
+        "description": "Automaticky spouštět Backspace po přihlášení"
+      },
+      "startMinimized": {
+        "label": "Spouštět minimalizovaně",
+        "description": "Spouštět skrytě v oznamovací oblasti místo zobrazení okna"
+      }
+    },
+    "updates": {
+      "appName": "Backspace Desktop",
+      "versionLabel": "Verze {{version}}",
+      "checking": "Ověřování aktualizací…",
+      "checkingShort": "Ověřování…",
+      "checkNow": "Ověřit aktualizace",
+      "downloading": "Stahování {{version}}, {{percent}} %",
+      "downloadingWithRate": "Stahování {{version}}, {{percent}} % rychlostí {{rate}}",
+      "rateMegabytes": "{{value}} MB/s",
+      "rateKilobytes": "{{value}} KB/s",
+      "upToDate": "Máš nejnovější verzi",
+      "available": "Dostupná verze {{version}}",
+      "readyToInstall": "Verze {{version}} připravena k instalaci",
+      "installFailed": "Verzi {{version}} se nepodařilo nainstalovat",
+      "checkFailed": "Poslední ověření aktualizací selhalo",
+      "idle": "Ověřit nové verze aplikace pro počítač",
+      "external": "Aktualizace instaluje tvůj správce softwaru Flatpak",
+      "download": "Stáhnout",
+      "restart": "Restartovat",
+      "manualNote": "Toto sestavení si aktualizace samo neinstaluje. Stáhni nové verze z GitHub a aplikaci vyměň ručně. Kroky pro tvou platformu najdeš v poznámkách k vydání.",
+      "externalNote": "Flatpak uplatňuje aktualizace atomicky mimo aplikaci. K aktualizaci Backspace použij správce softwaru či příkaz <code>flatpak update</code>."
+    },
+    "instance": {
+      "current": "Aktuálně připojená instance",
+      "change": "Změnit instanci"
+    }
+  },
+  "desktopDownload": {
+    "title": "Počítač",
+    "intro": "Globální zkratky, spouštění při startu a ikona v oznamovací oblasti.",
+    "unsupported": "Aplikace pro počítač běží na Windows, Linux a macOS.",
+    "name": {
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux"
+    },
+    "tag": {
+      "windows": "Tento počítač",
+      "mac": "Tento Mac",
+      "linux": "Tento stroj"
+    },
+    "covers": {
+      "windows": "x64 či arm64",
+      "mac": "Běží na Apple Silicon i Intel Mac",
+      "linux": "AppImage či balíček deb, x64 či arm64"
+    },
+    "download": {
+      "windows": "Stáhnout pro Windows",
+      "mac": "Stáhnout pro macOS",
+      "linux": "Stáhnout pro Linux"
+    },
+    "picker": {
+      "architecture": "Architektura",
+      "format": "Formát balíčku"
+    },
+    "arch": {
+      "appleSilicon": "Apple Silicon",
+      "intel": "Intel",
+      "x64": "x64",
+      "arm64": "arm64"
+    },
+    "kind": {
+      "appimage": "AppImage",
+      "deb": "deb"
+    },
+    "archGuessed": {
+      "windows": "Prohlížeč neřekl, jaký procesor má tento počítač, takže je předvybráno x64.",
+      "mac": "Prohlížeč neřekl, jaký čip má tento Mac, takže je předvybráno Apple Silicon.",
+      "linux": "Prohlížeč neřekl, jaký procesor má tento stroj, takže je předvybráno x64."
+    },
+    "version": "Verze {{version}}",
+    "allReleases": "Všechna vydání na GitHub"
+  },
+  "bots": {
+    "title": "Boti",
+    "description": "Bot je účet, který program ovládá přes token. Vytvoř jej, zkopíruj token a připoj svůj program. Boti odpovídají v přímých zprávách.",
+    "create": {
+      "sectionTitle": "Vytvořit bota",
+      "nameLabel": "Uživatelské jméno bota",
+      "submit": "Vytvořit bota",
+      "hint": "{{min}} až {{max}} znaků: malá latinská písmena (a–z), číslice (0–9) a podtržítka (_). Můžeš vytvořit až {{limit}} botů."
+    },
+    "list": {
+      "sectionTitle": "Tvoji boti",
+      "empty": "Zatím žádné boty.",
+      "createdOn": "Vytvořeno {{date}}"
+    },
+    "token": {
+      "title": "Token pro {{name}}",
+      "warning": "Zkopíruj token nyní. Ukazuje se jen jednou a kdo jej má, bota ovládá.",
+      "copy": "Kopírovat token",
+      "copied": "Zkopírováno",
+      "dismiss": "Uložil jsem si jej"
+    },
+    "tokens": {
+      "title": "Přístupové tokeny",
+      "loading": "Načítání tokenů",
+      "legacy": "Tento bot stále běží na starém dlouhodobém tokenu. Vytvoř token pro přepnutí: starý přestane fungovat hned.",
+      "empty": "Tento bot nemá tokeny.",
+      "unnamed": "Token beze jména",
+      "createdOn": "Vytvořeno {{date}}",
+      "neverUsed": "nikdy nepoužit",
+      "lastUsed": "naposledy použit {{time}}",
+      "revoke": "Odvolat",
+      "confirmRevoke": "Potvrdit odvolání",
+      "nameLabel": "Název tokenu",
+      "namePlaceholder": "Název (volitelný)",
+      "create": "Vytvořit token",
+      "limitHint": "Až {{max}} tokenů na bota. Odvolání tokenu bota odpojí; ostatní tokeny fungují dál."
+    },
+    "actions": {
+      "regenerate": "Resetovat všechny tokeny",
+      "delete": "Smazat",
+      "confirmDelete": "Potvrdit smazání",
+      "cancel": "Zrušit",
+      "edit": "Upravit",
+      "save": "Uložit",
+      "addToServer": "Přidat do prostoru",
+      "tokens": "Tokeny"
+    },
+    "edit": {
+      "nameLabel": "Zobrazované jméno",
+      "hint": "Uživatelské jméno @{{username}} změnit nelze. Až {{max}} znaků.",
+      "bioLabel": "O botovi",
+      "bioPlaceholder": "Co bot dělá, jaké má příkazy, kde hledat pomoc",
+      "bioCounter": "{{used}}/{{max}}"
+    },
+    "status": {
+      "label": "Stav",
+      "none": "Bez stavu",
+      "textLabel": "Text stavu",
+      "placeholder": "Co bot ukazuje u svého jména",
+      "hint": "Ukazuje se, když je bot připojen. Kód bota jej může nahradit do příštího připojení.",
+      "types": {
+        "custom": "Vlastní",
+        "playing": "Hraje",
+        "listening": "Poslouchá",
+        "watching": "Sleduje"
+      },
+      "display": {
+        "custom": "{{name}}",
+        "playing": "Hraje {{name}}",
+        "listening": "Poslouchá {{name}}",
+        "watching": "Sleduje {{name}}"
+      }
+    },
+    "permissions": {
+      "label": "Oprávnění, která bot žádá",
+      "hint": "Správce přidávající bota do prostoru je vidí zaškrtnuté a může jakékoli odškrtnout. Putují do role pojmenované po botovi. Pozdější změna už vytvořené role nemění."
+    },
+    "avatar": {
+      "change": "Změnit avatara",
+      "remove": "Odebrat avatara",
+      "cropTitle": "Oříznout avatara bota",
+      "uploadFailed": "Avatara se nepodařilo nahrát",
+      "notImage": "Vyber soubor s obrázkem"
+    },
+    "spaces": {
+      "title": "Přidat do prostoru",
+      "loading": "Načítání prostorů",
+      "empty": "Zatím nespravuješ žádný prostor. Přidání bota vyžaduje oprávnění spravovat prostor.",
+      "add": "Přidat",
+      "added": "Přidáno",
+      "remove": "Odebrat"
+    }
+  },
+  "developer": {
+    "title": "Vývojář",
+    "mode": {
+      "label": "Vývojářský režim",
+      "description": "Zobrazovat vývojářské nástroje, třeba záložku Boti, v nastavení. Vypnutí je jen skrývá; tvoji boti běží dál.",
+      "saveFailed": "Nastavení se nepodařilo uložit. Zkus to znovu."
+    }
+  }
+}

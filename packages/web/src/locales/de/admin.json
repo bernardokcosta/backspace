@@ -19,7 +19,7 @@
   },
   "registration": {
     "title": "Registrierung",
-    "description": "Lege fest, wer auf dieser Instanz Konten anlegen darf. Die öffentliche Registrierung betrifft lokale Anmeldungen, die föderierte Registrierung Nutzer verbundener Instanzen, die hier ein Konto anlegen.",
+    "description": "Lege fest, wer auf dieser Instanz Konten anlegen darf. Die öffentliche Registrierung betrifft die Erstellung lokaler Konten, die föderierte Registrierung Nutzer verbundener Instanzen, die hier ein Konto anlegen.",
     "public": {
       "label": "Öffentliche Registrierung",
       "toggleLabel": "Neue lokale Konten erlauben",
@@ -146,7 +146,7 @@
       "deletedUser": "Gelöschter Nutzer"
     },
     "row": {
-      "usage": "{{usage}} Nutzungen",
+      "usage": "Nutzungen: {{usage}}",
       "createdBy": "Erstellt von {{name}}",
       "unknownCreator": "Unbekannt",
       "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
@@ -233,7 +233,7 @@
     "stale": {
       "label": "Veraltete Uploads",
       "description": "Abgebrochene tus-Upload-Sitzungen in <code>.tus/</code> (pausiert oder abgestürzt ohne DELETE). Der automatische Ablauf läuft alle 24 Stunden; hier kannst du vorher aufräumen.",
-      "maxAge": "Höchstalter (Stunden)",
+      "maxAge": "Maximale Aufbewahrungsdauer (Stunden)",
       "sessionFiles_one": "{{count}} Sitzungsdatei ({{size}})",
       "sessionFiles_other": "{{count}} Sitzungsdateien ({{size}})",
       "cleanedToast_one": "{{count}} veraltete Upload-Sitzung aufgeräumt ({{size}})",
@@ -407,7 +407,7 @@
       "description": "<strong>{{username}}</strong> endgültig löschen? Die Person wird aus allen Spaces, Direktnachrichten und Freundeslisten entfernt. Das lässt sich nicht rückgängig machen.",
       "confirm": "Nutzer löschen",
       "blockBot": "Erneute Registrierung dieses Bots verhindern",
-      "blockBotHint": "Wenn seine Heiminstanz wieder erreichbar ist, kann der Bot hier kein Konto anlegen. Entsperren kannst du ihn unter der Benutzerliste."
+      "blockBotHint": "Wenn seine Heimatinstanz wieder erreichbar ist, kann der Bot hier kein Konto anlegen. Entsperren kannst du ihn unter der Benutzerliste."
     },
     "blockedBots": {
       "title": "Gesperrte Bots",

@@ -5,7 +5,7 @@
     "cancel": "Abbrechen",
     "close": "Schließen",
     "delete": "Löschen",
-    "bot": "ROBOTER",
+    "bot": "BOT",
     "confirm": "Bestätigen",
     "copy": "Kopieren",
     "copied": "Kopiert",
@@ -113,7 +113,8 @@
   },
   "language": {
     "label": "Sprache",
-    "description": "Menüs, Schaltflächen und Systemmeldungen erscheinen in dieser Sprache. Nachrichten anderer Personen bleiben, wie sie geschrieben wurden."
+    "automatic": "Automatisch (System)",
+    "description": "Wähle die Sprache für Menüs, Schaltflächen und Systemmeldungen. Automatisch folgt den Spracheinstellungen deines Systems oder Browsers. Nachrichten anderer Personen werden nicht übersetzt."
   },
   "crash": {
     "title": "Etwas ist schiefgelaufen",
@@ -121,6 +122,7 @@
     "details": "Fehlerdetails"
   },
   "app": {
+    "description": "Die selbst gehostete Alternative zu Discord und TeamSpeak. Sprach- und Videoanrufe sowie Bildschirmübertragung in HD. Kostenlos und quelloffen (AGPL-3.0).",
     "loading": "Backspace wird geladen"
   },
   "chrome": {

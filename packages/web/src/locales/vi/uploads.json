@@ -1,0 +1,34 @@
+{
+  "failure": {
+    "notAuthenticated": "Chưa xác thực cho máy chủ này",
+    "invalidResponse": "Không thể phân tích phản hồi tải lên",
+    "uploadError": "Lỗi tải lên",
+    "downloadError": "Lỗi tải xuống",
+    "fileUnavailable": "Tệp không còn khả dụng — loại bỏ và tải lên lại",
+    "noDestination": "Không có tham chiếu đích — không thể tiếp tục",
+    "destinationMissing": "Thiếu tham chiếu đích",
+    "permissionDenied": "Quyền bị từ chối",
+    "lostDownload": "Không thể tiếp tục tải xuống — mất byte. Bắt đầu tải lại từ đầu.",
+    "uploadHandleMissing": "Thiếu tham chiếu tệp — loại bỏ và tải lên lại",
+    "downloadHandleMissing": "Thiếu tham chiếu đích — bắt đầu tải xuống lại",
+    "downloadFailed": "Tải xuống thất bại: {{status}}",
+    "resumeFailed": "Tiếp tục thất bại: {{status}}"
+  },
+  "transfers": {
+    "title": "Truyền tải",
+    "count_one": "{{count}} lượt truyền",
+    "count_other": "{{count}} lượt truyền",
+    "clearCompleted": "Xóa đã xong",
+    "empty": "Không có truyền tải đang hoạt động.",
+    "status": {
+      "done": "Xong",
+      "failed": "Thất bại: {{reason}}",
+      "aborted": "Đã hủy",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "Cắt hình",
+    "applying": "Đang áp dụng…"
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "Lagre",
+    "cancel": "Avbryt",
+    "close": "Lukk",
+    "delete": "Slett",
+    "bot": "BOT",
+    "confirm": "Bekreft",
+    "copy": "Kopiér",
+    "copied": "Kopiert",
+    "retry": "Prøv igjen",
+    "back": "Tilbake",
+    "done": "Ferdig",
+    "edit": "Rediger",
+    "remove": "Fjern",
+    "add": "Legg til",
+    "apply": "Bruk",
+    "reset": "Nullstill",
+    "continue": "Fortsett",
+    "dismiss": "Lukk",
+    "ok": "OK",
+    "search": "Søk",
+    "clear": "Tøm",
+    "change": "Endre",
+    "refresh": "Oppdater",
+    "openLink": "Åpne lenke",
+    "tryAgain": "Prøv igjen",
+    "reply": "Svar",
+    "addReaction": "Legg til reaksjon",
+    "share": "Del",
+    "accept": "Godta",
+    "decline": "Avslå",
+    "pause": "Pause",
+    "resume": "Fortsett",
+    "abort": "Avbryt",
+    "dismissAll": "Lukk alle",
+    "filter": "Filtrer",
+    "sort": "Sortér",
+    "sortBy": "Sortér etter",
+    "leave": "Forlat",
+    "invitePeople": "Inviter folk",
+    "previous": "Forrige",
+    "next": "Neste",
+    "preview": "Forhåndsvisning",
+    "logIn": "Logg inn"
+  },
+  "states": {
+    "loading": "Laster…",
+    "saving": "Lagrer…",
+    "saved": "Lagret",
+    "unknown": "Ukjent",
+    "none": "Ingen",
+    "enabled": "Aktivert",
+    "disabled": "Deaktivert",
+    "on": "På",
+    "off": "Av",
+    "yes": "Ja",
+    "no": "Nei",
+    "optional": "Valgfritt",
+    "required": "Påkrevd",
+    "default": "Standard",
+    "recommended": "Anbefalt",
+    "online": "Pålogget",
+    "idle": "Inaktiv",
+    "doNotDisturb": "Ikke forstyrr",
+    "offline": "Frakoblet",
+    "loadingSettings": "Laster innstillinger…",
+    "loadSettingsFailed": "Innstillingene kunne ikke lastes.",
+    "settingsSaved": "Innstillinger lagret",
+    "saveFailed": "Lagring mislyktes",
+    "scanning": "Skanner…",
+    "pleaseWait": "Vent litt…"
+  },
+  "labels": {
+    "username": "Brukernavn",
+    "password": "Passord",
+    "displayName": "Visningsnavn",
+    "friends": "Venner",
+    "members": "Medlemmer",
+    "settings": "Innstillinger",
+    "dangerZone": "Faresone",
+    "searchMembers": "Søk medlemmer…",
+    "noMembersFound": "Ingen medlemmer funnet",
+    "or": "eller",
+    "nameAZ": "Navn (A–Å)"
+  },
+  "time": {
+    "today": "I dag {{time}}",
+    "yesterday": "I går {{time}}",
+    "never": "Aldri",
+    "justNow": "Akkurat nå",
+    "minutesShort": "{{minutes}} min",
+    "hoursMinutesShort": "{{hours}} t {{minutes}} min",
+    "elapsed": "{{duration}} gått",
+    "left": "{{duration}} igjen"
+  },
+  "units": {
+    "ms": "{{value}} ms",
+    "percent": "{{value}} %",
+    "kbps": "{{value}} kb/s",
+    "mbps": "{{value}} Mb/s"
+  },
+  "colors": {
+    "mint": "Mynte",
+    "sky": "Himmel",
+    "lavender": "Lavendel",
+    "coral": "Korall",
+    "rose": "Rosa",
+    "teal": "Blågrønn",
+    "amber": "Rav",
+    "peach": "Fersken"
+  },
+  "language": {
+    "label": "Språk",
+    "automatic": "Automatisk (system)",
+    "description": "Velg språket for menyer, knapper og systemmeldinger. Automatisk følger system- eller nettleserpreferansene dine. Andres meldinger forblir som skrevet."
+  },
+  "crash": {
+    "title": "Noe gikk galt",
+    "reload": "Last siden på nytt",
+    "details": "Feildetaljer"
+  },
+  "app": {
+    "description": "Det selvhostede Discord- og TeamSpeak-alternativet. HD-stemme, video og skjermdeling — åpen kildekode og gratis (AGPL-3.0).",
+    "loading": "Laster Backspace"
+  },
+  "chrome": {
+    "toggleMemberList": "Vis eller skjul medlemslisten",
+    "closeSettings": "Lukk innstillinger"
+  },
+  "sourceCode": {
+    "label": "Kildekode (AGPL)",
+    "labelWithBuild": "Kildekode (AGPL) · {{build}}",
+    "title": "Se kildekoden for versjonen som kjører på denne instansen (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "{{label}} oppdaget. Velg den i stemmeinnstillinger for å bytte.",
+    "unnamedAudioInput": "Ny lydenhet"
+  }
+}

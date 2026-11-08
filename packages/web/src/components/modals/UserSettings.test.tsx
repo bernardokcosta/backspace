@@ -161,6 +161,20 @@ afterEach(() => {
 });
 
 describe('UserSettingsModal Desktop tab', () => {
+  it.each([false, true])('isolates the account handle in settings chrome (mobile=%s)', async (isMobile) => {
+    mocks.ui.isMobile = isMobile;
+    try {
+      render(<UserSettingsModal />);
+      await screen.findAllByRole('link', { name: /Source code/i });
+      for (const handle of screen.getAllByText('@me')) {
+        expect(handle.tagName).toBe('BDI');
+        expect(handle).toHaveAttribute('dir', 'ltr');
+      }
+    } finally {
+      mocks.ui.isMobile = false;
+    }
+  });
+
   it('shows the download offer in the browser', async () => {
     await openSettings();
 

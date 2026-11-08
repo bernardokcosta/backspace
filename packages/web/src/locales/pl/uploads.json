@@ -1,0 +1,36 @@
+{
+  "failure": {
+    "notAuthenticated": "Brak uwierzytelnienia dla tej instancji",
+    "invalidResponse": "Nie można przetworzyć odpowiedzi przesyłania",
+    "uploadError": "Błąd przesyłania",
+    "downloadError": "Błąd pobierania",
+    "fileUnavailable": "Plik nie jest już dostępny — odrzuć i prześlij ponownie",
+    "noDestination": "Brak uchwytu docelowego — nie można wznowić",
+    "destinationMissing": "Brak uchwytu docelowego",
+    "permissionDenied": "Brak uprawnień",
+    "lostDownload": "Nie można wznowić pobierania — dane utracone. Rozpocznij pobieranie od nowa.",
+    "uploadHandleMissing": "Brak uchwytu pliku — odrzuć i prześlij ponownie",
+    "downloadHandleMissing": "Brak uchwytu docelowego — rozpocznij pobieranie od nowa",
+    "downloadFailed": "Nie udało się pobrać: {{status}}",
+    "resumeFailed": "Nie udało się wznowić: {{status}}"
+  },
+  "transfers": {
+    "title": "Transfery",
+    "count_one": "{{count}} przesył",
+    "count_few": "{{count}} przesyły",
+    "count_many": "{{count}} przesyłów",
+    "count_other": "{{count}} przesyłu",
+    "clearCompleted": "Wyczyść ukończone",
+    "empty": "Brak aktywnych transferów.",
+    "status": {
+      "done": "Gotowe",
+      "failed": "Niepowodzenie: {{reason}}",
+      "aborted": "Przerwano",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "Przytnij obraz",
+    "applying": "Stosowanie…"
+  }
+}

@@ -143,7 +143,7 @@
   "account": {
     "title": "Mein Konto",
     "detached": {
-      "notice": "Dieses Konto ist von seiner Heimatinstanz getrennt.",
+      "notice": "Dieses Konto ist von seiner Heimatinstanz abgekoppelt.",
       "explanation": "{{homeInstance}} wurde zurückgesetzt oder ist nicht mehr erreichbar, daher läuft dieses Konto jetzt lokal auf dieser Instanz. Profil und Passwort werden hier verwaltet.",
       "reattachHint": "Als {{username}} auf {{homeInstance}} kannst du dieses Konto wieder verknüpfen. Profil und Status werden dann wieder von dort synchronisiert.",
       "reattachButton": "Wieder mit {{homeInstance}} verknüpfen",
@@ -347,7 +347,7 @@
       "toggleDeafen": "Ton ein/aus",
       "pushToTalk": "Push-to-Talk",
       "toggleCamera": "Kamera ein/aus",
-      "toggleScreenShare": "Bildschirmfreigabe ein/aus",
+      "toggleScreenShare": "Bildschirmübertragung ein/aus",
       "disconnect": "Verbindung trennen"
     },
     "row": {
@@ -475,7 +475,7 @@
       "sectionTitle": "Bot erstellen",
       "nameLabel": "Benutzername des Bots",
       "submit": "Bot erstellen",
-      "hint": "{{min}} bis {{max}} Zeichen: Kleinbuchstaben, Zahlen und Unterstriche. Du kannst bis zu {{limit}} Bots erstellen."
+      "hint": "{{min}} bis {{max}} Zeichen: lateinische Kleinbuchstaben (a–z), Ziffern (0–9) und Unterstriche (_). Du kannst bis zu {{limit}} Bots erstellen."
     },
     "list": {
       "sectionTitle": "Deine Bots",
@@ -512,7 +512,7 @@
       "cancel": "Abbrechen",
       "edit": "Bearbeiten",
       "save": "Speichern",
-      "addToServer": "Zum Server hinzufügen",
+      "addToServer": "Zu einem Space hinzufügen",
       "tokens": "Tokens"
     },
     "edit": {
@@ -565,7 +565,7 @@
     "title": "Entwickler",
     "mode": {
       "label": "Entwicklermodus",
-      "description": "Zeigt Entwicklerwerkzeuge, etwa den Tab „Bots“, in den Einstellungen an. Beim Ausschalten werden sie nur ausgeblendet; deine Bots laufen weiter.",
+      "description": "Zeigt Entwicklerwerkzeuge, etwa den Tab „Bot-Konten“, in den Einstellungen an. Beim Ausschalten werden sie nur ausgeblendet; deine Bots laufen weiter.",
       "saveFailed": "Die Einstellung konnte nicht gespeichert werden. Versuche es erneut."
     }
   }

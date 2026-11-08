@@ -1,0 +1,180 @@
+{
+  "callDelivery": {
+    "remoteInstance": "l’istanza remota",
+    "hostInstance": "l’istanza ospitante",
+    "acceptDropped": "Impossibile confermare l’accettazione con {{instance}}: la chiamata è stata interrotta.",
+    "rejectFailed": "Impossibile avvisare {{instances}} del rifiuto. Chi ha chiamato potrebbe vederti ancora come squillante per un po’.",
+    "endFailed": "Impossibile avvisare {{instances}} della chiusura. I partecipanti remoti potrebbero vedere la chiamata per un massimo di 60 secondi.",
+    "hostUnreachable": "Chiamata terminata: l’istanza ospitante non è più raggiungibile.",
+    "peeringLost": "Chiamata terminata: questa istanza non è più in peering con {{instance}}.",
+    "instanceUnreachable": "Chiamata terminata: {{instance}} non è più raggiungibile.",
+    "someUnreachable": "Impossibile raggiungere alcuni partecipanti: {{instances}}.",
+    "multipleUnreachable_one": "Impossibile raggiungere {{count}} istanza: {{instances}}.",
+    "multipleUnreachable_many": "Impossibile raggiungere {{count}} istanze: {{instances}}.",
+    "multipleUnreachable_other": "Impossibile raggiungere {{count}} istanze: {{instances}}.",
+    "callFailed": "Impossibile effettuare la chiamata.",
+    "manualApproval": "Impossibile raggiungere {{instance}}: questa istanza richiede l’approvazione manuale del peering.",
+    "awaitingApproval": "In attesa che l’amministratore di {{instance}} approvi la tua istanza. Le chiamate funzioneranno dopo l’approvazione.",
+    "transientFailure": "Impossibile raggiungere {{instance}}. Riprova tra un momento.",
+    "voiceUnavailable": "La voce non è configurata su questa istanza.",
+    "noRecipient": "{{instance}} non ha potuto chiamare nessuno.",
+    "targetCallFailed": "Impossibile effettuare la chiamata a {{instance}}."
+  },
+  "feedback": {
+    "relayDenied": "Impossibile inoltrare i messaggi: il loro server ha negato il peering. Contatta il suo amministratore.",
+    "awaitingPeering": "I messaggi verranno consegnati quando il loro amministratore approverà la richiesta di peering."
+  },
+  "names": {
+    "group": "Gruppo",
+    "directMessage": "Messaggio diretto",
+    "theGroup": "il gruppo",
+    "unknownHandle": "sconosciuto",
+    "groupFallback": "DM di gruppo",
+    "emptyGroup": "Gruppo vuoto"
+  },
+  "preview": {
+    "image": "Immagine",
+    "video": "Video",
+    "audio": "Audio",
+    "files_one": "📎 {{count}} file",
+    "files_many": "📎 {{count}} file",
+    "files_other": "📎 {{count}} file",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 Invito inviato a {{spaceName}}",
+    "memberAdded": "{{actor}} ha aggiunto {{target}}",
+    "memberAddedToGroup": "{{actor}} ha aggiunto {{target}} al gruppo",
+    "memberLeft": "{{target}} ha lasciato il gruppo",
+    "memberRemoved": "{{actor}} ha rimosso {{target}}",
+    "memberRemovedFromGroup": "{{actor}} ha rimosso {{target}} dal gruppo",
+    "ownerChanged": "{{newOwner}} è ora il proprietario del gruppo",
+    "renamed": "{{actor}} ha rinominato il gruppo",
+    "renamedTo": "{{actor}} ha rinominato il gruppo in «{{name}}»",
+    "nameCleared": "{{actor}} ha cancellato il nome del gruppo",
+    "iconChanged": "{{actor}} ha aggiornato l’icona del gruppo",
+    "generic": "Messaggio di sistema"
+  },
+  "deletedNotice": {
+    "accountDeleted": "L’account di questo utente è stato eliminato"
+  },
+  "memberRow": {
+    "viewProfile": "Visualizza profilo",
+    "transferOwnership": "Trasferisci proprietà",
+    "removeFromGroup": "Rimuovi dal gruppo",
+    "removeFriend": "Rimuovi amico",
+    "ownerTooltip": "Proprietario del gruppo",
+    "actions": "Azioni membro"
+  },
+  "roster": {
+    "owner": "Proprietario",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "Ridimensiona elenco membri"
+  },
+  "kick": {
+    "title": "Rimuovi dal gruppo",
+    "description": "Rimuovere {{name}} da questo gruppo? Non potrà vedere i nuovi messaggi.",
+    "success": "{{name}} rimosso dal gruppo",
+    "failed": "Impossibile rimuovere il membro"
+  },
+  "transfer": {
+    "title": "Trasferisci proprietà",
+    "description": "Trasferire la proprietà a {{name}}? Perderai i privilegi di proprietario.",
+    "confirm": "Trasferisci",
+    "success": "Proprietà trasferita a {{name}}",
+    "failed": "Impossibile trasferire la proprietà"
+  },
+  "removeFriend": {
+    "failed": "Impossibile rimuovere l’amico"
+  },
+  "leave": {
+    "title": "Esci dal gruppo",
+    "description": "Uscire da «{{name}}»? Non riceverai più i messaggi di questa conversazione.",
+    "inProgress": "Uscita…",
+    "failed": "Impossibile uscire dal gruppo",
+    "explanation": "Non riceverai più i messaggi di questa conversazione. Gli altri membri vedranno un messaggio di sistema."
+  },
+  "search": {
+    "trigger": "Trova o avvia una conversazione",
+    "placeholder": "Cerca…",
+    "emptyHint": "Cerca un utente per iniziare a chattare",
+    "conversations": "Conversazioni",
+    "users": "Utenti",
+    "searching": "Ricerca…",
+    "noResults": "Nessun risultato trovato",
+    "createFailed": "Impossibile creare il messaggio diretto"
+  },
+  "list": {
+    "resizeHandle": "Ridimensiona messaggi diretti",
+    "title": "Messaggi",
+    "empty": "Nessuna conversazione.",
+    "leaveGroup": "Esci dal gruppo",
+    "justNow": "ora",
+    "minutesShort_one": "{{count}} min",
+    "minutesShort_many": "{{count}} min",
+    "minutesShort_other": "{{count}} min",
+    "hoursShort_one": "{{count}} h",
+    "hoursShort_many": "{{count}} h",
+    "hoursShort_other": "{{count}} h",
+    "daysShort_one": "{{count}} g",
+    "daysShort_many": "{{count}} g",
+    "daysShort_other": "{{count}} g",
+    "close": "Chiudi DM"
+  },
+  "newDm": {
+    "title": "Nuovo messaggio diretto",
+    "searchPlaceholder": "Cerca un utente…",
+    "noUsers": "Nessun utente trovato"
+  },
+  "addMember": {
+    "title": "Aggiungi amici al DM",
+    "description": "Seleziona gli amici da aggiungere a questa conversazione.",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "Cerca amici…",
+    "limitReached": "Questo DM di gruppo ha raggiunto il limite di {{max}} membri.",
+    "alreadyInDm": "Già in questo DM",
+    "noMatch": "Nessun amico corrisponde alla ricerca",
+    "noFriends": "Non hai ancora amici",
+    "selectFriends": "Seleziona amici",
+    "addCount_one": "Aggiungi {{count}} amico",
+    "addCount_many": "Aggiungi {{count}} amici",
+    "addCount_other": "Aggiungi {{count}} amici",
+    "adding": "Aggiunta…",
+    "noOtherMember": "Impossibile determinare l’altro membro di questa conversazione.",
+    "failed": "Impossibile aggiungere i membri",
+    "yourBots": "I tuoi bot"
+  },
+  "groupSettings": {
+    "title": "Impostazioni del gruppo",
+    "general": "Generale",
+    "overview": "Panoramica",
+    "backToMenu": "Torna al menu delle impostazioni del DM di gruppo",
+    "changeIcon": "Cambia icona del gruppo",
+    "icon": "Icona del gruppo",
+    "clickToUpload": "Clicca per caricare",
+    "removeIcon": "Rimuovi icona del gruppo",
+    "nameLabel": "Nome del gruppo",
+    "nameAria": "Nome del gruppo",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "Aggiungi membro",
+    "groupFull": "Il gruppo è pieno",
+    "groupFullSuffix": "— Il gruppo è pieno",
+    "cropTitle": "Ritaglia icona del gruppo",
+    "saveFailed": "Impossibile salvare le impostazioni"
+  },
+  "groupInfo": {
+    "title": "Informazioni sul gruppo",
+    "plainTitle": "Info",
+    "notFound": "Conversazione non trovata.",
+    "notGroup": "Questa conversazione non ha informazioni di gruppo.",
+    "cancelEdit": "Annulla modifica",
+    "federated": "Gruppo federato",
+    "memberCount_one": "{{count}} membro",
+    "memberCount_many": "{{count}} membri",
+    "memberCount_other": "{{count}} membri"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "Questo gruppo è gestito su {{host}}. Connettiti a quell’istanza per modificarlo.",
+    "ownerNotListed": "{{host}} non elenca ancora questo gruppo per te. Riprova tra un momento."
+  }
+}

@@ -7,7 +7,7 @@ import { describeError } from '../../i18n/errors';
 import { JunoPlayerBadge } from './JunoPlayerBadge';
 
 export function JunoRanking({ onBack }: { onBack: () => void }) {
-  const { t } = useTranslation(['voice', 'common']); const { formatNumber } = useFormatters();
+  const { t, i18n } = useTranslation(['voice', 'common']); const { formatNumber } = useFormatters();
   const target = useJunoStore(s => s.target); const ranking = useJunoStore(s => s.ranking);
   const loadRanking = useJunoStore(s => s.loadRanking);
   const creditedRound = useJunoStore(s => s.snapshot?.game?.scoreboard?.status === 'credited' ? s.snapshot.game.scoreboard.roundId : null);
@@ -27,7 +27,7 @@ export function JunoRanking({ onBack }: { onBack: () => void }) {
     <p className="juno-ranking-hint">{t('juno.scoreHint')}</p>
     {(!matches || ranking.loading) && !page && <p role="status">{t('common:states.loading')}</p>}
     {matches && ranking.unsupported && <p role="status" className="juno-notice">{t('juno.rankingUnavailable')}</p>}
-    {matches && !!ranking.error && <div role="alert" className="juno-error"><span>{describeError(ranking.error)}</span>
+    {matches && !!ranking.error && <div role="alert" className="juno-error"><span>{describeError(ranking.error, i18n)}</span>
       <button type="button" className="juno-text-button" onClick={retry}>{t('common:actions.retry')}</button></div>}
     {page && <>
       <section className="juno-your-stats" aria-label={t('juno.yourStats')}>

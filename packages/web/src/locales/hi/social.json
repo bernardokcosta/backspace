@@ -1,0 +1,104 @@
+{
+  "tabs": {
+    "all": "सभी",
+    "pending": "लंबित",
+    "add": "मित्र जोड़ें",
+    "activity": "गतिविधि"
+  },
+  "sections": {
+    "online": "ऑनलाइन — {{n}}",
+    "all": "सभी मित्र — {{n}}",
+    "pending": "लंबित — {{n}}",
+    "active": "सक्रिय — {{n}}",
+    "offline": "ऑफ़लाइन — {{n}}"
+  },
+  "empty": {
+    "online": "अभी कोई ऑनलाइन नहीं।",
+    "all": "अभी कोई मित्र नहीं — किसी को जोड़ें!",
+    "pending": "कोई लंबित अनुरोध नहीं — नोरी सो रहा है।",
+    "activity": "अभी शांत है… जब मित्र गतिविधि शुरू करेंगे, हम यहां दिखाएंगे!"
+  },
+  "friend": {
+    "viaInstance": "{{host}} के माध्यम से",
+    "message": "संदेश",
+    "remove": "मित्र हटाएं"
+  },
+  "sendMessage": {
+    "failed": "वार्तालाप नहीं खुल सका: {{reason}}"
+  },
+  "request": {
+    "incoming": "आने वाला मित्र अनुरोध",
+    "outgoing": "जाने वाला मित्र अनुरोध",
+    "ignore": "अनदेखा करें",
+    "cancel": "अनुरोध रद्द करें",
+    "send": "मित्र अनुरोध भेजें",
+    "pending": "अनुरोध लंबित",
+    "sending": "भेजा जा रहा…",
+    "cancelling": "रद्द हो रहा…",
+    "sent": "मित्र अनुरोध भेजा गया!"
+  },
+  "removeFriend": {
+    "title": "मित्र हटाएं",
+    "description": "क्या आप {{name}} को मित्र से हटाना चाहते हैं? आप बाद में नया अनुरोध भेज सकते हैं।",
+    "fallbackName": "यह उपयोगकर्ता"
+  },
+  "add": {
+    "title": "लोग खोजें",
+    "hint": "उपयोगकर्ता नाम से खोजें या किसी को सीधे जोड़ने के लिए <handle>user@instance</handle> उपयोग करें।",
+    "placeholder": "नाम से खोजें या जोड़ें…",
+    "direct": "<handle>{{handle}}</handle> को मित्र अनुरोध भेजें",
+    "sendRequest": "अनुरोध भेजें",
+    "discover": "लोग खोजें",
+    "noSearchResults": "आपकी खोज से कोई उपयोगकर्ता नहीं मिला।",
+    "noDiscoverable": "अभी कोई खोजने योग्य उपयोगकर्ता नहीं — लोगों को जुड़ने के लिए आमंत्रित करें!"
+  },
+  "mutuals": {
+    "friends_one": "{{count}} आपसी मित्र",
+    "friends_other": "{{count}} आपसी मित्र",
+    "spaces_one": "{{count}} आपसी स्पेस",
+    "spaces_other": "{{count}} आपसी स्पेस",
+    "noFriends": "कोई आपसी मित्र नहीं",
+    "noSpaces": "कोई आपसी स्पेस नहीं"
+  },
+  "profile": {
+    "tabs": {
+      "about": "परिचय",
+      "mutualFriends": "आपसी मित्र",
+      "mutualSpaces": "आपसी स्पेस"
+    },
+    "aboutMe": "मेरे बारे में",
+    "roles": "भूमिकाएं",
+    "memberSince": "सदस्य कब से",
+    "sendMessage": "संदेश भेजें",
+    "editRoles": "भूमिकाएं संपादित करें",
+    "viewFull": "पूर्ण प्रोफ़ाइल देखें",
+    "addFriend": "मित्र जोड़ें",
+    "playingNow": "अभी खेल रहा"
+  },
+  "activity": {
+    "title": "अभी सक्रिय",
+    "quietTitle": "अभी शांत है…",
+    "quietDescription": "जब कोई मित्र गतिविधि शुरू करेगा — जैसे गेम खेलना या वॉयस पर रहना — हम यहां दिखाएंगे!",
+    "online": "ऑनलाइन — {{n}}",
+    "offline": "ऑफ़लाइन — {{n}}",
+    "resizeHandle": "मित्र सूची का आकार बदलें",
+    "types": {
+      "playing": "गेम खेल रहा",
+      "listening": "संगीत सुन रहा",
+      "streaming": "स्ट्रीम कर रहा",
+      "watching": "देख रहा",
+      "custom": "कस्टम स्थिति"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "ट्रैक खोलें"
+  },
+  "instanceNotConnected": "{{host}} से कनेक्ट नहीं। पुनः कनेक्ट करें और पुनः प्रयास करें।"
+}

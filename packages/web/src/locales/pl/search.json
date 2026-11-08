@@ -1,0 +1,38 @@
+{
+  "input": {
+    "placeholder": "Szukaj wiadomości…"
+  },
+  "filters": {
+    "toggle": "Filtry",
+    "from": {
+      "label": "Od",
+      "placeholder": "nazwa użytkownika"
+    },
+    "has": {
+      "label": "Zawiera",
+      "any": "Dowolne",
+      "file": "Plik",
+      "image": "Obraz",
+      "link": "Link"
+    },
+    "before": {
+      "label": "Przed"
+    },
+    "after": {
+      "label": "Po"
+    }
+  },
+  "results": {
+    "empty": "Brak wyników",
+    "hint": "Wpisz, aby szukać wiadomości na tym kanale",
+    "count_one": "{{count}} wynik",
+    "count_few": "{{count}} wyniki",
+    "count_many": "{{count}} wyników",
+    "count_other": "{{count}} wyniku",
+    "loadMore": "Wczytaj więcej (zostało {{remaining}})",
+    "attachments_one": "{{count}} załącznik",
+    "attachments_few": "{{count}} załączniki",
+    "attachments_many": "{{count}} załączników",
+    "attachments_other": "{{count}} załącznika"
+  }
+}

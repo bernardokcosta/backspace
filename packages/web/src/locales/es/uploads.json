@@ -1,0 +1,35 @@
+{
+  "failure": {
+    "notAuthenticated": "No has iniciado sesión en esta instancia",
+    "invalidResponse": "No se pudo interpretar la respuesta de la subida",
+    "uploadError": "Error de subida",
+    "downloadError": "Error de descarga",
+    "fileUnavailable": "El archivo ya no está disponible. Descártalo y vuelve a subirlo.",
+    "noDestination": "No hay referencia al archivo de destino. No se puede reanudar.",
+    "destinationMissing": "Falta la referencia al archivo de destino",
+    "permissionDenied": "Permiso denegado",
+    "lostDownload": "No se puede reanudar la descarga porque se han perdido los datos. Reiníciala.",
+    "uploadHandleMissing": "Falta la referencia al archivo. Descártalo y vuelve a subirlo.",
+    "downloadHandleMissing": "Falta la referencia al archivo de destino. Reinicia la descarga.",
+    "downloadFailed": "Error al descargar: {{status}}",
+    "resumeFailed": "Error al reanudar: {{status}}"
+  },
+  "transfers": {
+    "title": "Transferencias",
+    "count_one": "{{count}} transferencia",
+    "count_many": "{{count}} transferencias",
+    "count_other": "{{count}} transferencias",
+    "clearCompleted": "Borrar las completadas",
+    "empty": "No hay transferencias activas.",
+    "status": {
+      "done": "Completada",
+      "failed": "Error: {{reason}}",
+      "aborted": "Cancelada",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "Recortar imagen",
+    "applying": "Aplicando…"
+  }
+}

@@ -1,0 +1,166 @@
+{
+  "callDelivery": {
+    "remoteInstance": "원격 인스턴스",
+    "hostInstance": "호스트 인스턴스",
+    "acceptDropped": "{{instance}}에서 수락을 확인하지 못했습니다 — 통화가 끊겼습니다.",
+    "rejectFailed": "{{instances}}에 거절을 알리지 못했습니다. 발신자에게 잠시 울리는 것으로 보일 수 있습니다.",
+    "endFailed": "{{instances}}에 종료를 알리지 못했습니다. 원격 참가자에게 최대 60초간 통화가 보일 수 있습니다.",
+    "hostUnreachable": "통화 종료 — 호스트 인스턴스에 도달 불가.",
+    "peeringLost": "통화 종료 — 이 인스턴스는 {{instance}}와(과) 피어링되지 않았습니다.",
+    "instanceUnreachable": "통화 종료 — {{instance}}에 도달 불가.",
+    "someUnreachable": "일부 참가자에게 도달 불가: {{instances}}.",
+    "multipleUnreachable_other": "{{count}}개 인스턴스에 도달 불가: {{instances}}.",
+    "callFailed": "통화를 걸 수 없습니다.",
+    "manualApproval": "{{instance}}에 도달 불가 — 이 인스턴스는 수동 피어링 승인이 필요합니다.",
+    "awaitingApproval": "{{instance}} 관리자가 인스턴스를 승인하기를 대기 중. 승인 후 통화 가능.",
+    "transientFailure": "{{instance}}에 도달 불가. 잠시 후 다시 시도하세요.",
+    "voiceUnavailable": "이 인스턴스에 음성이 설정되지 않았습니다.",
+    "noRecipient": "{{instance}}는 누구에게도 발신하지 않았습니다.",
+    "targetCallFailed": "{{instance}}에 발신할 수 없습니다."
+  },
+  "feedback": {
+    "relayDenied": "메시지를 중계할 수 없습니다 — 상대 서버가 피어링을 거부했습니다. 상대 관리자에게 문의하세요.",
+    "awaitingPeering": "상대 관리자가 피어링 요청을 승인하면 메시지가 전달됩니다."
+  },
+  "names": {
+    "group": "그룹",
+    "directMessage": "다이렉트 메시지",
+    "theGroup": "그룹",
+    "unknownHandle": "알 수 없음",
+    "groupFallback": "그룹 DM",
+    "emptyGroup": "빈 그룹"
+  },
+  "preview": {
+    "image": "이미지",
+    "video": "동영상",
+    "audio": "오디오",
+    "files_other": "📎 파일 {{count}}개",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 {{spaceName}} 초대를 보냈습니다",
+    "memberAdded": "{{actor}}님이 {{target}}님을 추가",
+    "memberAddedToGroup": "{{actor}}님이 {{target}}님을 그룹에 추가",
+    "memberLeft": "{{target}}님이 그룹을 나감",
+    "memberRemoved": "{{actor}}님이 {{target}}님을 삭제",
+    "memberRemovedFromGroup": "{{actor}}님이 {{target}}님을 그룹에서 삭제",
+    "ownerChanged": "{{newOwner}}님이 이제 그룹 소유자",
+    "renamed": "{{actor}}님이 그룹 이름을 변경",
+    "renamedTo": "{{actor}}님이 그룹 이름을 \"{{name}}\"(으)로 변경",
+    "nameCleared": "{{actor}}님이 그룹 이름을 지움",
+    "iconChanged": "{{actor}}님이 그룹 아이콘을 업데이트",
+    "generic": "시스템 메시지"
+  },
+  "deletedNotice": {
+    "accountDeleted": "이 사용자의 계정은 삭제됨"
+  },
+  "memberRow": {
+    "viewProfile": "프로필 보기",
+    "transferOwnership": "소유권 이전",
+    "removeFromGroup": "그룹에서 삭제",
+    "removeFriend": "친구 삭제",
+    "ownerTooltip": "그룹 소유자",
+    "actions": "멤버 작업"
+  },
+  "roster": {
+    "owner": "소유자",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "멤버 목록 크기 조정"
+  },
+  "kick": {
+    "title": "그룹에서 삭제",
+    "description": "이 그룹에서 {{name}}님을 삭제합니까? 새 메시지를 볼 수 없습니다.",
+    "success": "그룹에서 {{name}}님을 삭제했습니다",
+    "failed": "멤버를 삭제할 수 없습니다"
+  },
+  "transfer": {
+    "title": "소유권 이전",
+    "description": "소유권을 {{name}}님에게 이전합니까? 소유자 권한을 잃습니다.",
+    "confirm": "이전",
+    "success": "소유권을 {{name}}님에게 이전했습니다",
+    "failed": "소유권을 이전할 수 없습니다"
+  },
+  "removeFriend": {
+    "failed": "친구를 삭제할 수 없습니다"
+  },
+  "leave": {
+    "title": "그룹 나가기",
+    "description": "“{{name}}”을(를) 나갑니까? 이 대화의 메시지를 받지 않게 됩니다.",
+    "inProgress": "나가는 중…",
+    "failed": "그룹을 나갈 수 없습니다",
+    "explanation": "이 대화의 메시지를 받지 않게 됩니다. 다른 멤버에게 시스템 메시지가 표시됩니다."
+  },
+  "search": {
+    "trigger": "대화 찾기·시작",
+    "placeholder": "검색…",
+    "emptyHint": "채팅할 사용자를 검색",
+    "conversations": "대화",
+    "users": "사용자",
+    "searching": "검색 중…",
+    "noResults": "결과 없음",
+    "createFailed": "DM을 만들 수 없습니다"
+  },
+  "list": {
+    "resizeHandle": "다이렉트 메시지 크기 조정",
+    "title": "메시지",
+    "empty": "아직 대화가 없습니다.",
+    "leaveGroup": "그룹 나가기",
+    "justNow": "지금",
+    "minutesShort_other": "{{count}}분",
+    "hoursShort_other": "{{count}}시간",
+    "daysShort_other": "{{count}}일",
+    "close": "DM 닫기"
+  },
+  "newDm": {
+    "title": "새 다이렉트 메시지",
+    "searchPlaceholder": "사용자 검색…",
+    "noUsers": "사용자를 찾을 수 없음"
+  },
+  "addMember": {
+    "title": "DM에 친구 추가",
+    "description": "이 대화에 추가할 친구를 선택하세요.",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "친구 검색…",
+    "limitReached": "이 그룹 DM은 최대 {{max}}명에 도달했습니다.",
+    "alreadyInDm": "이미 이 DM에 있음",
+    "noMatch": "검색과 일치하는 친구 없음",
+    "noFriends": "아직 친구 없음",
+    "selectFriends": "친구 선택",
+    "addCount_other": "{{count}}명 추가",
+    "adding": "추가 중…",
+    "noOtherMember": "이 대화의 다른 참가자를 확인할 수 없습니다.",
+    "failed": "멤버를 추가할 수 없습니다",
+    "yourBots": "내 봇"
+  },
+  "groupSettings": {
+    "title": "그룹 설정",
+    "general": "일반",
+    "overview": "개요",
+    "backToMenu": "그룹 DM 설정 메뉴로 돌아가기",
+    "changeIcon": "그룹 아이콘 변경",
+    "icon": "그룹 아이콘",
+    "clickToUpload": "클릭하여 업로드",
+    "removeIcon": "그룹 아이콘 삭제",
+    "nameLabel": "그룹 이름",
+    "nameAria": "그룹 이름",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "멤버 추가",
+    "groupFull": "그룹 가득 참",
+    "groupFullSuffix": "— 그룹 가득 참",
+    "cropTitle": "그룹 아이콘 자르기",
+    "saveFailed": "설정을 저장할 수 없습니다"
+  },
+  "groupInfo": {
+    "title": "그룹 정보",
+    "plainTitle": "정보",
+    "notFound": "대화를 찾을 수 없습니다.",
+    "notGroup": "이 대화에 그룹 정보가 없습니다.",
+    "cancelEdit": "편집 취소",
+    "federated": "연합 그룹",
+    "memberCount_other": "멤버 {{count}}명"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "이 그룹은 {{host}}에서 관리됩니다. 변경하려면 해당 인스턴스에 연결하세요.",
+    "ownerNotListed": "{{host}}가 아직 이 그룹을 표시하지 않습니다. 잠시 후 다시 시도하세요."
+  }
+}

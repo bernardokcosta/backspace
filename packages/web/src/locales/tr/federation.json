@@ -1,0 +1,376 @@
+{
+  "validation": {
+    "invalidUrl": "Geçersiz URL",
+    "selfInstance": "Bu örneğe zaten giriş yapmışsın",
+    "alreadyConnected": "Bu örnek zaten bağlı",
+    "notLoggedIn": "Giriş yapılmamış",
+    "connectHomeFirst": "Önce ana örneğine ({{home}}) bağlan — {{target}} için kimlik bilgisini o verir",
+    "incorrectPassword": "Parola yanlış",
+    "authenticationFailed": "Uzak örnekle kimlik doğrulanamadı"
+  },
+  "feedback": {
+    "connectionLost": "{{instance}} bağlantısı kesildi — yeniden bağlanılıyor...",
+    "connectionRestored": "{{instance}} yeniden bağlandı",
+    "pendingRequests_one": "{{count}} bekleyen eşleme isteğin var",
+    "pendingRequests_other": "{{count}} bekleyen eşleme isteğin var",
+    "requestApproved": "Eşleme isteğin onaylandı",
+    "requestDenied": "Eşleme isteğin reddedildi",
+    "requestExpired": "Eşleme isteğin süresi doldu",
+    "friendRequestDeliveryFailed": "{{username}} kişisine arkadaşlık isteği iletilemedi: {{reason}}",
+    "accountRelinked": "Hesap {{instance}} ile yeniden bağlandı"
+  },
+  "connections": {
+    "title": "Bağlı örnekler",
+    "description": "Federasyonlu Backspace örnekleri arasında hesap bağla.",
+    "empty": "Bağlı uzak örnek yok. Federasyona başlamak için bir tane ekle.",
+    "addButton": "+ Örnek ekle",
+    "home": {
+      "title": "Ana örnek",
+      "asUser": "{{username}} olarak",
+      "local": "Yerel"
+    },
+    "status": {
+      "connected": "Bağlı",
+      "disconnected": "Bağlı değil",
+      "unreachable": "Ulaşılamıyor",
+      "authExpired": "Kimlik doğrulama süresi doldu"
+    },
+    "add": {
+      "title": "Uzak örnek ekle",
+      "urlPlaceholder": "https://instance.example.com",
+      "probing": "Yoklanıyor…",
+      "connect": "Bağlan",
+      "connecting": "Bağlanılıyor…",
+      "registrationClosed": "Bu örnek yeni federasyon kayıtlarını kapatmış. Mevcut hesaplar yine de giriş yapabilir.",
+      "passwordLabel": "{{host}} adresine bağlanmak için parolanı gir",
+      "passwordPlaceholder": "Giriş yaptığın parola",
+      "passwordHint": "Parolan ana örneğin tarafından kontrol edilir ve {{host}} adresine asla gönderilmez. O örnek yalnızca kendisi için oluşturulmuş benzersiz bir kimlik bilgisi alır.",
+      "fallbackNotice": {
+        "credentialRefused": "{{host}} üzerinde zaten bir hesap var ve ana örneğinin verdiği kimlik bilgisini kabul etmiyor. O örnekte belirlediğin parolayla giriş yap. Ardından verilen kimlik bilgisine geçirilecek.",
+        "registrationClosed": "{{host}} diğer örneklerden yeni hesap kabul etmiyor, bu yüzden orada senin için hesap oluşturulamadı. {{host}} üzerinde zaten hesabın varsa aşağıdan giriş yap."
+      },
+      "usernamePlaceholder": "Bu örnekteki kullanıcı adın",
+      "remotePasswordLabel": "Bu örnek için parola",
+      "remotePasswordPlaceholder": "Uzak örnekteki parola",
+      "loggingIn": "Giriş yapılıyor…",
+      "loginAndConnect": "Giriş yap ve bağlan"
+    },
+    "filter": {
+      "all": "Tümü",
+      "connected": "Bağlı",
+      "disconnected": "Bağlı değil",
+      "issues": "Sorunlar",
+      "noMatch": "Geçerli filtreyle eşleşen örnek yok."
+    },
+    "sort": {
+      "dateAdded": "Eklenme tarihi",
+      "lastConnected": "Son bağlantı"
+    },
+    "row": {
+      "asUser": "{{username}} olarak",
+      "added": "{{date}} eklendi",
+      "connectedAgo": "{{time}} bağlandı",
+      "disconnectedAgo": "{{time}} bağlantı kesildi",
+      "lastConnectedAgo": "Son bağlantı {{time}}",
+      "remoteUserId": "Uzak kullanıcı kimliği",
+      "addedLabel": "Eklendi",
+      "disconnectedLabel": "Bağlantı kesildi",
+      "lastConnectedLabel": "Son bağlantı",
+      "homePasswordLabel": "Ana hesap parolan",
+      "disconnect": "Bağlantıyı kes",
+      "reconnect": "Yeniden bağlan",
+      "reauthenticate": "Yeniden kimlik doğrula",
+      "forceRemove": "Zorla kaldır",
+      "deleteIdentity": "Kimliği sil",
+      "deleteIdentityDisabled": "Kimliği silmek için önce bağlantıyı kes",
+      "reason": {
+        "unreachable": "Bu örneğe ulaşılamadı.",
+        "sessionExpired": "Kaydedilen oturumun süresi doldu. Yeniden bağlanmak için kimlik doğrula.",
+        "reauthenticate": "Bağlanmak için kimlik doğrula.",
+        "authenticateHome": "Ana örneğine bağlanmak için kimlik doğrula."
+      }
+    },
+    "forceRemove": {
+      "title": "Kaydı zorla kaldır",
+      "description": "Bu, {{name}} için kayıt girdisini kaldırır. Uzak örnek bilgilendirilmez. Bunu yalnızca örneğe kalıcı olarak ulaşılamıyorsa kullan.",
+      "confirm": "Zorla kaldır"
+    },
+    "deleteIdentity": {
+      "title": "Kimliği sil",
+      "description": "<name>{{name}}</name> üzerindeki federasyon kimliğini kaldır. Verilerinin nasıl ele alınacağını seç.",
+      "leave": {
+        "title": "Sessizce ayrıl",
+        "description": "Bu örnekten ayrıl. Hesabın ve tüm verilerin kalır."
+      },
+      "soft": {
+        "title": "Kullanıcıyı sil",
+        "description": "Hesabını sil ama mesajlarını koru. 'Silinmiş kullanıcı' olarak görünürsün."
+      },
+      "full": {
+        "title": "Her şeyi sil",
+        "description": "Hesabını ve tüm mesajlarını, DM'lerini, tepkilerini ve dosyalarını sil. Hiçbir şey kalmaz."
+      },
+      "scope": {
+        "heading": "Kapsam",
+        "this": "Yalnızca bu örnek",
+        "select": "Örnek seç…",
+        "all": "Tüm uzak örnekler"
+      },
+      "deleting": "Siliniyor…",
+      "disconnect": "Bağlantıyı kes",
+      "confirm": "Kimliği sil",
+      "toast": {
+        "disconnected": "Bağlantı başarıyla kesildi",
+        "deleted_one": "Kimlik başarıyla silindi",
+        "deleted_other": "Kimlik {{count}} örnekte silindi",
+        "ownsSpaces": "{{host}}: Önce alan sahipliğini devret",
+        "failed": "{{host}}: {{error}}",
+        "failedGeneric": "Başarısız"
+      }
+    },
+    "action": {
+      "friendRequest": "arkadaşlık isteği",
+      "spaceJoin": "alana katılma",
+      "directMessage": "doğrudan mesaj",
+      "friendRequestTo": "{{target}} kişisine arkadaşlık isteği",
+      "joinSpace": "{{target}} alanına katıl",
+      "directMessageTo": "{{target}} kişisine doğrudan mesaj",
+      "instanceConnect": "bağlantı",
+      "connectTo": "{{target}} adresine bağlan"
+    },
+    "pending": {
+      "title": "Bekleyen eşleme onayları",
+      "description": "Bu istekler ilerlemeden önce yöneticin onaylamalı.",
+      "onPeer": "<peer>{{peer}}</peer> üzerinde",
+      "cancelling": "İptal ediliyor…",
+      "cancelled": "Eşleme isteği iptal edildi",
+      "cancelFailed": "İptal edilemedi: {{error}}"
+    },
+    "outcomes": {
+      "title": "Son eşleme sonuçları",
+      "approved": "{{host}} için eşleme isteğin yöneticin tarafından onaylandı.",
+      "denied": "{{host}} için eşleme isteğin yöneticin tarafından reddedildi.",
+      "expired": "{{host}} için eşleme isteğin yönetici işlem yapmadan süresi doldu.",
+      "originalAction": "Özgün işlem: {{action}}",
+      "retry": "{{action}} işlemini yeniden dene",
+      "dismissing": "Yoksayılıyor…",
+      "dismissFailed": "Yoksayılamadı: {{error}}",
+      "dismissAllFailed": "Tümü yoksayılamadı: {{error}}"
+    },
+    "peering": {
+      "unavailable": "{{name}} üzerindeki kişilerle mesajlar, bir yönetici onunla eşlemeyi onaylayana kadar iletilemez.",
+      "inProgress": "{{name}} ile eşleme kuruluyor. Oradaki kişilerle mesajlar kısa süre içinde iletilecek."
+    }
+  },
+  "admin": {
+    "title": "Federasyon",
+    "description": "Federasyon aktarımını, gizli anahtar döndürmeyi yapılandır ve eşleşmiş örnekleri yönet.",
+    "relay": {
+      "title": "Aktarım ayarları",
+      "description": "Federasyonlu örnekler arasındaki DM aktarımını kontrol et. Etkinleştirildiğinde, eş örneklerdeki kullanıcılarla DM'ler sunucudan sunucuya aktarılır.",
+      "enable": {
+        "label": "DM aktarımını etkinleştir",
+        "description": "Doğrudan mesajları eş örneklerle karşılıklı aktar"
+      },
+      "autoAccept": {
+        "label": "Eşlemeyi otomatik kabul et",
+        "description": "Diğer örneklerden gelen eşleme isteklerini otomatik kabul et. Devre dışıyken yalnızca elle başlatılan eşlemeye izin verilir."
+      },
+      "ttl": {
+        "label": "Aktarım TTL (gün)",
+        "description": "Aktarılan mesajların temizlikten önce giden kutusunda ne kadar saklanacağı"
+      },
+      "rotation": {
+        "label": "Varsayılan gizli anahtar döndürme (gün)",
+        "description": "Yeni eşler için otomatik döndürme aralığı. Mevcut eşler geçerli ayarlarını korur."
+      }
+    },
+    "status": {
+      "active": "Etkin",
+      "pending": "Bekliyor",
+      "unreachable": "Ulaşılamıyor",
+      "rejectedShort": "Reddedildi",
+      "revoked": "İptal edildi",
+      "awaitingApproval": "Onay bekliyor",
+      "needsAttention": "Dikkat gerekiyor"
+    },
+    "filter": {
+      "statusHeading": "Durum",
+      "sort": {
+        "domain": "Alan adı (A-Z)",
+        "lastSeen": "Son görülme",
+        "dateAdded": "Eklenme tarihi",
+        "failures": "Başarısızlıklar",
+        "revokedDate": "İptal tarihi"
+      }
+    },
+    "views": {
+      "active": "Etkin",
+      "revoked": "İptal edilmiş"
+    },
+    "peer": {
+      "instanceName": "Örnek adı",
+      "revokedMeta": "İptal: {{revoked}} · Eşleşme: {{peered}}",
+      "unreachableMeta": "Son görülme: {{lastSeen}} · {{failures}}",
+      "activeMeta": "Son görülme: {{lastSeen}} · Eşitlendi: {{synced}}",
+      "failures_one": "{{count}} başarısızlık",
+      "failures_other": "{{count}} başarısızlık",
+      "reinitiate": "Eşlemeyi yeniden başlat",
+      "deletePermanently": "Kalıcı olarak sil",
+      "consecutiveFailures": "Art arda başarısızlıklar",
+      "authFailures": "Kimlik doğrulama başarısızlıkları",
+      "lastFailure": "Son başarısızlık",
+      "peeredSince": "Eşleşme başlangıcı",
+      "secretRotated": "Gizli anahtar döndürüldü",
+      "autoRotate": "Otomatik döndür",
+      "rotationStatus": "Döndürme durumu",
+      "rotateEvery_one": "Her {{count}} günde bir",
+      "rotateEvery_other": "Her {{count}} günde bir",
+      "defaultTag": "(varsayılan)",
+      "inProgress": "Sürüyor",
+      "idle": "Boşta",
+      "intervalRange": "1-365 olmalı",
+      "intervalUpdated": "Döndürme aralığı güncellendi",
+      "checking": "Kontrol ediliyor…",
+      "checkNow": "Şimdi kontrol et",
+      "resetPeering": "Eşlemeyi sıfırla",
+      "rotateSecret": "Gizli anahtarı döndür",
+      "rotationInProgress": "Döndürme zaten sürüyor",
+      "revoke": "İptal et",
+      "editInterval": "Döndürme aralığını düzenle",
+      "reason": {
+        "auth_failures": "İmzalı teslimatlar sürekli başarısız oluyor",
+        "peer_reset_detected": "Yeni bir kimlikle yeniden kuruldu",
+        "repeer_incomplete": "Yeniden eşleme doğrulanamadı",
+        "denied_by_local_admin": "Yöneticin tarafından reddedildi",
+        "denied_by_remote": "Karşı yönetici tarafından reddedildi",
+        "revoked_by_remote": "Karşı yönetici tarafından iptal edildi",
+        "expired_on_remote": "İstek karşı tarafta süresi doldu",
+        "stale_peering_on_remote": "Karşı taraf daha eski bir eşleşme tutuyor"
+      },
+      "reasonDetail": {
+        "auth_failures": "{{host}} art arda beş imzalı teslimatı reddetti, bu yüzden iki örnek artık aynı gizli anahtarı paylaşmıyor. Eşlemeyi sıfırla, sonra yeniden eşle.",
+        "peer_reset_detected": "{{host}} yeniden kuruldu: öncekinden farklı bir örnek kimliği bildiriyor. Yeni örneğe bağlanmak ve eskisinin hesaplarını temizlemek için yukarıdaki banner'daki Yeniden eşle'yi kullan.",
+        "repeer_incomplete": "{{host}} bir el sıkışmayı kabul etti, ancak yeni gizli anahtarla imzalı kontrol başarısız oldu, bu yüzden eşleşme kullanılmıyor. Sıfırla ve tekrar dene. Yine başarısız olursa karşı yönetici kendi tarafını sıfırlamalı.",
+        "denied_by_local_admin": "Buradaki bir yönetici {{host}} eşleme isteğini reddetti. Yeniden başlatana veya bu girdiyi silene kadar istekleri reddedilir.",
+        "denied_by_remote": "{{host}} yöneticisi bu örnekle eşlemeyi reddetti. Kabul ettiklerinde yeniden başlat.",
+        "revoked_by_remote": "{{host}} yöneticisi bu örnekle eşlemeyi iptal etti. Yeniden başlattıklarında geri gelir.",
+        "expired_on_remote": "{{host}} yöneticisi eşleme isteğini 30 gün içinde yanıtlamadı. Tekrar sormak için yeniden başlat.",
+        "stale_peering_on_remote": "{{host}} bu örnekle hâlâ daha eski bir eşleşme tutuyor ve yöneticisi sıfırlayana kadar yenisini reddediyor. Bu örnek her 15 dakikada kontrol eder ve sıfırladıkları anda bağlanır."
+      }
+    },
+    "approvals": {
+      "title": "Onay bekleyen istekler",
+      "outboundTitle_one": "{{name}} — {{count}} kullanıcı eşleşmemizi istiyor",
+      "outboundTitle_other": "{{name}} — {{count}} kullanıcı eşleşmemizi istiyor",
+      "requested": "{{time}} istendi",
+      "subscriber": {
+        "friendAdd": "{{target}} kişisine arkadaşlık isteği",
+        "spaceJoin": "{{target}} alanına katılmak istiyor",
+        "directMessage": "{{target}} kişisine DM göndermek istiyor",
+        "instanceConnect": "{{target}} üzerinde hesap bağladı"
+      },
+      "approve": "Onayla",
+      "deny": "Reddet",
+      "established": "{{name}} ile eşleşme kuruldu",
+      "deniedToast": "{{name}} eşleme isteği reddedildi",
+      "confirm": {
+        "approveTitle": "Eşleme isteğini onayla",
+        "denyTitle": "Eşleme isteğini reddet",
+        "approveOutbound_one": "Bu, istekte bulunan {{count}} kullanıcı adına {{name}} ile eşleme el sıkışması başlatır. Uzak örneğe ulaşılabilir olmalı.",
+        "approveOutbound_other": "Bu, istekte bulunan {{count}} kullanıcı adına {{name}} ile eşleme el sıkışması başlatır. Uzak örneğe ulaşılabilir olmalı.",
+        "approveInbound": "Bu, {{name}} ile eşleme el sıkışması başlatır. Uzak örneğe ulaşılabilir olmalı.",
+        "denyOutbound_one": "Bu, giden eşleme isteğini reddeder ve istekte bulunan kullanıcıyı bilgilendirir. Yaptıklarını tekrarlayarak yeniden sorabilir.",
+        "denyOutbound_other": "Bu, giden eşleme isteğini reddeder ve istekte bulunan kullanıcıları bilgilendirir. Yaptıklarını tekrarlayarak yeniden sorabilirler.",
+        "denyInbound": "Bu, isteği reddeder ve {{name}} kaynaklı gelecekteki otomatik eşleme isteklerini engeller. Daha sonra reddedilen eşler listesinden engeli kaldırabilirsin.",
+        "approveAndPeer": "Onayla ve eşle",
+        "approve": "Onayla",
+        "denyAndNotify": "Reddet ve bilgilendir",
+        "deny": "Reddet"
+      }
+    },
+    "resetCleanup": {
+      "title": "Sıfırlama temizliği",
+      "peerReset": "{{name}} sıfırlandı",
+      "peerResetDescription": "Bu alan adında yeni bir örnek çalışıyor. Eski arkadaşlıkları ve DM'leri iyileştirmek için federasyonu yeniden kur.",
+      "repeer": "Yeniden eşle",
+      "resetToast": "{{host}} sıfırlandı — federasyonun yeniden kurulması gerekiyor",
+      "repeerIncomplete": "Yeniden eşleme tamamlanmadı — {{name}} senin için hâlâ eski eşleşmeyi tutuyor. Yöneticisi kendi tarafını sıfırlamalı, sonra yeniden eşle.",
+      "repeerInitiated": "{{name}} ile yeniden eşleme başlatıldı",
+      "removed": "{{username}} ve tüm içeriği kaldırıldı",
+      "ownsSpaces": "{{username}} alanlara sahip — önce sahipliği devret (Alan ayarları → Sahiplik).",
+      "staleRemote": "Uzak örnek senin için hâlâ eski eşleşmeyi tutuyor. Yöneticisinden kendi tarafını sıfırlamasını iste, sonra yeniden eşle.",
+      "eventSummary": "<host>{{host}}</host> sıfırlandı. Otomatik temizlik: {{identities}}; yerel içeriği olan hesaplar ayrıldı: {{accounts}}. Ayrılan hesaplar yerel olarak çalışmaya devam eder — sahipleri mevcut parolalarıyla erişimi korur. Sahip, her ikisinde de oturum açmışken hesap ayarlarından (Hesap → ayrılma bildirimi) ayrılmış bir hesabı yeni ana kimliğine yeniden bağlayabilir.",
+      "identitiesCleaned_one": "{{count}} çoğaltılmış kimlik",
+      "identitiesCleaned_other": "{{count}} çoğaltılmış kimlik",
+      "accountsDetached_one": "{{count}} hesap",
+      "accountsDetached_other": "{{count}} hesap",
+      "memberships_one": "{{count}} üyelik",
+      "memberships_other": "{{count}} üyelik",
+      "messages_one": "{{count}} mesaj",
+      "messages_other": "{{count}} mesaj",
+      "owns": "Sahip olduğu: {{spaces}}",
+      "dismissKeep": "Yoksay — tüm ayrılmış hesapları koru",
+      "confirm": {
+        "repeerTitle": "Federasyonu yeniden kur",
+        "removeTitle": "Ayrılmış hesabı kaldır",
+        "repeerDescription": "Bu, yerel eş kaydını siler ve {{origin}} ile yeni bir kimlik doğrulamalı el sıkışma başlatır. Karşı tarafa ulaşılabilir olmalı ve (otomatik kabul etmiyorsa) isteği onaylamalı.",
+        "removeDescription": "{{username}} ve bu örnekteki tüm içeriği kalıcı olarak silinsin mi? Bu geri alınamaz.",
+        "repeerConfirm": "Yeniden eşle ve iyileştir",
+        "removeConfirm": "Kalıcı olarak sil"
+      }
+    },
+    "peers": {
+      "title": "Eşleşmiş örnekler",
+      "empty": "Yapılandırılmış federasyon eşi yok. Kullanıcılar uzak örneklere bağlandığında eşler otomatik oluşturulur.",
+      "noMatch": "Geçerli filtreyle eşleşen eş yok.",
+      "noRevoked": "İptal edilmiş eş yok.",
+      "backOnline": "{{name}} yeniden çevrimiçi",
+      "stillUnreachable": "{{name}} hâlâ ulaşılamıyor",
+      "rotationInitiated": "Gizli anahtar döndürme başlatıldı — 15 dakikalık geçiş süresi",
+      "revoked": "Eş iptal edildi",
+      "reinitiated": "Eşleşme yeniden başlatıldı",
+      "reinitiateFailed": "Eş kaydı silindi ancak el sıkışma başarısız: {{error}}. {{origin}} ile elle yeniden eşle",
+      "deleted": "Eş kalıcı olarak silindi",
+      "resetDone": "{{name}} için eşleşme sıfırlandı",
+      "confirm": {
+        "rotate": {
+          "title": "HMAC gizli anahtarını döndür",
+          "description": "Bu, {{name}} için yeni bir HMAC gizli anahtarı oluşturur. Her iki örnek 15 dakikalık geçiş süresince eski ve yeni anahtarları kabul eder.",
+          "confirm": "Döndür"
+        },
+        "revoke": {
+          "title": "Eşi iptal et",
+          "description": "Bu, {{name}} ile tüm federasyon aktarım trafiğini durdurur. Bekleyen giden kutusu girdileri temizlenir. Eşlemeyi daha sonra yeniden başlatabilirsin.",
+          "confirm": "İptal et"
+        },
+        "reinitiate": {
+          "title": "Eşlemeyi yeniden başlat",
+          "description": "Bu, iptal edilmiş kaydı siler ve {{origin}} ile yeni bir el sıkışma başlatır. Uzak örneğe ulaşılabilir olmalı.",
+          "confirm": "Yeniden başlat"
+        },
+        "delete": {
+          "title": "Eş kaydını sil",
+          "description": "Bu, {{name}} için eş kaydını kalıcı olarak siler. Geri alınamaz.",
+          "confirm": "Sil"
+        },
+        "reset": {
+          "title": "Eşlemeyi sıfırla",
+          "description": "{{name}} ile eşleşme sıfırlansın mı? Bu, yerel eş kaydını ve bekleyen tüm giden kutusu girdilerini siler. Sıfırlamadan sonra uzak yöneticiyle eşlemeyi uygulama dışında yeniden başlatmalısın. Geri alınamaz.",
+          "confirm": "Sıfırla"
+        }
+      }
+    }
+  },
+  "peerRejected": {
+    "auth_failures": "{{name}} adresine mesajlar iletilmiyor: bağlantının paylaşılan gizli anahtarı çalışmayı durdurdu. Bir yönetici eşlemeyi sıfırlamalı.",
+    "peer_reset_detected": "{{name}} adresine mesajlar iletilmiyor: yeniden kuruldu. Bir yönetici yeniden eşlemeli.",
+    "repeer_incomplete": "{{name}} adresine mesajlar iletilmiyor: yeniden eşleme doğrulanamadı. Bir yönetici eşlemeyi sıfırlamalı.",
+    "denied_by_local_admin": "{{name}} adresine mesajlar iletilemiyor: yöneticin onunla federasyonu reddetti.",
+    "denied_by_remote": "{{name}} adresine mesajlar iletilemiyor: yöneticisi bu örnekle federasyonu reddetti.",
+    "revoked_by_remote": "{{name}} adresine mesajlar iletilemiyor: yöneticisi bu örnekle federasyonu iptal etti.",
+    "expired_on_remote": "{{name}} adresine mesajlar iletilemiyor: yöneticisi federasyon isteğini zamanında yanıtlamadı.",
+    "stale_peering_on_remote": "{{name}} adresine mesajlar henüz iletilemiyor: bu örnekle hâlâ eski bir bağlantı tutuyor ve yöneticisinin sıfırlaması gerekiyor.",
+    "fallback": "{{name}} adresine mesajlar iletilemiyor: {{reason}}"
+  }
+}

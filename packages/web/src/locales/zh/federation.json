@@ -1,4 +1,23 @@
 {
+  "validation": {
+    "invalidUrl": "URL 无效",
+    "selfInstance": "您已登录此实例。",
+    "alreadyConnected": "此实例已连接。",
+    "notLoggedIn": "您尚未登录。",
+    "connectHomeFirst": "请先连接到您的主实例（{{home}}），由它签发用于访问 {{target}} 的凭据。",
+    "incorrectPassword": "密码错误",
+    "authenticationFailed": "无法登录远程实例。"
+  },
+  "feedback": {
+    "connectionLost": "与 {{instance}} 的连接已断开，正在重新连接...",
+    "connectionRestored": "已重新连接到 {{instance}}",
+    "pendingRequests_other": "您有 {{count}} 个待处理的对等连接请求",
+    "requestApproved": "您的对等连接请求已获批准",
+    "requestDenied": "您的对等连接请求已被拒绝",
+    "requestExpired": "您的对等连接请求已过期",
+    "friendRequestDeliveryFailed": "无法向 {{username}} 送达好友请求：{{reason}}",
+    "accountRelinked": "账号已重新关联到 {{instance}}"
+  },
   "connections": {
     "title": "已连接实例",
     "description": "跨联邦 Backspace 实例关联账号。",
@@ -24,7 +43,7 @@
       "registrationClosed": "此实例已关闭新联邦账号注册。现有账号仍可登录。",
       "passwordLabel": "输入您的密码以连接到 {{host}}",
       "passwordPlaceholder": "与登录时相同",
-      "passwordHint": "您的密码由主实例校验，绝不会发送给 {{host}}。该实例将获得为其专有的凭据。",
+      "passwordHint": "您的密码由主实例验证，绝不会发送给 {{host}}。该实例会收到专门为它生成的独立凭据。",
       "fallbackNotice": {
         "credentialRefused": "{{host}} 上已存在一个同名账号，且无法识别主实例颁发的凭据。请使用您在该实例上设置的密码登录，之后将切换为该凭据。",
         "registrationClosed": "{{host}} 不接受来自其他实例的新账号，因此无法在该实例上为您创建账号。如果您在 {{host}} 上已有账号，请在下方登录。"
@@ -227,7 +246,7 @@
       },
       "reasonDetail": {
         "auth_failures": "{{host}} 连续拒绝了五次签名投递，两个实例已不再共享同一密钥。请重置对等，然后重新对等。",
-        "peer_reset_detected": "{{host}} 已重新安装：它报告的实例身份与之前不同。请使用上方横幅中的“重新对等”连接到新实例，并清理旧实例的账户。",
+        "peer_reset_detected": "{{host}} 已重新安装：它报告的实例身份与之前不同。请使用上方横幅中的“重新建立对等”连接到新实例，并清理旧实例的账户。",
         "repeer_incomplete": "{{host}} 接受了握手，但使用新密钥的签名校验失败，因此该对等未被使用。请重置后重试。如果仍然失败，需要对方管理员重置其一侧。",
         "denied_by_local_admin": "本实例的管理员拒绝了来自 {{host}} 的对等请求。在您重新发起对等或删除此条目之前，它的请求都会被拒绝。",
         "denied_by_remote": "{{host}} 的管理员拒绝了与本实例的对等。对方同意后请重新发起。",

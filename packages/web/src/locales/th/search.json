@@ -1,0 +1,32 @@
+{
+  "input": {
+    "placeholder": "ค้นหาข้อความ…"
+  },
+  "filters": {
+    "toggle": "ตัวกรอง",
+    "from": {
+      "label": "จาก",
+      "placeholder": "ชื่อผู้ใช้"
+    },
+    "has": {
+      "label": "มี",
+      "any": "อะไรก็ได้",
+      "file": "ไฟล์",
+      "image": "รูป",
+      "link": "ลิงก์"
+    },
+    "before": {
+      "label": "ก่อน"
+    },
+    "after": {
+      "label": "หลัง"
+    }
+  },
+  "results": {
+    "empty": "ไม่พบผลลัพธ์",
+    "hint": "พิมพ์เพื่อค้นหาข้อความในช่องนี้",
+    "count_other": "{{count}} ผลลัพธ์",
+    "loadMore": "โหลดเพิ่ม (เหลือ {{remaining}})",
+    "attachments_other": "{{count}} ไฟล์แนบ"
+  }
+}

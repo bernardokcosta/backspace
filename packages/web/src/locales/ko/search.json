@@ -1,0 +1,32 @@
+{
+  "input": {
+    "placeholder": "메시지 검색…"
+  },
+  "filters": {
+    "toggle": "필터",
+    "from": {
+      "label": "보낸 사람",
+      "placeholder": "사용자 이름"
+    },
+    "has": {
+      "label": "포함",
+      "any": "전체",
+      "file": "파일",
+      "image": "이미지",
+      "link": "링크"
+    },
+    "before": {
+      "label": "이전"
+    },
+    "after": {
+      "label": "이후"
+    }
+  },
+  "results": {
+    "empty": "결과 없음",
+    "hint": "이 채널의 메시지를 검색하려면 입력",
+    "count_other": "{{count}}개 결과",
+    "loadMore": "더 불러오기 (남은 {{remaining}})",
+    "attachments_other": "첨부 {{count}}개"
+  }
+}

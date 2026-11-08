@@ -1,0 +1,34 @@
+{
+  "input": {
+    "placeholder": "Søk meldinger…"
+  },
+  "filters": {
+    "toggle": "Filtre",
+    "from": {
+      "label": "Fra",
+      "placeholder": "brukernavn"
+    },
+    "has": {
+      "label": "Inneholder",
+      "any": "Alt",
+      "file": "Fil",
+      "image": "Bilde",
+      "link": "Lenke"
+    },
+    "before": {
+      "label": "Før"
+    },
+    "after": {
+      "label": "Etter"
+    }
+  },
+  "results": {
+    "empty": "Ingen resultater funnet",
+    "hint": "Skriv for å søke meldinger i denne kanalen",
+    "count_one": "{{count}} resultat",
+    "count_other": "{{count}} resultater",
+    "loadMore": "Last inn flere ({{remaining}} igjen)",
+    "attachments_one": "{{count}} vedlegg",
+    "attachments_other": "{{count}} vedlegg"
+  }
+}

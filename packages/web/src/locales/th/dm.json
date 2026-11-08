@@ -1,0 +1,166 @@
+{
+  "callDelivery": {
+    "remoteInstance": "อินสแตนซ์ระยะไกล",
+    "hostInstance": "อินสแตนซ์โฮสต์",
+    "acceptDropped": "ยืนยันการรับกับ {{instance}} ไม่ได้ — สายหลุด",
+    "rejectFailed": "แจ้ง {{instances}} ว่าปฏิเสธไม่ได้ ผู้โทรอาจยังเห็นคุณดังครู่หนึ่ง",
+    "endFailed": "แจ้ง {{instances}} ว่าวางสายไม่ได้ ผู้ร่วมระยะไกลอาจเห็นสายถึง 60 วินาที",
+    "hostUnreachable": "จบการโทร — อินสแตนซ์โฮสต์ติดต่อไม่ได้",
+    "peeringLost": "จบการโทร — อินสแตนซ์นี้ไม่เพียร์กับ {{instance}} แล้ว",
+    "instanceUnreachable": "จบการโทร — {{instance}} ติดต่อไม่ได้",
+    "someUnreachable": "ติดต่อผู้ร่วมบางคนไม่ได้: {{instances}}",
+    "multipleUnreachable_other": "ติดต่อ {{count}} อินสแตนซ์ไม่ได้: {{instances}}",
+    "callFailed": "โทรไม่ได้",
+    "manualApproval": "ติดต่อ {{instance}} ไม่ได้ — อินสแตนซ์นี้ต้องอนุมัติเพียร์ด้วยตนเอง",
+    "awaitingApproval": "รอผู้ดูแล {{instance}} อนุมัติอินสแตนซ์คุณ โทรได้หลังอนุมัติ",
+    "transientFailure": "ติดต่อ {{instance}} ไม่ได้ ลองอีกครู่",
+    "voiceUnavailable": "ไม่ได้ตั้งค่าเสียงบนอินสแตนซ์นี้",
+    "noRecipient": "{{instance}} ไม่โทรหาใคร",
+    "targetCallFailed": "โทรไป {{instance}} ไม่ได้"
+  },
+  "feedback": {
+    "relayDenied": "ส่งต่อข้อความไม่ได้ — เซิร์ฟเวอร์เขาปฏิเสธเพียร์ ติดต่อผู้ดูแลเขา",
+    "awaitingPeering": "ข้อความจะส่งเมื่อผู้ดูแลเขาอนุมัติคำขอเพียร์"
+  },
+  "names": {
+    "group": "กลุ่ม",
+    "directMessage": "ข้อความตรง",
+    "theGroup": "กลุ่ม",
+    "unknownHandle": "ไม่ทราบ",
+    "groupFallback": "DM กลุ่ม",
+    "emptyGroup": "กลุ่มว่าง"
+  },
+  "preview": {
+    "image": "รูป",
+    "video": "วิดีโอ",
+    "audio": "เสียง",
+    "files_other": "📎 {{count}} ไฟล์",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 ส่งคำเชิญไป {{spaceName}}",
+    "memberAdded": "{{actor}} เพิ่ม {{target}}",
+    "memberAddedToGroup": "{{actor}} เพิ่ม {{target}} เข้ากลุ่ม",
+    "memberLeft": "{{target}} ออกจากกลุ่ม",
+    "memberRemoved": "{{actor}} ลบ {{target}}",
+    "memberRemovedFromGroup": "{{actor}} ลบ {{target}} จากกลุ่ม",
+    "ownerChanged": "{{newOwner}} เป็นเจ้าของกลุ่มแล้ว",
+    "renamed": "{{actor}} เปลี่ยนชื่อกลุ่ม",
+    "renamedTo": "{{actor}} เปลี่ยนชื่อกลุ่มเป็น \"{{name}}\"",
+    "nameCleared": "{{actor}} ล้างชื่อกลุ่ม",
+    "iconChanged": "{{actor}} อัปเดตไอคอนกลุ่ม",
+    "generic": "ข้อความระบบ"
+  },
+  "deletedNotice": {
+    "accountDeleted": "บัญชีผู้ใช้นี้ถูกลบแล้ว"
+  },
+  "memberRow": {
+    "viewProfile": "ดูโปรไฟล์",
+    "transferOwnership": "โอนความเป็นเจ้าของ",
+    "removeFromGroup": "ลบจากกลุ่ม",
+    "removeFriend": "ลบเพื่อน",
+    "ownerTooltip": "เจ้าของกลุ่ม",
+    "actions": "การกระทำสมาชิก"
+  },
+  "roster": {
+    "owner": "เจ้าของ",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "ปรับขนาดรายชื่อสมาชิก"
+  },
+  "kick": {
+    "title": "ลบจากกลุ่ม",
+    "description": "ลบ {{name}} จากกลุ่มนี้? จะไม่เห็นข้อความใหม่",
+    "success": "ลบ {{name}} จากกลุ่มแล้ว",
+    "failed": "ลบสมาชิกไม่ได้"
+  },
+  "transfer": {
+    "title": "โอนความเป็นเจ้าของ",
+    "description": "โอนความเป็นเจ้าของให้ {{name}}? คุณจะเสียสิทธิ์เจ้าของ",
+    "confirm": "โอน",
+    "success": "โอนความเป็นเจ้าของให้ {{name}} แล้ว",
+    "failed": "โอนความเป็นเจ้าของไม่ได้"
+  },
+  "removeFriend": {
+    "failed": "ลบเพื่อนไม่ได้"
+  },
+  "leave": {
+    "title": "ออกจากกลุ่ม",
+    "description": "ออก “{{name}}”? คุณจะไม่ได้รับข้อความจากบทสนทนานี้",
+    "inProgress": "กำลังออก…",
+    "failed": "ออกจากกลุ่มไม่ได้",
+    "explanation": "คุณจะไม่ได้รับข้อความจากบทสนทนานี้ สมาชิกอื่นเห็นข้อความระบบ"
+  },
+  "search": {
+    "trigger": "ค้นหาหรือเริ่มบทสนทนา",
+    "placeholder": "ค้นหา…",
+    "emptyHint": "ค้นหาผู้ใช้เพื่อแชท",
+    "conversations": "บทสนทนา",
+    "users": "ผู้ใช้",
+    "searching": "กำลังค้นหา…",
+    "noResults": "ไม่พบผลลัพธ์",
+    "createFailed": "สร้าง DM ไม่ได้"
+  },
+  "list": {
+    "resizeHandle": "ปรับขนาดข้อความตรง",
+    "title": "ข้อความ",
+    "empty": "ยังไม่มีบทสนทนา",
+    "leaveGroup": "ออกจากกลุ่ม",
+    "justNow": "ตอนนี้",
+    "minutesShort_other": "{{count}} น",
+    "hoursShort_other": "{{count}} ชม",
+    "daysShort_other": "{{count}} ว",
+    "close": "ปิด DM"
+  },
+  "newDm": {
+    "title": "ข้อความตรงใหม่",
+    "searchPlaceholder": "ค้นหาผู้ใช้…",
+    "noUsers": "ไม่พบผู้ใช้"
+  },
+  "addMember": {
+    "title": "เพิ่มเพื่อนใน DM",
+    "description": "เลือกเพื่อนเพิ่มในบทสนทนานี้",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "ค้นหาเพื่อน…",
+    "limitReached": "DM กลุ่มนี้ถึงขีด {{max}} สมาชิก",
+    "alreadyInDm": "อยู่ใน DM นี้แล้ว",
+    "noMatch": "ไม่มีเพื่อนตรงค้นหา",
+    "noFriends": "ยังไม่มีเพื่อน",
+    "selectFriends": "เลือกเพื่อน",
+    "addCount_other": "เพิ่มเพื่อน {{count}} คน",
+    "adding": "กำลังเพิ่ม…",
+    "noOtherMember": "ระบุสมาชิกอีกคนของบทสนทนานี้ไม่ได้",
+    "failed": "เพิ่มสมาชิกไม่ได้",
+    "yourBots": "บอทของคุณ"
+  },
+  "groupSettings": {
+    "title": "ตั้งค่ากลุ่ม",
+    "general": "ทั่วไป",
+    "overview": "ภาพรวม",
+    "backToMenu": "กลับเมนูตั้งค่า DM กลุ่ม",
+    "changeIcon": "เปลี่ยนไอคอนกลุ่ม",
+    "icon": "ไอคอนกลุ่ม",
+    "clickToUpload": "คลิกเพื่ออัปโหลด",
+    "removeIcon": "ลบไอคอนกลุ่ม",
+    "nameLabel": "ชื่อกลุ่ม",
+    "nameAria": "ชื่อกลุ่ม",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "เพิ่มสมาชิก",
+    "groupFull": "กลุ่มเต็ม",
+    "groupFullSuffix": "— กลุ่มเต็ม",
+    "cropTitle": "ครอบไอคอนกลุ่ม",
+    "saveFailed": "บันทึกการตั้งค่าไม่ได้"
+  },
+  "groupInfo": {
+    "title": "ข้อมูลกลุ่ม",
+    "plainTitle": "ข้อมูล",
+    "notFound": "ไม่พบบทสนทนา",
+    "notGroup": "บทสนทนานี้ไม่มีข้อมูลกลุ่ม",
+    "cancelEdit": "ยกเลิกแก้ไข",
+    "federated": "กลุ่มสหพันธ์",
+    "memberCount_other": "สมาชิก {{count}} คน"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "กลุ่มนี้จัดการบน {{host}} เชื่อมไปอินสแตนซ์นั้นเพื่อเปลี่ยน",
+    "ownerNotListed": "{{host}} ยังไม่แสดงกลุ่มนี้ให้คุณ ลองอีกครู่"
+  }
+}

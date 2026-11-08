@@ -1,0 +1,431 @@
+{
+  "general": {
+    "title": "Yleiset",
+    "description": "Määritä Backspace-instanssisi. Nämä asetukset koskevat kaikkia käyttäjiä.",
+    "instanceName": {
+      "label": "Instanssin nimi",
+      "description": "Nimi, joka näkyy kirjautumissivulla ja federoiduille instansseille.",
+      "counter": "{{length}}/{{max}}"
+    },
+    "gif": {
+      "label": "GIF-haku",
+      "description": "Ota käyttöön Klipyn GIF-haku. Hanki ilmainen API-avain Klipyn kehittäjäportaalista.",
+      "placeholderSaved": "Avain tallennettu — syötä uusi avain korvataksesi",
+      "placeholderKey": "Klipyn API-avain",
+      "enabled": "Käytössä",
+      "notConfigured": "Ei määritetty",
+      "clearKey": "Tyhjennä avain"
+    }
+  },
+  "registration": {
+    "title": "Rekisteröinti",
+    "description": "Hallitse kuka voi luoda tilejä tällä instanssilla. Julkinen rekisteröinti kattaa paikalliset rekisteröinnit; federoitu rekisteröinti kattaa yhdistettyjen instanssien käyttäjät, jotka luovat tilin tänne.",
+    "public": {
+      "label": "Julkinen rekisteröinti",
+      "toggleLabel": "Salli uudet paikalliset tilit",
+      "toggleDescription": "Kuka tahansa voi luoda paikallisen tilin rekisteröintisivulla. Kun pois, uudet paikalliset tilit vain kutsulinkillä."
+    },
+    "federated": {
+      "label": "Federoitu rekisteröinti",
+      "toggleLabel": "Salli uudet federoidut tilit",
+      "toggleDescription": "Muiden instanssien käyttäjät voivat luoda federoidun tilin tänne yhteysasetuksistaan. Olemassa olevat federoidut tilit voivat aina kirjautua, tästä asetuksesta riippumatta."
+    },
+    "spaceCreation": {
+      "label": "Tilojen luonti",
+      "toggleLabel": "Salli uusien tilojen luonti",
+      "toggleDescription": "Käyttäjät voivat luoda uusia tiloja tällä instanssilla. Kun pois, vain instanssin ylläpitäjät voivat luoda tiloja, ja tavalliset käyttäjät voivat vain liittyä olemassa oleviin."
+    },
+    "saved": "Rekisteröintiasetukset tallennettu",
+    "saveFailed": "Rekisteröintiasetusten päivitys epäonnistui"
+  },
+  "invites": {
+    "label": "Kutsulinkit",
+    "create": "+ Luo linkki",
+    "tabs": {
+      "active": "Aktiiviset",
+      "archived": "Arkistoidut"
+    },
+    "loadFailed": "Kutsujen lataus epäonnistui",
+    "emptyActive": "Ei aktiivisia kutsulinkkejä.",
+    "emptyArchived": "Ei arkistoituja kutsulinkkejä.",
+    "noMatch": "Yksikään kutsu ei vastaa suodatinta.",
+    "filter": {
+      "status": "Tila",
+      "sort": {
+        "recent": "Uusimmat ensin",
+        "oldest": "Vanhimmat ensin",
+        "name": "Nimi (A–Ö)",
+        "mostUsed": "Käytetyimmät",
+        "expiringSoonest": "Vanhentuvat nopeimmin"
+      }
+    },
+    "status": {
+      "active": "Aktiiviset",
+      "expired": "Vanhentuneet",
+      "exhausted": "Loppuun käytetyt",
+      "revoked": "Perutut"
+    },
+    "expiry": {
+      "preset": {
+        "hour1": "1 tunti",
+        "hours24": "24 tuntia",
+        "days7": "7 päivää",
+        "days30": "30 päivää",
+        "custom": "Mukautettu…"
+      },
+      "keepCurrent": "Pidä nykyinen",
+      "invalidFuture": "Valitse tuleva päivämäärä ja aika",
+      "invalidSelection": "Virheellinen vanhentumisvalinta",
+      "revokedOn": "Peruttu {{date}}",
+      "expiredOn": "Vanhentunut {{date}}",
+      "exhausted": "Loppuun käytetty",
+      "noExpiration": "Ei vanhentumista",
+      "inDays_one": "Vanhentuu {{count}} päivän kuluttua",
+      "inDays_other": "Vanhentuu {{count}} päivän kuluttua",
+      "inHours_one": "Vanhentuu {{count}} tunnin kuluttua",
+      "inHours_other": "Vanhentuu {{count}} tunnin kuluttua"
+    },
+    "form": {
+      "name": "Nimi",
+      "namePlaceholder": "esim. Kaverit, porukka 1",
+      "maxUses": "Maks. käytöt",
+      "unlimited": "Rajaton",
+      "uses": "käyttöä",
+      "expires": "Vanhentuu",
+      "nameLength": "Nimen on oltava 1–64 merkkiä",
+      "maxUsesInteger": "Maksimikäyttöjen on oltava positiivinen kokonaisluku"
+    },
+    "createModal": {
+      "title": "Luo kutsulinkki",
+      "description": "Luo jaettava linkki, jolla ihmiset voivat rekisteröityä tällä instanssilla. Määrität montako kertaa sitä voi käyttää ja milloin se vanhentuu.",
+      "submit": "Luo linkki",
+      "submitting": "Luodaan…",
+      "createdCopied": "Linkki luotu. Kopioitu leikepöydälle.",
+      "createdManual": "Linkki luotu. Kopioi manuaalisesti riviltä.",
+      "failed": "Kutsun luonti epäonnistui: {{message}}"
+    },
+    "editModal": {
+      "title": "Muokkaa kohdetta “{{name}}”",
+      "description": "Säädä tämän linkin rajoja. URL pysyy samana — kaikki, joilla se on, voivat käyttää sitä uusilla ehdoilla.",
+      "used": "(käytetty {{used}})",
+      "maxUsesBelowUsed": "Maksimikäytöt eivät voi olla vähemmän kuin nykyinen käyttö ({{used}})",
+      "noChanges": "Ei tallennettavia muutoksia",
+      "updated": "Kutsu päivitetty",
+      "failed": "Kutsun päivitys epäonnistui: {{message}}",
+      "submit": "Tallenna muutokset",
+      "submitting": "Tallennetaan…"
+    },
+    "reinstateModal": {
+      "title": "Palauta “{{name}}”",
+      "descriptionRevoked": "Tämä kutsu on peruttu. Palautus luo uuden linkin eri URL:llä — vanha URL pysyy toimimattomana.",
+      "descriptionLapsed": "Tämä kutsu on vanhentunut. Palautus aktivoi saman URL:n uudelleen — kaikki tallentaneet voivat käyttää sitä uudelleen.",
+      "newLinkWarning": "Luodaan uusi linkki. Vanhan URL:n haltijat eivät voi käyttää sitä.",
+      "maxUsesMeta": "(nyt: {{max}}, käytetty: {{used}})",
+      "maxUsesMin": "Maksimikäyttöjen on oltava vähintään {{min}} (nykyinen: {{used}})",
+      "submit": "Palauta",
+      "submitNewLink": "Palauta uudella linkillä",
+      "submitting": "Palautetaan…",
+      "doneCopied": "Palautettu uudella linkillä. Kopioitu leikepöydälle.",
+      "doneManual": "Palautettu uudella linkillä. Kopioi manuaalisesti riviltä.",
+      "doneSameLink": "Palautettu. Sama linkki on taas aktiivinen.",
+      "failed": "Palautus epäonnistui: {{message}}"
+    },
+    "redemptions": {
+      "title": "Kohteen “{{name}}” lunastukset",
+      "description": "Käyttäjät, jotka rekisteröityivät tämän linkin kautta, rekisteröintijärjestyksessä.",
+      "revokedNotice": "Tämä kutsu on peruttu. Alla olevat lunastukset ovat käyttäjiltä, jotka rekisteröityivät ennen perumista.",
+      "revokedNoticeDated": "Tämä kutsu peruttiin {{date}}. Alla olevat lunastukset ovat käyttäjiltä, jotka rekisteröityivät ennen perumista.",
+      "usesOfMax_one": "{{count}} / {{max}} käytetty",
+      "usesOfMax_other": "{{count}} / {{max}} käytetty",
+      "uses_one": "{{count}} käytetty",
+      "uses_other": "{{count}} käytetty",
+      "loadFailed": "Lunastusten lataus epäonnistui",
+      "loadFailedInline": "Lunastusten lataus epäonnistui.",
+      "empty": "Ei lunastuksia vielä.",
+      "now": "(nyt {{name}})",
+      "deletedUser": "Poistettu käyttäjä"
+    },
+    "row": {
+      "usage": "Käyttö: {{usage}}",
+      "createdBy": "Tekijä: {{name}}",
+      "unknownCreator": "Tuntematon",
+      "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
+      "subtitleArchived": "{{usage}} · {{expiry}} · {{when}}",
+      "used": "Käytetty",
+      "expires": "Vanhentuu",
+      "expiredAt": "Vanhentunut",
+      "revokedAt": "Peruttu",
+      "exhausted": "Loppuun käytetty",
+      "created": "Luotu",
+      "createdByLabel": "Tekijä",
+      "token": "Tokeni",
+      "lastRedeemed": "Viimeksi käytetty",
+      "copyLink": "Kopioi linkki",
+      "revoke": "Peruuta",
+      "viewRedemptions": "Näytä lunastukset",
+      "reinstate": "Palauta",
+      "deletePermanently": "Poista pysyvästi",
+      "copied": "Kutsulinkki kopioitu",
+      "copyFailed": "Linkin kopiointi epäonnistui",
+      "revoked": "Kutsu peruttu",
+      "revokeFailed": "Peruminen epäonnistui: {{message}}",
+      "deleted": "Kutsu poistettu",
+      "deleteFailed": "Poisto epäonnistui: {{message}}",
+      "revokeDialog": {
+        "title": "Perutaanko “{{name}}”?",
+        "description": "Linkki lakkaa toimimasta välittömästi. Kukaan URL:n haltija ei voi enää käyttää sitä.<br/><br/>Jos muutat mielesi, <strong>Palauta</strong> tekee uuden linkin tähän kohteeseen — alkuperäinen URL pysyy toimimattomana.",
+        "confirm": "Peruuta linkki"
+      },
+      "deleteDialog": {
+        "title": "Poistetaanko “{{name}}” pysyvästi?",
+        "description": "Tätä ei voi perua. Tämän linkin lunastushistoria poistetaan myös. Jos haluat vain pysäyttää linkin, käytä <strong>Peruuta</strong> — silloin historia säilyy.",
+        "confirm": "Poista pysyvästi"
+      }
+    }
+  },
+  "storage": {
+    "title": "Tallennus",
+    "description": "Seuraa levynkäyttöä ja siivoa orpotiedostot poistetusta sisällöstä tai korvatuista avatareista ja bannereista.",
+    "loading": "Ladataan tallennustilastoja…",
+    "loadFailed": "Tallennustilastojen lataus epäonnistui",
+    "refresh": "Päivitä tilastot",
+    "overview": {
+      "label": "Tallennuskatsaus",
+      "totalFiles": "Tiedostoja yhteensä",
+      "referenced": "Viitattuja",
+      "orphanedFiles": "Orpotiedostot",
+      "unlinkedUploads": "Linkittämättömät lataukset",
+      "danglingRecords": "Roikkuvat tietueet",
+      "staleUploads": "Vanhat lataukset"
+    },
+    "breakdown": {
+      "label": "Jakauma tiedostotyypeittäin",
+      "entry_one": "{{count}} tiedosto — {{size}}",
+      "entry_other": "{{count}} tiedostoa — {{size}}"
+    },
+    "uploadLimit": {
+      "label": "Latausraja",
+      "maxFileSize": "Maksimitiedostokoko",
+      "maxStickerSize": "Maksimitarrankoko",
+      "saved": "Latausraja asetettu: {{limit}}",
+      "saveFailed": "Latausrajan päivitys epäonnistui",
+      "stickerSaved": "Tarrankokoraja asetettu: {{limit}}",
+      "stickerSaveFailed": "Tarrankokorajan päivitys epäonnistui"
+    },
+    "cleanup": {
+      "label": "Siivous",
+      "nothingFound": "Orpotiedostoja, vanhoja latauksia tai roikkuvia tietueita ei löytynyt.",
+      "preview": "Esikatsele siivous",
+      "run": "Siivoa nyt",
+      "running": "Siivotaan…",
+      "previewResult": "Esikatselu — tiedostoja ei poistettu",
+      "complete": "Siivous valmis",
+      "orphanedFiles_one": "{{count}} orpotiedosto ({{size}})",
+      "orphanedFiles_other": "{{count}} orpotiedostoa ({{size}})",
+      "staleRecords_one": ", {{count}} vanha lataustietue",
+      "staleRecords_other": ", {{count}} vanhaa lataustietuetta",
+      "errors_one": "{{count}} virhe: {{first}}",
+      "errors_other": "{{count}} virhettä: {{first}}",
+      "cleanedToast_one": "Siivottu {{count}} tiedosto ({{size}})",
+      "cleanedToast_other": "Siivottu {{count}} tiedostoa ({{size}})",
+      "failed": "Siivous epäonnistui"
+    },
+    "stale": {
+      "label": "Vanhat lataukset",
+      "description": "Hylätyt tus-latausistunnot kohteessa <code>.tus/</code> (keskeytetty tai kaatunut ilman DELETEä). Automaattinen siivous ajetaan 24 tunnin välein; tällä siivoat etukäteen.",
+      "maxAge": "Maksimi-ikä (tuntia)",
+      "sessionFiles_one": "{{count}} istuntotiedosto ({{size}})",
+      "sessionFiles_other": "{{count}} istuntotiedostoa ({{size}})",
+      "cleanedToast_one": "Siivottu {{count}} vanha latausistunto ({{size}})",
+      "cleanedToast_other": "Siivottu {{count}} vanhaa latausistuntoa ({{size}})",
+      "failed": "Vanhojen latausten siivous epäonnistui"
+    },
+    "media": {
+      "label": "Median tallennus",
+      "olderThan": "Poista chatmedia vanhempi kuin",
+      "days": "päivää",
+      "run": "Poista nyt",
+      "running": "Poistetaan…",
+      "files_one": "{{count}} tiedosto ({{size}})",
+      "files_other": "{{count}} tiedostoa ({{size}})",
+      "deletedToast_one": "Poistettu {{count}} tiedosto ({{size}})",
+      "deletedToast_other": "Poistettu {{count}} tiedostoa ({{size}})",
+      "failed": "Median siivous epäonnistui"
+    }
+  },
+  "streaming": {
+    "title": "Striimaus",
+    "description": "Nämä rajat koskevat kaikkia tämän instanssin käyttäjiä. Käyttäjät voivat valita arvoja näiden rajojen sisällä.",
+    "units": {
+      "fps": "{{value}} fps",
+      "kbpsLabel": "kt/s"
+    },
+    "bandwidth": {
+      "label": "Kaistanleveys",
+      "description": "Bittinopeuden minimi- ja maksimirajat sekä laatuasteikon askel.",
+      "customBitrate": {
+        "label": "Salli mukautettu bittinopeus",
+        "description": "Anna käyttäjien asettaa oma bittinopeus matriisin oletusten sijaan"
+      },
+      "range": "Bittinopeusalue",
+      "min": "Minimi",
+      "max": "Maks",
+      "step": "Asteikon askel"
+    },
+    "quality": {
+      "label": "Laatu",
+      "description": "Käytettävissä olevat tarkkuus- ja kuvataajuusvaihtoehdot näytönjakoon.",
+      "resolutions": "Sallitut tarkkuudet",
+      "framerates": "Sallitut kuvataajuudet"
+    },
+    "highEndWarning": {
+      "title": "Raskaat asetukset käytössä.",
+      "description": "Yli 1080p:n tai 60 fps:n striimaus vaatii merkittävästi koodaustehoa asiakkaan CPU:lta/GPU:lta ja voi kyllästää palvelimen kaistanleveyden, etenkin kun virrat kulkevat TURNin kautta. Raskaat kokoonpanot (esim. 4K 120 fps:llä) voivat vaatia jopa 45 Mt/s per aktiivinen virta. Varmista, että infrastruktuurisi kestää kuorman, ennen kuin otat nämä käyttöön kaikille käyttäjille."
+    },
+    "matrix": {
+      "label": "Bittinopeusmatriisi",
+      "description": "Oletusbittinopeudet kullekin tarkkuudelle ja kuvataajuudelle. Muokkaa yksittäisiä soluja tai skaalaa kaikkia arvoja kerralla.",
+      "scaleAll": "Skaalaa kaikki",
+      "scaleHint": "Vedä skaalataksesi kaikki bittinopeudet. Yksittäisten solujen hienosäätö — alla.",
+      "cellDefault": "Oletus: {{value}} (napsauta × nollataksesi)",
+      "cellEdit": "Napsauta muokataksesi",
+      "resetAll": "Nollaa kaikki oletuksiksi"
+    },
+    "capWarning": {
+      "title": "Matriisin arvot ylittävät globaalin rajan.",
+      "description": "Jotkin bittinopeudet ylittävät maksimisi {{max}}. Näillä yhdistelmillä virrat alennetaan rajaasi."
+    }
+  },
+  "updates": {
+    "title": "Päivitykset",
+    "badge": {
+      "settingsAriaLabel": "Asetukset, instanssipäivitys saatavilla",
+      "toast": "Backspace {{version}} on saatavilla tälle instanssille",
+      "toastAction": "Näytä"
+    },
+    "description": "Mikä versio tällä instanssilla käy ja miten päivität sen.",
+    "loading": "Ladataan päivitystilaa…",
+    "loadFailed": "Päivitystilan lataus epäonnistui.",
+    "copyFailed": "Kopiointi epäonnistui. Valitse komento ja kopioi manuaalisesti.",
+    "running": {
+      "label": "Käynnissä",
+      "commit": "commit {{commit}} · ",
+      "channel": {
+        "prebuilt": "valmis image",
+        "source": "rakennettu lähdekoodista",
+        "unknown": "asennustapaa ei kirjattu"
+      }
+    },
+    "available": {
+      "label": "Saatavilla",
+      "version": "Backspace {{version}} saatavilla",
+      "released": "Julkaistu {{date}} · ",
+      "releaseNotes": "Julkaisutiedot",
+      "fromInstallDir": "Asennushakemistostasi:",
+      "scriptDescription": "Ottaa tietokannasta tilannekuvan, lataa uuden imagen ja käynnistää vain Backspace-säiliön uudelleen. Jos uusi versio ei käynnisty kunnolla tai käynnistyy vanhalla koodilla, se palauttaa nykyisen version.",
+      "noScript": "Minulla ei ole update.sh:ää",
+      "manualIntro": "update.sh tulee mukana versiosta 1.0.5. Git-kopiossa <code>git pull</code> lisää sen. Muuten tee vaiheet manuaalisesti otettuasi tilannekuvan <code>./backup.sh</code>:llä.",
+      "prebuiltInstall": "Valmiin imagen asennus:",
+      "sourceInstall": "Asennus lähdekoodista:",
+      "manualWarning": "Mainitse palvelu <code>backspace</code> erikseen äläkä anna <code>--remove-orphans</code>:ia. Compose ehdottaa sitä, jos tässä projektissa käy muita säiliöitä, ja poistaa ne."
+    },
+    "upToDate": "Sinulla on uusin versio.",
+    "disabled": {
+      "title": "Päivitystarkistus pois käytöstä",
+      "description": "Tämä instanssi ei ota yhteyttä GitHubiin. Salli tarkistus asettamalla <code>BACKSPACE_UPDATE_CHECK=true</code> <code>.env</code>:iisi, tai tarkista julkaisusivu itse."
+    },
+    "rateLimited": {
+      "title": "GitHub rajoitti tahtia",
+      "description": "Tämä ei kerro onko päivitystä vai ei. Yritä myöhemmin."
+    },
+    "unreachable": {
+      "title": "Päivityksiä ei voitu tarkistaa",
+      "description": "GitHubiin ei saatu yhteyttä, joten tämä ei kerro onko päivitystä vai ei. Instanssisi ei ole vahingoittunut."
+    },
+    "lastChecked": "Viimeksi tarkistettu: {{when}}",
+    "noLookups": "Hakuja ei ajeta",
+    "checkAgain": "Tarkista uudelleen",
+    "checking": "Tarkistetaan…"
+  },
+  "users": {
+    "title": "Käyttäjät",
+    "description": "Tarkastele ja hallitse tämän instanssin tilejä.",
+    "searchPlaceholder": "Hae käyttäjiä…",
+    "loading": "Ladataan käyttäjiä…",
+    "loadFailed": "Käyttäjien lataus epäonnistui",
+    "empty": "Käyttäjiä ei löytynyt",
+    "filters": {
+      "allInstances": "Kaikki instanssit",
+      "localOnly": "Vain paikalliset",
+      "allRoles": "Kaikki roolit",
+      "admin": "Ylläpitäjä",
+      "nonAdmin": "Ei-ylläpitäjä",
+      "joinedAfter": "Liittyneet jälkeen",
+      "joinedBefore": "Liittyneet ennen",
+      "newest": "Uusimmat ensin",
+      "oldest": "Vanhimmat ensin",
+      "nameDesc": "Nimi Ö-A",
+      "deleted": "Poistetut",
+      "clear": "Tyhjennä suodattimet",
+      "bot": "Botit"
+    },
+    "badge": {
+      "admin": "Ylläpitäjä",
+      "deleted": "Poistettu"
+    },
+    "actions": {
+      "demote": "Poista ylläpitäjän oikeudet",
+      "promote": "Anna ylläpitäjän oikeudet",
+      "federatedNoAdmin": "Federoidut käyttäjät eivät voi olla ylläpitäjiä",
+      "resetPassword": "Nollaa salasana",
+      "federatedNoReset": "Federoidut käyttäjät kirjautuvat koti-instanssinsa kautta",
+      "delete": "Poista käyttäjä",
+      "selfDelete": "Käytä asetuksia oman tilisi poistamiseen"
+    },
+    "tempPassword": {
+      "label": "Väliaikainen salasana:",
+      "note": "Näytetty kerran. Käyttäjä on kirjautunut ulos; hänen on kirjauduttava uudelleen."
+    },
+    "pagination": "Sivu {{page}} / {{total}} ({{users}})",
+    "count_one": "{{count}} käyttäjä",
+    "count_other": "{{count}} käyttäjää",
+    "roleFailed": "Roolin päivitys epäonnistui",
+    "resetFailed": "Salasanan nollaus epäonnistui",
+    "actionFailed": "Toiminto epäonnistui",
+    "resetDialog": {
+      "title": "Nollaa salasana",
+      "description": "Nollataanko salasana käyttäjälle <strong>{{username}}</strong>? Käyttäjä kirjataan heti ulos ja hänen on kirjauduttava uudella väliaikaisella salasanalla.",
+      "confirm": "Nollaa salasana"
+    },
+    "demoteDialog": {
+      "title": "Poista ylläpitäjän oikeudet",
+      "description": "Poistetaanko käyttäjän <strong>{{username}}</strong> ylläpitäjän oikeudet? Käyttäjä menettää pääsyn instanssin asetuksiin.",
+      "confirm": "Poista oikeudet"
+    },
+    "deleteDialog": {
+      "title": "Poista käyttäjä",
+      "description": "Poistetaanko <strong>{{username}}</strong> pysyvästi? Käyttäjä poistetaan kaikista tiloista, suorista viesteistä ja kaverilistoista. Tätä ei voi perua.",
+      "confirm": "Poista käyttäjä",
+      "blockBot": "Älä anna tämän botin rekisteröityä uudelleen",
+      "blockBotHint": "Kun sen koti-instanssi palaa, botti ei voi luoda tiliä täällä. Kumoa esto käyttäjälistan alta."
+    },
+    "blockedBots": {
+      "title": "Estetyt botit",
+      "description": "Muiden instanssien botit, jotka eivät saa rekisteröityä täällä. Kumoa botin esto salliaksesi pääsyn uudelleen.",
+      "blockedAt": "Estetty {{date}}",
+      "unblock": "Kumoa esto"
+    }
+  },
+  "mobile": {
+    "title": "Instanssi",
+    "sections": {
+      "general": "Yleiset",
+      "registration": "Rekisteröinti",
+      "federation": "Federointi",
+      "streaming": "Striimaus",
+      "storage": "Tallennus",
+      "updates": "Päivitykset",
+      "users": "Käyttäjät"
+    }
+  }
+}

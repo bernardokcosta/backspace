@@ -1,0 +1,187 @@
+{
+  "callDelivery": {
+    "remoteInstance": "vzdálená instance",
+    "hostInstance": "hostitelská instance",
+    "acceptDropped": "Přijetí se u {{instance}} nepodařilo potvrdit — hovor spadl.",
+    "rejectFailed": "Nepodařilo se oznámit {{instances}}, žes odmítl. Volajícímu můžeš ještě chvíli zvonit.",
+    "endFailed": "Nepodařilo se oznámit {{instances}}, žes zavěsil. Vzdálení účastníci mohou hovor vidět až 60 sekund.",
+    "hostUnreachable": "Hovor ukončen — hostitelská instance je nedostupná.",
+    "peeringLost": "Hovor ukončen — tato instance už není propojena s {{instance}}.",
+    "instanceUnreachable": "Hovor ukončen — {{instance}} je nedostupná.",
+    "someUnreachable": "Některé účastníky se nepodařilo zastihnout: {{instances}}.",
+    "multipleUnreachable_one": "Nepodařilo se zastihnout {{count}} instanci: {{instances}}.",
+    "multipleUnreachable_few": "Nepodařilo se zastihnout {{count}} instance: {{instances}}.",
+    "multipleUnreachable_many": "Nepodařilo se zastihnout {{count}} instancí: {{instances}}.",
+    "multipleUnreachable_other": "Nepodařilo se zastihnout {{count}} instance: {{instances}}.",
+    "callFailed": "Hovor se nepodařilo uskutečnit.",
+    "manualApproval": "K {{instance}} se nelze dovolat — tato instance vyžaduje ruční schválení propojení.",
+    "awaitingApproval": "Čekání, až správce {{instance}} schválí tvou instanci. Hovory půjdou po schválení.",
+    "transientFailure": "K {{instance}} se nelze dovolat. Zkus to za chvíli.",
+    "voiceUnavailable": "Hlas není na této instanci nastaven.",
+    "noRecipient": "{{instance}} nikoho nevyzvonila.",
+    "targetCallFailed": "Volání do {{instance}} se nepodařilo."
+  },
+  "feedback": {
+    "relayDenied": "Nelze předávat zprávy — jejich server propojení odmítl. Kontaktuj jejich správce.",
+    "awaitingPeering": "Zprávy se doručí, jakmile jejich správce schválí žádost o propojení."
+  },
+  "names": {
+    "group": "Skupina",
+    "directMessage": "Přímá zpráva",
+    "theGroup": "skupina",
+    "unknownHandle": "neznámé",
+    "groupFallback": "Skupinová zpráva",
+    "emptyGroup": "Prázdná skupina"
+  },
+  "preview": {
+    "image": "Obrázek",
+    "video": "Video",
+    "audio": "Zvuk",
+    "files_one": "📎 {{count}} soubor",
+    "files_few": "📎 {{count}} soubory",
+    "files_many": "📎 {{count}} souborů",
+    "files_other": "📎 {{count}} souboru",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 Pozvánka do {{spaceName}} odeslána",
+    "memberAdded": "{{actor}} přidává {{target}}",
+    "memberAddedToGroup": "{{actor}} přidává {{target}} do skupiny",
+    "memberLeft": "{{target}} opouští skupinu",
+    "memberRemoved": "{{actor}} odebírá {{target}}",
+    "memberRemovedFromGroup": "{{actor}} odebírá {{target}} ze skupiny",
+    "ownerChanged": "{{newOwner}} je novým vlastníkem skupiny",
+    "renamed": "{{actor}} přejmenovává skupinu",
+    "renamedTo": "{{actor}} přejmenovává skupinu na „{{name}}”",
+    "nameCleared": "{{actor}} vymazává název skupiny",
+    "iconChanged": "{{actor}} mění ikonu skupiny",
+    "generic": "Systémová zpráva"
+  },
+  "deletedNotice": {
+    "accountDeleted": "Účet tohoto uživatele byl smazán"
+  },
+  "memberRow": {
+    "viewProfile": "Zobrazit profil",
+    "transferOwnership": "Předat vlastnictví",
+    "removeFromGroup": "Odebrat ze skupiny",
+    "removeFriend": "Odebrat přítele",
+    "ownerTooltip": "Vlastník skupiny",
+    "actions": "Akce s členem"
+  },
+  "roster": {
+    "owner": "Vlastník",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "Změnit velikost seznamu členů"
+  },
+  "kick": {
+    "title": "Odebrat ze skupiny",
+    "description": "Odebrat {{name}} z této skupiny? Nové zprávy neuvidí.",
+    "success": "{{name}} odebrán ze skupiny",
+    "failed": "Nepodařilo se odebrat člena"
+  },
+  "transfer": {
+    "title": "Předat vlastnictví",
+    "description": "Předat vlastnictví {{name}}? Přijdeš o práva vlastníka.",
+    "confirm": "Předat",
+    "success": "Vlastnictví předáno {{name}}",
+    "failed": "Nepodařilo se předat vlastnictví"
+  },
+  "removeFriend": {
+    "failed": "Nepodařilo se odebrat přítele"
+  },
+  "leave": {
+    "title": "Opustit skupinu",
+    "description": "Opustit „{{name}}”? Z této konverzace už nebudete dostávat zprávy.",
+    "inProgress": "Odcházení…",
+    "failed": "Nepodařilo se opustit skupinu",
+    "explanation": "Z této konverzace už nebudete dostávat zprávy. Ostatní uvidí systémovou zprávu."
+  },
+  "search": {
+    "trigger": "Najít či začít konverzaci",
+    "placeholder": "Hledat…",
+    "emptyHint": "Najdi uživatele a začni si psát",
+    "conversations": "Konverzace",
+    "users": "Uživatelé",
+    "searching": "Hledání…",
+    "noResults": "Nic jsme nenašli",
+    "createFailed": "Nepodařilo se vytvořit přímou zprávu"
+  },
+  "list": {
+    "resizeHandle": "Změnit velikost přímých zpráv",
+    "title": "Zprávy",
+    "empty": "Zatím žádné konverzace.",
+    "leaveGroup": "Opustit skupinu",
+    "justNow": "teď",
+    "minutesShort_one": "{{count}} min",
+    "minutesShort_few": "{{count}} min",
+    "minutesShort_many": "{{count}} min",
+    "minutesShort_other": "{{count}} min",
+    "hoursShort_one": "{{count}} h",
+    "hoursShort_few": "{{count}} h",
+    "hoursShort_many": "{{count}} h",
+    "hoursShort_other": "{{count}} h",
+    "daysShort_one": "{{count}} d",
+    "daysShort_few": "{{count}} d",
+    "daysShort_many": "{{count}} d",
+    "daysShort_other": "{{count}} d",
+    "close": "Zavřít přímou zprávu"
+  },
+  "newDm": {
+    "title": "Nová přímá zpráva",
+    "searchPlaceholder": "Najít uživatele…",
+    "noUsers": "Nenalezeni žádní uživatelé"
+  },
+  "addMember": {
+    "title": "Přidat přátele do přímé zprávy",
+    "description": "Vyber přátele pro přidání do této konverzace.",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "Hledat přátele…",
+    "limitReached": "Tato skupinová zpráva dosáhla limitu {{max}} členů.",
+    "alreadyInDm": "Už v této zprávě",
+    "noMatch": "Hledání neodpovídají žádní přátelé",
+    "noFriends": "Zatím žádní přátelé",
+    "selectFriends": "Vybrat přátele",
+    "addCount_one": "Přidat {{count}} přítele",
+    "addCount_few": "Přidat {{count}} přátele",
+    "addCount_many": "Přidat {{count}} přátel",
+    "addCount_other": "Přidat {{count}} přítele",
+    "adding": "Přidávání…",
+    "noOtherMember": "Nepodařilo se určit druhého účastníka této konverzace.",
+    "failed": "Nepodařilo se přidat členy",
+    "yourBots": "Tvoji boti"
+  },
+  "groupSettings": {
+    "title": "Nastavení skupiny",
+    "general": "Obecné",
+    "overview": "Přehled",
+    "backToMenu": "Zpět do nabídky nastavení skupinové zprávy",
+    "changeIcon": "Změnit ikonu skupiny",
+    "icon": "Ikona skupiny",
+    "clickToUpload": "Klikni pro nahrání",
+    "removeIcon": "Odebrat ikonu skupiny",
+    "nameLabel": "Název skupiny",
+    "nameAria": "Název skupiny",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "Přidat člena",
+    "groupFull": "Skupina je plná",
+    "groupFullSuffix": "— Skupina je plná",
+    "cropTitle": "Oříznout ikonu skupiny",
+    "saveFailed": "Nepodařilo se uložit nastavení"
+  },
+  "groupInfo": {
+    "title": "Informace o skupině",
+    "plainTitle": "Informace",
+    "notFound": "Konverzace nenalezena.",
+    "notGroup": "Tato konverzace nemá informace o skupině.",
+    "cancelEdit": "Zrušit úpravy",
+    "federated": "Federovaná skupina",
+    "memberCount_one": "{{count}} člen",
+    "memberCount_few": "{{count}} členové",
+    "memberCount_many": "{{count}} členů",
+    "memberCount_other": "{{count}} člena"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "Tuto skupinu spravuje {{host}}. Připoj se k ní pro změnu.",
+    "ownerNotListed": "{{host}} ti tuto skupinu zatím neuvádí. Zkus to za chvíli."
+  }
+}

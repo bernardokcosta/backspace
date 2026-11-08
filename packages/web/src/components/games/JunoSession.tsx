@@ -4,6 +4,7 @@ import { useSpaceStore } from '../../stores/spaceStore';
 import { useVoiceStore } from '../../stores/voiceStore';
 import { useJunoStore } from '../../stores/junoStore';
 import { JunoMemorySound } from './JunoMemorySound';
+import { JunoMusic } from './JunoMusic';
 
 /** One lifecycle owner, also while viewing text or a minimized mobile call. */
 export function JunoSession() {
@@ -28,5 +29,5 @@ export function JunoSession() {
     document.addEventListener('visibilitychange', resume);
     return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', resume); };
   }, [target, connected]);
-  return <JunoMemorySound target={target} connected={connected} />;
+  return <><JunoMemorySound target={target} connected={connected} /><JunoMusic target={target} /></>;
 }

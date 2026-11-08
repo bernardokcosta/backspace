@@ -1,0 +1,31 @@
+{
+  "mediaSetup": {
+    "neteaseSmtc": {
+      "title": "Aktifkan SMTC di NetEase Cloud Music",
+      "body": "Buka NetEase Cloud Music → Pengaturan → Sistem → aktifkan SMTC, lalu mulai ulang aplikasi. Backspace membutuhkannya untuk mendeteksi putar, jeda, dan progres secara akurat.",
+      "gotIt": "Mengerti",
+      "dontRemind": "Jangan ingatkan lagi",
+      "dismiss": "Tutup petunjuk ini"
+    }
+  },
+  "update": {
+    "laterHint": "Anda dapat menginstalnya nanti dari Pengaturan, Desktop",
+    "dismiss": "Tutup pembaruan ini",
+    "failed": {
+      "title": "Pembaruan tidak dapat diinstal",
+      "body": "Backspace {{version}} diunduh, tetapi instalasi gagal. Anda dapat menginstalnya manual sebagai gantinya."
+    },
+    "ready": {
+      "title": "Pembaruan siap",
+      "body": "Backspace {{version}} diunduh dan siap diinstal."
+    },
+    "available": {
+      "title": "Backspace {{version}} tersedia",
+      "body": "Build ini tidak dapat memperbarui diri, jadi unduh versi baru untuk lanjut.",
+      "bodyWithCurrent": "Anda memakai {{currentVersion}}. Build ini tidak dapat memperbarui diri, jadi unduh versi baru untuk lanjut."
+    },
+    "restartNow": "Mulai ulang sekarang",
+    "download": "Unduh",
+    "later": "Nanti"
+  }
+}

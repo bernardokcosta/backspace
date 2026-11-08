@@ -1,0 +1,572 @@
+{
+  "interfaceScale": {
+    "label": "Gränssnittsskala",
+    "description": "Ändra storlek på text, knappar och paneler. Sparas i denna webbläsare eller app på denna enhet.",
+    "reset": "Återställ till 100 %"
+  },
+  "voice": {
+    "input": {
+      "title": "Inmatningsenhet",
+      "checkingAccess": "Kontrollerar mikrofonåtkomst…",
+      "accessDenied": {
+        "title": "Mikrofonåtkomst nekad",
+        "description": "Ge mikrofonåtkomst för att välja inmatningsenhet.",
+        "retry": "Försök igen"
+      },
+      "permissionPrompt": {
+        "description": "Mikrofonbehörighet behövs för att lista och välja inmatningsenhet.",
+        "enable": "Aktivera mikrofonåtkomst"
+      },
+      "device": {
+        "systemDefault": "Systemstandard",
+        "currentlyUsing": "Använder nu: {{label}}",
+        "none": "Inga mikrofoner upptäckta."
+      },
+      "volume": {
+        "label": "Inmatningsvolym"
+      },
+      "meter": {
+        "hint": "Nivåmätaren aktiveras när du går med i en röstkanal."
+      }
+    },
+    "output": {
+      "title": "Utenhet",
+      "checkingAccess": "Kontrollerar ljudåtkomst…",
+      "device": {
+        "systemDefault": "Systemstandard",
+        "unsupported": "Denna webbläsare stöder inte val av utenhet. Ljud spelas till systemstandard."
+      },
+      "permissionPrompt": {
+        "description": "Ge mikrofonåtkomst för att lista utenheter (webbläsare döljer utmatningsenheternas namn bakom mikrofonåtkomst).",
+        "enable": "Aktivera ljudåtkomst"
+      },
+      "volume": {
+        "label": "Utvolym"
+      },
+      "testSound": "Spela testljud"
+    },
+    "video": {
+      "title": "Video",
+      "checkingAccess": "Kontrollerar kameraåtkomst…",
+      "accessDenied": {
+        "title": "Kameraåtkomst nekad",
+        "description": "Ge kameraåtkomst för att välja kamera.",
+        "retry": "Försök igen"
+      },
+      "blocked": {
+        "browser": "Kamera blockerad på webbläsarnivå. Klicka på kameraikonen i adressfältet, återställ behörigheten och klicka Försök igen.",
+        "mac": "Ge kameraåtkomst i Systeminställningar → Integritet och säkerhet → Kamera och starta sedan om appen.",
+        "windows": "Ge kameraåtkomst i Inställningar → Integritet och säkerhet → Kamera och starta sedan om appen.",
+        "other": "Kamerabehörighet nekades. Återställ den i din webbläsar/Chromium-prompt och försök igen."
+      },
+      "permissionPrompt": {
+        "description": "Kamerabehörighet behövs för att välja kamera och förhandsvisa.",
+        "enable": "Aktivera kameraförhandsvisning"
+      },
+      "camera": {
+        "label": "Kamera",
+        "auto": "Auto (systemstandard)",
+        "fallbackName": "Kamera {{number}}",
+        "detectedFallback": "upptäckt kamera",
+        "currentlyUsing": "Använder nu: {{label}}",
+        "none": "Inga kameror upptäckta."
+      },
+      "preview": {
+        "testAria": "Testa kamera",
+        "testHint": "Klicka för att testa kamera",
+        "stop": "Stoppa förhandsvisning",
+        "retry": "Försök igen"
+      },
+      "previewError": {
+        "inUse": "Kameran används av ett annat program.",
+        "unavailable": "Vald kamera är inte tillgänglig.",
+        "notFound": "Ingen kamera upptäckt.",
+        "generic": "Kunde inte starta kameraförhandsvisning."
+      }
+    },
+    "title": "Röst & video",
+    "volume": {
+      "sectionTitle": "Volym",
+      "soundEffects": {
+        "label": "Volym för ljudeffekter"
+      },
+      "messageSound": {
+        "label": "Spela ljud för varje meddelande",
+        "description": "Av (standard): endast DM och meddelanden som nämner dig. På: varje kanal."
+      }
+    },
+    "pip": {
+      "sectionTitle": "Flytande fönster",
+      "showOnSwitch": {
+        "label": "Visa flytande fönster under samtal",
+        "description": "Medan du är i en röstkanal eller samtal och tittar på annat håll håller ett litet fönster samtalet synligt."
+      }
+    },
+    "processing": {
+      "sectionTitle": "Röstbehandling",
+      "noiseSuppression": {
+        "label": "AI-brusreducering",
+        "description": "ML-baserad brusreducering (RNNoise). Filtrerar tangentbord, fläktar och bakgrundsbrus."
+      },
+      "echoCancellation": {
+        "label": "Ekoannullering",
+        "description": "Tar bort eko från dina högtalare tillbaka in i mikrofonen. Alltid på för röstkanaler och samtal."
+      },
+      "autoGain": {
+        "label": "Automatisk gainkontroll",
+        "description": "Justerar mikrofonvolymen automatiskt. Kan orsaka röstduckning under streams."
+      }
+    }
+  },
+  "nav": {
+    "userSettings": "Användarinställningar",
+    "appSettings": "Appinställningar",
+    "administration": "Administration",
+    "tabs": {
+      "account": "Konto",
+      "appearance": "Utseende",
+      "voice": "Röst & video",
+      "privacy": "Integritet",
+      "connections": "Anslutningar",
+      "keybinds": "Tangentbindningar",
+      "desktop": "Dator",
+      "instance": "Instans",
+      "bots": "Bottar",
+      "developer": "Utvecklare"
+    },
+    "logOut": "Logga ut",
+    "backToMenu": "Tillbaka till inställningsmenyn"
+  },
+  "appearance": {
+    "title": "Utseende"
+  },
+  "account": {
+    "title": "Mitt konto",
+    "detached": {
+      "notice": "Detta konto är losskopplat från sin hemmainstans.",
+      "explanation": "{{homeInstance}} återställdes eller är inte längre tillgänglig, så detta konto fungerar nu lokalt på denna instans. Din profil och lösenord hanteras här.",
+      "reattachHint": "Som {{username}} på {{homeInstance}} kan du återkoppla detta konto. Profil och närvaro synkas därifrån igen.",
+      "reattachButton": "Återkoppla till {{homeInstance}}",
+      "reattachConfirm": "Bekräfta återkoppling som {{username}}",
+      "reattaching": "Återkopplar…",
+      "reattachFailed": "Återkopplingen misslyckades",
+      "reattached": "Konto omlänkat med {{username}}"
+    },
+    "profile": {
+      "sectionTitle": "Profilanpassning",
+      "avatar": {
+        "label": "Avatar",
+        "alt": "Din avatar",
+        "change": "Byt avatar",
+        "uploadFailed": "Kunde inte ladda upp avatar",
+        "cropTitle": "Beskär avatar"
+      },
+      "banner": {
+        "label": "Banner",
+        "change": "Byt banner",
+        "uploadFailed": "Kunde inte ladda upp banner",
+        "cropTitle": "Beskär banner"
+      },
+      "avatarColor": {
+        "label": "Avatarfärg"
+      },
+      "bannerColor": {
+        "label": "Bannerfärg",
+        "hexPlaceholder": "#hex"
+      },
+      "bio": {
+        "label": "Om mig",
+        "placeholder": "Berätta om dig för världen…",
+        "counter": "{{used}}/{{max}}"
+      }
+    },
+    "details": {
+      "sectionTitle": "Konto",
+      "status": {
+        "label": "Status",
+        "homeUnavailable": "Din status hålls på {{host}}. Anslut till {{host}} för att ändra den."
+      },
+      "customStatus": {
+        "label": "Anpassad status",
+        "placeholder": "Vad håller du på med?"
+      }
+    },
+    "password": {
+      "current": {
+        "label": "Aktuellt lösenord",
+        "placeholder": "Ange aktuellt lösenord"
+      },
+      "new": {
+        "label": "Nytt lösenord",
+        "placeholder": "Minst {{min}} tecken"
+      },
+      "confirm": {
+        "label": "Bekräfta nytt lösenord",
+        "placeholder": "Bekräfta nytt lösenord"
+      },
+      "show": "Visa lösenord",
+      "hide": "Dölj lösenord",
+      "tooShort": "Nytt lösenord måste vara minst {{min}} tecken",
+      "mismatch": "Lösenorden stämmer inte överens",
+      "changed": "Lösenord ändrat",
+      "changeFailed": "Kunde inte ändra lösenord",
+      "submit": "Ändra lösenord",
+      "submitting": "Ändrar…"
+    },
+    "danger": {
+      "description": "När du tar bort ditt konto finns ingen återvändo. Dina meddelanden blir kvar men tillskrivs “Borttagen användare”.",
+      "deleteButton": "Ta bort konto"
+    },
+    "save": {
+      "updated": "Profil uppdaterad",
+      "failed": "Kunde inte uppdatera profil"
+    },
+    "deletion": {
+      "title": "Ta bort konto",
+      "warning": {
+        "headline": "Detta tar permanent bort ditt konto.",
+        "spaces": "Alla rumsmedlemskap tas bort",
+        "friends": "Alla vänskaper tas bort",
+        "dms": "Alla DM-medlemskap tas bort",
+        "messages": "Dina meddelanden blir kvar men tillskrivs “Borttagen användare”"
+      },
+      "ownedSpaces": {
+        "prompt_one": "Du äger {{count}} rum. Hantera det innan du fortsätter:",
+        "prompt_other": "Du äger {{count}} rum. Hantera vart och ett innan du fortsätter:",
+        "transfer": "Överför",
+        "delete": "Ta bort rum",
+        "selectOwner": "Välj ny ägare…"
+      },
+      "processing": "Bearbetar…",
+      "confirm": {
+        "permanent": "Denna åtgärd är permanent och kan inte ångras.",
+        "usernamePrompt": "Skriv ditt användarnamn <username>{{username}}</username> för att bekräfta",
+        "passwordPlaceholder": "Ange ditt lösenord",
+        "submit": "Ta bort mitt konto",
+        "deleting": "Tar bort…"
+      },
+      "federation": {
+        "removing": "Tar bort ditt konto från anslutna instanser…",
+        "deleteAnyway": "Ta bort konto nu"
+      },
+      "complete": {
+        "title": "Konto borttaget",
+        "redirecting": "Omdirigerar till inloggning…"
+      },
+      "errors": {
+        "usernameMismatch": "Användarnamnet stämmer inte",
+        "spacesFailed": "Kunde inte bearbeta rum",
+        "deleteFailed": "Kunde inte ta bort konto"
+      }
+    }
+  },
+  "privacy": {
+    "title": "Integritet",
+    "discovery": {
+      "sectionTitle": "Upptäckt",
+      "label": "Låt andra hitta min profil",
+      "description": "När det är aktiverat visas din profil i Upptäck människor. Andra kan alltid lägga till dig via exakt användarnamn."
+    },
+    "activity": {
+      "sectionTitle": "Aktivitetsstatus",
+      "label": "Dela aktivitetsstatus",
+      "description": "Låt andra se vad du håller på med, till exempel vilka spel du spelar eller vilken musik du lyssnar på.",
+      "game": {
+        "label": "Skapad manuellt",
+        "description": "Lägg till ett spel som inte upptäcktes. Det visas tills du tar bort det.",
+        "placeholder": "Spelnamn",
+        "set": "Ställ in",
+        "detectedLabel": "Upptäckt just nu",
+        "detectedDescription": "Visa ett upptäckt spel under ett annat namn. Det kommer ihåg till nästa gång.",
+        "renamePlaceholder": "Visa som…",
+        "renameLabel": "Visa {{name}} som",
+        "renamedLabel": "Omnamnade spel",
+        "renamedItem": "{{detected}} → {{chosen}}",
+        "restore": "Återställ",
+        "descriptionBound": "Lägg till ett spel som inte upptäcktes: välj dess program och namnge det. Det visas medan det programmet körs.",
+        "programLabel": "Program",
+        "programPlaceholder": "Välj ett körande program…",
+        "programHint": "Starta spelet först och välj sedan dess program i listan.",
+        "clearRename": "Rensa",
+        "unknownLabel": "Okända Wine-program",
+        "unknownDescription": "De körs men matchar inget känt spel. Är ett ditt spel, visa det som spelet du spelar.",
+        "unknownUse": "Lägg till i mina spel",
+        "gamesLabel": "Dina spel",
+        "gamesDescription": "Det första spelet är vad listor visar; flytta spel för att ställa prioritet. Ett dolt spel visas inte för andra.",
+        "moveUp": "Flytta {{name}} uppåt",
+        "moveDown": "Flytta {{name}} nedåt",
+        "hide": "Dölj",
+        "show": "Visa",
+        "hideGame": "Dölj {{name}}",
+        "showGame": "Visa {{name}}",
+        "add": "Lägg till",
+        "remove": "Ta bort",
+        "statusName": "visad på namn",
+        "statusRunning": "körs",
+        "statusWaiting": "väntar på {{program}}",
+        "dragHandle": "Dra {{name}} för att ändra prioritet",
+        "manualNameLabel": "Namn på {{name}}",
+        "save": "Spara"
+      }
+    }
+  },
+  "connections": {
+    "title": "Anslutningar"
+  },
+  "instance": {
+    "tabs": {
+      "general": "Allmänt",
+      "registration": "Registrering",
+      "federation": "Federation",
+      "streaming": "Streaming",
+      "storage": "Lagring",
+      "users": "Användare",
+      "updates": "Uppdateringar"
+    }
+  },
+  "keybinds": {
+    "portal": {
+      "description": "På Wayland hanterar datorn alla Backspace-genvägar. Tilldela, ändra eller ta bort tangenter i systemets inställningar för tangentbordsgenvägar, under Backspace. Lokala webbläsar/X11-bindningar används inte här.",
+      "idle": "Förbereder första registrering av alla tillgängliga åtgärder.",
+      "pending": "Ansluter till desktopportalen. Om en systemdialog visas, välj genvägar för åtgärderna du vill använda.",
+      "ready": "Backspace är registrerat. Öppna systemets inställningar för tangentbordsgenvägar för att ändra eller ta bort tilldelningar. Listan nedan är skrivskyddad och uppdateras när du återvänder till Backspace.",
+      "unavailable": "Portalen är inte tillgänglig, tillstånd nekades eller sessionen avslutades. En Global Shortcuts-portalbackend krävs. Lokala bindningar är avstängda på Wayland.",
+      "retry": "Registrera eller återanslut genvägar",
+      "assigned": "Systemgenväg: {{shortcut}}",
+      "notAssigned": "Ingen aktiv systemtilldelning"
+    },
+    "title": "Tangentbindningar",
+    "note": {
+      "webOnly": "Genvägar fungerar medan denna flik är aktiv. För globala genvägar som fungerar i andra appar, använd desktopappen."
+    },
+    "section": {
+      "voice": "Röstgenvägar"
+    },
+    "action": {
+      "toggleMute": "Växla mutning",
+      "toggleDeafen": "Växla dövning",
+      "pushToTalk": "Tryck för att prata",
+      "toggleCamera": "Växla kamera",
+      "toggleScreenShare": "Växla skärmdelning",
+      "disconnect": "Koppla från"
+    },
+    "row": {
+      "recordingPrompt": "Tryck en tangentkombination…",
+      "notBound": "Inte bunden",
+      "record": "Spela in",
+      "escToCancel": "ESC för att avbryta"
+    },
+    "key": {
+      "shift": "Shift",
+      "ctrl": "Ctrl",
+      "alt": "Alt",
+      "option": "Option",
+      "cmd": "Cmd",
+      "win": "Win",
+      "space": "Mellanslag",
+      "middleClick": "Mittenklick",
+      "mouse4": "Mus 4",
+      "mouse5": "Mus 5",
+      "mouseGeneric": "Mus {{button}}"
+    },
+    "accessibility": {
+      "title": "Tillgänglighetstillstånd krävs",
+      "description": "Backspace behöver tillgänglighetstillstånd för att globala genvägar ska fungera utanför appen.",
+      "grant": "Ge tillstånd"
+    },
+    "hookError": {
+      "title": "Globala genvägar inte tillgängliga",
+      "description": "Kunde inte starta inmatningslyssnare. På Linux kan din användare behöva vara i gruppen <code>input</code>."
+    },
+    "conflict": {
+      "message": "<strong>{{combo}}</strong> är redan bunden till <strong>{{action}}</strong>. Skriva över?",
+      "overwrite": "Skriv över"
+    }
+  },
+  "desktop": {
+    "title": "Dator",
+    "autoLaunch": {
+      "openAtLogin": {
+        "label": "Starta vid inloggning",
+        "description": "Starta Backspace automatiskt när du loggar in"
+      },
+      "startMinimized": {
+        "label": "Starta minimerad",
+        "description": "Starta dold i systemfältet istället för att visa fönstret"
+      }
+    },
+    "updates": {
+      "appName": "Backspace Desktop",
+      "versionLabel": "Version {{version}}",
+      "checking": "Kontrollerar uppdateringar…",
+      "checkingShort": "Kontrollerar…",
+      "checkNow": "Sök efter uppdateringar",
+      "downloading": "Laddar ner {{version}}, {{percent}} %",
+      "downloadingWithRate": "Laddar ner {{version}}, {{percent}} % med {{rate}}",
+      "rateMegabytes": "{{value}} MB/s",
+      "rateKilobytes": "{{value}} KB/s",
+      "upToDate": "Du har den senaste versionen",
+      "available": "Version {{version}} tillgänglig",
+      "readyToInstall": "Version {{version}} klar att installera",
+      "installFailed": "Version {{version}} kunde inte installeras",
+      "checkFailed": "Senaste uppdateringskontrollen misslyckades",
+      "idle": "Sök efter nya versioner av datorappen",
+      "external": "Uppdateringar installeras via din Flatpak-programhanterare",
+      "download": "Ladda ner",
+      "restart": "Starta om",
+      "manualNote": "Denna build installerar inte uppdateringar själv. Ladda ner nya versioner från GitHub och ersätt appen manuellt. Se utgivningsanteckningarna för stegen på din plattform.",
+      "externalNote": "Flatpak tillämpar uppdateringar atomiskt utanför appen. Använd din programhanterare eller kommandot <code>flatpak update</code> för att uppdatera Backspace."
+    },
+    "instance": {
+      "current": "Nu ansluten instans",
+      "change": "Byt instans"
+    }
+  },
+  "desktopDownload": {
+    "title": "Dator",
+    "intro": "Globala genvägar, start vid uppstart och systemfältsikon.",
+    "unsupported": "Datorappen körs på Windows, Linux och macOS.",
+    "name": {
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux"
+    },
+    "tag": {
+      "windows": "Denna dator",
+      "mac": "Denna Mac",
+      "linux": "Denna maskin"
+    },
+    "covers": {
+      "windows": "x64 eller arm64",
+      "mac": "Körs på Apple Silicon och Intel Mac",
+      "linux": "AppImage- eller deb-paket, x64 eller arm64"
+    },
+    "download": {
+      "windows": "Ladda ner för Windows",
+      "mac": "Ladda ner för macOS",
+      "linux": "Ladda ner för Linux"
+    },
+    "picker": {
+      "architecture": "Arkitektur",
+      "format": "Paketformat"
+    },
+    "arch": {
+      "appleSilicon": "Apple Silicon",
+      "intel": "Intel",
+      "x64": "x64",
+      "arm64": "arm64"
+    },
+    "kind": {
+      "appimage": "AppImage",
+      "deb": "deb"
+    },
+    "archGuessed": {
+      "windows": "Din webbläsare sa inte vilken processor denna dator har, så x64 är förvalt.",
+      "mac": "Din webbläsare sa inte vilket chip denna Mac har, så Apple Silicon är förvalt.",
+      "linux": "Din webbläsare sa inte vilken processor denna maskin har, så x64 är förvalt."
+    },
+    "version": "Version {{version}}",
+    "allReleases": "Alla releaser på GitHub"
+  },
+  "bots": {
+    "title": "Bottar",
+    "description": "En bot är ett konto som ett program styr med en token. Skapa en, kopiera dess token och anslut ditt program. Bottar svarar i direktmeddelanden.",
+    "create": {
+      "sectionTitle": "Skapa en bot",
+      "nameLabel": "Botanvändarnamn",
+      "submit": "Skapa bot",
+      "hint": "{{min}} till {{max}} tecken: små latinska bokstäver (a–z), siffror (0–9) och understreck (_). Du kan skapa upp till {{limit}} bottar."
+    },
+    "list": {
+      "sectionTitle": "Dina bottar",
+      "empty": "Du har inga bottar ännu.",
+      "createdOn": "Skapad {{date}}"
+    },
+    "token": {
+      "title": "Token för {{name}}",
+      "warning": "Kopiera token nu. Den visas bara en gång och den som har den styr boten.",
+      "copy": "Kopiera token",
+      "copied": "Kopierad",
+      "dismiss": "Jag har sparat den"
+    },
+    "tokens": {
+      "title": "Åtkomsttokens",
+      "loading": "Laddar tokens",
+      "legacy": "Denna bot körs fortfarande på sin gamla långlivade token. Skapa en token för att växla: den gamla slutar fungera direkt.",
+      "empty": "Denna bot har inga tokens.",
+      "unnamed": "Namnlös token",
+      "createdOn": "Skapad {{date}}",
+      "neverUsed": "aldrig använd",
+      "lastUsed": "senast använd {{time}}",
+      "revoke": "Återkalla",
+      "confirmRevoke": "Bekräfta återkallelse",
+      "nameLabel": "Tokenetikett",
+      "namePlaceholder": "Etikett (valfri)",
+      "create": "Skapa token",
+      "limitHint": "Upp till {{max}} tokens per bot. Att återkalla en token kopplar från boten; de andra tokens fungerar vidare."
+    },
+    "actions": {
+      "regenerate": "Återställ alla tokens",
+      "delete": "Ta bort",
+      "confirmDelete": "Bekräfta borttagning",
+      "cancel": "Avbryt",
+      "edit": "Redigera",
+      "save": "Spara",
+      "addToServer": "Lägg till i ett rum",
+      "tokens": "Tokens"
+    },
+    "edit": {
+      "nameLabel": "Visningsnamn",
+      "hint": "Användarnamnet @{{username}} kan inte ändras. Upp till {{max}} tecken.",
+      "bioLabel": "Om boten",
+      "bioPlaceholder": "Vad boten gör, dess kommandon, var man får hjälp",
+      "bioCounter": "{{used}}/{{max}}"
+    },
+    "status": {
+      "label": "Status",
+      "none": "Ingen status",
+      "textLabel": "Statustext",
+      "placeholder": "Vad boten visar bredvid sitt namn",
+      "hint": "Visas medan boten är ansluten. Bottens kod kan ersätta den till nästa anslutning.",
+      "types": {
+        "custom": "Anpassad",
+        "playing": "Spelar",
+        "listening": "Lyssnar på",
+        "watching": "Tittar på"
+      },
+      "display": {
+        "custom": "{{name}}",
+        "playing": "Spelar {{name}}",
+        "listening": "Lyssnar på {{name}}",
+        "watching": "Tittar på {{name}}"
+      }
+    },
+    "permissions": {
+      "label": "Behörigheter boten ber om",
+      "hint": "En hanterare som lägger till boten i ett rum ser dem ikryssade och kan kryssa ur. De hamnar i en roll uppkallad efter boten. Senare ändring rör inte redan skapade roller."
+    },
+    "avatar": {
+      "change": "Byt avatar",
+      "remove": "Ta bort avatar",
+      "cropTitle": "Beskär botavatar",
+      "uploadFailed": "Kunde inte ladda upp avataren",
+      "notImage": "Välj en bildfil"
+    },
+    "spaces": {
+      "title": "Lägg till i ett rum",
+      "loading": "Laddar rum",
+      "empty": "Du hanterar ännu inga rum. Att lägga till en bot kräver behörighet att hantera rummet.",
+      "add": "Lägg till",
+      "added": "Tillagd",
+      "remove": "Ta bort"
+    }
+  },
+  "developer": {
+    "title": "Utvecklare",
+    "mode": {
+      "label": "Utvecklarläge",
+      "description": "Visa utvecklarverktyg, som fliken Bottar, i inställningar. Avstängning döljer dem bara; dina bottar fortsätter köras.",
+      "saveFailed": "Kunde inte spara inställningen. Försök igen."
+    }
+  }
+}

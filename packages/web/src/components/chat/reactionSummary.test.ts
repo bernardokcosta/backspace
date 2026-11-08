@@ -110,9 +110,15 @@ describe('reactionSentence in every language', () => {
     await setLanguage('de');
     expect(sentence([reaction(ME, 'me', 1)])).toBe('Du hast reagiert');
     expect(sentence([reaction(MIRA, 'mira', 1)])).toBe('Mira hat reagiert');
-    expect(sentence([reaction(ME, 'me', 0), reaction(MIRA, 'mira', 1)])).toBe('Du und Mira haben reagiert');
-    expect(sentence(twelve())).toBe('Du, Mira, person0 und 9 weitere haben reagiert');
-    expect(sentence([reaction(MIRA, 'mira', 1), ...others(3)])).toBe('Mira, person0, person1 und 1 weitere Person haben reagiert');
+    expect(sentence([reaction(ME, 'me', 0), reaction(MIRA, 'mira', 1)])).toBe('Reaktionen: Du und Mira');
+    expect(sentence(twelve())).toBe('Reaktionen: Du, Mira, person0 und 9 weitere');
+    expect(sentence([reaction(MIRA, 'mira', 1), ...others(3)])).toBe('Reaktionen: Mira, person0, person1 und 1 weitere Person');
+    const result = reactionSentence(
+      summarizeReactors([reaction(ME, 'me', 1), reaction(MIRA, 'mira', 2)], isMe, nameOf),
+      i18n.t,
+      formatters,
+    );
+    expect(result.text.slice(result.namesStart, result.namesStart + result.namesLength)).toBe('Du und Mira');
   });
 
   it('ru', async () => {

@@ -18,6 +18,9 @@ interface JunoState {
   stale: boolean;
   error: unknown;
   open: boolean;
+  /** Token leases attest actual large table views; never persisted or inferred from open. */
+  presentedViews: ReadonlySet<symbol>;
+  presentView: (target: JunoTarget) => () => void;
   ranking: RankingState;
   loadRanking: (target: JunoRankingTarget, query?: { limit?: number; offset?: number }) => Promise<void>;
   clearRanking: () => void;
@@ -69,7 +72,12 @@ const sameTarget = (a: JunoTarget | null, b: JunoTarget | null) => a === b || !!
   && a.accountId === b.accountId && a.origin === b.origin && a.channelId === b.channelId && a.selfId === b.selfId;
 export const useJunoStore = create<JunoState>((set, get) => ({
   target: null, connected: false, hosts: {}, snapshot: null, observedAt: 0, loading: false, pending: false, stale: false, error: null, open: false,
-  ranking: emptyRanking(),
+  ranking: emptyRanking(), presentedViews: new Set(),
+  presentView: target => {
+    if (!sameTarget(target, get().target)) return () => {};
+    const token = Symbol(); set(s => ({ presentedViews: new Set([...s.presentedViews, token]) }));
+    return () => { if (get().presentedViews.has(token)) set(s => ({ presentedViews: new Set([...s.presentedViews].filter(view => view !== token)) })); };
+  },
   clearRanking: () => { rankingRun++; set({ ranking: emptyRanking() }); },
   loadRanking: async (target, query = {}) => {
     const session = get().target;
@@ -109,7 +117,7 @@ export const useJunoStore = create<JunoState>((set, get) => ({
     if (!sameTarget(target, get().target)) {
       get().clearRanking();
       epoch++; readRun++; cancelRecovery();
-      set({ target, connected, snapshot: null, observedAt: 0, loading: false, pending: false, stale: false, error: null, open: false });
+      set({ target, connected, snapshot: null, observedAt: 0, loading: false, pending: false, stale: false, error: null, open: false, presentedViews: new Set() });
     } else set({ connected });
   },
   load: async () => {
@@ -180,6 +188,6 @@ export const useJunoStore = create<JunoState>((set, get) => ({
   reset: () => {
     get().clearRanking();
     epoch++; readRun++; cancelRecovery();
-    set({ target: null, connected: false, hosts: {}, snapshot: null, loading: false, pending: false, stale: false, error: null, open: false });
+    set({ target: null, connected: false, hosts: {}, snapshot: null, loading: false, pending: false, stale: false, error: null, open: false, presentedViews: new Set() });
   },
 }));

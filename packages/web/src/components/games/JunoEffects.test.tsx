@@ -9,7 +9,7 @@ describe('confirmed Juno feedback', () => {
     const { container, rerender } = render(<JunoEffects move={null} position="bottom" name="Ada" />);
     const move = { id: 'miss', type: 'memory_miss' as const, userId: 'a', amount: 2 };
     rerender(<JunoEffects move={move} position="bottom" name="Ada" />);
-    expect(container.querySelector('.juno-effect-memory-miss')).toHaveTextContent('Ada missed the color and drew 2.');
+    expect(container.querySelector('.juno-effect-memory-miss')).toHaveTextContent('Ada made an invalid blind attempt and drew 2.');
     expect(container.querySelector('.juno-effect-card,.juno-effect-draw,img')).toBeNull();
     act(() => vi.advanceTimersByTime(1400));
     rerender(<JunoEffects move={{ ...move }} position="bottom" name="Ada" />);

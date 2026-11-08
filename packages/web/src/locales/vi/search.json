@@ -1,0 +1,34 @@
+{
+  "input": {
+    "placeholder": "Tìm tin nhắn…"
+  },
+  "filters": {
+    "toggle": "Bộ lọc",
+    "from": {
+      "label": "Từ",
+      "placeholder": "tên người dùng"
+    },
+    "has": {
+      "label": "Có",
+      "any": "Mọi thứ",
+      "file": "Tệp",
+      "image": "Hình ảnh",
+      "link": "Liên kết"
+    },
+    "before": {
+      "label": "Trước"
+    },
+    "after": {
+      "label": "Sau"
+    }
+  },
+  "results": {
+    "empty": "Không có kết quả",
+    "hint": "Nhập để tìm tin nhắn trong kênh này",
+    "count_one": "{{count}} kết quả",
+    "count_other": "{{count}} kết quả",
+    "loadMore": "Tải thêm (còn {{remaining}})",
+    "attachments_one": "{{count}} tệp đính kèm",
+    "attachments_other": "{{count}} tệp đính kèm"
+  }
+}

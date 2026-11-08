@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "close": "Închide",
+    "delete": "Șterge",
+    "bot": "BOT",
+    "confirm": "Confirmă",
+    "copy": "Copiază",
+    "copied": "Copiat",
+    "retry": "Reîncearcă",
+    "back": "Înapoi",
+    "done": "Gata",
+    "edit": "Editează",
+    "remove": "Elimină",
+    "add": "Adaugă",
+    "apply": "Aplică",
+    "reset": "Resetează",
+    "continue": "Continuă",
+    "dismiss": "Ignoră",
+    "ok": "OK",
+    "search": "Caută",
+    "clear": "Golește",
+    "change": "Schimbă",
+    "refresh": "Reîmprospătează",
+    "openLink": "Deschide linkul",
+    "tryAgain": "Încearcă din nou",
+    "reply": "Răspunde",
+    "addReaction": "Adaugă o reacție",
+    "share": "Distribuie",
+    "accept": "Acceptă",
+    "decline": "Refuză",
+    "pause": "Pauză",
+    "resume": "Reia",
+    "abort": "Abandonează",
+    "dismissAll": "Ignoră tot",
+    "filter": "Filtrează",
+    "sort": "Sortează",
+    "sortBy": "Sortează după",
+    "leave": "Părăsește",
+    "invitePeople": "Invită persoane",
+    "previous": "Anterior",
+    "next": "Următor",
+    "preview": "Previzualizează",
+    "logIn": "Conectează-te"
+  },
+  "states": {
+    "loading": "Se încarcă…",
+    "saving": "Se salvează…",
+    "saved": "Salvat",
+    "unknown": "Necunoscut",
+    "none": "Niciunul",
+    "enabled": "Activat",
+    "disabled": "Dezactivat",
+    "on": "Pornit",
+    "off": "Oprit",
+    "yes": "Da",
+    "no": "Nu",
+    "optional": "Opțional",
+    "required": "Obligatoriu",
+    "default": "Implicit",
+    "recommended": "Recomandat",
+    "online": "Online",
+    "idle": "Inactiv",
+    "doNotDisturb": "Nu deranja",
+    "offline": "Offline",
+    "loadingSettings": "Se încarcă setările…",
+    "loadSettingsFailed": "Setările nu au putut fi încărcate.",
+    "settingsSaved": "Setări salvate",
+    "saveFailed": "Salvarea a eșuat",
+    "scanning": "Se scanează…",
+    "pleaseWait": "Te rugăm să aștepți…"
+  },
+  "labels": {
+    "username": "Nume de utilizator",
+    "password": "Parolă",
+    "displayName": "Nume afișat",
+    "friends": "Prieteni",
+    "members": "Membri",
+    "settings": "Setări",
+    "dangerZone": "Zonă periculoasă",
+    "searchMembers": "Caută membri…",
+    "noMembersFound": "Niciun membru găsit",
+    "or": "sau",
+    "nameAZ": "Nume (A-Z)"
+  },
+  "time": {
+    "today": "Astăzi la {{time}}",
+    "yesterday": "Ieri la {{time}}",
+    "never": "Niciodată",
+    "justNow": "Chiar acum",
+    "minutesShort": "{{minutes}} min",
+    "hoursMinutesShort": "{{hours}} h {{minutes}} min",
+    "elapsed": "{{duration}} scurse",
+    "left": "{{duration}} rămase"
+  },
+  "units": {
+    "ms": "{{value}} ms",
+    "percent": "{{value}}%",
+    "kbps": "{{value}} kbps",
+    "mbps": "{{value}} Mbps"
+  },
+  "colors": {
+    "mint": "Mentă",
+    "sky": "Cer",
+    "lavender": "Lavandă",
+    "coral": "Coral",
+    "rose": "Roz",
+    "teal": "Turcoaz",
+    "amber": "Chihlimbar",
+    "peach": "Piersică"
+  },
+  "language": {
+    "label": "Limbă",
+    "automatic": "Automat (sistem)",
+    "description": "Alege limba pentru meniuri, butoane și mesaje de sistem. Automat urmează preferințele de limbă ale sistemului sau browserului. Mesajele altor persoane rămân așa cum au fost scrise."
+  },
+  "crash": {
+    "title": "Ceva a mers greșit",
+    "reload": "Reîncarcă pagina",
+    "details": "Detalii despre eroare"
+  },
+  "app": {
+    "description": "Alternativa auto-găzduită la Discord și TeamSpeak. Voce HD, video și partajarea ecranului — open source și gratuit (AGPL-3.0).",
+    "loading": "Se încarcă Backspace"
+  },
+  "chrome": {
+    "toggleMemberList": "Comută lista de membri",
+    "closeSettings": "Închide setările"
+  },
+  "sourceCode": {
+    "label": "Cod sursă (AGPL)",
+    "labelWithBuild": "Cod sursă (AGPL) · {{build}}",
+    "title": "Vezi codul sursă al versiunii pe care rulează această instanță (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "{{label}} a fost detectat. Alege-l din setările de voce pentru a comuta.",
+    "unnamedAudioInput": "Dispozitiv audio nou"
+  }
+}

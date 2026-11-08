@@ -1,0 +1,141 @@
+{
+  "appName": "Backspace",
+  "actions": {
+    "save": "Simpan",
+    "cancel": "Batal",
+    "close": "Tutup",
+    "delete": "Hapus",
+    "bot": "BOT",
+    "confirm": "Konfirmasi",
+    "copy": "Salin",
+    "copied": "Disalin",
+    "retry": "Coba lagi",
+    "back": "Kembali",
+    "done": "Selesai",
+    "edit": "Sunting",
+    "remove": "Hapus",
+    "add": "Tambah",
+    "apply": "Terapkan",
+    "reset": "Atur ulang",
+    "continue": "Lanjut",
+    "dismiss": "Tutup",
+    "ok": "OK",
+    "search": "Cari",
+    "clear": "Bersihkan",
+    "change": "Ubah",
+    "refresh": "Segarkan",
+    "openLink": "Buka tautan",
+    "tryAgain": "Coba lagi",
+    "reply": "Balas",
+    "addReaction": "Tambah reaksi",
+    "share": "Bagikan",
+    "accept": "Terima",
+    "decline": "Tolak",
+    "pause": "Jeda",
+    "resume": "Lanjut",
+    "abort": "Batalkan",
+    "dismissAll": "Tutup semua",
+    "filter": "Saring",
+    "sort": "Urutkan",
+    "sortBy": "Urutkan berdasar",
+    "leave": "Keluar",
+    "invitePeople": "Undang Orang",
+    "previous": "Sebelumnya",
+    "next": "Berikut",
+    "preview": "Pratinjau",
+    "logIn": "Masuk"
+  },
+  "states": {
+    "loading": "Memuat…",
+    "saving": "Menyimpan…",
+    "saved": "Tersimpan",
+    "unknown": "Tidak diketahui",
+    "none": "Tidak ada",
+    "enabled": "Diaktifkan",
+    "disabled": "Dinonaktifkan",
+    "on": "Nyala",
+    "off": "Mati",
+    "yes": "Ya",
+    "no": "Tidak",
+    "optional": "Opsional",
+    "required": "Wajib",
+    "default": "Bawaan",
+    "recommended": "Disarankan",
+    "online": "Online",
+    "idle": "Diam",
+    "doNotDisturb": "Jangan Ganggu",
+    "offline": "Offline",
+    "loadingSettings": "Memuat pengaturan…",
+    "loadSettingsFailed": "Pengaturan tidak dapat dimuat.",
+    "settingsSaved": "Pengaturan tersimpan",
+    "saveFailed": "Gagal menyimpan",
+    "scanning": "Memindai…",
+    "pleaseWait": "Mohon tunggu…"
+  },
+  "labels": {
+    "username": "Nama pengguna",
+    "password": "Kata sandi",
+    "displayName": "Nama tampilan",
+    "friends": "Teman",
+    "members": "Anggota",
+    "settings": "Pengaturan",
+    "dangerZone": "Zona Bahaya",
+    "searchMembers": "Cari anggota…",
+    "noMembersFound": "Tidak ada anggota ditemukan",
+    "or": "atau",
+    "nameAZ": "Nama (A-Z)"
+  },
+  "time": {
+    "today": "Hari ini {{time}}",
+    "yesterday": "Kemarin {{time}}",
+    "never": "Tidak pernah",
+    "justNow": "Baru saja",
+    "minutesShort": "{{minutes}} mnt",
+    "hoursMinutesShort": "{{hours}} jam {{minutes}} mnt",
+    "elapsed": "{{duration}} berlalu",
+    "left": "tersisa {{duration}}"
+  },
+  "units": {
+    "ms": "{{value}} md",
+    "percent": "{{value}}%",
+    "kbps": "{{value}} kbps",
+    "mbps": "{{value}} Mbps"
+  },
+  "colors": {
+    "mint": "Mint",
+    "sky": "Langit",
+    "lavender": "Lavendel",
+    "coral": "Karang",
+    "rose": "Mawar",
+    "teal": "Toska",
+    "amber": "Kuning",
+    "peach": "Persik"
+  },
+  "language": {
+    "label": "Bahasa",
+    "automatic": "Otomatis (sistem)",
+    "description": "Pilih bahasa untuk menu, tombol, dan pesan sistem. Otomatis mengikuti preferensi bahasa sistem atau peramban. Pesan orang lain tetap seperti ditulis."
+  },
+  "crash": {
+    "title": "Terjadi kesalahan",
+    "reload": "Muat Ulang Halaman",
+    "details": "Detail galat"
+  },
+  "app": {
+    "description": "Alternatif Discord dan TeamSpeak yang dihosting sendiri. Voice HD, video, dan berbagi layar — open source dan gratis (AGPL-3.0).",
+    "loading": "Memuat Backspace"
+  },
+  "chrome": {
+    "toggleMemberList": "Tampilkan atau sembunyikan Daftar Anggota",
+    "closeSettings": "Tutup pengaturan"
+  },
+  "sourceCode": {
+    "label": "Kode sumber (AGPL)",
+    "labelWithBuild": "Kode sumber (AGPL) · {{build}}",
+    "title": "Lihat kode sumber versi yang berjalan di instans ini (AGPL-3.0)"
+  },
+  "devices": {
+    "newAudioInput": "{{label}} terdeteksi. Pilih di pengaturan Voice untuk beralih.",
+    "unnamedAudioInput": "Perangkat audio baru"
+  }
+}

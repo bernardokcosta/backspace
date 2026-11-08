@@ -1,0 +1,173 @@
+{
+  "callDelivery": {
+    "remoteInstance": "etäinstanssi",
+    "hostInstance": "isäntäinstanssi",
+    "acceptDropped": "Hyväksyntääsi ei voitu vahvistaa kohteelle {{instance}} — puhelu katkesi.",
+    "rejectFailed": "Kohteille {{instances}} ei voitu ilmoittaa, että hylkäsit. Soittaja saattaa nähdä sinut soivana hetken.",
+    "endFailed": "Kohteille {{instances}} ei voitu ilmoittaa, että suljit puhelun. Etäosallistujat saattavat nähdä puhelun jopa 60 sekuntia.",
+    "hostUnreachable": "Puhelu päättyi — isäntäinstanssiin ei saatu yhteyttä.",
+    "peeringLost": "Puhelu päättyi — tämä instanssi ei ole enää yhdistetty kohteeseen {{instance}}.",
+    "instanceUnreachable": "Puhelu päättyi — kohteeseen {{instance}} ei saatu yhteyttä.",
+    "someUnreachable": "Joihinkin osallistujiin ei saatu yhteyttä: {{instances}}.",
+    "multipleUnreachable_one": "Kohteeseen {{count}} instanssi ei saatu yhteyttä: {{instances}}.",
+    "multipleUnreachable_other": "Kohteisiin {{count}} instanssia ei saatu yhteyttä: {{instances}}.",
+    "callFailed": "Puhelua ei voitu soittaa.",
+    "manualApproval": "Kohteeseen {{instance}} ei saatu yhteyttä — tämä instanssi vaatii manuaalisen yhdistämishyväksynnän.",
+    "awaitingApproval": "Odotetaan, että kohteen {{instance}} ylläpitäjä hyväksyy instanssisi. Puhelut toimivat hyväksynnän jälkeen.",
+    "transientFailure": "Kohteeseen {{instance}} ei saatu yhteyttä. Yritä hetken kuluttua.",
+    "voiceUnavailable": "Ääntä ei ole määritetty tällä instanssilla.",
+    "noRecipient": "{{instance}} ei soittanut kenellekään.",
+    "targetCallFailed": "Puhelua kohteeseen {{instance}} ei voitu soittaa."
+  },
+  "feedback": {
+    "relayDenied": "Viestejä ei voi välittää — heidän palvelimensa hylkäsi yhdistämisen. Ota yhteyttä heidän ylläpitäjäänsä.",
+    "awaitingPeering": "Viestit toimitetaan, kun heidän ylläpitäjänsä hyväksyy yhdistämispyynnön."
+  },
+  "names": {
+    "group": "Ryhmä",
+    "directMessage": "Suora viesti",
+    "theGroup": "ryhmä",
+    "unknownHandle": "tuntematon",
+    "groupFallback": "Ryhmä-YV",
+    "emptyGroup": "Tyhjä ryhmä"
+  },
+  "preview": {
+    "image": "Kuva",
+    "video": "Video",
+    "audio": "Ääni",
+    "files_one": "📎 {{count}} tiedosto",
+    "files_other": "📎 {{count}} tiedostoa",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 Kutsu kohteeseen {{spaceName}} lähetetty",
+    "memberAdded": "{{actor}} lisäsi {{target}}",
+    "memberAddedToGroup": "{{actor}} lisäsi {{target}} ryhmään",
+    "memberLeft": "{{target}} poistui ryhmästä",
+    "memberRemoved": "{{actor}} poisti {{target}}",
+    "memberRemovedFromGroup": "{{actor}} poisti {{target}} ryhmästä",
+    "ownerChanged": "{{newOwner}} on nyt ryhmän omistaja",
+    "renamed": "{{actor}} nimesi ryhmän uudelleen",
+    "renamedTo": "{{actor}} nimesi ryhmän muotoon \"{{name}}\"",
+    "nameCleared": "{{actor}} tyhjensi ryhmän nimen",
+    "iconChanged": "{{actor}} päivitti ryhmän kuvakkeen",
+    "generic": "Järjestelmäviesti"
+  },
+  "deletedNotice": {
+    "accountDeleted": "Tämän käyttäjän tili on poistettu"
+  },
+  "memberRow": {
+    "viewProfile": "Näytä profiili",
+    "transferOwnership": "Siirrä omistajuus",
+    "removeFromGroup": "Poista ryhmästä",
+    "removeFriend": "Poista kaveri",
+    "ownerTooltip": "Ryhmän omistaja",
+    "actions": "Jäsentoiminnot"
+  },
+  "roster": {
+    "owner": "Omistaja",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "Muuta jäsenluettelon kokoa"
+  },
+  "kick": {
+    "title": "Poista ryhmästä",
+    "description": "Poistetaanko {{name}} tästä ryhmästä? Uusia viestejä ei näy.",
+    "success": "{{name}} poistettu ryhmästä",
+    "failed": "Jäsenen poistaminen epäonnistui"
+  },
+  "transfer": {
+    "title": "Siirrä omistajuus",
+    "description": "Siirretäänkö omistajuus käyttäjälle {{name}}? Menetät omistajan oikeudet.",
+    "confirm": "Siirrä",
+    "success": "Omistajuus siirretty käyttäjälle {{name}}",
+    "failed": "Omistajuuden siirto epäonnistui"
+  },
+  "removeFriend": {
+    "failed": "Kaverin poistaminen epäonnistui"
+  },
+  "leave": {
+    "title": "Poistu ryhmästä",
+    "description": "Poistutaanko kohteesta “{{name}}”? Et saa enää viestejä tästä keskustelusta.",
+    "inProgress": "Poistutaan…",
+    "failed": "Ryhmästä poistuminen epäonnistui",
+    "explanation": "Et saa enää viestejä tästä keskustelusta. Muut jäsenet näkevät järjestelmäviestin."
+  },
+  "search": {
+    "trigger": "Etsi tai aloita keskustelu",
+    "placeholder": "Hae…",
+    "emptyHint": "Hae käyttäjä jutellaksesi",
+    "conversations": "Keskustelut",
+    "users": "Käyttäjät",
+    "searching": "Haetaan…",
+    "noResults": "Ei tuloksia",
+    "createFailed": "Suoran viestin luonti epäonnistui"
+  },
+  "list": {
+    "resizeHandle": "Muuta suorien viestien kokoa",
+    "title": "Viestit",
+    "empty": "Ei keskusteluja vielä.",
+    "leaveGroup": "Poistu ryhmästä",
+    "justNow": "nyt",
+    "minutesShort_one": "{{count}} min",
+    "minutesShort_other": "{{count}} min",
+    "hoursShort_one": "{{count}} h",
+    "hoursShort_other": "{{count}} h",
+    "daysShort_one": "{{count}} pv",
+    "daysShort_other": "{{count}} pv",
+    "close": "Sulje suora viesti"
+  },
+  "newDm": {
+    "title": "Uusi suora viesti",
+    "searchPlaceholder": "Hae käyttäjää…",
+    "noUsers": "Käyttäjiä ei löytynyt"
+  },
+  "addMember": {
+    "title": "Lisää kavereita YV:hen",
+    "description": "Valitse kaverit lisättäväksi tähän keskusteluun.",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "Hae kavereita…",
+    "limitReached": "Tämä ryhmä-YV on saavuttanut {{max}} jäsenen rajan.",
+    "alreadyInDm": "Jo tässä YV:ssä",
+    "noMatch": "Kukaan kaveri ei vastaa hakuasi",
+    "noFriends": "Ei kavereita vielä",
+    "selectFriends": "Valitse kaverit",
+    "addCount_one": "Lisää {{count}} kaveri",
+    "addCount_other": "Lisää {{count}} kaveria",
+    "adding": "Lisätään…",
+    "noOtherMember": "Tämän keskustelun toista osallistujaa ei voitu määrittää.",
+    "failed": "Jäsenten lisääminen epäonnistui",
+    "yourBots": "Bottisi"
+  },
+  "groupSettings": {
+    "title": "Ryhmäasetukset",
+    "general": "Yleiset",
+    "overview": "Yleiskatsaus",
+    "backToMenu": "Takaisin ryhmä-YV:n asetusvalikkoon",
+    "changeIcon": "Vaihda ryhmäkuvake",
+    "icon": "Ryhmäkuvake",
+    "clickToUpload": "Lataa napsauttamalla",
+    "removeIcon": "Poista ryhmäkuvake",
+    "nameLabel": "Ryhmän nimi",
+    "nameAria": "Ryhmän nimi",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "Lisää jäsen",
+    "groupFull": "Ryhmä on täynnä",
+    "groupFullSuffix": "— Ryhmä on täynnä",
+    "cropTitle": "Rajaa ryhmäkuvake",
+    "saveFailed": "Asetusten tallennus epäonnistui"
+  },
+  "groupInfo": {
+    "title": "Ryhmän tiedot",
+    "plainTitle": "Tiedot",
+    "notFound": "Keskustelua ei löytynyt.",
+    "notGroup": "Tällä keskustelulla ei ole ryhmätietoja.",
+    "cancelEdit": "Peruuta muokkaus",
+    "federated": "Federoitu ryhmä",
+    "memberCount_one": "{{count}} jäsen",
+    "memberCount_other": "{{count}} jäsentä"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "Tätä ryhmää hallitaan kohteessa {{host}}. Yhdistä siihen muuttaaksesi sitä.",
+    "ownerNotListed": "{{host}} ei vielä listaa tätä ryhmää sinulle. Yritä hetken kuluttua."
+  }
+}

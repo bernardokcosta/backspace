@@ -1,0 +1,35 @@
+{
+  "failure": {
+    "notAuthenticated": "Nu ești autentificat pentru această instanță",
+    "invalidResponse": "Răspunsul la încărcare nu a putut fi analizat",
+    "uploadError": "Eroare la încărcare",
+    "downloadError": "Eroare la descărcare",
+    "fileUnavailable": "Fișierul nu mai este disponibil — renunță și încarcă din nou",
+    "noDestination": "Niciun identificator de destinație — reluarea nu este posibilă",
+    "destinationMissing": "Identificatorul destinației lipsește",
+    "permissionDenied": "Permisiune refuzată",
+    "lostDownload": "Descărcarea nu poate fi reluată — datele s-au pierdut. Repornește descărcarea.",
+    "uploadHandleMissing": "Identificatorul fișierului lipsește — renunță și încarcă din nou",
+    "downloadHandleMissing": "Identificatorul destinației lipsește — repornește descărcarea",
+    "downloadFailed": "Descărcarea a eșuat: {{status}}",
+    "resumeFailed": "Reluarea a eșuat: {{status}}"
+  },
+  "transfers": {
+    "title": "Transferuri",
+    "count_one": "{{count}} transfer",
+    "count_few": "{{count}} transferuri",
+    "count_other": "{{count}} de transferuri",
+    "clearCompleted": "Șterge cele finalizate",
+    "empty": "Nu există transferuri active.",
+    "status": {
+      "done": "Finalizat",
+      "failed": "Eșuat: {{reason}}",
+      "aborted": "Anulat",
+      "progress": "{{loaded}} / {{total}}"
+    }
+  },
+  "crop": {
+    "title": "Decupează imaginea",
+    "applying": "Se aplică…"
+  }
+}

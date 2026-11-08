@@ -230,6 +230,16 @@ describe('buildTrayMenuTemplate', () => {
 });
 
 describe('buildAppMenuTemplate', () => {
+  it('localizes every native role label without changing the roles', () => {
+    const template = buildAppMenuTemplate('Backspace', defaultState(), undefined, 'pt');
+    const app = template[0]!.submenu as MenuItemConstructorOptions[];
+    const edit = template[1]!.submenu as MenuItemConstructorOptions[];
+    const window = template[2]!.submenu as MenuItemConstructorOptions[];
+    expect(app.find(item => item.role === 'about')?.label).toBe('Sobre Backspace');
+    expect(edit.find(item => item.role === 'copy')?.label).toBe('Copiar');
+    expect(window.find(item => item.role === 'minimize')?.label).toBe('Minimizar');
+    for (const item of [...app, ...edit, ...window]) if (item.role) expect(item.label).toBeTypeOf('string');
+  });
   it('returns top-level menu with App, Edit, Window submenus', () => {
     const template = buildAppMenuTemplate('Backspace', defaultState());
     const [appMenu, editMenu, windowMenu] = template;

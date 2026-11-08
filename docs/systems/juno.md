@@ -21,6 +21,10 @@ new dependency is used.
   revision and request-generation guards, pending-action/error handling.
 - `packages/web/src/components/games/`: session lifecycle, table, tile, Games
   button, focused lobby/match/result/ranking views and container-responsive styling.
+- `stores/junoPreferences.ts`: validated device-local game-only UI/dubbing and
+  volume preferences. `JunoLocale` scopes existing catalogs to Juno; `JunoSettings`
+  reuses the shared modal. `JunoMusic` and `audio/junoMusic.ts` own focused-only
+  streamed music on the existing output bus.
 - `packages/web/public/games/juno/`: 55 distinct fronts, one back and separate
   cosmic UI assets; hashes/source entries in `manifest.json`, provenance in README.
 
@@ -290,6 +294,50 @@ show localized actual-amount feedback without exposing the selected card.
 `JunoMemorySound`, owned once by `JunoSession` even while minimized, plays the
 supplied local `juno_memory.ogg` for a new confirmed memory move (see sounds.md).
 No LiveKit/microphone publication or additional audio bus is involved.
+The settings gear beside the logo opens personal controls in every phase. UI
+language defaults to Automatic (following Backspace); an explicit choice affects
+only Juno table/tile/rules/results/ranking/settings and their formatting/errors.
+It does not change app chrome, HTML language, desktop language or app preference.
+Dubbing/card text separately defaults to Automatic and resolves against real
+editions for that UI language, falling back to pt-BR. Only pt-BR is supplied, so
+both Automatic and explicit Portuguese use the original memory artwork/clip for
+every interface language. `JUNO_DUBBINGS` is the single actual-edition boundary.
+
+`backspace-juno-preferences` persists just language, dubbing choice and two
+0–100 volumes; default controls are 100%. Invalid values normalize safely and
+blocked storage leaves in-memory controls usable. These settings never mutate
+game commands, voice preferences or private snapshots. The modal contains only
+headings/labels/controls (the user removed explanatory paragraphs), with an
+exceptional music retry when browser/output failure needs a gesture. It traps
+keyboard focus, consumes Escape and returns focus to the gear without changing
+the game/fullscreen state. Turns continue while it is open.
+
+Music is the unchanged user-supplied `music/charting-the-dark.mp3`, streamed
+through AudioManager's existing output/limiter, not the short-cue buffer cache.
+It loops only while the actual full table is the main visible, focused view.
+Intersection-observed, token-owned view leases live in the existing transient
+Juno store, not a second navigation store; mobile additionally exposes the real
+settled top-screen visibility from MobileScreenStack. Mosaic tiles, chat/DM,
+other focused media, covered/animating mobile screens, global modals, hidden/
+blurred/minimized windows, zero volume, deafen, disconnect/access loss and scope
+changes pause it. The game's own settings, rules and ranking remain eligible.
+The independently owned soundboard, screen-share setup and incoming-call overlays
+also pause it, even when `ui.activeModal` is empty; their existing stores are
+observed directly without introducing a shared overlay registry.
+Returning to the same voice target resumes its in-memory position with one loop;
+account/origin/channel exit disposes media and position. Ordinary microphone mute
+does not suppress local playback. Nothing is published into voice or streams.
+
+Music gain is `0.20 * musicPercent/100 * outputPercent/100` before the master
+bus; music does not use the global SFX slider. Effects gain multiplies the
+existing `getSfxVolume()` by the local effects percentage. Both change live
+without replay/restart, and zero/deafen cancels pending effects. The music player
+keeps delayed starts at zero gain until revalidated and contains output/autoplay
+failure. A suspended pre-gesture context displays a retry rather than hanging
+silently on resume. No forced autoplay, OS volume or global audio-setting change.
+After a media-resource error, gesture retry invokes `load()` on the same routed
+element before playing, invalidating pending starts so a transient HTTP failure
+can recover without a second stream or hidden playback.
 Eligible opponent seats add a separate accessible hammer report button, never
 replace the real profile action. Its striking base aligns with the avatar center;
 the target and remaining deadline remain accessible without a visible countdown.

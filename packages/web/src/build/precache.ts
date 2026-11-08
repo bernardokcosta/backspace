@@ -15,8 +15,9 @@ export const PRECACHE_MAX_FILE_BYTES = 3 * 1024 * 1024;
  * `PRECACHE_GLOB_PATTERNS`, and `scripts/check-precache-size.mjs` reads this
  * list to know which unlisted build assets workbox left out for size. Any
  * other file (fonts, images) is never a precache candidate, whatever its size.
- * These are workbox's own defaults, written down so both sides share them.
+ * Workbox's defaults plus localized install manifests, written down so both
+ * sides share them and offline language metadata is not silently omitted.
  */
-export const PRECACHE_FILE_EXTENSIONS = ['js', 'wasm', 'css', 'html'] as const;
+export const PRECACHE_FILE_EXTENSIONS = ['js', 'wasm', 'css', 'html', 'webmanifest'] as const;
 
 export const PRECACHE_GLOB_PATTERNS: string[] = [`**/*.{${PRECACHE_FILE_EXTENSIONS.join(',')}}`];

@@ -1,0 +1,173 @@
+{
+  "callDelivery": {
+    "remoteInstance": "den eksterne instans",
+    "hostInstance": "værtsinstansen",
+    "acceptDropped": "Kunne ikke bekræfte din accept hos {{instance}} — opkaldet røg.",
+    "rejectFailed": "Kunne ikke fortælle {{instances}}, at du afviste. Uppringeren ser dig måske som ringende et øjeblik.",
+    "endFailed": "Kunne ikke fortælle {{instances}}, at du lagde på. Eksterne deltagere ser måske opkaldet i op til 60 sekunder.",
+    "hostUnreachable": "Opkald afsluttet — værtsinstansen blev utilgængelig.",
+    "peeringLost": "Opkald afsluttet — denne instans er ikke længere forbundet med {{instance}}.",
+    "instanceUnreachable": "Opkald afsluttet — {{instance}} blev utilgængelig.",
+    "someUnreachable": "Nogle deltagere kunne ikke nås: {{instances}}.",
+    "multipleUnreachable_one": "Kunne ikke nå {{count}} instans: {{instances}}.",
+    "multipleUnreachable_other": "Kunne ikke nå {{count}} instanser: {{instances}}.",
+    "callFailed": "Opkaldet kunne ikke gennemføres.",
+    "manualApproval": "Kan ikke nå {{instance}} — denne instans kræver manuel godkendelse af forbindelse.",
+    "awaitingApproval": "Venter på, at administratoren for {{instance}} godkender din instans. Opkald virker efter godkendelsen.",
+    "transientFailure": "Kan ikke nå {{instance}}. Prøv om et øjeblik.",
+    "voiceUnavailable": "Voice er ikke sat op på denne instans.",
+    "noRecipient": "{{instance}} ringede ingen op.",
+    "targetCallFailed": "Opkaldet til {{instance}} kunne ikke gennemføres."
+  },
+  "feedback": {
+    "relayDenied": "Kan ikke videresende beskeder — deres server nægtede forbindelse. Kontakt deres administrator.",
+    "awaitingPeering": "Beskeder leveres, når deres administrator godkender forbindelsesanmodningen."
+  },
+  "names": {
+    "group": "Gruppe",
+    "directMessage": "Direkte besked",
+    "theGroup": "gruppen",
+    "unknownHandle": "ukendt",
+    "groupFallback": "Gruppe-DM",
+    "emptyGroup": "Tom gruppe"
+  },
+  "preview": {
+    "image": "Billede",
+    "video": "Video",
+    "audio": "Lyd",
+    "files_one": "📎 {{count}} fil",
+    "files_other": "📎 {{count}} filer",
+    "withSender": "{{name}}: {{text}}"
+  },
+  "system": {
+    "spaceInviteNamed": "📨 Invitation til {{spaceName}} sendt",
+    "memberAdded": "{{actor}} tilføjede {{target}}",
+    "memberAddedToGroup": "{{actor}} tilføjede {{target}} til gruppen",
+    "memberLeft": "{{target}} forlod gruppen",
+    "memberRemoved": "{{actor}} fjernede {{target}}",
+    "memberRemovedFromGroup": "{{actor}} fjernede {{target}} fra gruppen",
+    "ownerChanged": "{{newOwner}} er nu gruppens ejer",
+    "renamed": "{{actor}} omdøbte gruppen",
+    "renamedTo": "{{actor}} omdøbte gruppen til \"{{name}}\"",
+    "nameCleared": "{{actor}} ryddede gruppens navn",
+    "iconChanged": "{{actor}} opdaterede gruppens ikon",
+    "generic": "Systembesked"
+  },
+  "deletedNotice": {
+    "accountDeleted": "Denne brugers konto er blevet slettet"
+  },
+  "memberRow": {
+    "viewProfile": "Se profil",
+    "transferOwnership": "Overfør ejerskab",
+    "removeFromGroup": "Fjern fra gruppen",
+    "removeFriend": "Fjern ven",
+    "ownerTooltip": "Gruppeejer",
+    "actions": "Medlemshandlinger"
+  },
+  "roster": {
+    "owner": "Ejer",
+    "sectionCount": "{{label}} — {{total}}",
+    "resizeHandle": "Ændr størrelse på medlemslisten"
+  },
+  "kick": {
+    "title": "Fjern fra gruppen",
+    "description": "Fjern {{name}} fra denne gruppe? Nye beskeder ses ikke.",
+    "success": "{{name}} fjernet fra gruppen",
+    "failed": "Kunne ikke fjerne medlem"
+  },
+  "transfer": {
+    "title": "Overfør ejerskab",
+    "description": "Overføre ejerskabet til {{name}}? Du mister ejerrettigheder.",
+    "confirm": "Overfør",
+    "success": "Ejerskab overført til {{name}}",
+    "failed": "Kunne ikke overføre ejerskab"
+  },
+  "removeFriend": {
+    "failed": "Kunne ikke fjerne ven"
+  },
+  "leave": {
+    "title": "Forlad gruppen",
+    "description": "Forlade “{{name}}”? Du modtager da ingen beskeder fra denne samtale.",
+    "inProgress": "Forlader…",
+    "failed": "Kunne ikke forlade gruppen",
+    "explanation": "Du modtager da ingen beskeder fra denne samtale. Andre medlemmer ser en systembesked."
+  },
+  "search": {
+    "trigger": "Find eller start en samtale",
+    "placeholder": "Søg…",
+    "emptyHint": "Søg en bruger for at chatte",
+    "conversations": "Samtaler",
+    "users": "Brugere",
+    "searching": "Søger…",
+    "noResults": "Ingen resultater",
+    "createFailed": "Kunne ikke oprette direkte besked"
+  },
+  "list": {
+    "resizeHandle": "Ændr størrelse på direkte beskeder",
+    "title": "Beskeder",
+    "empty": "Ingen samtaler endnu.",
+    "leaveGroup": "Forlad gruppen",
+    "justNow": "nu",
+    "minutesShort_one": "{{count}} min",
+    "minutesShort_other": "{{count}} min",
+    "hoursShort_one": "{{count}} t",
+    "hoursShort_other": "{{count}} t",
+    "daysShort_one": "{{count}} d",
+    "daysShort_other": "{{count}} d",
+    "close": "Luk direkte besked"
+  },
+  "newDm": {
+    "title": "Ny direkte besked",
+    "searchPlaceholder": "Søg en bruger…",
+    "noUsers": "Ingen brugere fundet"
+  },
+  "addMember": {
+    "title": "Tilføj venner til DM",
+    "description": "Vælg venner til at tilføje til denne samtale.",
+    "capacity": "{{current}}/{{max}}",
+    "searchPlaceholder": "Søg venner…",
+    "limitReached": "Denne gruppe-DM har nået grænsen på {{max}} medlemmer.",
+    "alreadyInDm": "Allerede i denne DM",
+    "noMatch": "Ingen venner matcher din søgning",
+    "noFriends": "Ingen venner endnu",
+    "selectFriends": "Vælg venner",
+    "addCount_one": "Tilføj {{count}} ven",
+    "addCount_other": "Tilføj {{count}} venner",
+    "adding": "Tilføjer…",
+    "noOtherMember": "Kunne ikke afgøre den anden deltager i denne samtale.",
+    "failed": "Kunne ikke tilføje medlemmer",
+    "yourBots": "Dine bots"
+  },
+  "groupSettings": {
+    "title": "Gruppeindstillinger",
+    "general": "Generelt",
+    "overview": "Overblik",
+    "backToMenu": "Tilbage til indstillingsmenu for gruppe-DM",
+    "changeIcon": "Skift gruppeikon",
+    "icon": "Gruppeikon",
+    "clickToUpload": "Klik for at uploade",
+    "removeIcon": "Fjern gruppeikon",
+    "nameLabel": "Gruppenavn",
+    "nameAria": "Gruppenavn",
+    "nameCount": "{{current}}/{{max}}",
+    "addMember": "Tilføj medlem",
+    "groupFull": "Gruppen er fuld",
+    "groupFullSuffix": "— Gruppen er fuld",
+    "cropTitle": "Beskær gruppeikon",
+    "saveFailed": "Kunne ikke gemme indstillinger"
+  },
+  "groupInfo": {
+    "title": "Gruppeinfo",
+    "plainTitle": "Info",
+    "notFound": "Samtalen blev ikke fundet.",
+    "notGroup": "Denne samtale har ingen gruppeinfo.",
+    "cancelEdit": "Annuller redigering",
+    "federated": "Fødereret gruppe",
+    "memberCount_one": "{{count}} medlem",
+    "memberCount_other": "{{count}} medlemmer"
+  },
+  "ownerActions": {
+    "ownerNotConnected": "Denne gruppe styres på {{host}}. Forbind til den for at ændre den.",
+    "ownerNotListed": "{{host}} viser endnu ikke denne gruppe til dig. Prøv om et øjeblik."
+  }
+}

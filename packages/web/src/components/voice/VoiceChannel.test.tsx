@@ -7,6 +7,7 @@ import { useVoiceStore } from '../../stores/voiceStore';
 import { useContextMenuStore } from '../../stores/contextMenuStore';
 import type { MemberWithUser } from '@backspace/shared';
 import { setLocalMute } from '../../utils/voiceLocalKeys';
+import i18n, { setLanguage } from '../../i18n';
 
 vi.mock('../../audio/AudioManager', () => ({
   AudioManager: { getInstance: () => ({}) },
@@ -185,6 +186,18 @@ describe('VoiceChannel occupancy timer', () => {
 });
 
 describe('VoiceChannel own row', () => {
+  it('uses the translated local-mute label without changing target identity', async () => {
+    await setLanguage('pt');
+    const open = vi.fn();
+    useContextMenuStore.setState({ open });
+    try {
+      renderWithDrag();
+      fireEvent.contextMenu(rowOf('Bob'));
+      const items = open.mock.calls[0]![1] as Array<{ key: string; label?: string }>;
+      expect(items.find(item => item.key === 'mute-user')?.label).toBe(i18n.t('voice:participantMenu.muteUser'));
+      expect(open).toHaveBeenCalledTimes(1);
+    } finally { await act(async () => setLanguage('en')); }
+  });
   const ORBIT = 'https://orbit.example';
   const dragHandlers = () => ({ draggable: true, isBeingDragged: false, onDragStart: () => {}, onDragEnd: () => {} });
 

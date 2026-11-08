@@ -1,0 +1,621 @@
+{
+  "soundboardTab": "사운드보드",
+  "create": {
+    "title": "스페이스 만들기",
+    "icon": {
+      "upload": "업로드",
+      "previewAlt": "아이콘 미리 보기",
+      "colorLabel": "아이콘 색",
+      "cropTitle": "스페이스 아이콘 자르기",
+      "uploadFailed": "아이콘을 업로드할 수 없습니다"
+    },
+    "name": {
+      "label": "스페이스 이름",
+      "placeholder": "멋진 내 스페이스",
+      "required": "스페이스 이름 필요"
+    },
+    "visibilityLabel": "공개 범위",
+    "description": {
+      "label": "설명",
+      "placeholder": "스페이스에 대한 짧은 설명…",
+      "counter": "{{length}}/{{max}}"
+    },
+    "submit": "만들기",
+    "submitting": "만드는 중…"
+  },
+  "channel": {
+    "create": {
+      "title": "채널 만들기",
+      "typeLabel": "채널 종류",
+      "types": {
+        "text": {
+          "name": "텍스트",
+          "description": "메시지·이미지·파일 보내기"
+        },
+        "voice": {
+          "name": "음성",
+          "description": "음성·영상으로 어울리기"
+        }
+      },
+      "nameLabel": "채널 이름",
+      "namePlaceholder": "새-채널",
+      "topicLabel": "주제 (선택)",
+      "topicPlaceholder": "이 채널은 무엇에 대한 것입니까?",
+      "categoryLabel": "카테고리",
+      "noCategory": "카테고리 없음",
+      "nameRequired": "채널 이름 필요",
+      "noSpaceSelected": "스페이스 미선택",
+      "submit": "채널 만들기",
+      "submitting": "만드는 중…"
+    },
+    "settings": {
+      "title": "채널 설정",
+      "rename": "채널 이름 바꾸기",
+      "nameLabel": "채널 이름",
+      "channelLabel": "채널",
+      "topic": {
+        "label": "주제",
+        "placeholder": "이 채널은 무엇에 대한 것입니까?",
+        "hint": "채널 헤더에 표시됩니다. 누구나 거기서 전체 텍스트를 열 수 있습니다.",
+        "counter": "{{used}}/{{max}}",
+        "tooLong": "저장하려면 주제를 {{max}}자 이하로 줄이세요.",
+        "empty": "주제 미설정.",
+        "reset": "변경 버리기"
+      },
+      "private": {
+        "label": "비공개 채널",
+        "description": "선택된 멤버·역할만 이 채널을 볼 수 있습니다.",
+        "note": "이 채널은 명시적 접근 없는 멤버에게 숨겨집니다. 관리자 권한 사용자나 스페이스 소유자는 항상 모든 채널을 봅니다.",
+        "unhideOnSave": "저장하면 이 채널이 모든 멤버에게 표시됩니다."
+      },
+      "deleteButton": "채널 삭제"
+    },
+    "delete": {
+      "title": "#{{name}} 삭제?",
+      "description": "<strong>#{{name}}</strong>와(과) 그 모든 메시지를 완전 삭제합니다. 되돌릴 수 없습니다.",
+      "descriptionVoice": "<strong>#{{name}}</strong>와(과) 그 모든 메시지를 완전 삭제합니다. 이 음성 채널의 모든 사람이 연결 끊깁니다. 되돌릴 수 없습니다.",
+      "confirm": "채널 삭제"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "카테고리 만들기",
+      "nameLabel": "카테고리 이름",
+      "namePlaceholder": "새-카테고리",
+      "nameRequired": "카테고리 이름 필요",
+      "noSpaceSelected": "스페이스 미선택",
+      "submit": "카테고리 만들기",
+      "submitting": "만드는 중…"
+    },
+    "settings": {
+      "title": "카테고리 설정",
+      "rename": "카테고리 이름 바꾸기",
+      "nameLabel": "카테고리 이름",
+      "categoryLabel": "카테고리",
+      "private": {
+        "label": "비공개 카테고리",
+        "description": "선택된 멤버·역할만 이 카테고리의 채널을 볼 수 있습니다.",
+        "note": "이 카테고리는 명시적 접근 없는 멤버에게 숨겨집니다. 내부 채널은 명시적으로 재정의하지 않는 한 이 제한을 상속합니다.",
+        "unhideOnSave": "저장하면 이 카테고리와 별도 공개 범위 제한 없는 그 채널이 모두에게 표시됩니다."
+      },
+      "deleteButton": "카테고리 삭제"
+    },
+    "delete": {
+      "title": "“{{name}}” 삭제?",
+      "description": "카테고리 <strong>{{name}}</strong>을(를) 완전 삭제합니다. 내부 채널은 최상위로 이동합니다. 되돌릴 수 없습니다.",
+      "confirm": "카테고리 삭제"
+    }
+  },
+  "invite": {
+    "title": "친구 초대",
+    "intro": "친구에게 보내거나 링크를 공유하세요.",
+    "introRequest": "친구에게 보내거나 링크를 공유하세요. 연 사람은 참가를 요청하고 관리자가 각 요청을 승인합니다.",
+    "searchPlaceholder": "친구 검색…",
+    "noMatches": "검색과 일치하는 친구 없음",
+    "noFriends": "아직 친구 없음",
+    "alreadyMember": "이미 스페이스에 있음",
+    "removeSelected": "{{name}} 삭제",
+    "selectFriends": "친구 선택",
+    "send_other": "초대 {{count}}개 보내기",
+    "sending": "보내는 중…",
+    "retryFailed": "실패한 초대 다시 시도",
+    "status": {
+      "sent": "✓ 전송됨",
+      "failed": "✗ {{reason}}"
+    },
+    "shareLink": "또는 링크 공유",
+    "generating": "생성 중…",
+    "generateFailed": "초대 링크를 생성할 수 없습니다",
+    "failure": {
+      "inviteInvalid": "초대 링크가 더 이상 유효하지 않음",
+      "notAFriend": "친구 아님",
+      "userNotFound": "사용자를 찾을 수 없음",
+      "alreadyMember": "이미 멤버",
+      "upstream": "초대를 확인할 수 없습니다. 다시 시도하세요",
+      "cannotInviteSelf": "자신을 초대할 수 없습니다",
+      "invalidBody": "잘못된 요청",
+      "invalidTarget": "잘못된 대상",
+      "unreachable": "인스턴스에 도달할 수 없습니다",
+      "serverError": "보낼 수 없습니다 (서버 오류)"
+    }
+  },
+  "inviteFriend": {
+    "title": "{{name}}님을 스페이스에 초대",
+    "intro": "초대를 보내려면 내 스페이스 중 하나를 선택하세요.",
+    "noSpaces": "아직 어떤 스페이스에도 없습니다",
+    "contextMenu": "스페이스에 초대"
+  },
+  "join": {
+    "validation": {
+      "required": "초대 코드 필요",
+      "invalidLink": "잘못된 초대 링크",
+      "linkFormat": "잘못된 초대 링크 — 예상 형식: https://instance/join/CODE",
+      "qualifiedFormat": "잘못된 초대 형식 — 예상: CODE@domain",
+      "invalidDomain": "초대의 도메인 잘못됨"
+    },
+    "title": "스페이스 참가",
+    "invitePlaceholder": "예: abc123 또는 https://instance.com/join/abc123",
+    "submit": "스페이스 참가",
+    "submitting": "참가 중…",
+    "connect": {
+      "intro": "이 스페이스에 참가하려면 <host>{{host}}</host>에 연결하세요.",
+      "passwordLabel": "연결하려면 비밀번호 입력",
+      "passwordPlaceholder": "계정의 비밀번호",
+      "passwordNote": "비밀번호는 홈 인스턴스가 확인하며 {{host}}에 전송되지 않습니다. 해당 인스턴스는 그것만을 위해 만든 고유 자격 증명을 받습니다.",
+      "submit": "연결 & 참가",
+      "submitting": "연결 중…"
+    },
+    "fallback": {
+      "usernamePlaceholder": "이 인스턴스의 사용자 이름",
+      "passwordLabel": "이 인스턴스의 비밀번호",
+      "passwordPlaceholder": "원격 인스턴스의 비밀번호",
+      "submit": "로그인 & 참가",
+      "submitting": "로그인 중…"
+    },
+    "request": {
+      "messagePlaceholder": "참가하려는 이유는? (선택)",
+      "send": "요청 보내기",
+      "sending": "보내는 중…",
+      "notice": "이 스페이스는 참가 요청을 받습니다. 하나를 보내면 관리자가 심사합니다.",
+      "messageLabel": "요청 메모",
+      "sent": "요청 전송됨. 관리자가 심사하며 승인 후 스페이스가 목록에 표시됩니다.",
+      "pending": "이미 이 스페이스 참가를 요청했습니다. 요청이 관리자 대기 중."
+    }
+  },
+  "settings": {
+    "title": "스페이스 설정",
+    "backAria": "스페이스 설정 메뉴로 돌아가기",
+    "nav": {
+      "general": "일반",
+      "management": "관리",
+      "tabs": {
+        "overview": "개요",
+        "roles": "역할",
+        "bans": "차단"
+      }
+    },
+    "discardChanges": "버리기",
+    "overview": {
+      "identity": "스페이스 ID",
+      "iconLabel": "스페이스 아이콘",
+      "iconAlt": "스페이스 아이콘",
+      "colorLabel": "아이콘 색",
+      "bannerLabel": "스페이스 배너",
+      "bannerAlt": "스페이스 배너",
+      "uploadBanner": "배너 업로드 (16:9)",
+      "removeBanner": "배너 삭제",
+      "nameLabel": "스페이스 이름",
+      "iconUploadFailed": "아이콘을 업로드할 수 없습니다",
+      "bannerUploadFailed": "배너를 업로드할 수 없습니다",
+      "cropIconTitle": "스페이스 아이콘 자르기",
+      "cropBannerTitle": "스페이스 배너 자르기",
+      "transfer": {
+        "description": "소유권을 다른 멤버에게 이전합니다. 일반 멤버가 됩니다.",
+        "prompt": "소유권을 <strong>{{name}}</strong>님에게 이전?",
+        "button": "소유권 이전",
+        "confirm": "이전",
+        "transferring": "이전 중…",
+        "success": "소유권을 {{name}}님에게 이전했습니다",
+        "failed": "소유권을 이전할 수 없습니다"
+      },
+      "delete": {
+        "description": "이 스페이스와 모든 데이터를 완전 삭제합니다. 되돌릴 수 없습니다.",
+        "button": "스페이스 삭제",
+        "confirmAgain": "확인하려면 다시 클릭",
+        "failed": "스페이스를 삭제할 수 없습니다"
+      }
+    },
+    "access": {
+      "title": "접근과 설명",
+      "visibility": {
+        "label": "공개 범위",
+        "hint": "초대 보유자가 이 스페이스에 들어오는 방법을 제어합니다.",
+        "options": {
+          "private": {
+            "label": "비공개",
+            "description": "초대 링크 보유자만 참가 가능"
+          },
+          "request": {
+            "label": "요청제",
+            "description": "초대는 관리자가 승인해야 하는 요청으로 이어집니다"
+          },
+          "public": {
+            "label": "공개",
+            "description": "초대 보유자는 즉시 참가 가능"
+          }
+        }
+      },
+      "description": {
+        "label": "설명",
+        "hint": "이 스페이스 초대와 함께 표시되는 짧은 요약.",
+        "placeholder": "이 스페이스에 대한 짧은 설명…",
+        "counter": "{{length}}/{{max}}"
+      },
+      "requests": {
+        "title": "대기 중인 참가 요청",
+        "empty": "대기 중인 참가 요청 없음",
+        "actionFailed": "작업 실패"
+      }
+    },
+    "members": {
+      "description": "이 스페이스의 멤버를 관리합니다. 멤버를 클릭해 역할을 편집하세요.",
+      "listHeading": "멤버 ({{total}})",
+      "owner": "소유자",
+      "noRoles": "역할 없음",
+      "ban": "차단",
+      "kick": "추방",
+      "confirm": {
+        "banTitle": "{{name}} 차단",
+        "kickTitle": "{{name}} 추방",
+        "banDescription": "이 사람은 차단 해제될 때까지 이 스페이스에서 영구 차단됩니다.",
+        "kickDescription": "이 사람은 초대 링크로 다시 참가할 수 있습니다."
+      },
+      "updateRolesFailed": "역할을 업데이트할 수 없습니다",
+      "kickFailed": "멤버를 추방할 수 없습니다",
+      "banFailed": "멤버를 차단할 수 없습니다",
+      "rolesAboveYou": "최고 역할 이상은 잠겨 있습니다.",
+      "rolesUnheld": "자신이 없는 권한의 역할은 부여 불가.",
+      "rolesManagedByBot": "봇의 자체 역할은 봇에 남습니다.",
+      "botInvite": {
+        "warning": "봇은 이 스페이스의 멤버가 되어 권한이 허용하는 각 채널의 메시지와 이벤트를 받습니다. 신뢰하는 봇만 추가하세요.",
+        "owner": "소유자: @{{owner}}",
+        "button": "봇 추가",
+        "title": "봇 추가",
+        "searchPlaceholder": "이름으로 봇 검색…",
+        "searching": "검색 중…",
+        "noResults": "봇을 찾을 수 없음",
+        "add": "추가",
+        "adding": "추가 중…",
+        "permissionsTitle": "{{name}}의 권한",
+        "permissionsIntro": "봇은 이 권한을 요청합니다. 봇 이름의 역할로 들어가며 원치 않는 것은 해제하세요.",
+        "permissionsUnheld": "자신이 없는 권한은 부여 불가.",
+        "permissionsNone": "체크 없음: 봇은 역할 없이 참가.",
+        "back": "뒤로"
+      }
+    },
+    "afk": {
+      "title": "AFK 채널",
+      "channelLabel": "비활성 멤버 이동",
+      "disabled": "비활성화됨",
+      "timeoutLabel": "비활성 후",
+      "minutes": "분",
+      "hint": "선택 시간에 음성 활동 없는 멤버는 자동으로 이 음성 채널로 이동합니다."
+    }
+  },
+  "bans": {
+    "title": "차단",
+    "description": "차단된 사용자는 차단 해제될 때까지 이 스페이스에 다시 참가 불가.",
+    "loading": "차단 불러오는 중…",
+    "empty": "차단된 사용자 없음",
+    "listHeading": "차단 ({{total}})",
+    "bannedBy": "{{moderator}}가 {{date}}에 차단",
+    "bannedByWithReason": "{{moderator}}가 {{date}}에 차단: {{reason}}",
+    "unban": "차단 해제",
+    "loadFailed": "차단을 불러오지 못했습니다",
+    "unbanFailed": "사용자 차단을 해제할 수 없습니다"
+  },
+  "roles": {
+    "title": "역할",
+    "create": "역할 만들기",
+    "creating": "만드는 중…",
+    "listHeading": "역할",
+    "description": "역할은 멤버가 가진 권한을 결정합니다.",
+    "hierarchyHint": "목록 위의 역할이 아래보다 위.",
+    "defaultName": "새 역할",
+    "copyName": "{{name}}의 사본",
+    "backToList": "역할로 돌아가기",
+    "created": "역할 만들어짐. 아래에서 설정.",
+    "aboveYou": "이 역할은 최고 역할 이상. 볼 수는 있으나 변경 불가.",
+    "managedByBot": "이 역할은 봇이 관리하며 봇이 스페이스를 나가면 삭제. 다른 사람에게 할당·수동 삭제 불가. 권한은 변경 가능.",
+    "reorder": {
+      "handle": "{{name}} 이동",
+      "handleHint": "드래그하거나 위·아래 화살표 사용",
+      "up": "{{name}} 위로 이동",
+      "down": "{{name}} 아래로 이동",
+      "locked": "{{name}}는 최고 역할 이상",
+      "moved": "{{name}}를 위치 {{position}} / {{total}}(으)로 이동"
+    },
+    "identity": "ID",
+    "nameLabel": "역할 이름",
+    "colorLabel": "역할 색",
+    "nameEmpty": "역할 이름은 비울 수 없습니다",
+    "nameDuplicate": "그 이름의 역할이 이미 있습니다",
+    "groups": {
+      "general": "일반",
+      "text": "텍스트",
+      "voice": "음성"
+    },
+    "saved": "역할 저장됨",
+    "copy": "역할 복사",
+    "copying": "복사 중…",
+    "delete": "역할 삭제",
+    "deleting": "삭제 중…",
+    "confirmDelete": "확인?",
+    "createFailed": "역할을 만들 수 없습니다",
+    "saveFailed": "역할을 저장할 수 없습니다",
+    "deleteFailed": "역할을 삭제할 수 없습니다",
+    "copyFailed": "역할을 복사할 수 없습니다",
+    "unheldLocked": "자신이 있는 권한만 전환 가능. 나머지는 잠김.",
+    "unheldPermission": "이 권한이 없습니다",
+    "copyUnheld": "이 역할은 자신이 없는 권한을 가져 복사 불가.",
+    "copyDeleteUnheld": "이 역할은 자신이 없는 권한을 가져 복사·삭제 불가."
+  },
+  "memberRoles": {
+    "title": "{{name}}의 역할 편집",
+    "viewProfile": "프로필 보기",
+    "affectsAll": "권한 변경은 이 역할의 모든 멤버에 적용.",
+    "selectRole": "권한을 편집할 역할을 선택하세요.",
+    "saved": "변경 저장됨"
+  },
+  "permissions": {
+    "title": "권한",
+    "names": {
+      "administrator": "관리자",
+      "viewChannel": "채널 보기",
+      "manageChannels": "채널 관리",
+      "manageRoles": "역할 관리",
+      "manageSpace": "스페이스 관리",
+      "createInvite": "초대 만들기",
+      "kickMembers": "멤버 추방",
+      "banMembers": "멤버 차단",
+      "sendMessages": "메시지 보내기",
+      "manageMessages": "메시지 관리",
+      "attachFiles": "파일 첨부",
+      "readMessageHistory": "메시지 기록 읽기",
+      "addReactions": "반응 추가",
+      "connect": "연결",
+      "speak": "발언",
+      "muteMembers": "멤버 음소거",
+      "deafenMembers": "멤버 청각 차단",
+      "moveMembers": "멤버 이동",
+      "stream": "스트림",
+      "disconnectMembers": "멤버 연결 끊기",
+      "mentionEveryone": "@everyone·@here·역할 언급"
+    },
+    "tristate": {
+      "deny": "거부",
+      "neutral": "중립 (상속)",
+      "allow": "허용"
+    },
+    "overrideCount_other": "재정의 {{count}}",
+    "removeOverride": "재정의 삭제",
+    "removeOverrideFor": "{{name}}의 재정의 삭제",
+    "removeOverrideHint": "없으면 여기 스페이스 전체 권한이 적용.",
+    "noRoleOverrides": "역할 재정의 없음. 각 역할은 여기 스페이스 전체 권한을 사용.",
+    "noMemberOverrides": "멤버 재정의 없음.",
+    "roleOverrides": "역할 재정의",
+    "memberOverrides": "멤버 재정의",
+    "addRole": "역할 추가",
+    "addMember": "멤버 추가",
+    "noMoreRoles": "추가할 역할 더 없음",
+    "loadFailed": "재정의를 불러오지 못했습니다",
+    "saveFailed": "재정의를 저장할 수 없습니다",
+    "partialFailure_other": "재정의 {{count}} 저장 실패",
+    "unheldLocked": "자신이 있는 권한만 전환 가능. 나머지는 잠김.",
+    "unheldPermission": "이 권한이 없습니다",
+    "removeUnheld": "이 재정의는 자신이 없는 권한을 설정. 가진 사람만 삭제 가능.",
+    "removeUnheldShort": "이 권한 가진 사람만 삭제 가능",
+    "aboveYouRole": "이 역할은 최고 역할 이상. 재정의는 볼 수 있으나 변경·삭제 불가.",
+    "aboveYouMember": "이 멤버는 당신 이상. 재정의는 볼 수 있으나 변경·삭제 불가.",
+    "aboveYouShort": "최고 역할 이상"
+  },
+  "sidebar": {
+    "directMessages": "다이렉트 메시지",
+    "addSpace": "스페이스 추가",
+    "joinSpace": "스페이스 참가",
+    "folder": {
+      "tooltip_other": "폴더 ({{count}})",
+      "spaceCount_other": "스페이스 {{count}}",
+      "unnamed": "이름 없는 폴더",
+      "rename": "폴더 이름 바꾸기",
+      "color": "폴더 색",
+      "create": "폴더 만들기",
+      "moveTo": "폴더로 이동",
+      "removeFrom": "폴더에서 삭제",
+      "ungroup": "그룹 해제",
+      "created": "폴더 만들어짐",
+      "moved": "폴더로 이동됨",
+      "removed": "폴더에서 삭제됨",
+      "ungrouped": "폴더 그룹 해제됨"
+    },
+    "space": {
+      "inviteCopied": "초대 링크가 클립보드에 복사됨",
+      "inviteCopiedRequest": "초대 링크 복사됨. 연 사람은 참가를 요청할 수 있습니다.",
+      "inviteFailed": "초대를 생성할 수 없습니다",
+      "transferOwnership": "소유권 이전",
+      "settings": "스페이스 설정",
+      "leave": "스페이스 나가기",
+      "reconnecting": "{{instance}}에 다시 연결 중…",
+      "remoteInstance": "원격 인스턴스",
+      "leaveConfirm": {
+        "title": "스페이스 나가기",
+        "titleNamed": "{{name}} 나가기",
+        "description": "정말 이 스페이스를 나가시겠습니까? 다시 참가하려면 초대가 필요합니다."
+      },
+      "left": "스페이스 나감",
+      "leaveFailed": "스페이스를 나갈 수 없습니다",
+      "unreadMessages_other": "안 읽은 메시지 {{count}}",
+      "unreadMessagesOver99": "안 읽은 메시지 99개 초과"
+    },
+    "dmList": {
+      "newDm": "새 다이렉트 메시지",
+      "empty": "아직 대화 없음.",
+      "leaveGroup": "그룹 나가기",
+      "leaveGroupConfirm": {
+        "title": "그룹 DM 나가기",
+        "description": "정말 나가시겠습니까? 누군가 다시 추가하지 않으면 다시 참가할 수 없습니다."
+      }
+    },
+    "userArea": {
+      "inputDevice": "입력 장치",
+      "outputDevice": "출력 장치",
+      "inputDevices": "입력 장치",
+      "outputDevices": "출력 장치",
+      "inputVolume": "입력 볼륨",
+      "outputVolume": "출력 볼륨",
+      "systemDefault": "시스템 기본값",
+      "microphonePermission": "마이크 권한 필요.",
+      "audioPermission": "오디오 권한 필요.",
+      "enable": "활성화",
+      "voiceSettings": "음성 설정",
+      "mute": "음소거",
+      "unmute": "음소거 해제",
+      "deafen": "청각 차단",
+      "undeafen": "청각 차단 해제",
+      "spaceMuted": "스페이스에서 음소거됨",
+      "spaceDeafened": "스페이스에서 청각 차단됨",
+      "permissionMuted": "음소거됨 (발언 권한 없음)"
+    },
+    "dmUnreadMessages_other": "안 읽은 DM {{count}}",
+    "dmUnreadMessagesOver99": "안 읽은 DM 99개 초과"
+  },
+  "channels": {
+    "resizeHandle": "채널 목록 크기 조정",
+    "loading": "채널 불러오는 중",
+    "create": "채널 만들기",
+    "createCategory": "카테고리 만들기",
+    "settings": "채널 설정",
+    "categorySettings": "카테고리 설정",
+    "delete": "채널 삭제",
+    "deleteCategory": "카테고리 삭제",
+    "emptyCategory": "채널 없음",
+    "empty": "아직 채널 없음.",
+    "deleteConfirm": {
+      "title": "채널 삭제",
+      "description": "확실합니까? 채널과 그 모든 메시지를 완전 삭제합니다."
+    },
+    "deleteCategoryConfirm": {
+      "title": "카테고리 삭제",
+      "description": "이 카테고리를 정말 삭제? 내부 채널은 미분류로 이동 — 채널은 삭제되지 않습니다."
+    },
+    "deleted": "채널 삭제됨",
+    "deleteFailed": "채널을 삭제할 수 없습니다",
+    "categoryDeleted": "카테고리 삭제됨",
+    "categoryDeleteFailed": "카테고리를 삭제할 수 없습니다"
+  },
+  "members": {
+    "titleWithCount_other": "멤버 — {{count}}",
+    "loading": "멤버 불러오는 중",
+    "resizeHandle": "멤버 목록 크기 조정",
+    "groups": {
+      "owner": "소유자"
+    },
+    "ownerTitle": {
+      "edit": "소유자 칭호 편집",
+      "label": "소유자 칭호",
+      "hint": "이 스페이스의 모든 멤버에게 표시. 1–{{max}}자 사용; 권한은 변경되지 않습니다.",
+      "reset": "기본값으로 초기화"
+    },
+    "menu": {
+      "profile": "프로필 보기",
+      "nickname": "스페이스 별명 변경…",
+      "roles": "역할"
+    },
+    "nickname": {
+      "title": "스페이스 별명 변경",
+      "label": "스페이스 별명",
+      "descriptionSelf": "이 스페이스에만 적용. 계정 이름과 다른 스페이스의 별명은 유지. 계정 이름을 표시하려면 비우세요.",
+      "descriptionOther": "이 스페이스에만 적용. {{name}}의 계정 이름은 유지. 계정 이름을 표시하려면 비우세요.",
+      "reset": "계정 이름으로 초기화",
+      "shownAs": "이 스페이스의 별명: {{nickname}}"
+    }
+  },
+  "mobile": {
+    "addSheet": {
+      "createSpace": "스페이스 만들기",
+      "joinSpace": "스페이스 참가"
+    },
+    "muteUser": "사용자 음소거"
+  },
+  "main": {
+    "selectChannel": "채널 선택",
+    "selectChannelHint": "시작하려면 텍스트나 음성 채널을 선택하세요",
+    "notificationSettings": "알림 설정",
+    "topic": {
+      "show": "전체 주제 표시",
+      "dialogTitle": "#{{name}}"
+    },
+    "voice": {
+      "connectionFailed": "연결 실패",
+      "connected": "연결됨",
+      "connecting": "연결 중…",
+      "participants_other": "{{count}} 연결됨",
+      "inCall_other": "통화 중 {{count}}",
+      "empty": "지금 이 음성 채널에 아무도 없습니다.",
+      "join": "음성 참가"
+    },
+    "dm": {
+      "fallbackName": "다이렉트 메시지",
+      "composerPlaceholder": "{{target}}에게 메시지",
+      "calling": "{{name}} 호출 중…",
+      "groupSettings": "그룹 설정",
+      "openGroupSettings": "그룹 설정 열기",
+      "memberCount_other": "(멤버 {{count}}명)",
+      "startVoiceCall": "음성 통화 시작",
+      "joinCall": "통화 참가",
+      "startVideoCall": "영상 통화 시작",
+      "addFriends": "DM에 친구 추가"
+    }
+  },
+  "ownership": {
+    "title": "소유권 이전",
+    "description": "<name>{{name}}</name>을(를) 새 소유자로 선택",
+    "confirmQuestion": "<name>{{space}}</name>의 소유권을 <name>{{member}}</name>에게 이전?",
+    "regularMember": "일반 멤버가 됩니다.",
+    "transferring": "이전 중…",
+    "confirm": "이전",
+    "loading": "멤버 불러오는 중…",
+    "success": "소유권을 {{name}}님에게 이전했습니다",
+    "failed": "소유권을 이전할 수 없습니다"
+  },
+  "notifications": {
+    "open": "알림 설정",
+    "channelTitle": "#{{channel}} 알림",
+    "spaceTitle": "{{space}} 알림",
+    "levelHeading": "알림 대상",
+    "level": {
+      "all": "모든 메시지",
+      "mentions": "@언급만",
+      "nothing": "없음",
+      "inherit": "스페이스 기본값 ({{level}})"
+    },
+    "dmNote": "DM은 항상 알립니다.",
+    "muteHeading": "음소거",
+    "mute": {
+      "oneHour": "1시간",
+      "eightHours": "8시간",
+      "oneDay": "24시간",
+      "indefinite": "내가 켤 때까지"
+    },
+    "unmute": "음소거 해제",
+    "mutedUntil": "{{time}}까지 음소거",
+    "mutedIndefinitely": "켤 때까지 음소거",
+    "spaceMuted": "이 스페이스는 음소거되어 채널도 그렇습니다.",
+    "mutedIndicator": "음소거됨",
+    "saveFailed": "알림 설정을 저장할 수 없습니다",
+    "suppressEveryone": "@everyone·@here 억제",
+    "suppressRoles": "역할 언급 억제",
+    "massHeading": "그룹 언급",
+    "massNote": "@here는 @everyone과 같은 멤버에 도달합니다. 이름 언급은 항상 알립니다."
+  }
+}

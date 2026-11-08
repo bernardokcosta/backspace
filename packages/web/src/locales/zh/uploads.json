@@ -1,4 +1,19 @@
 {
+  "failure": {
+    "notAuthenticated": "你尚未在此实例上登录。",
+    "invalidResponse": "无法解析上传响应。",
+    "uploadError": "上传错误",
+    "downloadError": "下载错误",
+    "fileUnavailable": "文件已不可用。请丢弃此次上传并重新选择文件上传。",
+    "noDestination": "无法访问目标文件，不能继续下载。",
+    "destinationMissing": "目标文件已无法访问。",
+    "permissionDenied": "权限被拒绝",
+    "lostDownload": "已下载的数据丢失，无法继续下载。请重新开始下载。",
+    "uploadHandleMissing": "文件访问权限已丢失。请丢弃此次上传并重新选择文件上传。",
+    "downloadHandleMissing": "目标文件访问权限已丢失。请重新开始下载。",
+    "downloadFailed": "下载失败：{{status}}",
+    "resumeFailed": "恢复传输失败：{{status}}"
+  },
   "transfers": {
     "title": "传输列表",
     "count_other": "{{count}} 项传输",

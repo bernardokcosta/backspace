@@ -1,0 +1,104 @@
+{
+  "tabs": {
+    "all": "Semua",
+    "pending": "Tertunda",
+    "add": "Tambah Teman",
+    "activity": "Aktivitas"
+  },
+  "sections": {
+    "online": "Online — {{n}}",
+    "all": "Semua Teman — {{n}}",
+    "pending": "Tertunda — {{n}}",
+    "active": "Aktif — {{n}}",
+    "offline": "Offline — {{n}}"
+  },
+  "empty": {
+    "online": "Tidak ada yang online sekarang.",
+    "all": "Belum ada teman — tambah seseorang!",
+    "pending": "Tidak ada permintaan tertunda — Nori tidur siang.",
+    "activity": "Sepi untuk saat ini… Saat teman memulai aktivitas, kami tampilkan di sini!"
+  },
+  "friend": {
+    "viaInstance": "via {{host}}",
+    "message": "Pesan",
+    "remove": "Hapus Teman"
+  },
+  "sendMessage": {
+    "failed": "Tidak dapat membuka percakapan: {{reason}}"
+  },
+  "request": {
+    "incoming": "Permintaan Pertemanan Masuk",
+    "outgoing": "Permintaan Pertemanan Keluar",
+    "ignore": "Abaikan",
+    "cancel": "Batalkan Permintaan",
+    "send": "Kirim Permintaan Pertemanan",
+    "pending": "Permintaan Tertunda",
+    "sending": "Mengirim…",
+    "cancelling": "Membatalkan…",
+    "sent": "Permintaan pertemanan terkirim!"
+  },
+  "removeFriend": {
+    "title": "Hapus Teman",
+    "description": "Yakin ingin menghapus {{name}} sebagai teman? Anda selalu dapat mengirim permintaan baru nanti.",
+    "fallbackName": "pengguna ini"
+  },
+  "add": {
+    "title": "Temukan Orang",
+    "hint": "Cari berdasar nama pengguna atau gunakan <handle>user@instance</handle> untuk menambah langsung.",
+    "placeholder": "Cari atau tambah berdasar nama…",
+    "direct": "Kirim permintaan pertemanan ke <handle>{{handle}}</handle>",
+    "sendRequest": "Kirim Permintaan",
+    "discover": "Temukan Orang",
+    "noSearchResults": "Tidak ada pengguna cocok dengan pencarian.",
+    "noDiscoverable": "Belum ada pengguna dapat ditemukan — undang orang untuk bergabung!"
+  },
+  "mutuals": {
+    "friends_one": "{{count}} teman bersama",
+    "friends_other": "{{count}} teman bersama",
+    "spaces_one": "{{count}} ruang bersama",
+    "spaces_other": "{{count}} ruang bersama",
+    "noFriends": "Tidak ada teman bersama",
+    "noSpaces": "Tidak ada ruang bersama"
+  },
+  "profile": {
+    "tabs": {
+      "about": "Tentang",
+      "mutualFriends": "Teman Bersama",
+      "mutualSpaces": "Ruang Bersama"
+    },
+    "aboutMe": "Tentang Saya",
+    "roles": "Peran",
+    "memberSince": "Anggota Sejak",
+    "sendMessage": "Kirim Pesan",
+    "editRoles": "Edit Peran",
+    "viewFull": "Lihat Profil Penuh",
+    "addFriend": "Tambah Teman",
+    "playingNow": "Sedang bermain"
+  },
+  "activity": {
+    "title": "Aktif Sekarang",
+    "quietTitle": "Sepi untuk saat ini…",
+    "quietDescription": "Saat teman memulai aktivitas — misalnya bermain game atau nongkrong di voice — kami tampilkan di sini!",
+    "online": "Online — {{n}}",
+    "offline": "Offline — {{n}}",
+    "resizeHandle": "Ubah ukuran daftar teman",
+    "types": {
+      "playing": "Main Game",
+      "listening": "Dengarkan Musik",
+      "streaming": "Streaming",
+      "watching": "Menonton",
+      "custom": "Status Kustom"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "Buka Trek"
+  },
+  "instanceNotConnected": "Tidak terhubung ke {{host}}. Hubungkan lagi dan coba lagi."
+}

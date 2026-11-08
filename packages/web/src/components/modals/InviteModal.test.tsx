@@ -300,7 +300,7 @@ describe('InviteModal', () => {
       expect(screen.getByText('✓ Sent')).toBeInTheDocument();
     });
     expect(screen.getByText('✗ Not a friend')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Retry failed' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Retry failed invites' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();
     // Modal must remain open while results are visible.
     expect(useUIStore.getState().activeModal).toBe('invite');
@@ -330,7 +330,7 @@ describe('InviteModal', () => {
     await user.click(screen.getByRole('button', { name: /Send 2 Invites/ }));
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Retry failed' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Retry failed invites' })).toBeInTheDocument();
     });
     expect(mockSpaceInvite).toHaveBeenCalledTimes(2);
 
@@ -338,7 +338,7 @@ describe('InviteModal', () => {
     mockSpaceInvite.mockReset();
     mockSpaceInvite.mockResolvedValue({});
 
-    await user.click(screen.getByRole('button', { name: 'Retry failed' }));
+    await user.click(screen.getByRole('button', { name: 'Retry failed invites' }));
 
     await waitFor(() => {
       expect(mockSpaceInvite).toHaveBeenCalledTimes(1);

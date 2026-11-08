@@ -128,7 +128,7 @@ export function VoiceChannel({ channelId, channelName, onClick, locked, canManag
       items.push({
         key: 'mute-user',
         type: 'checkbox',
-        label: 'Mute User',
+        label: t('voice:participantMenu.muteUser'),
         subscribe: useVoiceStore.subscribe,
         getChecked: () => isLocallyMutedIn(useVoiceStore.getState().participantMutes, userId, channelId),
         onChange: (checked) => setLocalMute(userId, channelId, checked),
@@ -145,7 +145,7 @@ export function VoiceChannel({ channelId, channelName, onClick, locked, canManag
 
       openContextMenu(menuPositionFor(e), items);
     },
-    [myIdHere, channelId, openContextMenu],
+    [myIdHere, channelId, openContextMenu, t],
   );
 
   const handleOpenProfile = useCallback(

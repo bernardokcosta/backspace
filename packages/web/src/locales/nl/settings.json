@@ -1,0 +1,572 @@
+{
+  "interfaceScale": {
+    "label": "Interfacegrootte",
+    "description": "Wijzig tekst-, knop- en paneelgrootte. Opgeslagen in deze browser of app op dit apparaat.",
+    "reset": "Naar 100% resetten"
+  },
+  "voice": {
+    "input": {
+      "title": "Invoerapparaat",
+      "checkingAccess": "Microfoontoegang controleren…",
+      "accessDenied": {
+        "title": "Microfoontoegang geweigerd",
+        "description": "Geef microfoontoegang om een invoerapparaat te kiezen.",
+        "retry": "Opnieuw proberen"
+      },
+      "permissionPrompt": {
+        "description": "Microfoonrechten nodig om invoerapparaten te tonen en te kiezen.",
+        "enable": "Microfoontoegang inschakelen"
+      },
+      "device": {
+        "systemDefault": "Systeemstandaard",
+        "currentlyUsing": "Nu in gebruik: {{label}}",
+        "none": "Geen microfoons gedetecteerd."
+      },
+      "volume": {
+        "label": "Invoervolume"
+      },
+      "meter": {
+        "hint": "De niveaumeter wordt actief zodra je een spraakkanaal joint."
+      }
+    },
+    "output": {
+      "title": "Uitvoerapparaat",
+      "checkingAccess": "Audiotoegang controleren…",
+      "device": {
+        "systemDefault": "Systeemstandaard",
+        "unsupported": "Deze browser ondersteunt geen uitvoerapparaatkeuze. Audio gaat naar de systeemstandaard."
+      },
+      "permissionPrompt": {
+        "description": "Geef microfoontoegang om uitvoerapparaten te tonen (browsers verbergen uitvoernamen achter microfoontoegang).",
+        "enable": "Audiotoegang inschakelen"
+      },
+      "volume": {
+        "label": "Uitvoervolume"
+      },
+      "testSound": "Testgeluid afspelen"
+    },
+    "video": {
+      "title": "Video",
+      "checkingAccess": "Cameratoegang controleren…",
+      "accessDenied": {
+        "title": "Cameratoegang geweigerd",
+        "description": "Geef cameratoegang om een camera te kiezen.",
+        "retry": "Opnieuw proberen"
+      },
+      "blocked": {
+        "browser": "Camera geblokkeerd op browserniveau. Klik op het camerapictogram in de adresbalk, reset de permissie en klik Opnieuw proberen.",
+        "mac": "Geef cameratoegang in Systeeminstellingen → Privacy en beveiliging → Camera en herstart de app.",
+        "windows": "Geef cameratoegang in Instellingen → Privacy en beveiliging → Camera en herstart de app.",
+        "other": "Cameratoestemming geweigerd. Reset hem in je browser/Chromium-prompt en probeer opnieuw."
+      },
+      "permissionPrompt": {
+        "description": "Camerarechten nodig om een camera te kiezen en te bekijken.",
+        "enable": "Cameravoorbeeld inschakelen"
+      },
+      "camera": {
+        "label": "Camera",
+        "auto": "Auto (systeemstandaard)",
+        "fallbackName": "Camera {{number}}",
+        "detectedFallback": "gedetecteerde camera",
+        "currentlyUsing": "Nu in gebruik: {{label}}",
+        "none": "Geen camera's gedetecteerd."
+      },
+      "preview": {
+        "testAria": "Camera testen",
+        "testHint": "Klik om camera te testen",
+        "stop": "Voorbeeld stoppen",
+        "retry": "Opnieuw proberen"
+      },
+      "previewError": {
+        "inUse": "Camera is in gebruik door een andere applicatie.",
+        "unavailable": "Geselecteerde camera is niet beschikbaar.",
+        "notFound": "Geen camera gedetecteerd.",
+        "generic": "Cameravoorbeeld kon niet worden gestart."
+      }
+    },
+    "title": "Voice & video",
+    "volume": {
+      "sectionTitle": "Volume",
+      "soundEffects": {
+        "label": "Volume van geluidseffecten"
+      },
+      "messageSound": {
+        "label": "Geluid afspelen bij elk bericht",
+        "description": "Uit (standaard): alleen DM's en berichten die jou noemen. Aan: elk kanaal."
+      }
+    },
+    "pip": {
+      "sectionTitle": "Zwevend venster",
+      "showOnSwitch": {
+        "label": "Zwevend venster tonen tijdens gesprekken",
+        "description": "Terwijl je in een spraakkanaal of gesprek zit en ergens anders kijkt, houdt een klein venster het gesprek in beeld."
+      }
+    },
+    "processing": {
+      "sectionTitle": "Spraakverwerking",
+      "noiseSuppression": {
+        "label": "AI-ruisonderdrukking",
+        "description": "ML-ruisverwijdering (RNNoise). Filtert toetsenbord, ventilatoren en achtergrondruis."
+      },
+      "echoCancellation": {
+        "label": "Echo-onderdrukking",
+        "description": "Haalt echo van je speakers uit de microfoon. Altijd aan voor spraakkanalen en gesprekken."
+      },
+      "autoGain": {
+        "label": "Automatische gain",
+        "description": "Past microfoonvolume automatisch aan. Kan voice ducking veroorzaken tijdens streams."
+      }
+    }
+  },
+  "nav": {
+    "userSettings": "Gebruikersinstellingen",
+    "appSettings": "App-instellingen",
+    "administration": "Beheer",
+    "tabs": {
+      "account": "Account",
+      "appearance": "Uiterlijk",
+      "voice": "Voice & video",
+      "privacy": "Privacy",
+      "connections": "Verbindingen",
+      "keybinds": "Toetscombinaties",
+      "desktop": "Desktop",
+      "instance": "Instantie",
+      "bots": "Bots",
+      "developer": "Ontwikkelaar"
+    },
+    "logOut": "Uitloggen",
+    "backToMenu": "Terug naar instellingenmenu"
+  },
+  "appearance": {
+    "title": "Uiterlijk"
+  },
+  "account": {
+    "title": "Mijn account",
+    "detached": {
+      "notice": "Dit account is losgekoppeld van zijn thuisbasis.",
+      "explanation": "{{homeInstance}} is gereset of niet meer beschikbaar, dus dit account werkt nu lokaal op deze instantie. Je profiel en wachtwoord worden hier beheerd.",
+      "reattachHint": "Als {{username}} op {{homeInstance}} kun je dit account opnieuw koppelen. Profiel en aanwezigheid syncen dan weer vanaf daar.",
+      "reattachButton": "Opnieuw koppelen aan {{homeInstance}}",
+      "reattachConfirm": "Opnieuw koppelen als {{username}} bevestigen",
+      "reattaching": "Opnieuw koppelen…",
+      "reattachFailed": "Opnieuw koppelen mislukt",
+      "reattached": "Account opnieuw gekoppeld met {{username}}"
+    },
+    "profile": {
+      "sectionTitle": "Profielaanpassing",
+      "avatar": {
+        "label": "Avatar",
+        "alt": "Je avatar",
+        "change": "Avatar wijzigen",
+        "uploadFailed": "Avatar uploaden mislukt",
+        "cropTitle": "Avatar bijsnijden"
+      },
+      "banner": {
+        "label": "Banner",
+        "change": "Banner wijzigen",
+        "uploadFailed": "Banner uploaden mislukt",
+        "cropTitle": "Banner bijsnijden"
+      },
+      "avatarColor": {
+        "label": "Avatarkleur"
+      },
+      "bannerColor": {
+        "label": "Bannerkleur",
+        "hexPlaceholder": "#hex"
+      },
+      "bio": {
+        "label": "Over mij",
+        "placeholder": "Vertel de wereld over jezelf…",
+        "counter": "{{used}}/{{max}}"
+      }
+    },
+    "details": {
+      "sectionTitle": "Account",
+      "status": {
+        "label": "Status",
+        "homeUnavailable": "Je status wordt op {{host}} bewaard. Maak verbinding met {{host}} om hem te wijzigen."
+      },
+      "customStatus": {
+        "label": "Aangepaste status",
+        "placeholder": "Waar ben je mee bezig?"
+      }
+    },
+    "password": {
+      "current": {
+        "label": "Huidig wachtwoord",
+        "placeholder": "Voer huidig wachtwoord in"
+      },
+      "new": {
+        "label": "Nieuw wachtwoord",
+        "placeholder": "Minstens {{min}} tekens"
+      },
+      "confirm": {
+        "label": "Nieuw wachtwoord bevestigen",
+        "placeholder": "Bevestig nieuw wachtwoord"
+      },
+      "show": "Wachtwoord tonen",
+      "hide": "Wachtwoord verbergen",
+      "tooShort": "Nieuw wachtwoord moet minstens {{min}} tekens zijn",
+      "mismatch": "Wachtwoorden komen niet overeen",
+      "changed": "Wachtwoord gewijzigd",
+      "changeFailed": "Wachtwoord wijzigen mislukt",
+      "submit": "Wachtwoord wijzigen",
+      "submitting": "Wijzigen…"
+    },
+    "danger": {
+      "description": "Zodra je je account verwijdert is er geen weg terug. Je berichten blijven maar worden aan “Verwijderde gebruiker” toegeschreven.",
+      "deleteButton": "Account verwijderen"
+    },
+    "save": {
+      "updated": "Profiel bijgewerkt",
+      "failed": "Profiel bijwerken mislukt"
+    },
+    "deletion": {
+      "title": "Account verwijderen",
+      "warning": {
+        "headline": "Dit verwijdert je account definitief.",
+        "spaces": "Alle ruimtelidmaatschappen worden verwijderd",
+        "friends": "Alle vriendschappen worden verwijderd",
+        "dms": "Alle DM-lidmaatschappen worden verwijderd",
+        "messages": "Je berichten blijven maar worden aan “Verwijderde gebruiker” toegeschreven"
+      },
+      "ownedSpaces": {
+        "prompt_one": "Je bezit {{count}} ruimte. Regel deze eerst:",
+        "prompt_other": "Je bezit {{count}} ruimtes. Regel ze eerst:",
+        "transfer": "Overdragen",
+        "delete": "Ruimte verwijderen",
+        "selectOwner": "Selecteer nieuwe eigenaar…"
+      },
+      "processing": "Verwerken…",
+      "confirm": {
+        "permanent": "Deze actie is definitief en kan niet ongedaan worden gemaakt.",
+        "usernamePrompt": "Typ je gebruikersnaam <username>{{username}}</username> ter bevestiging",
+        "passwordPlaceholder": "Voer je wachtwoord in",
+        "submit": "Mijn account verwijderen",
+        "deleting": "Verwijderen…"
+      },
+      "federation": {
+        "removing": "Je account van verbonden instanties verwijderen…",
+        "deleteAnyway": "Account nu verwijderen"
+      },
+      "complete": {
+        "title": "Account verwijderd",
+        "redirecting": "Omleiden naar login…"
+      },
+      "errors": {
+        "usernameMismatch": "Gebruikersnaam komt niet overeen",
+        "spacesFailed": "Ruimtes verwerken mislukt",
+        "deleteFailed": "Account verwijderen mislukt"
+      }
+    }
+  },
+  "privacy": {
+    "title": "Privacy",
+    "discovery": {
+      "sectionTitle": "Vindbaarheid",
+      "label": "Anderen mijn profiel laten vinden",
+      "description": "Bij aan verschijnt je profiel in Mensen ontdekken. Anderen kunnen je altijd via exacte gebruikersnaam toevoegen."
+    },
+    "activity": {
+      "sectionTitle": "Activiteitsstatus",
+      "label": "Activiteitsstatus delen",
+      "description": "Laat anderen zien waarmee je bezig bent, zoals spellen die je speelt of muziek waarnaar je luistert.",
+      "game": {
+        "label": "Handmatig aangemaakt",
+        "description": "Voeg een spel toe dat niet werd gedetecteerd. Het wordt getoond tot je het verwijdert.",
+        "placeholder": "Spelnaam",
+        "set": "Instellen",
+        "detectedLabel": "Nu gedetecteerd",
+        "detectedDescription": "Toon een gedetecteerd spel onder een andere naam. Het wordt voor de volgende keer onthouden.",
+        "renamePlaceholder": "Tonen als…",
+        "renameLabel": "{{name}} tonen als",
+        "renamedLabel": "Hernoemde spellen",
+        "renamedItem": "{{detected}} → {{chosen}}",
+        "restore": "Herstellen",
+        "descriptionBound": "Voeg een spel toe dat niet werd gedetecteerd: kies zijn programma en noem het. Het wordt getoond terwijl dat programma draait.",
+        "programLabel": "Programma",
+        "programPlaceholder": "Kies een draaiend programma…",
+        "programHint": "Start eerst het spel en kies dan zijn programma uit de lijst.",
+        "clearRename": "Wissen",
+        "unknownLabel": "Onherkende Wine-programma's",
+        "unknownDescription": "Ze draaien maar passen bij geen bekend spel. Als er een jouw spel is, toon hem als het spel dat je speelt.",
+        "unknownUse": "Aan mijn spellen toevoegen",
+        "gamesLabel": "Je spellen",
+        "gamesDescription": "Het eerste spel is wat lijsten tonen; versleep spellen om prioriteit in te stellen. Een verborgen spel wordt niet aan anderen getoond.",
+        "moveUp": "{{name}} omhoog verplaatsen",
+        "moveDown": "{{name}} omlaag verplaatsen",
+        "hide": "Verbergen",
+        "show": "Tonen",
+        "hideGame": "{{name}} verbergen",
+        "showGame": "{{name}} tonen",
+        "add": "Toevoegen",
+        "remove": "Verwijderen",
+        "statusName": "getoond op naam",
+        "statusRunning": "draait",
+        "statusWaiting": "wacht op {{program}}",
+        "dragHandle": "Sleep {{name}} om prioriteit te wijzigen",
+        "manualNameLabel": "Naam van {{name}}",
+        "save": "Opslaan"
+      }
+    }
+  },
+  "connections": {
+    "title": "Verbindingen"
+  },
+  "instance": {
+    "tabs": {
+      "general": "Algemeen",
+      "registration": "Registratie",
+      "federation": "Federatie",
+      "streaming": "Streamen",
+      "storage": "Opslag",
+      "users": "Gebruikers",
+      "updates": "Updates"
+    }
+  },
+  "keybinds": {
+    "portal": {
+      "description": "Op Wayland beheert de desktop alle Backspace-sneltoetsen. Wijs toe, wijzig of verwijder toetsen in de systeeminstellingen voor sneltoetsen, bij Backspace. Lokale browser/X11-bindingen worden hier niet gebruikt.",
+      "idle": "Eerste registratie van alle acties voorbereiden.",
+      "pending": "Verbinden met de desktopportal. Als een systeemvenster verschijnt, kies sneltoetsen voor de acties die je wilt gebruiken.",
+      "ready": "Backspace is geregistreerd. Open je systeeminstellingen voor sneltoetsen om toewijzingen te wijzigen of te verwijderen. De lijst hieronder is alleen-lezen en ververst als je terugkomt.",
+      "unavailable": "De portal is niet beschikbaar, toestemming geweigerd of sessie beëindigd. Een Global Shortcuts-portalbackend is vereist. Lokale bindingen staan uit op Wayland.",
+      "retry": "Sneltoetsen registreren of opnieuw verbinden",
+      "assigned": "Systeemsneltoets: {{shortcut}}",
+      "notAssigned": "Geen actieve systeemtoewijzing"
+    },
+    "title": "Toetscombinaties",
+    "note": {
+      "webOnly": "Sneltoetsen werken terwijl dit tabblad actief is. Gebruik de desktopapp voor globale sneltoetsen die in andere apps werken."
+    },
+    "section": {
+      "voice": "Spraaksneltoetsen"
+    },
+    "action": {
+      "toggleMute": "Dempen wisselen",
+      "toggleDeafen": "Doven wisselen",
+      "pushToTalk": "Push to Talk",
+      "toggleCamera": "Camera wisselen",
+      "toggleScreenShare": "Schermdeling wisselen",
+      "disconnect": "Verbreken"
+    },
+    "row": {
+      "recordingPrompt": "Druk een toetscombinatie…",
+      "notBound": "Niet gebonden",
+      "record": "Opnemen",
+      "escToCancel": "ESC om te annuleren"
+    },
+    "key": {
+      "shift": "Shift",
+      "ctrl": "Ctrl",
+      "alt": "Alt",
+      "option": "Option",
+      "cmd": "Cmd",
+      "win": "Win",
+      "space": "Spatie",
+      "middleClick": "Middelklik",
+      "mouse4": "Muis 4",
+      "mouse5": "Muis 5",
+      "mouseGeneric": "Muis {{button}}"
+    },
+    "accessibility": {
+      "title": "Toegankelijkheidstoestemming vereist",
+      "description": "Backspace heeft toegankelijkheidstoestemming nodig voor globale sneltoetsen buiten de app.",
+      "grant": "Toestemming geven"
+    },
+    "hookError": {
+      "title": "Globale sneltoetsen niet beschikbaar",
+      "description": "Invoerlistener starten mislukt. Op Linux moet je gebruiker mogelijk in de groep <code>input</code> zitten."
+    },
+    "conflict": {
+      "message": "<strong>{{combo}}</strong> is al gebonden aan <strong>{{action}}</strong>. Overschrijven?",
+      "overwrite": "Overschrijven"
+    }
+  },
+  "desktop": {
+    "title": "Desktop",
+    "autoLaunch": {
+      "openAtLogin": {
+        "label": "Starten bij opstarten",
+        "description": "Backspace automatisch starten als je inlogt"
+      },
+      "startMinimized": {
+        "label": "Geminimaliseerd starten",
+        "description": "Verborgen in het systeemvak starten in plaats van venster tonen"
+      }
+    },
+    "updates": {
+      "appName": "Backspace Desktop",
+      "versionLabel": "Versie {{version}}",
+      "checking": "Updates controleren…",
+      "checkingShort": "Controleren…",
+      "checkNow": "Controleren op updates",
+      "downloading": "Downloaden {{version}}, {{percent}}%",
+      "downloadingWithRate": "Downloaden {{version}}, {{percent}}% met {{rate}}",
+      "rateMegabytes": "{{value}} MB/s",
+      "rateKilobytes": "{{value}} KB/s",
+      "upToDate": "Je hebt de nieuwste versie",
+      "available": "Versie {{version}} beschikbaar",
+      "readyToInstall": "Versie {{version}} klaar om te installeren",
+      "installFailed": "Versie {{version}} kon niet worden geïnstalleerd",
+      "checkFailed": "Laatste updatecontrole mislukt",
+      "idle": "Controleren op nieuwe desktopversies",
+      "external": "Updates worden via je Flatpak-softwarebeheerder geïnstalleerd",
+      "download": "Downloaden",
+      "restart": "Opnieuw opstarten",
+      "manualNote": "Deze build installeert updates niet zelf. Download nieuwe versies van GitHub en vervang de app handmatig. Zie de releasenotes voor stappen op jouw platform.",
+      "externalNote": "Flatpak past updates atomair buiten de app toe. Gebruik je softwarebeheerder of het commando <code>flatpak update</code> om Backspace bij te werken."
+    },
+    "instance": {
+      "current": "Nu verbonden instantie",
+      "change": "Instantie wisselen"
+    }
+  },
+  "desktopDownload": {
+    "title": "Desktop",
+    "intro": "Globale sneltoetsen, starten bij opstarten en een systeemvakpictogram.",
+    "unsupported": "De desktopapp draait op Windows, Linux en macOS.",
+    "name": {
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux"
+    },
+    "tag": {
+      "windows": "Deze pc",
+      "mac": "Deze Mac",
+      "linux": "Deze machine"
+    },
+    "covers": {
+      "windows": "x64 of arm64",
+      "mac": "Draait op Apple Silicon en Intel Macs",
+      "linux": "AppImage- of deb-pakket, x64 of arm64"
+    },
+    "download": {
+      "windows": "Downloaden voor Windows",
+      "mac": "Downloaden voor macOS",
+      "linux": "Downloaden voor Linux"
+    },
+    "picker": {
+      "architecture": "Architectuur",
+      "format": "Pakketformaat"
+    },
+    "arch": {
+      "appleSilicon": "Apple Silicon",
+      "intel": "Intel",
+      "x64": "x64",
+      "arm64": "arm64"
+    },
+    "kind": {
+      "appimage": "AppImage",
+      "deb": "deb"
+    },
+    "archGuessed": {
+      "windows": "Je browser zei niet welke processor deze pc heeft, dus x64 is voorgeselecteerd.",
+      "mac": "Je browser zei niet welke chip deze Mac heeft, dus Apple Silicon is voorgeselecteerd.",
+      "linux": "Je browser zei niet welke processor deze machine heeft, dus x64 is voorgeselecteerd."
+    },
+    "version": "Versie {{version}}",
+    "allReleases": "Alle releases op GitHub"
+  },
+  "bots": {
+    "title": "Bots",
+    "description": "Een bot is een account dat een programma met een token bestuurt. Maak er een, kopieer zijn token en verbind je programma. Bots antwoorden in privéberichten.",
+    "create": {
+      "sectionTitle": "Een bot aanmaken",
+      "nameLabel": "Botgebruikersnaam",
+      "submit": "Bot aanmaken",
+      "hint": "{{min}} tot {{max}} tekens: kleine Latijnse letters (a–z), cijfers (0–9) en underscores (_). Je kunt tot {{limit}} bots aanmaken."
+    },
+    "list": {
+      "sectionTitle": "Je bots",
+      "empty": "Je hebt nog geen bots.",
+      "createdOn": "Aangemaakt {{date}}"
+    },
+    "token": {
+      "title": "Token voor {{name}}",
+      "warning": "Kopieer het token nu. Het wordt maar één keer getoond en wie het heeft bestuurt de bot.",
+      "copy": "Token kopiëren",
+      "copied": "Gekopieerd",
+      "dismiss": "Ik heb het bewaard"
+    },
+    "tokens": {
+      "title": "Toegangstokens",
+      "loading": "Tokens laden",
+      "legacy": "Deze bot draait nog op zijn oude langlevende token. Maak een token om over te schakelen: de oude stopt direct met werken.",
+      "empty": "Deze bot heeft geen tokens.",
+      "unnamed": "Naamloos token",
+      "createdOn": "Aangemaakt {{date}}",
+      "neverUsed": "nooit gebruikt",
+      "lastUsed": "laatst gebruikt {{time}}",
+      "revoke": "Intrekken",
+      "confirmRevoke": "Intrekking bevestigen",
+      "nameLabel": "Tokenlabel",
+      "namePlaceholder": "Label (optioneel)",
+      "create": "Token aanmaken",
+      "limitHint": "Tot {{max}} tokens per bot. Een token intrekken verbreekt de bot; de andere tokens blijven werken."
+    },
+    "actions": {
+      "regenerate": "Alle tokens resetten",
+      "delete": "Verwijderen",
+      "confirmDelete": "Verwijderen bevestigen",
+      "cancel": "Annuleren",
+      "edit": "Bewerken",
+      "save": "Opslaan",
+      "addToServer": "Aan een ruimte toevoegen",
+      "tokens": "Tokens"
+    },
+    "edit": {
+      "nameLabel": "Weergavenaam",
+      "hint": "De gebruikersnaam @{{username}} kan niet worden gewijzigd. Tot {{max}} tekens.",
+      "bioLabel": "Over",
+      "bioPlaceholder": "Wat de bot doet, zijn commando's, waar je hulp krijgt",
+      "bioCounter": "{{used}}/{{max}}"
+    },
+    "status": {
+      "label": "Status",
+      "none": "Geen status",
+      "textLabel": "Statustekst",
+      "placeholder": "Wat de bot naast zijn naam toont",
+      "hint": "Getoond terwijl de bot is verbonden. De code van de bot kan hem vervangen tot hij opnieuw verbindt.",
+      "types": {
+        "custom": "Aangepast",
+        "playing": "Speelt",
+        "listening": "Luistert naar",
+        "watching": "Kijkt naar"
+      },
+      "display": {
+        "custom": "{{name}}",
+        "playing": "Speelt {{name}}",
+        "listening": "Luistert naar {{name}}",
+        "watching": "Kijkt naar {{name}}"
+      }
+    },
+    "permissions": {
+      "label": "Permissies waarom de bot vraagt",
+      "hint": "Een beheerder die de bot aan een ruimte toevoegt ziet ze aangevinkt en kan er een uitvinken. Ze gaan in een rol naar de bot vernoemd. Later wijzigen raakt al gemaakte rollen niet."
+    },
+    "avatar": {
+      "change": "Avatar wijzigen",
+      "remove": "Avatar verwijderen",
+      "cropTitle": "Botavatar bijsnijden",
+      "uploadFailed": "Avatar uploaden mislukt",
+      "notImage": "Kies een afbeeldingsbestand"
+    },
+    "spaces": {
+      "title": "Aan een ruimte toevoegen",
+      "loading": "Ruimtes laden",
+      "empty": "Je beheert nog geen ruimtes. Een bot toevoegen vereist ruimtbeheer.",
+      "add": "Toevoegen",
+      "added": "Toegevoegd",
+      "remove": "Verwijderen"
+    }
+  },
+  "developer": {
+    "title": "Ontwikkelaar",
+    "mode": {
+      "label": "Ontwikkelaarsmodus",
+      "description": "Toon ontwikkelaarshulpmiddelen, zoals het tabblad Bots, in instellingen. Uitzetten verbergt ze alleen; je bots blijven draaien.",
+      "saveFailed": "Instelling opslaan mislukt. Probeer opnieuw."
+    }
+  }
+}

@@ -1,0 +1,445 @@
+{
+  "general": {
+    "title": "General",
+    "description": "Configura tu instancia de Backspace. Estos ajustes afectan a todos los usuarios.",
+    "instanceName": {
+      "label": "Nombre de la instancia",
+      "description": "El nombre que se muestra en la página de inicio de sesión y a las instancias federadas.",
+      "counter": "{{length}}/{{max}}"
+    },
+    "gif": {
+      "label": "Búsqueda de GIF",
+      "description": "Activa la búsqueda de GIF con Klipy. Consigue una clave de API gratuita en su portal para desarrolladores.",
+      "placeholderSaved": "Clave guardada. Introduce otra para sustituirla",
+      "placeholderKey": "Clave de API de Klipy",
+      "enabled": "Activada",
+      "notConfigured": "Sin configurar",
+      "clearKey": "Borrar clave"
+    }
+  },
+  "registration": {
+    "title": "Registro",
+    "description": "Controla quién puede crear cuentas en esta instancia. El registro público permite crear cuentas locales; el federado permite que usuarios de instancias emparejadas creen una cuenta aquí.",
+    "public": {
+      "label": "Registro público",
+      "toggleLabel": "Permitir cuentas locales nuevas",
+      "toggleDescription": "Cualquier persona puede crear una cuenta local desde la página de registro. Si se desactiva, solo se pueden crear cuentas locales con enlaces de invitación."
+    },
+    "federated": {
+      "label": "Registro federado",
+      "toggleLabel": "Permitir cuentas federadas nuevas",
+      "toggleDescription": "Los usuarios de otras instancias pueden crear una cuenta federada aquí desde sus ajustes de Conexiones. Las cuentas federadas existentes siempre pueden iniciar sesión, independientemente de este ajuste."
+    },
+    "spaceCreation": {
+      "label": "Creación de espacios",
+      "toggleLabel": "Permitir crear espacios nuevos",
+      "toggleDescription": "Los usuarios pueden crear espacios nuevos en esta instancia. Si se desactiva, solo los administradores de la instancia pueden crearlos y los demás usuarios solo pueden entrar en espacios existentes."
+    },
+    "saved": "Ajustes de registro guardados",
+    "saveFailed": "No se pudieron actualizar los ajustes de registro"
+  },
+  "invites": {
+    "label": "Enlaces de invitación",
+    "create": "+ Crear enlace",
+    "tabs": {
+      "active": "Activos",
+      "archived": "Archivados"
+    },
+    "loadFailed": "No se pudieron cargar las invitaciones",
+    "emptyActive": "No hay enlaces de invitación activos.",
+    "emptyArchived": "No hay enlaces de invitación archivados.",
+    "noMatch": "No hay invitaciones que coincidan con el filtro actual.",
+    "filter": {
+      "status": "Estado",
+      "sort": {
+        "recent": "Más recientes",
+        "oldest": "Más antiguos",
+        "name": "Nombre (A–Z)",
+        "mostUsed": "Más usados",
+        "expiringSoonest": "Próximos a caducar"
+      }
+    },
+    "status": {
+      "active": "Activo",
+      "expired": "Caducado",
+      "exhausted": "Usos agotados",
+      "revoked": "Revocado"
+    },
+    "expiry": {
+      "preset": {
+        "hour1": "1 hora",
+        "hours24": "24 horas",
+        "days7": "7 días",
+        "days30": "30 días",
+        "custom": "Personalizar…"
+      },
+      "keepCurrent": "Mantener la fecha actual",
+      "invalidFuture": "Elige una fecha y hora futuras",
+      "invalidSelection": "La opción de caducidad no es válida",
+      "revokedOn": "Revocado el {{date}}",
+      "expiredOn": "Caducó el {{date}}",
+      "exhausted": "Usos agotados",
+      "noExpiration": "Sin caducidad",
+      "inDays_one": "Caduca en {{count}} día",
+      "inDays_many": "Caduca en {{count}} días",
+      "inDays_other": "Caduca en {{count}} días",
+      "inHours_one": "Caduca en {{count}} hora",
+      "inHours_many": "Caduca en {{count}} horas",
+      "inHours_other": "Caduca en {{count}} horas"
+    },
+    "form": {
+      "name": "Nombre",
+      "namePlaceholder": "p. ej., Amigos, primer grupo",
+      "maxUses": "Máximo de usos",
+      "unlimited": "Sin límite",
+      "uses": "usos",
+      "expires": "Caduca",
+      "nameLength": "El nombre debe tener entre 1 y 64 caracteres",
+      "maxUsesInteger": "El máximo de usos debe ser un número entero positivo"
+    },
+    "createModal": {
+      "title": "Crear enlace de invitación",
+      "description": "Genera un enlace para compartir que permita registrarse en esta instancia. Podrás definir cuántas veces se puede usar y cuándo caduca.",
+      "submit": "Crear enlace",
+      "submitting": "Creando…",
+      "createdCopied": "Enlace creado y copiado al portapapeles.",
+      "createdManual": "Enlace creado. Cópialo manualmente desde su fila.",
+      "failed": "No se pudo crear la invitación: {{message}}"
+    },
+    "editModal": {
+      "title": "Editar «{{name}}»",
+      "description": "Ajusta los límites de este enlace de invitación. La URL no cambia: quienes ya la tengan podrán seguir usándola con las nuevas restricciones.",
+      "used": "(usos: {{used}})",
+      "maxUsesBelowUsed": "El máximo de usos no puede ser inferior a los usos actuales ({{used}})",
+      "noChanges": "No hay cambios que guardar",
+      "updated": "Invitación actualizada",
+      "failed": "No se pudo actualizar la invitación: {{message}}",
+      "submit": "Guardar cambios",
+      "submitting": "Guardando…"
+    },
+    "reinstateModal": {
+      "title": "Reactivar «{{name}}»",
+      "descriptionRevoked": "Esta invitación se ha revocado. Reactivarla genera un enlace con una URL distinta. La URL antigua sigue inactiva.",
+      "descriptionLapsed": "Esta invitación ya no está activa. Reactivarla vuelve a habilitar la misma URL. Quienes la hayan guardado podrán usarla de nuevo.",
+      "newLinkWarning": "Se generará un enlace nuevo. Quienes tengan la URL antigua no podrán usarla.",
+      "maxUsesMeta": "(límite actual: {{max}}, usos: {{used}})",
+      "maxUsesMin": "El máximo de usos debe ser al menos {{min}} (usos actuales: {{used}})",
+      "submit": "Reactivar",
+      "submitNewLink": "Reactivar con un enlace nuevo",
+      "submitting": "Reactivando…",
+      "doneCopied": "Reactivada con un enlace nuevo, copiado al portapapeles.",
+      "doneManual": "Reactivada con un enlace nuevo. Cópialo manualmente desde su fila.",
+      "doneSameLink": "Invitación reactivada. El mismo enlace vuelve a estar activo.",
+      "failed": "No se pudo reactivar: {{message}}"
+    },
+    "redemptions": {
+      "title": "Usos de «{{name}}»",
+      "description": "Usuarios que se registraron con este enlace de invitación, por orden de registro.",
+      "revokedNotice": "Esta invitación se ha revocado. Los usos siguientes corresponden a usuarios que se registraron antes de la revocación.",
+      "revokedNoticeDated": "Esta invitación se revocó el {{date}}. Los usos siguientes corresponden a usuarios que se registraron antes de la revocación.",
+      "usesOfMax_one": "{{count}} de {{max}} usos",
+      "usesOfMax_many": "{{count}} de {{max}} usos",
+      "usesOfMax_other": "{{count}} de {{max}} usos",
+      "uses_one": "{{count}} uso",
+      "uses_many": "{{count}} usos",
+      "uses_other": "{{count}} usos",
+      "loadFailed": "No se pudieron cargar los usos",
+      "loadFailedInline": "No se pudieron cargar los usos.",
+      "empty": "Aún no se ha usado.",
+      "now": "(ahora {{name}})",
+      "deletedUser": "Usuario eliminado"
+    },
+    "row": {
+      "usage": "Usos: {{usage}}",
+      "createdBy": "Creado por {{name}}",
+      "unknownCreator": "Desconocido",
+      "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
+      "subtitleArchived": "{{usage}} · {{expiry}} · {{when}}",
+      "used": "Usos",
+      "expires": "Caduca",
+      "expiredAt": "Caducó el",
+      "revokedAt": "Revocado el",
+      "exhausted": "Usos agotados",
+      "created": "Creado",
+      "createdByLabel": "Creado por",
+      "token": "Token",
+      "lastRedeemed": "Último uso",
+      "copyLink": "Copiar enlace",
+      "revoke": "Revocar",
+      "viewRedemptions": "Ver usos",
+      "reinstate": "Reactivar",
+      "deletePermanently": "Eliminar definitivamente",
+      "copied": "Enlace de invitación copiado",
+      "copyFailed": "No se pudo copiar el enlace",
+      "revoked": "Invitación revocada",
+      "revokeFailed": "No se pudo revocar: {{message}}",
+      "deleted": "Invitación eliminada",
+      "deleteFailed": "No se pudo eliminar: {{message}}",
+      "revokeDialog": {
+        "title": "¿Revocar «{{name}}»?",
+        "description": "El enlace dejará de funcionar de inmediato. Quienes tengan la URL ya no podrán usarla.<br/><br/>Si cambias de opinión, <strong>Reactivar</strong> generará un enlace nuevo para esta entrada. La URL original seguirá inactiva.",
+        "confirm": "Revocar enlace"
+      },
+      "deleteDialog": {
+        "title": "¿Eliminar «{{name}}» definitivamente?",
+        "description": "Esta acción no se puede deshacer. También se eliminará el historial de usos de este enlace. Si solo quieres impedir que funcione, usa <strong>Revocar</strong> para conservar el historial.",
+        "confirm": "Eliminar definitivamente"
+      }
+    }
+  },
+  "storage": {
+    "title": "Almacenamiento",
+    "description": "Controla el uso del disco y limpia los archivos huérfanos que quedan al eliminar contenido o sustituir avatares y banners.",
+    "loading": "Cargando estadísticas de almacenamiento…",
+    "loadFailed": "No se pudieron cargar las estadísticas de almacenamiento",
+    "refresh": "Actualizar estadísticas",
+    "overview": {
+      "label": "Resumen del almacenamiento",
+      "totalFiles": "Total de archivos",
+      "referenced": "En uso",
+      "orphanedFiles": "Archivos huérfanos",
+      "unlinkedUploads": "Subidas sin vincular",
+      "danglingRecords": "Registros sin mensaje",
+      "staleUploads": "Subidas abandonadas"
+    },
+    "breakdown": {
+      "label": "Desglose por tipo de archivo",
+      "entry_one": "{{count}} archivo — {{size}}",
+      "entry_many": "{{count}} archivos — {{size}}",
+      "entry_other": "{{count}} archivos — {{size}}"
+    },
+    "uploadLimit": {
+      "label": "Límite de subida",
+      "maxFileSize": "Tamaño máximo de archivo",
+      "maxStickerSize": "Tamaño máximo de sticker",
+      "saved": "Límite de subida establecido en {{limit}}",
+      "saveFailed": "No se pudo actualizar el límite de subida",
+      "stickerSaved": "Límite de tamaño de stickers establecido en {{limit}}",
+      "stickerSaveFailed": "No se pudo actualizar el límite de tamaño de stickers"
+    },
+    "cleanup": {
+      "label": "Limpieza",
+      "nothingFound": "No se encontraron archivos huérfanos, subidas abandonadas ni registros sin mensaje.",
+      "preview": "Vista previa de la limpieza",
+      "run": "Limpiar ahora",
+      "running": "Limpiando…",
+      "previewResult": "Vista previa: no se ha eliminado ningún archivo",
+      "complete": "Limpieza completada",
+      "orphanedFiles_one": "{{count}} archivo huérfano o sin mensaje ({{size}})",
+      "orphanedFiles_many": "{{count}} archivos huérfanos o sin mensaje ({{size}})",
+      "orphanedFiles_other": "{{count}} archivos huérfanos o sin mensaje ({{size}})",
+      "staleRecords_one": ", {{count}} registro de subida abandonada",
+      "staleRecords_many": ", {{count}} registros de subidas abandonadas",
+      "staleRecords_other": ", {{count}} registros de subidas abandonadas",
+      "errors_one": "Se produjo {{count}} error: {{first}}",
+      "errors_many": "Se produjeron {{count}} errores: {{first}}",
+      "errors_other": "Se produjeron {{count}} errores: {{first}}",
+      "cleanedToast_one": "Se ha limpiado {{count}} archivo ({{size}})",
+      "cleanedToast_many": "Se han limpiado {{count}} archivos ({{size}})",
+      "cleanedToast_other": "Se han limpiado {{count}} archivos ({{size}})",
+      "failed": "La limpieza ha fallado"
+    },
+    "stale": {
+      "label": "Subidas abandonadas",
+      "description": "Sesiones de subida abandonadas del protocolo tus en <code>.tus/</code> (pausadas o interrumpidas sin DELETE). La limpieza automática se ejecuta cada 24 horas; aquí puedes iniciarla antes.",
+      "maxAge": "Tiempo máximo de retención (horas)",
+      "sessionFiles_one": "{{count}} archivo de sesión ({{size}})",
+      "sessionFiles_many": "{{count}} archivos de sesión ({{size}})",
+      "sessionFiles_other": "{{count}} archivos de sesión ({{size}})",
+      "cleanedToast_one": "Se ha limpiado {{count}} sesión de subida abandonada ({{size}})",
+      "cleanedToast_many": "Se han limpiado {{count}} sesiones de subida abandonadas ({{size}})",
+      "cleanedToast_other": "Se han limpiado {{count}} sesiones de subida abandonadas ({{size}})",
+      "failed": "No se pudieron limpiar las subidas abandonadas"
+    },
+    "media": {
+      "label": "Retención de archivos multimedia",
+      "olderThan": "Eliminar archivos del chat con más de",
+      "days": "días",
+      "run": "Eliminar ahora",
+      "running": "Eliminando…",
+      "files_one": "{{count}} archivo ({{size}})",
+      "files_many": "{{count}} archivos ({{size}})",
+      "files_other": "{{count}} archivos ({{size}})",
+      "deletedToast_one": "Se ha eliminado {{count}} archivo ({{size}})",
+      "deletedToast_many": "Se han eliminado {{count}} archivos ({{size}})",
+      "deletedToast_other": "Se han eliminado {{count}} archivos ({{size}})",
+      "failed": "No se pudieron limpiar los archivos multimedia"
+    }
+  },
+  "streaming": {
+    "title": "Transmisión",
+    "description": "Estos límites se aplican a todos los usuarios de esta instancia. Los usuarios pueden elegir valores dentro de estos márgenes.",
+    "units": {
+      "fps": "{{value}} fps",
+      "kbpsLabel": "kbps"
+    },
+    "bandwidth": {
+      "label": "Ancho de banda",
+      "description": "Límites mínimo y máximo de tasa de bits e incremento del control de calidad.",
+      "customBitrate": {
+        "label": "Permitir tasa de bits personalizada",
+        "description": "Permitir que los usuarios elijan su tasa de bits en lugar de usar los valores predeterminados de la matriz"
+      },
+      "range": "Intervalo de tasa de bits",
+      "min": "Mín.",
+      "max": "Máx.",
+      "step": "Incremento del control"
+    },
+    "quality": {
+      "label": "Calidad",
+      "description": "Resoluciones y frecuencias de fotogramas disponibles para compartir pantalla.",
+      "resolutions": "Resoluciones permitidas",
+      "framerates": "Frecuencias de fotogramas permitidas"
+    },
+    "highEndWarning": {
+      "title": "Opciones de alto rendimiento activadas.",
+      "description": "Transmitir por encima de 1080p o 60 fps exige una gran capacidad de codificación de CPU/GPU en el cliente y puede saturar el ancho de banda del servidor, sobre todo si las transmisiones pasan por TURN. Las configuraciones avanzadas, como 4K a 120 fps, pueden necesitar hasta 45 Mbps por transmisión activa. Asegúrate de que tu infraestructura soporta esta carga antes de activar estas opciones para todos los usuarios."
+    },
+    "matrix": {
+      "label": "Matriz de tasas de bits",
+      "description": "Tasas de bits predeterminadas para cada combinación de resolución y frecuencia de fotogramas. Edita celdas individuales o escala todos los valores a la vez.",
+      "scaleAll": "Escalar todo",
+      "scaleHint": "Arrastra para escalar todas las tasas de bits. Ajusta las celdas individuales debajo.",
+      "cellDefault": "Predeterminado: {{value}} (haz clic en × para restablecer)",
+      "cellEdit": "Haz clic para editar",
+      "resetAll": "Restablecer todos los valores predeterminados"
+    },
+    "capWarning": {
+      "title": "Los valores de la matriz superan el límite global.",
+      "description": "Algunas tasas de bits superan tu máximo de {{max}}. La calidad de las transmisiones con esas combinaciones se reducirá para respetar el límite."
+    }
+  },
+  "updates": {
+    "title": "Actualizaciones",
+    "badge": {
+      "settingsAriaLabel": "Ajustes, hay una actualización de la instancia disponible",
+      "toast": "Backspace {{version}} está disponible para esta instancia",
+      "toastAction": "Ver"
+    },
+    "description": "La versión que ejecuta esta instancia y cómo actualizarla.",
+    "loading": "Cargando el estado de actualización…",
+    "loadFailed": "No se pudo cargar el estado de actualización.",
+    "copyFailed": "No se pudo copiar. Selecciona el comando y cópialo manualmente.",
+    "running": {
+      "label": "En ejecución",
+      "commit": "commit {{commit}} · ",
+      "channel": {
+        "prebuilt": "imagen precompilada",
+        "source": "compilada desde el código fuente",
+        "unknown": "método de instalación no registrado"
+      }
+    },
+    "available": {
+      "label": "Disponible",
+      "version": "Backspace {{version}} está disponible",
+      "released": "Publicado el {{date}} · ",
+      "releaseNotes": "Notas de la versión",
+      "fromInstallDir": "Desde tu directorio de instalación:",
+      "scriptDescription": "Crea una instantánea de la base de datos, descarga la imagen nueva y reinicia solo el contenedor de Backspace. Si la nueva versión no arranca correctamente o sigue ejecutando el código antiguo, restaura la versión que usas ahora.",
+      "noScript": "No tengo update.sh",
+      "manualIntro": "update.sh se incluye desde la versión 1.0.5. En una copia del repositorio Git, <code>git pull</code> permite obtenerlo. Si no, ejecuta los pasos manualmente después de crear una instantánea con <code>./backup.sh</code>.",
+      "prebuiltInstall": "Instalación con imagen precompilada:",
+      "sourceInstall": "Instalación desde el código fuente:",
+      "manualWarning": "Especifica el servicio <code>backspace</code> y no añadas <code>--remove-orphans</code>. Compose lo sugerirá si ejecutas otros contenedores en este proyecto, pero esa opción los eliminaría."
+    },
+    "upToDate": "Estás usando la última versión.",
+    "disabled": {
+      "title": "La búsqueda de actualizaciones está desactivada",
+      "description": "Esta instancia no contactará con GitHub. Configura <code>BACKSPACE_UPDATE_CHECK=true</code> en tu archivo <code>.env</code> para permitir la consulta o comprueba la página de versiones por tu cuenta."
+    },
+    "rateLimited": {
+      "title": "Se ha alcanzado el límite de consultas de GitHub",
+      "description": "Esto no indica si existe una actualización. Inténtalo más tarde."
+    },
+    "unreachable": {
+      "title": "No se pudieron buscar actualizaciones",
+      "description": "No se pudo conectar con GitHub, así que no se sabe si hay una actualización. Tu instancia no se ve afectada."
+    },
+    "lastChecked": "Última comprobación: {{when}}",
+    "noLookups": "No se realizan consultas",
+    "checkAgain": "Volver a comprobar",
+    "checking": "Comprobando…"
+  },
+  "users": {
+    "title": "Usuarios",
+    "description": "Consulta y gestiona las cuentas de usuario de esta instancia.",
+    "searchPlaceholder": "Buscar usuarios…",
+    "loading": "Cargando usuarios…",
+    "loadFailed": "No se pudieron cargar los usuarios",
+    "empty": "No se encontraron usuarios",
+    "filters": {
+      "allInstances": "Todas las instancias",
+      "localOnly": "Solo locales",
+      "allRoles": "Todos los roles de cuenta",
+      "admin": "Administrador",
+      "nonAdmin": "Sin permisos de administrador",
+      "joinedAfter": "Registro posterior a",
+      "joinedBefore": "Registro anterior a",
+      "newest": "Más recientes primero",
+      "oldest": "Más antiguos primero",
+      "nameDesc": "Nombre Z-A",
+      "deleted": "Eliminados",
+      "clear": "Borrar filtros",
+      "bot": "Bots"
+    },
+    "badge": {
+      "admin": "Administrador",
+      "deleted": "Eliminado"
+    },
+    "actions": {
+      "demote": "Retirar permisos de administrador",
+      "promote": "Conceder permisos de administrador",
+      "federatedNoAdmin": "Los usuarios federados no pueden ser administradores",
+      "resetPassword": "Restablecer contraseña",
+      "federatedNoReset": "Los usuarios federados se autentican en su instancia de origen",
+      "delete": "Eliminar usuario",
+      "selfDelete": "Usa los ajustes de tu cuenta para eliminarla"
+    },
+    "tempPassword": {
+      "label": "Contraseña temporal:",
+      "note": "Solo se muestra una vez. Se ha desconectado al usuario y debe iniciar sesión de nuevo."
+    },
+    "pagination": "Página {{page}} de {{total}} ({{users}})",
+    "count_one": "{{count}} usuario",
+    "count_many": "{{count}} usuarios",
+    "count_other": "{{count}} usuarios",
+    "roleFailed": "No se pudo actualizar el rol",
+    "resetFailed": "No se pudo restablecer la contraseña",
+    "actionFailed": "La acción ha fallado",
+    "resetDialog": {
+      "title": "Restablecer contraseña",
+      "description": "¿Quieres restablecer la contraseña de <strong>{{username}}</strong>? Se desconectará al usuario de inmediato y deberá iniciar sesión con la nueva contraseña temporal.",
+      "confirm": "Restablecer contraseña"
+    },
+    "demoteDialog": {
+      "title": "Retirar permisos de administrador",
+      "description": "¿Quieres retirar los privilegios de administrador de <strong>{{username}}</strong>? Perderá el acceso a los ajustes de la instancia.",
+      "confirm": "Retirar permisos"
+    },
+    "deleteDialog": {
+      "title": "Eliminar usuario",
+      "description": "¿Quieres eliminar a <strong>{{username}}</strong> definitivamente? Se quitará al usuario de todos los espacios, mensajes directos y listas de amigos. Esta acción no se puede deshacer.",
+      "confirm": "Eliminar usuario",
+      "blockBot": "Impedir que este bot vuelva a registrarse",
+      "blockBotHint": "Cuando su instancia de origen vuelva a estar disponible, el bot no podrá crear una cuenta aquí. Puedes desbloquearlo debajo de la lista de usuarios."
+    },
+    "blockedBots": {
+      "title": "Bots bloqueados",
+      "description": "Bots de otras instancias que no pueden registrarse aquí. Desbloquea uno para permitirle entrar de nuevo.",
+      "blockedAt": "Bloqueado el {{date}}",
+      "unblock": "Desbloquear"
+    }
+  },
+  "mobile": {
+    "title": "Instancia",
+    "sections": {
+      "general": "General",
+      "registration": "Registro",
+      "federation": "Federación",
+      "streaming": "Transmisión",
+      "storage": "Almacenamiento",
+      "updates": "Actualizaciones",
+      "users": "Usuarios"
+    }
+  }
+}

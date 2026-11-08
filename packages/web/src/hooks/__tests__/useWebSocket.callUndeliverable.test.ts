@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildCallUndeliverableToast } from '../../utils/callUndeliverableToast.js';
+import { setLanguage } from '../../i18n';
 
 describe('buildCallUndeliverableToast', () => {
   const fail = (overrides: Partial<{ reason: string; peerOrigin?: string; peerLabel?: string }> = {}) => ({
@@ -18,7 +19,7 @@ describe('buildCallUndeliverableToast', () => {
 
   it('accept + terminal: tear-down copy', () => {
     expect(buildCallUndeliverableToast([fail()], true, 'accept'))
-      .toMatch(/Couldn't confirm your accept with nova/);
+      .toMatch(/Couldn't confirm your acceptance with nova/);
   });
 
   it('reject + non-terminal: info copy', () => {
@@ -80,7 +81,7 @@ describe('buildCallUndeliverableToast', () => {
       { reason: 'peer_transient_failure', peerOrigin: 'https://nova.local', peerLabel: 'Nova' },
     ];
     expect(buildCallUndeliverableToast(failures, true, 'start'))
-      .toMatch(/Could not reach 2 instances: Orbit, Nova/);
+      .toMatch(/Could not reach 2 instances: Orbit and Nova/);
   });
 
   it('no_recipient non-terminal uses the existing "Some participants" line', () => {
@@ -89,5 +90,19 @@ describe('buildCallUndeliverableToast', () => {
     ];
     expect(buildCallUndeliverableToast(failures, false, 'start'))
       .toMatch(/Some participants could not be reached: Orbit/);
+  });
+
+  it('localizes every call phase while preserving external instance names', async () => {
+    await setLanguage('pt');
+    try {
+      const failure = { reason: 'peer_transient_failure', peerLabel: 'Nova' };
+      expect(buildCallUndeliverableToast([failure], true)).toBe('Não foi possível contatar Nova. Tente novamente em instantes.');
+      for (const phase of ['start', 'accept', 'reject', 'end', 'host_unreachable'] as const) {
+        const text = buildCallUndeliverableToast([failure], true, phase);
+        expect(text).toContain('Nova');
+        expect(text).not.toMatch(/Could|Call ended|Voice is/);
+      }
+      expect(buildCallUndeliverableToast([], true)).toBe('Não foi possível iniciar a chamada.');
+    } finally { await setLanguage('en'); }
   });
 });

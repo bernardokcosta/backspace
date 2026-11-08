@@ -1,0 +1,431 @@
+{
+  "general": {
+    "title": "Generelt",
+    "description": "Konfigurér din Backspace-instans. Disse indstillinger gælder alle brugere.",
+    "instanceName": {
+      "label": "Instansnavn",
+      "description": "Navnet vist på loginsiden og over for fødererede instanser.",
+      "counter": "{{length}}/{{max}}"
+    },
+    "gif": {
+      "label": "GIF-søgning",
+      "description": "Aktivér GIF-søgning via Klipy. Få en gratis API-nøgle fra Klipys udviklerportal.",
+      "placeholderSaved": "Nøgle gemt — angiv ny nøgle for at erstatte",
+      "placeholderKey": "Klipy API-nøgle",
+      "enabled": "Aktiveret",
+      "notConfigured": "Ikke sat op",
+      "clearKey": "Ryd nøgle"
+    }
+  },
+  "registration": {
+    "title": "Registrering",
+    "description": "Bestem hvem der kan oprette konti på denne instans. Offentlig registrering dækker lokale tilmeldinger; fødereret registrering dækker brugere fra forbundne instanser, der opretter en konto her.",
+    "public": {
+      "label": "Offentlig registrering",
+      "toggleLabel": "Tillad nye lokale konti",
+      "toggleDescription": "Alle kan oprette en lokal konto på registreringssiden. Når fra, oprettes nye lokale konti kun via invitationslink."
+    },
+    "federated": {
+      "label": "Fødereret registrering",
+      "toggleLabel": "Tillad nye fødererede konti",
+      "toggleDescription": "Brugere fra andre instanser kan oprette en fødereret konto her via deres forbindelsesindstillinger. Eksisterende fødererede konti kan altid logge ind, uanset denne indstilling."
+    },
+    "spaceCreation": {
+      "label": "Oprettelse af rum",
+      "toggleLabel": "Tillad nye rum",
+      "toggleDescription": "Brugere kan oprette nye rum på denne instans. Når fra, kan kun instansadministratorer oprette rum, og almindelige brugere kan kun deltage i eksisterende."
+    },
+    "saved": "Registreringsindstillinger gemt",
+    "saveFailed": "Kunne ikke opdatere registreringsindstillinger"
+  },
+  "invites": {
+    "label": "Invitationslinks",
+    "create": "+ Opret link",
+    "tabs": {
+      "active": "Aktive",
+      "archived": "Arkiverede"
+    },
+    "loadFailed": "Kunne ikke indlæse invitationer",
+    "emptyActive": "Ingen aktive invitationslinks.",
+    "emptyArchived": "Ingen arkiverede invitationslinks.",
+    "noMatch": "Ingen invitation matcher filteret.",
+    "filter": {
+      "status": "Status",
+      "sort": {
+        "recent": "Nyeste først",
+        "oldest": "Ældste først",
+        "name": "Navn (A–Å)",
+        "mostUsed": "Mest brugte",
+        "expiringSoonest": "Udløber hurtigst"
+      }
+    },
+    "status": {
+      "active": "Aktive",
+      "expired": "Udløbne",
+      "exhausted": "Opbrugte",
+      "revoked": "Tilbagekaldte"
+    },
+    "expiry": {
+      "preset": {
+        "hour1": "1 time",
+        "hours24": "24 timer",
+        "days7": "7 dage",
+        "days30": "30 dage",
+        "custom": "Brugerdefineret…"
+      },
+      "keepCurrent": "Behold aktuel",
+      "invalidFuture": "Vælg dato og tid i fremtiden",
+      "invalidSelection": "Ugyldigt udløbsvalg",
+      "revokedOn": "Tilbagekaldt {{date}}",
+      "expiredOn": "Udløb {{date}}",
+      "exhausted": "Opbrugt",
+      "noExpiration": "Intet udløb",
+      "inDays_one": "Udløber om {{count}} dag",
+      "inDays_other": "Udløber om {{count}} dage",
+      "inHours_one": "Udløber om {{count}} time",
+      "inHours_other": "Udløber om {{count}} timer"
+    },
+    "form": {
+      "name": "Navn",
+      "namePlaceholder": "f.eks. Venner, hold 1",
+      "maxUses": "Maks. brug",
+      "unlimited": "Ubegrænset",
+      "uses": "brug",
+      "expires": "Udløber",
+      "nameLength": "Navnet skal være 1 til 64 tegn",
+      "maxUsesInteger": "Maksimal brug skal være et positivt helt tal"
+    },
+    "createModal": {
+      "title": "Opret invitationslink",
+      "description": "Generér et link at dele, så folk kan registrere sig på denne instans. Du angiver, hvor mange gange det må bruges, og hvornår det udløber.",
+      "submit": "Opret link",
+      "submitting": "Opretter…",
+      "createdCopied": "Link oprettet. Kopieret til udklipsholder.",
+      "createdManual": "Link oprettet. Kopiér manuelt fra rækken.",
+      "failed": "Kunne ikke oprette invitation: {{message}}"
+    },
+    "editModal": {
+      "title": "Rediger “{{name}}”",
+      "description": "Justér grænserne for dette link. URL forbliver den samme — alle med den kan blive ved med at bruge det på nye vilkår.",
+      "used": "(brugt {{used}})",
+      "maxUsesBelowUsed": "Maksimal brug må ikke være lavere end aktuel brug ({{used}})",
+      "noChanges": "Ingen ændringer at gemme",
+      "updated": "Invitation opdateret",
+      "failed": "Kunne ikke opdatere invitation: {{message}}",
+      "submit": "Gem ændringer",
+      "submitting": "Gemmer…"
+    },
+    "reinstateModal": {
+      "title": "Genopret “{{name}}”",
+      "descriptionRevoked": "Denne invitation blev tilbagekaldt. Genoprettelse opretter et nyt link med en anden URL — den gamle URL forbliver inaktiv.",
+      "descriptionLapsed": "Denne invitation er udløbet. Genoprettelse aktiverer den samme URL igen — alle, der gemte den, kan bruge den igen.",
+      "newLinkWarning": "Der oprettes et nyt link. De med den gamle URL kan ikke længere bruge den.",
+      "maxUsesMeta": "(nu: {{max}}, brugt: {{used}})",
+      "maxUsesMin": "Maksimal brug skal være mindst {{min}} (aktuel: {{used}})",
+      "submit": "Genopret",
+      "submitNewLink": "Genopret med nyt link",
+      "submitting": "Genopretter…",
+      "doneCopied": "Genoprettet med nyt link. Kopieret til udklipsholder.",
+      "doneManual": "Genoprettet med nyt link. Kopiér manuelt fra rækken.",
+      "doneSameLink": "Genoprettet. Samme link er aktivt igen.",
+      "failed": "Genoprettelse mislykkedes: {{message}}"
+    },
+    "redemptions": {
+      "title": "Indløsninger af “{{name}}”",
+      "description": "Brugere, der registrerede sig via dette link, i registreringsrækkefølge.",
+      "revokedNotice": "Denne invitation blev tilbagekaldt. Indløsningerne nedenfor er fra brugere, der registrerede sig før tilbagekaldelsen.",
+      "revokedNoticeDated": "Denne invitation blev tilbagekaldt {{date}}. Indløsningerne nedenfor er fra brugere, der registrerede sig før tilbagekaldelsen.",
+      "usesOfMax_one": "{{count}} af {{max}} brugt",
+      "usesOfMax_other": "{{count}} af {{max}} brugt",
+      "uses_one": "{{count}} brugt",
+      "uses_other": "{{count}} brugt",
+      "loadFailed": "Kunne ikke indlæse indløsninger",
+      "loadFailedInline": "Kunne ikke indlæse indløsninger.",
+      "empty": "Ingen indløsninger endnu.",
+      "now": "(nu {{name}})",
+      "deletedUser": "Slettet bruger"
+    },
+    "row": {
+      "usage": "Brug: {{usage}}",
+      "createdBy": "Af: {{name}}",
+      "unknownCreator": "Ukendt",
+      "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
+      "subtitleArchived": "{{usage}} · {{expiry}} · {{when}}",
+      "used": "Brugt",
+      "expires": "Udløber",
+      "expiredAt": "Udløb",
+      "revokedAt": "Tilbagekaldt",
+      "exhausted": "Opbrugt",
+      "created": "Oprettet",
+      "createdByLabel": "Af",
+      "token": "Token",
+      "lastRedeemed": "Sidst brugt",
+      "copyLink": "Kopiér link",
+      "revoke": "Tilbagekald",
+      "viewRedemptions": "Se indløsninger",
+      "reinstate": "Genopret",
+      "deletePermanently": "Slet permanent",
+      "copied": "Invitationslink kopieret",
+      "copyFailed": "Kunne ikke kopiere link",
+      "revoked": "Invitation tilbagekaldt",
+      "revokeFailed": "Tilbagekaldelse mislykkedes: {{message}}",
+      "deleted": "Invitation slettet",
+      "deleteFailed": "Sletning mislykkedes: {{message}}",
+      "revokeDialog": {
+        "title": "Tilbagekalde “{{name}}”?",
+        "description": "Linket holder straks op med at virke. Ingen med URL kan længere bruge det.<br/><br/>Om-bestemmer du dig, laver <strong>Genopret</strong> et nyt link i dette punkt — den oprindelige URL forbliver inaktiv.",
+        "confirm": "Tilbagekald link"
+      },
+      "deleteDialog": {
+        "title": "Slette “{{name}}” permanent?",
+        "description": "Dette kan ikke fortrydes. Indløsningshistorikken for dette link slettes også. Vil du kun stoppe linket, så brug <strong>Tilbagekald</strong> — så bevares historikken.",
+        "confirm": "Slet permanent"
+      }
+    }
+  },
+  "storage": {
+    "title": "Lagring",
+    "description": "Følg diskforbrug og ryd forældreløse filer fra slettet indhold eller erstattede avatarer og bannere.",
+    "loading": "Indlæser lagerstatistik…",
+    "loadFailed": "Kunne ikke indlæse lagerstatistik",
+    "refresh": "Opdatér statistik",
+    "overview": {
+      "label": "Lageroversigt",
+      "totalFiles": "Filer i alt",
+      "referenced": "Med referencer",
+      "orphanedFiles": "Forældreløse filer",
+      "unlinkedUploads": "Ikke-koblede uploads",
+      "danglingRecords": "Hængende poster",
+      "staleUploads": "Gamle uploads"
+    },
+    "breakdown": {
+      "label": "Fordeling pr. filtype",
+      "entry_one": "{{count}} fil — {{size}}",
+      "entry_other": "{{count}} filer — {{size}}"
+    },
+    "uploadLimit": {
+      "label": "Uploadgrænse",
+      "maxFileSize": "Maksimal filstørrelse",
+      "maxStickerSize": "Maksimal klistermærkestørrelse",
+      "saved": "Uploadgrænse sat til {{limit}}",
+      "saveFailed": "Kunne ikke opdatere uploadgrænse",
+      "stickerSaved": "Klistermærkegrænse sat til {{limit}}",
+      "stickerSaveFailed": "Kunne ikke opdatere klistermærkegrænse"
+    },
+    "cleanup": {
+      "label": "Oprydning",
+      "nothingFound": "Ingen forældreløse filer, gamle uploads eller hængende poster fundet.",
+      "preview": "Vis oprydning",
+      "run": "Ryd op nu",
+      "running": "Rydder op…",
+      "previewResult": "Visning — ingen fil slettet",
+      "complete": "Oprydning fuldført",
+      "orphanedFiles_one": "{{count}} forældreløs fil ({{size}})",
+      "orphanedFiles_other": "{{count}} forældreløse filer ({{size}})",
+      "staleRecords_one": ", {{count}} gammel uploadpost",
+      "staleRecords_other": ", {{count}} gamle uploadposter",
+      "errors_one": "{{count}} fejl: {{first}}",
+      "errors_other": "{{count}} fejl: {{first}}",
+      "cleanedToast_one": "Ryddede {{count}} fil ({{size}})",
+      "cleanedToast_other": "Ryddede {{count}} filer ({{size}})",
+      "failed": "Oprydning mislykkedes"
+    },
+    "stale": {
+      "label": "Gamle uploads",
+      "description": "Efterladte tus-uploadsessioner i <code>.tus/</code> (pausede eller crashed uden DELETE). Automatisk oprydning kører hver 24. time; her rydder du tidligere op.",
+      "maxAge": "Maksimal alder (timer)",
+      "sessionFiles_one": "{{count}} sessionsfil ({{size}})",
+      "sessionFiles_other": "{{count}} sessionsfiler ({{size}})",
+      "cleanedToast_one": "Ryddede {{count}} gammel uploadsession ({{size}})",
+      "cleanedToast_other": "Ryddede {{count}} gamle uploadsessioner ({{size}})",
+      "failed": "Oprydning af gamle uploads mislykkedes"
+    },
+    "media": {
+      "label": "Medielagring",
+      "olderThan": "Slet chatmedier ældre end",
+      "days": "dage",
+      "run": "Slet nu",
+      "running": "Sletter…",
+      "files_one": "{{count}} fil ({{size}})",
+      "files_other": "{{count}} filer ({{size}})",
+      "deletedToast_one": "Slettede {{count}} fil ({{size}})",
+      "deletedToast_other": "Slettede {{count}} filer ({{size}})",
+      "failed": "Medieoprydning mislykkedes"
+    }
+  },
+  "streaming": {
+    "title": "Streaming",
+    "description": "Disse grænser gælder alle brugere på denne instans. Brugere kan vælge værdier inden for disse grænser.",
+    "units": {
+      "fps": "{{value}} fps",
+      "kbpsLabel": "kb/s"
+    },
+    "bandwidth": {
+      "label": "Båndbredde",
+      "description": "Minimums- og maksimumsgrænser for bitrate samt trinnet for kvalitetsskyderen.",
+      "customBitrate": {
+        "label": "Tillad brugerdefineret bitrate",
+        "description": "Lad brugere indstille egen bitrate i stedet for matrixstandarderne"
+      },
+      "range": "Bitrateområde",
+      "min": "Minimum",
+      "max": "Maks",
+      "step": "Skydertrin"
+    },
+    "quality": {
+      "label": "Kvalitet",
+      "description": "Tilgængelige opløsnings- og billedhastighedsvalg til skærmdeling.",
+      "resolutions": "Tilladte opløsninger",
+      "framerates": "Tilladte billedhastigheder"
+    },
+    "highEndWarning": {
+      "title": "Krævende indstillinger aktiveret.",
+      "description": "Streaming over 1080p eller 60 fps kræver betydelig kodningskraft fra CPU/GPU på klienten og kan mætte serverens båndbredde, især når strømme går via TURN. Krævende konfigurationer (f.eks. 4K med 120 fps) kan kræve op til 45 Mbps pr. aktiv strøm. Sørg for at din infrastruktur klarer belastningen, før du aktiverer dette for alle brugere."
+    },
+    "matrix": {
+      "label": "Bitratematrix",
+      "description": "Standardbitrates for hver opløsning og billedhastighed. Rediger enkelte celler eller skaler alle værdier på én gang.",
+      "scaleAll": "Skaler alle",
+      "scaleHint": "Træk for at skalere alle bitrates. Finjustér enkelte celler nedenfor.",
+      "cellDefault": "Standard: {{value}} (klik × for at nulstille)",
+      "cellEdit": "Klik for at redigere",
+      "resetAll": "Nulstil alle til standard"
+    },
+    "capWarning": {
+      "title": "Matrixværdier overskrider den globale grænse.",
+      "description": "Nogle bitrates overskrider dit maksimum {{max}}. Strømme med disse kombinationer sænkes til din grænse."
+    }
+  },
+  "updates": {
+    "title": "Opdateringer",
+    "badge": {
+      "settingsAriaLabel": "Indstillinger, instansopdatering tilgængelig",
+      "toast": "Backspace {{version}} er tilgængelig til denne instans",
+      "toastAction": "Vis"
+    },
+    "description": "Hvilken version der kører på denne instans, og hvordan du opdaterer den.",
+    "loading": "Indlæser opdateringsstatus…",
+    "loadFailed": "Kunne ikke indlæse opdateringsstatus.",
+    "copyFailed": "Kunne ikke kopiere. Markér kommandoen og kopiér manuelt.",
+    "running": {
+      "label": "Kører",
+      "commit": "commit {{commit}} · ",
+      "channel": {
+        "prebuilt": "færdig image",
+        "source": "bygget fra kildekode",
+        "unknown": "installationsmetode ikke registreret"
+      }
+    },
+    "available": {
+      "label": "Tilgængelig",
+      "version": "Backspace {{version}} tilgængelig",
+      "released": "Udgivet {{date}} · ",
+      "releaseNotes": "Udgivelsesnoter",
+      "fromInstallDir": "Fra din installationsmappe:",
+      "scriptDescription": "Opretter et øjebliksbillede af databasen, downloader den nye image og genstarter kun Backspace-containeren. Hvis den nye version ikke starter ordentligt eller starter med gammel kode, ruller den den aktuelle version tilbage.",
+      "noScript": "Jeg har ingen update.sh",
+      "manualIntro": "update.sh følger med fra 1.0.5. I en git-kopi tilføjer <code>git pull</code> den. Udfør ellers trinene manuelt efter øjebliksbillede med <code>./backup.sh</code>.",
+      "prebuiltInstall": "Færdig installation:",
+      "sourceInstall": "Installation fra kildekode:",
+      "manualWarning": "Nævn tjenesten <code>backspace</code> eksplicit og giv ikke <code>--remove-orphans</code> med. Compose foreslår det, hvis andre containere kører i dette projekt, og fjerner dem så."
+    },
+    "upToDate": "Du har den nyeste version.",
+    "disabled": {
+      "title": "Opdateringskontrol slået fra",
+      "description": "Denne instans kontakter ikke GitHub. Sæt <code>BACKSPACE_UPDATE_CHECK=true</code> i din <code>.env</code> for at tillade kontrol, eller gennemgå selv releasesiden."
+    },
+    "rateLimited": {
+      "title": "GitHub hastighedsbegrænset",
+      "description": "Dette siger intet om opdatering findes eller ej. Prøv senere."
+    },
+    "unreachable": {
+      "title": "Kunne ikke kontrollere opdateringer",
+      "description": "GitHub kunne ikke nås, så dette siger intet om opdatering findes eller ej. Din instans er upåvirket."
+    },
+    "lastChecked": "Sidst kontrolleret: {{when}}",
+    "noLookups": "Ingen opslag køres",
+    "checkAgain": "Kontrollér igen",
+    "checking": "Kontrollerer…"
+  },
+  "users": {
+    "title": "Brugere",
+    "description": "Se og håndtér konti på denne instans.",
+    "searchPlaceholder": "Søg brugere…",
+    "loading": "Indlæser brugere…",
+    "loadFailed": "Kunne ikke indlæse brugere",
+    "empty": "Ingen brugere fundet",
+    "filters": {
+      "allInstances": "Alle instanser",
+      "localOnly": "Kun lokale",
+      "allRoles": "Alle roller",
+      "admin": "Administrator",
+      "nonAdmin": "Ikke-administrator",
+      "joinedAfter": "Deltog efter",
+      "joinedBefore": "Deltog før",
+      "newest": "Nyeste først",
+      "oldest": "Ældste først",
+      "nameDesc": "Navn Å-A",
+      "deleted": "Slettede",
+      "clear": "Ryd filtre",
+      "bot": "Bots"
+    },
+    "badge": {
+      "admin": "Administrator",
+      "deleted": "Slettet"
+    },
+    "actions": {
+      "demote": "Fjern administratorrettigheder",
+      "promote": "Giv administratorrettigheder",
+      "federatedNoAdmin": "Fødererede brugere kan ikke være administratorer",
+      "resetPassword": "Nulstil adgangskode",
+      "federatedNoReset": "Fødererede brugere logger ind via deres hjemmeinstans",
+      "delete": "Slet bruger",
+      "selfDelete": "Brug indstillinger for at slette din egen konto"
+    },
+    "tempPassword": {
+      "label": "Midlertidig adgangskode:",
+      "note": "Vist én gang. Brugeren er logget af; vedkommende skal logge ind igen."
+    },
+    "pagination": "Side {{page}} af {{total}} ({{users}})",
+    "count_one": "{{count}} bruger",
+    "count_other": "{{count}} brugere",
+    "roleFailed": "Kunne ikke opdatere rolle",
+    "resetFailed": "Kunne ikke nulstille adgangskode",
+    "actionFailed": "Handling mislykkedes",
+    "resetDialog": {
+      "title": "Nulstil adgangskode",
+      "description": "Nulstille adgangskoden for <strong>{{username}}</strong>? Brugeren logges straks af og skal logge ind med den nye midlertidige adgangskode.",
+      "confirm": "Nulstil adgangskode"
+    },
+    "demoteDialog": {
+      "title": "Fjern administratorrettigheder",
+      "description": "Fjerne <strong>{{username}}</strong> administratorrettigheder? Brugeren mister adgang til instansindstillinger.",
+      "confirm": "Fjern rettigheder"
+    },
+    "deleteDialog": {
+      "title": "Slet bruger",
+      "description": "Slette <strong>{{username}}</strong> permanent? Brugeren fjernes fra alle rum, direkte beskeder og vennelister. Dette kan ikke fortrydes.",
+      "confirm": "Slet bruger",
+      "blockBot": "Lad ikke denne bot registrere sig igen",
+      "blockBotHint": "Når dens hjemmeinstans er tilbage, kan botten ikke oprette en konto her. Ophæv blokeringen under brugerlisten."
+    },
+    "blockedBots": {
+      "title": "Blokerede bots",
+      "description": "Bots fra andre instanser, der ikke må registrere sig her. Ophæv blokeringen for at give adgang igen.",
+      "blockedAt": "Blokeret {{date}}",
+      "unblock": "Ophæv blokering"
+    }
+  },
+  "mobile": {
+    "title": "Instans",
+    "sections": {
+      "general": "Generelt",
+      "registration": "Registrering",
+      "federation": "Føderation",
+      "streaming": "Streaming",
+      "storage": "Lagring",
+      "updates": "Opdateringer",
+      "users": "Brugere"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "spaces": "Prostory",
+    "dms": "Přímé zprávy",
+    "you": "Ty"
+  },
+  "you": {
+    "editProfile": "Upravit profil",
+    "homeInstance": "Domovská instance: {{domain}}",
+    "logOutConfirm": "Opravdu se chceš odhlásit?"
+  },
+  "chat": {
+    "openCall": "Otevřít hovor",
+    "cancelCall": "Zrušit hovor",
+    "unknownChannel": "kanál"
+  }
+}

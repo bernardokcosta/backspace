@@ -1,0 +1,431 @@
+{
+  "general": {
+    "title": "Umum",
+    "description": "Konfigurasikan instans Backspace Anda. Pengaturan ini berlaku untuk semua pengguna.",
+    "instanceName": {
+      "label": "Nama Instans",
+      "description": "Nama yang tampil di halaman masuk dan ke instans federasi.",
+      "counter": "{{length}}/{{max}}"
+    },
+    "gif": {
+      "label": "Pencarian GIF",
+      "description": "Aktifkan pencarian GIF yang didukung Klipy. Dapatkan kunci API gratis dari portal pengembang Klipy.",
+      "placeholderSaved": "Kunci tersimpan — masukkan kunci baru untuk mengganti",
+      "placeholderKey": "Kunci API Klipy",
+      "enabled": "Diaktifkan",
+      "notConfigured": "Tidak dikonfigurasi",
+      "clearKey": "Hapus kunci"
+    }
+  },
+  "registration": {
+    "title": "Pendaftaran",
+    "description": "Kontrol siapa yang dapat membuat akun di instans ini. Pendaftaran publik mencakup pendaftaran lokal; pendaftaran federasi mencakup pengguna dari instans peering yang membuat akun di sini.",
+    "public": {
+      "label": "Pendaftaran Publik",
+      "toggleLabel": "Izinkan akun lokal baru",
+      "toggleDescription": "Siapa pun dapat membuat akun lokal di halaman pendaftaran. Jika mati, akun lokal baru hanya via tautan undangan."
+    },
+    "federated": {
+      "label": "Pendaftaran Federasi",
+      "toggleLabel": "Izinkan akun federasi baru",
+      "toggleDescription": "Pengguna dari instans lain dapat membuat akun federasi di sini via pengaturan Koneksi. Akun federasi yang ada selalu dapat masuk, apa pun pengaturan ini."
+    },
+    "spaceCreation": {
+      "label": "Pembuatan Ruang",
+      "toggleLabel": "Izinkan ruang baru",
+      "toggleDescription": "Pengguna dapat membuat ruang baru di instans ini. Jika mati, hanya admin instans yang dapat membuat ruang, dan pengguna biasa hanya dapat bergabung yang ada."
+    },
+    "saved": "Pengaturan pendaftaran tersimpan",
+    "saveFailed": "Gagal memperbarui pengaturan pendaftaran"
+  },
+  "invites": {
+    "label": "Tautan Undangan",
+    "create": "+ Buat tautan",
+    "tabs": {
+      "active": "Aktif",
+      "archived": "Diarsipkan"
+    },
+    "loadFailed": "Gagal memuat undangan",
+    "emptyActive": "Tidak ada tautan undangan aktif.",
+    "emptyArchived": "Tidak ada tautan undangan diarsipkan.",
+    "noMatch": "Tidak ada undangan cocok filter kini.",
+    "filter": {
+      "status": "Status",
+      "sort": {
+        "recent": "Terbaru dulu",
+        "oldest": "Terlama dulu",
+        "name": "Nama (A–Z)",
+        "mostUsed": "Paling dipakai",
+        "expiringSoonest": "Kedaluwarsa tercepat"
+      }
+    },
+    "status": {
+      "active": "Aktif",
+      "expired": "Kedaluwarsa",
+      "exhausted": "Habis",
+      "revoked": "Dicabut"
+    },
+    "expiry": {
+      "preset": {
+        "hour1": "1 jam",
+        "hours24": "24 jam",
+        "days7": "7 hari",
+        "days30": "30 hari",
+        "custom": "Kustom…"
+      },
+      "keepCurrent": "Pertahankan kini",
+      "invalidFuture": "Pilih tanggal dan waktu mendatang",
+      "invalidSelection": "Pilihan kedaluwarsa tidak valid",
+      "revokedOn": "Dicabut {{date}}",
+      "expiredOn": "Kedaluwarsa {{date}}",
+      "exhausted": "Habis",
+      "noExpiration": "Tanpa kedaluwarsa",
+      "inDays_one": "Kedaluwarsa dalam {{count}} hari",
+      "inDays_other": "Kedaluwarsa dalam {{count}} hari",
+      "inHours_one": "Kedaluwarsa dalam {{count}} jam",
+      "inHours_other": "Kedaluwarsa dalam {{count}} jam"
+    },
+    "form": {
+      "name": "Nama",
+      "namePlaceholder": "mis. Teman, geng 1",
+      "maxUses": "Maks. pakai",
+      "unlimited": "Tak terbatas",
+      "uses": "pakai",
+      "expires": "Kedaluwarsa",
+      "nameLength": "Nama harus 1 hingga 64 karakter",
+      "maxUsesInteger": "Maks. pakai harus bilangan bulat positif"
+    },
+    "createModal": {
+      "title": "Buat tautan undangan",
+      "description": "Hasilkan tautan untuk dibagikan agar orang mendaftar di instans ini. Anda tentukan berapa kali dipakai dan kapan kedaluwarsa.",
+      "submit": "Buat tautan",
+      "submitting": "Membuat…",
+      "createdCopied": "Tautan dibuat. Disalin ke papan klip.",
+      "createdManual": "Tautan dibuat. Salin manual dari baris.",
+      "failed": "Gagal membuat undangan: {{message}}"
+    },
+    "editModal": {
+      "title": "Edit “{{name}}”",
+      "description": "Sesuaikan batas tautan ini. URL tetap sama — siapa pun yang memilikinya tetap dapat memakainya dengan syarat baru.",
+      "used": "(terpakai {{used}})",
+      "maxUsesBelowUsed": "Maks. pakai tidak boleh di bawah pakai kini ({{used}})",
+      "noChanges": "Tidak ada perubahan untuk disimpan",
+      "updated": "Undangan diperbarui",
+      "failed": "Gagal memperbarui undangan: {{message}}",
+      "submit": "Simpan perubahan",
+      "submitting": "Menyimpan…"
+    },
+    "reinstateModal": {
+      "title": "Pulihkan “{{name}}”",
+      "descriptionRevoked": "Undangan ini dicabut. Pemulihan membuat tautan baru dengan URL berbeda — URL lama tetap nonaktif.",
+      "descriptionLapsed": "Undangan ini kedaluwarsa. Pemulihan mengaktifkan URL yang sama lagi — siapa pun yang menyimpannya dapat memakainya lagi.",
+      "newLinkWarning": "Tautan baru akan dibuat. Yang punya URL lama tak dapat memakainya.",
+      "maxUsesMeta": "(kini: {{max}}, terpakai: {{used}})",
+      "maxUsesMin": "Maks. pakai minimal {{min}} (kini: {{used}})",
+      "submit": "Pulihkan",
+      "submitNewLink": "Pulihkan dengan tautan baru",
+      "submitting": "Memulihkan…",
+      "doneCopied": "Dipulihkan dengan tautan baru. Disalin ke papan klip.",
+      "doneManual": "Dipulihkan dengan tautan baru. Salin manual dari baris.",
+      "doneSameLink": "Dipulihkan. Tautan yang sama aktif lagi.",
+      "failed": "Gagal memulihkan: {{message}}"
+    },
+    "redemptions": {
+      "title": "Penukaran “{{name}}”",
+      "description": "Pengguna yang mendaftar via tautan ini, menurut urutan pendaftaran.",
+      "revokedNotice": "Undangan ini dicabut. Penukaran di bawah dari pengguna yang mendaftar sebelum pencabutan.",
+      "revokedNoticeDated": "Undangan ini dicabut {{date}}. Penukaran di bawah dari pengguna yang mendaftar sebelum pencabutan.",
+      "usesOfMax_one": "{{count}} dari {{max}} dipakai",
+      "usesOfMax_other": "{{count}} dari {{max}} dipakai",
+      "uses_one": "{{count}} dipakai",
+      "uses_other": "{{count}} dipakai",
+      "loadFailed": "Gagal memuat penukaran",
+      "loadFailedInline": "Gagal memuat penukaran.",
+      "empty": "Belum ada penukaran.",
+      "now": "(kini {{name}})",
+      "deletedUser": "Pengguna Dihapus"
+    },
+    "row": {
+      "usage": "Pakai: {{usage}}",
+      "createdBy": "Oleh: {{name}}",
+      "unknownCreator": "Tidak diketahui",
+      "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
+      "subtitleArchived": "{{usage}} · {{expiry}} · {{when}}",
+      "used": "Terpakai",
+      "expires": "Kedaluwarsa",
+      "expiredAt": "Kedaluwarsa",
+      "revokedAt": "Dicabut",
+      "exhausted": "Habis",
+      "created": "Dibuat",
+      "createdByLabel": "Oleh",
+      "token": "Token",
+      "lastRedeemed": "Terakhir dipakai",
+      "copyLink": "Salin tautan",
+      "revoke": "Cabut",
+      "viewRedemptions": "Lihat penukaran",
+      "reinstate": "Pulihkan",
+      "deletePermanently": "Hapus Permanen",
+      "copied": "Tautan undangan disalin",
+      "copyFailed": "Gagal menyalin tautan",
+      "revoked": "Undangan dicabut",
+      "revokeFailed": "Gagal mencabut: {{message}}",
+      "deleted": "Undangan dihapus",
+      "deleteFailed": "Gagal menghapus: {{message}}",
+      "revokeDialog": {
+        "title": "Cabut “{{name}}”?",
+        "description": "Tautan langsung berhenti berfungsi. Siapa pun dengan URL tak dapat lagi memakainya.<br/><br/>Jika berubah pikiran, <strong>Pulihkan</strong> memberi tautan baru di item ini — URL asli tetap nonaktif.",
+        "confirm": "Cabut tautan"
+      },
+      "deleteDialog": {
+        "title": "Hapus “{{name}}” permanen?",
+        "description": "Ini tak dapat dibatalkan. Riwayat penukaran tautan ini juga dihapus. Jika hanya ingin menghentikan tautan, gunakan <strong>Cabut</strong> — riwayat penukaran tersimpan.",
+        "confirm": "Hapus Permanen"
+      }
+    }
+  },
+  "storage": {
+    "title": "Penyimpanan",
+    "description": "Lacak pemakaian disk dan bersihkan berkas yatim dari konten terhapus atau avatar dan banner pengganti.",
+    "loading": "Memuat statistik penyimpanan…",
+    "loadFailed": "Gagal memuat statistik penyimpanan",
+    "refresh": "Segarkan statistik",
+    "overview": {
+      "label": "Ringkasan penyimpanan",
+      "totalFiles": "Total berkas",
+      "referenced": "Dengan referensi",
+      "orphanedFiles": "Berkas yatim",
+      "unlinkedUploads": "Unggahan tak tertaut",
+      "danglingRecords": "Rekaman menggantung",
+      "staleUploads": "Unggahan basi"
+    },
+    "breakdown": {
+      "label": "Rincian per tipe berkas",
+      "entry_one": "{{count}} berkas — {{size}}",
+      "entry_other": "{{count}} berkas — {{size}}"
+    },
+    "uploadLimit": {
+      "label": "Batas unggah",
+      "maxFileSize": "Ukuran berkas maks",
+      "maxStickerSize": "Ukuran stiker maks",
+      "saved": "Batas unggah diset ke {{limit}}",
+      "saveFailed": "Gagal memperbarui batas unggah",
+      "stickerSaved": "Batas stiker diset ke {{limit}}",
+      "stickerSaveFailed": "Gagal memperbarui batas stiker"
+    },
+    "cleanup": {
+      "label": "Pembersihan",
+      "nothingFound": "Tidak ditemukan berkas yatim, unggahan basi, atau rekaman menggantung.",
+      "preview": "Pratinjau pembersihan",
+      "run": "Bersihkan kini",
+      "running": "Membersihkan…",
+      "previewResult": "Pratinjau — tidak ada berkas dihapus",
+      "complete": "Pembersihan selesai",
+      "orphanedFiles_one": "{{count}} berkas yatim ({{size}})",
+      "orphanedFiles_other": "{{count}} berkas yatim ({{size}})",
+      "staleRecords_one": ", {{count}} rekaman unggahan basi",
+      "staleRecords_other": ", {{count}} rekaman unggahan basi",
+      "errors_one": "{{count}} galat: {{first}}",
+      "errors_other": "{{count}} galat: {{first}}",
+      "cleanedToast_one": "Membersihkan {{count}} berkas ({{size}})",
+      "cleanedToast_other": "Membersihkan {{count}} berkas ({{size}})",
+      "failed": "Pembersihan gagal"
+    },
+    "stale": {
+      "label": "Unggahan basi",
+      "description": "Sesi unggahan tus terbengkalai di <code>.tus/</code> (terjeda atau crash tanpa DELETE). Pembersihan otomatis berjalan tiap 24 jam; ini membersihkan lebih awal.",
+      "maxAge": "Umur maks (jam)",
+      "sessionFiles_one": "{{count}} berkas sesi ({{size}})",
+      "sessionFiles_other": "{{count}} berkas sesi ({{size}})",
+      "cleanedToast_one": "Membersihkan {{count}} sesi unggahan basi ({{size}})",
+      "cleanedToast_other": "Membersihkan {{count}} sesi unggahan basi ({{size}})",
+      "failed": "Pembersihan unggahan basi gagal"
+    },
+    "media": {
+      "label": "Penyimpanan media",
+      "olderThan": "Hapus media chat lebih lama dari",
+      "days": "hari",
+      "run": "Hapus kini",
+      "running": "Menghapus…",
+      "files_one": "{{count}} berkas ({{size}})",
+      "files_other": "{{count}} berkas ({{size}})",
+      "deletedToast_one": "Menghapus {{count}} berkas ({{size}})",
+      "deletedToast_other": "Menghapus {{count}} berkas ({{size}})",
+      "failed": "Pembersihan media gagal"
+    }
+  },
+  "streaming": {
+    "title": "Streaming",
+    "description": "Batas ini berlaku untuk semua pengguna instans ini. Pengguna dapat memilih nilai dalam batas ini.",
+    "units": {
+      "fps": "{{value}} fps",
+      "kbpsLabel": "kbps"
+    },
+    "bandwidth": {
+      "label": "Lebar pita",
+      "description": "Batas bitrate minimal dan maksimal, serta langkah slider kualitas.",
+      "customBitrate": {
+        "label": "Izinkan bitrate kustom",
+        "description": "Izinkan pengguna menyetel bitrate sendiri alih-alih bawaan matriks"
+      },
+      "range": "Rentang bitrate",
+      "min": "Minimal",
+      "max": "Maks",
+      "step": "Langkah slider"
+    },
+    "quality": {
+      "label": "Kualitas",
+      "description": "Opsi resolusi dan frame rate tersedia untuk berbagi layar.",
+      "resolutions": "Resolusi diizinkan",
+      "framerates": "Frame rate diizinkan"
+    },
+    "highEndWarning": {
+      "title": "Pengaturan kelas atas diaktifkan.",
+      "description": "Streaming di atas 1080p atau 60 fps butuh daya encoding CPU/GPU besar di klien dan dapat menjenuhkan bandwidth server, apalagi saat aliran via TURN. Konfigurasi kelas atas (mis. 4K dengan 120 fps) dapat meminta hingga 45 Mbps per aliran aktif. Pastikan infrastruktur Anda menahan beban sebelum mengaktifkan ini untuk semua pengguna."
+    },
+    "matrix": {
+      "label": "Matriks bitrate",
+      "description": "Bitrate bawaan untuk tiap resolusi dan frame rate. Edit sel tunggal atau skala semua nilai sekaligus.",
+      "scaleAll": "Skala semua",
+      "scaleHint": "Seret untuk menskala semua bitrate. Penyetelan halus sel tunggal — di bawah.",
+      "cellDefault": "Bawaan: {{value}} (klik × untuk atur ulang)",
+      "cellEdit": "Klik untuk mengedit",
+      "resetAll": "Atur ulang semua ke bawaan"
+    },
+    "capWarning": {
+      "title": "Nilai matriks melebihi batas global.",
+      "description": "Beberapa bitrate melebihi maks {{max}} Anda. Aliran dengan kombinasi itu diturunkan ke batas Anda."
+    }
+  },
+  "updates": {
+    "title": "Pembaruan",
+    "badge": {
+      "settingsAriaLabel": "Pengaturan, pembaruan instans tersedia",
+      "toast": "Backspace {{version}} tersedia untuk instans ini",
+      "toastAction": "Lihat"
+    },
+    "description": "Versi apa berjalan di instans ini dan cara memperbaruinya.",
+    "loading": "Memuat status pembaruan…",
+    "loadFailed": "Gagal memuat status pembaruan.",
+    "copyFailed": "Gagal menyalin. Pilih perintah dan salin manual.",
+    "running": {
+      "label": "Berjalan",
+      "commit": "commit {{commit}} · ",
+      "channel": {
+        "prebuilt": "image prabangun",
+        "source": "dibangun dari sumber",
+        "unknown": "cara instal tak tercatat"
+      }
+    },
+    "available": {
+      "label": "Tersedia",
+      "version": "Backspace {{version}} tersedia",
+      "released": "Dirilis {{date}} · ",
+      "releaseNotes": "Catatan rilis",
+      "fromInstallDir": "Dari direktori instal Anda:",
+      "scriptDescription": "Membuat snapshot basis data, mengunduh image baru, dan memulai ulang hanya kontainer Backspace. Jika versi baru tak mulai baik atau mulai dengan kode lama, ia mengembalikan versi kini.",
+      "noScript": "Saya tidak punya update.sh",
+      "manualIntro": "update.sh menyertai sejak 1.0.5. Di salinan git, <code>git pull</code> menambahkannya. Jika tidak, lakukan langkah manual setelah snapshot dengan <code>./backup.sh</code>.",
+      "prebuiltInstall": "Instal prabangun:",
+      "sourceInstall": "Instal dari sumber:",
+      "manualWarning": "Sebutkan eksplisit layanan <code>backspace</code> dan jangan teruskan <code>--remove-orphans</code>. Compose menyarankannya jika kontainer lain berjalan di proyek ini, dan menghapusnya."
+    },
+    "upToDate": "Anda termutakhir.",
+    "disabled": {
+      "title": "Pemeriksaan pembaruan mati",
+      "description": "Instans ini tak menghubungi GitHub. Setel <code>BACKSPACE_UPDATE_CHECK=true</code> di <code>.env</code> Anda untuk mengizinkan pemeriksaan, atau lihat halaman rilis sendiri."
+    },
+    "rateLimited": {
+      "title": "GitHub dibatasi laju",
+      "description": "Ini bukan bukti ada atau tidaknya pembaruan. Coba nanti."
+    },
+    "unreachable": {
+      "title": "Gagal memeriksa pembaruan",
+      "description": "GitHub tak terjangkau, jadi ini bukan bukti ada atau tidaknya pembaruan. Instans Anda tidak terdampak."
+    },
+    "lastChecked": "Terakhir diperiksa: {{when}}",
+    "noLookups": "Tidak ada lookup berjalan",
+    "checkAgain": "Periksa lagi",
+    "checking": "Memeriksa…"
+  },
+  "users": {
+    "title": "Pengguna",
+    "description": "Lihat dan kelola akun di instans ini.",
+    "searchPlaceholder": "Cari pengguna…",
+    "loading": "Memuat pengguna…",
+    "loadFailed": "Gagal memuat pengguna",
+    "empty": "Tidak ada pengguna ditemukan",
+    "filters": {
+      "allInstances": "Semua instans",
+      "localOnly": "Hanya lokal",
+      "allRoles": "Semua peran",
+      "admin": "Administrator",
+      "nonAdmin": "Bukan admin",
+      "joinedAfter": "Bergabung setelah",
+      "joinedBefore": "Bergabung sebelum",
+      "newest": "Terbaru dulu",
+      "oldest": "Terlama dulu",
+      "nameDesc": "Nama Z-A",
+      "deleted": "Dihapus",
+      "clear": "Bersihkan filter",
+      "bot": "Bot"
+    },
+    "badge": {
+      "admin": "Administrator",
+      "deleted": "Dihapus"
+    },
+    "actions": {
+      "demote": "Cabut hak admin",
+      "promote": "Beri hak admin",
+      "federatedNoAdmin": "Pengguna federasi tak dapat jadi admin",
+      "resetPassword": "Atur ulang kata sandi",
+      "federatedNoReset": "Pengguna federasi masuk via instans utama",
+      "delete": "Hapus pengguna",
+      "selfDelete": "Gunakan pengaturan untuk menghapus akun sendiri"
+    },
+    "tempPassword": {
+      "label": "Kata sandi sementara:",
+      "note": "Ditampilkan sekali. Pengguna terputus; ia harus masuk lagi."
+    },
+    "pagination": "Halaman {{page}} dari {{total}} ({{users}})",
+    "count_one": "{{count}} pengguna",
+    "count_other": "{{count}} pengguna",
+    "roleFailed": "Gagal memperbarui peran",
+    "resetFailed": "Gagal mengatur ulang kata sandi",
+    "actionFailed": "Aksi gagal",
+    "resetDialog": {
+      "title": "Atur ulang kata sandi",
+      "description": "Atur ulang kata sandi untuk <strong>{{username}}</strong>? Pengguna langsung terputus dan harus masuk dengan kata sandi sementara baru.",
+      "confirm": "Atur ulang kata sandi"
+    },
+    "demoteDialog": {
+      "title": "Cabut hak admin",
+      "description": "Cabut hak admin <strong>{{username}}</strong>? Pengguna kehilangan akses pengaturan instans.",
+      "confirm": "Cabut hak"
+    },
+    "deleteDialog": {
+      "title": "Hapus pengguna",
+      "description": "Hapus permanen <strong>{{username}}</strong>? Pengguna dikeluarkan dari semua ruang, DM, dan daftar teman. Ini tak dapat dibatalkan.",
+      "confirm": "Hapus pengguna",
+      "blockBot": "Jangan biarkan bot ini mendaftar lagi",
+      "blockBotHint": "Saat instans utamanya kembali, bot tak dapat membuat akun di sini. Buka blokir di bawah daftar pengguna."
+    },
+    "blockedBots": {
+      "title": "Bot Diblokir",
+      "description": "Bot instans lain yang tak dapat mendaftar di sini. Buka blokir bot untuk mengizinkan akses lagi.",
+      "blockedAt": "Diblokir {{date}}",
+      "unblock": "Buka blokir"
+    }
+  },
+  "mobile": {
+    "title": "Instans",
+    "sections": {
+      "general": "Umum",
+      "registration": "Pendaftaran",
+      "federation": "Federasi",
+      "streaming": "Streaming",
+      "storage": "Penyimpanan",
+      "users": "Pengguna",
+      "updates": "Pembaruan"
+    }
+  }
+}

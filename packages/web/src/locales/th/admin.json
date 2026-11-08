@@ -1,0 +1,417 @@
+{
+  "general": {
+    "title": "ทั่วไป",
+    "description": "กำหนดค่าอินสแตนซ์ Backspace ของคุณ การตั้งค่านี้ใช้กับผู้ใช้ทุกคน",
+    "instanceName": {
+      "label": "ชื่ออินสแตนซ์",
+      "description": "ชื่อที่แสดงบนหน้าเข้าสู่ระบบและต่ออินสแตนซ์สหพันธ์",
+      "counter": "{{length}}/{{max}}"
+    },
+    "gif": {
+      "label": "ค้นหา GIF",
+      "description": "เปิดค้นหา GIF โดย Klipy รับคีย์ API ฟรีจากพอร์ทัลนักพัฒนา Klipy",
+      "placeholderSaved": "บันทึกคีย์แล้ว — ป้อนคีย์ใหม่เพื่อแทน",
+      "placeholderKey": "คีย์ API Klipy",
+      "enabled": "เปิด",
+      "notConfigured": "ไม่ได้กำหนด",
+      "clearKey": "ล้างคีย์"
+    }
+  },
+  "registration": {
+    "title": "ลงทะเบียน",
+    "description": "ควบคุมว่าใครสร้างบัญชีบนอินสแตนซ์นี้ได้ การลงทะเบียนสาธารณะครอบคลุมสมัครท้องถิ่น; การลงทะเบียนสหพันธ์ครอบคลุมผู้ใช้จากอินสแตนซ์เพียร์ที่สร้างบัญชีที่นี่",
+    "public": {
+      "label": "ลงทะเบียนสาธารณะ",
+      "toggleLabel": "อนุญาตบัญชีท้องถิ่นใหม่",
+      "toggleDescription": "ใครก็สร้างบัญชีท้องถิ่นได้ที่หน้าลงทะเบียน เมื่อปิด บัญชีท้องถิ่นใหม่สร้างได้เฉพาะลิงก์เชิญ"
+    },
+    "federated": {
+      "label": "ลงทะเบียนสหพันธ์",
+      "toggleLabel": "อนุญาตบัญชีสหพันธ์ใหม่",
+      "toggleDescription": "ผู้ใช้อินสแตนซ์อื่นสร้างบัญชีสหพันธ์ที่นี่ได้ผ่านตั้งค่าการเชื่อมต่อ บัญชีสหพันธ์เดิมเข้าสู่ระบบได้เสมอไม่ว่าตั้งค่านี้"
+    },
+    "spaceCreation": {
+      "label": "สร้างสเปซ",
+      "toggleLabel": "อนุญาตสเปซใหม่",
+      "toggleDescription": "ผู้ใช้สร้างสเปซใหม่บนอินสแตนซ์นี้ได้ เมื่อปิด เฉพาะผู้ดูแลอินสแตนซ์สร้างสเปซได้ และผู้ใช้ทั่วไปเข้าร่วมที่มีอยู่เท่านั้น"
+    },
+    "saved": "บันทึกตั้งค่าลงทะเบียนแล้ว",
+    "saveFailed": "อัปเดตตั้งค่าลงทะเบียนไม่ได้"
+  },
+  "invites": {
+    "label": "ลิงก์เชิญ",
+    "create": "+ สร้างลิงก์",
+    "tabs": {
+      "active": "ใช้งาน",
+      "archived": "เก็บถาวร"
+    },
+    "loadFailed": "โหลดคำเชิญไม่ได้",
+    "emptyActive": "ไม่มีลิงก์เชิญที่ใช้งาน",
+    "emptyArchived": "ไม่มีลิงก์เชิญที่เก็บถาวร",
+    "noMatch": "ไม่มีคำเชิญตรงตัวกรองปัจจุบัน",
+    "filter": {
+      "status": "สถานะ",
+      "sort": {
+        "recent": "ใหม่สุดก่อน",
+        "oldest": "เก่าสุดก่อน",
+        "name": "ชื่อ (A–Z)",
+        "mostUsed": "ใช้มากสุด",
+        "expiringSoonest": "หมดอายุเร็วสุด"
+      }
+    },
+    "status": {
+      "active": "ใช้งาน",
+      "expired": "หมดอายุ",
+      "exhausted": "หมด",
+      "revoked": "เพิกถอน"
+    },
+    "expiry": {
+      "preset": {
+        "hour1": "1 ชั่วโมง",
+        "hours24": "24 ชั่วโมง",
+        "days7": "7 วัน",
+        "days30": "30 วัน",
+        "custom": "กำหนดเอง…"
+      },
+      "keepCurrent": "คงปัจจุบัน",
+      "invalidFuture": "เลือกวันเวลาในอนาคต",
+      "invalidSelection": "เลือกหมดอายุไม่ถูกต้อง",
+      "revokedOn": "เพิกถอน {{date}}",
+      "expiredOn": "หมดอายุ {{date}}",
+      "exhausted": "หมด",
+      "noExpiration": "ไม่หมดอายุ",
+      "inDays_other": "หมดอายุใน {{count}} วัน",
+      "inHours_other": "หมดอายุใน {{count}} ชั่วโมง"
+    },
+    "form": {
+      "name": "ชื่อ",
+      "namePlaceholder": "เช่น เพื่อน กลุ่ม 1",
+      "maxUses": "ใช้สูงสุด",
+      "unlimited": "ไม่จำกัด",
+      "uses": "ใช้",
+      "expires": "หมดอายุ",
+      "nameLength": "ชื่อต้อง 1 ถึง 64 อักขระ",
+      "maxUsesInteger": "ใช้สูงสุดต้องเป็นจำนวนเต็มบวก"
+    },
+    "createModal": {
+      "title": "สร้างลิงก์เชิญ",
+      "description": "สร้างลิงก์แชร์ให้คนลงทะเบียนบนอินสแตนซ์นี้ คุณกำหนดว่าใช้ได้กี่ครั้งและหมดอายุเมื่อใด",
+      "submit": "สร้างลิงก์",
+      "submitting": "กำลังสร้าง…",
+      "createdCopied": "สร้างลิงก์แล้ว คัดลอกสู่คลิปบอร์ด",
+      "createdManual": "สร้างลิงก์แล้ว คัดลอกเองจากแถว",
+      "failed": "สร้างคำเชิญไม่ได้: {{message}}"
+    },
+    "editModal": {
+      "title": "แก้ไข “{{name}}”",
+      "description": "ปรับขีดลิงก์นี้ URL เดิม — ใครมีใช้ต่อได้ตามเงื่อนไขใหม่",
+      "used": "(ใช้ {{used}})",
+      "maxUsesBelowUsed": "ใช้สูงสุดต่ำกว่าที่ใช้ปัจจุบัน ({{used}}) ไม่ได้",
+      "noChanges": "ไม่มีเปลี่ยนให้บันทึก",
+      "updated": "อัปเดตคำเชิญแล้ว",
+      "failed": "อัปเดตคำเชิญไม่ได้: {{message}}",
+      "submit": "บันทึกเปลี่ยน",
+      "submitting": "กำลังบันทึก…"
+    },
+    "reinstateModal": {
+      "title": "คืน “{{name}}”",
+      "descriptionRevoked": "คำเชิญนี้ถูกเพิกถอน การคืนสร้างลิงก์ใหม่ URL ต่าง — URL เดิมไม่ทำงาน",
+      "descriptionLapsed": "คำเชิญนี้หมดอายุ การคืนเปิด URL เดิมอีก — ใครบันทึกไว้ใช้ต่อได้",
+      "newLinkWarning": "จะสร้างลิงก์ใหม่ ผู้มี URL เดิมใช้ไม่ได้",
+      "maxUsesMeta": "(ปัจจุบัน: {{max}} ใช้: {{used}})",
+      "maxUsesMin": "ใช้สูงสุดอย่างน้อย {{min}} (ปัจจุบัน: {{used}})",
+      "submit": "คืน",
+      "submitNewLink": "คืนด้วยลิงก์ใหม่",
+      "submitting": "กำลังคืน…",
+      "doneCopied": "คืนด้วยลิงก์ใหม่แล้ว คัดลอกสู่คลิปบอร์ด",
+      "doneManual": "คืนด้วยลิงก์ใหม่แล้ว คัดลอกเองจากแถว",
+      "doneSameLink": "คืนแล้ว ลิงก์เดิมใช้งานอีก",
+      "failed": "คืนไม่ได้: {{message}}"
+    },
+    "redemptions": {
+      "title": "ใช้ “{{name}}”",
+      "description": "ผู้ใช้ที่ลงทะเบียนผ่านลิงก์นี้ ตามลำดับลงทะเบียน",
+      "revokedNotice": "คำเชิญนี้ถูกเพิกถอน การใช้ด้านล่างจากผู้ใช้ที่ลงทะเบียนก่อนเพิกถอน",
+      "revokedNoticeDated": "คำเชิญนี้ถูกเพิกถอน {{date}} การใช้ด้านล่างจากผู้ใช้ที่ลงทะเบียนก่อนเพิกถอน",
+      "usesOfMax_other": "{{count}} จาก {{max}} ที่ใช้",
+      "uses_other": "ใช้ {{count}}",
+      "loadFailed": "โหลดการใช้ไม่ได้",
+      "loadFailedInline": "โหลดการใช้ไม่ได้",
+      "empty": "ยังไม่มีการใช้",
+      "now": "(ตอนนี้ {{name}})",
+      "deletedUser": "ผู้ใช้ที่ลบ"
+    },
+    "row": {
+      "usage": "ใช้: {{usage}}",
+      "createdBy": "โดย: {{name}}",
+      "unknownCreator": "ไม่ทราบ",
+      "subtitleActive": "{{usage}} · {{expiry}} · {{creator}}",
+      "subtitleArchived": "{{usage}} · {{expiry}} · {{when}}",
+      "used": "ใช้",
+      "expires": "หมดอายุ",
+      "expiredAt": "หมดอายุ",
+      "revokedAt": "เพิกถอน",
+      "exhausted": "หมด",
+      "created": "สร้าง",
+      "createdByLabel": "โดย",
+      "token": "โทเคน",
+      "lastRedeemed": "ใช้ล่าสุด",
+      "copyLink": "คัดลอกลิงก์",
+      "revoke": "เพิกถอน",
+      "viewRedemptions": "ดูการใช้",
+      "reinstate": "คืน",
+      "deletePermanently": "ลบถาวร",
+      "copied": "คัดลอกลิงก์เชิญแล้ว",
+      "copyFailed": "คัดลอกลิงก์ไม่ได้",
+      "revoked": "เพิกถอนคำเชิญแล้ว",
+      "revokeFailed": "เพิกถอนไม่ได้: {{message}}",
+      "deleted": "ลบคำเชิญแล้ว",
+      "deleteFailed": "ลบไม่ได้: {{message}}",
+      "revokeDialog": {
+        "title": "เพิกถอน “{{name}}”?",
+        "description": "ลิงก์หยุดทำงานทันที ไม่มีใครมี URL ใช้ได้อีก<br/><br/>หากเปลี่ยนใจ <strong>คืน</strong> สร้างลิงก์ใหม่ในรายการนี้ — URL เดิมไม่ทำงาน",
+        "confirm": "เพิกถอนลิงก์"
+      },
+      "deleteDialog": {
+        "title": "ลบ “{{name}}” ถาวร?",
+        "description": "ทำย้อนไม่ได้ ประวัติใช้ลิงก์นี้ถูกลบด้วย หากแค่หยุดลิงก์ ใช้ <strong>เพิกถอน</strong> — ประวัติใช้คงอยู่",
+        "confirm": "ลบถาวร"
+      }
+    }
+  },
+  "storage": {
+    "title": "ที่เก็บ",
+    "description": "ติดตามใช้ดิสก์และล้างไฟล์กำพร้าจากเนื้อหาที่ลบหรืออวาตาร์และแบนเนอร์ที่แทน",
+    "loading": "กำลังโหลดสถิติที่เก็บ…",
+    "loadFailed": "โหลดสถิติที่เก็บไม่ได้",
+    "refresh": "รีเฟรชสถิติ",
+    "overview": {
+      "label": "ภาพรวมที่เก็บ",
+      "totalFiles": "ไฟล์ทั้งหมด",
+      "referenced": "มีการอ้างอิง",
+      "orphanedFiles": "ไฟล์กำพร้า",
+      "unlinkedUploads": "อัปโหลดไม่โยง",
+      "danglingRecords": "เรคอร์ดค้าง",
+      "staleUploads": "อัปโหลดเก่า"
+    },
+    "breakdown": {
+      "label": "แจกแจงตามชนิดไฟล์",
+      "entry_other": "{{count}} ไฟล์ — {{size}}"
+    },
+    "uploadLimit": {
+      "label": "ขีดอัปโหลด",
+      "maxFileSize": "ขนาดไฟล์สูงสุด",
+      "maxStickerSize": "ขนาดสติกเกอร์สูงสุด",
+      "saved": "ตั้งขีดอัปโหลดเป็น {{limit}}",
+      "saveFailed": "อัปเดตขีดอัปโหลดไม่ได้",
+      "stickerSaved": "ตั้งขีดสติกเกอร์เป็น {{limit}}",
+      "stickerSaveFailed": "อัปเดตขีดสติกเกอร์ไม่ได้"
+    },
+    "cleanup": {
+      "label": "ล้าง",
+      "nothingFound": "ไม่พบไฟล์กำพร้า อัปโหลดเก่า หรือเรคอร์ดค้าง",
+      "preview": "ดูตัวอย่างล้าง",
+      "run": "ล้างเลย",
+      "running": "กำลังล้าง…",
+      "previewResult": "ตัวอย่าง — ไม่ลบไฟล์",
+      "complete": "ล้างเสร็จ",
+      "orphanedFiles_other": "ไฟล์กำพร้า {{count}} ({{size}})",
+      "staleRecords_other": ", เรคอร์ดอัปโหลดเก่า {{count}}",
+      "errors_other": "ข้อผิดพลาด {{count}}: {{first}}",
+      "cleanedToast_other": "ล้าง {{count}} ไฟล์ ({{size}})",
+      "failed": "ล้างล้มเหลว"
+    },
+    "stale": {
+      "label": "อัปโหลดเก่า",
+      "description": "เซสชันอัปโหลด tus ถูกทิ้งใน <code>.tus/</code> (หยุดหรือแครชโดยไม่มี DELETE) ล้างอัตโนมัติทุก 24 ชม. นี่ล้างก่อน",
+      "maxAge": "อายุสูงสุด (ชม)",
+      "sessionFiles_other": "ไฟล์เซสชัน {{count}} ({{size}})",
+      "cleanedToast_other": "ล้างเซสชันอัปโหลดเก่า {{count}} ({{size}})",
+      "failed": "ล้างอัปโหลดเก่าล้มเหลว"
+    },
+    "media": {
+      "label": "เก็บสื่อ",
+      "olderThan": "ลบสื่อแชทเก่ากว่า",
+      "days": "วัน",
+      "run": "ลบเลย",
+      "running": "กำลังลบ…",
+      "files_other": "ไฟล์ {{count}} ({{size}})",
+      "deletedToast_other": "ลบ {{count}} ไฟล์ ({{size}})",
+      "failed": "ล้างสื่อล้มเหลว"
+    }
+  },
+  "streaming": {
+    "title": "สตรีม",
+    "description": "ขีดนี้ใช้กับผู้ใช้อินสแตนซ์นี้ทั้งหมด ผู้ใช้เลือกค่าในขีดนี้",
+    "units": {
+      "fps": "{{value}} fps",
+      "kbpsLabel": "kbps"
+    },
+    "bandwidth": {
+      "label": "แบนด์วิดท์",
+      "description": "ขีดบิตเรตต่ำสุดและสูงสุด และขั้นแถบเลื่อนคุณภาพ",
+      "customBitrate": {
+        "label": "อนุญาตบิตเรตกำหนดเอง",
+        "description": "ให้ผู้ใช้ตั้งบิตเรตเองแทนค่ามาตรฐานเมทริกซ์"
+      },
+      "range": "ช่วงบิตเรต",
+      "min": "ต่ำสุด",
+      "max": "สูงสุด",
+      "step": "ขั้นแถบ"
+    },
+    "quality": {
+      "label": "คุณภาพ",
+      "description": "ตัวเลือกความละเอียดและอัตราเฟรมสำหรับแชร์จอ",
+      "resolutions": "ความละเอียดอนุญาต",
+      "framerates": "อัตราเฟรมอนุญาต"
+    },
+    "highEndWarning": {
+      "title": "เปิดตั้งค่าสูง",
+      "description": "สตรีมเกิน 1080p หรือ 60 fps ต้องการพลังเข้ารหัส CPU/GPU บนไคลเอนต์มากและอาจอิ่มแบนด์วิดท์เซิร์ฟเวอร์ โดยเฉพาะเมื่อผ่าน TURN การตั้งค่าสูง (เช่น 4K 120 fps) อาจต้องการถึง 45 Mbps ต่อสตรีมใช้งาน ตรวจสอบโครงสร้างก่อนเปิดให้ทุกคน"
+    },
+    "matrix": {
+      "label": "เมทริกซ์บิตเรต",
+      "description": "บิตเรตมาตรฐานต่อความละเอียดและอัตราเฟรม แก้เซลล์เดียวหรือสเกลค่าทั้งหมดพร้อมกัน",
+      "scaleAll": "สเกลทั้งหมด",
+      "scaleHint": "ลากเพื่อสเกลบิตเรตทั้งหมด ปรับเซลล์เดี่ยว — ด้านล่าง",
+      "cellDefault": "มาตรฐาน: {{value}} (กด × เพื่อรีเซ็ต)",
+      "cellEdit": "กดเพื่อแก้",
+      "resetAll": "รีเซ็ตทั้งหมดเป็นมาตรฐาน"
+    },
+    "capWarning": {
+      "title": "ค่าเมทริกซ์เกินขีดโลก",
+      "description": "บิตเรตบางตัวเกินสูงสุด {{max}} ของคุณ สตรีมชุดนี้จะลดสู่ขีดคุณ"
+    }
+  },
+  "updates": {
+    "title": "อัปเดต",
+    "badge": {
+      "settingsAriaLabel": "ตั้งค่า มีอัปเดตอินสแตนซ์",
+      "toast": "มี Backspace {{version}} สำหรับอินสแตนซ์นี้",
+      "toastAction": "ดู"
+    },
+    "description": "เวอร์ชันใดรันบนอินสแตนซ์นี้และวิธีอัปเดต",
+    "loading": "กำลังโหลดสถานะอัปเดต…",
+    "loadFailed": "โหลดสถานะอัปเดตไม่ได้",
+    "copyFailed": "คัดลอกไม่ได้ เลือกคำสั่งแล้วคัดลอกเอง",
+    "running": {
+      "label": "กำลังรัน",
+      "commit": "commit {{commit}} · ",
+      "channel": {
+        "prebuilt": "อิมเมจสำเร็จ",
+        "source": "สร้างจากซอร์ส",
+        "unknown": "ไม่บันทึกวิธีติดตั้ง"
+      }
+    },
+    "available": {
+      "label": "พร้อม",
+      "version": "มี Backspace {{version}}",
+      "released": "ปล่อย {{date}} · ",
+      "releaseNotes": "บันทึกปล่อย",
+      "fromInstallDir": "จากไดเรกทอรีติดตั้ง:",
+      "scriptDescription": "สร้างสแน็ปฐานข้อมูล ดาวน์โหลดอิมเมจใหม่ และรีสตาร์ทเฉพาะคอนเทนเนอร์ Backspace หากเวอร์ชันใหม่ไม่รันดีหรือรันโค้ดเก่า จะคืนเวอร์ชันปัจจุบัน",
+      "noScript": "ฉันไม่มี update.sh",
+      "manualIntro": "update.sh มาตั้งแต่ 1.0.5 ในสำเนา git <code>git pull</code> เพิ่มให้ มิฉะนั้นทำเองหลังสแน็ปด้วย <code>./backup.sh</code>",
+      "prebuiltInstall": "ติดตั้งอิมเมจสำเร็จ:",
+      "sourceInstall": "ติดตั้งจากซอร์ส:",
+      "manualWarning": "ระบุเซอร์วิส <code>backspace</code> ชัดเจนและอย่าส่ง <code>--remove-orphans</code> Compose เสนอหากมีคอนเทนเนอร์อื่นในโปรเจกต์นี้ และจะลบมัน"
+    },
+    "upToDate": "คุณใหม่สุดแล้ว",
+    "disabled": {
+      "title": "ปิดตรวจอัปเดต",
+      "description": "อินสแตนซ์นี้ไม่ติดต่อ GitHub ตั้ง <code>BACKSPACE_UPDATE_CHECK=true</code> ใน <code>.env</code> เพื่ออนุญาตตรวจ หรือดูหน้ารุ่นเอง"
+    },
+    "rateLimited": {
+      "title": "GitHub จำกัดอัตรา",
+      "description": "ไม่บอกว่ามีอัปเดตหรือไม่ ลองภายหลัง"
+    },
+    "unreachable": {
+      "title": "ตรวจอัปเดตไม่ได้",
+      "description": "ติดต่อ GitHub ไม่ได้ จึงไม่บอกว่ามีอัปเดตหรือไม่ อินสแตนซ์คุณไม่กระทบ"
+    },
+    "lastChecked": "ตรวจล่าสุด: {{when}}",
+    "noLookups": "ไม่มีค้นหา",
+    "checkAgain": "ตรวจอีก",
+    "checking": "กำลังตรวจ…"
+  },
+  "users": {
+    "title": "ผู้ใช้",
+    "description": "ดูและจัดการบัญชีบนอินสแตนซ์นี้",
+    "searchPlaceholder": "ค้นหาผู้ใช้…",
+    "loading": "กำลังโหลดผู้ใช้…",
+    "loadFailed": "โหลดผู้ใช้ไม่ได้",
+    "empty": "ไม่พบผู้ใช้",
+    "filters": {
+      "allInstances": "ทุกอินสแตนซ์",
+      "localOnly": "เฉพาะท้องถิ่น",
+      "allRoles": "ทุกบทบาท",
+      "admin": "ผู้ดูแล",
+      "nonAdmin": "ไม่ใช่ผู้ดูแล",
+      "joinedAfter": "เข้าร่วมหลัง",
+      "joinedBefore": "เข้าร่วมก่อน",
+      "newest": "ใหม่สุดก่อน",
+      "oldest": "เก่าสุดก่อน",
+      "nameDesc": "ชื่อ Z-A",
+      "deleted": "ลบแล้ว",
+      "clear": "ล้างตัวกรอง",
+      "bot": "บอท"
+    },
+    "badge": {
+      "admin": "ผู้ดูแล",
+      "deleted": "ลบแล้ว"
+    },
+    "actions": {
+      "demote": "ถอดสิทธิ์ผู้ดูแล",
+      "promote": "ให้สิทธิ์ผู้ดูแล",
+      "federatedNoAdmin": "ผู้ใช้สหพันธ์เป็นผู้ดูแลไม่ได้",
+      "resetPassword": "รีเซ็ตรหัสผ่าน",
+      "federatedNoReset": "ผู้ใช้สหพันธ์เข้าสู่ระบบผ่านอินสแตนซ์หลัก",
+      "delete": "ลบผู้ใช้",
+      "selfDelete": "ใช้ตั้งค่าเพื่อลบบัญชีตัวเอง"
+    },
+    "tempPassword": {
+      "label": "รหัสผ่านชั่วคราว:",
+      "note": "แสดงครั้งเดียว ผู้ใช้ถูกตัด; เขาต้องเข้าสู่ระบบใหม่"
+    },
+    "pagination": "หน้า {{page}} จาก {{total}} ({{users}})",
+    "count_other": "ผู้ใช้ {{count}} คน",
+    "roleFailed": "อัปเดตบทบาทไม่ได้",
+    "resetFailed": "รีเซ็ตรหัสไม่ได้",
+    "actionFailed": "กระทำล้มเหลว",
+    "resetDialog": {
+      "title": "รีเซ็ตรหัสผ่าน",
+      "description": "รีเซ็ตรหัสผ่านสำหรับ <strong>{{username}}</strong>? ผู้ใช้ถูกตัดทันทีและต้องเข้าด้วยรหัสชั่วคราวใหม่",
+      "confirm": "รีเซ็ตรหัสผ่าน"
+    },
+    "demoteDialog": {
+      "title": "ถอดสิทธิ์ผู้ดูแล",
+      "description": "ถอดสิทธิ์ผู้ดูแล <strong>{{username}}</strong>? ผู้ใช้เสียสิทธิ์ตั้งค่าอินสแตนซ์",
+      "confirm": "ถอดสิทธิ์"
+    },
+    "deleteDialog": {
+      "title": "ลบผู้ใช้",
+      "description": "ลบ <strong>{{username}}</strong> ถาวร? ผู้ใช้ถูกนำออกจากสเปซ ข้อความตรง และรายชื่อเพื่อน การกระทำนี้ย้อนไม่ได้",
+      "confirm": "ลบผู้ใช้",
+      "blockBot": "ไม่ให้บอทนี้ลงทะเบียนอีก",
+      "blockBotHint": "เมื่ออินสแตนซ์หลักกลับมา บอทสร้างบัญชีที่นี่ไม่ได้ เลิกบล็อกใต้รายชื่อผู้ใช้"
+    },
+    "blockedBots": {
+      "title": "บอทที่บล็อก",
+      "description": "บอทอินสแตนซ์อื่นที่ลงทะเบียนที่นี่ไม่ได้ เลิกบล็อกเพื่อให้เข้าถึงอีก",
+      "blockedAt": "บล็อก {{date}}",
+      "unblock": "เลิกบล็อก"
+    }
+  },
+  "mobile": {
+    "title": "อินสแตนซ์",
+    "sections": {
+      "general": "ทั่วไป",
+      "registration": "ลงทะเบียน",
+      "federation": "สหพันธ์",
+      "streaming": "สตรีม",
+      "storage": "ที่เก็บ",
+      "users": "ผู้ใช้",
+      "updates": "อัปเดต"
+    }
+  }
+}

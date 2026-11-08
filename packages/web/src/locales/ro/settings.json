@@ -1,0 +1,573 @@
+{
+  "interfaceScale": {
+    "label": "Scala interfeței",
+    "description": "Redimensionează textul, butoanele și panourile. Salvată în acest browser sau aplicație de pe acest dispozitiv.",
+    "reset": "Resetează la 100%"
+  },
+  "voice": {
+    "input": {
+      "title": "Dispozitiv de intrare",
+      "checkingAccess": "Se verifică accesul la microfon…",
+      "accessDenied": {
+        "title": "Accesul la microfon a fost refuzat",
+        "description": "Acordă permisiunea pentru microfon pentru a alege un dispozitiv de intrare.",
+        "retry": "Încearcă din nou"
+      },
+      "permissionPrompt": {
+        "description": "Este nevoie de permisiunea pentru microfon pentru a lista și a alege un dispozitiv de intrare.",
+        "enable": "Activează accesul la microfon"
+      },
+      "device": {
+        "systemDefault": "Implicitul sistemului",
+        "currentlyUsing": "Se folosește: {{label}}",
+        "none": "Nu s-a detectat niciun microfon."
+      },
+      "volume": {
+        "label": "Volumul intrării"
+      },
+      "meter": {
+        "hint": "Indicatorul de nivel se activează după ce te alături unui canal vocal."
+      }
+    },
+    "output": {
+      "title": "Dispozitiv de ieșire",
+      "checkingAccess": "Se verifică accesul la audio…",
+      "device": {
+        "systemDefault": "Implicitul sistemului",
+        "unsupported": "Acest browser nu permite alegerea unui dispozitiv de ieșire. Sunetul este redat prin dispozitivul implicit al sistemului."
+      },
+      "permissionPrompt": {
+        "description": "Acordă permisiunea pentru microfon pentru a lista dispozitivele de ieșire (browserele ascund numele ieșirilor în spatele accesului la microfon).",
+        "enable": "Activează accesul la audio"
+      },
+      "volume": {
+        "label": "Volumul ieșirii"
+      },
+      "testSound": "Redă un sunet de test"
+    },
+    "video": {
+      "title": "Video",
+      "checkingAccess": "Se verifică accesul la cameră…",
+      "accessDenied": {
+        "title": "Accesul la cameră a fost refuzat",
+        "description": "Acordă permisiunea pentru cameră pentru a alege o cameră.",
+        "retry": "Încearcă din nou"
+      },
+      "blocked": {
+        "browser": "Camera este blocată la nivel de browser. Fă clic pe pictograma camerei din bara de adrese, resetează permisiunea, apoi fă clic pe Încearcă din nou.",
+        "mac": "Acordă accesul la cameră în Setări sistem → Confidențialitate și securitate → Cameră, apoi repornește aplicația.",
+        "windows": "Acordă accesul la cameră în Setări → Confidențialitate și securitate → Cameră, apoi repornește aplicația.",
+        "other": "Permisiunea pentru cameră a fost refuzată. Resetează-o din promptul browserului/Chromium și încearcă din nou."
+      },
+      "permissionPrompt": {
+        "description": "Este nevoie de permisiunea pentru cameră pentru a alege o cameră și a o previzualiza.",
+        "enable": "Activează previzualizarea camerei"
+      },
+      "camera": {
+        "label": "Cameră",
+        "auto": "Automat (implicitul sistemului)",
+        "fallbackName": "Cameră {{number}}",
+        "detectedFallback": "cameră detectată",
+        "currentlyUsing": "Se folosește: {{label}}",
+        "none": "Nu s-a detectat nicio cameră."
+      },
+      "preview": {
+        "testAria": "Testează camera",
+        "testHint": "Fă clic pentru a testa camera",
+        "stop": "Oprește previzualizarea",
+        "retry": "Încearcă din nou"
+      },
+      "previewError": {
+        "inUse": "Camera este folosită de altă aplicație.",
+        "unavailable": "Camera selectată nu este disponibilă.",
+        "notFound": "Nu s-a detectat nicio cameră.",
+        "generic": "Previzualizarea camerei nu a putut porni."
+      }
+    },
+    "title": "Voce și video",
+    "volume": {
+      "sectionTitle": "Volum",
+      "soundEffects": {
+        "label": "Volumul efectelor sonore"
+      },
+      "messageSound": {
+        "label": "Redă sunet pentru fiecare mesaj",
+        "description": "Oprit (implicit): doar mesajele directe și mesajele care te menționează. Pornit: fiecare canal."
+      }
+    },
+    "pip": {
+      "sectionTitle": "Fereastră flotantă",
+      "showOnSwitch": {
+        "label": "Arată fereastra flotantă în timpul apelurilor",
+        "description": "Cât timp ești într-un canal vocal sau apel și te uiți la altceva, o fereastră mică ține apelul vizibil."
+      }
+    },
+    "processing": {
+      "sectionTitle": "Procesarea vocii",
+      "noiseSuppression": {
+        "label": "Suprimare AI a zgomotului",
+        "description": "Eliminare a zgomotului bazată pe ML (RNNoise). Filtrează tastatura, ventilatoarele și zgomotul de fundal."
+      },
+      "echoCancellation": {
+        "label": "Anularea ecoului",
+        "description": "Anulează ecoul difuzoarelor care intră în microfon. Mereu activă pentru canalele vocale și apeluri."
+      },
+      "autoGain": {
+        "label": "Control automat al câștigului",
+        "description": "Ajustează automat volumul microfonului. Poate reduce vocea în timpul transmisiilor."
+      }
+    }
+  },
+  "nav": {
+    "userSettings": "Setările utilizatorului",
+    "appSettings": "Setările aplicației",
+    "administration": "Administrare",
+    "tabs": {
+      "account": "Cont",
+      "appearance": "Aspect",
+      "voice": "Voce și video",
+      "privacy": "Confidențialitate",
+      "connections": "Conexiuni",
+      "keybinds": "Scurtături",
+      "desktop": "Desktop",
+      "instance": "Instanță",
+      "bots": "Boți",
+      "developer": "Dezvoltator"
+    },
+    "logOut": "Deconectează-te",
+    "backToMenu": "Înapoi la meniul de setări"
+  },
+  "appearance": {
+    "title": "Aspect"
+  },
+  "account": {
+    "title": "Contul meu",
+    "detached": {
+      "notice": "Acest cont este detașat de instanța sa principală.",
+      "explanation": "{{homeInstance}} a fost resetată sau nu mai este disponibilă, așa că acest cont funcționează acum local pe această instanță. Profilul și parola ta sunt gestionate aici.",
+      "reattachHint": "Ca {{username}} pe {{homeInstance}}, poți reconecta acest cont. Profilul și prezența se vor sincroniza din nou de acolo.",
+      "reattachButton": "Reconectează la {{homeInstance}}",
+      "reattachConfirm": "Confirmă reconectarea ca {{username}}",
+      "reattaching": "Se reconectează…",
+      "reattachFailed": "Reconectarea a eșuat",
+      "reattached": "Cont reconectat cu {{username}}"
+    },
+    "profile": {
+      "sectionTitle": "Personalizarea profilului",
+      "avatar": {
+        "label": "Avatar",
+        "alt": "Avatarul tău",
+        "change": "Schimbă avatarul",
+        "uploadFailed": "Încărcarea avatarului a eșuat",
+        "cropTitle": "Decupează avatarul"
+      },
+      "banner": {
+        "label": "Banner",
+        "change": "Schimbă bannerul",
+        "uploadFailed": "Încărcarea bannerului a eșuat",
+        "cropTitle": "Decupează bannerul"
+      },
+      "avatarColor": {
+        "label": "Culoarea avatarului"
+      },
+      "bannerColor": {
+        "label": "Culoarea bannerului",
+        "hexPlaceholder": "#hex"
+      },
+      "bio": {
+        "label": "Despre mine",
+        "placeholder": "Spune lumii despre tine…",
+        "counter": "{{used}}/{{max}}"
+      }
+    },
+    "details": {
+      "sectionTitle": "Cont",
+      "status": {
+        "label": "Stare",
+        "homeUnavailable": "Starea ta este păstrată pe {{host}}. Conectează-te la {{host}} pentru a o schimba."
+      },
+      "customStatus": {
+        "label": "Stare personalizată",
+        "placeholder": "Ce faci acum?"
+      }
+    },
+    "password": {
+      "current": {
+        "label": "Parola actuală",
+        "placeholder": "Introdu parola actuală"
+      },
+      "new": {
+        "label": "Parolă nouă",
+        "placeholder": "Minim {{min}} caractere"
+      },
+      "confirm": {
+        "label": "Confirmă parola nouă",
+        "placeholder": "Confirmă parola nouă"
+      },
+      "show": "Arată parola",
+      "hide": "Ascunde parola",
+      "tooShort": "Parola nouă trebuie să aibă cel puțin {{min}} caractere",
+      "mismatch": "Parolele nu coincid",
+      "changed": "Parolă schimbată",
+      "changeFailed": "Schimbarea parolei a eșuat",
+      "submit": "Schimbă parola",
+      "submitting": "Se schimbă…"
+    },
+    "danger": {
+      "description": "După ce îți ștergi contul, nu mai există cale de întoarcere. Mesajele tale rămân, dar vor fi atribuite „Utilizator șters”.",
+      "deleteButton": "Șterge contul"
+    },
+    "save": {
+      "updated": "Profil actualizat",
+      "failed": "Profilul nu a putut fi actualizat"
+    },
+    "deletion": {
+      "title": "Șterge contul",
+      "warning": {
+        "headline": "Aceasta îți va șterge definitiv contul.",
+        "spaces": "Toate apartenențele la spații vor fi eliminate",
+        "friends": "Toate conexiunile de prietenie vor fi eliminate",
+        "dms": "Toate apartenențele la DM-uri vor fi eliminate",
+        "messages": "Mesajele tale rămân, dar vor fi atribuite „Utilizator șters”"
+      },
+      "ownedSpaces": {
+        "prompt_one": "Deții {{count}} spațiu. Ocupă-te de el înainte de a continua:",
+        "prompt_few": "Deții {{count}} spații. Ocupă-te de ele înainte de a continua:",
+        "prompt_other": "Deții {{count}} de spații. Ocupă-te de ele înainte de a continua:",
+        "transfer": "Transferă",
+        "delete": "Șterge spațiul",
+        "selectOwner": "Selectează noul proprietar…"
+      },
+      "processing": "Se procesează…",
+      "confirm": {
+        "permanent": "Această acțiune este permanentă și nu poate fi anulată.",
+        "usernamePrompt": "Scrie numele tău de utilizator <username>{{username}}</username> pentru a confirma",
+        "passwordPlaceholder": "Introdu parola",
+        "submit": "Șterge contul meu",
+        "deleting": "Se șterge…"
+      },
+      "federation": {
+        "removing": "Se elimină contul tău din instanțele conectate…",
+        "deleteAnyway": "Șterge contul acum"
+      },
+      "complete": {
+        "title": "Cont șters",
+        "redirecting": "Se redirecționează la conectare…"
+      },
+      "errors": {
+        "usernameMismatch": "Numele de utilizator nu corespunde",
+        "spacesFailed": "Spațiile nu au putut fi procesate",
+        "deleteFailed": "Contul nu a putut fi șters"
+      }
+    }
+  },
+  "privacy": {
+    "title": "Confidențialitate",
+    "discovery": {
+      "sectionTitle": "Descoperire",
+      "label": "Permite altora să îmi găsească profilul",
+      "description": "Când este activat, profilul tău apare în Descoperă persoane. Alții te pot adăuga oricând după numele exact de utilizator."
+    },
+    "activity": {
+      "sectionTitle": "Starea activității",
+      "label": "Partajează starea activității",
+      "description": "Permite altora să vadă ce faci, cum ar fi jocurile pe care le joci sau muzica pe care o asculți.",
+      "game": {
+        "label": "Creat manual",
+        "description": "Adaugă un joc care nu a fost detectat. Este afișat până îl elimini.",
+        "placeholder": "Numele jocului",
+        "set": "Setează",
+        "detectedLabel": "Detectat acum",
+        "detectedDescription": "Arată un joc detectat sub alt nume. Este reținut pentru data viitoare.",
+        "renamePlaceholder": "Afișează ca…",
+        "renameLabel": "Afișează {{name}} ca",
+        "renamedLabel": "Jocuri redenumite",
+        "renamedItem": "{{detected}} → {{chosen}}",
+        "restore": "Restabilește",
+        "descriptionBound": "Adaugă un joc care nu a fost detectat: alege-i programul și dă-i un nume. Este afișat cât timp rulează acel program.",
+        "programLabel": "Program",
+        "programPlaceholder": "Alege un program care rulează…",
+        "programHint": "Pornește mai întâi jocul, apoi alege-i programul din listă.",
+        "clearRename": "Golește",
+        "unknownLabel": "Programe Wine nerecunoscute",
+        "unknownDescription": "Acestea rulează, dar nu corespund niciunui joc cunoscut. Dacă unul este jocul tău, afișează-l ca jocul pe care îl joci.",
+        "unknownUse": "Adaugă la jocurile mele",
+        "gamesLabel": "Jocurile tale",
+        "gamesDescription": "Primul joc este cel afișat în liste; mută jocurile pentru a stabili prioritatea. Un joc ascuns nu este arătat altora.",
+        "moveUp": "Mută {{name}} mai sus",
+        "moveDown": "Mută {{name}} mai jos",
+        "hide": "Ascunde",
+        "show": "Arată",
+        "hideGame": "Ascunde {{name}}",
+        "showGame": "Arată {{name}}",
+        "add": "Adaugă",
+        "remove": "Elimină",
+        "statusName": "afișat după nume",
+        "statusRunning": "rulează",
+        "statusWaiting": "în așteptarea {{program}}",
+        "dragHandle": "Trage {{name}} pentru a-i schimba prioritatea",
+        "manualNameLabel": "Numele pentru {{name}}",
+        "save": "Salvează"
+      }
+    }
+  },
+  "connections": {
+    "title": "Conexiuni"
+  },
+  "instance": {
+    "tabs": {
+      "general": "General",
+      "registration": "Înregistrare",
+      "federation": "Federare",
+      "streaming": "Transmisie",
+      "storage": "Stocare",
+      "users": "Utilizatori",
+      "updates": "Actualizări"
+    }
+  },
+  "keybinds": {
+    "portal": {
+      "description": "Pe Wayland, desktopul gestionează toate scurtăturile Backspace. Asignează, modifică sau elimină tastele din setările de scurtături ale sistemului, la Backspace. Asocierile locale din browser/X11 nu sunt folosite aici.",
+      "idle": "Se pregătește înregistrarea inițială a tuturor acțiunilor disponibile.",
+      "pending": "Se conectează la portalul desktopului. Dacă apare o fereastră de sistem, alege scurtăturile pentru acțiunile pe care vrei să le folosești.",
+      "ready": "Backspace este înregistrat. Deschide setările de scurtături ale sistemului pentru a modifica sau elimina asocierile. Lista de mai jos este doar pentru citire și se reîmprospătează când revii în Backspace.",
+      "unavailable": "Portalul nu este disponibil, permisiunea a fost refuzată sau sesiunea s-a încheiat. Este necesar un backend Global Shortcuts portal. Asocierile locale sunt dezactivate pe Wayland.",
+      "retry": "Înregistrează sau reconectează scurtăturile",
+      "assigned": "Scurtătură de sistem: {{shortcut}}",
+      "notAssigned": "Nicio asociere de sistem activă"
+    },
+    "title": "Scurtături",
+    "note": {
+      "webOnly": "Scurtăturile funcționează cât timp această filă este activă. Pentru scurtături globale valabile în alte aplicații, folosește aplicația desktop."
+    },
+    "section": {
+      "voice": "Scurtături vocale"
+    },
+    "action": {
+      "toggleMute": "Comută microfonul",
+      "toggleDeafen": "Comută dezactivarea sunetului",
+      "pushToTalk": "Apasă pentru a vorbi",
+      "toggleCamera": "Comută camera",
+      "toggleScreenShare": "Comută partajarea ecranului",
+      "disconnect": "Deconectează"
+    },
+    "row": {
+      "recordingPrompt": "Apasă o combinație de taste…",
+      "notBound": "Neasociat",
+      "record": "Înregistrează",
+      "escToCancel": "ESC pentru anulare"
+    },
+    "key": {
+      "shift": "Shift",
+      "ctrl": "Ctrl",
+      "alt": "Alt",
+      "option": "Option",
+      "cmd": "Cmd",
+      "win": "Win",
+      "space": "Spațiu",
+      "middleClick": "Clic mijlociu",
+      "mouse4": "Mouse 4",
+      "mouse5": "Mouse 5",
+      "mouseGeneric": "Mouse {{button}}"
+    },
+    "accessibility": {
+      "title": "Este necesară permisiunea de accesibilitate",
+      "description": "Backspace are nevoie de permisiunea de accesibilitate pentru ca scurtăturile globale să funcționeze în afara aplicației.",
+      "grant": "Acordă permisiunea"
+    },
+    "hookError": {
+      "title": "Scurtăturile globale nu sunt disponibile",
+      "description": "Ascultătorul de intrare nu a putut porni. Pe Linux, utilizatorul tău poate trebui să fie în grupul <code>input</code>."
+    },
+    "conflict": {
+      "message": "<strong>{{combo}}</strong> este deja asociat cu <strong>{{action}}</strong>. Suprascrii?",
+      "overwrite": "Suprascrie"
+    }
+  },
+  "desktop": {
+    "title": "Desktop",
+    "autoLaunch": {
+      "openAtLogin": {
+        "label": "Pornește la pornirea sistemului",
+        "description": "Lansează automat Backspace la autentificarea în sistem"
+      },
+      "startMinimized": {
+        "label": "Pornește minimizat",
+        "description": "Pornește ascuns în zona de notificare în loc să arate fereastra"
+      }
+    },
+    "updates": {
+      "appName": "Backspace Desktop",
+      "versionLabel": "Versiunea {{version}}",
+      "checking": "Se caută actualizări…",
+      "checkingShort": "Se verifică…",
+      "checkNow": "Caută actualizări",
+      "downloading": "Se descarcă {{version}}, {{percent}}%",
+      "downloadingWithRate": "Se descarcă {{version}}, {{percent}}% la {{rate}}",
+      "rateMegabytes": "{{value}} MB/s",
+      "rateKilobytes": "{{value}} KB/s",
+      "upToDate": "Folosești cea mai recentă versiune",
+      "available": "Versiunea {{version}} este disponibilă",
+      "readyToInstall": "Versiunea {{version}} este pregătită pentru instalare",
+      "installFailed": "Versiunea {{version}} nu a putut fi instalată",
+      "checkFailed": "Ultima verificare a actualizărilor a eșuat",
+      "idle": "Caută versiuni noi ale aplicației desktop",
+      "external": "Actualizările sunt instalate prin managerul tău de software Flatpak",
+      "download": "Descarcă",
+      "restart": "Repornește",
+      "manualNote": "Această versiune nu se poate actualiza singură. Descarcă versiunile noi de pe GitHub și înlocuiește aplicația manual. Vezi notele de lansare pentru pașii de pe platforma ta.",
+      "externalNote": "Flatpak aplică actualizările atomic în afara aplicației. Folosește managerul de software sau comanda <code>flatpak update</code> pentru a actualiza Backspace."
+    },
+    "instance": {
+      "current": "Instanța conectată acum",
+      "change": "Schimbă instanța"
+    }
+  },
+  "desktopDownload": {
+    "title": "Desktop",
+    "intro": "Scurtături globale, pornire odată cu sistemul și o pictogramă în zona de notificare.",
+    "unsupported": "Aplicația desktop rulează pe Windows, Linux și macOS.",
+    "name": {
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux"
+    },
+    "tag": {
+      "windows": "Acest PC",
+      "mac": "Acest Mac",
+      "linux": "Această mașină"
+    },
+    "covers": {
+      "windows": "x64 sau arm64",
+      "mac": "Rulează pe Mac cu Apple Silicon și Intel",
+      "linux": "Pachet AppImage sau deb, x64 sau arm64"
+    },
+    "download": {
+      "windows": "Descarcă pentru Windows",
+      "mac": "Descarcă pentru macOS",
+      "linux": "Descarcă pentru Linux"
+    },
+    "picker": {
+      "architecture": "Arhitectură",
+      "format": "Formatul pachetului"
+    },
+    "arch": {
+      "appleSilicon": "Apple Silicon",
+      "intel": "Intel",
+      "x64": "x64",
+      "arm64": "arm64"
+    },
+    "kind": {
+      "appimage": "AppImage",
+      "deb": "deb"
+    },
+    "archGuessed": {
+      "windows": "Browserul tău nu a spus ce procesor are acest PC, așa că x64 este preselectat.",
+      "mac": "Browserul tău nu a spus ce cip are acest Mac, așa că Apple Silicon este preselectat.",
+      "linux": "Browserul tău nu a spus ce procesor are această mașină, așa că x64 este preselectat."
+    },
+    "version": "Versiunea {{version}}",
+    "allReleases": "Toate lansările pe GitHub"
+  },
+  "bots": {
+    "title": "Boți",
+    "description": "Un bot este un cont controlat de un program printr-un token. Creează unul, copiază-i tokenul și conectează-ți programul. Boții răspund în mesaje directe.",
+    "create": {
+      "sectionTitle": "Creează un bot",
+      "nameLabel": "Numele de utilizator al botului",
+      "submit": "Creează botul",
+      "hint": "De la {{min}} până la {{max}} caractere: litere latine mici (a–z), cifre (0–9) și caractere de subliniere (_). Poți crea până la {{limit}} boți."
+    },
+    "list": {
+      "sectionTitle": "Boții tăi",
+      "empty": "Nu ai încă boți.",
+      "createdOn": "Creat {{date}}"
+    },
+    "token": {
+      "title": "Token pentru {{name}}",
+      "warning": "Copiază tokenul acum. Este afișat o singură dată, iar cine îl are controlează botul.",
+      "copy": "Copiază tokenul",
+      "copied": "Copiat",
+      "dismiss": "L-am salvat"
+    },
+    "tokens": {
+      "title": "Tokenuri de acces",
+      "loading": "Se încarcă tokenurile",
+      "legacy": "Acest bot rulează încă pe vechiul token de lungă durată. Creează un token pentru a comuta: cel vechi încetează să funcționeze în acel moment.",
+      "empty": "Acest bot nu are tokenuri.",
+      "unnamed": "Token fără nume",
+      "createdOn": "Creat {{date}}",
+      "neverUsed": "nefolosit niciodată",
+      "lastUsed": "ultima utilizare {{time}}",
+      "revoke": "Revocă",
+      "confirmRevoke": "Confirmă revocarea",
+      "nameLabel": "Eticheta tokenului",
+      "namePlaceholder": "Etichetă (opțional)",
+      "create": "Creează tokenul",
+      "limitHint": "Până la {{max}} tokenuri per bot. Revocarea unui token deconectează botul; celelalte tokenuri continuă să funcționeze."
+    },
+    "actions": {
+      "regenerate": "Resetează toate tokenurile",
+      "delete": "Șterge",
+      "confirmDelete": "Confirmă ștergerea",
+      "cancel": "Anulează",
+      "edit": "Editează",
+      "save": "Salvează",
+      "addToServer": "Adaugă într-un spațiu",
+      "tokens": "Tokenuri"
+    },
+    "edit": {
+      "nameLabel": "Nume afișat",
+      "hint": "Numele de utilizator @{{username}} nu poate fi schimbat. Până la {{max}} caractere.",
+      "bioLabel": "Despre",
+      "bioPlaceholder": "Ce face botul, comenzile lui, unde găsești ajutor",
+      "bioCounter": "{{used}}/{{max}}"
+    },
+    "status": {
+      "label": "Stare",
+      "none": "Fără stare",
+      "textLabel": "Textul stării",
+      "placeholder": "Ce arată botul lângă numele său",
+      "hint": "Afișat cât timp botul este conectat. Codul botului îl poate înlocui până la următoarea conectare.",
+      "types": {
+        "custom": "Personalizat",
+        "playing": "Joacă",
+        "listening": "Ascultă",
+        "watching": "Se uită la"
+      },
+      "display": {
+        "custom": "{{name}}",
+        "playing": "Joacă {{name}}",
+        "listening": "Ascultă {{name}}",
+        "watching": "Se uită la {{name}}"
+      }
+    },
+    "permissions": {
+      "label": "Permisiunile cerute de bot",
+      "hint": "Un manager care adaugă botul într-un spațiu le vede bifate și poate debifa oricare. Ele intră într-un rol numit după bot. Modificarea lor ulterioară nu atinge rolurile deja create."
+    },
+    "avatar": {
+      "change": "Schimbă avatarul",
+      "remove": "Elimină avatarul",
+      "cropTitle": "Decupează avatarul botului",
+      "uploadFailed": "Încărcarea avatarului a eșuat",
+      "notImage": "Alege un fișier imagine"
+    },
+    "spaces": {
+      "title": "Adaugă într-un spațiu",
+      "loading": "Se încarcă spațiile",
+      "empty": "Nu administrezi încă niciun spațiu. Adăugarea unui bot necesită permisiunea de a administra spațiul.",
+      "add": "Adaugă",
+      "added": "Adăugat",
+      "remove": "Elimină"
+    }
+  },
+  "developer": {
+    "title": "Dezvoltator",
+    "mode": {
+      "label": "Modul dezvoltator",
+      "description": "Arată instrumentele pentru dezvoltatori, cum ar fi fila Boți, în setări. Dezactivarea doar le ascunde; boții tăi continuă să ruleze.",
+      "saveFailed": "Setarea nu a putut fi salvată. Încearcă din nou."
+    }
+  }
+}

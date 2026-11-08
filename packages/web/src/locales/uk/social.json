@@ -1,0 +1,108 @@
+{
+  "tabs": {
+    "all": "Усі",
+    "pending": "Очікувані",
+    "add": "Додати друга",
+    "activity": "Активність"
+  },
+  "sections": {
+    "online": "У мережі — {{n}}",
+    "all": "Усі друзі — {{n}}",
+    "pending": "Очікувані — {{n}}",
+    "active": "Активні — {{n}}",
+    "offline": "Не в мережі — {{n}}"
+  },
+  "empty": {
+    "online": "Зараз нікого немає в мережі.",
+    "all": "Друзів ще немає — додайте когось!",
+    "pending": "Немає очікуваних запитів — Норі дрімає.",
+    "activity": "Поки що тихо… Коли друзі почнуть активність, ми покажемо її тут!"
+  },
+  "friend": {
+    "viaInstance": "через {{host}}",
+    "message": "Повідомлення",
+    "remove": "Видалити друга"
+  },
+  "sendMessage": {
+    "failed": "Не вдалося відкрити розмову: {{reason}}"
+  },
+  "request": {
+    "incoming": "Вхідний запит у друзі",
+    "outgoing": "Вихідний запит у друзі",
+    "ignore": "Ігнорувати",
+    "cancel": "Скасувати запит",
+    "send": "Надіслати запит у друзі",
+    "pending": "Запит очікує",
+    "sending": "Надсилання…",
+    "cancelling": "Скасування…",
+    "sent": "Запит у друзі надіслано!"
+  },
+  "removeFriend": {
+    "title": "Видалити друга",
+    "description": "Ви впевнені, що хочете видалити {{name}} зі списку друзів? Ви завжди можете надіслати новий запит у друзі пізніше.",
+    "fallbackName": "цього користувача"
+  },
+  "add": {
+    "title": "Знайти людей",
+    "hint": "Шукайте за іменем користувача або використовуйте <handle>user@instance</handle>, щоб додати когось напряму.",
+    "placeholder": "Пошук або додавання за іменем користувача…",
+    "direct": "Надіслати запит у друзі <handle>{{handle}}</handle>",
+    "sendRequest": "Надіслати запит",
+    "discover": "Відкрити людей",
+    "noSearchResults": "Немає користувачів, що відповідають пошуку.",
+    "noDiscoverable": "Поки що немає користувачів для відкриття — запросіть людей приєднатися!"
+  },
+  "mutuals": {
+    "friends_one": "{{count}} спільний друг",
+    "friends_few": "{{count}} спільні друзі",
+    "friends_many": "{{count}} спільних друзів",
+    "friends_other": "{{count}} спільного друга",
+    "spaces_one": "{{count}} спільний простір",
+    "spaces_few": "{{count}} спільні простори",
+    "spaces_many": "{{count}} спільних просторів",
+    "spaces_other": "{{count}} спільного простору",
+    "noFriends": "Немає спільних друзів",
+    "noSpaces": "Немає спільних просторів"
+  },
+  "profile": {
+    "tabs": {
+      "about": "Про себе",
+      "mutualFriends": "Спільні друзі",
+      "mutualSpaces": "Спільні простори"
+    },
+    "aboutMe": "Про мене",
+    "roles": "Ролі",
+    "memberSince": "Учасник з",
+    "sendMessage": "Надіслати повідомлення",
+    "editRoles": "Редагувати ролі",
+    "viewFull": "Переглянути повний профіль",
+    "addFriend": "Додати друга",
+    "playingNow": "Зараз грає"
+  },
+  "activity": {
+    "title": "Активні зараз",
+    "quietTitle": "Поки що тихо…",
+    "quietDescription": "Коли друг почне активність — наприклад, гру чи спілкування в голосовому каналі, — ми покажемо її тут!",
+    "online": "У мережі — {{n}}",
+    "offline": "Не в мережі — {{n}}",
+    "resizeHandle": "Змінити розмір списку друзів",
+    "types": {
+      "playing": "Грає в гру",
+      "listening": "Слухає музику",
+      "streaming": "Транслює",
+      "watching": "Дивиться",
+      "custom": "Власний статус"
+    },
+    "players": {
+      "cloudmusic": "NetEase Cloud Music",
+      "qqmusic": "QQ Music",
+      "kugou": "KuGou",
+      "kuwo": "Kuwo",
+      "spotify": "Spotify",
+      "applemusic": "Apple Music",
+      "yandexmusic": "Yandex Music"
+    },
+    "openTrack": "Відкрити трек"
+  },
+  "instanceNotConnected": "Немає з'єднання з {{host}}. Підключіться знову й повторіть спробу."
+}
