@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import type { AnchorRect, Placement } from '../hooks/useFloatingPosition';
 import { RIGHT_PANEL_DEFAULT_WIDTH, clampRightPanelWidth } from '../utils/rightPanelResize';
 import { LEFT_PANEL_DEFAULT_WIDTH, clampLeftPanelWidth } from '../utils/leftPanelResize';

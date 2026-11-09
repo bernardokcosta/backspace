@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { DmChannel, User } from '@backspace/shared';
+import type { DmChannel, User } from '@veyvox/shared';
 import { useUIStore } from '../../stores/uiStore';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useSocialStore } from '../../stores/socialStore';

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { InstanceAdminSettings } from '@backspace/shared';
+import type { InstanceAdminSettings } from '@veyvox/shared';
 import { api } from '../api/client';
 import { DEFAULT_STREAMING_LIMITS, useSettingsStore } from './settingsStore';
 const { invalidateHomeInstanceInfo } = vi.hoisted(() => ({ invalidateHomeInstanceInfo: vi.fn() }));

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { MemberWithUser, Role, User } from '@backspace/shared';
+import type { MemberWithUser, Role, User } from '@veyvox/shared';
 
 // Reached transitively via spaceStore -> chatStore -> useWebSocket -> voiceStore.
 vi.mock('../audio/AudioManager', () => ({

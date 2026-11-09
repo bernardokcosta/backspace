@@ -10,7 +10,7 @@ import {
   type NotificationSetting,
   type NotificationSettingsResponse,
   type UpdateNotificationSettingRequest,
-} from '@backspace/shared';
+} from '@veyvox/shared';
 import { getDb, schema } from '../db/index.js';
 import { authenticate } from '../utils/auth.js';
 import { computePermissions, isMember, PermissionBits } from '../utils/permissions.js';

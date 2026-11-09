@@ -4,9 +4,9 @@ import {
   permissionsToString,
   isHiddenFromEveryone,
   idsHiddenFromEveryone,
-} from '@backspace/shared/src/permissions.js';
+} from '@veyvox/shared/src/permissions.js';
 
-// The private rule in @backspace/shared (docs/systems/permissions.md, "Private
+// The private rule in @veyvox/shared (docs/systems/permissions.md, "Private
 // channels and categories"): a channel or category is private when its
 // @everyone override (the role whose id is the space id) denies View Channels.
 // The server's isPrivate flags and the client's Private switch both read it,

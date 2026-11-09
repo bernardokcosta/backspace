@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import type { EphemeralReply } from '@backspace/shared';
+import type { EphemeralReply } from '@veyvox/shared';
 import { useFormatters } from '../../i18n/formatters';
 import { Avatar } from '../ui/Avatar';
 import { BotBadge } from '../ui/BotBadge';

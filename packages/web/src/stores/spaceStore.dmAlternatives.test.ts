@@ -31,7 +31,7 @@ vi.mock('./authStore', async () => {
 });
 
 import { useSpaceStore } from './spaceStore';
-import type { DmChannel } from '@backspace/shared';
+import type { DmChannel } from '@veyvox/shared';
 
 function makeDm(id: string, federatedId: string | null, extras: Partial<DmChannel> = {}): DmChannel {
   return {

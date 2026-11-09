@@ -1,6 +1,6 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { NotificationSetting, UpdateNotificationSettingRequest } from '@backspace/shared';
+import type { NotificationSetting, UpdateNotificationSettingRequest } from '@veyvox/shared';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useUIStore } from '../../stores/uiStore';
 import { notificationSettingKey, useNotificationSettingsStore } from '../../stores/notificationSettingsStore';

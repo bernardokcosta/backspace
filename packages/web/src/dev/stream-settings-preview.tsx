@@ -5,7 +5,7 @@
 // per `?scene=` so every state can be screenshotted without a voice call.
 // `?lang=en|de|ru|pt|zh` picks the interface language (initI18n's dev preview).
 import { createRoot } from 'react-dom/client';
-import type { InstanceStreamingLimits } from '@backspace/shared';
+import type { InstanceStreamingLimits } from '@veyvox/shared';
 import { StreamQualityControls, StreamSummary, StreamHostSubtitle } from '../components/voice/StreamQualityControls';
 import { useVoiceStore } from '../stores/voiceStore';
 import type { ScreenShareAudioState } from '../stores/voiceStore';

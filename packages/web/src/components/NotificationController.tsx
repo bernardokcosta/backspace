@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useChatStore, addedRealtimeMessageEvents } from '../stores/chatStore';
 import { useVoiceStore } from '../stores/voiceStore';
 import { useAuthStore } from '../stores/authStore';
-import { isElectron } from '../platform/platform';
+import { isElectron, getElectronAPI } from '../platform/platform';
 import { onNotificationClick, updateBadgeCount } from '../platform/notifications';
 import { messageAlertsUser, showAlertNotification } from '../utils/alerts';
 import i18n from '../i18n';
@@ -45,8 +45,9 @@ export function NotificationController() {
 
   // Track window focus state
   useEffect(() => {
-    if (isElectron() && window.backspace) {
-      window.backspace.onWindowFocusChange((focused) => {
+    const bridge = getElectronAPI();
+    if (isElectron() && bridge) {
+      bridge.onWindowFocusChange((focused) => {
         windowFocused.current = focused;
       });
     }

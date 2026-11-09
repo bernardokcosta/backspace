@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { eq, and } from 'drizzle-orm';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
-import type { FederationRelayEvent, FederationRelayParticipant } from '@backspace/shared';
+import type { FederationRelayEvent, FederationRelayParticipant } from '@veyvox/shared';
 
 setWorkerId(3);
 

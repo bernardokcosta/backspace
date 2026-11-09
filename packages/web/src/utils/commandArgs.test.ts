@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { BotCommandListing, BotCommandOption } from '@backspace/shared';
+import type { BotCommandListing, BotCommandOption } from '@veyvox/shared';
 import {
   ARG_SEPARATOR, HEAD_GAP, VALUE_GAP, argumentFrames, commandPath, commandRows, draftCommandName, headDraft, parseCommandArgs,
   remainingOptions, spaceArguments, subcommandMatches, suggestOptions, suggestSubcommand, suggestValue, type CommandArgContext,

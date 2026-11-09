@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import { ProfileAvatar } from '../ui/ProfileAvatar';
 import { Tooltip } from '../ui/Tooltip';
 import { parseFederatedUsername, isFederationGlobeApplicable } from '../../utils/identity';

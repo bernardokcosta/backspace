@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import type { ApprovalRequest } from '@backspace/shared';
+import type { ApprovalRequest } from '@veyvox/shared';
 
 const { OUTBOUND } = vi.hoisted((): { OUTBOUND: ApprovalRequest } => ({ OUTBOUND: {
   id: 'req-1',

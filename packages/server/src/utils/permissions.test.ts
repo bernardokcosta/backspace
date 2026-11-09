@@ -10,7 +10,7 @@ import {
   ALL_PERMISSIONS,
   DEFAULT_EVERYONE_PERMISSIONS,
   permissionsToString,
-} from '@backspace/shared/src/permissions.js';
+} from '@veyvox/shared/src/permissions.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

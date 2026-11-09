@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { SpaceFolder } from '@backspace/shared';
+import type { SpaceFolder } from '@veyvox/shared';
 import type { TaggedSpace } from '../stores/spaceStore';
 import { resolveSpaceLayout, spacesInLayoutOrder } from './spaceLayout';
 

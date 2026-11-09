@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { AvatarColor, SpaceVisibility } from '@backspace/shared';
+import type { AvatarColor, SpaceVisibility } from '@veyvox/shared';
 
 export interface VisibilityOption {
   value: SpaceVisibility;

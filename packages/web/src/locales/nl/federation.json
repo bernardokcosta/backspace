@@ -21,7 +21,7 @@
   },
   "connections": {
     "title": "Verbonden instanties",
-    "description": "Koppel accounts over gefedereerde Backspace-instanties.",
+    "description": "Koppel accounts over gefedereerde Veyvox-instanties.",
     "empty": "Geen externe instanties verbonden. Voeg er een toe om te federeren.",
     "addButton": "+ Instantie toevoegen",
     "home": {

@@ -11,4 +11,4 @@ export {
   isHiddenFromEveryone,
   overrideVersion,
   rolePermissionsVersion,
-} from '@backspace/shared/src/permissions';
+} from '@veyvox/shared/src/permissions';

@@ -18,7 +18,7 @@ import { connectionManager } from '../ws/handler.js';
 import { generateThumbnail } from './thumbnail.js';
 import { safeFetch } from './ssrf.js';
 import { federationFetch } from './federationFetch.js';
-import type { FederationRelayCapability, FederationRelayRequest, FederationRelayResponse, FederationRelayEvent } from '@backspace/shared';
+import type { FederationRelayCapability, FederationRelayRequest, FederationRelayResponse, FederationRelayEvent } from '@veyvox/shared';
 import { startupBootstrapSync } from './federationPeerActivation.js';
 import { ensurePeered, isHandshakeInFlight, resolveStaleParkedPeers } from './federationPeering.js';
 import { recordPeerAttempt, transitionPeer } from './federationPeerState.js';

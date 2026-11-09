@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { MAX_STICKER_BYTES } from '@backspace/shared/src/stickers';
+import { MAX_STICKER_BYTES } from '@veyvox/shared/src/stickers';
 import { readStickerImage } from './stickerUpload';
 
 describe('bounded sticker image download', () => {

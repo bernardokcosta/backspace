@@ -1,4 +1,4 @@
-import type { User, ReplicatedInstance } from '@backspace/shared';
+import type { User, ReplicatedInstance } from '@veyvox/shared';
 import { schema } from '../db/index.js';
 
 export function sanitizeUser(row: typeof schema.users.$inferSelect, isSelf = false): User {

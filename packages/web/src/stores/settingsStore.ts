@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { InstanceStreamingLimits, InstanceAdminSettings, InstanceUpdateStatus } from '@backspace/shared';
+import type { InstanceStreamingLimits, InstanceAdminSettings, InstanceUpdateStatus } from '@veyvox/shared';
 import { api } from '../api/client';
 import { describeError } from '../i18n/errors';
 import { EMPTY_ACK, readUpdateAck, writeUpdateAck, pendingUpdateVersion, type UpdateAck } from '../utils/updateAck';

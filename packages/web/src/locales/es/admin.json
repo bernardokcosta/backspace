@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "General",
-    "description": "Configura tu instancia de Backspace. Estos ajustes afectan a todos los usuarios.",
+    "description": "Configura tu instancia de Veyvox. Estos ajustes afectan a todos los usuarios.",
     "instanceName": {
       "label": "Nombre de la instancia",
       "description": "El nombre que se muestra en la página de inicio de sesión y a las instancias federadas.",
@@ -313,7 +313,7 @@
     "title": "Actualizaciones",
     "badge": {
       "settingsAriaLabel": "Ajustes, hay una actualización de la instancia disponible",
-      "toast": "Backspace {{version}} está disponible para esta instancia",
+      "toast": "Veyvox {{version}} está disponible para esta instancia",
       "toastAction": "Ver"
     },
     "description": "La versión que ejecuta esta instancia y cómo actualizarla.",
@@ -331,11 +331,11 @@
     },
     "available": {
       "label": "Disponible",
-      "version": "Backspace {{version}} está disponible",
+      "version": "Veyvox {{version}} está disponible",
       "released": "Publicado el {{date}} · ",
       "releaseNotes": "Notas de la versión",
       "fromInstallDir": "Desde tu directorio de instalación:",
-      "scriptDescription": "Crea una instantánea de la base de datos, descarga la imagen nueva y reinicia solo el contenedor de Backspace. Si la nueva versión no arranca correctamente o sigue ejecutando el código antiguo, restaura la versión que usas ahora.",
+      "scriptDescription": "Crea una instantánea de la base de datos, descarga la imagen nueva y reinicia solo el contenedor de Veyvox. Si la nueva versión no arranca correctamente o sigue ejecutando el código antiguo, restaura la versión que usas ahora.",
       "noScript": "No tengo update.sh",
       "manualIntro": "update.sh se incluye desde la versión 1.0.5. En una copia del repositorio Git, <code>git pull</code> permite obtenerlo. Si no, ejecuta los pasos manualmente después de crear una instantánea con <code>./backup.sh</code>.",
       "prebuiltInstall": "Instalación con imagen precompilada:",

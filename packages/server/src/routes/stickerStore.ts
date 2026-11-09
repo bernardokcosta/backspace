@@ -11,7 +11,7 @@ import {
   type StickerPackDetail,
   type StickerPackStatus,
   type StickerPackSummary,
-} from '@backspace/shared/src/stickers.js';
+} from '@veyvox/shared/src/stickers.js';
 import { getDb, schema } from '../db/index.js';
 import { authenticate, tokenFromAuthHeader, verifyAccessToken } from '../utils/auth.js';
 import { getOurOrigin } from '../utils/federationAuth.js';

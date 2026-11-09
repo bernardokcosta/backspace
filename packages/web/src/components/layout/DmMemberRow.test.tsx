@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 // Stub AudioManager — pulled in transitively via spaceStore from useCanonicalUserView.
 vi.mock('../../audio/AudioManager', () => ({

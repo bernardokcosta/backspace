@@ -6,8 +6,8 @@ import { RightPanelResizeHandle } from './RightPanelResizeHandle';
 import { useActivityStore, activitiesFor } from '../../stores/activityStore';
 import { Avatar } from '../ui/Avatar';
 import { ActivityCard, hasRichActivity, getActivityAccentClass } from '../ui/ActivityCard';
-import type { Activity, User } from '@backspace/shared';
-import { getPrimaryActivity } from '@backspace/shared/src/activities.js';
+import type { Activity, User } from '@veyvox/shared';
+import { getPrimaryActivity } from '@veyvox/shared/src/activities.js';
 import { parseFederatedUsername, isFederationGlobeApplicable } from '../../utils/identity';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 

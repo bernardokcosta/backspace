@@ -17,7 +17,7 @@ is involved).
 
 ## Security testing and assurance
 
-Backspace runs continuous automated security testing. None of it replaces a
+Veyvox runs continuous automated security testing. None of it replaces a
 report from a human researcher, which is why the section above exists.
 
 - **Static analysis.** CodeQL analyses the TypeScript on every pull request,
@@ -52,4 +52,4 @@ There is no fuzzing. Reports covering those areas are especially welcome.
 
 ## Supported versions
 
-Backspace 1.x receives security fixes. Always run the latest release.
+Veyvox 1.x receives security fixes. Always run the latest release.

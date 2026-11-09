@@ -1,4 +1,4 @@
-import { MAX_OWNER_TITLE_LENGTH, normalizeOwnerTitle, AFK_TIMEOUT_OPTIONS, DEFAULT_AFK_TIMEOUT_SECONDS } from '@backspace/shared/src/constants.js';
+import { MAX_OWNER_TITLE_LENGTH, normalizeOwnerTitle, AFK_TIMEOUT_OPTIONS, DEFAULT_AFK_TIMEOUT_SECONDS } from '@veyvox/shared/src/constants.js';
 import { updateSpaceMemberRoutes, roleGrantRefusal } from './spaceMemberUpdate.js';
 import path from 'path';
 import type { FastifyInstance } from 'fastify';
@@ -7,7 +7,7 @@ import { getDb, getRawDb, schema } from '../db/index.js';
 import { authenticate } from '../utils/auth.js';
 import { generateSnowflake } from '../utils/snowflake.js';
 import { isMember, isSpaceOwner, isBanned, hasPermission, computePermissions, PermissionBits } from '../utils/permissions.js';
-import { DEFAULT_EVERYONE_PERMISSIONS, ALL_PERMISSIONS, permissionsToString, stringToPermissions, parsePermissionString, roleBitsChangeRefusal, idsHiddenFromEveryone, rolePermissionsVersion, type HeldBitsRefusal } from '@backspace/shared/src/permissions.js';
+import { DEFAULT_EVERYONE_PERMISSIONS, ALL_PERMISSIONS, permissionsToString, stringToPermissions, parsePermissionString, roleBitsChangeRefusal, idsHiddenFromEveryone, rolePermissionsVersion, type HeldBitsRefusal } from '@veyvox/shared/src/permissions.js';
 import crypto from 'crypto';
 import { connectionManager } from '../ws/handler.js';
 import { deleteAttachmentFiles, deleteUploadFile, deleteAttachmentByFilename } from '../utils/fileCleanup.js';
@@ -23,15 +23,15 @@ import type {
   MemberWithUser,
   SpaceWithChannelsAndMembers,
   Role,
-} from '@backspace/shared';
-import { AVATAR_COLORS } from '@backspace/shared';
+} from '@veyvox/shared';
+import { AVATAR_COLORS } from '@veyvox/shared';
 import { sanitizeUser } from '../utils/sanitize.js';
 import { checkVoicePermissions } from '../ws/events.js';
 import { getLocalInvitePreview } from '../utils/spaceInviteSnapshot.js';
 import { sendError } from '../utils/httpErrors';
-import type { ErrorCode, ErrorDetails } from '@backspace/shared/src/errors';
+import type { ErrorCode, ErrorDetails } from '@veyvox/shared/src/errors';
 import { canActOnMemberInSpace, canManageRoleInSpace, getHierarchyStanding } from '../utils/roleHierarchy.js';
-import { canActOnMember, canManageRoleAt } from '@backspace/shared/src/permissions.js';
+import { canActOnMember, canManageRoleAt } from '@veyvox/shared/src/permissions.js';
 import { moveRoleToPosition, normalizeRolePositions, positionNextTo } from '../db/rolePositions.js';
 import { removeUserFromSpace } from '../utils/spaceMembership.js';
 import { deleteManagedBotRole } from '../utils/botRoles.js';

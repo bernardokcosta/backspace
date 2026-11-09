@@ -12,7 +12,7 @@ import { Avatar } from '../ui/Avatar';
 import { hasPermissionBit, PermissionBits } from '../../utils/permissions';
 import { OverviewPanel, MembersPanel, RolesPanel, BansPanel, SoundboardPanel, AfkPanel, SettingsPanelSuspense } from './lazySettingsPanels';
 import { useVisibilityOptions } from './spaceSettingsPanels/spaceOptions';
-import type { SpaceVisibility, JoinRequest } from '@backspace/shared';
+import type { SpaceVisibility, JoinRequest } from '@veyvox/shared';
 
 const DESCRIPTION_MAX_LENGTH = 200;
 

@@ -5,7 +5,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useTranslation } from 'react-i18next';
 import userEvent from '@testing-library/user-event';
-import type { JunoView } from '@backspace/shared/src/juno';
+import type { JunoView } from '@veyvox/shared/src/juno';
 import i18n, { setLanguage } from './index';
 import { useFormatters } from './formatters';
 import { DEFAULT_JUNO_PREFERENCES, useJunoPreferences } from '../stores/junoPreferences';

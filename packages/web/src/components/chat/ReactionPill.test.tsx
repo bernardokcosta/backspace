@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
-import type { Reaction, User } from '@backspace/shared';
+import type { Reaction, User } from '@veyvox/shared';
 
 vi.mock('../../audio/AudioManager', () => ({
   AudioManager: {

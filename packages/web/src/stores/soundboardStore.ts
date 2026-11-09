@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { DEFAULT_SOUNDBOARD_SETTINGS, MAX_SOUNDBOARD_SECONDS, type SoundboardDocument } from '@backspace/shared/src/soundboard';
+import { DEFAULT_SOUNDBOARD_SETTINGS, MAX_SOUNDBOARD_SECONDS, type SoundboardDocument } from '@veyvox/shared/src/soundboard';
 import { getApiForOrigin } from '../utils/crossStoreResolvers';
 import { getMyUserIdForOrigin, useAuthStore } from './authStore';
 import { useSpaceStore } from './spaceStore';

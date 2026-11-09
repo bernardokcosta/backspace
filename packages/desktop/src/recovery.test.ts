@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { MenuItemConstructorOptions } from 'electron';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   RecoveryStateStore,
   extractErrorCode,
@@ -166,7 +168,7 @@ describe('buildTrayMenuTemplate', () => {
   it('includes Show/Hide/Change Instance/Quit base items', () => {
     const items = buildTrayMenuTemplate(defaultState());
     const labels = items.map((i) => i.label);
-    expect(labels).toContain('Show Backspace');
+    expect(labels).toContain('Show Veyvox');
     expect(labels).toContain('Hide');
     expect(labels).toContain('Change Instance');
     expect(labels).toContain('Quit');
@@ -230,6 +232,15 @@ describe('buildTrayMenuTemplate', () => {
 });
 
 describe('buildAppMenuTemplate', () => {
+  it('keeps public macOS menu labels separate from the runtime crypto name', () => {
+    const main = readFileSync(join(__dirname, 'main.ts'), 'utf8');
+    expect(main.includes("buildAppMenuTemplate('Veyvox', state, trayActions, language)")).toBe(true);
+    const [menu] = buildAppMenuTemplate('Veyvox', defaultState(), undefined, 'pt');
+    const labels = (menu!.submenu as MenuItemConstructorOptions[]).map(item => item.label);
+    expect(menu!.label).toBe('Veyvox');
+    expect(labels).toEqual(expect.arrayContaining(['Sobre Veyvox', 'Ocultar Veyvox', 'Encerrar Veyvox']));
+    expect(main).not.toContain("app.setName('Veyvox')");
+  });
   it('localizes every native role label without changing the roles', () => {
     const template = buildAppMenuTemplate('Backspace', defaultState(), undefined, 'pt');
     const app = template[0]!.submenu as MenuItemConstructorOptions[];
@@ -378,7 +389,7 @@ describe('manual-download update state in the menus', () => {
     expect(ids).toContain('download-update');
     expect(ids).not.toContain('restart-to-install');
     expect(items.find((i) => i.id === 'download-update')!.label)
-      .toBe('Download Backspace 1.0.4…');
+      .toBe('Download Veyvox 1.0.4…');
   });
 
   it('falls back to an unversioned label when no version is known', () => {

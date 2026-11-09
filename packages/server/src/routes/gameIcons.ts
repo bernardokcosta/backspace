@@ -6,7 +6,7 @@ import { mkdir, readFile, writeFile, rename } from 'node:fs/promises';
 import {
   GAME_ICON_DIMENSION, GAME_ICON_ID_PATTERN, GAME_ICON_UPLOADS_PER_MINUTE,
   MAX_GAME_ICON_BYTES, MAX_GAME_ICONS_PER_USER, type GameIconUpload,
-} from '@backspace/shared/src/gameIcons.js';
+} from '@veyvox/shared/src/gameIcons.js';
 import { getDb, schema } from '../db/index.js';
 import { authenticate } from '../utils/auth.js';
 import { getOurOrigin } from '../utils/federationAuth.js';

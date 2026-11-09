@@ -9,7 +9,7 @@
 // text that is not JSON. Those three must read as the generic label.
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
-import type { DmChannel, DmLastMessagePreview, MessageWithUser, User } from '@backspace/shared';
+import type { DmChannel, DmLastMessagePreview, MessageWithUser, User } from '@veyvox/shared';
 import { SystemMessage } from '../components/chat/SystemMessage';
 import { formatDmSidebarPreview, type DmViewer } from '../utils/dmFormatters';
 import { selfIdentityOf } from '../utils/identity';

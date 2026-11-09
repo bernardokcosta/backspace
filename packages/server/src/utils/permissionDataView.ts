@@ -1,5 +1,5 @@
-import type { Role } from '@backspace/shared';
-import { PermissionBits, hasPermissionBit } from '@backspace/shared/src/permissions.js';
+import type { Role } from '@veyvox/shared';
+import { PermissionBits, hasPermissionBit } from '@veyvox/shared/src/permissions.js';
 import type { roles } from '../db/schema.js';
 
 // What a client is told about a space's roles and permission overrides

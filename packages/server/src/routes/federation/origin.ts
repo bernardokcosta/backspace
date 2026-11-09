@@ -2,7 +2,7 @@ import { schema } from '../../db/index.js';
 import { getOurOrigin } from '../../utils/federationAuth.js';
 import { peerStatusReasonOf } from '../../utils/federationPeerState.js';
 import { or } from 'drizzle-orm';
-import type { FederationPeerStatusReason } from '@backspace/shared';
+import type { FederationPeerStatusReason } from '@veyvox/shared';
 
 /** Fields safe to expose to admin callers (everything except hmacSecret). */
 export interface SanitizedPeer {

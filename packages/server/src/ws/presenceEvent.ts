@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
-import type { Activity, ActivityAssets, ActivityPlayback, ActivityTimestamps, ActivityType, PresenceIdentity, ServerEvent } from '@backspace/shared';
-import { ACTIVITY_LIMITS } from '@backspace/shared/src/activities.js';
+import type { Activity, ActivityAssets, ActivityPlayback, ActivityTimestamps, ActivityType, PresenceIdentity, ServerEvent } from '@veyvox/shared';
+import { ACTIVITY_LIMITS } from '@veyvox/shared/src/activities.js';
 import { getDb, schema } from '../db/index.js';
 
 /**

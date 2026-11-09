@@ -2,7 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { authenticate, requireAdmin } from '../utils/auth.js';
 import { config } from '../config.js';
 import { getLatestRelease, deriveState } from '../utils/releaseCheck.js';
-import type { InstanceUpdateStatus } from '@backspace/shared';
+import type { InstanceUpdateStatus } from '@veyvox/shared';
 
 /**
  * The admin Updates surface.

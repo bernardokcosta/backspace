@@ -13,10 +13,10 @@ import {
   type MessageWithUser,
   type Reaction,
   type Embed,
-} from '@backspace/shared';
+} from '@veyvox/shared';
 import { sanitizeUser } from '../utils/sanitize.js';
 import { userWrittenMessages } from '../db/userWrittenMessages.js';
-import { addsMassMention, hasMassMention, massMentionFields } from '@backspace/shared/src/mentions.js';
+import { addsMassMention, hasMassMention, massMentionFields } from '@veyvox/shared/src/mentions.js';
 import { deleteAttachmentFiles } from '../utils/fileCleanup.js';
 import { sendError } from '../utils/httpErrors.js';
 import { parseHistoryPage, selectHistoryPage, markHistoryPageHonoured } from '../utils/messagePaging.js';

@@ -1,5 +1,5 @@
-import type { MessageWithUser, User } from '@backspace/shared';
-import { parseChannelSystemEvent } from '@backspace/shared/src/channelSystemEvents';
+import type { MessageWithUser, User } from '@veyvox/shared';
+import { parseChannelSystemEvent } from '@veyvox/shared/src/channelSystemEvents';
 import { useTranslation } from 'react-i18next';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { spaceMemberName } from '../../utils/identity';

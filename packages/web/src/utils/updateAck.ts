@@ -1,4 +1,4 @@
-import type { InstanceUpdateStatus } from '@backspace/shared';
+import type { InstanceUpdateStatus } from '@veyvox/shared';
 
 /**
  * Per-admin, per-browser record of what has already been acknowledged about an

@@ -1,5 +1,5 @@
-import type { DmChannel, DmMessageWithUser, DmLastMessagePreview, User, DmSystemEvent } from '@backspace/shared';
-import { parseDmSystemEvent } from '@backspace/shared/src/dmSystemEvents';
+import type { DmChannel, DmMessageWithUser, DmLastMessagePreview, User, DmSystemEvent } from '@veyvox/shared';
+import { parseDmSystemEvent } from '@veyvox/shared/src/dmSystemEvents';
 import { parseFederatedUsername, isMine, type SelfIdentity } from './identity';
 import i18n from '../i18n';
 import { formatters } from '../i18n/formatters';

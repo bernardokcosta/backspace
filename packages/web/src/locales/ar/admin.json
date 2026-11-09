@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "عام",
-    "description": "اضبط نسخة Backspace الخاصة بك. تنطبق هذه الإعدادات على جميع المستخدمين.",
+    "description": "اضبط نسخة Veyvox الخاصة بك. تنطبق هذه الإعدادات على جميع المستخدمين.",
     "instanceName": {
       "label": "اسم النسخة",
       "description": "الاسم المعروض في صفحة الدخول وللنسخ المفدرلة.",
@@ -352,7 +352,7 @@
     "title": "التحديثات",
     "badge": {
       "settingsAriaLabel": "الإعدادات، يتوفر تحديث للنسخة",
-      "toast": "يتوفر Backspace {{version}} لهذه النسخة",
+      "toast": "يتوفر Veyvox {{version}} لهذه النسخة",
       "toastAction": "عرض"
     },
     "description": "أي نسخة تعمل على هذه النسخة وكيف تحدّثها.",
@@ -370,11 +370,11 @@
     },
     "available": {
       "label": "متاح",
-      "version": "يتوفر Backspace {{version}}",
+      "version": "يتوفر Veyvox {{version}}",
       "released": "أُصدر {{date}} · ",
       "releaseNotes": "ملاحظات الإصدار",
       "fromInstallDir": "من دليل التثبيت:",
-      "scriptDescription": "ينشئ لقطة لقاعدة البيانات، وينزّل الصورة الجديدة ويعيد تشغيل حاوية Backspace فقط. إذا لم تعمل النسخة الجديدة جيدًا أو عملت بكود قديم، يعيد النسخة الحالية.",
+      "scriptDescription": "ينشئ لقطة لقاعدة البيانات، وينزّل الصورة الجديدة ويعيد تشغيل حاوية Veyvox فقط. إذا لم تعمل النسخة الجديدة جيدًا أو عملت بكود قديم، يعيد النسخة الحالية.",
       "noScript": "ليس لدي update.sh",
       "manualIntro": "يأتي update.sh منذ 1.0.5. في نسخة git يضيفه <code>git pull</code>. وإلا نفّذ الخطوات يدويًا بعد لقطة بـ <code>./backup.sh</code>.",
       "prebuiltInstall": "تثبيت الصورة الجاهزة:",

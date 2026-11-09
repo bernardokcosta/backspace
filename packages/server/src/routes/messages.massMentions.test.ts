@@ -12,7 +12,7 @@ import {
   PermissionBits,
   DEFAULT_EVERYONE_PERMISSIONS,
   permissionsToString,
-} from '@backspace/shared/src/permissions.js';
+} from '@veyvox/shared/src/permissions.js';
 
 setWorkerId(2);
 

@@ -3,7 +3,7 @@ import { fireEvent, render } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
 import { MentionTextarea } from './MentionTextarea';
 import { composerMentions } from './composerMentions';
-import type { BotCommandListing, BotCommandOption } from '@backspace/shared';
+import type { BotCommandListing, BotCommandOption } from '@veyvox/shared';
 import { ARG_SEPARATOR, HEAD_GAP, VALUE_GAP, argumentFrames } from '../../utils/commandArgs';
 
 it('anchors the popup at the typed @ after a displayed mention and mirrors native scrolling', () => {

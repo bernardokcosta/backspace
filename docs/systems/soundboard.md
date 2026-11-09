@@ -121,6 +121,6 @@ Shortcuts are device-local preferences keyed by account, origin, space and sound
 never shared with other members. They match physical keys and exact modifiers,
 ignore repeated/composing events, text inputs and dialog focus, and require an
 active authorized space voice session. Duplicate shortcuts within the current
-space and conflicts with voice controls are refused. Backspace/Delete clear a
+space and conflicts with voice controls are refused. Veyvox/Delete clear a
 binding. They work **only while the app is focused**, including Electron; no
 background OS shortcut registration is added. DM calls have no space soundboard.

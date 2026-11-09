@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import type { DmChannel, User } from '@backspace/shared';
+import type { DmChannel, User } from '@veyvox/shared';
 import { Avatar } from '../ui/Avatar';
 import { AvatarStack } from '../ui/AvatarStack';
 import { Tooltip } from '../ui/Tooltip';

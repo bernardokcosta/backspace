@@ -1,4 +1,4 @@
-import type { ClientKind } from '@backspace/shared';
+import type { ClientKind } from '@veyvox/shared';
 import { isElectron } from './platform';
 
 /** Sent once per WebSocket auth so the server can count client kinds by day. Never stored client-side. */

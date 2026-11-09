@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { DmChannel } from '@backspace/shared';
+import type { DmChannel } from '@veyvox/shared';
 import { locateDmChannel } from './dmChannelLookup';
 
 const ORBIT = 'https://orbit.example';

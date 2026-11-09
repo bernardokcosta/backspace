@@ -34,7 +34,7 @@ vi.mock('../stores/authStore', () => ({
 import { useSpaceStore } from '../stores/spaceStore';
 import { renderHook } from '@testing-library/react';
 import { getCanonicalUserView, useCanonicalUserView } from './userViewLookup';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 function makeUser(extras: Partial<User> & Pick<User, 'id' | 'username'>): User {
   return {

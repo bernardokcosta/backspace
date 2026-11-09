@@ -295,7 +295,7 @@ show localized actual-amount feedback without exposing the selected card.
 supplied local `juno_memory.ogg` for a new confirmed memory move (see sounds.md).
 No LiveKit/microphone publication or additional audio bus is involved.
 The settings gear beside the logo opens personal controls in every phase. UI
-language defaults to Automatic (following Backspace); an explicit choice affects
+language defaults to Automatic (following Veyvox); an explicit choice affects
 only Juno table/tile/rules/results/ranking/settings and their formatting/errors.
 It does not change app chrome, HTML language, desktop language or app preference.
 Dubbing/card text separately defaults to Automatic and resolves against real

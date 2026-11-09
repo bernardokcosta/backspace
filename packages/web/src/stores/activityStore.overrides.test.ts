@@ -12,7 +12,7 @@ vi.mock('../api/client', () => ({
 
 import { useActivityStore } from './activityStore';
 import { GAME_OVERRIDES_KEY } from '../utils/gameOverrides';
-import type { Activity } from '@backspace/shared';
+import type { Activity } from '@veyvox/shared';
 
 const RUNTIME: Activity = { type: 'playing', name: 'Steam Linux Runtime', timestamps: { start: 1000 } };
 const MUSIC: Activity = { type: 'listening', name: 'Spotify' };

@@ -9,7 +9,7 @@ import path from 'node:path';
 import sharp from 'sharp';
 import { request as httpRequest } from 'node:http';
 import * as schema from '../db/schema.js';
-import { stickerUrl, MAX_STICKER_BYTES, MAX_PERSONAL_STICKERS, STICKER_UPLOADS_PER_MINUTE } from '@backspace/shared/src/stickers.js';
+import { stickerUrl, MAX_STICKER_BYTES, MAX_PERSONAL_STICKERS, STICKER_UPLOADS_PER_MINUTE } from '@veyvox/shared/src/stickers.js';
 
 const settings = vi.hoisted(() => ({ uploadDir: '' }));
 let db: ReturnType<typeof drizzle<typeof schema>>;

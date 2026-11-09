@@ -1,7 +1,7 @@
 import type Database from 'better-sqlite3';
 import { and, asc, eq, inArray, isNull, lt, lte, notExists, or, sql, type SQL } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/sqlite-core';
-import type { FederationRelayEvent } from '@backspace/shared';
+import type { FederationRelayEvent } from '@veyvox/shared';
 import { getDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
 import { generateSnowflake } from './snowflake.js';

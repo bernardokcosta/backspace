@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "Зберегти",
     "cancel": "Скасувати",
@@ -123,7 +123,7 @@
   },
   "app": {
     "description": "Альтернатива Discord і TeamSpeak для самостійного розміщення. HD-голос, відео та демонстрація екрана — відкритий код і безкоштовно (AGPL-3.0).",
-    "loading": "Завантаження Backspace"
+    "loading": "Завантаження Veyvox"
   },
   "chrome": {
     "toggleMemberList": "Показати або сховати список учасників",

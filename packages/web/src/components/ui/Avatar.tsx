@@ -1,5 +1,5 @@
 import React from 'react';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import { getAvatarGradient, getSpaceGradient } from '../../utils/gradients';
 
 interface AvatarProps {

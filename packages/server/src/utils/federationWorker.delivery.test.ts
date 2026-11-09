@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { asc, eq } from 'drizzle-orm';
-import type { FederationRelayRequest } from '@backspace/shared';
+import type { FederationRelayRequest } from '@veyvox/shared';
 import * as schema from '../db/schema.js';
 import { __resetInstanceIdCacheForTest } from './federationEpoch.js';
 import { setWorkerId } from './snowflake.js';

@@ -5,7 +5,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useVoiceStore } from '../../stores/voiceStore';
 import { useContextMenuStore } from '../../stores/contextMenuStore';
-import type { MemberWithUser } from '@backspace/shared';
+import type { MemberWithUser } from '@veyvox/shared';
 import { setLocalMute } from '../../utils/voiceLocalKeys';
 import i18n, { setLanguage } from '../../i18n';
 

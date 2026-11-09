@@ -13,7 +13,7 @@ export const users = sqliteTable('users', {
    * The status the user picked ('online' | 'idle' | 'dnd'). Survives disconnects
    * and restarts; published as `status` when a connection authenticates.
    * Meaningful only on rows that own their choice (native or detached,
-   * `ownsChosenStatus` in @backspace/shared): a replicated row's copy is never
+   * `ownsChosenStatus` in @veyvox/shared): a replicated row's copy is never
    * read or written.
    */
   chosenStatus: text('chosen_status').notNull().default('online'),

@@ -1,10 +1,11 @@
+import { getElectronAPI } from '../platform/platform';
 import { useEffect, useState } from 'react';
 
 /** Optional bridge: a newer web client must remain usable with an older desktop shell. */
 export function useKeybindPortalStatus(): KeybindPortalStatus | null {
   const [status, setStatus] = useState<KeybindPortalStatus | null>(null);
   useEffect(() => {
-    const api = window.backspace;
+    const api = getElectronAPI();
     if (!api?.getKeybindPortalStatus || !api.onKeybindPortalStatus) return;
     let current = true;
     let receivedEvent = false;

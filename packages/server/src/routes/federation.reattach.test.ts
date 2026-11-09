@@ -10,7 +10,7 @@ import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
 import { signJwt } from '../utils/auth.js';
 import { oneOnOneKey } from '../utils/dmConversation.js';
-import { canPlayJuno, type JunoAction } from '@backspace/shared/src/juno.js';
+import { canPlayJuno, type JunoAction } from '@veyvox/shared/src/juno.js';
 import { JunoRooms } from '../games/juno.js';
 import { settleJunoRound, type JunoSettlement } from '../games/junoProgression.js';
 import { tombstoneUser } from '../utils/userDeletion.js';

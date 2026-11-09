@@ -1,5 +1,5 @@
 import type Database from 'better-sqlite3';
-import { PermissionBits, canonicalPermissionString } from '@backspace/shared/src/permissions.js';
+import { PermissionBits, canonicalPermissionString } from '@veyvox/shared/src/permissions.js';
 
 // Stored permission values (docs/systems/permissions.md, "Stored form"). Raw
 // better-sqlite3 so it runs at boot, like the role renumbering in

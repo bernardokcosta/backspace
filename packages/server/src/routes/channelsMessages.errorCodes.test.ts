@@ -11,9 +11,9 @@ import {
   PermissionBits,
   DEFAULT_EVERYONE_PERMISSIONS,
   permissionsToString,
-} from '@backspace/shared/src/permissions.js';
-import { MAX_MESSAGE_LENGTH } from '@backspace/shared';
-import { CHANNEL_TOPIC_MAX_LENGTH } from '@backspace/shared/src/constants.js';
+} from '@veyvox/shared/src/permissions.js';
+import { MAX_MESSAGE_LENGTH } from '@veyvox/shared';
+import { CHANNEL_TOPIC_MAX_LENGTH } from '@veyvox/shared/src/constants.js';
 
 setWorkerId(3);
 

@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next';
-import type { Reaction } from '@backspace/shared';
+import type { Reaction } from '@veyvox/shared';
 import type { Formatters } from '../../i18n/formatters';
 import { isMine, type SelfIdentity } from '../../utils/identity';
 

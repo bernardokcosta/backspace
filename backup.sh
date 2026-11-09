@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Trigger a manual DB snapshot inside the running Backspace container.
+# Trigger a manual DB snapshot inside the running Veyvox container.
 set -euo pipefail
 cd "$(dirname "$0")"
 

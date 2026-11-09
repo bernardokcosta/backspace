@@ -1,4 +1,5 @@
-import type { Activity } from '@backspace/shared';
+import { getElectronAPI } from './platform';
+import type { Activity } from '@veyvox/shared';
 import { useActivityStore } from '../stores/activityStore';
 import { syncManualBindings } from './manualGameBinding';
 import { boundGames } from '../utils/gameOverrides';
@@ -16,7 +17,7 @@ export function toActivityList(value: unknown): Activity[] {
  * build has: the list channel, or the single-activity one of older builds.
  */
 export function fetchCurrentActivities(): Promise<Activity[]> {
-  const bridge = window.backspace;
+  const bridge = getElectronAPI();
   if (!bridge) return Promise.resolve([]);
   if (bridge.getCurrentActivities) return bridge.getCurrentActivities().then(toActivityList);
   if (bridge.getCurrentActivity) return bridge.getCurrentActivity().then(toActivityList);
@@ -25,7 +26,7 @@ export function fetchCurrentActivities(): Promise<Activity[]> {
 
 export function initActivityBridge(): void {
   if (unsubscribe) return; // already initialized
-  const bridge = window.backspace;
+  const bridge = getElectronAPI();
   if (!bridge?.onActivityDetected) return; // not Electron
 
   // Subscribe to future changes. A desktop that knows several games sends the

@@ -64,7 +64,7 @@ describe('UpdateToast, ad-hoc signed macOS build', () => {
 
   it('offers Download and never a Restart button', async () => {
     render(<UpdateToast />);
-    expect(await screen.findByText('Backspace 1.0.4 is available')).toBeInTheDocument();
+    expect(await screen.findByText('Veyvox 1.0.4 is available')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Download' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Restart now' })).not.toBeInTheDocument();
   });
@@ -173,7 +173,7 @@ describe('UpdateToast, dismissal', () => {
       status: { phase: 'available', version: '1.0.5' },
     });
     render(<UpdateToast />);
-    expect(await screen.findByText('Backspace 1.0.5 is available')).toBeInTheDocument();
+    expect(await screen.findByText('Veyvox 1.0.5 is available')).toBeInTheDocument();
   });
 });
 

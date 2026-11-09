@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import type { DmChannel, User } from '@backspace/shared';
+import type { DmChannel, User } from '@veyvox/shared';
 
 vi.mock('../../hooks/useWebSocket', () => ({ wsSend: vi.fn() }));
 vi.mock('../../audio/AudioManager', () => ({

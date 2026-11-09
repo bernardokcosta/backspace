@@ -6,10 +6,10 @@ import { and, eq } from 'drizzle-orm';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { BotSearchResult, BotSummary } from '@backspace/shared';
+import type { BotSearchResult, BotSummary } from '@veyvox/shared';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
-import { PermissionBits, permissionsToString } from '@backspace/shared/src/permissions.js';
+import { PermissionBits, permissionsToString } from '@veyvox/shared/src/permissions.js';
 
 /**
  * Bot permissions on invite (bots.md, "Permissions on invite"): the owner sets

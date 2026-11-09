@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import { UserProfilePopout } from './UserProfilePopout';
 import { watchUserScreen } from '../../utils/watchStream';
 import { useAuthStore } from '../../stores/authStore';

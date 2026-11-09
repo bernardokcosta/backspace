@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { stickerUrl } from '@backspace/shared/src/stickers';
+import { stickerUrl } from '@veyvox/shared/src/stickers';
 import { useUIStore } from '../../stores/uiStore';
 
 export function StickerMessage({ token }: { token: string }) {

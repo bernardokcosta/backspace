@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { WebSocket } from 'ws';
-import { MAX_MESSAGE_LENGTH } from '@backspace/shared';
+import { MAX_MESSAGE_LENGTH } from '@veyvox/shared';
 import * as schema from '../db/schema.js';
 import { setWorkerId, generateSnowflake } from '../utils/snowflake.js';
 import rateLimit from '@fastify/rate-limit';

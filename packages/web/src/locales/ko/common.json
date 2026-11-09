@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "저장",
     "cancel": "취소",
@@ -123,7 +123,7 @@
   },
   "app": {
     "description": "셀프 호스팅 Discord·TeamSpeak 대안. HD 음성·영상·화면 공유 — 오픈 소스이며 무료 (AGPL-3.0).",
-    "loading": "Backspace 불러오는 중"
+    "loading": "Veyvox 불러오는 중"
   },
   "chrome": {
     "toggleMemberList": "멤버 목록 표시 전환",

@@ -4,7 +4,7 @@ import { Modal } from '../ui/Modal';
 import { useUIStore } from '../../stores/uiStore';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { describeError } from '../../i18n/errors';
-import { CHANNEL_TOPIC_MAX_LENGTH, normalizeChannelTopic } from '@backspace/shared/src/constants';
+import { CHANNEL_TOPIC_MAX_LENGTH, normalizeChannelTopic } from '@veyvox/shared/src/constants';
 
 export function CreateChannelModal() {
   const { t } = useTranslation(['spaces', 'common']);

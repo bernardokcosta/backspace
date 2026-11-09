@@ -1,4 +1,4 @@
-import type { MessageWithUser } from '@backspace/shared';
+import type { MessageWithUser } from '@veyvox/shared';
 import { isMine, type SelfIdentity } from '../../utils/identity';
 import { isStickerMessage } from '../../utils/stickerMessages';
 

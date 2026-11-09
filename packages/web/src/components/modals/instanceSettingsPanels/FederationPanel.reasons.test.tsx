@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import type { FederationPeer } from '@backspace/shared';
+import type { FederationPeer } from '@veyvox/shared';
 
 const { peers } = vi.hoisted(() => ({ peers: vi.fn() }));
 

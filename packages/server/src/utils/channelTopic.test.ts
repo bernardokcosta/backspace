@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { CHANNEL_TOPIC_MAX_LENGTH, normalizeChannelTopic } from '@backspace/shared/src/constants.js';
+import { CHANNEL_TOPIC_MAX_LENGTH, normalizeChannelTopic } from '@veyvox/shared/src/constants.js';
 import { checkChannelTopic } from './channelTopic.js';
 
 describe('normalizeChannelTopic', () => {

@@ -12,14 +12,14 @@ import { ensurePeered } from '../utils/federationPeering.js';
 import { lookupRemoteUser, lookupRemoteUserByHomeId, type LookupResult } from '../utils/federationLookup.js';
 import { resolveOriginFromHostname } from '../utils/federationOriginResolve.js';
 import { resolveOrCreateReplicatedUser, hydrateReplicatedUserProfile, isOwnDomain } from './federation.js';
-import type { FederationRelayEvent, FederationRelayProfileSnapshot } from '@backspace/shared';
+import type { FederationRelayEvent, FederationRelayProfileSnapshot } from '@veyvox/shared';
 import type {
   Friend,
   FriendRequest,
   SendFriendRequest,
   UpdateFriendRequest,
   DiscoverUser,
-} from '@backspace/shared';
+} from '@veyvox/shared';
 import { sanitizeUser } from '../utils/sanitize.js';
 import { relayHandleOf } from './federation/stubName.js';
 import { sendError } from '../utils/httpErrors.js';

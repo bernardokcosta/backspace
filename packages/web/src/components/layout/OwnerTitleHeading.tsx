@@ -1,4 +1,4 @@
-import { MAX_OWNER_TITLE_LENGTH, normalizeOwnerTitle } from '@backspace/shared/src/constants.js';
+import { MAX_OWNER_TITLE_LENGTH, normalizeOwnerTitle } from '@veyvox/shared/src/constants.js';
 import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { describeError } from '../../i18n/errors';

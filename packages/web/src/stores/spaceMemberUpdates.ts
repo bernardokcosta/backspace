@@ -1,4 +1,4 @@
-import type { MemberWithUser } from '@backspace/shared';
+import type { MemberWithUser } from '@veyvox/shared';
 import { useSpaceStore } from './spaceStore';
 
 /** HTTP replies and socket broadcasts share the same space/instance boundary. */

@@ -1,5 +1,5 @@
 # ============================================================
-# Backspace — Multi-stage Docker build
+# Veyvox — Multi-stage Docker build
 # ============================================================
 
 # Stage 1: Production dependencies
@@ -38,7 +38,7 @@ RUN pnpm install --prod --frozen-lockfile
 # ============================================================
 # Stage 2: Build the frontend
 #
-# Installs only @backspace/web and what it depends on (@backspace/shared). That
+# Installs only @veyvox/web and what it depends on (@veyvox/shared). That
 # keeps the server dependencies, better-sqlite3 among them, out of this stage, so
 # the native module is installed once, in `deps`.
 #
@@ -61,7 +61,7 @@ COPY packages/web/package.json packages/web/
 # Copy patches (referenced by pnpm-lock.yaml)
 COPY patches/ patches/
 
-RUN pnpm install --frozen-lockfile --filter @backspace/web...
+RUN pnpm install --frozen-lockfile --filter @veyvox/web...
 
 # Copy source code (excluding desktop — not needed in Docker)
 COPY packages/shared/ packages/shared/
@@ -75,7 +75,7 @@ COPY scripts/check-i18n.mjs scripts/i18n-allowlist.json scripts/i18n-pending.txt
 COPY scripts/i18n/ scripts/i18n/
 
 # Build the web frontend
-RUN pnpm --filter @backspace/web build
+RUN pnpm --filter @veyvox/web build
 
 # ============================================================
 # Stage 3: Production runtime

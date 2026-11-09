@@ -40,7 +40,7 @@ vi.mock('../stores/authStore', () => ({
 }));
 
 import { useSpaceStore, resolveDmChannelId } from '../stores/spaceStore';
-import type { DmChannel } from '@backspace/shared';
+import type { DmChannel } from '@veyvox/shared';
 
 function dm(id: string, federatedId: string | null, members: any[] = []): DmChannel {
   return { id, federatedId, createdAt: 1000, members };

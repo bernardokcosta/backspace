@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Embed } from '@backspace/shared';
+import type { Embed } from '@veyvox/shared';
 
 interface GenericEmbedProps {
   embed: Embed;

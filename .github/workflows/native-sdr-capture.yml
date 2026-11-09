@@ -69,9 +69,9 @@ jobs:
         run: |
           node --test packages/desktop/scripts/sdr-capture-build-config.test.mjs
           node --test packages/desktop/scripts/verify-sdr-capture-package.test.mjs
-          pnpm --filter @backspace/desktop test
+          pnpm --filter @veyvox/desktop test
       - name: Compile desktop transport
-        run: pnpm --filter @backspace/desktop build:ts
+        run: pnpm --filter @veyvox/desktop build:ts
       - name: Build the actual target architecture and verify its PE header
         id: native-build
         run: node packages/desktop/scripts/build-sdr-capture.mjs --arch ${{ matrix.arch }}

@@ -1,4 +1,4 @@
-import type { MemberWithUser, Role } from '@backspace/shared';
+import type { MemberWithUser, Role } from '@veyvox/shared';
 
 // How a space's member list groups and colours its members, in one place for
 // every surface that shows them: the desktop member list, the phone members

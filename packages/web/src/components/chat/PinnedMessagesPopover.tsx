@@ -7,7 +7,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { getChannelOrigin } from '../../stores/spaceStore';
 import { Avatar } from '../ui/Avatar';
 import { formatters } from '../../i18n/formatters';
-import type { PinWithMessage } from '@backspace/shared';
+import type { PinWithMessage } from '@veyvox/shared';
 
 /** Shared empty board: a `?? []` inside the selector below returns a new array
  * on every store change and re-renders (then loops) forever. */

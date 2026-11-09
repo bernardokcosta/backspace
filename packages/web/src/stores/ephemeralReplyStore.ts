@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { EphemeralReply } from '@backspace/shared';
+import type { EphemeralReply } from '@veyvox/shared';
 
 /**
  * Bot answers only the signed-in person sees (`interaction_ephemeral`), per

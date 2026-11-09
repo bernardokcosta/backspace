@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
-import type { FederationSyncRequest, FederationSyncResponse } from '@backspace/shared';
+import type { FederationSyncRequest, FederationSyncResponse } from '@veyvox/shared';
 import { eq } from 'drizzle-orm';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';

@@ -327,10 +327,10 @@
   },
   "keybinds": {
     "portal": {
-      "description": "Pe Wayland, desktopul gestionează toate scurtăturile Backspace. Asignează, modifică sau elimină tastele din setările de scurtături ale sistemului, la Backspace. Asocierile locale din browser/X11 nu sunt folosite aici.",
+      "description": "Pe Wayland, desktopul gestionează toate scurtăturile Veyvox. Asignează, modifică sau elimină tastele din setările de scurtături ale sistemului, la Veyvox. Asocierile locale din browser/X11 nu sunt folosite aici.",
       "idle": "Se pregătește înregistrarea inițială a tuturor acțiunilor disponibile.",
       "pending": "Se conectează la portalul desktopului. Dacă apare o fereastră de sistem, alege scurtăturile pentru acțiunile pe care vrei să le folosești.",
-      "ready": "Backspace este înregistrat. Deschide setările de scurtături ale sistemului pentru a modifica sau elimina asocierile. Lista de mai jos este doar pentru citire și se reîmprospătează când revii în Backspace.",
+      "ready": "Veyvox este înregistrat. Deschide setările de scurtături ale sistemului pentru a modifica sau elimina asocierile. Lista de mai jos este doar pentru citire și se reîmprospătează când revii în Veyvox.",
       "unavailable": "Portalul nu este disponibil, permisiunea a fost refuzată sau sesiunea s-a încheiat. Este necesar un backend Global Shortcuts portal. Asocierile locale sunt dezactivate pe Wayland.",
       "retry": "Înregistrează sau reconectează scurtăturile",
       "assigned": "Scurtătură de sistem: {{shortcut}}",
@@ -372,7 +372,7 @@
     },
     "accessibility": {
       "title": "Este necesară permisiunea de accesibilitate",
-      "description": "Backspace are nevoie de permisiunea de accesibilitate pentru ca scurtăturile globale să funcționeze în afara aplicației.",
+      "description": "Veyvox are nevoie de permisiunea de accesibilitate pentru ca scurtăturile globale să funcționeze în afara aplicației.",
       "grant": "Acordă permisiunea"
     },
     "hookError": {
@@ -389,7 +389,7 @@
     "autoLaunch": {
       "openAtLogin": {
         "label": "Pornește la pornirea sistemului",
-        "description": "Lansează automat Backspace la autentificarea în sistem"
+        "description": "Lansează automat Veyvox la autentificarea în sistem"
       },
       "startMinimized": {
         "label": "Pornește minimizat",
@@ -397,7 +397,7 @@
       }
     },
     "updates": {
-      "appName": "Backspace Desktop",
+      "appName": "Veyvox Desktop",
       "versionLabel": "Versiunea {{version}}",
       "checking": "Se caută actualizări…",
       "checkingShort": "Se verifică…",
@@ -416,7 +416,7 @@
       "download": "Descarcă",
       "restart": "Repornește",
       "manualNote": "Această versiune nu se poate actualiza singură. Descarcă versiunile noi de pe GitHub și înlocuiește aplicația manual. Vezi notele de lansare pentru pașii de pe platforma ta.",
-      "externalNote": "Flatpak aplică actualizările atomic în afara aplicației. Folosește managerul de software sau comanda <code>flatpak update</code> pentru a actualiza Backspace."
+      "externalNote": "Flatpak aplică actualizările atomic în afara aplicației. Folosește managerul de software sau comanda <code>flatpak update</code> pentru a actualiza Veyvox."
     },
     "instance": {
       "current": "Instanța conectată acum",

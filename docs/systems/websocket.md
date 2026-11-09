@@ -186,7 +186,7 @@ per-user limit on every event; a refused poke is not counted.
 **Stored row.** A poke is stored as a channel message with `type: 'system'`
 (database.md, "messages"), authored by the actor, whose content is
 `{ event: 'channel_poke', targetUserId, targetDisplayName }`
-(`@backspace/shared/src/channelSystemEvents.ts`, which holds the parser).
+(`@veyvox/shared/src/channelSystemEvents.ts`, which holds the parser).
 `targetDisplayName` is the target's nickname in the space, else their account
 name without the instance (`dmSystemName`), at the time of the poke.
 

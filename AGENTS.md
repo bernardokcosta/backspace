@@ -1,6 +1,6 @@
-# AGENTS.md — Backspace
+# AGENTS.md — Veyvox
 
-Self-hosted Discord alternative (AGPL-3.0, dual-licensed). TypeScript strict monorepo: pnpm workspaces, Node ≥22.12 + pnpm 10 (`.nvmrc` selects Node 24, which Docker runs; CI tests 22 and 24).
+Self-hosted Discord alternative (AGPL-3.0-only, independently maintained fork). TypeScript strict monorepo: pnpm workspaces, Node ≥22.12 + pnpm 10 (`.nvmrc` selects Node 24, which Docker runs; CI tests 22 and 24).
 
 ## Commands
 
@@ -14,16 +14,16 @@ pnpm dev:web                  # Vite dev server only
 pnpm build                    # shared → server → web; order matters, do not parallelize
 pnpm typecheck                # shared build + pnpm -r typecheck + i18n check
 pnpm check:i18n               # same check web build runs first; fails on literal UI strings / missing keys
-pnpm --filter @backspace/server typecheck:e2e  # e2e suites NOT covered by server tsc (src-only tsconfig)
-pnpm --filter @backspace/desktop build:ts      # desktop is NOT part of pnpm build; CI typechecks it separately
+pnpm --filter @veyvox/server typecheck:e2e  # e2e suites NOT covered by server tsc (src-only tsconfig)
+pnpm --filter @veyvox/desktop build:ts      # desktop is NOT part of pnpm build; CI typechecks it separately
 
 pnpm lint                     # eslint flat config, --max-warnings 0
 pnpm lint:prune               # run after FIXING a suppressed violation (see below)
 
 pnpm -r test                                          # all suites (includes 2-instance federation e2e, ~+1 min, no Docker needed)
-pnpm --filter @backspace/server test -- <file|pattern>  # single server test
-pnpm --filter @backspace/server test:federation-e2e     # federation e2e only
-pnpm --filter @backspace/web test -- <file|pattern>     # single web test
+pnpm --filter @veyvox/server test -- <file|pattern>  # single server test
+pnpm --filter @veyvox/server test:federation-e2e     # federation e2e only
+pnpm --filter @veyvox/web test -- <file|pattern>     # single web test
 ```
 
 CI (`ci.yml`) gates PRs on: build+test matrix (22/24), lint job, and an amd64 container-image build.
@@ -37,7 +37,7 @@ CI (`ci.yml`) gates PRs on: build+test matrix (22/24), lint job, and an amd64 co
 - **Dockerfile copies paths one by one.** A build script that reads a new top-level path passes lint/typecheck/tests and still breaks the image. Add the `COPY` line; CI's `build-image` job catches misses.
 - **Desktop native module warns and continues.** `pnpm install` rebuilding `uiohook-napi` needs a C++ toolchain (`make`, `g++`, `python3`); without it install warns and skips — server/web/Docker are unaffected. Only install the toolchain for desktop work.
 - **`data/` (backspace.db + uploads/ + backups/) is runtime state**, mounted at `/app/data` in the container. Never commit it, never delete it to "reset" someone else's instance.
-- **DB migrations run automatically at boot with a pre-migration snapshot.** Workflow: edit `packages/server/src/db/schema.ts` → `pnpm --filter @backspace/server db:generate` → commit both. Never hand-edit `packages/server/drizzle/*.sql`.
+- **DB migrations run automatically at boot with a pre-migration snapshot.** Workflow: edit `packages/server/src/db/schema.ts` → `pnpm --filter @veyvox/server db:generate` → commit both. Never hand-edit `packages/server/drizzle/*.sql`.
 
 ## Layout
 

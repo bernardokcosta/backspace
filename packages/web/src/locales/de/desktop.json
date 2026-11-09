@@ -2,7 +2,7 @@
   "mediaSetup": {
     "neteaseSmtc": {
       "title": "SMTC in NetEase Cloud Music aktivieren",
-      "body": "Öffne NetEase Cloud Music → Einstellungen → System → SMTC aktivieren und starte die App neu. Backspace benötigt SMTC, um Wiedergabe, Pause und Fortschritt genau zu erkennen.",
+      "body": "Öffne NetEase Cloud Music → Einstellungen → System → SMTC aktivieren und starte die App neu. Veyvox benötigt SMTC, um Wiedergabe, Pause und Fortschritt genau zu erkennen.",
       "gotIt": "Verstanden",
       "dontRemind": "Nicht mehr erinnern",
       "dismiss": "Diesen Hinweis ausblenden"
@@ -13,14 +13,14 @@
     "dismiss": "Dieses Update ausblenden",
     "failed": {
       "title": "Update konnte nicht installiert werden",
-      "body": "Backspace {{version}} wurde heruntergeladen, aber die Installation ist fehlgeschlagen. Du kannst es stattdessen von Hand installieren."
+      "body": "Veyvox {{version}} wurde heruntergeladen, aber die Installation ist fehlgeschlagen. Du kannst es stattdessen von Hand installieren."
     },
     "ready": {
       "title": "Update bereit",
-      "body": "Backspace {{version}} ist heruntergeladen und bereit zur Installation."
+      "body": "Veyvox {{version}} ist heruntergeladen und bereit zur Installation."
     },
     "available": {
-      "title": "Backspace {{version}} ist verfügbar",
+      "title": "Veyvox {{version}} ist verfügbar",
       "body": "Dieser Build kann sich nicht selbst aktualisieren. Lade die neue Version herunter, um darauf umzusteigen.",
       "bodyWithCurrent": "Du verwendest {{currentVersion}}. Dieser Build kann sich nicht selbst aktualisieren. Lade die neue Version herunter, um darauf umzusteigen."
     },

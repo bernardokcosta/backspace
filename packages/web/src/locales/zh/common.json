@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "保存",
     "cancel": "取消",
@@ -123,7 +123,7 @@
   },
   "app": {
     "description": "可自托管的 Discord 和 TeamSpeak 替代方案。支持高清语音、视频和屏幕共享，免费开源（AGPL-3.0）。",
-    "loading": "正在加载 Backspace"
+    "loading": "正在加载 Veyvox"
   },
   "chrome": {
     "toggleMemberList": "切换成员列表显示",

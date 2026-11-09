@@ -31,9 +31,9 @@ describe('Dutch contextual content', () => {
     expect(chat.message.reactions.byMany).toBe('Reacties: {{names}}');
   });
 
-  it('keeps Backspace and Juno automatic labels distinct', () => {
+  it('keeps Veyvox and Juno automatic labels distinct', () => {
     expect(common.language.automatic).toBe('Automatisch (systeem)');
-    expect(voice.juno.settings.automatic).toBe('Automatisch (Backspace)');
+    expect(voice.juno.settings.automatic).toBe('Automatisch (Veyvox)');
     expect(voice.juno.settings.automaticDubbing).toBe(voice.juno.settings.automatic);
   });
 

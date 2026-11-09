@@ -15,7 +15,6 @@ import {
 } from 'electron';
 import path from 'path';
 import fs from 'fs';
-import os from 'os';
 import { pathToFileURL } from 'url';
 import {
   startActivityDetection,
@@ -39,7 +38,7 @@ import {
 } from './mediaDetector';
 import { loadActivitySettings, parseActivitySettingsUpdate, saveActivitySettings } from './activitySettings';
 import { KeybindManager } from './keybindManager';
-import { parseExecPathFromDesktopFile, shouldReapplyAppImage } from './autoLaunch';
+import { linuxAutoLaunchEnabled, linuxAutoLaunchEntry, shouldRefreshLinuxAutoLaunch } from './autoLaunch';
 import {
   loadInstanceUrl,
   saveInstanceUrl,
@@ -73,7 +72,8 @@ import {
   buildEditMenuTemplate,
   type RecoveryState,
 } from './recovery';
-import { migrateUserData } from './userDataMigration';
+import { initializeUserData } from './userDataMigration';
+import { normalizeDeepLink } from './deepLinks';
 import { isNavigationAllowed } from './navigationPolicy';
 import { NotificationRetainer } from './notificationRetention';
 import {
@@ -89,26 +89,16 @@ import { createSdrCaptureController, registerSdrCaptureIpc, resolveNativeSdrSour
 import { createSdrCaptureTransport } from './sdrCaptureTransport';
 import type { NativeSdrModule } from './sdrCaptureTypes';
 
-// Override Electron's package.json-derived app name so userData lives at
-// "<appData>/Backspace Fork" instead of leaking the monorepo's "@backspace/desktop"
-// package name — and instead of colliding with the official Backspace app's
-// profile. Must run before any app.getPath('userData') consumer.
-app.setName('Backspace Fork');
-
-// One-time migration from the historical scoped path. After the move the old
-// folder is gone, so subsequent launches hit the old-missing no-op branch.
+// Preserve the installed fork's crypto/profile identity before any profile
+// consumer. Public window/menu branding is independent of this internal name.
 {
-  const appDataDir = app.getPath('appData');
-  const oldParent = path.join(appDataDir, '@backspace');
-  const result = migrateUserData({
-    oldDir: path.join(oldParent, 'desktop'),
-    newDir: path.join(appDataDir, 'Backspace Fork'),
-    oldParent,
-  });
+  const result = initializeUserData(app);
   if (result.kind === 'migrated') {
     console.log(`[userData] migrated ${result.from} → ${result.to}`);
   } else if (result.kind === 'failed') {
-    console.error('[userData] migration failed:', result.error);
+    console.error('[userData] Cannot safely open the existing profile; startup aborted.');
+    app.exit(1);
+    throw new Error('Profile initialization failed');
   }
 }
 
@@ -123,7 +113,7 @@ const knownInstanceOrigins = new Set<string>();
 // ─── AGPL-3.0 § 13 source offer ─────────────────────────────────────────────
 // Fork fallback for the "Source code" menu items and the About panel.
 // Used when the connected instance can't be reached or advertises no source URL.
-const FORK_SOURCE_URL = 'https://github.com/bernardokcosta/backspace';
+const FORK_SOURCE_URL = 'https://github.com/bernardokcosta/veyvox';
 
 /**
  * Resolve the Corresponding Source URL for the instance the desktop app is
@@ -293,26 +283,24 @@ function applyLoginItemSettings(openAtLogin: boolean, startMinimized: boolean): 
       name: 'Backspace Fork',
     });
   } else {
-    // Linux: setLoginItemSettings creates ~/.config/autostart/<name>.desktop.
-    // - We pass an explicit `name: 'backspace-fork'` so the filename is deterministic
-    //   across deb/AppImage installs and Electron versions — and so it does not
-    //   fight the official Backspace app over one autostart entry.
-    // - For AppImage, $APPIMAGE points to the (possibly newly-updated) AppImage
-    //   path; pass it as `path` so the autostart entry tracks updates.
-    //   Electron's TypeScript types don't list `path`/`args`/`name` on Linux,
-    //   but the runtime accepts them.
-    const opts: Record<string, unknown> = {
-      openAtLogin,
-      name: 'backspace-fork',
-    };
-    if (process.env.APPIMAGE) {
-      opts.path = process.env.APPIMAGE;
+    // Electron's Linux login-item API is a no-op. Reuse the fork's existing
+    // entry identity explicitly; sandboxed packages use their portal instead.
+    const entryPath = getLinuxAutoLaunchPath();
+    if (openAtLogin) {
+      fs.mkdirSync(path.dirname(entryPath), { recursive: true });
+      fs.writeFileSync(entryPath, linuxAutoLaunchEntry(process.env.APPIMAGE || process.execPath, startMinimized));
+    } else {
+      fs.rmSync(entryPath, { force: true });
     }
-    if (startMinimized) {
-      opts.args = ['--hidden'];
-    }
-    app.setLoginItemSettings(opts as Electron.Settings);
   }
+}
+
+function getLinuxAutoLaunchPath(): string {
+  return path.join(app.getPath('appData'), 'autostart', 'backspace-fork.desktop');
+}
+
+function readLinuxAutoLaunchEntry(): string | null {
+  try { return fs.readFileSync(getLinuxAutoLaunchPath(), 'utf8'); } catch { return null; }
 }
 
 // ─── Tray Icon ──────────────────────────────────────────────────────────────
@@ -391,7 +379,7 @@ function createWindow(): void {
       : {}),
     minWidth: 940,
     minHeight: 500,
-    title: 'Backspace Fork',
+    title: 'Veyvox',
     icon: path.join(__dirname, '..', 'build', 'icon.png'),
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'hidden',
     ...(process.platform !== 'darwin' ? {
@@ -576,7 +564,7 @@ function createTray(): void {
   const icon = loadTrayIcon();
   tray = new Tray(icon);
 
-  tray.setToolTip('Backspace');
+  tray.setToolTip('Veyvox');
   // Context menu is set by the recoveryStore subscriber in app.whenReady,
   // which keeps the menu in sync with update/recovery state.
 
@@ -1009,6 +997,7 @@ function registerIpcHandlers(): void {
     // (quoting, escaping, third-party flags) and the out-of-band edit case is rare;
     // macOS has no introspection. openAtLogin is OS-authoritative on both platforms.
     const saved = loadAutoLaunchSettings();
+    if (process.platform === 'linux') return { openAtLogin: linuxAutoLaunchEnabled(readLinuxAutoLaunchEntry()), startMinimized: saved.startMinimized };
     const osState = app.getLoginItemSettings();
     return {
       openAtLogin: osState.openAtLogin,
@@ -1032,6 +1021,9 @@ function registerIpcHandlers(): void {
       // See `get-auto-launch-settings`: the OS entry's args are write-only on
       // Windows, so the disk cache is the source of truth for a partial
       // update that only flips openAtLogin.
+      currentStartMinimized = loadAutoLaunchSettings().startMinimized;
+    } else if (process.platform === 'linux') {
+      currentOpenAtLogin = linuxAutoLaunchEnabled(readLinuxAutoLaunchEntry());
       currentStartMinimized = loadAutoLaunchSettings().startMinimized;
     } else {
       const osState = app.getLoginItemSettings();
@@ -1318,15 +1310,16 @@ function initAutoUpdater(): void {
 // ─── Deep Linking ───────────────────────────────────────────────────────────
 
 function handleDeepLink(url: string): void {
-  if (!url.startsWith('backspace://')) return;
+  const normalized = normalizeDeepLink(url);
+  if (normalized === null) return;
 
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('deep-link', url);
+    mainWindow.webContents.send('deep-link', normalized);
     mainWindow.show();
     mainWindow.focus();
   } else {
     // App not ready yet — store for later
-    pendingDeepLink = url;
+    pendingDeepLink = normalized;
   }
 }
 
@@ -1364,6 +1357,7 @@ export function requestQuit(): void {
 }
 
 // Set as default protocol handler
+app.setAsDefaultProtocolClient('veyvox');
 app.setAsDefaultProtocolClient('backspace');
 
 // macOS: open-url event
@@ -1380,7 +1374,7 @@ if (!gotTheLock) {
 } else {
   app.on('second-instance', (_event, commandLine) => {
     // Find the deep link URL in the command line args
-    const deepLinkArg = commandLine.find((arg) => arg.startsWith('backspace://'));
+    const deepLinkArg = commandLine.map(normalizeDeepLink).find((url) => url !== null);
     if (deepLinkArg) {
       handleDeepLink(deepLinkArg);
     }
@@ -1551,7 +1545,7 @@ if (!gotTheLock) {
 
     // AGPL-3.0 § 13: native About panel advertises the version + source repo.
     const applyAboutPanelOptions = (): void => app.setAboutPanelOptions({
-      applicationName: 'Backspace Fork',
+      applicationName: 'Veyvox',
       applicationVersion: app.getVersion(),
       copyright: translateDesktop(getDesktopLanguage(), 'menu.sourceAttribution', { url: FORK_SOURCE_URL }),
       website: FORK_SOURCE_URL,
@@ -1580,7 +1574,7 @@ if (!gotTheLock) {
         tray.setContextMenu(Menu.buildFromTemplate(buildTrayMenuTemplate(state, trayActions, language)));
       }
       if (process.platform === 'darwin') {
-        Menu.setApplicationMenu(Menu.buildFromTemplate(buildAppMenuTemplate(app.name, state, trayActions, language)));
+        Menu.setApplicationMenu(Menu.buildFromTemplate(buildAppMenuTemplate('Veyvox', state, trayActions, language)));
       }
       // Mode-gated push to renderer (recovery.html subscribes to this).
       if (state.mode === 'recovery' && mainWindow && !mainWindow.isDestroyed()) {
@@ -1709,41 +1703,27 @@ if (!gotTheLock) {
       return { data: icon.bytes.toString('base64'), mime: icon.mime };
     });
 
-    // Linux/AppImage path-refresh ONLY. On Windows and macOS the OS is the source
+    // Linux owned-entry path refresh ONLY. On Windows and macOS the OS is the source
     // of truth for openAtLogin (Task 4) and we must not override user changes made
     // via Task Manager / System Settings by re-applying disk state here.
     //
-    // For an AppImage install whose path changed (e.g. the user replaced the file
-    // after an update), the autostart .desktop file's Exec= line points at the old
-    // path. Re-apply only when $APPIMAGE differs from the recorded Exec= path.
-    if (process.platform === 'linux' && process.env.APPIMAGE) {
+    // Account for the renamed Debian /opt directory and branded AppImage files.
+    // Never recreate a missing entry, re-enable an OS-disabled one or replace an
+    // unrelated command the user put there.
+    if (process.platform === 'linux' && !isSandboxed()) {
       try {
-        const desktopFilePath = path.join(
-          os.homedir(),
-          '.config',
-          'autostart',
-          'backspace.desktop',
-        );
-        let recordedExecPath: string | null = null;
-        try {
-          const content = fs.readFileSync(desktopFilePath, 'utf-8');
-          recordedExecPath = parseExecPathFromDesktopFile(content);
-        } catch {
-          // No autostart entry exists. recordedExecPath stays null and shouldReapplyAppImage
-          // will return false — a missing file is treated as user-disabled (out-of-band edit),
-          // not a stale-path-needs-refresh signal.
-        }
+        const entry = readLinuxAutoLaunchEntry();
         const saved = loadAutoLaunchSettings();
-        if (saved.openAtLogin && shouldReapplyAppImage(process.env.APPIMAGE, recordedExecPath)) {
+        if (saved.openAtLogin && shouldRefreshLinuxAutoLaunch(process.env.APPIMAGE || process.execPath, entry)) {
           applyLoginItemSettings(saved.openAtLogin, saved.startMinimized);
         }
       } catch (err) {
-        console.error('[autoLaunch] AppImage path-refresh check failed:', err);
+        console.error('[autoLaunch] Owned Linux entry path-refresh check failed:', err);
       }
     }
 
     // Check if the app was launched with a deep link (Windows/Linux)
-    const launchArg = process.argv.find((arg) => arg.startsWith('backspace://'));
+    const launchArg = process.argv.map(normalizeDeepLink).find((url) => url !== null);
     if (launchArg) {
       pendingDeepLink = launchArg;
     }

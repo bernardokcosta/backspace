@@ -98,7 +98,7 @@ describe('contextual product terminology', () => {
   it('describes discovery availability naturally in Portuguese', () => {
     expect(ptSocial.add.noDiscoverable).toBe('Ainda não há perfis disponíveis para descoberta. Convide pessoas para participar!');
   });
-  it('retains the established Russian server term for a Backspace deployment', () => {
+  it('retains the established Russian server term for a Veyvox deployment', () => {
     for (const value of [ruFederation.validation.selfInstance, ruFederation.validation.alreadyConnected,
       ruFederation.validation.connectHomeFirst, ruFederation.validation.authenticationFailed,
       ruDm.callDelivery.remoteInstance, ruDm.callDelivery.hostInstance, ruDm.callDelivery.voiceUnavailable]) expect(value).toContain('сервер');

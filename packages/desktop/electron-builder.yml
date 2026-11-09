@@ -1,5 +1,10 @@
 appId: io.github.bernardokcosta.backspacefork
-productName: Backspace Fork
+productName: Veyvox
+# Installed/cryptographic identities intentionally survive the public rebrand.
+# See docs/systems/desktop.md; these are not presentation copy.
+executableName: Backspace Fork
+extraMetadata:
+  name: '@backspace/desktop'
 # Every release asset names its platform, so the GitHub asset list (which is
 # sorted by name and nothing else) groups by platform and reads on its own:
 # Backspace-Fork-1.4.0-win-x64.exe, -mac-arm64.dmg, -linux-x86_64.AppImage. The
@@ -13,7 +18,7 @@ productName: Backspace Fork
 # writes into the release notes, the build list in
 # packages/web/src/platform/desktopDownload.ts, and the download table in
 # README.md.
-artifactName: "Backspace-Fork-${version}-${os}-${arch}.${ext}"
+artifactName: "Veyvox-${version}-${os}-${arch}.${ext}"
 directories:
   output: dist-electron
 files:
@@ -41,16 +46,19 @@ afterPack: ./scripts/afterPack.js
 publish:
   - provider: github
     owner: bernardokcosta
-    repo: backspace
+    repo: veyvox
 protocols:
-  - name: Backspace Fork
+  - name: Veyvox
     schemes:
+      - veyvox
       - backspace
 mac:
   category: public.app-category.social-networking
   minimumSystemVersion: "12.0"
   extendInfo:
-    NSAudioCaptureUsageDescription: "Backspace Fork needs access to system audio to share sound during screen sharing."
+    CFBundleName: Backspace Fork
+    CFBundleDisplayName: Veyvox
+    NSAudioCaptureUsageDescription: "Veyvox needs access to system audio to share sound during screen sharing."
   # dmg only. The zip target exists for Squirrel.Mac auto-update, and these
   # builds are ad-hoc signed, which the updater classifies as `manual`
   # (src/updateCapability.ts): nothing on a Mac ever downloads the zip, so it
@@ -84,6 +92,9 @@ linux:
     - AppImage
     - deb
   category: Network
+deb:
+  # Measured from the SHA-256-verified published 1.16.8 package, not inferred.
+  packageName: backspace-fork
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true

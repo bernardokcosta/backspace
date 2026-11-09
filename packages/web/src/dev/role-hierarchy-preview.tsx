@@ -45,7 +45,7 @@
 //                    describeErrorCode call.
 // `?lang=de` (the app's dev-only switch) renders any scene in German.
 import { createRoot } from 'react-dom/client';
-import type { MemberWithUser, Role, User } from '@backspace/shared';
+import type { MemberWithUser, Role, User } from '@veyvox/shared';
 import { MembersPanel } from '../components/modals/spaceSettingsPanels/MembersPanel';
 import { RolesPanel } from '../components/modals/spaceSettingsPanels/RolesPanel';
 import { PermissionsEditor, type Override } from '../components/ui/PermissionsEditor';

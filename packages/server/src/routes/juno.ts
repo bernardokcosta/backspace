@@ -1,8 +1,8 @@
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { eq } from 'drizzle-orm';
-import { PermissionBits } from '@backspace/shared/src/permissions.js';
-import { isErrorCode } from '@backspace/shared/src/errors.js';
-import type { JunoCommand } from '@backspace/shared/src/juno.js';
+import { PermissionBits } from '@veyvox/shared/src/permissions.js';
+import { isErrorCode } from '@veyvox/shared/src/errors.js';
+import type { JunoCommand } from '@veyvox/shared/src/juno.js';
 import { getDb, schema } from '../db/index.js';
 import { authenticate } from '../utils/auth.js';
 import { isMember, isBanned, hasPermission } from '../utils/permissions.js';

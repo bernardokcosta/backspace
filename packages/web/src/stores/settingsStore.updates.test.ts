@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { InstanceUpdateStatus } from '@backspace/shared';
+import type { InstanceUpdateStatus } from '@veyvox/shared';
 import { api } from '../api/client';
 import { useSettingsStore, UPDATE_STATUS_REFRESH_MS } from './settingsStore';
 import { EMPTY_ACK, ackStorageKey } from '../utils/updateAck';

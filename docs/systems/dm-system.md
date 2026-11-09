@@ -647,7 +647,7 @@ This is the one place the rule is written; other specs point here.
 
 DM edits and deletes are author-only on every path (REST `PATCH`/`DELETE /api/dm/messages/:id`, WS `dm_message_edit`/`dm_message_delete`). There is no moderation delete in DMs, group owners included, so a relayed edit or delete is authorized by authorship alone.
 
-**Outbound.** `update` and `delete` events carry `target: FederationMessageTarget` (`@backspace/shared`), built by `dmMessageMutationTarget(row, actorUserId)` (`federationOutbox.ts`):
+**Outbound.** `update` and `delete` events carry `target: FederationMessageTarget` (`@veyvox/shared`), built by `dmMessageMutationTarget(row, actorUserId)` (`federationOutbox.ts`):
 
 - `message`: the message as a `FederationMessageRef` (`dmMessageFederationRef`, see "Naming a message across instances"). A row that is itself a relayed copy is named by the id and origin it arrived with, never by this instance's id.
 - `federatedId`: the conversation's `federatedId` (1-on-1 and group alike).

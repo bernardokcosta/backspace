@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MouseEvent } from 'react';
-import type { DmChannel, MemberWithUser, User } from '@backspace/shared';
+import type { DmChannel, MemberWithUser, User } from '@veyvox/shared';
 import type { ContextMenuItem } from '../../stores/contextMenuStore';
 const mocks = vi.hoisted(() => ({ open: vi.fn(), send: vi.fn(), toast: vi.fn() }));
 vi.mock('../../stores/contextMenuStore', async importOriginal => ({

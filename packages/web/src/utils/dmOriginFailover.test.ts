@@ -52,7 +52,7 @@ import { useSpaceStore } from '../stores/spaceStore';
 import { useChatStore } from '../stores/chatStore';
 import { setOriginFromHostnameResolver } from './crossStoreResolvers';
 import { applyIncomingDmMessage } from './dmMessageRouting';
-import type { DmChannel, DmMessageWithUser } from '@backspace/shared';
+import type { DmChannel, DmMessageWithUser } from '@veyvox/shared';
 
 const B = 'https://b.example';
 const C = 'https://c.example';

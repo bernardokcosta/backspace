@@ -1,6 +1,7 @@
+import { getElectronAPI } from '../../../platform/platform';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ACTIVITY_LIMITS } from '@backspace/shared/src/activities';
+import { ACTIVITY_LIMITS } from '@veyvox/shared/src/activities';
 import { useActivityStore } from '../../../stores/activityStore';
 import { moveKey, moveKeyTo, orderedKeys, renameKey } from '../../../utils/gameOverrides';
 
@@ -32,7 +33,7 @@ export function ActivityGameSection() {
 
   const [draft, setDraft] = useState('');
   // The desktop can tie a game to a running program; a browser cannot see processes
-  const canBind = typeof window.backspace?.listRunningPrograms === 'function';
+  const canBind = typeof getElectronAPI()?.listRunningPrograms === 'function';
   const [programs, setPrograms] = useState<Array<{ label: string; process: string }>>([]);
   const [program, setProgram] = useState('');
   const [unknown, setUnknown] = useState<Array<{ label: string; process: string }>>([]);
@@ -48,7 +49,7 @@ export function ActivityGameSection() {
   const [overKey, setOverKey] = useState<string | null>(null);
 
   const refreshPrograms = useCallback(() => {
-    window.backspace?.listRunningPrograms?.()
+    getElectronAPI()?.listRunningPrograms?.()
       .then((list) => { if (Array.isArray(list)) setPrograms(list); })
       .catch(() => {});
   }, []);
@@ -58,10 +59,10 @@ export function ActivityGameSection() {
 
   // Wine programs the detector could not name: offered with one click while this section is open
   useEffect(() => {
-    if (typeof window.backspace?.getUnknownWinePrograms !== 'function') return;
+    if (typeof getElectronAPI()?.getUnknownWinePrograms !== 'function') return;
     let cancelled = false;
     const load = () => {
-      window.backspace?.getUnknownWinePrograms?.()
+      getElectronAPI()?.getUnknownWinePrograms?.()
         .then((list) => { if (!cancelled && Array.isArray(list)) setUnknown(list); })
         .catch(() => {});
     };

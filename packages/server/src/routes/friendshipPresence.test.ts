@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
-import type { Activity, FederationRelayEvent, ServerEvent } from '@backspace/shared';
+import type { Activity, FederationRelayEvent, ServerEvent } from '@veyvox/shared';
 
 setWorkerId(1);
 

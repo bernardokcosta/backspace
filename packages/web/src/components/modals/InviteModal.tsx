@@ -11,7 +11,7 @@ import { useCanonicalUserView } from '../../utils/userViewLookup';
 import { describeError } from '../../i18n/errors';
 import { spaceInviteUrl } from '../../utils/inviteParser';
 import { sendSpaceInvite, type SpaceInviteSendStatus } from '../../utils/spaceInvite';
-import type { MemberWithUser, User } from '@backspace/shared';
+import type { MemberWithUser, User } from '@veyvox/shared';
 
 type SendStatus = SpaceInviteSendStatus;
 

@@ -2,7 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { access, mkdir, rename, writeFile, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import { and, eq } from 'drizzle-orm';
-import { STICKER_ID_PATTERN } from '@backspace/shared/src/stickers.js';
+import { STICKER_ID_PATTERN } from '@veyvox/shared/src/stickers.js';
 import { getDb, schema } from '../db/index.js';
 import { getMaxStickerSizeBytes } from '../routes/stickers.js';
 import { buildFederationHeaders, getOurOrigin } from './federationAuth.js';

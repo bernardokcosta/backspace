@@ -10,7 +10,7 @@ import { useCanonicalUserView } from '../../utils/userViewLookup';
 import { parseFederatedUsername } from '../../utils/identity';
 import { describeError } from '../../i18n/errors';
 import { sendSpaceInvite, type SpaceInviteSendStatus } from '../../utils/spaceInvite';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 const FALLBACK_FRIEND = { id: '', username: '', createdAt: 0, isAdmin: false, replicatedInstances: [] } as unknown as TaggedFriend;
 

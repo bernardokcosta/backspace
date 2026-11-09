@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, type PersistStorage, type StorageValue } from 'zustand/middleware';
-import type { MessageWithUser, Attachment } from '@backspace/shared';
+import type { MessageWithUser, Attachment } from '@veyvox/shared';
 import { useTransferStore } from './transferStore';
 
 export type PendingBubbleState = 'sending' | 'failed';

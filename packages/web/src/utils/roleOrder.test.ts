@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import type { Role } from '@backspace/shared';
-import type { HierarchyStanding } from '@backspace/shared/src/permissions';
+import type { Role } from '@veyvox/shared';
+import type { HierarchyStanding } from '@veyvox/shared/src/permissions';
 import { rolesInRankOrder, canReorderRoles, canMoveRole, moveRoleInRankOrder, roleMoveRequest } from './roleOrder';
 
 // The move rule for Space Settings > Roles (permissions.md, "Role hierarchy",

@@ -1,6 +1,6 @@
 import { openDirectMessage } from '../../../utils/openDirectMessage';
 import { selfIdentityOf } from '../../../utils/identity';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import type { TFunction } from 'i18next';
 import { useAuthStore } from '../../../stores/authStore';
 import { useSocialStore } from '../../../stores/socialStore';

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { DmChannel, MemberWithUser, Role, User } from '@backspace/shared';
+import type { DmChannel, MemberWithUser, Role, User } from '@veyvox/shared';
 
 vi.mock('../../audio/AudioManager', () => ({
   AudioManager: {

@@ -1,4 +1,4 @@
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import { isOutgoingRequest, type TaggedFriend, type TaggedFriendRequest } from '../stores/socialStore';
 import { isMine, userKey, type SelfIdentity } from './identity';
 

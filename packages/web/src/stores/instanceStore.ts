@@ -1,3 +1,4 @@
+import { getElectronAPI } from '../platform/platform';
 import { create } from 'zustand';
 import type {
   User,
@@ -6,9 +7,9 @@ import type {
   AuthResponse,
   FederationRegistryEntry,
   FederationRegistryStatus,
-} from '@backspace/shared';
-import { detachedHomeOf } from '@backspace/shared';
-import { BackspaceApiClient, HttpError, createApiClient, api } from '../api/client';
+} from '@veyvox/shared';
+import { detachedHomeOf } from '@veyvox/shared';
+import { VeyvoxApiClient, HttpError, createApiClient, api } from '../api/client';
 import { useAuthStore } from './authStore';
 import {
   setApiForOriginResolver,
@@ -38,7 +39,7 @@ export interface ConnectedInstance {
   username: string;
   status: 'connected' | 'connecting' | 'disconnected' | 'error';
   error?: string;
-  api: BackspaceApiClient;
+  api: VeyvoxApiClient;
 }
 
 interface CachedInstanceToken {
@@ -213,7 +214,7 @@ export function isSelfOrigin(origin: string): boolean {
  */
 export function resolveSessionApiForHome(
   homeDomain: string,
-): { api: BackspaceApiClient; username: string; origin: string } | null {
+): { api: VeyvoxApiClient; username: string; origin: string } | null {
   const primaryUser = useAuthStore.getState().user;
   if (primaryUser && !primaryUser.homeInstance && window.location.hostname.toLowerCase() === homeDomain) {
     return { api, username: primaryUser.username, origin: '' };
@@ -254,7 +255,7 @@ export function getFriendsHomeOrigin(): string {
  * account (`federationHomeOrphaned`) has no home left to ask, so it is sovereign
  * here and issues its own — the same rule the server applies (users.ts).
  */
-function resolveCredentialHomeApi(): BackspaceApiClient | null {
+function resolveCredentialHomeApi(): VeyvoxApiClient | null {
   const currentUser = useAuthStore.getState().user;
   if (!currentUser) return null;
   if (!currentUser.homeInstance || currentUser.federationHomeOrphaned) return api;
@@ -733,7 +734,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
       let response: AuthResponse | null = null;
       let finalUsername: string;
       let credentialOrigin: string | null = null;
-      let homeApi: BackspaceApiClient | null = null;
+      let homeApi: VeyvoxApiClient | null = null;
 
       if (targetIsHome) {
         // Target IS the user's home instance — they already have a native
@@ -1663,7 +1664,7 @@ export async function connectToInstance(
 // This breaks the circular dependency: chatStore → spaceStore ← instanceStore
 // instead of: chatStore → instanceStore → useWebSocket → chatStore (cycle).
 
-setApiForOriginResolver((origin: string): BackspaceApiClient => {
+setApiForOriginResolver((origin: string): VeyvoxApiClient => {
   if (!origin) return api;
   const instance = useInstanceStore.getState().instances.find(i => i.origin === origin);
   if (!instance) return api;
@@ -1698,7 +1699,8 @@ setTokenForOriginResolver((origin: string): string | null => {
 {
   let lastSerialized = '';
   const pushOrigins = (instances: ConnectedInstance[]) => {
-    if (typeof window === 'undefined' || !window.backspace?.setConnectedOrigins) return;
+    const bridge = getElectronAPI();
+    if (typeof window === 'undefined' || !bridge?.setConnectedOrigins) return;
     const origins = [
       window.location.origin,
       ...instances
@@ -1709,7 +1711,7 @@ setTokenForOriginResolver((origin: string): string | null => {
     const serialized = origins.join('|');
     if (serialized === lastSerialized) return;
     lastSerialized = serialized;
-    window.backspace.setConnectedOrigins(origins);
+    bridge.setConnectedOrigins(origins);
   };
 
   // Initial push (current state at module load time)

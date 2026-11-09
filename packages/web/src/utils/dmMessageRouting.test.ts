@@ -32,10 +32,10 @@ vi.mock('../stores/instanceStore', async () => {
 import { useSpaceStore, setApiForOriginResolver, isDmChannel } from '../stores/spaceStore';
 import { useAuthStore } from '../stores/authStore';
 import { useChatStore } from '../stores/chatStore';
-import { api, type BackspaceApiClient } from '../api/client';
+import { api, type VeyvoxApiClient } from '../api/client';
 import { applyIncomingDmMessage, applyIncomingDmChannel } from './dmMessageRouting';
 import { wireDm, asListedBy161, copyDm } from '../test/dmWireShape';
-import type { DmChannel, DmMessageWithUser, User } from '@backspace/shared';
+import type { DmChannel, DmMessageWithUser, User } from '@veyvox/shared';
 
 const REMOTE = 'https://remote.example';
 
@@ -88,14 +88,14 @@ let remoteListCalls: number;
 /** How REMOTE's GET /api/dm puts an entry on the wire: current servers send it whole. */
 let remoteListShape: (dm: DmChannel) => DmChannel;
 
-function fakeRemoteClient(): BackspaceApiClient {
+function fakeRemoteClient(): VeyvoxApiClient {
   const dm = {
     list: async (): Promise<DmChannel[]> => {
       remoteListCalls += 1;
       return remoteDmList.map(d => remoteListShape(copyDm(d)));
     },
   };
-  return { dm } as unknown as BackspaceApiClient;
+  return { dm } as unknown as VeyvoxApiClient;
 }
 
 beforeEach(() => {
@@ -216,7 +216,7 @@ describe.each([
   it('when the origin cannot be asked, a self-authored message is still not put into another conversation', async () => {
     setApiForOriginResolver(() => ({
       dm: { list: async () => { throw new Error('offline'); } },
-    }) as unknown as BackspaceApiClient);
+    }) as unknown as VeyvoxApiClient);
 
     await applyIncomingDmMessage(REMOTE, message({
       id: 'm-remote-3',
@@ -234,7 +234,7 @@ describe.each([
   it('a message no list places is filed only once its conversation is listed, so its alert sees a DM (#332)', async () => {
     setApiForOriginResolver(() => ({
       dm: { list: async () => { throw new Error('offline'); } },
-    }) as unknown as BackspaceApiClient);
+    }) as unknown as VeyvoxApiClient);
     const seenAsDm: boolean[] = [];
     const unsubscribe = useChatStore.subscribe((state, prev) => {
       if (state.realtimeMessageEvents === prev.realtimeMessageEvents) return;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Embed } from '@backspace/shared';
+import type { Embed } from '@veyvox/shared';
 
 interface VideoEmbedProps {
   embed: Embed;

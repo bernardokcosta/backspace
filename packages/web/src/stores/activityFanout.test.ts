@@ -9,7 +9,7 @@ vi.mock('../hooks/useWebSocket', () => ({
 }));
 
 import { activitiesFor, useActivityStore } from './activityStore';
-import type { Activity } from '@backspace/shared';
+import type { Activity } from '@veyvox/shared';
 
 const GAME_ACTIVITY: Activity = {
   type: 'playing',

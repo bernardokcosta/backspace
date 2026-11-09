@@ -1,7 +1,7 @@
 import { asc, desc, gt, lt, type SQL } from 'drizzle-orm';
 import type { SQLiteColumn } from 'drizzle-orm/sqlite-core';
 import type { FastifyReply } from 'fastify';
-import { MESSAGE_PAGING_AFTER, MESSAGE_PAGING_HEADER } from '@backspace/shared';
+import { MESSAGE_PAGING_AFTER, MESSAGE_PAGING_HEADER } from '@veyvox/shared';
 
 /**
  * Cursor paging shared by the channel and DM message history endpoints.

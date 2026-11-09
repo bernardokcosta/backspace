@@ -5,7 +5,7 @@ import { sanitizeUser } from '../../utils/sanitize.js';
 import { extractDomain, relayActorOfUser, sameRelayActor, type RelayActor } from './identity.js';
 import { and, eq, isNull, or } from 'drizzle-orm';
 import type { FederatedCallEntry } from '../../ws/handler.js';
-import type { DmMessageWithUser, FederationMessageRef } from '@backspace/shared';
+import type { DmMessageWithUser, FederationMessageRef } from '@veyvox/shared';
 
 // ─── Relay Event Processors ──────────────────────────────────────────────────
 

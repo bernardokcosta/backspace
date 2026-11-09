@@ -1,6 +1,6 @@
 # Project hub — retired in 1.15.2
 
-The Backspace project page and its desktop/mobile launchers, cards, version-seen
+The Veyvox project page and its desktop/mobile launchers, cards, version-seen
 badges, exclusive helpers/store, translations and dev workbench have been removed.
 `/backspace` is only an authenticated compatibility redirect to `/channels/@me`
 using history replacement; signed-out visitors still reach login. No hub fetch

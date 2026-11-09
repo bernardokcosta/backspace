@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { diagnosticError, diagnosticRoute, normalizeDiagnostic, type DiagnosticEvent } from '@backspace/shared/src/diagnostics';
+import { diagnosticError, diagnosticRoute, normalizeDiagnostic, type DiagnosticEvent } from '@veyvox/shared/src/diagnostics';
 
 export const DIAGNOSTIC_LOG_MAX_BYTES = 4_500_000_000;
 const SEGMENT_BYTES = 25_000_000;

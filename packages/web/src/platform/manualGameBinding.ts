@@ -1,10 +1,11 @@
+import { getElectronAPI } from './platform';
 /**
  * Tell the desktop which programs the player's own games are tied to, so its
  * detector shows each game while its program runs. A browser, or a desktop
  * build that predates the binding, has no such channel and ignores this.
  */
 export function syncManualBindings(bindings: Array<{ name: string; process: string }>): void {
-  const bridge = window.backspace;
+  const bridge = getElectronAPI();
   if (!bridge) return;
   if (bridge.setManualGameBindings) {
     bridge.setManualGameBindings(bindings).catch(() => {});

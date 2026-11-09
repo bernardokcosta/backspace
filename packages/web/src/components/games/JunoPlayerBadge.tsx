@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import type { User } from '@backspace/shared';
-import type { JunoPerson } from '@backspace/shared/src/juno';
+import type { User } from '@veyvox/shared';
+import type { JunoPerson } from '@veyvox/shared/src/juno';
 import { useTranslation } from 'react-i18next';
 import { Avatar } from '../ui/Avatar';
 import { useCanonicalUserView } from '../../utils/userViewLookup';

@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "Chung",
-    "description": "Cấu hình máy chủ Backspace của bạn. Các cài đặt này áp dụng cho mọi người dùng.",
+    "description": "Cấu hình máy chủ Veyvox của bạn. Các cài đặt này áp dụng cho mọi người dùng.",
     "instanceName": {
       "label": "Tên máy chủ",
       "description": "Tên hiện trên trang đăng nhập và với các máy chủ liên hợp.",
@@ -300,7 +300,7 @@
     "title": "Cập nhật",
     "badge": {
       "settingsAriaLabel": "Cài đặt, có cập nhật máy chủ",
-      "toast": "Có Backspace {{version}} cho máy chủ này",
+      "toast": "Có Veyvox {{version}} cho máy chủ này",
       "toastAction": "Xem"
     },
     "description": "Bản nào chạy trên máy chủ này và cách cập nhật nó.",
@@ -318,11 +318,11 @@
     },
     "available": {
       "label": "Khả dụng",
-      "version": "Có Backspace {{version}}",
+      "version": "Có Veyvox {{version}}",
       "released": "Phát hành {{date}} · ",
       "releaseNotes": "Ghi chú phát hành",
       "fromInstallDir": "Từ thư mục cài của bạn:",
-      "scriptDescription": "Tạo snapshot cơ sở dữ liệu, tải image mới và chỉ khởi động lại container Backspace. Nếu bản mới không chạy tốt hoặc chạy với mã cũ, nó sẽ hoàn lại bản hiện tại.",
+      "scriptDescription": "Tạo snapshot cơ sở dữ liệu, tải image mới và chỉ khởi động lại container Veyvox. Nếu bản mới không chạy tốt hoặc chạy với mã cũ, nó sẽ hoàn lại bản hiện tại.",
       "noScript": "Tôi không có update.sh",
       "manualIntro": "update.sh đi kèm từ 1.0.5. Trong bản sao git, <code>git pull</code> thêm nó. Nếu không, làm thủ công sau snapshot bằng <code>./backup.sh</code>.",
       "prebuiltInstall": "Cài image dựng sẵn:",

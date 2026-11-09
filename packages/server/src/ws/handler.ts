@@ -6,8 +6,8 @@ import { eq, and, or, inArray, desc, sql } from 'drizzle-orm';
 import { handleClientEvent } from './events.js';
 import { recordSocketAddress } from './socketAddress.js';
 import { computePermissions, PermissionBits, permissionsToString } from '../utils/permissions.js';
-import { idsHiddenFromEveryone } from '@backspace/shared/src/permissions.js';
-import { BOT_TOKEN_IN_USE_CLOSE_CODE } from '@backspace/shared/src/constants.js';
+import { idsHiddenFromEveryone } from '@veyvox/shared/src/permissions.js';
+import { BOT_TOKEN_IN_USE_CLOSE_CODE } from '@veyvox/shared/src/constants.js';
 import type {
   User,
   Space,
@@ -23,13 +23,13 @@ import type {
   ActiveCallInfo,
   Activity,
   PresenceIdentity,
-} from '@backspace/shared';
+} from '@veyvox/shared';
 import { sanitizeUser } from '../utils/sanitize.js';
 import { batchInArray } from '../utils/sqlBatch.js';
 import { loadOpenDmChannels } from '../utils/dmChannelWire.js';
 import { collectProfileBroadcastTargetIds } from '../utils/userDeletion.js';
 import { statusOnConnect, type StatusSourceRow } from '../utils/presenceStatus.js';
-import { ownsChosenStatus, type ChosenUserStatus } from '@backspace/shared';
+import { ownsChosenStatus, type ChosenUserStatus } from '@veyvox/shared';
 import { attachReplicaSessionHost, showReplicaStatusOnConnect, showReplicaStatusOnDisconnect, type ReplicaSessionHost } from './replicaPresence.js';
 import { presenceIdentityOf, presenceUpdateFor, projectActivityPlayback, snapshotActivities } from './presenceEvent.js';
 import { isGroupConversation } from '../utils/dmConversation.js';

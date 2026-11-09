@@ -18,7 +18,7 @@ import {
   type DmPinContext,
 } from './dmConversations';
 import { wireDm, asListedBy161 } from '../test/dmWireShape';
-import type { DmChannel, DmMessageWithUser, User } from '@backspace/shared';
+import type { DmChannel, DmMessageWithUser, User } from '@veyvox/shared';
 
 /**
  * Unit tests of the client DM merge module (ADR 0002, Decision 4 and 5).

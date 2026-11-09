@@ -1,4 +1,4 @@
-import { stickerUrl } from '@backspace/shared/src/stickers';
+import { stickerUrl } from '@veyvox/shared/src/stickers';
 import i18n from '../i18n';
 
 /**

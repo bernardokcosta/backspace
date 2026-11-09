@@ -8,7 +8,7 @@ import { buildFederationHeaders, getOurOrigin } from '../utils/federationAuth.js
 import { federationFetch } from '../utils/federationFetch.js';
 import { syncRemotePack } from '../utils/stickerSync.js';
 import { readBoundedResponse } from '../utils/boundedResponse.js';
-import type { StickerPackStatus } from '@backspace/shared/src/stickers.js';
+import type { StickerPackStatus } from '@veyvox/shared/src/stickers.js';
 import { formatCoverUrl } from './stickerStore.js';
 
 export async function stickerStoreAdminRoutes(app: FastifyInstance): Promise<void> {

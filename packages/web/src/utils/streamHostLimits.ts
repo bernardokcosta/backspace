@@ -1,4 +1,4 @@
-import type { InstanceStreamingLimits } from '@backspace/shared';
+import type { InstanceStreamingLimits } from '@veyvox/shared';
 import { useVoiceStore } from '../stores/voiceStore';
 import {
   DEFAULT_STREAMING_LIMITS,

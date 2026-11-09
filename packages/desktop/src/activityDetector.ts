@@ -12,7 +12,7 @@ import { warmGameIcon, warmGameIconForIpc } from './gameIcons';
 import type { IpcActivityPush } from './richPresenceIpc';
 import { decodeWin32Output } from './mediaDetector/win32Media';
 
-// ─── Local Activity type (structural match with @backspace/shared Activity) ─
+// ─── Local Activity type (structural match with @veyvox/shared Activity) ─
 
 export interface ActivityTimestamps {
   start?: number;
@@ -64,7 +64,7 @@ interface VersionedDictionary {
 
 const VALID_TYPES = new Set(['playing', 'listening', 'watching', 'streaming']);
 const POLL_INTERVAL_MS = 15_000;
-const REMOTE_URL = 'https://raw.githubusercontent.com/TheZwiss/backspace/main/packages/desktop/resources/games.json';
+const REMOTE_URL = 'https://raw.githubusercontent.com/bernardokcosta/veyvox/master/packages/desktop/resources/games.json';
 
 /**
  * The Linux kernel stores comm values in a 16-byte buffer including the NUL
@@ -974,7 +974,7 @@ function fetchRemote(url: string, etag: string | null): Promise<{
 } | null> {
   return new Promise((resolve) => {
     const headers: Record<string, string> = {
-      'User-Agent': 'Backspace-Desktop/1.0',
+      'User-Agent': 'Veyvox-Desktop/1.0',
     };
     if (etag) {
       headers['If-None-Match'] = etag;

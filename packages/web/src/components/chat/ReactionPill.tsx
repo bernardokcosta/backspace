@@ -1,8 +1,8 @@
-import { stickerUrl } from '@backspace/shared/src/stickers';
+import { stickerUrl } from '@veyvox/shared/src/stickers';
 import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import type { Reaction } from '@backspace/shared';
+import type { Reaction } from '@veyvox/shared';
 import { useFormatters } from '../../i18n/formatters';
 import { useSelfIdentity } from '../../stores/authStore';
 import { useSpaceStore } from '../../stores/spaceStore';

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { MessageWithUser, Reaction, User } from '@backspace/shared';
+import type { MessageWithUser, Reaction, User } from '@veyvox/shared';
 
 // An open socket: every send is taken.
 vi.mock('../hooks/useWebSocket', () => ({

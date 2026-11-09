@@ -326,10 +326,10 @@
   },
   "keybinds": {
     "portal": {
-      "description": "Op Wayland beheert de desktop alle Backspace-sneltoetsen. Wijs toe, wijzig of verwijder toetsen in de systeeminstellingen voor sneltoetsen, bij Backspace. Lokale browser/X11-bindingen worden hier niet gebruikt.",
+      "description": "Op Wayland beheert de desktop alle Veyvox-sneltoetsen. Wijs toe, wijzig of verwijder toetsen in de systeeminstellingen voor sneltoetsen, bij Veyvox. Lokale browser/X11-bindingen worden hier niet gebruikt.",
       "idle": "Eerste registratie van alle acties voorbereiden.",
       "pending": "Verbinden met de desktopportal. Als een systeemvenster verschijnt, kies sneltoetsen voor de acties die je wilt gebruiken.",
-      "ready": "Backspace is geregistreerd. Open je systeeminstellingen voor sneltoetsen om toewijzingen te wijzigen of te verwijderen. De lijst hieronder is alleen-lezen en ververst als je terugkomt.",
+      "ready": "Veyvox is geregistreerd. Open je systeeminstellingen voor sneltoetsen om toewijzingen te wijzigen of te verwijderen. De lijst hieronder is alleen-lezen en ververst als je terugkomt.",
       "unavailable": "De portal is niet beschikbaar, toestemming geweigerd of sessie beëindigd. Een Global Shortcuts-portalbackend is vereist. Lokale bindingen staan uit op Wayland.",
       "retry": "Sneltoetsen registreren of opnieuw verbinden",
       "assigned": "Systeemsneltoets: {{shortcut}}",
@@ -371,7 +371,7 @@
     },
     "accessibility": {
       "title": "Toegankelijkheidstoestemming vereist",
-      "description": "Backspace heeft toegankelijkheidstoestemming nodig voor globale sneltoetsen buiten de app.",
+      "description": "Veyvox heeft toegankelijkheidstoestemming nodig voor globale sneltoetsen buiten de app.",
       "grant": "Toestemming geven"
     },
     "hookError": {
@@ -388,7 +388,7 @@
     "autoLaunch": {
       "openAtLogin": {
         "label": "Starten bij opstarten",
-        "description": "Backspace automatisch starten als je inlogt"
+        "description": "Veyvox automatisch starten als je inlogt"
       },
       "startMinimized": {
         "label": "Geminimaliseerd starten",
@@ -396,7 +396,7 @@
       }
     },
     "updates": {
-      "appName": "Backspace Desktop",
+      "appName": "Veyvox Desktop",
       "versionLabel": "Versie {{version}}",
       "checking": "Updates controleren…",
       "checkingShort": "Controleren…",
@@ -415,7 +415,7 @@
       "download": "Downloaden",
       "restart": "Opnieuw opstarten",
       "manualNote": "Deze build installeert updates niet zelf. Download nieuwe versies van GitHub en vervang de app handmatig. Zie de releasenotes voor stappen op jouw platform.",
-      "externalNote": "Flatpak past updates atomair buiten de app toe. Gebruik je softwarebeheerder of het commando <code>flatpak update</code> om Backspace bij te werken."
+      "externalNote": "Flatpak past updates atomair buiten de app toe. Gebruik je softwarebeheerder of het commando <code>flatpak update</code> om Veyvox bij te werken."
     },
     "instance": {
       "current": "Nu verbonden instantie",

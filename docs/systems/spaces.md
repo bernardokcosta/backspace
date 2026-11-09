@@ -242,7 +242,7 @@ Public route at `/join/:inviteCode`. Handles six phases:
 | `fallback` | `RemoteLoginRequiredError` on connect | Username + password for an account on the remote, under the `FallbackNotice` its `reason` selects |
 | `other-instance` | User clicks "I use another instance" | Domain input for federation redirect |
 | `already-member` | Join or request returns `already_member` | Green checkmark + auto-redirect (2s timer) |
-| `request-sent` | Request sent, or one was already pending | "Request sent to {space}" or "Your request to join {space} is waiting", and Back to Backspace |
+| `request-sent` | Request sent, or one was already pending | "Request sent to {space}" or "Your request to join {space} is waiting", and Back to Veyvox |
 
 **The page's action** is `join` or `request`, read from the preview's `visibility` on load. `request` sends `sendInviteJoinRequest(preview.spaceId, origin, note)` to the space's instance, after the connect step when that instance is remote. It changes when the server says otherwise: a join answered with `join_request_required` (an instance without `visibility` in its preview, or a space switched to `request` after the page loaded) switches to `request` for the user to send; a join answered with `join_request_pending` shows the waiting request; a request answered with `space_not_requestable` (the space left `request`) joins by the code instead. Banned is shown as the refusal text, as on every join path. While the action is `request` the heading above the space name is `auth:join.invitedToRequest` ("You've been invited to ask to join") in every phase, signed out included, so the page never promises entry.
 
@@ -505,9 +505,9 @@ Both single-role routes apply the same checks as the replace route (not own role
 
 | Field | Validation |
 |-------|------------|
-| name | Required, a string; stored as `normalizeChannelName(name)` from `@backspace/shared` (trimmed, lowercased, each whitespace run → one hyphen), 1-100 chars |
+| name | Required, a string; stored as `normalizeChannelName(name)` from `@veyvox/shared` (trimmed, lowercased, each whitespace run → one hyphen), 1-100 chars |
 | type | Required, `'text'` or `'voice'` |
-| topic | Optional, a string; stored as `normalizeChannelTopic(topic)` from `@backspace/shared` (line endings unified to `\n`, trimmed, blank → `null`), at most `CHANNEL_TOPIC_MAX_LENGTH` (1024) UTF-16 code units after normalization. A non-string answers `400 channel_topic_invalid`; a longer topic answers `400 channel_topic_length` with `{ max }` and is never cut |
+| topic | Optional, a string; stored as `normalizeChannelTopic(topic)` from `@veyvox/shared` (line endings unified to `\n`, trimmed, blank → `null`), at most `CHANNEL_TOPIC_MAX_LENGTH` (1024) UTF-16 code units after normalization. A non-string answers `400 channel_topic_invalid`; a longer topic answers `400 channel_topic_length` with `{ max }` and is never cut |
 | categoryId | Optional, validated against space's categories |
 
 Position: `max(existing positions) + 1`.

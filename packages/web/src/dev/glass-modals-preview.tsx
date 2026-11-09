@@ -19,7 +19,7 @@
 // dev-member-roles.html?scene=editor-dirty).
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
-import type { MemberWithUser, Role, User } from '@backspace/shared';
+import type { MemberWithUser, Role, User } from '@veyvox/shared';
 import { SpaceSettingsModal } from '../components/modals/SpaceSettings';
 import { CreateSpaceModal } from '../components/modals/CreateSpace';
 import { JoinSpaceModal } from '../components/modals/JoinSpace';

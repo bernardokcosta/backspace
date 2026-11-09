@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
-import type { FederationSyncResponse } from '@backspace/shared';
+import type { FederationSyncResponse } from '@veyvox/shared';
 import {
   bootIdentityPeered,
   bootTransportPeered,

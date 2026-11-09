@@ -9,7 +9,7 @@ import { generateSnowflake } from '../../../utils/snowflake.js';
 import { connectionManager } from '../../../ws/handler.js';
 import { and, desc, eq, inArray, isNull, or } from 'drizzle-orm';
 import { randomBytes } from 'node:crypto';
-import type { ApprovalRequestSubscriberSummary, PeeringTriggerReason } from '@backspace/shared';
+import type { ApprovalRequestSubscriberSummary, PeeringTriggerReason } from '@veyvox/shared';
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { sanitizePeer } from '../origin.js';
 import { federationFetch } from '../../../utils/federationFetch.js';

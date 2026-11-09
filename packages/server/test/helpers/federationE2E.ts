@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import type { FederationRelayEvent, FederationRelayResponse } from '@backspace/shared';
+import type { FederationRelayEvent, FederationRelayResponse } from '@veyvox/shared';
 import {
   bootHomePlusRemotes,
   readInstanceLog,

@@ -7,7 +7,7 @@ import { sendDmCallReject } from '../../utils/dmCall';
 import { acceptIncomingDmCall } from '../../utils/voiceActions';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 import { Avatar } from '../ui/Avatar';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 /**
  * Decline the call ringing in: the decline goes where the ring came from,

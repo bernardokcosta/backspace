@@ -15,7 +15,7 @@ import {
   permissionsToString,
   rolePermissionsVersion,
   stringToPermissions,
-} from '@backspace/shared/src/permissions.js';
+} from '@veyvox/shared/src/permissions.js';
 
 // #365: two admins saving the same override or role at the same time. Each
 // editor sends the version of the value it loaded; a write made from an

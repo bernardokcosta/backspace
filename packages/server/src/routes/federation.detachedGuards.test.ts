@@ -10,7 +10,7 @@ import { randomUUID } from 'node:crypto';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
 import { signRequest } from '../utils/federationAuth.js';
-import type { FederationRelayEvent } from '@backspace/shared';
+import type { FederationRelayEvent } from '@veyvox/shared';
 
 setWorkerId(9);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

@@ -31,10 +31,20 @@
 
 set -euo pipefail
 
+# This legacy suite edits an installed profile and exercises recovery/update
+# actions. Never run it on a maintainer's real OS account. Local rebrand checks
+# use packages/desktop/scripts/run-rebrand-smoke.mjs instead.
+if [[ "${GITHUB_ACTIONS:-}" != true || "${RUNNER_ENVIRONMENT:-}" != github-hosted ||
+      "${VEYVOX_INSTALL_ACCEPTANCE:-}" != 1 || -z "${RUNNER_TEMP:-}" ||
+      ! "${GITHUB_RUN_ID:-}" =~ ^[0-9]+$ ]]; then
+  echo 'Recovery acceptance runs only on disposable GitHub-hosted runners with explicit opt-in' >&2
+  exit 1
+fi
+
 # ─── Config ──────────────────────────────────────────────────────────────
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-APP_BINARY="$REPO_ROOT/packages/desktop/dist-electron/mac-arm64/Backspace.app/Contents/MacOS/Backspace"
-USER_DATA_DIR="$HOME/Library/Application Support/Backspace"
+APP_BINARY="$REPO_ROOT/packages/desktop/dist-electron/mac-arm64/Backspace Fork.app/Contents/MacOS/Backspace Fork"
+USER_DATA_DIR="$HOME/Library/Application Support/Backspace Fork"
 INSTANCE_URL_FILE="$USER_DATA_DIR/instance-url.json"
 INSTANCE_URL_BACKUP="$INSTANCE_URL_FILE.smoketest-backup"
 TMP_DIR="$(mktemp -d -t backspace-smoke.XXXXXX)"
@@ -302,13 +312,13 @@ HTML
 
 # ─── Main ───────────────────────────────────────────────────────────────
 main() {
-  log "Backspace Recovery Mode — Automated Smoke Tests"
+  log "Veyvox Recovery Mode — Automated Smoke Tests"
   log "Repo: $REPO_ROOT"
   log "Tmp:  $TMP_DIR"
 
   if [[ "$SKIP_BUILD" == "0" ]]; then
     log "Building desktop app (pass --skip-build to reuse existing)..."
-    if ! (cd "$REPO_ROOT" && pnpm --filter @backspace/desktop build > "$TMP_DIR/initial-build.log" 2>&1); then
+    if ! (cd "$REPO_ROOT" && pnpm --filter @veyvox/desktop build > "$TMP_DIR/initial-build.log" 2>&1); then
       bad "Initial desktop build failed (see $TMP_DIR/initial-build.log)"
       return 1
     fi
@@ -316,7 +326,7 @@ main() {
 
   if [[ ! -x "$APP_BINARY" ]]; then
     bad "App binary not found at $APP_BINARY"
-    log "Run 'pnpm --filter @backspace/desktop build' first."
+    log "Run 'pnpm --filter @veyvox/desktop build' first."
     return 1
   fi
 

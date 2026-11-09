@@ -1,4 +1,4 @@
-import type { User, UserStatus } from '@backspace/shared';
+import type { User, UserStatus } from '@veyvox/shared';
 import { selectMyChosenStatus, useAuthStore, useSelfIdentity } from '../stores/authStore';
 import { isMine } from '../utils/identity';
 

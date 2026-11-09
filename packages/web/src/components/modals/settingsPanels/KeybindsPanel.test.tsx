@@ -5,7 +5,6 @@ import { useKeybindStore } from '../../../stores/keybindStore';
 
 const mock = vi.hoisted(() => ({ status: null as KeybindPortalStatus | null }));
 vi.mock('../../../hooks/useKeybindPortalStatus', () => ({ useKeybindPortalStatus: () => mock.status }));
-vi.mock('../../../platform/platform', () => ({ isElectron: () => true, isElectronMac: () => false }));
 const retry = vi.fn();
 beforeEach(() => {
   retry.mockClear();

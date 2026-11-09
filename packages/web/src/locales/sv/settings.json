@@ -326,10 +326,10 @@
   },
   "keybinds": {
     "portal": {
-      "description": "På Wayland hanterar datorn alla Backspace-genvägar. Tilldela, ändra eller ta bort tangenter i systemets inställningar för tangentbordsgenvägar, under Backspace. Lokala webbläsar/X11-bindningar används inte här.",
+      "description": "På Wayland hanterar datorn alla Veyvox-genvägar. Tilldela, ändra eller ta bort tangenter i systemets inställningar för tangentbordsgenvägar, under Veyvox. Lokala webbläsar/X11-bindningar används inte här.",
       "idle": "Förbereder första registrering av alla tillgängliga åtgärder.",
       "pending": "Ansluter till desktopportalen. Om en systemdialog visas, välj genvägar för åtgärderna du vill använda.",
-      "ready": "Backspace är registrerat. Öppna systemets inställningar för tangentbordsgenvägar för att ändra eller ta bort tilldelningar. Listan nedan är skrivskyddad och uppdateras när du återvänder till Backspace.",
+      "ready": "Veyvox är registrerat. Öppna systemets inställningar för tangentbordsgenvägar för att ändra eller ta bort tilldelningar. Listan nedan är skrivskyddad och uppdateras när du återvänder till Veyvox.",
       "unavailable": "Portalen är inte tillgänglig, tillstånd nekades eller sessionen avslutades. En Global Shortcuts-portalbackend krävs. Lokala bindningar är avstängda på Wayland.",
       "retry": "Registrera eller återanslut genvägar",
       "assigned": "Systemgenväg: {{shortcut}}",
@@ -371,7 +371,7 @@
     },
     "accessibility": {
       "title": "Tillgänglighetstillstånd krävs",
-      "description": "Backspace behöver tillgänglighetstillstånd för att globala genvägar ska fungera utanför appen.",
+      "description": "Veyvox behöver tillgänglighetstillstånd för att globala genvägar ska fungera utanför appen.",
       "grant": "Ge tillstånd"
     },
     "hookError": {
@@ -388,7 +388,7 @@
     "autoLaunch": {
       "openAtLogin": {
         "label": "Starta vid inloggning",
-        "description": "Starta Backspace automatiskt när du loggar in"
+        "description": "Starta Veyvox automatiskt när du loggar in"
       },
       "startMinimized": {
         "label": "Starta minimerad",
@@ -396,7 +396,7 @@
       }
     },
     "updates": {
-      "appName": "Backspace Desktop",
+      "appName": "Veyvox Desktop",
       "versionLabel": "Version {{version}}",
       "checking": "Kontrollerar uppdateringar…",
       "checkingShort": "Kontrollerar…",
@@ -415,7 +415,7 @@
       "download": "Ladda ner",
       "restart": "Starta om",
       "manualNote": "Denna build installerar inte uppdateringar själv. Ladda ner nya versioner från GitHub och ersätt appen manuellt. Se utgivningsanteckningarna för stegen på din plattform.",
-      "externalNote": "Flatpak tillämpar uppdateringar atomiskt utanför appen. Använd din programhanterare eller kommandot <code>flatpak update</code> för att uppdatera Backspace."
+      "externalNote": "Flatpak tillämpar uppdateringar atomiskt utanför appen. Använd din programhanterare eller kommandot <code>flatpak update</code> för att uppdatera Veyvox."
     },
     "instance": {
       "current": "Nu ansluten instans",

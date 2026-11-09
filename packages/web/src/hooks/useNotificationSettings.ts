@@ -1,4 +1,4 @@
-import type { ChannelNotificationPolicy, NotificationSetting } from '@backspace/shared';
+import type { ChannelNotificationPolicy, NotificationSetting } from '@veyvox/shared';
 import { useSpaceStore } from '../stores/spaceStore';
 import {
   selectChannelNotificationPolicy,

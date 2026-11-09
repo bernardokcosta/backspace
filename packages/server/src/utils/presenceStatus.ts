@@ -1,4 +1,4 @@
-import { isChosenUserStatus, ownsChosenStatus, type ChosenUserStatus, type UserStatus } from '@backspace/shared';
+import { isChosenUserStatus, ownsChosenStatus, type ChosenUserStatus, type UserStatus } from '@veyvox/shared';
 
 /**
  * Presence status rules shared by the socket auth path and the manual-change

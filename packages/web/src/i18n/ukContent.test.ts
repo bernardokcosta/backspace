@@ -20,9 +20,9 @@ describe('Ukrainian contextual content', () => {
     expect(chat.message.reactions.byMany).toBe('Реакції: {{names}}');
   });
 
-  it('keeps Backspace and Juno automatic labels distinct', () => {
+  it('keeps Veyvox and Juno automatic labels distinct', () => {
     expect(common.language.automatic).toBe('Автоматично (системна)');
-    expect(voice.juno.settings.automatic).toBe('Автоматично (Backspace)');
+    expect(voice.juno.settings.automatic).toBe('Автоматично (Veyvox)');
     expect(voice.juno.settings.automaticDubbing).toBe(voice.juno.settings.automatic);
   });
 

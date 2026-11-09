@@ -3,7 +3,7 @@ import { useTranslation, Trans } from 'react-i18next';
 import { useFormatters } from '../../../i18n/formatters';
 import { describeError } from '../../../i18n/errors';
 import { api } from '../../../api/client';
-import type { StorageStats, CleanupResult } from '@backspace/shared';
+import type { StorageStats, CleanupResult } from '@veyvox/shared';
 import { useSettingsStore } from '../../../stores/settingsStore';
 import { useUIStore } from '../../../stores/uiStore';
 

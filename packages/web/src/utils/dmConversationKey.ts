@@ -1,4 +1,4 @@
-import type { DmChannel, User } from '@backspace/shared';
+import type { DmChannel, User } from '@veyvox/shared';
 
 /**
  * The conversation key (`federatedId`) of a DM, for DM lists that leave it out.

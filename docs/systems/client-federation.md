@@ -155,7 +155,7 @@ When a home instance is reset, its established accounts on peers become **detach
 
 It performs the proof exchange **only** when all hold (else it returns silently — the manual fallback stays available):
 
-1. The just-connected account is detached and names its former home (`detachedHomeOf(user)` from `@backspace/shared`: `detachedHomeInstance`, falling back to `homeInstance` for a server that predates #310, where a detached row kept its former home there).
+1. The just-connected account is detached and names its former home (`detachedHomeOf(user)` from `@veyvox/shared`: `detachedHomeInstance`, falling back to `homeInstance` for a server that predates #310, where a detached row kept its former home there).
 2. This client also holds an authenticated session on the account's **home domain** — the primary connection when browsing it (native primary user, host matches), else a `status === 'connected'` secondary instance in `instances`.
 3. That home session's username base equals the detached account's username base (case-insensitive, via `parseFederatedUsername`) — the unambiguous "same name" case. A cross-name bind is manual-only (spec §2).
 

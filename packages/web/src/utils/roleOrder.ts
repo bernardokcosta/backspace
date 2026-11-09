@@ -1,5 +1,5 @@
-import type { Role } from '@backspace/shared';
-import { canManageRoleAt, type HierarchyStanding } from '@backspace/shared/src/permissions';
+import type { Role } from '@veyvox/shared';
+import { canManageRoleAt, type HierarchyStanding } from '@veyvox/shared/src/permissions';
 
 // The order of a space's roles is its role hierarchy (docs/systems/permissions.md,
 // "Role hierarchy", "Setting the order"). These are the pure rules the Roles

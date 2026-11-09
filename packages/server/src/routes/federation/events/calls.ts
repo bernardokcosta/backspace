@@ -5,7 +5,7 @@ import { connectionManager } from '../../../ws/handler.js';
 import { and, eq, isNull, or, sql } from 'drizzle-orm';
 import type { CallFanoutFailure } from '../../../utils/federationOutbox.js';
 import type { DmRoomMeta, FederatedCallEntry } from '../../../ws/handler.js';
-import type { DmCallUndeliverableFailure, FederatedIdentity, FederationCallPayload, FederationRelayEvent, ServerEvent } from '@backspace/shared';
+import type { DmCallUndeliverableFailure, FederatedIdentity, FederationCallPayload, FederationRelayEvent, ServerEvent } from '@veyvox/shared';
 import { extractDomain, resolveOrCreateReplicatedUser, resolveRelayActor, attributionRefusal, type RelayActor } from '../identity.js';
 import { isGroupConversation } from '../../../utils/dmConversation.js';
 import { isDmMember } from '../../../utils/permissions.js';

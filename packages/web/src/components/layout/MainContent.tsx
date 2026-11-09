@@ -21,7 +21,7 @@ import { useDmViewer } from '../../hooks/useDmViewer';
 import { formatDmHeaderName, formatDmInputLabel, isDeletedPartnerDm } from '../../utils/dmFormatters';
 import { DmDeletedNotice } from '../chat/DmDeletedNotice';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import { Tooltip } from '../ui/Tooltip';
 import { joinVoiceChannel } from '../../utils/voice';
 import { SearchPopover } from '../chat/SearchPopover';

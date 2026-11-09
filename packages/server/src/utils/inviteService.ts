@@ -11,11 +11,11 @@ import type {
   UpdateInviteRequest,
   ReinstateInviteRequest,
   ReinstateInviteResponse,
-} from '@backspace/shared';
+} from '@veyvox/shared';
 
 /**
  * Derived status of an invite link. Mirrors the `InviteStatus` union exported
- * from `@backspace/shared` (kept side-by-side intentionally — the shared union
+ * from `@veyvox/shared` (kept side-by-side intentionally — the shared union
  * defines the API contract, this local one drives internal service logic, and
  * keeping them independent lets a drift surface as a real type error).
  */

@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as schema from './schema.js';
-import { ALL_PERMISSIONS, PermissionBits, permissionsToString } from '@backspace/shared/src/permissions.js';
+import { ALL_PERMISSIONS, PermissionBits, permissionsToString } from '@veyvox/shared/src/permissions.js';
 import { normalizeStoredPermissions } from './permissionStrings.js';
 
 // The boot pass that rewrites stored permission values (#365): on a space

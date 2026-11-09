@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { MemberWithUser, Role } from '@backspace/shared';
+import type { MemberWithUser, Role } from '@veyvox/shared';
 import { useSpaceStore } from '../stores/spaceStore';
 import type { ProfileMemberContext } from '../stores/uiStore';
 

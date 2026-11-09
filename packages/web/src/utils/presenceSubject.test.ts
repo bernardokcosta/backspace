@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { Friend } from '@backspace/shared';
+import type { Friend } from '@veyvox/shared';
 
 vi.mock('../stores/instanceStore', () => ({
   useInstanceStore: { getState: () => ({ instances: [] }), subscribe: () => () => {} },

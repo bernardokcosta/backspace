@@ -31,7 +31,7 @@
 // element. The styles are the component's own; only the trigger is replaced.
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
-import type { MessageWithUser, Reaction, User } from '@backspace/shared';
+import type { MessageWithUser, Reaction, User } from '@veyvox/shared';
 import { MessageList } from '../components/chat/MessageList';
 import { ToastContainer } from '../components/ui/ToastContainer';
 import { useAuthStore } from '../stores/authStore';

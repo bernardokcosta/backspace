@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import { Modal } from '../ui/Modal';
 import { ImageCropModal } from '../ui/ImageCropModal';
 import { ConfirmDialog } from '../ui/ConfirmDialog';

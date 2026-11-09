@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { soundboardWavDuration } from '@backspace/shared/src/soundboard';
+import { soundboardWavDuration } from '@veyvox/shared/src/soundboard';
 import { SoundboardUpload } from './SoundboardUpload';
 
 const mocks = vi.hoisted(() => ({ decode: vi.fn(), upload: vi.fn(), start: vi.fn() }));

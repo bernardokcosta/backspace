@@ -9,7 +9,7 @@ import path from 'node:path';
 import sharp from 'sharp';
 import { createHash } from 'node:crypto';
 import * as schema from '../db/schema.js';
-import { GAME_ICON_UPLOADS_PER_MINUTE, MAX_GAME_ICONS_PER_USER } from '@backspace/shared/src/gameIcons.js';
+import { GAME_ICON_UPLOADS_PER_MINUTE, MAX_GAME_ICONS_PER_USER } from '@veyvox/shared/src/gameIcons.js';
 
 const settings = vi.hoisted(() => ({ uploadDir: '' }));
 let db: ReturnType<typeof drizzle<typeof schema>>;

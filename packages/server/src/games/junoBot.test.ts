@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { JunoAction, JunoCard } from '@backspace/shared/src/juno.js';
+import type { JunoAction, JunoCard } from '@veyvox/shared/src/juno.js';
 import { chooseJunoBotAction } from './junoBot.js';
 import { JunoRooms } from './juno.js';
 

@@ -23,7 +23,7 @@
   },
   "connections": {
     "title": "Připojené instance",
-    "description": "Propoj účty napříč federovanými instancemi Backspace.",
+    "description": "Propoj účty napříč federovanými instancemi Veyvox.",
     "empty": "Žádné vzdálené instance připojeny. Přidej jednu a začni federovat.",
     "addButton": "+ Přidat instanci",
     "home": {

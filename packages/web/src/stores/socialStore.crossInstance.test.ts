@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { Friend, FriendRequest, User } from '@backspace/shared';
+import type { Friend, FriendRequest, User } from '@veyvox/shared';
 
 /**
  * The friends and requests lists hold one entry per person (`userKey`),

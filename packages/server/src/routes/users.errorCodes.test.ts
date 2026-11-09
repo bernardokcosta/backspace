@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
 import { signJwt, hashPassword } from '../utils/auth.js';
-import { PASSWORD_MIN_LENGTH } from '@backspace/shared/src/constants.js';
+import { PASSWORD_MIN_LENGTH } from '@veyvox/shared/src/constants.js';
 
 setWorkerId(25);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

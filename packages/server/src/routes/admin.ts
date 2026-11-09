@@ -10,7 +10,7 @@ import { tombstoneUser, collectDeletionBroadcastTargets } from '../utils/userDel
 import { deleteUploadFile } from '../utils/fileCleanup.js';
 import { sanitizeUser } from '../utils/sanitize.js';
 import { sendError, ERROR_MESSAGES } from '../utils/httpErrors.js';
-import type { AdminUser, AdminUserListResponse, AdminResetPasswordResponse, AdminBlockedBot } from '@backspace/shared';
+import type { AdminUser, AdminUserListResponse, AdminResetPasswordResponse, AdminBlockedBot } from '@veyvox/shared';
 import { extractDomain } from './federation.js';
 
 function reasonOf(err: unknown): string {

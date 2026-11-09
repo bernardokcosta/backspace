@@ -1,3 +1,4 @@
+import { getElectronAPI } from '../platform/platform';
 import { receiveChannelPoke } from '../components/chat/channelPoke';
 import { receiveSoundboardPlay } from '../audio/soundboardPlayback';
 import { useJunoStore } from '../stores/junoStore';
@@ -16,7 +17,7 @@ import { useSocialStore } from '../stores/socialStore';
 import { useSettingsStore } from '../stores/settingsStore';
 import { invalidateHomeInstanceInfo } from './useHomeInstanceInfo';
 import { useDeveloperModeStore } from '../stores/developerModeStore';
-import type { ServerEvent, ClientEvent, FederatedIdentity, User } from '@backspace/shared';
+import type { ServerEvent, ClientEvent, FederatedIdentity, User } from '@veyvox/shared';
 import { resolveAssetUrl, normalizeUserAssets, normalizeMessageAssets } from '../utils/assetUrls';
 import { broadcastVoiceStatus, broadcastDeafenViaLiveKit } from '../utils/voice';
 import { dmCallCredentialsFrom, dmCallIds, dmCallOrigin, dmCallRefFrom, dmCallRoomKey } from '../utils/dmCall';
@@ -454,7 +455,7 @@ function handleEvent(origin: string, event: ServerEvent, readyAlreadyDelivered =
       // Re-push local Electron activities after reconnect (sleep/wake, network blip, etc.)
       // The process scanner keeps running but onActivityDetected only fires on change,
       // so if the same app was active before and after sleep, nothing would re-push.
-      if (isHome && (window.backspace?.getCurrentActivities || window.backspace?.getCurrentActivity)) {
+      if (isHome && (getElectronAPI()?.getCurrentActivities || getElectronAPI()?.getCurrentActivity)) {
         fetchCurrentActivities().then((activities) => {
           if (activities.length > 0) {
             useActivityStore.getState().pushActivities(activities);

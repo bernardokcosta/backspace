@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ContextMenuItem } from '../../stores/contextMenuStore';
-import type { MessageWithUser } from '@backspace/shared';
+import type { MessageWithUser } from '@veyvox/shared';
 import { buildImageMenuItems } from './imageMenuItems';
 import { isStickerMessage } from '../../utils/stickerMessages';
 import { useUIStore } from '../../stores/uiStore';

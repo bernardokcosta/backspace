@@ -1,6 +1,6 @@
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
-import type { FederationRelayEvent, FederationRelayRequest } from '@backspace/shared';
+import type { FederationRelayEvent, FederationRelayRequest } from '@veyvox/shared';
 
 /** One request the tap saw, captured before it was forwarded upstream. */
 export interface TappedRequest {

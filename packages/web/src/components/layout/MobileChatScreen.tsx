@@ -14,7 +14,7 @@ import { DmDeletedNotice } from '../chat/DmDeletedNotice';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 import { canStartDmCall, startDmCall, cancelOutgoingDmCall, isDmCallRunning, joinDmCall } from '../../utils/voiceActions';
 import { useDmViewer } from '../../hooks/useDmViewer';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 const FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false, replicatedInstances: [] } as unknown as User;
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { SpaceWithChannelsAndMembers } from '@backspace/shared';
-import { PermissionBits, permissionsToString, stringToPermissions } from '@backspace/shared/src/permissions.js';
+import type { SpaceWithChannelsAndMembers } from '@veyvox/shared';
+import { PermissionBits, permissionsToString, stringToPermissions } from '@veyvox/shared/src/permissions.js';
 import { setWorkerId } from '../utils/snowflake.js';
 import * as schema from '../db/schema.js';
 import {

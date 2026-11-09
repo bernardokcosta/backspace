@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { User } from '@backspace/shared';
-import type { BackspaceApiClient } from '../api/client';
+import type { User } from '@veyvox/shared';
+import type { VeyvoxApiClient } from '../api/client';
 import { HttpError } from '../api/client';
 import { setLanguage } from '../i18n';
 
@@ -300,7 +300,7 @@ describe('ensureRemoteCredential (legacy connection migration)', () => {
         id: 'remote-1', username: 'erin@nova.example',
         homeInstance: 'nova.example', homeUserId: 'user-1',
       } as User,
-      api: { users: { changePassword } } as unknown as BackspaceApiClient,
+      api: { users: { changePassword } } as unknown as VeyvoxApiClient,
       ...overrides,
     };
   }
@@ -426,7 +426,7 @@ describe('credentials are always issued by the account\'s TRUE home instance', (
       user: { id: 'user-1', username: 'erin' } as User,
       api: {
         users: { verifyPassword: homeVerify, federationCredential: homeCredential },
-      } as unknown as BackspaceApiClient,
+      } as unknown as VeyvoxApiClient,
     };
     useInstanceStore.setState({ instances: [homeConnection] });
     remoteRegister.mockResolvedValue(authResponse());
@@ -474,7 +474,7 @@ describe('every path that establishes a remote session reconciles the credential
           changePassword,
         },
         instance: { info: remoteInfo },
-      } as unknown as BackspaceApiClient,
+      } as unknown as VeyvoxApiClient,
     };
     useInstanceStore.setState({ instances: [legacy], _autoConnectDone: true, _registrySyncReady: false });
 
@@ -496,7 +496,7 @@ describe('a re-authentication keeps the origin in the instance list', () => {
       username: 'erin@nova.example',
       status,
       user: NATIVE_USER as User,
-      api: {} as BackspaceApiClient,
+      api: {} as VeyvoxApiClient,
     };
   }
 

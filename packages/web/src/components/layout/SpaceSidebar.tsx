@@ -19,7 +19,7 @@ import { Tooltip } from '../ui/Tooltip';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { TransferOwnershipModal } from '../modals/TransferOwnershipModal';
 import { NotificationSettingsModal, type NotificationSettingsModalTarget } from '../notifications/NotificationSettingsModal';
-import type { SpaceLayoutItem, SpaceFolder } from '@backspace/shared';
+import type { SpaceLayoutItem, SpaceFolder } from '@veyvox/shared';
 
 import { getSpaceGradient } from '../../utils/gradients';
 import { isElectron } from '../../platform/platform';
@@ -119,7 +119,7 @@ function SidebarItem({ id, name, icon, avatarColor, active, onClick, onContextMe
   const buttonContent = (
     <button onClick={onClick} className={`${getButtonClasses()} ${dimmed ? 'opacity-40 saturate-50' : ''}`} style={backgroundStyle} title={tooltipText ? undefined : name} aria-current={active ? 'page' : undefined}>
       {type === 'dm' ? (
-        <img src="/icons/logo-mark.svg" alt={t('common:appName')} className="w-5 h-auto" />
+        <img src="/icons/logo-mark.png" alt={t('common:appName')} className="w-5 h-auto" />
       ) : type === 'action' ? (
         actionType === 'add' ? (
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">

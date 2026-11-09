@@ -12,6 +12,13 @@ Source files:
 
 ## webPreferences posture
 
+Profile initialization fails closed before normal startup when the existing
+fork profile cannot be inspected or safely migrated. Only `ENOENT` is absence;
+permission errors or non-directory profile paths cannot trigger a fresh profile.
+Cross-device copies are staged and atomically promoted without deleting their
+source. The public name does not authorize importing the official upstream app's
+profile or changing the legacy runtime encryption identity.
+
 `main.ts`'s `createWindow()` constructs the single `BrowserWindow` with:
 
 | Setting | Value | Effect |
@@ -20,9 +27,16 @@ Source files:
 | `nodeIntegration` | `false` | The renderer has no direct access to Node.js globals (`require`, `process`, `fs`, ...). |
 | `sandbox` | `true` | The renderer process runs inside Electron's OS-level sandbox (Chromium's sandbox), matching Chrome's own security model for untrusted web content. |
 
-This matters because the renderer loads a remote, federated, user-facing web app (arbitrary chat content, embeds, and — for federation — content served by third-party Backspace instances the user has connected to). The renderer is treated as untrusted; all privileged operations (notifications, tray, window controls, keybinds, auto-update) go through the `contextBridge`-exposed `window.backspace` API in `preload.ts`, never through direct Node/Electron access.
+This matters because the renderer loads a remote, federated, user-facing web app (arbitrary chat content, embeds, and — for federation — content served by third-party Veyvox instances the user has connected to). The renderer is treated as untrusted; all privileged operations (notifications, tray, window controls, keybinds, auto-update) go through the `contextBridge`-exposed `window.backspace` API in `preload.ts`, never through direct Node/Electron access.
 
 ## Read-only system language bridge
+
+Veyvox's bridge alias changes only the exposed name. `window.veyvox` and the
+legacy `window.backspace` share the same privileged implementation and existing
+named IPC channels; neither exposes Node or generic IPC. Renderer consumers use
+the canonical-first platform resolver and retain old-shell capability checks.
+Dual-scheme deep links are bounded to validated join/channel routes before main
+dispatch; a protocol rename cannot grant arbitrary external/file navigation.
 
 `languageIpc.ts` exposes only the named `get-system-languages` getter and validates
 the existing `set-language` mode. Main checks both sender webContents and senderFrame
@@ -52,7 +66,7 @@ Path resolution in `afterPack.js` matches electron-builder 26's own `addElectron
 
 Inspect a packaged build's fuse states with:
 ```bash
-pnpm --filter @backspace/desktop exec electron-fuses read --app /path/to/Backspace.app
+pnpm --filter @veyvox/desktop exec electron-fuses read --app /path/to/Backspace.app
 ```
 
 `@electron/fuses` is on the `^2.1.3` line. It was held at `^1.8.0` while `release.yml`'s desktop `build` job ran on Node 20: `2.0.0` made the package ESM-only and declared `engines: >=22.12.0`, and `afterPack.js` is CommonJS, so a plain `require()` of it resolves only on Node `>=20.19`/`>=22.12`. Two things moved to lift that:
@@ -105,7 +119,7 @@ What this does **not** do is make a hostile instance safe: a web client the user
 
 No desktop release build carries a Developer ID or CA-issued signature, and there is no notarization step. Beyond that the posture differs per platform:
 
-- **macOS — ad-hoc signed, not unsigned.** `scripts/macSign.js` runs last in the `afterPack` hook and re-seals the packaged bundle with `codesign --force --sign - --timestamp=none`: first every `.node`/`.dylib` under `Contents/Resources` (which `--deep` does not reach), then `--deep` over the whole `.app`, then a `codesign --verify --deep --strict` so a bad seal fails the build. This exists because packaging *invalidates* the ad-hoc signatures the prebuilt Electron binaries ship with — it renames the executable, rewrites `Info.plist`, injects `app.asar`, and (in the same hook) deletes files under `Contents/Resources`. macOS reports an invalid signature as "Backspace.app is damaged and can't be opened", with no "Open Anyway" affordance anywhere in the UI, so re-sealing is what makes the app openable at all. What the ad-hoc signature gives is a valid bundle seal and nothing more. It does **not** give notarization (first launch still shows the Gatekeeper prompt, cleared via System Settings → Privacy & Security → Open Anyway), it does **not** give a team identifier (so macOS auto-update stays unavailable — see below), and it does **not** give a stable cdhash across releases (so macOS drops Input Monitoring and Screen Recording grants on every update, meaning global keybinds and screen sharing must be re-authorised each time).
+- **macOS — ad-hoc signed, not unsigned.** `scripts/macSign.js` runs last in the `afterPack` hook and re-seals the packaged bundle with `codesign --force --sign - --timestamp=none`: first every `.node`/`.dylib` under `Contents/Resources` (which `--deep` does not reach), then `--deep` over the whole `.app`, then a `codesign --verify --deep --strict` so a bad seal fails the build. This exists because packaging *invalidates* the ad-hoc signatures the prebuilt Electron binaries ship with — it renames the executable, rewrites `Info.plist`, injects `app.asar`, and (in the same hook) deletes files under `Contents/Resources`. macOS reports an invalid signature as "Veyvox.app is damaged and can't be opened", with no "Open Anyway" affordance anywhere in the UI, so re-sealing is what makes the app openable at all. What the ad-hoc signature gives is a valid bundle seal and nothing more. It does **not** give notarization (first launch still shows the Gatekeeper prompt, cleared via System Settings → Privacy & Security → Open Anyway), it does **not** give a team identifier (so macOS auto-update stays unavailable — see below), and it does **not** give a stable cdhash across releases (so macOS drops Input Monitoring and Screen Recording grants on every update, meaning global keybinds and screen sharing must be re-authorised each time).
 - **Windows — unsigned.** No certificate is configured, so installers carry no Authenticode signature and users meet the SmartScreen "Windows protected your PC" prompt.
 - **Linux — unsigned.** AppImage and `.deb` artifacts carry no signature, and releases are not served from a GPG-signed apt repository.
 
@@ -131,7 +145,7 @@ Procuring real certificates is a real-money, real-identity action outside what c
 
 ### Linux
 
-AppImage/`.deb` distribution does not require a paid certificate; Linux package managers rely on repository-level trust (e.g. a GPG-signed apt repo) rather than binary code signing. If Backspace ever ships via a `.deb` apt repository, GPG-sign the repository metadata — this is a separate, lower-priority item from macOS/Windows signing and is not detailed further here.
+AppImage/`.deb` distribution does not require a paid certificate; Linux package managers rely on repository-level trust (e.g. a GPG-signed apt repo) rather than binary code signing. If Veyvox ever ships via a `.deb` apt repository, GPG-sign the repository metadata — this is a separate, lower-priority item from macOS/Windows signing and is not detailed further here.
 
 ### Known gap: auto-update without a verifiable signature
 

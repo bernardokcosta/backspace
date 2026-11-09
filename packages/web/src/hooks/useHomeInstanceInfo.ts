@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import type { InstanceInfoResponse } from '@backspace/shared';
+import type { InstanceInfoResponse } from '@veyvox/shared';
 import { api } from '../api/client';
 
 /**

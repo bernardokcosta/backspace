@@ -1,14 +1,14 @@
 {
-  "name": "@backspace/desktop",
-  "version": "1.16.8",
+  "name": "@veyvox/desktop",
+  "version": "1.17.0",
   "private": true,
   "license": "AGPL-3.0-only",
-  "description": "Backspace",
+  "description": "Veyvox — independently maintained self-hosted communication",
   "author": {
     "name": "Jannis Braun",
     "email": "backspace@backspace.chat"
   },
-  "homepage": "https://github.com/TheZwiss/backspace",
+  "homepage": "https://github.com/bernardokcosta/veyvox",
   "main": "dist/main.js",
   "desktopName": "io.github.bernardokcosta.backspacefork.desktop",
   "scripts": {

@@ -58,7 +58,7 @@ import {
   processDmCallRejectEvent,
   processDmCallStartEvent,
 } from '../routes/federation/events/calls.js';
-import type { FederationRelayEvent } from '@backspace/shared';
+import type { FederationRelayEvent } from '@veyvox/shared';
 
 /** The relay events posted to `origin`, in order. */
 function relayedTo(origin: string): FederationRelayEvent[] {

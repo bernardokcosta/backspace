@@ -8,12 +8,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { setWorkerId, generateSnowflake } from '../utils/snowflake.js';
-import type { ServerEvent } from '@backspace/shared';
+import type { ServerEvent } from '@veyvox/shared';
 import {
   PermissionBits,
   DEFAULT_EVERYONE_PERMISSIONS,
   permissionsToString,
-} from '@backspace/shared/src/permissions.js';
+} from '@veyvox/shared/src/permissions.js';
 
 setWorkerId(3);
 

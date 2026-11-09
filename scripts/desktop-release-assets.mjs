@@ -17,7 +17,7 @@ const GROUPS = new Set(['release-windows', 'release-mac', 'release-linux-x64', '
 export function readBuildYaml(text) { return yaml.load(text, { schema: yaml.JSON_SCHEMA }); }
 
 function manifestGroups(version) {
-  const base = `Backspace-Fork-${version}-`;
+  const base = `Veyvox-${version}-`;
   return {
     'release-windows': { manifest: 'latest.yml', required: ['win-x64.exe', 'win-arm64.exe'].map((name) => base + name), optional: [] },
     'release-mac': { manifest: 'latest-mac.yml', required: ['mac-x64.dmg', 'mac-arm64.dmg'].map((name) => base + name), optional: [] },
@@ -51,7 +51,7 @@ function validateManifest(value, version, group, byName) {
 export async function validateDesktopBuildGroup(directory, version, group) {
   const expected = expectedDesktopGroupAssets(version, group);
   for (const name of await fs.readdir(directory)) {
-    if ((name.startsWith('Backspace-Fork-') || name.startsWith('latest')) && !expected.includes(name)) throw new Error(`Unexpected build output: ${name}`);
+    if ((name.startsWith('Veyvox-') || name.startsWith('Backspace-Fork-') || name.startsWith('latest')) && !expected.includes(name)) throw new Error(`Unexpected build output: ${name}`);
   }
   const assets = [];
   for (const name of expected) {
@@ -68,7 +68,7 @@ export async function validateDesktopBuildGroup(directory, version, group) {
 
 export function expectedDesktopAssets(version) {
   if (typeof version !== 'string' || !/^(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})$/.test(version)) throw new Error('Release version must be stable bounded SemVer');
-  const base = `Backspace-Fork-${version}-`;
+  const base = `Veyvox-${version}-`;
   const mapped = ['win-x64.exe', 'win-arm64.exe', 'mac-x64.dmg', 'mac-arm64.dmg'];
   return [...mapped.flatMap((name) => [base + name, base + name + '.blockmap']),
     ...['linux-x86_64.AppImage', 'linux-amd64.deb', 'linux-arm64.AppImage', 'linux-arm64.deb'].map((name) => base + name),

@@ -1,4 +1,4 @@
-import type { DmChannel } from '@backspace/shared';
+import type { DmChannel } from '@veyvox/shared';
 
 /**
  * Sort DM channels: unread first (by recency), then read (by recency).

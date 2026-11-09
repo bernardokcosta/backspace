@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import type { BotSearchResult } from '@backspace/shared';
+import type { BotSearchResult } from '@veyvox/shared';
 
 const mocks = vi.hoisted(() => ({
   search: vi.fn(),

@@ -13,12 +13,12 @@ import i18n from '../i18n';
 import { isElectron, getElectronAPI } from '../platform/platform';
 import { acquireAppExcludedSystemAudio } from './systemAudioSource';
 import { acquireSdrScreenCapture, configureSdrScreenCapture, disposeSdrScreenCapture, getSdrCaptureCapability, isSdrScreenCapture, SdrCaptureError } from './sdrScreenCapture';
-import type { InstanceStreamingLimits } from '@backspace/shared';
+import type { InstanceStreamingLimits } from '@veyvox/shared';
 import {
   STANDARD_RESOLUTIONS, STANDARD_FRAMERATES, WIDTH_MAP,
   BITRATE_MATRIX_KBPS,
   type StandardResolution,
-} from '@backspace/shared/src/constants';
+} from '@veyvox/shared/src/constants';
 
 // ---------------------------------------------------------------------------
 // Types

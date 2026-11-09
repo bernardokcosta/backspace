@@ -4,7 +4,7 @@ import { authenticate } from '../utils/auth.js';
 import { sendError } from '../utils/httpErrors.js';
 import { config } from '../config.js';
 import { getChannelSpaceId, hasPermission, computePermissions, isDmMember, PermissionBits } from '../utils/permissions.js';
-import type { LiveKitTokenRequest, LiveKitTokenResponse } from '@backspace/shared';
+import type { LiveKitTokenRequest, LiveKitTokenResponse } from '@veyvox/shared';
 import { getDb, schema } from '../db/index.js';
 import { eq } from 'drizzle-orm';
 

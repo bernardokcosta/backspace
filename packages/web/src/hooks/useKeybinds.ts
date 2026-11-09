@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useKeybindStore, Keybind } from '../stores/keybindStore';
 import { useVoiceStore } from '../stores/voiceStore';
-import { isElectron } from '../platform/platform';
+import { isElectron, getElectronAPI } from '../platform/platform';
 import { toggleMuteFromControl, toggleDeafenFromControl, handleCameraAction, handleScreenShareAction, handleDisconnectAction } from '../utils/voiceActions';
 import { broadcastVoiceStatus } from '../utils/voice';
 import { useKeybindPortalStatus } from './useKeybindPortalStatus';
@@ -217,7 +217,7 @@ export function useKeybinds(): void {
   // press/release cycles must not pass through the legacy hook's time-based dedup.
   useEffect(() => {
     if (!isElectron()) return;
-    const api = window.backspace;
+    const api = getElectronAPI();
     if (!api?.syncKeybinds || !api?.onKeybindAction) return;
 
     const cleanup = api.onKeybindAction((action) => {
@@ -228,7 +228,7 @@ export function useKeybinds(): void {
 
   useEffect(() => {
     if (!isElectron()) return;
-    const api = window.backspace;
+    const api = getElectronAPI();
     if (!api?.syncKeybinds) return;
 
     // Sync keybind config to main process — it registers OS-level hooks

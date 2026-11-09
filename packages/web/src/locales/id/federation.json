@@ -21,7 +21,7 @@
   },
   "connections": {
     "title": "Instans Terhubung",
-    "description": "Tautkan akun di seluruh instans Backspace federasi.",
+    "description": "Tautkan akun di seluruh instans Veyvox federasi.",
     "empty": "Tidak ada instans remote terhubung. Tambah satu untuk mulai federasi.",
     "addButton": "+ Tambah Instans",
     "home": {

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { createRef } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import type { ChannelUser } from '../../utils/channelUser';
 
 vi.mock('../../audio/AudioManager', () => ({

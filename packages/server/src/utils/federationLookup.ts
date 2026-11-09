@@ -3,7 +3,7 @@ import { getDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
 import { buildFederationHeaders, getOurOrigin } from './federationAuth.js';
 import { federationFetch } from './federationFetch.js';
-import type { FederationUserLookupProfile, FederationUserLookupResponse } from '@backspace/shared';
+import type { FederationUserLookupProfile, FederationUserLookupResponse } from '@veyvox/shared';
 
 const LOOKUP_TIMEOUT_MS = 10_000;
 

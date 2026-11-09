@@ -1,4 +1,4 @@
-import { api, type BackspaceApiClient } from '../api/client';
+import { api, type VeyvoxApiClient } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
 import { useInstanceStore } from '../stores/instanceStore';
 import { connectedJoinOrigin, NotConnectedError } from '../stores/spaceStore';
@@ -8,7 +8,7 @@ import { isJoinRequestPendingError } from './joinErrors';
 export type InviteRequestOutcome = 'sent' | 'pending';
 
 /** Exact connected client: a missing remote must never fall back to home. */
-export async function getJoinRequestClient(origin: string): Promise<BackspaceApiClient> {
+export async function getJoinRequestClient(origin: string): Promise<VeyvoxApiClient> {
   const target = await connectedJoinOrigin(origin);
   if (!target) return api;
   const instance = useInstanceStore.getState().instances.find(i => i.origin === target && i.status === 'connected');

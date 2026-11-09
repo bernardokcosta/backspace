@@ -40,7 +40,7 @@ vi.mock('./authStore', () => ({
 }));
 
 import { useChatStore } from './chatStore';
-import type { MessageWithUser } from '@backspace/shared';
+import type { MessageWithUser } from '@veyvox/shared';
 
 function msg(id: string): MessageWithUser {
   return {

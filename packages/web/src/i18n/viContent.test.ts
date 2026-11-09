@@ -45,9 +45,9 @@ describe('Vietnamese contextual content', () => {
     expect(chat.message.reactions.byMany).toBe('Cảm xúc: {{names}}');
   });
 
-  it('keeps Backspace and Juno automatic labels distinct', () => {
+  it('keeps Veyvox and Juno automatic labels distinct', () => {
     expect(common.language.automatic).toBe('Tự động (hệ thống)');
-    expect(voice.juno.settings.automatic).toBe('Tự động (Backspace)');
+    expect(voice.juno.settings.automatic).toBe('Tự động (Veyvox)');
     expect(voice.juno.settings.automaticDubbing).toBe(voice.juno.settings.automatic);
   });
 

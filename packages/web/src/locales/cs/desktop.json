@@ -2,7 +2,7 @@
   "mediaSetup": {
     "neteaseSmtc": {
       "title": "Zapni SMTC v NetEase Cloud Music",
-      "body": "Otevři NetEase Cloud Music → Nastavení → Systém → povolit SMTC, pak aplikaci restartuj. Backspace to potřebuje, aby přesně poznal přehrávání, pauzu a postup.",
+      "body": "Otevři NetEase Cloud Music → Nastavení → Systém → povolit SMTC, pak aplikaci restartuj. Veyvox to potřebuje, aby přesně poznal přehrávání, pauzu a postup.",
       "gotIt": "Rozumím",
       "dontRemind": "Příště nepřipomínat",
       "dismiss": "Skrýt tuto nápovědu"
@@ -13,14 +13,14 @@
     "dismiss": "Skrýt tuto aktualizaci",
     "failed": {
       "title": "Aktualizaci se nepodařilo nainstalovat",
-      "body": "Backspace {{version}} se stáhl, ale instalace selhala. Můžeš jej nainstalovat ručně."
+      "body": "Veyvox {{version}} se stáhl, ale instalace selhala. Můžeš jej nainstalovat ručně."
     },
     "ready": {
       "title": "Aktualizace je připravena",
-      "body": "Backspace {{version}} je stažený a připravený k instalaci."
+      "body": "Veyvox {{version}} je stažený a připravený k instalaci."
     },
     "available": {
-      "title": "Je dostupný Backspace {{version}}",
+      "title": "Je dostupný Veyvox {{version}}",
       "body": "Toto sestavení se neumí aktualizovat samo, tak si stáhni novou verzi.",
       "bodyWithCurrent": "Používáš {{currentVersion}}. Toto sestavení se neumí aktualizovat samo, tak si stáhni novou verzi."
     },

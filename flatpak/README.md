@@ -1,23 +1,17 @@
-# Flatpak packaging
+# Veyvox Flatpak packaging
 
-The root manifest builds Backspace from a pinned source commit for x86_64 and
-aarch64 using the Electron BaseApp. All pnpm packages, Electron binaries, and
+The current checkout builds Veyvox for x86_64 and aarch64 using the Electron
+BaseApp and the generated CI manifest below. All pnpm packages, Electron binaries, and
 native dependency archives are declared in `node-sources.json`, so compilation
 runs without network access. Flatpak, rather than Electron's built-in updater,
 owns upgrades of this installation.
 
 ## Build and install locally
 
-The published manifest builds a pinned release with its matching committed
-`flatpak/node-sources.json`. To build that release on Linux:
-
-```sh
-flatpak-builder --user --install-deps-from=flathub --install --force-clean \
-  build-flatpak io.github.TheZwiss.backspace.yml
-flatpak run io.github.TheZwiss.backspace
-```
-
-To test the current checkout, generate a separate offline source list and CI
+The root manifest and committed `flatpak/node-sources.json` retain their
+historical upstream release pin as a matching pair; they are not a published
+Veyvox 1.17.0 Flatpak. Do not mix that old source pin with the current fork's build
+files. To build **this checkout**, generate its offline source list and CI
 manifest. Install Flatpak Builder and the pinned Node SDK extension first:
 
 ```sh
@@ -50,13 +44,15 @@ flatpak-builder --user --install-deps-from=flathub --install --force-clean \
 flatpak run io.github.TheZwiss.backspace
 ```
 
-Publishing a release updates the manifest commit, AppStream release and
+Upstream's separate release metadata workflow updates its manifest commit, AppStream release and
 screenshot URLs, and `node-sources.json` automatically through
-`.github/workflows/flatpak-release-metadata.yml`. The AppStream release
+`.github/workflows/flatpak-release-metadata.yml`; its upstream-only writer is not
+invoked for this fork's desktop release. Historical AppStream entries and source
+pins are not rewritten by a rebrand. The AppStream release
 description is the first paragraph of the release notes, extracted by
 `release-summary.mjs`; notes without one fail the run instead of shipping a
 placeholder. The draft release already carries the `# Backspace X.Y.Z` heading,
-so the human step is to write that paragraph directly under it. The workflow
+so the upstream human step is to write that paragraph directly under it. The workflow
 builds the exact generated manifest on native x86_64 and aarch64 runners, opens
 the metadata pull request only after both builds pass, and that pull request
 merges itself once CI passes. Re-run a release by dispatching the workflow with
@@ -76,7 +72,7 @@ To build a single-file bundle after either build above, export the local
 repository created by `flatpak-builder`:
 
 ```sh
-flatpak build-bundle ~/.local/share/flatpak/repo Backspace.flatpak \
+flatpak build-bundle ~/.local/share/flatpak/repo Veyvox.flatpak \
   io.github.TheZwiss.backspace
 ```
 
@@ -91,7 +87,7 @@ hook, which is rebuilt against the bundled Electron headers. Wayland uses the
 GlobalShortcuts portal and requires a supporting desktop backend and user consent.
 The first visit to Keybinds registers all available actions; subsequent launches
 restore registration from the portal. Assign, change or remove shortcuts in the
-system settings under Backspace. The app displays a read-only list and allows
+system settings under Veyvox. The app displays a read-only list and allows
 retrying a denied/closed session. Browser/X11 local bindings are ignored on
 Wayland, including when its portal backend is unavailable. No extra Flatpak bus
 permission is required. Activity detection follows

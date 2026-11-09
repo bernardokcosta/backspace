@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { SpaceWithChannelsAndMembers } from '@backspace/shared';
+import type { SpaceWithChannelsAndMembers } from '@veyvox/shared';
 
 vi.mock('../audio/AudioManager', () => ({
   AudioManager: {

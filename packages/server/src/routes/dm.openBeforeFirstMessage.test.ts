@@ -8,7 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
-import type { DmChannel, DmMessageWithUser } from '@backspace/shared';
+import type { DmChannel, DmMessageWithUser } from '@veyvox/shared';
 
 setWorkerId(1);
 

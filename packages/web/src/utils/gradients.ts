@@ -3,7 +3,7 @@
  * Deterministic color assignment based on entity ID (snowflake) or name.
  */
 
-import { AVATAR_COLORS, type AvatarColor } from '@backspace/shared';
+import { AVATAR_COLORS, type AvatarColor } from '@veyvox/shared';
 
 export interface GradientEntry {
   from: string;      // hex start color

@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "Obecné",
-    "description": "Nastav svou instanci Backspace. Tato nastavení platí pro všechny uživatele.",
+    "description": "Nastav svou instanci Veyvox. Tato nastavení platí pro všechny uživatele.",
     "instanceName": {
       "label": "Název instance",
       "description": "Název zobrazený na přihlašovací stránce a federovaným instancím.",
@@ -326,7 +326,7 @@
     "title": "Aktualizace",
     "badge": {
       "settingsAriaLabel": "Nastavení, dostupná aktualizace instance",
-      "toast": "Pro tuto instanci je dostupný Backspace {{version}}",
+      "toast": "Pro tuto instanci je dostupný Veyvox {{version}}",
       "toastAction": "Zobrazit"
     },
     "description": "Jaká verze na této instanci běží a jak ji aktualizovat.",
@@ -344,11 +344,11 @@
     },
     "available": {
       "label": "Dostupné",
-      "version": "Dostupný Backspace {{version}}",
+      "version": "Dostupný Veyvox {{version}}",
       "released": "Vydáno {{date}} · ",
       "releaseNotes": "Poznámky k vydání",
       "fromInstallDir": "Z tvého instalačního adresáře:",
-      "scriptDescription": "Vytvoří snímek databáze, stáhne nový obraz a restartuje jen kontejner Backspace. Pokud se nová verze nespustí dobře či naběhne se starým kódem, vrátí aktuální verzi.",
+      "scriptDescription": "Vytvoří snímek databáze, stáhne nový obraz a restartuje jen kontejner Veyvox. Pokud se nová verze nespustí dobře či naběhne se starým kódem, vrátí aktuální verzi.",
       "noScript": "Nemám update.sh",
       "manualIntro": "update.sh se dodává od 1.0.5. V git kopii jej přidá <code>git pull</code>. Jinak proveď kroky ručně po snímku pomocí <code>./backup.sh</code>.",
       "prebuiltInstall": "Instalace předpřipraveného obrazu:",

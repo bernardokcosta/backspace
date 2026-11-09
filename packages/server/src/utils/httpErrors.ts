@@ -1,5 +1,5 @@
 import type { FastifyReply } from 'fastify';
-import type { ErrorCode, ErrorDetails } from '@backspace/shared/src/errors';
+import type { ErrorCode, ErrorDetails } from '@veyvox/shared/src/errors';
 
 /**
  * English text for every shared error code.

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { Role } from '@backspace/shared';
+import type { Role } from '@veyvox/shared';
 
 // Reached transitively via spaceStore -> chatStore -> useWebSocket -> voiceStore.
 vi.mock('../../audio/AudioManager', () => ({

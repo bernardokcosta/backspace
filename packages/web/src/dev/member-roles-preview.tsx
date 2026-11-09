@@ -24,7 +24,7 @@
 // `?lang=de` (the app's dev-only switch) renders any scene in German.
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
-import type { MemberWithUser, Role, User } from '@backspace/shared';
+import type { MemberWithUser, Role, User } from '@veyvox/shared';
 import { MemberSidebar } from '../components/layout/MemberSidebar';
 import { UserProfilePopout } from '../components/ui/UserProfilePopout';
 import { UserProfileModal } from '../components/modals/UserProfileModal';

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { DmChannel, MemberWithUser, Role, User } from '@backspace/shared';
+import type { DmChannel, MemberWithUser, Role, User } from '@veyvox/shared';
 // The store graph reaches the audio engine, which needs Web Audio at import.
 vi.mock('../audio/AudioManager', () => ({
   AudioManager: {

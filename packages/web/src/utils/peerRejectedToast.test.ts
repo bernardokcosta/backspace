@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { createInstance, type i18n as I18n } from 'i18next';
 import enFederation from '../locales/en/federation.json';
 import deFederation from '../locales/de/federation.json';
-import type { FederationPeerStatusReason } from '@backspace/shared';
+import type { FederationPeerStatusReason } from '@veyvox/shared';
 
 const holder = vi.hoisted(() => ({ i18n: null as I18n | null }));
 vi.mock('../i18n', () => ({

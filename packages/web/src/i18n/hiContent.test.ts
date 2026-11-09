@@ -28,9 +28,9 @@ describe('Hindi contextual content', () => {
     expect(chat.message.reactions.byMany).toBe('प्रतिक्रियाएं: {{names}}');
   });
 
-  it('keeps Backspace and Juno automatic labels distinct', () => {
+  it('keeps Veyvox and Juno automatic labels distinct', () => {
     expect(common.language.automatic).toBe('स्वचालित (सिस्टम)');
-    expect(voice.juno.settings.automatic).toBe('स्वचालित (Backspace)');
+    expect(voice.juno.settings.automatic).toBe('स्वचालित (Veyvox)');
     expect(voice.juno.settings.automaticDubbing).toBe(voice.juno.settings.automatic);
   });
 

@@ -7,8 +7,8 @@ import { mkdtemp, rm, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
 import { eq } from 'drizzle-orm';
-import { DEFAULT_EVERYONE_PERMISSIONS, PermissionBits, permissionsToString } from '@backspace/shared/src/permissions.js';
-import { soundboardWavDuration } from '@backspace/shared/src/soundboard.js';
+import { DEFAULT_EVERYONE_PERMISSIONS, PermissionBits, permissionsToString } from '@veyvox/shared/src/permissions.js';
+import { soundboardWavDuration } from '@veyvox/shared/src/soundboard.js';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
 

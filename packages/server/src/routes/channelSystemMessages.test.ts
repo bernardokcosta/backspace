@@ -10,7 +10,7 @@ import { setWorkerId, generateSnowflake } from '../utils/snowflake.js';
 import {
   DEFAULT_EVERYONE_PERMISSIONS,
   permissionsToString,
-} from '@backspace/shared/src/permissions.js';
+} from '@veyvox/shared/src/permissions.js';
 
 setWorkerId(4);
 

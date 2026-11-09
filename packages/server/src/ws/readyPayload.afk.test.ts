@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
-import type { SpaceWithChannelsAndMembers } from '@backspace/shared';
+import type { SpaceWithChannelsAndMembers } from '@veyvox/shared';
 
 setWorkerId(1);
 

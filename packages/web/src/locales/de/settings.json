@@ -326,10 +326,10 @@
   },
   "keybinds": {
     "portal": {
-      "description": "Unter Wayland verwaltet das System alle Backspace-Tastenkürzel. Weise Tasten in den Systemeinstellungen für Tastenkürzel unter Backspace zu, ändere oder entferne sie dort. Lokale Browser-/X11-Belegungen werden hier nicht verwendet.",
+      "description": "Unter Wayland verwaltet das System alle Veyvox-Tastenkürzel. Weise Tasten in den Systemeinstellungen für Tastenkürzel unter Veyvox zu, ändere oder entferne sie dort. Lokale Browser-/X11-Belegungen werden hier nicht verwendet.",
       "idle": "Die erstmalige Registrierung aller verfügbaren Aktionen wird vorbereitet.",
       "pending": "Verbindung zum Desktop-Portal wird hergestellt. Wenn ein Systemdialog erscheint, weise den gewünschten Aktionen Tastenkürzel zu.",
-      "ready": "Backspace ist registriert. Öffne die Systemeinstellungen für Tastenkürzel, um Belegungen zu ändern oder zu entfernen. Die Liste unten ist schreibgeschützt und wird bei der Rückkehr zu Backspace aktualisiert.",
+      "ready": "Veyvox ist registriert. Öffne die Systemeinstellungen für Tastenkürzel, um Belegungen zu ändern oder zu entfernen. Die Liste unten ist schreibgeschützt und wird bei der Rückkehr zu Veyvox aktualisiert.",
       "unavailable": "Das Portal ist nicht verfügbar, die Berechtigung wurde verweigert oder die Sitzung wurde beendet. Ein Global-Shortcuts-Portal-Backend ist erforderlich. Lokale Belegungen sind unter Wayland deaktiviert.",
       "retry": "Tastenkürzel registrieren oder neu verbinden",
       "assigned": "System-Tastenkürzel: {{shortcut}}",
@@ -371,7 +371,7 @@
     },
     "accessibility": {
       "title": "Bedienungshilfen-Berechtigung erforderlich",
-      "description": "Damit globale Tastenkürzel außerhalb der App funktionieren, braucht Backspace die Berechtigung für Bedienungshilfen.",
+      "description": "Damit globale Tastenkürzel außerhalb der App funktionieren, braucht Veyvox die Berechtigung für Bedienungshilfen.",
       "grant": "Berechtigung erteilen"
     },
     "hookError": {
@@ -388,7 +388,7 @@
     "autoLaunch": {
       "openAtLogin": {
         "label": "Beim Anmelden starten",
-        "description": "Backspace automatisch starten, wenn du dich anmeldest"
+        "description": "Veyvox automatisch starten, wenn du dich anmeldest"
       },
       "startMinimized": {
         "label": "Minimiert starten",
@@ -396,7 +396,7 @@
       }
     },
     "updates": {
-      "appName": "Backspace Desktop",
+      "appName": "Veyvox Desktop",
       "versionLabel": "Version {{version}}",
       "checking": "Suche nach Updates…",
       "checkingShort": "Suche…",
@@ -415,7 +415,7 @@
       "download": "Herunterladen",
       "restart": "Neu starten",
       "manualNote": "Diese Version kann Updates nicht selbst installieren. Neue Versionen lädst du von GitHub herunter und ersetzt die App damit von Hand. Die Schritte für deine Plattform stehen in den Versionshinweisen.",
-      "externalNote": "Flatpak wendet Updates atomar außerhalb der App an. Nutze deine Softwareverwaltung oder den Befehl <code>flatpak update</code>, um Backspace zu aktualisieren."
+      "externalNote": "Flatpak wendet Updates atomar außerhalb der App an. Nutze deine Softwareverwaltung oder den Befehl <code>flatpak update</code>, um Veyvox zu aktualisieren."
     },
     "instance": {
       "current": "Aktuell verbundene Instanz",

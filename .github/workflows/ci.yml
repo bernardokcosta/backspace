@@ -79,7 +79,7 @@ jobs:
       # which release.yml owns). Type-check its source here so desktop TS errors
       # surface on PRs rather than only at release-tag time.
       - name: Typecheck desktop
-        run: pnpm --filter @backspace/desktop build:ts
+        run: pnpm --filter @veyvox/desktop build:ts
 
       # `pnpm build` runs the server's `tsc`, whose tsconfig includes only
       # `src/**/*` — so nothing in packages/server/test is ever type-checked by
@@ -87,7 +87,7 @@ jobs:
       # test helpers they boot instances with. See packages/server/tsconfig.e2e.json
       # for why the older test/ files are not in its include yet.
       - name: Typecheck server e2e suites
-        run: pnpm --filter @backspace/server typecheck:e2e
+        run: pnpm --filter @veyvox/server typecheck:e2e
 
       # Runs every package's `test` script (server, web, desktop) via vitest.
       #
@@ -104,6 +104,7 @@ jobs:
         run: |
           node --test scripts/probe-desktop-compatibility.test.mjs
           node --test scripts/desktop-release-assets.test.mjs scripts/publish-desktop-release.test.mjs
+          node --test scripts/gen-icons.test.mjs scripts/veyvox-brand.test.mjs scripts/veyvox-docs.test.mjs scripts/verify-desktop-build.test.mjs scripts/installed-rebrand.test.mjs
           pnpm -r test
 
   # ESLint over every workspace package. Its own job rather than a step in the
@@ -169,6 +170,28 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Verify retained Compose identity without starting services
+        # Always an explicit synthetic env file: never load an operator's .env.
+        run: |
+          mkdir "$RUNNER_TEMP/veyvox-compose"
+          cp docker-compose.yml "$RUNNER_TEMP/veyvox-compose/docker-compose.yml"
+          printf 'JWT_SECRET=synthetic-compose-acceptance-secret-not-for-production\nDOMAIN=instance.example\n' > "$RUNNER_TEMP/veyvox-compose/.env"
+          docker compose --project-directory "$RUNNER_TEMP/veyvox-compose" --env-file "$RUNNER_TEMP/veyvox-compose/.env" -f "$RUNNER_TEMP/veyvox-compose/docker-compose.yml" --project-name veyvox-compat config --format json > "$RUNNER_TEMP/veyvox-compose.json"
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          const config = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/veyvox-compose.json', 'utf8'));
+          assert.equal(config.name, 'veyvox-compat');
+          const service = config.services.backspace;
+          assert.ok(service);
+          assert.equal(service.container_name, 'backspace');
+          assert.equal(service.image, 'ghcr.io/bernardokcosta/backspace:latest');
+          assert.equal(service.environment.DB_PATH, '/app/data/backspace.db');
+          assert.ok(service.volumes.some(mount => mount.target === '/app/data' && mount.type === 'bind' && mount.source.endsWith('/data')));
+          assert.ok(!config.services.veyvox);
+          console.log('Compose service, image, database and data mount identities verified (no services started).');
+          NODE
 
       - name: Build amd64 image
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0

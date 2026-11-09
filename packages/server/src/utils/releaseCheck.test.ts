@@ -15,14 +15,14 @@ describe('parseLatestRelease', () => {
   it('reads a real GitHub release payload', () => {
     const payload = {
       tag_name: 'v1.0.4',
-      html_url: 'https://github.com/bernardokcosta/backspace/releases/tag/v1.0.4',
+      html_url: 'https://github.com/bernardokcosta/veyvox/releases/tag/v1.0.4',
       published_at: '2026-09-03T11:00:00Z',
       draft: false,
       prerelease: false,
     };
     expect(parseLatestRelease(payload)).toEqual({
       version: '1.0.4',
-      url: 'https://github.com/bernardokcosta/backspace/releases/tag/v1.0.4',
+      url: 'https://github.com/bernardokcosta/veyvox/releases/tag/v1.0.4',
       publishedAt: '2026-09-03T11:00:00Z',
     });
   });
@@ -57,7 +57,7 @@ describe('parseLatestRelease', () => {
       tag_name: 'v1.0.4',
       html_url: 'https://evil.example.com/phish',
     });
-    expect(result?.url).toBe('https://github.com/bernardokcosta/backspace/releases/tag/v1.0.4');
+    expect(result?.url).toBe('https://github.com/bernardokcosta/veyvox/releases/tag/v1.0.4');
   });
 
   it('tolerates a missing published_at', () => {
@@ -163,7 +163,7 @@ describe('getLatestRelease', () => {
   it('returns the parsed release on success', async () => {
     stubFetch(() => Promise.resolve(jsonResponse({
       tag_name: 'v1.0.4',
-      html_url: 'https://github.com/bernardokcosta/backspace/releases/tag/v1.0.4',
+      html_url: 'https://github.com/bernardokcosta/veyvox/releases/tag/v1.0.4',
       published_at: '2026-09-03T11:00:00Z',
     })));
 

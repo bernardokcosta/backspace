@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "Lagre",
     "cancel": "Avbryt",
@@ -123,7 +123,7 @@
   },
   "app": {
     "description": "Det selvhostede Discord- og TeamSpeak-alternativet. HD-stemme, video og skjermdeling — åpen kildekode og gratis (AGPL-3.0).",
-    "loading": "Laster Backspace"
+    "loading": "Laster Veyvox"
   },
   "chrome": {
     "toggleMemberList": "Vis eller skjul medlemslisten",

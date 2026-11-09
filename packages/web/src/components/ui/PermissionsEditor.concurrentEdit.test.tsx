@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { Role } from '@backspace/shared';
+import type { Role } from '@veyvox/shared';
 
 // Reached transitively via spaceStore -> chatStore -> useWebSocket -> voiceStore.
 vi.mock('../../audio/AudioManager', () => ({
@@ -14,7 +14,7 @@ import { PermissionsEditor, type Override } from './PermissionsEditor';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { HttpError } from '../../api/client';
 import { PermissionBits, permissionsToString, overrideVersion } from '../../utils/permissions';
-import { NO_OVERRIDE_VERSION } from '@backspace/shared/src/permissions';
+import { NO_OVERRIDE_VERSION } from '@veyvox/shared/src/permissions';
 import type { PermissionDef } from './OverrideEntry';
 
 // #365: each staged row names the version of the saved row it was made from,

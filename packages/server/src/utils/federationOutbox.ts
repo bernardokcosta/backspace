@@ -2,7 +2,7 @@ import { getDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
 import { eq, and, inArray } from 'drizzle-orm';
 import { generateSnowflake } from './snowflake.js';
-import type { FederationRelayEvent, FederationRelayParticipant, FederationRelayAttachment, DmMessageWithUser, FederationRelayRequest, DmCallUndeliverableReason, FederationMessageRef, FederationMessageTarget } from '@backspace/shared';
+import type { FederationRelayEvent, FederationRelayParticipant, FederationRelayAttachment, DmMessageWithUser, FederationRelayRequest, DmCallUndeliverableReason, FederationMessageRef, FederationMessageTarget } from '@veyvox/shared';
 import { getOurOrigin, buildFederationHeaders } from './federationAuth.js';
 import { extractDomain, relayActorOfUser } from '../routes/federation.js';
 import { racePeering, ensurePeered, createAutoPlaceholderPeer } from './federationPeering.js';

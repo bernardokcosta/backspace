@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { JunoAction, JunoCommand, JunoSnapshot, JunoRankingPage } from '@backspace/shared/src/juno';
+import type { JunoAction, JunoCommand, JunoSnapshot, JunoRankingPage } from '@veyvox/shared/src/juno';
 import { getApiForOrigin } from '../utils/crossStoreResolvers';
 import { HttpError, RateLimitError } from '../api/client';
 

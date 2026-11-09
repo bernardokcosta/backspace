@@ -326,10 +326,10 @@
   },
   "keybinds": {
     "portal": {
-      "description": "Trên Wayland, máy tính quản lý mọi phím tắt Backspace. Gán, đổi hoặc gỡ phím trong cài đặt phím tắt keyboard hệ thống, dưới Backspace. Binding trình duyệt/X11 cục bộ không dùng ở đây.",
+      "description": "Trên Wayland, máy tính quản lý mọi phím tắt Veyvox. Gán, đổi hoặc gỡ phím trong cài đặt phím tắt keyboard hệ thống, dưới Veyvox. Binding trình duyệt/X11 cục bộ không dùng ở đây.",
       "idle": "Chuẩn bị đăng ký đầu tiên mọi hành động khả dụng.",
       "pending": "Đang kết nối tới cổng desktop. Nếu hộp hệ thống hiện, hãy chọn phím tắt cho hành động muốn dùng.",
-      "ready": "Backspace đã đăng ký. Mở cài đặt phím tắt keyboard hệ thống để đổi hoặc gỡ gán. Danh sách dưới chỉ đọc và làm mới khi bạn quay lại Backspace.",
+      "ready": "Veyvox đã đăng ký. Mở cài đặt phím tắt keyboard hệ thống để đổi hoặc gỡ gán. Danh sách dưới chỉ đọc và làm mới khi bạn quay lại Veyvox.",
       "unavailable": "Cổng không khả dụng, quyền bị từ chối hoặc phiên kết thúc. Cần backend cổng Global Shortcuts. Binding cục bộ tắt trên Wayland.",
       "retry": "Đăng ký hoặc kết nối lại phím tắt",
       "assigned": "Phím tắt hệ thống: {{shortcut}}",
@@ -371,7 +371,7 @@
     },
     "accessibility": {
       "title": "Cần quyền trợ năng",
-      "description": "Backspace cần quyền trợ năng để phím tắt toàn cục chạy ngoài app.",
+      "description": "Veyvox cần quyền trợ năng để phím tắt toàn cục chạy ngoài app.",
       "grant": "Cấp quyền"
     },
     "hookError": {
@@ -388,7 +388,7 @@
     "autoLaunch": {
       "openAtLogin": {
         "label": "Mở khi đăng nhập",
-        "description": "Tự mở Backspace khi bạn đăng nhập"
+        "description": "Tự mở Veyvox khi bạn đăng nhập"
       },
       "startMinimized": {
         "label": "Mở thu nhỏ",
@@ -396,7 +396,7 @@
       }
     },
     "updates": {
-      "appName": "Backspace Desktop",
+      "appName": "Veyvox Desktop",
       "versionLabel": "Bản {{version}}",
       "checking": "Đang kiểm tra cập nhật…",
       "checkingShort": "Đang kiểm tra…",
@@ -415,7 +415,7 @@
       "download": "Tải xuống",
       "restart": "Khởi động lại",
       "manualNote": "Bản build này không tự cài cập nhật. Hãy tải bản mới từ GitHub và thay app thủ công. Xem ghi chú phát hành cho bước trên nền tảng của bạn.",
-      "externalNote": "Flatpak áp cập nhật nguyên tử ngoài app. Hãy dùng trình quản lý phần mềm hoặc lệnh <code>flatpak update</code> để cập nhật Backspace."
+      "externalNote": "Flatpak áp cập nhật nguyên tử ngoài app. Hãy dùng trình quản lý phần mềm hoặc lệnh <code>flatpak update</code> để cập nhật Veyvox."
     },
     "instance": {
       "current": "Máy chủ đang kết nối",

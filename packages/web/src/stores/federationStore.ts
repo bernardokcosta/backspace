@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { PeeringSubscription, PeeringNotification } from '@backspace/shared';
+import type { PeeringSubscription, PeeringNotification } from '@veyvox/shared';
 import { api } from '../api/client';
 
 /**

@@ -3,7 +3,7 @@ import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ALL_PERMISSIONS, PermissionBits, permissionsToString, stringToPermissions } from '@backspace/shared/src/permissions.js';
+import { ALL_PERMISSIONS, PermissionBits, permissionsToString, stringToPermissions } from '@veyvox/shared/src/permissions.js';
 import { normalizeStoredPermissions } from './permissionStrings.js';
 
 // Stored permission values (docs/systems/permissions.md, "Stored form"): the

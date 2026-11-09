@@ -50,7 +50,7 @@ import {
   registerCallRelayHooks,
 } from './events.js';
 import { processDmCallAcceptEvent, processDmCallEndEvent } from '../routes/federation/events/calls.js';
-import type { FederationRelayEvent } from '@backspace/shared';
+import type { FederationRelayEvent } from '@veyvox/shared';
 
 const HERE = 'https://local.example';
 const PEER = 'https://peer.example';

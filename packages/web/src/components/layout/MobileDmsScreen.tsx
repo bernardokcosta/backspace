@@ -15,7 +15,7 @@ import { parseFederatedUsername, isFederationGlobeApplicable, isMine, userDispla
 import { useDmViewer } from '../../hooks/useDmViewer';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 import { formatDmSidebarPreview, formatDmHeaderName } from '../../utils/dmFormatters';
-import type { DmChannel, User } from '@backspace/shared';
+import type { DmChannel, User } from '@veyvox/shared';
 import type { TaggedFriend } from '../../stores/socialStore';
 
 const FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false, replicatedInstances: [] } as unknown as User;

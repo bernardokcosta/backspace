@@ -18,7 +18,7 @@
 // locally and the store actions that would reach a server are no-ops.
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
-import type { FederationPeer, FederationPeerStatusReason, InstanceAdminSettings, User } from '@backspace/shared';
+import type { FederationPeer, FederationPeerStatusReason, InstanceAdminSettings, User } from '@veyvox/shared';
 import { FederationPanel } from '../components/modals/instanceSettingsPanels/FederationPanel';
 import { ToastContainer } from '../components/ui/ToastContainer';
 import { useAuthStore } from '../stores/authStore';

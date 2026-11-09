@@ -9,12 +9,12 @@ import type {
   PeeringSubscription,
   PeeringNotification,
   PeeringTriggerReason,
-} from '@backspace/shared';
+} from '@veyvox/shared';
 import { useInstanceStore, connectToInstance, isSelfOrigin, type RemoteLoginReason } from '../../stores/instanceStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useUIStore } from '../../stores/uiStore';
 import { useFederationStore } from '../../stores/federationStore';
-import { isElectron } from '../../platform/platform';
+import { isElectron, getElectronAPI } from '../../platform/platform';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { StatusDot } from '../ui/StatusDot';
 import { RemotePasswordStep, type RemotePasswordPhase } from './RemotePasswordStep';
@@ -1268,7 +1268,7 @@ export function ConnectedInstances() {
             <span className="text-xs text-txt-tertiary">{t('federation:connections.home.local')}</span>
             {isElectron() && (
               <button
-                onClick={() => window.backspace?.clearInstanceUrl()}
+                onClick={() => getElectronAPI()?.clearInstanceUrl()}
                 className="px-2 py-1 text-xs text-txt-secondary hover:text-txt-primary hover:bg-white/[0.04] rounded transition-colors"
               >
                 {t('common:actions.change')}

@@ -1,4 +1,4 @@
-import type { DmChannel } from '@backspace/shared';
+import type { DmChannel } from '@veyvox/shared';
 
 /**
  * DM channel fixtures in the shapes servers really send.

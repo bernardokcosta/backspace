@@ -7,7 +7,7 @@ import { useSocialStore, type TaggedFriend, type TaggedFriendRequest } from '../
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useUIStore } from '../../stores/uiStore';
 import { useContextMenuStore } from '../../stores/contextMenuStore';
-import type { Friend, FriendRequest } from '@backspace/shared';
+import type { Friend, FriendRequest } from '@veyvox/shared';
 import { api as mockedApi } from '../../api/client';
 pageApi.client = mockedApi;
 

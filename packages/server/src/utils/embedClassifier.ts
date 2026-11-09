@@ -1,4 +1,4 @@
-import type { EmbedType, EmbedProvider } from '@backspace/shared';
+import type { EmbedType, EmbedProvider } from '@veyvox/shared';
 
 export interface EmbedClassification {
   embedType: EmbedType;

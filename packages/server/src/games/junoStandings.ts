@@ -1,4 +1,4 @@
-import type { JunoPerson, JunoPlace, JunoStanding, JunoView } from '@backspace/shared/src/juno.js';
+import type { JunoPerson, JunoPlace, JunoStanding, JunoView } from '@veyvox/shared/src/juno.js';
 
 const XP_BY_PLACE: Record<JunoPlace, number> = { 1: 120, 2: 80, 3: 40, 4: 20 };
 

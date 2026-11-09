@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 // Stub AudioManager to avoid AudioWorkletNode reference error in jsdom.
 // Reached transitively via authStore -> voiceStore.

@@ -22,7 +22,7 @@
   },
   "connections": {
     "title": "Istanze collegate",
-    "description": "Collega account tra istanze Backspace federate.",
+    "description": "Collega account tra istanze Veyvox federate.",
     "empty": "Nessuna istanza remota collegata. Aggiungine una per iniziare la federazione.",
     "addButton": "+ Aggiungi istanza",
     "home": {

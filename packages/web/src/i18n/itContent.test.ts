@@ -54,9 +54,9 @@ describe('Italian contextual content', () => {
     expect(desktop.update.laterHint).toContain('Impostazioni → Desktop');
   });
 
-  it('keeps Backspace and Juno automatic labels distinct', () => {
+  it('keeps Veyvox and Juno automatic labels distinct', () => {
     expect(common.language.automatic).toBe('Automatico (sistema)');
-    expect(voice.juno.settings.automatic).toBe('Automatico (Backspace)');
+    expect(voice.juno.settings.automatic).toBe('Automatico (Veyvox)');
     expect(voice.juno.settings.automaticDubbing).toBe(voice.juno.settings.automatic);
   });
 });

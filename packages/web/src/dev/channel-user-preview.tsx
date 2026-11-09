@@ -49,7 +49,7 @@
 // the screenshot; the indicator drops entries older than five seconds.
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
-import type { DmChannel, MemberWithUser, MessageWithUser, Role, User } from '@backspace/shared';
+import type { DmChannel, MemberWithUser, MessageWithUser, Role, User } from '@veyvox/shared';
 import { MessageList } from '../components/chat/MessageList';
 import { MessageInput } from '../components/chat/MessageInput';
 import { DmListItem } from '../components/layout/DmListItem';

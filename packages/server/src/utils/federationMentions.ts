@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import type { FederationMentionRef } from '@backspace/shared';
+import type { FederationMentionRef } from '@veyvox/shared';
 import { getDb, schema } from '../db/index.js';
 import { relayActorOfUser, resolveRelayActor } from '../routes/federation/identity.js';
 

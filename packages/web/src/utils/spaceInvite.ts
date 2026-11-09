@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next';
-import type { SpaceInviteRequest } from '@backspace/shared';
+import type { SpaceInviteRequest } from '@veyvox/shared';
 import { HttpError } from '../api/client';
 import { getFriendsHomeOrigin } from '../stores/instanceStore';
 import { getApiForOrigin } from './crossStoreResolvers';

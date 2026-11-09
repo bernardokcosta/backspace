@@ -103,9 +103,9 @@
   "instance": { "tabs": { "general": "Général", "registration": "Inscription", "federation": "Fédération", "streaming": "Diffusion", "storage": "Stockage", "users": "Utilisateurs", "updates": "Mises à jour" } },
   "keybinds": {
     "portal": {
-      "description": "Sous Wayland, l’environnement de bureau gère tous les raccourcis de Backspace. Attribue, modifie ou retire des touches dans les paramètres de raccourcis clavier du système, sous Backspace. Les raccourcis locaux du navigateur ou de X11 ne sont pas utilisés ici.",
+      "description": "Sous Wayland, l’environnement de bureau gère tous les raccourcis de Veyvox. Attribue, modifie ou retire des touches dans les paramètres de raccourcis clavier du système, sous Veyvox. Les raccourcis locaux du navigateur ou de X11 ne sont pas utilisés ici.",
       "idle": "Préparation du premier enregistrement de toutes les actions disponibles.", "pending": "Connexion au portail du bureau. Si une boîte de dialogue système apparaît, choisis des raccourcis pour les actions que tu veux utiliser.",
-      "ready": "Backspace est enregistré. Ouvre les paramètres de raccourcis clavier du système pour modifier ou retirer les attributions. La liste ci-dessous est en lecture seule et s’actualise à ton retour dans Backspace.",
+      "ready": "Veyvox est enregistré. Ouvre les paramètres de raccourcis clavier du système pour modifier ou retirer les attributions. La liste ci-dessous est en lecture seule et s’actualise à ton retour dans Veyvox.",
       "unavailable": "Le portail est indisponible, l’autorisation a été refusée ou la session est terminée. Une implémentation du portail de raccourcis globaux est nécessaire. Les raccourcis locaux sont désactivés sous Wayland.",
       "retry": "Enregistrer ou reconnecter les raccourcis", "assigned": "Raccourci système : {{shortcut}}", "notAssigned": "Aucune attribution système active"
     },
@@ -113,18 +113,18 @@
     "action": { "toggleMute": "Activer/désactiver le micro", "toggleDeafen": "Activer/désactiver l’audio", "pushToTalk": "Appuyer pour parler", "toggleCamera": "Activer/désactiver la caméra", "toggleScreenShare": "Activer/désactiver le partage d’écran", "disconnect": "Déconnecter" },
     "row": { "recordingPrompt": "Appuie sur une combinaison de touches…", "notBound": "Non attribué", "record": "Enregistrer", "escToCancel": "Échap pour annuler" },
     "key": { "shift": "Maj", "ctrl": "Ctrl", "alt": "Alt", "option": "Option", "cmd": "Cmd", "win": "Win", "space": "Espace", "middleClick": "Clic central", "mouse4": "Souris 4", "mouse5": "Souris 5", "mouseGeneric": "Souris {{button}}" },
-    "accessibility": { "title": "Autorisation d’accessibilité nécessaire", "description": "Backspace a besoin de l’autorisation d’accessibilité pour les raccourcis globaux en dehors de l’application.", "grant": "Accorder l’autorisation" },
+    "accessibility": { "title": "Autorisation d’accessibilité nécessaire", "description": "Veyvox a besoin de l’autorisation d’accessibilité pour les raccourcis globaux en dehors de l’application.", "grant": "Accorder l’autorisation" },
     "hookError": { "title": "Raccourcis globaux indisponibles", "description": "Impossible de démarrer l’écoute des entrées. Sous Linux, ton utilisateur doit peut-être faire partie du groupe <code>input</code>." },
     "conflict": { "message": "<strong>{{combo}}</strong> est déjà attribué à <strong>{{action}}</strong>. Remplacer ?", "overwrite": "Remplacer" }
   },
   "desktop": {
-    "title": "Bureau", "autoLaunch": { "openAtLogin": { "label": "Lancer au démarrage", "description": "Lancer Backspace automatiquement à l’ouverture de session" }, "startMinimized": { "label": "Démarrer réduit", "description": "Démarrer masqué dans la zone de notification plutôt que d’afficher la fenêtre" } },
+    "title": "Bureau", "autoLaunch": { "openAtLogin": { "label": "Lancer au démarrage", "description": "Lancer Veyvox automatiquement à l’ouverture de session" }, "startMinimized": { "label": "Démarrer réduit", "description": "Démarrer masqué dans la zone de notification plutôt que d’afficher la fenêtre" } },
     "updates": {
-      "appName": "Backspace Desktop", "versionLabel": "Version {{version}}", "checking": "Recherche de mises à jour…", "checkingShort": "Vérification…", "checkNow": "Rechercher des mises à jour", "downloading": "Téléchargement de {{version}}, {{percent}}%", "downloadingWithRate": "Téléchargement de {{version}}, {{percent}}% à {{rate}}",
+      "appName": "Veyvox Desktop", "versionLabel": "Version {{version}}", "checking": "Recherche de mises à jour…", "checkingShort": "Vérification…", "checkNow": "Rechercher des mises à jour", "downloading": "Téléchargement de {{version}}, {{percent}}%", "downloadingWithRate": "Téléchargement de {{version}}, {{percent}}% à {{rate}}",
       "rateMegabytes": "{{value}} Mo/s", "rateKilobytes": "{{value}} Ko/s", "upToDate": "Tu utilises la dernière version", "available": "La version {{version}} est disponible", "readyToInstall": "La version {{version}} est prête à être installée", "installFailed": "Impossible d’installer la version {{version}}", "checkFailed": "La dernière recherche de mises à jour a échoué",
       "idle": "Rechercher de nouvelles versions de l’application de bureau", "external": "Les mises à jour sont installées par ton gestionnaire de logiciels Flatpak", "download": "Télécharger", "restart": "Redémarrer",
       "manualNote": "Cette version ne peut pas installer ses mises à jour seule. Télécharge les nouvelles versions depuis GitHub et remplace l’application manuellement. Consulte les notes de version pour les étapes propres à ta plateforme.",
-      "externalNote": "Flatpak applique les mises à jour de façon atomique en dehors de l’application. Utilise ton gestionnaire de logiciels ou la commande <code>flatpak update</code> pour mettre Backspace à jour."
+      "externalNote": "Flatpak applique les mises à jour de façon atomique en dehors de l’application. Utilise ton gestionnaire de logiciels ou la commande <code>flatpak update</code> pour mettre Veyvox à jour."
     },
     "instance": { "current": "Instance actuellement connectée", "change": "Changer d’instance" }
   },

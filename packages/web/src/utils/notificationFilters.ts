@@ -1,4 +1,4 @@
-import type { ChannelNotificationPolicy, UserStatus } from '@backspace/shared';
+import type { ChannelNotificationPolicy, UserStatus } from '@veyvox/shared';
 import { contentMentionsAny } from './mentionTokens';
 
 /** What a message mentions, as the reader needs it to decide whether it mentions them. */

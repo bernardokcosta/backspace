@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { MemberWithUser, Role, User } from '@backspace/shared';
+import type { MemberWithUser, Role, User } from '@veyvox/shared';
 
 // Reached transitively via spaceStore -> chatStore -> useWebSocket -> voiceStore.
 vi.mock('../../audio/AudioManager', () => ({
@@ -14,7 +14,7 @@ import { MemberRolesModal } from './MemberRolesModal';
 import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useUIStore } from '../../stores/uiStore';
-import { api, HttpError, type BackspaceApiClient } from '../../api/client';
+import { api, HttpError, type VeyvoxApiClient } from '../../api/client';
 import { setApiForOriginResolver } from '../../utils/crossStoreResolvers';
 import { ALL_PERMISSIONS, PermissionBits, permissionsToString, stringToPermissions, rolePermissionsVersion } from '../../utils/permissions';
 
@@ -360,7 +360,7 @@ describe('MemberRolesModal: saving', () => {
     });
     useAuthStore.getState().recordMyRow(ORBIT, 'lead-local');
     const remote = { spaces: { updateMember: vi.fn(async () => member('helper', [])) }, roles: { update: vi.fn() } };
-    setApiForOriginResolver((origin) => (origin === ORBIT ? (remote as unknown as BackspaceApiClient) : api));
+    setApiForOriginResolver((origin) => (origin === ORBIT ? (remote as unknown as VeyvoxApiClient) : api));
     const home = vi.spyOn(api.spaces, 'updateMember');
     open('helper');
 

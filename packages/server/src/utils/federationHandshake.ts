@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import type { FederationNeedsAttentionReason, FederationRejectedReason } from '@backspace/shared';
+import type { FederationNeedsAttentionReason, FederationRejectedReason } from '@veyvox/shared';
 import { getDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
 import { getOurOrigin, generateHmacSecret } from './federationAuth.js';

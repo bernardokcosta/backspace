@@ -1,6 +1,6 @@
 import { handleChannelPoke } from './channelPoke.js';
 import type { WebSocket } from 'ws';
-import { addsMassMention, hasMassMention } from '@backspace/shared/src/mentions.js';
+import { addsMassMention, hasMassMention } from '@veyvox/shared/src/mentions.js';
 import { eq, inArray, and } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
 import { generateSnowflake } from '../utils/snowflake.js';
@@ -9,7 +9,7 @@ import type { VoiceRoom, DmRoomMeta, SpaceRoomMeta, FederatedCallEntry } from '.
 import { isMember, getChannelSpaceId, isDmMember, isDeadOneOnOne, hasPermission, computePermissions, PermissionBits } from '../utils/permissions.js';
 import { broadcastDmMessage, getDmMessageWithUser, reopenForClosedMembers } from '../routes/dm.js';
 import { fetchReplyToMessages, isReplyTargetInChannel, storedMassMentionFields } from '../routes/messages.js';
-import { MAX_MESSAGE_LENGTH, isChosenUserStatus, type MessageWithUser, type Attachment, type DmMessageWithUser, type Embed, type ServerEvent, type DmCallUndeliverableFailure, type DmCallUndeliverableReason } from '@backspace/shared';
+import { MAX_MESSAGE_LENGTH, isChosenUserStatus, type MessageWithUser, type Attachment, type DmMessageWithUser, type Embed, type ServerEvent, type DmCallUndeliverableFailure, type DmCallUndeliverableReason } from '@veyvox/shared';
 import type { CallRelayResult, CallFanoutFailure } from '../utils/federationOutbox.js';
 import { mapCallReasonToEventReason } from '../utils/federationOutbox.js';
 import { callRelayActor, fanOutCallEvent, relayCallEvent, userRelayIdentity, type CallRelayEventType } from '../utils/callFanout.js';
@@ -25,7 +25,7 @@ import type { RelayActor } from '../routes/federation/identity.js';
 import { config } from '../config.js';
 import { canActOnMemberInSpace } from '../utils/roleHierarchy.js';
 import { ERROR_MESSAGES, errorText } from '../utils/httpErrors.js';
-import type { ErrorCode, ErrorDetails } from '@backspace/shared/src/errors';
+import type { ErrorCode, ErrorDetails } from '@veyvox/shared/src/errors';
 import { checkDmMessageCreate, checkDmMessageDelete, checkDmMessageEdit } from '../utils/dmMessageRules.js';
 import { consumeWsDmMessageCreate } from '../utils/dmMessageRateLimit.js';
 import { socketAddressOf } from './socketAddress.js';

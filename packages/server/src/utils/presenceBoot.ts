@@ -1,5 +1,5 @@
 import { and, eq, inArray, ne } from 'drizzle-orm';
-import { ownsChosenStatus } from '@backspace/shared';
+import { ownsChosenStatus } from '@veyvox/shared';
 import { getDb, schema } from '../db/index.js';
 
 /**

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { InstanceStreamingLimits } from '@backspace/shared';
+import type { InstanceStreamingLimits } from '@veyvox/shared';
 
 // Only the stores and the limit resolution are real here; the rest of the
 // module graph screenShare.ts pulls in is stubbed like the stop-path tests.

@@ -5,8 +5,8 @@ import { drizzle } from 'drizzle-orm/better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { NotificationSetting, NotificationSettingsResponse } from '@backspace/shared';
-import { DEFAULT_EVERYONE_PERMISSIONS, PermissionBits, permissionsToString } from '@backspace/shared/src/permissions.js';
+import type { NotificationSetting, NotificationSettingsResponse } from '@veyvox/shared';
+import { DEFAULT_EVERYONE_PERMISSIONS, PermissionBits, permissionsToString } from '@veyvox/shared/src/permissions.js';
 import * as schema from '../db/schema.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

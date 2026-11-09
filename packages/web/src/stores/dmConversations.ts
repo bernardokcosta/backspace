@@ -1,4 +1,4 @@
-import type { DmChannel, DmMessageWithUser } from '@backspace/shared';
+import type { DmChannel, DmMessageWithUser } from '@veyvox/shared';
 import type { PeerDmChannel } from '../utils/dmConversationKey';
 
 /**

@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import type { WebSocket } from 'ws';
-import { ownsChosenStatus, type Activity, type BotActivity, type ChosenUserStatus, type UserStatus } from '@backspace/shared';
+import { ownsChosenStatus, type Activity, type BotActivity, type ChosenUserStatus, type UserStatus } from '@veyvox/shared';
 import { getDb, schema } from '../db/index.js';
 import { connectionManager } from './handler.js';
 import { collectProfileBroadcastTargetIds } from '../utils/userDeletion.js';

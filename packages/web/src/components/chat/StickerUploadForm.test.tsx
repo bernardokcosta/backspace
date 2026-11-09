@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MAX_STICKER_BATCH, MAX_STICKER_BYTES } from '@backspace/shared/src/stickers';
+import { MAX_STICKER_BATCH, MAX_STICKER_BYTES } from '@veyvox/shared/src/stickers';
 import { HttpError } from '../../api/client';
 import { StickerUploadForm } from './StickerUploadForm';
 import { uploadSticker } from './stickerUpload';

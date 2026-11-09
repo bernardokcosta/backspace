@@ -1,4 +1,4 @@
-import { AFK_TIMEOUT_OPTIONS, DEFAULT_AFK_TIMEOUT_SECONDS } from '@backspace/shared/src/constants.js';
+import { AFK_TIMEOUT_OPTIONS, DEFAULT_AFK_TIMEOUT_SECONDS } from '@veyvox/shared/src/constants.js';
 
 export interface AfkSpaceConfig {
   afkChannelId?: string | null;

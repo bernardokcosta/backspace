@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { JunoMove } from '@backspace/shared/src/juno';
+import type { JunoMove } from '@veyvox/shared/src/juno';
 import { JunoCard } from './JunoCard';
 import { JUNO_ASSETS } from './junoAssets';
 import { layoutPixels } from '../../platform/interfaceScale';

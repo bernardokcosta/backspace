@@ -20,7 +20,7 @@ export async function releaseFixture(t) {
   for (const [manifest, suffixes] of Object.entries(groups)) {
     const files = [];
     for (const suffix of suffixes) {
-      const url = `Backspace-Fork-${version}-${suffix}`;
+      const url = `Veyvox-${version}-${suffix}`;
       const bytes = await fs.readFile(path.join(directory, url));
       files.push({ url, size: bytes.length, sha512: createHash('sha512').update(bytes).digest('base64') });
     }

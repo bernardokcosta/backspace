@@ -1,7 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import type { Channel, DmChannel, SpaceWithChannelsAndMembers, User } from '@backspace/shared';
+import type { Channel, DmChannel, SpaceWithChannelsAndMembers, User } from '@veyvox/shared';
 
 vi.mock('../../hooks/useWebSocket', () => ({ wsSend: vi.fn(), wsSendAll: vi.fn() }));
 vi.mock('../../audio/AudioManager', () => ({

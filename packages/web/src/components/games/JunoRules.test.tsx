@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { JunoView } from '@backspace/shared/src/juno';
+import type { JunoView } from '@veyvox/shared/src/juno';
 import { JunoRules } from './JunoRules';
 import { JunoLocale } from './JunoLocale';
 import { useJunoPreferences } from '../../stores/junoPreferences';

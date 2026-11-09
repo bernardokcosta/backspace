@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isHttpOrigin, parseDmSystemEvent, type DmSystemEvent } from '@backspace/shared/src/dmSystemEvents.js';
+import { isHttpOrigin, parseDmSystemEvent, type DmSystemEvent } from '@veyvox/shared/src/dmSystemEvents.js';
 import { dmMessageEditRefusal, dmSystemContent, dmSystemName } from './dmSystemMessages.js';
 
 describe('dmSystemName', () => {

@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
 import type Database from 'better-sqlite3';
 import { eq } from 'drizzle-orm';
-import type { MemberWithUser, Role, SpaceWithChannelsAndMembers } from '@backspace/shared';
-import { PermissionBits, permissionsToString, stringToPermissions } from '@backspace/shared/src/permissions.js';
+import type { MemberWithUser, Role, SpaceWithChannelsAndMembers } from '@veyvox/shared';
+import { PermissionBits, permissionsToString, stringToPermissions } from '@veyvox/shared/src/permissions.js';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
 import {

@@ -9,7 +9,7 @@ import { ScreenShareSetup } from './components/voice/ScreenShareSetup';
 import { SoundboardController } from './components/voice/SoundboardController';
 import { JunoSession } from './components/games/JunoSession';
 import { useAuthStore } from './stores/authStore';
-import { isElectron } from './platform/platform';
+import { isElectron, getElectronAPI } from './platform/platform';
 import { startPendingMessageOrchestrator } from './stores/pendingMessageRehydrate';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -44,8 +44,9 @@ export function App() {
   // recovery path without hand-editing source. Set 'true' / '1' to force stall.
   useEffect(() => {
     if (import.meta.env.VITE_FORCE_BOOT_STALL) return;
-    if (typeof window.backspace?.rendererReady === 'function') {
-      window.backspace.rendererReady();
+    const bridge = getElectronAPI();
+    if (typeof bridge?.rendererReady === 'function') {
+      bridge.rendererReady();
     }
   }, []);
 

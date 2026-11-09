@@ -1,4 +1,4 @@
-import type { BotCommandListing, BotCommandOption, ChannelType } from '@backspace/shared';
+import type { BotCommandListing, BotCommandOption, ChannelType } from '@veyvox/shared';
 
 export type OptionValues = Record<string, string | number | boolean>;
 

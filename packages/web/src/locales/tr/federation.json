@@ -21,7 +21,7 @@
   },
   "connections": {
     "title": "Bağlı örnekler",
-    "description": "Federasyonlu Backspace örnekleri arasında hesap bağla.",
+    "description": "Federasyonlu Veyvox örnekleri arasında hesap bağla.",
     "empty": "Bağlı uzak örnek yok. Federasyona başlamak için bir tane ekle.",
     "addButton": "+ Örnek ekle",
     "home": {

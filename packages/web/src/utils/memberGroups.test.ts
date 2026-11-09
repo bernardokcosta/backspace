@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { MemberWithUser, Role, User } from '@backspace/shared';
+import type { MemberWithUser, Role, User } from '@veyvox/shared';
 import { groupMembers, hostKeepsOwnerTitle, memberGroup, memberNameColor, memberTopRole, ownerGroupTitle, OWNER_NAME_COLOR } from './memberGroups';
 
 function role(id: string, position: number, color: string): Role {

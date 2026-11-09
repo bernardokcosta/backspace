@@ -1,6 +1,6 @@
 {
-  "name": "@backspace/server",
-  "version": "1.16.8",
+  "name": "@veyvox/server",
+  "version": "1.17.0",
   "private": true,
   "license": "AGPL-3.0-only",
   "author": "Jannis Braun",
@@ -18,7 +18,7 @@
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
-    "@backspace/shared": "workspace:*",
+    "@veyvox/shared": "workspace:*",
     "@fastify/cors": "^11.4.0",
     "@fastify/helmet": "^13.2.0",
     "@fastify/multipart": "^10.1.7",

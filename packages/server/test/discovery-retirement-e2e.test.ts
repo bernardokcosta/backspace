@@ -12,7 +12,7 @@ import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import { hashSync } from 'bcryptjs';
 import { beforeAll, afterAll, describe, expect, it, vi } from 'vitest';
 import * as schema from '../src/db/schema.js';
-import { PermissionBits } from '@backspace/shared/src/permissions.js';
+import { PermissionBits } from '@veyvox/shared/src/permissions.js';
 import { spawnInstance, readInstanceLog, type SpawnedInstance } from './helpers/twoInstanceHarness.js';
 import { registerLocal, type TestUser } from './helpers/testUsers.js';
 import { connectWs } from './helpers/wsListener.js';

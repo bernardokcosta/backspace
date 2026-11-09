@@ -4,7 +4,7 @@ const { invalidateHomeInstanceInfo } = vi.hoisted(() => ({ invalidateHomeInstanc
 vi.mock('../../../hooks/useHomeInstanceInfo', () => ({ invalidateHomeInstanceInfo, useHomeInstanceInfo: () => null }));
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { InstanceAdminSettings, InstanceInfoResponse } from '@backspace/shared';
+import type { InstanceAdminSettings, InstanceInfoResponse } from '@veyvox/shared';
 import { MemoryRouter } from 'react-router-dom';
 import { GeneralPanel } from './GeneralPanel';
 import { api } from '../../../api/client';

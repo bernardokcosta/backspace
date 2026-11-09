@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import type { InvitePreview, User } from '@backspace/shared';
+import type { InvitePreview, User } from '@veyvox/shared';
 
 // Stub AudioManager to avoid AudioWorkletNode reference error in jsdom.
 // Reached transitively via spaceStore -> chatStore -> useWebSocket -> voiceStore.
@@ -123,7 +123,7 @@ describe('JoinPage for a space joined by request', () => {
     expect(await screen.findByText('Request sent to Quiet Harbor')).toBeInTheDocument();
     expect(screen.getByText('A manager will review it. The space appears in your list once they approve.')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Back to Backspace' }));
+    await user.click(screen.getByRole('button', { name: 'Back to Veyvox' }));
     expect(mockNavigate).toHaveBeenCalledWith('/channels/@me');
   });
 

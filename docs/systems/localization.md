@@ -1,5 +1,12 @@
 # Localization
 
+Veyvox 1.17.0 replaces the product proper name in all 25 web/native catalogs,
+including Juno's Automatic labels, without changing keys, plurals, placeholders,
+language selection or Juno's actual media edition. Finnish/Turkish name inflections
+follow the new name. The actual Backspace keyboard key in sound-shortcut help and
+legacy storage names remain unchanged. PWA descriptive names change to Veyvox;
+install identity URLs/start_url/scope and language preference persistence do not.
+
 Native Juno UI/rules/card names live under `voice:juno`; `juno_*` error codes
 have entries in all 25 error catalogs. The invariant game name "Juno" follows
 the existing brand-name allowlist convention; its surrounding copy is translated.
@@ -20,7 +27,7 @@ or regenerated; its provenance is recorded in the Juno asset manifest.
 
 Juno now has a game-local locale boundary (`JunoLocale`), sharing the existing
 catalog loader/resources but not the app's selected language. Device preference
-`language: auto` follows current/later Backspace language; an explicit existing
+`language: auto` follows current/later Veyvox language; an explicit existing
 released language scopes table/tile, rules, settings, result/ranking, formatted
 counts/percentages and coded game errors only. It does not change app storage,
 document lang/dir, generic Games/voice chrome or desktop language notification.
@@ -80,7 +87,7 @@ The retired desktop minimum-version policy's mandatory-screen copy and error
 code have been removed from all 25 catalogs. Optional desktop update prompts
 and settings remain localized.
 
-How Backspace is translated, and the rules every string, count, date and
+How Veyvox is translated, and the rules every string, count, date and
 error message follows so that the translations stay correct as the product
 moves. This spec is the contract; the foundation PR implements it and each
 surface sweep PR extends it.

@@ -1,4 +1,4 @@
-import { MAX_SOUNDBOARD_BYTES, SOUNDBOARD_SAMPLE_RATE } from '@backspace/shared/src/soundboard';
+import { MAX_SOUNDBOARD_BYTES, SOUNDBOARD_SAMPLE_RATE } from '@veyvox/shared/src/soundboard';
 import i18n from '../i18n';
 
 /** Validate selections in output samples, not floating-point differences of timestamps. */

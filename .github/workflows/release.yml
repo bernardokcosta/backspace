@@ -7,6 +7,9 @@ on:
       - '.github/release-notes/**'
       - 'scripts/*desktop*release*'
       - 'scripts/verify-desktop-build.mjs'
+      - 'scripts/verify-installed-rebrand.mjs'
+      - 'scripts/installed-rebrand.test.mjs'
+      - 'scripts/fixtures/installed-rebrand.html'
       - 'packages/desktop/**'
   workflow_dispatch:
   push:
@@ -132,11 +135,17 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build shared package
-        run: pnpm --filter @backspace/shared build
+        run: pnpm --filter @veyvox/shared build
 
       - name: Compile desktop TypeScript
         working-directory: packages/desktop
         run: pnpm exec tsc
+
+      - name: Verify isolated profile migration and production preload
+        # A controlled fixture only; no installer, updater or OS registration.
+        # Linux needs a desktop/display runner for this separate runtime check.
+        if: runner.os != 'Linux'
+        run: node packages/desktop/scripts/run-rebrand-smoke.mjs
 
       # afterPack fails closed if either installer lacks its matching addon.
       # R1 also replaces publication with a single validated release writer.
@@ -337,12 +346,76 @@ jobs:
           path: release-inventory.json
           if-no-files-found: error
 
+  installed:
+    name: Installed replacement (${{ matrix.os }})
+    needs: [build, validate]
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            artifact: release-windows
+          - os: windows-11-arm
+            artifact: release-windows
+          - os: ubuntu-24.04
+            artifact: release-linux-x64
+          - os: ubuntu-24.04-arm
+            artifact: release-linux-arm64
+          - os: macos-15-intel
+            artifact: release-mac
+          - os: macos-latest
+            artifact: release-mac
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: ${{ matrix.artifact }}
+          path: installed-candidates
+      - name: Prepare isolated Linux desktop and encrypted keyring
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb dbus-x11 gnome-keyring libsecret-1-0
+      - name: Install baseline, replace candidate, relaunch and verify encrypted state
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VEYVOX_INSTALL_ACCEPTANCE: '1'
+        run: |
+          set -euo pipefail
+          if [ "$RUNNER_OS" = Linux ]; then
+            xvfb-run -a dbus-run-session -- bash -euo pipefail -c '
+              export XDG_CURRENT_DESKTOP=GNOME
+              keyring_password="$(openssl rand -hex 32)"
+              eval "$(printf "%s" "$keyring_password" | gnome-keyring-daemon --unlock --components=secrets)"
+              unset keyring_password
+              node scripts/verify-installed-rebrand.mjs --directory installed-candidates
+            '
+          else
+            node scripts/verify-installed-rebrand.mjs --directory installed-candidates
+          fi
+      - name: Retain bounded installed acceptance reports
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: installed-acceptance-${{ matrix.os }}
+          path: installed-candidates/installed-*.json
+          if-no-files-found: error
+
   publish:
     name: Validate and publish one release
     # PR and manual runs exercise all real builds/aggregation but NEVER write
     # a release. Only the reviewed immutable tag push can reach this job.
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-    needs: [build, native-sdr, validate]
+    needs: [build, native-sdr, validate, installed]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:

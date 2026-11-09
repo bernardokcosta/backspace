@@ -4,7 +4,7 @@ import {
   type ChannelNotificationPolicy,
   type NotificationSetting,
   type UpdateNotificationSettingRequest,
-} from '@backspace/shared';
+} from '@veyvox/shared';
 import { getApiForOrigin } from '../utils/crossStoreResolvers';
 
 /**

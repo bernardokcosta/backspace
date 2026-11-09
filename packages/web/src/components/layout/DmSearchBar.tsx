@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import type { User, DmChannel } from '@backspace/shared';
+import type { User, DmChannel } from '@veyvox/shared';
 import { Avatar } from '../ui/Avatar';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useSelfIdentity } from '../../stores/authStore';

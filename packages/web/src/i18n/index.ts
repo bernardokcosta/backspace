@@ -1,3 +1,4 @@
+import { getElectronAPI } from '../platform/platform';
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { LazyCatalogBackend } from './loader';
@@ -74,7 +75,7 @@ function applyDocumentLanguage(language: SupportedLanguage): void {
 function notifyDesktop(language: SupportedLanguage): void {
   if (typeof window === 'undefined') return;
   try {
-    const bridge = window.backspace;
+    const bridge = getElectronAPI();
     bridge?.setLanguage?.(typeof bridge.getSystemLanguages === 'function' ? preference : language);
   } catch {
     // A disconnected legacy bridge cannot prevent a usable renderer language.
@@ -97,9 +98,10 @@ function applyPreference(next: LanguagePreference): void {
 }
 
 async function preferredSystemLanguages(): Promise<readonly string[]> {
-  if (typeof window !== 'undefined' && typeof window.backspace?.getSystemLanguages === 'function') {
+  const bridge = getElectronAPI();
+  if (typeof bridge?.getSystemLanguages === 'function') {
     try {
-      const value: unknown = await window.backspace.getSystemLanguages();
+      const value: unknown = await bridge.getSystemLanguages();
       if (Array.isArray(value) && value.length > 0 && value.every((tag): tag is string => typeof tag === 'string')) return value;
     } catch { /* Browser preferences remain usable with older or disconnected shells. */ }
   }

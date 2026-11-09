@@ -326,10 +326,10 @@
   },
   "keybinds": {
     "portal": {
-      "description": "Di Wayland, desktop mengelola semua shortcut Backspace. Tetapkan, ubah, atau hapus kunci di pengaturan shortcut keyboard sistem, di bawah Backspace. Binding lokal peramban/X11 tak dipakai di sini.",
+      "description": "Di Wayland, desktop mengelola semua shortcut Veyvox. Tetapkan, ubah, atau hapus kunci di pengaturan shortcut keyboard sistem, di bawah Veyvox. Binding lokal peramban/X11 tak dipakai di sini.",
       "idle": "Menyiapkan pendaftaran pertama semua aksi tersedia.",
       "pending": "Menghubungkan ke portal desktop. Jika dialog sistem muncul, pilih shortcut untuk aksi yang ingin dipakai.",
-      "ready": "Backspace terdaftar. Buka pengaturan shortcut keyboard sistem untuk mengubah atau menghapus penetapan. Daftar di bawah hanya-baca dan menyegarkan saat Anda kembali ke Backspace.",
+      "ready": "Veyvox terdaftar. Buka pengaturan shortcut keyboard sistem untuk mengubah atau menghapus penetapan. Daftar di bawah hanya-baca dan menyegarkan saat Anda kembali ke Veyvox.",
       "unavailable": "Portal tak tersedia, izin ditolak, atau sesi berakhir. Backend portal Global Shortcuts diperlukan. Binding lokal mati di Wayland.",
       "retry": "Daftarkan atau hubungkan ulang shortcut",
       "assigned": "Shortcut sistem: {{shortcut}}",
@@ -371,7 +371,7 @@
     },
     "accessibility": {
       "title": "Izin Aksesibilitas Diperlukan",
-      "description": "Backspace butuh izin aksesibilitas agar shortcut global berfungsi di luar app.",
+      "description": "Veyvox butuh izin aksesibilitas agar shortcut global berfungsi di luar app.",
       "grant": "Beri Izin"
     },
     "hookError": {
@@ -388,7 +388,7 @@
     "autoLaunch": {
       "openAtLogin": {
         "label": "Mulai saat masuk",
-        "description": "Otomatis luncurkan Backspace saat Anda masuk"
+        "description": "Otomatis luncurkan Veyvox saat Anda masuk"
       },
       "startMinimized": {
         "label": "Mulai diminimalkan",
@@ -396,7 +396,7 @@
       }
     },
     "updates": {
-      "appName": "Backspace Desktop",
+      "appName": "Veyvox Desktop",
       "versionLabel": "Versi {{version}}",
       "checking": "Memeriksa pembaruan…",
       "checkingShort": "Memeriksa…",
@@ -415,7 +415,7 @@
       "download": "Unduh",
       "restart": "Mulai Ulang",
       "manualNote": "Build ini tidak menginstal pembaruan sendiri. Unduh versi baru dari GitHub dan ganti app manual. Lihat catatan rilis untuk langkah di platform Anda.",
-      "externalNote": "Flatpak menerapkan pembaruan atomik di luar app. Gunakan manajer perangkat lunak atau perintah <code>flatpak update</code> untuk memperbarui Backspace."
+      "externalNote": "Flatpak menerapkan pembaruan atomik di luar app. Gunakan manajer perangkat lunak atau perintah <code>flatpak update</code> untuk memperbarui Veyvox."
     },
     "instance": {
       "current": "Instans terhubung kini",

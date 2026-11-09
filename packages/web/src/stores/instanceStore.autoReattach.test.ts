@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { User } from '@backspace/shared';
-import type { BackspaceApiClient } from '../api/client';
+import type { User } from '@veyvox/shared';
+import type { VeyvoxApiClient } from '../api/client';
 
 // ── Module mocks (mirror instanceStore.failover.test.ts) ─────────────────────
 // These stub the side-effecting modules instanceStore pulls in at import time so
@@ -31,7 +31,7 @@ function makeInstance(overrides: Partial<ConnectedInstance> & { origin: string }
   return {
     label: 'x', token: 't', status: 'connected',
     username: overrides.user?.username ?? 'u',
-    api: { auth: { attachProof: vi.fn() }, users: { reattach: vi.fn() }, dm: { list: vi.fn().mockResolvedValue([]) } } as unknown as BackspaceApiClient,
+    api: { auth: { attachProof: vi.fn() }, users: { reattach: vi.fn() }, dm: { list: vi.fn().mockResolvedValue([]) } } as unknown as VeyvoxApiClient,
     user: { id: 'id', username: 'u' } as User,
     ...overrides,
   };

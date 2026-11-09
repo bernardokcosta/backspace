@@ -20,7 +20,7 @@ import {
   withoutHidden,
   withRenames,
 } from './gameOverrides';
-import type { Activity } from '@backspace/shared';
+import type { Activity } from '@veyvox/shared';
 
 beforeEach(() => localStorage.clear());
 

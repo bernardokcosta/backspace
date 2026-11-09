@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
 import { authenticate } from '../utils/auth.js';
 import { sendError } from '../utils/httpErrors.js';
-import type { GifResult } from '@backspace/shared';
+import type { GifResult } from '@veyvox/shared';
 
 interface KlipyGifFile {
   url: string;

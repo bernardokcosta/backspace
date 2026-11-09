@@ -45,7 +45,7 @@ vi.mock('../api/client', async (importOriginal) => ({
   api: {
     spaces: { joinByCode: vi.fn(), invitePreview: vi.fn() },
   },
-  BackspaceApiClient: vi.fn(),
+  VeyvoxApiClient: vi.fn(),
 }));
 
 // Stub crossStoreResolvers — use vi.fn() inline

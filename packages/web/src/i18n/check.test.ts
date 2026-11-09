@@ -295,17 +295,17 @@ describe('untranslated', () => {
 
   it('allows placeholder-only values and allowlisted words', () => {
     const root = makeRoot({
-      [locale('en', 'common')]: { counter: '{{used}}/{{max}}', hex: '#hex', brand: 'Backspace', ok: 'OK' },
-      [locale('de', 'common')]: { counter: '{{used}}/{{max}}', hex: '#hex', brand: 'Backspace', ok: 'OK' },
+      [locale('en', 'common')]: { counter: '{{used}}/{{max}}', hex: '#hex', brand: 'Veyvox', ok: 'OK' },
+      [locale('de', 'common')]: { counter: '{{used}}/{{max}}', hex: '#hex', brand: 'Veyvox', ok: 'OK' },
     });
-    expect(checkUntranslated(root, { allowlist: ['Backspace', 'OK', '#hex'] })).toEqual([]);
+    expect(checkUntranslated(root, { allowlist: ['Veyvox', 'OK', '#hex'] })).toEqual([]);
   });
 
   it('reads the allowlist file from the root when no list is given', () => {
     const root = makeRoot({
-      [locale('en', 'common')]: { brand: 'Backspace' },
-      [locale('de', 'common')]: { brand: 'Backspace' },
-      'scripts/i18n-allowlist.json': ['Backspace'],
+      [locale('en', 'common')]: { brand: 'Veyvox' },
+      [locale('de', 'common')]: { brand: 'Veyvox' },
+      'scripts/i18n-allowlist.json': ['Veyvox'],
     });
     expect(checkUntranslated(root)).toEqual([]);
   });

@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "Ogólne",
-    "description": "Skonfiguruj swoją instancję Backspace. Te ustawienia dotyczą wszystkich użytkowników.",
+    "description": "Skonfiguruj swoją instancję Veyvox. Te ustawienia dotyczą wszystkich użytkowników.",
     "instanceName": {
       "label": "Nazwa instancji",
       "description": "Nazwa pokazywana na stronie logowania i instancjom sfederowanym.",
@@ -326,7 +326,7 @@
     "title": "Aktualizacje",
     "badge": {
       "settingsAriaLabel": "Ustawienia, dostępna aktualizacja instancji",
-      "toast": "Backspace {{version}} jest dostępny dla tej instancji",
+      "toast": "Veyvox {{version}} jest dostępny dla tej instancji",
       "toastAction": "Zobacz"
     },
     "description": "Co działa na tej instancji i jak ruszyć dalej.",
@@ -344,11 +344,11 @@
     },
     "available": {
       "label": "Dostępne",
-      "version": "Backspace {{version}} jest dostępny",
+      "version": "Veyvox {{version}} jest dostępny",
       "released": "Wydano {{date}} · ",
       "releaseNotes": "Uwagi do wydania",
       "fromInstallDir": "Z katalogu instalacji:",
-      "scriptDescription": "Robi migawkę bazy, pobiera nowy obraz i restartuje tylko kontener Backspace. Jeśli nowa wersja nie wstanie zdrowa albo wciąż działa stary kod, przywraca wersję, na której jesteś.",
+      "scriptDescription": "Robi migawkę bazy, pobiera nowy obraz i restartuje tylko kontener Veyvox. Jeśli nowa wersja nie wstanie zdrowa albo wciąż działa stary kod, przywraca wersję, na której jesteś.",
       "noScript": "Nie mam update.sh",
       "manualIntro": "update.sh jest od 1.0.5. Na klonie gita <code>git pull</code> go dociągnie. W przeciwnym razie wykonaj kroki ręcznie, po migawce komendą <code>./backup.sh</code>.",
       "prebuiltInstall": "Instalacja z obrazu prebuilt:",

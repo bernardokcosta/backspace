@@ -14,7 +14,7 @@
 // store holds the call slots each state needs.
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
-import type { DmChannel, MessageWithUser, User } from '@backspace/shared';
+import type { DmChannel, MessageWithUser, User } from '@veyvox/shared';
 import { MobileChatScreen } from '../components/layout/MobileChatScreen';
 import { MainContent } from '../components/layout/MainContent';
 import { useAuthStore } from '../stores/authStore';

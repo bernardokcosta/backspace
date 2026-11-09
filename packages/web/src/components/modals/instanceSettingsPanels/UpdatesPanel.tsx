@@ -3,7 +3,7 @@ import { useTranslation, Trans } from 'react-i18next';
 import { useFormatters, type Formatters } from '../../../i18n/formatters';
 import { useUIStore } from '../../../stores/uiStore';
 import { useSettingsStore } from '../../../stores/settingsStore';
-import type { InstanceUpdateStatus } from '@backspace/shared';
+import type { InstanceUpdateStatus } from '@veyvox/shared';
 
 /**
  * Formats an ISO date for the release line. Falls back to the raw string rather

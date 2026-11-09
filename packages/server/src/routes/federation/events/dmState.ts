@@ -5,7 +5,7 @@ import { collectProfileBroadcastTargetIds } from '../../../utils/userDeletion.js
 import { connectionManager } from '../../../ws/handler.js';
 import { getDmMessageWithUser } from '../../dm.js';
 import { and, eq, isNull } from 'drizzle-orm';
-import type { Activity, FederationRelayEvent } from '@backspace/shared';
+import type { Activity, FederationRelayEvent } from '@veyvox/shared';
 import { loadDmChannelWire } from '../../../utils/dmChannelWire.js';
 import { presenceUpdateEvent, validateActivities } from '../../../ws/presenceEvent.js';
 import { projectReplicaStatus } from '../../../ws/replicaPresence.js';

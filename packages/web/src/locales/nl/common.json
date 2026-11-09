@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "Opslaan",
     "cancel": "Annuleren",
@@ -123,7 +123,7 @@
   },
   "app": {
     "description": "Het zelfgehoste Discord- en TeamSpeak-alternatief. HD-voice, video en schermdeling — open source en gratis (AGPL-3.0).",
-    "loading": "Backspace laden"
+    "loading": "Veyvox laden"
   },
   "chrome": {
     "toggleMemberList": "Ledenlijst tonen of verbergen",

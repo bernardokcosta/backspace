@@ -13,8 +13,8 @@ import type {
   CreateInteractionResponse,
   EphemeralReply,
   RespondToInteractionRequest,
-} from '@backspace/shared';
-import { MAX_MESSAGE_LENGTH } from '@backspace/shared';
+} from '@veyvox/shared';
+import { MAX_MESSAGE_LENGTH } from '@veyvox/shared';
 import { getDb, schema } from '../db/index.js';
 import { authenticate } from '../utils/auth.js';
 import { requireBot } from '../utils/botAuth.js';
@@ -23,8 +23,8 @@ import { computePermissions, getChannelSpaceId, hasPermission, isDmMember, isMem
 import { sanitizeUser } from '../utils/sanitize.js';
 import { roleView } from '../utils/permissionDataView.js';
 import { connectionManager } from '../ws/handler.js';
-import { COMMAND_STRING_OPTION_MAX } from '@backspace/shared/src/constants.js';
-import { stringToPermissions } from '@backspace/shared/src/permissions.js';
+import { COMMAND_STRING_OPTION_MAX } from '@veyvox/shared/src/constants.js';
+import { stringToPermissions } from '@veyvox/shared/src/permissions.js';
 
 const INTERACTION_TTL_MS = 15 * 60 * 1000;
 const MAX_RESPONSES = 5;

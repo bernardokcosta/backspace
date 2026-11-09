@@ -5,8 +5,8 @@ import { authenticate, requireAdmin } from '../utils/auth.js';
 import { config } from '../config.js';
 import { sendError } from '../utils/httpErrors.js';
 import { connectionManager } from '../ws/handler.js';
-import type { InstanceStreamingLimits, InstanceAdminSettings } from '@backspace/shared';
-import { STANDARD_RESOLUTIONS, STANDARD_FRAMERATES, BITRATE_MATRIX_KBPS } from '@backspace/shared/src/constants.js';
+import type { InstanceStreamingLimits, InstanceAdminSettings } from '@veyvox/shared';
+import { STANDARD_RESOLUTIONS, STANDARD_FRAMERATES, BITRATE_MATRIX_KBPS } from '@veyvox/shared/src/constants.js';
 
 function rowToLimits(row: typeof schema.instanceSettings.$inferSelect): InstanceStreamingLimits {
   return {
@@ -45,7 +45,7 @@ function rowToAdminSettings(row: SettingsRow): InstanceAdminSettings {
   const maxUploadBytes = row.maxUploadSizeBytes ?? config.maxUploadSize;
   const maxStickerBytes = row.maxStickerSizeBytes ?? config.maxStickerSize;
   return {
-    instanceName: row.instanceName ?? 'Backspace',
+    instanceName: row.instanceName ?? 'Veyvox',
     registrationOpen: row.registrationOpen !== null ? row.registrationOpen === 1 : config.registrationOpen,
     federatedRegistrationOpen: row.federatedRegistrationOpen === 1,
     spaceCreationOpen: row.spaceCreationOpen !== 0,

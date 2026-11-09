@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { canPlayJuno, type JunoCommand, type JunoRankingPage, type JunoSnapshot } from '@backspace/shared/src/juno.js';
+import { canPlayJuno, type JunoCommand, type JunoRankingPage, type JunoSnapshot } from '@veyvox/shared/src/juno.js';
 import { bootTwoInstances, type TwoInstanceHarness } from './helpers/twoInstanceHarness.js';
 import { createFederatedUser, registerLocal, type TestUser } from './helpers/testUsers.js';
 import { connectWs, type WsCapture } from './helpers/wsListener.js';

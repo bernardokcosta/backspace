@@ -11,7 +11,7 @@
     "friendRequestDeliveryFailed": "Impossible de transmettre la demande d’ami à {{username}} : {{reason}}", "accountRelinked": "Compte rattaché à {{instance}}"
   },
   "connections": {
-    "title": "Instances connectées", "description": "Lie tes comptes entre les instances fédérées de Backspace.",
+    "title": "Instances connectées", "description": "Lie tes comptes entre les instances fédérées de Veyvox.",
     "empty": "Aucune instance distante connectée. Ajoutes-en une pour utiliser la fédération.", "addButton": "+ Ajouter une instance",
     "home": { "title": "Instance d’origine", "asUser": "en tant que {{username}}", "local": "Locale" },
     "status": { "connected": "Connectée", "disconnected": "Déconnectée", "unreachable": "Injoignable", "authExpired": "Authentification expirée" },

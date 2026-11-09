@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 // Stubbed for the same reason every store test stubs it: the fan-out below
 // reaches the voice store, and jsdom has no AudioWorkletNode.

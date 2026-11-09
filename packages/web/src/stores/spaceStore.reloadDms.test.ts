@@ -36,9 +36,9 @@ vi.mock('./instanceStore', async () => {
 
 import { useSpaceStore, setApiForOriginResolver } from './spaceStore';
 import { useChatStore } from './chatStore';
-import { api, type BackspaceApiClient } from '../api/client';
+import { api, type VeyvoxApiClient } from '../api/client';
 import { wireDm, asListedBy161, copyDm } from '../test/dmWireShape';
-import type { DmChannel, User } from '@backspace/shared';
+import type { DmChannel, User } from '@veyvox/shared';
 
 const REMOTE = 'https://remote.example';
 
@@ -81,8 +81,8 @@ const groupOnRemote = wireDm({
 
 let remoteList: DmChannel[];
 
-function fakeRemoteClient(): BackspaceApiClient {
-  return { dm: { list: async (): Promise<DmChannel[]> => remoteList.map(copyDm) } } as unknown as BackspaceApiClient;
+function fakeRemoteClient(): VeyvoxApiClient {
+  return { dm: { list: async (): Promise<DmChannel[]> => remoteList.map(copyDm) } } as unknown as VeyvoxApiClient;
 }
 
 function rowIds(): string[] {

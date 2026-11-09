@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "Tallenna",
     "cancel": "Peruuta",
@@ -123,7 +123,7 @@
   },
   "app": {
     "description": "Itsehostattu Discord- ja TeamSpeak-vaihtoehto. HD-ääni, video ja näytönjako — avointa lähdekoodia ja ilmainen (AGPL-3.0).",
-    "loading": "Ladataan Backspacea"
+    "loading": "Ladataan Veyvoxia"
   },
   "chrome": {
     "toggleMemberList": "Näytä tai piilota jäsenluettelo",

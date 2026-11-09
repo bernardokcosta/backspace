@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "Umum",
-    "description": "Konfigurasikan instans Backspace Anda. Pengaturan ini berlaku untuk semua pengguna.",
+    "description": "Konfigurasikan instans Veyvox Anda. Pengaturan ini berlaku untuk semua pengguna.",
     "instanceName": {
       "label": "Nama Instans",
       "description": "Nama yang tampil di halaman masuk dan ke instans federasi.",
@@ -300,7 +300,7 @@
     "title": "Pembaruan",
     "badge": {
       "settingsAriaLabel": "Pengaturan, pembaruan instans tersedia",
-      "toast": "Backspace {{version}} tersedia untuk instans ini",
+      "toast": "Veyvox {{version}} tersedia untuk instans ini",
       "toastAction": "Lihat"
     },
     "description": "Versi apa berjalan di instans ini dan cara memperbaruinya.",
@@ -318,11 +318,11 @@
     },
     "available": {
       "label": "Tersedia",
-      "version": "Backspace {{version}} tersedia",
+      "version": "Veyvox {{version}} tersedia",
       "released": "Dirilis {{date}} · ",
       "releaseNotes": "Catatan rilis",
       "fromInstallDir": "Dari direktori instal Anda:",
-      "scriptDescription": "Membuat snapshot basis data, mengunduh image baru, dan memulai ulang hanya kontainer Backspace. Jika versi baru tak mulai baik atau mulai dengan kode lama, ia mengembalikan versi kini.",
+      "scriptDescription": "Membuat snapshot basis data, mengunduh image baru, dan memulai ulang hanya kontainer Veyvox. Jika versi baru tak mulai baik atau mulai dengan kode lama, ia mengembalikan versi kini.",
       "noScript": "Saya tidak punya update.sh",
       "manualIntro": "update.sh menyertai sejak 1.0.5. Di salinan git, <code>git pull</code> menambahkannya. Jika tidak, lakukan langkah manual setelah snapshot dengan <code>./backup.sh</code>.",
       "prebuiltInstall": "Instal prabangun:",

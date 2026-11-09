@@ -4,7 +4,7 @@ import { Modal } from '../ui/Modal';
 import { Avatar } from '../ui/Avatar';
 import { SourceCodeLink } from '../ui/SourceCodeLink';
 import { api } from '../../api/client';
-import type { InstanceInfoResponse } from '@backspace/shared';
+import type { InstanceInfoResponse } from '@veyvox/shared';
 import { useUIStore } from '../../stores/uiStore';
 import { useAuthStore } from '../../stores/authStore';
 import {

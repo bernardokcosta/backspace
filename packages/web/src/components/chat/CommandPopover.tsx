@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import type { BotCommandOption } from '@backspace/shared';
+import type { BotCommandOption } from '@veyvox/shared';
 import type { CommandRow } from '../../utils/commandArgs';
 import { Avatar } from '../ui/Avatar';
 import { BotBadge } from '../ui/BotBadge';

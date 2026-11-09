@@ -21,7 +21,7 @@
   },
   "connections": {
     "title": "Máy chủ đã kết nối",
-    "description": "Liên kết tài khoản trên các máy chủ Backspace liên hợp.",
+    "description": "Liên kết tài khoản trên các máy chủ Veyvox liên hợp.",
     "empty": "Chưa kết nối máy chủ xa nào. Hãy thêm một để bắt đầu liên hợp.",
     "addButton": "+ Thêm máy chủ",
     "home": {

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { CHANNEL_TOPIC_MAX_LENGTH } from '@backspace/shared/src/constants';
+import { CHANNEL_TOPIC_MAX_LENGTH } from '@veyvox/shared/src/constants';
 import { ChannelTopicEditor } from './ChannelTopicEditor';
 import { Modal } from '../ui/Modal';
 

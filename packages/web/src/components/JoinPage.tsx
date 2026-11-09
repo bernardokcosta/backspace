@@ -7,7 +7,7 @@ import { useInstanceStore, RemoteLoginRequiredError, type RemoteLoginReason } fr
 import { api, createApiClient } from '../api/client';
 import { parseInviteInput, buildInstanceJoinUrl } from '../utils/inviteParser';
 import { Avatar } from './ui/Avatar';
-import type { InvitePreview } from '@backspace/shared';
+import type { InvitePreview } from '@veyvox/shared';
 import { describeError } from '../i18n/errors';
 import { isAlreadyMemberError, isJoinRequestPendingError, isNotRequestableError, JoinRequestRequiredError } from '../utils/joinErrors';
 import { sendInviteJoinRequest, type InviteRequestOutcome } from '../utils/inviteJoinRequest';

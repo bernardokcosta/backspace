@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
-import type { InstanceInfoResponse, User } from '@backspace/shared';
+import type { InstanceInfoResponse, User } from '@veyvox/shared';
 
 // The screen reads three stores through selectors, and the panel it opens reads
 // a fourth. Each is mocked with the selector-aware callable idiom used across
@@ -32,7 +32,7 @@ const mocks = vi.hoisted(() => {
     registrationOpen: true,
     federatedRegistrationOpen: true,
     instanceId: 'instance-1',
-    sourceCodeUrl: 'https://github.com/bernardokcosta/backspace',
+    sourceCodeUrl: 'https://github.com/bernardokcosta/veyvox',
     commit: 'abc1234',
   };
 
@@ -158,7 +158,7 @@ describe('MobileSettingsScreen Desktop entry', () => {
     // The version reaches the panel, so the links name release assets.
     expect(await screen.findByRole('link', { name: 'Download for Windows' })).toHaveAttribute(
       'href',
-      'https://github.com/bernardokcosta/backspace/releases/download/v1.2.1/Backspace-Fork-1.2.1-win-x64.exe',
+      'https://github.com/bernardokcosta/veyvox/releases/download/v1.2.1/Backspace-Fork-1.2.1-win-x64.exe',
     );
     // The Electron-only panel stays out of the browser.
     expect(screen.queryByRole('button', { name: 'Change Instance' })).not.toBeInTheDocument();

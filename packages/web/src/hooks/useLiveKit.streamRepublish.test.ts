@@ -8,7 +8,7 @@ import { useAuthStore } from '../stores/authStore';
 import { STREAM_REPUBLISH_WINDOW_MS } from '../utils/streamRepublish';
 import { publishScreenShare, republishScreenShare, stopScreenShare } from '../utils/screenShare';
 import { SoundController } from '../components/voice/SoundController';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 /**
  * A codec change on the sharer's side unpublishes the screen share and

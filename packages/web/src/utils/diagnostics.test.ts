@@ -3,10 +3,21 @@ import { createDiagnosticReporter, recordDiagnostic, startDiagnosticCapture } fr
 
 let dispose: (() => void) | undefined;
 beforeEach(() => { vi.useFakeTimers(); });
-afterEach(() => { dispose?.(); dispose = undefined; vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+afterEach(() => { dispose?.(); dispose = undefined; delete window.veyvox; delete window.backspace; vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 const event = { event: 'runtime-error', subsystem: 'app', level: 'error' } as const;
 
 describe('memory-only diagnostic reporting', () => {
+  it.each([['browser', 'web'], ['veyvox', 'desktop'], ['backspace', 'desktop']] as const)(
+    'classifies %s diagnostics without confusing null with a desktop bridge', async (bridge, expected) => {
+      const send = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 204 }));
+      vi.stubGlobal('fetch', send);
+      if (bridge !== 'browser') window[bridge] = { getVersion: async () => '1.16.8' } as VeyvoxElectronAPI;
+      dispose = startDiagnosticCapture();
+      recordDiagnostic(event);
+      await vi.advanceTimersByTimeAsync(5000);
+      expect(JSON.parse(String(send.mock.calls[0]?.[1]?.body)).events[0]).toMatchObject({ client: expected });
+    },
+  );
   it('deduplicates safe events and sends no credentials, content or local persistence', async () => {
     const storage = vi.spyOn(Storage.prototype, 'setItem');
     const send = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 204 }));

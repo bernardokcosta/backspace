@@ -1,7 +1,7 @@
 import { act, cleanup, render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import type { DmChannel, MessageWithUser, NotificationSetting, User } from '@backspace/shared';
+import type { DmChannel, MessageWithUser, NotificationSetting, User } from '@veyvox/shared';
 import { notificationSettingKey, useNotificationSettingsStore } from '../stores/notificationSettingsStore';
 import { NotificationController } from './NotificationController';
 import { sendNotification } from '../platform/notifications';

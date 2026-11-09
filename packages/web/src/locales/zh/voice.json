@@ -64,7 +64,7 @@
     },
     "settings": {
       "title": "Juno 设置",
-      "languageGroup": "语言", "language": "游戏语言", "automatic": "自动（跟随 Backspace）", "automaticDubbing": "自动（跟随 Backspace）",
+      "languageGroup": "语言", "language": "游戏语言", "automatic": "自动（跟随 Veyvox）", "automaticDubbing": "自动（跟随 Veyvox）",
       "dubbing": "配音与卡牌文字", "brazilianPortuguese": "葡萄牙语（巴西）",
       "audioGroup": "音频", "effects": "音效", "music": "背景音乐",
       "autoplayBlocked": "浏览器已暂停音乐。请点击播放以启用。", "musicFailed": "无法播放音乐，你可以重试。", "playMusic": "播放音乐"
@@ -265,15 +265,15 @@
     "forceSdrUnavailable": "需要兼容的 Windows 桌面应用。",
     "forceSdrRestart": "请停止共享并重新开始，以更改强制 SDR 设置。",
     "forceSdrFailed": "无法强制 SDR。请关闭此选项后重新尝试共享。",
-    "chromeEchoNote": "当捕获类型支持时，Chrome 可以排除 Backspace 自身的音频",
+    "chromeEchoNote": "当捕获类型支持时，Chrome 可以排除 Veyvox 自身的音频",
     "electronWindowsAudioNote": "当不支持 restrictOwnAudio 时，Windows 环回可能会捕获通话音频",
     "electronMacAudioNote": "macOS 13+ 需要“屏幕与系统音频录制”权限",
-    "electronLinuxAudioNote": "Linux 需要 PulseAudio 兼容性；Backspace 音频也可能会被捕获",
+    "electronLinuxAudioNote": "Linux 需要 PulseAudio 兼容性；Veyvox 音频也可能会被捕获",
     "systemAudioNote": {
-      "excluded": "观看者能听到您电脑的声音，但听不到语音聊天和其他 Backspace 音频。",
-      "excludedMac": "观看者能听到您 Mac 的声音，但听不到语音聊天和其他 Backspace 音频。macOS 会请求“屏幕与系统音频录制”权限。",
-      "includedWindows": "此 Windows 版本会共享全部声音，包括语音聊天：观看者会听到自己的声音。在 Windows 11 上，Backspace 自身的音频会被排除。",
-      "includedMac": "此 macOS 版本会共享全部声音，包括语音聊天：观看者会听到自己的声音。在 macOS 14.2 及更高版本上，Backspace 自身的音频会被排除。macOS 会请求“屏幕与系统音频录制”权限。",
+      "excluded": "观看者能听到您电脑的声音，但听不到语音聊天和其他 Veyvox 音频。",
+      "excludedMac": "观看者能听到您 Mac 的声音，但听不到语音聊天和其他 Veyvox 音频。macOS 会请求“屏幕与系统音频录制”权限。",
+      "includedWindows": "此 Windows 版本会共享全部声音，包括语音聊天：观看者会听到自己的声音。在 Windows 11 上，Veyvox 自身的音频会被排除。",
+      "includedMac": "此 macOS 版本会共享全部声音，包括语音聊天：观看者会听到自己的声音。在 macOS 14.2 及更高版本上，Veyvox 自身的音频会被排除。macOS 会请求“屏幕与系统音频录制”权限。",
       "includedLinux": "Linux 会共享全部声音，包括语音聊天：观看者会听到自己的声音。需要 PulseAudio，或带 pipewire-pulse 的 PipeWire。",
       "unavailableMac": "系统音频需要 macOS 13 或更高版本。"
     },

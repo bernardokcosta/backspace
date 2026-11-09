@@ -20,7 +20,7 @@
   },
   "connections": {
     "title": "연결된 인스턴스",
-    "description": "연합 Backspace 인스턴스 간에 계정을 연결.",
+    "description": "연합 Veyvox 인스턴스 간에 계정을 연결.",
     "empty": "연결된 원격 인스턴스 없음. 연합하려면 추가하세요.",
     "addButton": "+ 인스턴스 추가",
     "home": {

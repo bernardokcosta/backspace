@@ -21,7 +21,7 @@
   },
   "connections": {
     "title": "Yhdistetyt instanssit",
-    "description": "Linkitä tilejä federoitujen Backspace-instanssien välillä.",
+    "description": "Linkitä tilejä federoitujen Veyvox-instanssien välillä.",
     "empty": "Etäinstansseja ei yhdistetty. Lisää yksi aloittaaksesi federoinnin.",
     "addButton": "+ Lisää instanssi",
     "home": {

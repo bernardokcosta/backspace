@@ -53,7 +53,7 @@ import { resetStalePresenceOnBoot } from './utils/presenceBoot.js';
 import { registerWebSocket } from './ws/handler.js';
 import path from 'path';
 import fs from 'fs';
-import { MESSAGE_PAGING_HEADER } from '@backspace/shared';
+import { MESSAGE_PAGING_HEADER } from '@veyvox/shared';
 
 async function main(): Promise<void> {
   const diagnosticLogs = new DiagnosticLogStore(path.join(path.dirname(config.dbPath), 'diagnostics'));
@@ -306,7 +306,7 @@ async function main(): Promise<void> {
   try {
     await app.listen({ port: config.port, host: config.host });
     writeDiagnostic(diagnosticLogs, 'server', { event: 'server-started', subsystem: 'server', level: 'info', version: config.version });
-    console.log(`Backspace server running at http://${config.host}:${config.port}`);
+    console.log(`Veyvox server running at http://${config.host}:${config.port}`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);

@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
   <id>io.github.TheZwiss.backspace</id>
-  <name>Backspace</name>
+  <name>Veyvox</name>
   <summary>Self-hosted text, voice, and video communication</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>AGPL-3.0-only</project_license>
-  <developer id="io.github.thezwiss">
-    <name>Jannis Braun</name>
+  <developer id="io.github.bernardokcosta">
+    <name>bernardokcosta</name>
   </developer>
 
   <description>
     <p>
-      Backspace is a client for self-hosted Backspace communities. Connect to
+      Veyvox is an independently maintained client for self-hosted communities.
+      It is derived from the original Backspace, created by Jannis Braun
+      (TheZwiss) and its contributors. Connect to
       an instance to chat in spaces and direct messages, make voice and video
       calls, share your screen, and communicate with users on federated
       instances.
@@ -24,12 +26,13 @@
   </description>
 
   <launchable type="desktop-id">io.github.TheZwiss.backspace.desktop</launchable>
-  <url type="homepage">https://github.com/TheZwiss/backspace</url>
-  <url type="bugtracker">https://github.com/TheZwiss/backspace/issues</url>
-  <url type="vcs-browser">https://github.com/TheZwiss/backspace</url>
-  <url type="help">https://github.com/TheZwiss/backspace#readme</url>
+  <url type="homepage">https://github.com/bernardokcosta/veyvox</url>
+  <url type="bugtracker">https://github.com/bernardokcosta/veyvox/issues</url>
+  <url type="vcs-browser">https://github.com/bernardokcosta/veyvox</url>
+  <url type="help">https://github.com/bernardokcosta/veyvox#readme</url>
   <provides>
     <binary>backspace</binary>
+    <mediatype>x-scheme-handler/veyvox</mediatype>
     <mediatype>x-scheme-handler/backspace</mediatype>
   </provides>
   <categories>

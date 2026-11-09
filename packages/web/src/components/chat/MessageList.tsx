@@ -25,7 +25,7 @@ import { useDmViewer } from '../../hooks/useDmViewer';
 import { formatDmHeaderName } from '../../utils/dmFormatters';
 import { useDelayedLoading } from '../../hooks/useDelayedLoading';
 import { describeError } from '../../i18n/errors';
-import type { EphemeralReply, MessageWithUser } from '@backspace/shared';
+import type { EphemeralReply, MessageWithUser } from '@veyvox/shared';
 import { SystemMessage } from './SystemMessage';
 import { ChannelSystemMessage } from './ChannelSystemMessage';
 import { MessageJumpContext } from './messageJumpContext';

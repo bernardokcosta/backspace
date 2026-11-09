@@ -96,7 +96,7 @@ interface DesktopSdrCaptureEnded {
   reason: string;
 }
 
-interface BackspaceElectronAPI {
+interface VeyvoxElectronAPI {
   // Platform info
   platform: NodeJS.Platform;
   // Window controls
@@ -135,7 +135,7 @@ interface BackspaceElectronAPI {
   onWindowFocusChange: (callback: (focused: boolean) => void) => void;
 
   // Deep linking (Task 2.3)
-  onDeepLink: (callback: (url: string) => void) => void;
+  onDeepLink: (callback: (url: string) => void) => (() => void) | void;
 
   // Instance-origin-aware URL routing
   setConnectedOrigins: (origins: string[]) => void;
@@ -242,8 +242,12 @@ interface BackspaceElectronAPI {
 }
 
 interface Window {
-  backspace?: BackspaceElectronAPI;
+  veyvox?: VeyvoxElectronAPI;
+  backspace?: VeyvoxElectronAPI;
 }
+
+/** Source compatibility for fixtures and clients targeting older shells. */
+type BackspaceElectronAPI = VeyvoxElectronAPI;
 
 interface KeybindPortalStatus {
   state: 'idle' | 'pending' | 'ready' | 'unavailable';

@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "Algemeen",
-    "description": "Configureer je Backspace-instantie. Deze instellingen gelden voor alle gebruikers.",
+    "description": "Configureer je Veyvox-instantie. Deze instellingen gelden voor alle gebruikers.",
     "instanceName": {
       "label": "Instantienaam",
       "description": "De naam op de inlogpagina en voor gefedereerde instanties.",
@@ -300,7 +300,7 @@
     "title": "Updates",
     "badge": {
       "settingsAriaLabel": "Instellingen, instantie-update beschikbaar",
-      "toast": "Voor deze instantie is Backspace {{version}} beschikbaar",
+      "toast": "Voor deze instantie is Veyvox {{version}} beschikbaar",
       "toastAction": "Bekijken"
     },
     "description": "Welke versie op deze instantie draait en hoe je hem bijwerkt.",
@@ -318,11 +318,11 @@
     },
     "available": {
       "label": "Beschikbaar",
-      "version": "Backspace {{version}} beschikbaar",
+      "version": "Veyvox {{version}} beschikbaar",
       "released": "Uitgebracht {{date}} · ",
       "releaseNotes": "Releasenotes",
       "fromInstallDir": "Vanuit je installatiemap:",
-      "scriptDescription": "Maakt een snapshot van de database, downloadt de nieuwe image en herstart alleen de Backspace-container. Als de nieuwe versie niet goed start of met oude code start, zet hij de huidige versie terug.",
+      "scriptDescription": "Maakt een snapshot van de database, downloadt de nieuwe image en herstart alleen de Veyvox-container. Als de nieuwe versie niet goed start of met oude code start, zet hij de huidige versie terug.",
       "noScript": "Ik heb geen update.sh",
       "manualIntro": "update.sh zit erbij sinds 1.0.5. In een git-kopie voegt <code>git pull</code> hem toe. Doe de stappen anders handmatig, na eerst een snapshot met <code>./backup.sh</code>.",
       "prebuiltInstall": "Prebuilt-installatie:",

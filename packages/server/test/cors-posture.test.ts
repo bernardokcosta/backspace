@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MESSAGE_PAGING_HEADER } from '@backspace/shared';
+import { MESSAGE_PAGING_HEADER } from '@veyvox/shared';
 import { bootTwoInstances, type TwoInstanceHarness } from './helpers/twoInstanceHarness.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

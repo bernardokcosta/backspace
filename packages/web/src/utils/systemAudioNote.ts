@@ -58,7 +58,7 @@ function legacyNote(platform: string, checked: boolean): SystemAudioNote | null 
 }
 
 /**
- * @param electronPlatform `window.backspace.platform` in the desktop app, null in a browser
+ * @param electronPlatform `getElectronAPI().platform` in the desktop app, null in a browser
  * @param capability the desktop app's answer, null while unknown or unavailable
  * @param checked whether the System Audio switch is on
  */

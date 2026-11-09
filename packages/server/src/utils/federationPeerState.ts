@@ -5,7 +5,7 @@ import type {
   FederationPeerStatusReason,
   FederationRejectedReason,
   ServerEvent,
-} from '@backspace/shared';
+} from '@veyvox/shared';
 import { getDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
 import { generateSnowflake } from './snowflake.js';

@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "Generale",
-    "description": "Configura la tua istanza Backspace. Queste impostazioni riguardano tutti gli utenti.",
+    "description": "Configura la tua istanza Veyvox. Queste impostazioni riguardano tutti gli utenti.",
     "instanceName": {
       "label": "Nome dell’istanza",
       "description": "Il nome mostrato nella pagina di accesso e alle istanze federate.",
@@ -313,7 +313,7 @@
     "title": "Aggiornamenti",
     "badge": {
       "settingsAriaLabel": "Impostazioni, aggiornamento dell’istanza disponibile",
-      "toast": "Backspace {{version}} è disponibile per questa istanza",
+      "toast": "Veyvox {{version}} è disponibile per questa istanza",
       "toastAction": "Visualizza"
     },
     "description": "Cosa sta eseguendo questa istanza e come portarla avanti.",
@@ -331,11 +331,11 @@
     },
     "available": {
       "label": "Disponibile",
-      "version": "Backspace {{version}} è disponibile",
+      "version": "Veyvox {{version}} è disponibile",
       "released": "Rilasciato il {{date}} · ",
       "releaseNotes": "Note di rilascio",
       "fromInstallDir": "Dalla tua directory di installazione:",
-      "scriptDescription": "Crea un’istantanea del database, scarica la nuova immagine e riavvia solo il container Backspace. Se la nuova versione non si avvia correttamente o continua a eseguire il vecchio codice, ripristina la versione attuale.",
+      "scriptDescription": "Crea un’istantanea del database, scarica la nuova immagine e riavvia solo il container Veyvox. Se la nuova versione non si avvia correttamente o continua a eseguire il vecchio codice, ripristina la versione attuale.",
       "noScript": "Non ho update.sh",
       "manualIntro": "update.sh è disponibile dalla 1.0.5 in poi. Su un checkout git, <code>git pull</code> lo porta con sé. Altrimenti esegui i passaggi manualmente, dopo aver creato un’istantanea con <code>./backup.sh</code>.",
       "prebuiltInstall": "Installazione con immagine precompilata:",

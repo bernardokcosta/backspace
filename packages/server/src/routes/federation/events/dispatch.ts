@@ -2,7 +2,7 @@ import { getDb } from '../../../db/index.js';
 import { normalizeOriginForCompare } from '../../../utils/federationAuth.js';
 import { hasAppliedEvent, recordAppliedEvent, relayEventKey } from '../../../utils/federationAppliedEvents.js';
 import { and } from 'drizzle-orm';
-import type { FederationRelayEvent } from '@backspace/shared';
+import type { FederationRelayEvent } from '@veyvox/shared';
 import { processDmCallAcceptEvent, processDmCallEndEvent, processDmCallRejectEvent, processDmCallStartEvent, processDmTypingStartEvent, processDmTypingStopEvent } from './calls.js';
 import { processCreateEvent, processDeleteEvent, processReactionAddEvent, processReactionRemoveEvent, processUpdateEvent } from './dmMessages.js';
 import { processDmCloseEvent, processDmReopenEvent, processFileRejectedEvent, processPresenceUpdateEvent, processReadStateUpdateEvent } from './dmState.js';

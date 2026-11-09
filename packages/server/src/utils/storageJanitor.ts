@@ -13,7 +13,7 @@ import { sweepAppliedEvents } from './federationAppliedEvents.js';
 import { sweepSubjectClocks } from './federationSubjectClock.js';
 import { cleanupUnusedStickerAssets } from './stickerAssets.js';
 import { cleanupGameIconAssets } from './gameIconAssets.js';
-import type { StorageStats, StorageBreakdown, OrphanedFile, CleanupResult } from '@backspace/shared';
+import type { StorageStats, StorageBreakdown, OrphanedFile, CleanupResult } from '@veyvox/shared';
 
 const IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.ico', '.bmp', '.avif']);
 const VIDEO_EXTS = new Set(['.mp4', '.webm', '.mov', '.avi', '.mkv']);

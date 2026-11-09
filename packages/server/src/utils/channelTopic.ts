@@ -1,5 +1,5 @@
-import { CHANNEL_TOPIC_MAX_LENGTH, normalizeChannelTopic } from '@backspace/shared/src/constants.js';
-import type { ErrorCode, ErrorDetails } from '@backspace/shared/src/errors.js';
+import { CHANNEL_TOPIC_MAX_LENGTH, normalizeChannelTopic } from '@veyvox/shared/src/constants.js';
+import type { ErrorCode, ErrorDetails } from '@veyvox/shared/src/errors.js';
 
 export type ChannelTopicCheck =
   | { ok: true; topic: string | null }

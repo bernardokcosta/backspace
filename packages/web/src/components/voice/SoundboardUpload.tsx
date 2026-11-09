@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MAX_SOUNDBOARD_BYTES, SOUNDBOARD_SAMPLE_RATE } from '@backspace/shared/src/soundboard';
+import { MAX_SOUNDBOARD_BYTES, SOUNDBOARD_SAMPLE_RATE } from '@veyvox/shared/src/soundboard';
 import { AudioManager } from '../../audio/AudioManager';
 import { audioBase64, encodeSoundboardClip, soundboardSelectionSamples } from '../../utils/soundboardAudio';
 import { getApiForOrigin } from '../../utils/crossStoreResolvers';

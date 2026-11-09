@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "Uložit",
     "cancel": "Zrušit",
@@ -123,7 +123,7 @@
   },
   "app": {
     "description": "Samohostovaná alternativa Discordu a TeamSpeaku. HD hlas, video a sdílení obrazovky — open source a zdarma (AGPL-3.0).",
-    "loading": "Načítání Backspace"
+    "loading": "Načítání Veyvox"
   },
   "chrome": {
     "toggleMemberList": "Zobrazit či skrýt seznam členů",

@@ -7,7 +7,7 @@ import { PermissionBits, stringToPermissions, permissionsToString, rolePermissio
 import { PERMISSION_GROUPS, type PermDef, type PermissionGroupId } from '../../../utils/permissionGroups';
 import { usePermissionNames } from '../../ui/OverrideEntry';
 import { describeError } from '../../../i18n/errors';
-import type { Role } from '@backspace/shared';
+import type { Role } from '@veyvox/shared';
 import {
   viewerCanManageRoleAt,
   useViewerHeldPermissions,

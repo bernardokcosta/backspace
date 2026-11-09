@@ -1,5 +1,5 @@
 import { and, eq } from 'drizzle-orm';
-import type { FederationMessageTarget, FederationRelayAttachment, FederationRelayEvent, FederationSyncResponse } from '@backspace/shared';
+import type { FederationMessageTarget, FederationRelayAttachment, FederationRelayEvent, FederationSyncResponse } from '@veyvox/shared';
 import { getDb, getRawDb, schema } from '../../../db/index.js';
 import { getOurOrigin, normalizeOriginForCompare } from '../../../utils/federationAuth.js';
 import { buildRelayPayload, dmMessageFederationRef, dmMessageMutationTarget, dmReplyRefForRelay, getDmParticipants } from '../../../utils/federationOutbox.js';

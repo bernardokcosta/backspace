@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "Salvează",
     "cancel": "Anulează",
@@ -123,7 +123,7 @@
   },
   "app": {
     "description": "Alternativa auto-găzduită la Discord și TeamSpeak. Voce HD, video și partajarea ecranului — open source și gratuit (AGPL-3.0).",
-    "loading": "Se încarcă Backspace"
+    "loading": "Se încarcă Veyvox"
   },
   "chrome": {
     "toggleMemberList": "Comută lista de membri",

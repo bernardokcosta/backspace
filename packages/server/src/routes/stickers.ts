@@ -7,7 +7,7 @@ import path from 'node:path';
 import {
   MAX_PERSONAL_STICKERS, MAX_STICKER_BYTES, MAX_STICKER_NAME_LENGTH, STICKER_ID_PATTERN, STICKER_PREFIX,
   STICKER_UPLOADS_PER_MINUTE, normalizeStickerName, type PersonalSticker,
-} from '@backspace/shared/src/stickers.js';
+} from '@veyvox/shared/src/stickers.js';
 import { config } from '../config.js';
 import { getDb, schema } from '../db/index.js';
 import { authenticate } from '../utils/auth.js';

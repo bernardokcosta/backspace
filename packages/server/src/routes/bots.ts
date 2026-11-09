@@ -7,7 +7,7 @@ import { tombstoneUser, collectProfileBroadcastTargetIds } from '../utils/userDe
 import { deleteUploadFile, deleteAttachmentByFilename } from '../utils/fileCleanup.js';
 import { connectionManager } from '../ws/handler.js';
 import { generateSnowflake } from '../utils/snowflake.js';
-import { BOT_NAME_MAX_LENGTH, BOT_NAME_MIN_LENGTH, MAX_BOTS_PER_USER, PROFILE_BIO_MAX_LENGTH } from '@backspace/shared/src/constants.js';
+import { BOT_NAME_MAX_LENGTH, BOT_NAME_MIN_LENGTH, MAX_BOTS_PER_USER, PROFILE_BIO_MAX_LENGTH } from '@veyvox/shared/src/constants.js';
 import { collectBotFederationOrigins } from '../utils/botFederation.js';
 import { revokeBotWithRetry } from '../utils/botRevocationQueue.js';
 import {
@@ -36,11 +36,11 @@ import type {
   CreateBotTokenResponse,
   UpdateBotRequest,
   UpdateBotResponse,
-} from '@backspace/shared';
+} from '@veyvox/shared';
 import { computePermissions, hasPermission, isBanned, isMember, isSpaceOwner, PermissionBits } from '../utils/permissions.js';
 import { addBotToSpace, announceSpaceRolesChanged, removeUserFromSpace } from '../utils/spaceMembership.js';
 import { parseRequestedPermissions, renameManagedBotRoles, storedRequestedPermissions } from '../utils/botRoles.js';
-import { permissionsToString, roleBitsChangeRefusal, type HeldBitsRefusal } from '@backspace/shared/src/permissions.js';
+import { permissionsToString, roleBitsChangeRefusal, type HeldBitsRefusal } from '@veyvox/shared/src/permissions.js';
 
 /** Not a bcrypt hash, so password login is impossible (same idea as '!federation-replicated'). */
 const BOT_PASSWORD_MARKER = '!bot';

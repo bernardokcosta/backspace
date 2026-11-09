@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Activity } from '@backspace/shared';
+import type { Activity } from '@veyvox/shared';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { replaceEmojiShortcodes } from '../../utils/emojiShortcodes';

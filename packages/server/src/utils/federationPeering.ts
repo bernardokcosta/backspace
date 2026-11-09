@@ -4,7 +4,7 @@ import { and, eq } from 'drizzle-orm';
 import { generateSnowflake } from './snowflake.js';
 import { getOurOrigin, generateHmacSecret } from './federationAuth.js';
 import { validateOrigin } from '../routes/federation.js';
-import type { EnsurePeeredCallerIntent } from '@backspace/shared';
+import type { EnsurePeeredCallerIntent } from '@veyvox/shared';
 import {
   insertPeer,
   peerStatusOf,

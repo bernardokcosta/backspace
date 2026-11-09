@@ -25,9 +25,9 @@ describe('Polish contextual content', () => {
     expect(spaces.settings.afk.minutes).toBe('min');
   });
 
-  it('keeps Backspace and Juno automatic labels distinct', () => {
+  it('keeps Veyvox and Juno automatic labels distinct', () => {
     expect(common.language.automatic).toBe('Automatycznie (systemowy)');
-    expect(voice.juno.settings.automatic).toBe('Automatycznie (Backspace)');
+    expect(voice.juno.settings.automatic).toBe('Automatycznie (Veyvox)');
     expect(voice.juno.settings.automaticDubbing).toBe(voice.juno.settings.automatic);
   });
 

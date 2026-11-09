@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "Generelt",
-    "description": "Konfigurer Backspace-instansen din. Disse innstillingene gjelder alle brukere.",
+    "description": "Konfigurer Veyvox-instansen din. Disse innstillingene gjelder alle brukere.",
     "instanceName": {
       "label": "Instansnavn",
       "description": "Navnet som vises på påloggingssiden og overfor fødererte instanser.",
@@ -300,7 +300,7 @@
     "title": "Oppdateringer",
     "badge": {
       "settingsAriaLabel": "Innstillinger, instansoppdatering tilgjengelig",
-      "toast": "Backspace {{version}} er tilgjengelig for denne instansen",
+      "toast": "Veyvox {{version}} er tilgjengelig for denne instansen",
       "toastAction": "Vis"
     },
     "description": "Hvilken versjon som kjører på denne instansen og hvordan du oppdaterer den.",
@@ -318,11 +318,11 @@
     },
     "available": {
       "label": "Tilgjengelig",
-      "version": "Backspace {{version}} tilgjengelig",
+      "version": "Veyvox {{version}} tilgjengelig",
       "released": "Utgitt {{date}} · ",
       "releaseNotes": "Utgivelsesnotater",
       "fromInstallDir": "Fra installasjonsmappen din:",
-      "scriptDescription": "Oppretter et øyeblikksbilde av databasen, laster ned det nye imaget og starter bare Backspace-containeren på nytt. Hvis den nye versjonen ikke starter ordentlig eller starter med gammel kode, ruller den den gjeldende versjonen tilbake.",
+      "scriptDescription": "Oppretter et øyeblikksbilde av databasen, laster ned det nye imaget og starter bare Veyvox-containeren på nytt. Hvis den nye versjonen ikke starter ordentlig eller starter med gammel kode, ruller den den gjeldende versjonen tilbake.",
       "noScript": "Jeg har ingen update.sh",
       "manualIntro": "update.sh følger med fra 1.0.5. I en git-kopi legger <code>git pull</code> den til. Gjør ellers trinnene manuelt etter øyeblikksbilde med <code>./backup.sh</code>.",
       "prebuiltInstall": "Ferdig installasjon:",

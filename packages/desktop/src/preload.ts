@@ -88,7 +88,7 @@ async function startSdrCapture(constraints: SdrCaptureConstraints): Promise<{ se
   }
 }
 
-contextBridge.exposeInMainWorld('backspace', {
+const desktopApi = {
   // Platform info
   platform: process.platform,
   // Window controls
@@ -165,7 +165,9 @@ contextBridge.exposeInMainWorld('backspace', {
 
   // Deep linking
   onDeepLink: (callback: (url: string) => void) => {
-    ipcRenderer.on('deep-link', (_event, url) => callback(url));
+    const handler = (_event: Electron.IpcRendererEvent, url: string) => callback(url);
+    ipcRenderer.on('deep-link', handler);
+    return () => { ipcRenderer.removeListener('deep-link', handler); };
   },
 
   // Instance-origin-aware URL routing
@@ -308,4 +310,9 @@ contextBridge.exposeInMainWorld('backspace', {
   recoveryAction: (action: string): void => {
     ipcRenderer.send('recovery-action', action);
   },
-});
+};
+
+// One implementation, two context-isolated names: older hosted clients keep
+// working, while current clients prefer the Veyvox name. No IPC contract changes.
+contextBridge.exposeInMainWorld('veyvox', desktopApi);
+contextBridge.exposeInMainWorld('backspace', desktopApi);

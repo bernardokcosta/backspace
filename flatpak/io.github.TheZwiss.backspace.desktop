@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=Backspace
+Name=Veyvox
 Comment=Self-hosted text, voice, and video communication
 Exec=backspace %U
 Terminal=false
@@ -7,5 +7,5 @@ Type=Application
 Icon=io.github.TheZwiss.backspace
 StartupWMClass=io.github.TheZwiss.backspace
 Categories=Network;Chat;InstantMessaging;
-MimeType=x-scheme-handler/backspace;
+MimeType=x-scheme-handler/veyvox;x-scheme-handler/backspace;
 Keywords=chat;voice;video;federation;self-hosted;

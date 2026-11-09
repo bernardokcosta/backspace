@@ -25,7 +25,7 @@ describe('Indonesian contextual content', () => {
   it('completes the instruction to cancel an instance switch and stay here', () => {
     const catalogs = readDesktopCatalogs(path.resolve(import.meta.dirname, '../../../..')).catalogs;
     const picker = catalogs.find((catalog: { language: string; surface: string }) => catalog.language === 'id' && catalog.surface === 'instancePicker')!.values;
-    expect(picker.switchSubtitle).toBe('Hubungkan ke instans Backspace lain, atau batalkan untuk tetap di sini.');
+    expect(picker.switchSubtitle).toBe('Hubungkan ke instans Veyvox lain, atau batalkan untuk tetap di sini.');
   });
 
   it('describes per-listener mute without claiming a server mute', () => {
@@ -42,9 +42,9 @@ describe('Indonesian contextual content', () => {
     expect(chat.message.reactions.byMany).toBe('Reaksi: {{names}}');
   });
 
-  it('keeps Backspace and Juno automatic labels distinct', () => {
+  it('keeps Veyvox and Juno automatic labels distinct', () => {
     expect(common.language.automatic).toBe('Otomatis (sistem)');
-    expect(voice.juno.settings.automatic).toBe('Otomatis (Backspace)');
+    expect(voice.juno.settings.automatic).toBe('Otomatis (Veyvox)');
     expect(voice.juno.settings.automaticDubbing).toBe(voice.juno.settings.automatic);
   });
 

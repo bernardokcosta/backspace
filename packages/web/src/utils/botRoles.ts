@@ -1,4 +1,4 @@
-import type { Role } from '@backspace/shared';
+import type { Role } from '@veyvox/shared';
 
 /**
  * A bot's managed role (bots.md, "Permissions on invite"): created for one bot

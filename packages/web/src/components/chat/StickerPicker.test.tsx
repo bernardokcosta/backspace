@@ -4,7 +4,7 @@ import { StickerPicker } from './StickerPicker';
 import { StickerMessage } from './StickerMessage';
 import { api } from '../../api/client';
 import { uploadSticker } from './stickerUpload';
-import { MAX_PERSONAL_STICKERS, type StickerPackDetail } from '@backspace/shared/src/stickers';
+import { MAX_PERSONAL_STICKERS, type StickerPackDetail } from '@veyvox/shared/src/stickers';
 
 import { useContextMenuStore } from '../../stores/contextMenuStore';
 import { PickerEscapeScope } from './pickerEscape';
