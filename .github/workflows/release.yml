@@ -393,13 +393,13 @@ jobs:
         run: |
           set -euo pipefail
           if [ "$RUNNER_OS" = Linux ]; then
-            xvfb-run -a dbus-run-session -- bash -euo pipefail -c '
+            xvfb-run -a dbus-run-session -- bash -euo pipefail <<'LINUX_ACCEPTANCE'
               export XDG_CURRENT_DESKTOP=GNOME
               keyring_password="$(openssl rand -hex 32)"
               eval "$(printf "%s" "$keyring_password" | gnome-keyring-daemon --unlock --components=secrets)"
               unset keyring_password
               node scripts/verify-installed-rebrand.mjs --directory installed-candidates
-            '
+          LINUX_ACCEPTANCE
           else
             node scripts/verify-installed-rebrand.mjs --directory installed-candidates
           fi

@@ -30,8 +30,10 @@ test('requires every independent runner/opt-in guard and a matching OS', () => {
   for (const [suffix, digest] of Object.values(BASELINES)) { assert.match(suffix, /\.(exe|deb|dmg)$/); assert.match(digest, /^[a-f0-9]{64}$/); }
 });
 test('acceptance rejects any lost state rather than reseeding the candidate', () => {
-  const report = { ok: true, phase: 'upgrade', version: '1.17.0', token: 'synthetic-session', language: 'auto', pending: 'synthetic-pending', cookie: 'synthetic-session', instances: 'synthetic-peer', scale: 200, music: 20, legacy: true, canonical: true, hidden: true, startup: { openAtLogin: true, startMinimized: true } };
+  const report = { ok: true, phase: 'upgrade', version: '1.17.0', token: 'synthetic-session', language: 'auto', pending: 'synthetic-pending', cookie: 'synthetic-session', instances: 'synthetic-peer', scale: 200, music: 20, legacy: true, canonical: true, documentVisibility: 'visible', startup: { openAtLogin: true, startMinimized: true } };
   assert.doesNotThrow(() => assertInstalledReport(report, 'upgrade', '1.17.0', true));
   for (const key of Object.keys(report)) assert.throws(() => assertInstalledReport({ ...report, [key]: null }, 'upgrade', '1.17.0', true), key);
   assert.throws(() => assertInstalledReport({ ...report, startup: { openAtLogin: false, startMinimized: true } }, 'upgrade', '1.17.0', true));
+  assert.doesNotThrow(() => assertInstalledReport({ ...report, documentVisibility: 'hidden' }, 'upgrade', '1.17.0', true));
+  assert.throws(() => assertInstalledReport({ ...report, cookie: 'must-not-appear-in-errors' }, 'upgrade', '1.17.0', true), error => /failed checks: cookie$/.test(error.message) && !error.message.includes('must-not-appear'));
 });

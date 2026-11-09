@@ -37,7 +37,7 @@
       instances: localStorage.getItem('backspace_instances_synthetic-owner'), scale: JSON.parse(localStorage.getItem('backspace-interface-scale'))?.state?.scale,
       music: JSON.parse(localStorage.getItem('backspace-juno-preferences'))?.state?.musicVolume, pending,
       cookie: document.cookie.split('; ').find(value => value.startsWith('session='))?.slice(8), legacy: !!window.backspace, canonical: !!window.veyvox,
-      hidden: document.visibilityState === 'hidden', startup: await api.getAutoLaunchSettings() });
+      documentVisibility: document.visibilityState, startup: await api.getAutoLaunchSettings() });
     document.getElementById('result').textContent = 'Synthetic state checked.';
   } catch { report.ok = false; }
   // Wait for the report acknowledgement before the real app's graceful quit.

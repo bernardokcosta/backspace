@@ -42,6 +42,7 @@ test('retains installed desktop, storage and operational identities', () => {
 });
 
 test('all 25 complete catalogs and native surfaces use the current product name', () => {
+  assert.match(read('packages/desktop/resources/instance-picker.html'), /placeholder="instance\.example\.com"/);
   const languages = fs.readdirSync(path.join(ROOT, 'packages/web/src/locales'));
   assert.equal(languages.length, 25);
   for (const language of languages) {

@@ -12,6 +12,7 @@ afterEach(() => {
 
 function fixture(): string {
   const temp = process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, 'Temp', 'opencode') : os.tmpdir();
+  fs.mkdirSync(temp, { recursive: true });
   const directory = fs.mkdtempSync(path.join(temp, 'veyvox-startup-'));
   directories.push(directory);
   return directory;

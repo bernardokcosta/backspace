@@ -34,14 +34,20 @@ const APPIMAGES = {
 };
 
 export function assertInstalledReport(report, phase, version, startup) {
-  if (report?.ok !== true || report.phase !== phase || report.version !== version
-    || report.token !== 'synthetic-session' || report.language !== 'auto'
-    || report.pending !== 'synthetic-pending' || report.cookie !== 'synthetic-session'
-    || report.instances !== 'synthetic-peer' || report.scale !== 200 || report.music !== 20
-    || report.legacy !== true || (!phase.endsWith('seed') && report.canonical !== true)
-    || report.hidden !== true || (startup !== undefined && (report.startup?.openAtLogin !== startup || report.startup.startMinimized !== true))) {
-    throw new Error(`Installed ${phase} did not preserve the complete synthetic profile`);
-  }
+  const checks = {
+    ok: report?.ok === true, phase: report?.phase === phase, version: report?.version === version,
+    token: report?.token === 'synthetic-session', language: report?.language === 'auto',
+    pending: report?.pending === 'synthetic-pending', cookie: report?.cookie === 'synthetic-session',
+    instances: report?.instances === 'synthetic-peer', scale: report?.scale === 200, music: report?.music === 20,
+    legacy: report?.legacy === true, canonical: phase.endsWith('seed') || report?.canonical === true,
+    // Electron explicitly documents visible as the initial renderer state of a
+    // show:false BrowserWindow. This is metadata, NOT an OS visibility assertion.
+    documentVisibility: ['visible', 'hidden'].includes(report?.documentVisibility),
+    startup: startup === undefined || (report?.startup?.openAtLogin === startup && report.startup.startMinimized === true),
+  };
+  const failed = Object.entries(checks).filter(([, passed]) => !passed).map(([name]) => name);
+  // Fixed field names only: never log a token, cookie, body or arbitrary text.
+  if (failed.length) throw new Error(`Installed ${phase} failed checks: ${failed.join(', ')}`);
 }
 
 const run = (file, args) => execFileSync(file, args, { encoding: 'utf8', timeout: 180_000, stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -78,10 +84,6 @@ async function install(file, evidence, before) {
     if (before && (identity.id !== before.id || identity.location !== before.location)) throw new Error('NSIS created a different installation');
     if (!identity.shortcuts.length || identity.shortcuts.some(link => !/^(?:Backspace Fork|Veyvox)\.lnk$/.test(link.name)
       || link.aumid !== 'io.github.bernardokcosta.backspacefork') || (before && identity.shortcuts.length !== before.shortcuts.length)) throw new Error('Missing/duplicated fork shortcut or changed AUMID');
-    for (const scheme of before ? ['veyvox', 'backspace'] : ['backspace']) {
-      const command = powershell(`(Get-Item ${quotePS(`HKCU:\\Software\\Classes\\${scheme}\\shell\\open\\command`)}).GetValue('')`);
-      if (!command.includes(path.join(identity.location, 'Backspace Fork.exe'))) throw new Error('Protocol points at a different executable');
-    }
     return { identity, executable: path.join(identity.location, 'Backspace Fork.exe'), resources: path.join(identity.location, 'resources') };
   }
   if (process.platform === 'darwin') {
@@ -117,6 +119,22 @@ async function install(file, evidence, before) {
   if (before && before.location !== executable && await exists(before.location)) throw new Error('Old Debian binary survived as a parallel installation');
   return { identity: { id: identity, location: executable, desktop: desktops[0], version: run('dpkg-query', ['-W', '-f=${Version}', identity]) },
     executable, resources: path.join(path.dirname(executable), 'resources') };
+}
+
+function verifyWindowsRegistrations(installed, candidate, startup) {
+  if (process.platform !== 'win32') return;
+  // These registrations are performed by production main on first launch, not
+  // guaranteed by a silent NSIS install. Check after that real process exits.
+  for (const scheme of candidate ? ['veyvox', 'backspace'] : ['backspace']) {
+    const command = powershell(`(Get-Item ${quotePS(`HKCU:\\Software\\Classes\\${scheme}\\shell\\open\\command`)}).GetValue('')`);
+    if (!command.includes(installed.executable)) throw new Error('Protocol points at a different executable');
+  }
+  const command = powershell(`(Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run').'Backspace Fork'`);
+  if (!command.includes(installed.executable) || !command.includes('--hidden')) throw new Error('Startup executable/hidden argument was not preserved');
+  if (!startup) {
+    const disabled = powershell(`(Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run').'Backspace Fork'[0]`);
+    if (disabled !== '3') throw new Error('OS-disabled startup was re-enabled');
+  }
 }
 
 function appDataPath() {
@@ -222,6 +240,7 @@ export async function verifyInstalledRebrand(args) {
     state.enableStartup = process.platform !== 'linux';
     state.startup = process.platform === 'linux' ? undefined : true;
     const results = [await launchAndVerify(old, 'seed', '1.16.8', state, evidence)];
+    verifyWindowsRegistrations(old, false, true);
     await verifyEncryptedCookie(profile);
     state.enableStartup = false;
     const linuxEntry = path.join(appData, 'autostart/backspace-fork.desktop');
@@ -254,6 +273,7 @@ export async function verifyInstalledRebrand(args) {
         }
       }
       results.push(await launchAndVerify(current, phase, version, state, evidence));
+      verifyWindowsRegistrations(current, true, state.startup);
       await verifyEncryptedCookie(profile);
       if (JSON.parse(await fs.readFile(path.join(profile, 'instance-url.json'))).url !== state.origin
         || JSON.parse(await fs.readFile(path.join(profile, 'language.json'))).language !== 'auto'
@@ -277,7 +297,7 @@ export async function verifyInstalledRebrand(args) {
     }
     const report = { status: 'passed', platform: process.platform, arch: process.arch, baselineSha256: baseline[1],
       baseline: old.identity, candidate: current.identity, encryptedCookie: true, results,
-      limitations: ['Synthetic session only; not a live user login. Hidden launch uses --hidden, not an actual OS reboot/login.', 'Linux baseline enabled autostart entry is seeded at the OS file boundary; Electron 1.16.8 did not implement that write.'] };
+      limitations: ['Synthetic session only; not a live user login. Startup preferences/command arguments are checked, not a real reboot/login or OS-window visibility. Renderer document visibility is metadata only.', 'Linux baseline enabled autostart entry is seeded at the OS file boundary; Electron 1.16.8 did not implement that write.'] };
     await fs.writeFile(path.resolve(values.directory, `installed-${process.platform}-${process.arch}.json`), JSON.stringify(report, null, 2));
     console.log(JSON.stringify({ status: 'passed', evidence, platform: process.platform, arch: process.arch }));
   } finally { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }

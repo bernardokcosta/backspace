@@ -11,6 +11,7 @@ let newDir: string;
 
 beforeEach(() => {
   const temp = process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, 'Temp', 'opencode') : os.tmpdir();
+  fs.mkdirSync(temp, { recursive: true });
   tmpRoot = fs.mkdtempSync(path.join(temp, 'veyvox-migration-'));
   oldParent = path.join(tmpRoot, '@backspace');
   oldDir = path.join(oldParent, 'desktop');

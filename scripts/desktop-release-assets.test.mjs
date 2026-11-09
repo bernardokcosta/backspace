@@ -44,6 +44,11 @@ test('workflow keeps matrix read-only, fuses/signature before artifact upload an
   assert.equal(workflow.jobs.installed.permissions.contents, 'read');
   assert.equal(workflow.jobs.installed.strategy.matrix.include.length, 6);
   assert.ok(workflow.jobs.installed.steps.some(step => step.run?.includes('verify-installed-rebrand.mjs')));
+  const installedScript = workflow.jobs.installed.steps.find(step => step.run?.includes('xvfb-run')).run;
+  assert.match(installedScript, /<<'LINUX_ACCEPTANCE'/);
+  assert.doesNotMatch(installedScript, /bash -euo pipefail -c '/);
+  const parsed = spawnSync('bash', ['-n'], { input: installedScript, encoding: 'utf8' });
+  assert.equal(parsed.status, 0, parsed.stderr);
   assert.match(workflow.jobs.publish.if, /github.event_name == 'push'.*refs\/tags\//);
   assert.equal(workflow.jobs.validate.needs, 'build');
   assert.ok(workflow.on.pull_request && Object.hasOwn(workflow.on, 'workflow_dispatch'));
