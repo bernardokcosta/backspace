@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import sharp from 'sharp';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const read = name => fs.readFileSync(path.join(ROOT, name), 'utf8');
@@ -31,4 +32,15 @@ test('ships equivalent bilingual onboarding and original attribution with real l
   }
   const notice = read('NOTICE');
   for (const required of ['Copyright (c) 2026 Jannis Braun', 'veyvox-app-icon.png', 'veyvox-symbol.png', 'SIL Open Font License', 'MPL-2.0']) assert.ok(notice.includes(required));
+});
+
+test('both READMEs display the transparent app derivative, not the opaque master', async () => {
+  for (const file of ['README.md', 'README.pt-BR.md']) {
+    const source = /<img[^>]+src=["']([^"']+)["']/.exec(read(file))?.[1];
+    assert.equal(source, 'assets/brand/app-icon-1024.png', `${file}: use the generated transparent tile`);
+    const { data, info } = await sharp(path.join(ROOT, source)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    for (const [x, y] of [[0, 0], [info.width - 1, 0], [0, info.height - 1], [info.width - 1, info.height - 1]]) {
+      assert.equal(data[(y * info.width + x) * 4 + 3], 0, `${file}: visible image corner is not transparent`);
+    }
+  }
 });

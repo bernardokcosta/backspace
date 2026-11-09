@@ -1,7 +1,7 @@
 [English](README.md) · [Português (Brasil)](README.pt-BR.md)
 
 <div align="center">
-<img src="assets/brand/veyvox-app-icon.png" alt="Veyvox" width="144" />
+<img src="assets/brand/app-icon-1024.png" alt="Veyvox" width="144" />
 
 # Veyvox
 
