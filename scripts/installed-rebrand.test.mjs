@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
-import { requireDisposableRunner, BASELINES, assertInstalledReport, assertCookieProtectionUnchanged, assertCookieStorageRow } from './verify-installed-rebrand.mjs';
+import { requireDisposableRunner, BASELINES, assertInstalledReport, assertCookieProtectionUnchanged, assertCookieStorageRow, summarizeMacTermination } from './verify-installed-rebrand.mjs';
 
 test('installed upgrade acceptance refuses to modify a non-runner OS account', () => {
   const result = spawnSync(process.execPath, [path.join(import.meta.dirname, 'verify-installed-rebrand.mjs')], {
@@ -52,4 +52,12 @@ test('preserves measured cookie protection without enabling or downgrading encry
   assert.throws(() => assertCookieStorageRow({ ...encrypted, encrypted_value: Buffer.from('v10basic-fallback') }, 'encrypted', 'linux'));
   assert.throws(() => assertCookieStorageRow(undefined, 'plaintext'));
   assert.throws(() => assertCookieStorageRow({ ...plain, value: 'lost-session' }, 'plaintext'));
+});
+
+test('macOS failure evidence reports only the owned process termination fields', () => {
+  const report = { pid: 123, termination: { namespace: 'CODESIGNING', code: 2, indicator: 'must-not-log-arbitrary-content' } };
+  assert.deepEqual(summarizeMacTermination(report, 123), { namespace: 'CODESIGNING', code: 2 });
+  assert.equal(summarizeMacTermination(report, 456), null);
+  assert.equal(summarizeMacTermination({ ...report, pid: undefined }, 123), null);
+  assert.deepEqual(summarizeMacTermination({ pid: 123, termination: { namespace: 'must-not-log', code: 'must-not-log' } }, 123), { namespace: 'OTHER', code: null });
 });

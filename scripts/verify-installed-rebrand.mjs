@@ -181,8 +181,36 @@ async function verifyCookieStorage(profile, protection) {
   } finally { db.close(); }
 }
 
+export function summarizeMacTermination(report, pid) {
+  if (!Number.isInteger(pid) || report?.pid !== pid || !report.termination) return null;
+  const { namespace, code } = report.termination;
+  return { namespace: ['CODESIGNING', 'SIGNAL', 'RUNNINGBOARD', 'DYLD', 'WATCHDOG'].includes(namespace) ? namespace : 'OTHER',
+    code: Number.isSafeInteger(code) ? code : null };
+}
+
+async function ownMacTermination(pid) {
+  if (process.platform !== 'darwin') return null;
+  // Read only this disposable app's crash files, never emit crash text, paths,
+  // stacks, register values, arbitrary strings or another process's evidence.
+  const directory = path.join(os.homedir(), 'Library/Logs/DiagnosticReports');
+  let files;
+  try { files = await fs.readdir(directory); } catch { return null; }
+  for (const file of files.filter(name => name.startsWith('Backspace Fork-') && name.endsWith('.ips')).sort().reverse()) {
+    try {
+      const info = await fs.stat(path.join(directory, file));
+      if (info.size > 2_000_000) continue;
+      const text = await fs.readFile(path.join(directory, file), 'utf8');
+      const report = JSON.parse(text.slice(text.indexOf('\n') + 1));
+      const summary = summarizeMacTermination(report, pid);
+      if (summary) return summary;
+    } catch { /* A report may not be available yet; absence is not a pass. */ }
+  }
+  return null;
+}
+
 async function launchAndVerify(installed, phase, version, state, evidence) {
   state.phase = phase; state.version = version;
+  console.log(JSON.stringify({ acceptancePhase: phase, status: 'starting', version }));
   let timer, child;
   const log = await fs.open(path.join(evidence, `${phase}.log`), 'wx');
   try {
@@ -195,14 +223,20 @@ async function launchAndVerify(installed, phase, version, state, evidence) {
     for (const name of Object.keys(env)) if (/(?:TOKEN|SECRET|PASSWORD|PRIVATE_KEY)/i.test(name)) delete env[name];
     child = spawn(installed.executable, ['--hidden', `--proxy-server=${state.origin}`, '--proxy-bypass-list=127.0.0.1'],
       { env, stdio: ['ignore', log.fd, log.fd], windowsHide: true });
-    const exit = new Promise((resolve, reject) => { child.once('error', reject); child.once('exit', code => code === 0 ? resolve() : reject(new Error(`Installed process exited ${code}`))); });
+    const exit = new Promise((resolve, reject) => { child.once('error', reject); child.once('exit', (code, signal) => code === 0 ? resolve()
+      : reject(new Error(`Installed ${phase} process exit code=${Number.isInteger(code) ? code : 'none'} signal=${/^SIG[A-Z0-9]+$/.test(signal ?? '') ? signal : 'none'}`))); });
     const result = await Promise.race([Promise.all([report, exit]).then(([value]) => value),
       new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(`Installed ${phase} report/clean quit timed out`)), 45_000); })]);
     clearTimeout(timer);
+    console.log(JSON.stringify({ acceptancePhase: phase, status: 'passed', version }));
     return result;
+  } catch (error) {
+    const termination = await ownMacTermination(child?.pid);
+    if (termination) console.error(JSON.stringify({ acceptancePhase: phase, macTermination: termination }));
+    throw error;
   } finally {
     clearTimeout(timer); state.report = null;
-    if (child?.pid && child.exitCode === null) {
+    if (child?.pid && child.exitCode === null && child.signalCode === null) {
       // Only the exact process tree started by this harness, never a name glob.
       if (process.platform === 'win32') run('taskkill.exe', ['/PID', String(child.pid), '/T', '/F']);
       else child.kill('SIGKILL');
