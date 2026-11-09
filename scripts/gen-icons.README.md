@@ -29,6 +29,14 @@ alpha with flat lavender `#7c6cf6`, white or black; colored standalone/maskable
 outputs retain source RGB. These outputs are PNGs, not falsely labeled vectors.
 Historical Backspace SVGs/design archives are not generator inputs.
 
+The maintainer also requested removal of the app tile's black exterior corners.
+`cleanAppIcon` clears alpha only for four-connected, edge-reachable pixels with
+all RGB channels <=16 (65,993 pixels in the hash-verified master). Source RGB,
+the purple outline, enclosed dark fill and both Vs are unchanged. This is a
+transparent outer matte in derivatives, not a new shape or an edit to the master.
+Apple-touch remains deliberately opaque after flattening to its platform ground;
+the independently composed maskable icon remains opaque too.
+
 ## Output matrix
 
 | Destination | Output |

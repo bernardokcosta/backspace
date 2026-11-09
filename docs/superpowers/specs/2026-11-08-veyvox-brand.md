@@ -20,6 +20,15 @@ bytes. Do not delete the source folder or unrelated downloads. Preserve supplied
 masters; cleanup, resizing, monochrome silhouettes and platform framing are
 reproducible derived outputs, not silent changes to the masters.
 
+The maintainer subsequently requested removal of the black exterior corners
+visible around the rounded app tile. In app derivatives only, make that
+edge-connected near-black matte transparent; preserve the rounded purple outline,
+enclosed fill, both Vs and all source RGB. Do not replace the shape or recolor it.
+The master stays byte-identical, and touch/maskable outputs retain their required
+opaque platform grounds. PhotoCraft was offered as an optional editing tool; its
+configured MCP session has neither GUI bridge mode nor filesystem read authority,
+so the existing reproducible generator performs this bounded correction.
+
 ## Owners and behavior
 
 - Reuse `scripts/gen-icons.mjs` and existing target paths, adapting its vector-only

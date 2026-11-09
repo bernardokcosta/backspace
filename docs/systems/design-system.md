@@ -141,6 +141,12 @@ V components and a one-pixel antialiased fringe remain intact; resizing,
 monochrome fills and platform framing affect derivatives only. Changes to the
 geometry or stronger cleanup require another visual approval.
 
+The maintainer separately requested transparent exterior corners for the boxed
+app icon. Derivatives clear only edge-connected near-black matte outside its
+rounded purple outline; the enclosed tile, both Vs and source RGB are unchanged.
+The original opaque PNG remains immutable. Do not replace this with a new rounded
+rectangle, recolor the edge or apply this matte rule to the standalone symbol.
+
 macOS dock/ICNS artwork keeps the 824/1024 Apple-grid margin. Other app icons
 use the boxed composition directly. The maskable icon has an opaque plum ground
 and the colored V fitted inside a central 60% square, within the safe circle.

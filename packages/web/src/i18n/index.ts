@@ -68,7 +68,9 @@ function applyDocumentLanguage(language: SupportedLanguage): void {
     manifest.rel = 'manifest';
     document.head.append(manifest);
   }
-  const manifestLanguage = availableLanguages.some(entry => entry.code === language) ? language : DEFAULT_LANGUAGE;
+  // Build the URL from the internal catalog value, not the DOM-sourced input
+  // even after a membership check. Only shipped manifest filenames can result.
+  const manifestLanguage = availableLanguages.find(entry => entry.code === language)?.code ?? DEFAULT_LANGUAGE;
   manifest.setAttribute('href', `${import.meta.env.BASE_URL}manifest-${manifestLanguage}.webmanifest`);
 }
 

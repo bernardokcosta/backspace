@@ -636,7 +636,9 @@ description. `src/build/localizedManifests.ts` owns one existing install templat
 reused by VitePWA plus one static `manifest-<released-code>.webmanifest` per released
 locale. Name, start URL, icons, colors, standalone display and effective app identity
 stay identical; only description/lang/dir vary. The current i18n document owner
-selects the manifest link and description meta after a locale commit. Future
+selects the manifest link and description meta after a locale commit. URL
+construction takes the matched code from the internal released-language catalog,
+never the original DOM/preference string; its filename set stays closed. Future
 missing descriptions fall back honestly to English metadata. Development serves
 the same generated content, and the existing Workbox precache extension/budget
 includes `.webmanifest` so metadata remains offline-capable. No extra service

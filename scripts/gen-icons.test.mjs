@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import sharp from 'sharp';
-import { cleanSymbol, generateIcons } from './gen-icons.mjs';
+import { cleanAppIcon, cleanSymbol, generateIcons } from './gen-icons.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -43,6 +43,36 @@ test('preserves the exact supplied masters and both intentional V components', a
   assert.equal(removed, 27_321); // Approved near-transparent noise, not colored geometry.
 });
 
+test('removes only edge-connected near-black corners outside the rounded app tile', async () => {
+  const input = await fs.readFile(path.join(ROOT, 'assets/brand/veyvox-app-icon.png'));
+  const original = await png(input, 1254);
+  const cleaned = await png(await cleanAppIcon(input), 1254);
+  let removed = 0;
+  for (let offset = 0; offset < original.length; offset += 4) {
+    assert.ok(original.subarray(offset, offset + 3).equals(cleaned.subarray(offset, offset + 3)), 'Never recolor the supplied artwork');
+    if (cleaned[offset + 3] !== original[offset + 3]) {
+      assert.equal(cleaned[offset + 3], 0);
+      assert.ok(Math.max(original[offset], original[offset + 1], original[offset + 2]) <= 16);
+      removed++;
+    }
+  }
+  assert.equal(removed, 65_993);
+  for (const [x, y] of [[0, 0], [1253, 0], [0, 1253], [1253, 1253]]) assert.equal(cleaned[(y * 1254 + x) * 4 + 3], 0);
+  assert.equal(cleaned[(627 * 1254 + 627) * 4 + 3], 255);
+  assert.equal(hash(input), sources['veyvox-app-icon.png']);
+
+  // A dark interior enclosed by a light outline is not the external matte.
+  const synthetic = Buffer.from([
+    0, 0, 0, 255, 200, 200, 200, 255, 0, 0, 0, 255,
+    200, 200, 200, 255, 0, 0, 0, 255, 200, 200, 200, 255,
+    0, 0, 0, 255, 200, 200, 200, 255, 0, 0, 0, 255,
+  ]);
+  const fixture = await sharp(synthetic, { raw: { width: 3, height: 3, channels: 4 } }).png().toBuffer();
+  const result = await png(await cleanAppIcon(fixture), 3);
+  assert.equal(result[(1 * 3 + 1) * 4 + 3], 255);
+  assert.equal(result[3], 0);
+});
+
 test('refuses missing masters before creating any output', async t => {
   const root = await fixture(t);
   await assert.rejects(generateIcons(root), /Missing source/);
@@ -59,6 +89,7 @@ test('generates every raster, ICO and ICNS output deterministically', async t =>
   for (const [name, size] of Object.entries({ 'favicon-16.png': 16, 'favicon-32.png': 32, 'logo.png': 256, 'logo-mark.png': 256, 'symbol.png': 512, 'apple-touch-icon.png': 180, 'icon-192.png': 192, 'icon-512.png': 512, 'icon-maskable-512.png': 512 })) {
     const raw = await png(web(name), size);
     if (name === 'apple-touch-icon.png' || name === 'icon-maskable-512.png') for (let i = 3; i < raw.length; i += 4) assert.equal(raw[i], 255);
+    if (['logo.png', 'icon-192.png', 'icon-512.png'].includes(name)) assert.equal(raw[3], 0, `${name} must not keep the black exterior matte`);
   }
   const dock = await png(path.join(root, 'packages/desktop/build/icon.png'), 512);
   for (let y = 0; y < 50; y++) for (let x = 0; x < 512; x++) assert.equal(dock[(y * 512 + x) * 4 + 3], 0);
@@ -76,7 +107,13 @@ test('generates every raster, ICO and ICNS output deterministically', async t =>
       assert.equal(bytes[entry] || 256, size); assert.equal(bytes[entry + 1] || 256, size);
       assert.ok(length > 0 && start + length <= bytes.length);
       const frame = bytes.subarray(start, start + length);
-      if (frame.readUInt32LE(0) === 40) { assert.equal(frame.readInt32LE(4), size); assert.equal(frame.readInt32LE(8), size * 2); }
+      if (frame.readUInt32LE(0) === 40) {
+        assert.equal(frame.readInt32LE(4), size); assert.equal(frame.readInt32LE(8), size * 2);
+        if (name === 'build/icon.ico') {
+          assert.equal(frame.readUInt16LE(14), 32);
+          assert.ok(frame[40 + (size - 1) * size * 4 + 3] <= 2, 'The real ICO frame must not restore opaque black corners');
+        }
+      }
       else { const meta = await sharp(frame).metadata(); assert.equal(meta.width, size); assert.equal(meta.height, size); }
     }
   }

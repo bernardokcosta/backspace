@@ -37,6 +37,35 @@ export async function cleanSymbol(input) {
   return sharp(data, { raw: info }).png(PNG).toBuffer();
 }
 
+/** Remove the opaque black matte outside the supplied rounded app tile.
+ * Only near-black pixels connected to the canvas edge lose alpha. The purple
+ * outline, enclosed dark interior, both Vs and every source RGB stay intact.
+ */
+export async function cleanAppIcon(input) {
+  const { data, info } = await sharp(input).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width, height } = info;
+  const visited = new Uint8Array(width * height);
+  const pending = new Uint32Array(visited.length);
+  let head = 0, tail = 0;
+  const add = pixel => {
+    if (pixel < 0 || pixel >= visited.length || visited[pixel]) return;
+    const offset = pixel * 4;
+    if (Math.max(data[offset], data[offset + 1], data[offset + 2]) > 16) return;
+    visited[pixel] = 1;
+    pending[tail++] = pixel;
+  };
+  for (let x = 0; x < width; x++) { add(x); add((height - 1) * width + x); }
+  for (let y = 0; y < height; y++) { add(y * width); add(y * width + width - 1); }
+  while (head < tail) {
+    const pixel = pending[head++], x = pixel % width;
+    data[pixel * 4 + 3] = 0;
+    if (x > 0) add(pixel - 1);
+    if (x < width - 1) add(pixel + 1);
+    add(pixel - width); add(pixel + width);
+  }
+  return sharp(data, { raw: info }).png(PNG).toBuffer();
+}
+
 async function cropSymbol(input) {
   const { data, info } = await sharp(input).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   let left = info.width, top = info.height, right = -1, bottom = -1;
@@ -98,11 +127,12 @@ export async function generateIcons(root = ROOT) {
   const paths = { app: join(brand, 'veyvox-app-icon.png'), symbol: join(brand, 'veyvox-symbol.png') };
   for (const file of Object.values(paths)) if (!existsSync(file)) throw new Error(`Missing source PNG: ${file}`);
   // Validate/read both masters before creating any output.
-  const app = readFileSync(paths.app), originalSymbol = readFileSync(paths.symbol);
-  for (const input of [app, originalSymbol]) {
+  const originalApp = readFileSync(paths.app), originalSymbol = readFileSync(paths.symbol);
+  for (const input of [originalApp, originalSymbol]) {
     const meta = await sharp(input).metadata();
     if (meta.format !== 'png' || !meta.width || meta.width !== meta.height) throw new Error('Brand master must be a square PNG');
   }
+  const app = await cleanAppIcon(originalApp);
   const symbol = await cropSymbol(await cleanSymbol(originalSymbol));
   const lavender = await monochrome(symbol, [124, 108, 246]);
   const white = await monochrome(symbol, [255, 255, 255]);
