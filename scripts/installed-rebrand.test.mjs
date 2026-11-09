@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
-import { requireDisposableRunner, BASELINES, assertInstalledReport } from './verify-installed-rebrand.mjs';
+import { requireDisposableRunner, BASELINES, assertInstalledReport, assertCookieProtectionUnchanged, assertCookieStorageRow } from './verify-installed-rebrand.mjs';
 
 test('installed upgrade acceptance refuses to modify a non-runner OS account', () => {
   const result = spawnSync(process.execPath, [path.join(import.meta.dirname, 'verify-installed-rebrand.mjs')], {
@@ -36,4 +36,20 @@ test('acceptance rejects any lost state rather than reseeding the candidate', ()
   assert.throws(() => assertInstalledReport({ ...report, startup: { openAtLogin: false, startMinimized: true } }, 'upgrade', '1.17.0', true));
   assert.doesNotThrow(() => assertInstalledReport({ ...report, documentVisibility: 'hidden' }, 'upgrade', '1.17.0', true));
   assert.throws(() => assertInstalledReport({ ...report, cookie: 'must-not-appear-in-errors' }, 'upgrade', '1.17.0', true), error => /failed checks: cookie$/.test(error.message) && !error.message.includes('must-not-appear'));
+});
+
+test('preserves measured cookie protection without enabling or downgrading encryption', () => {
+  for (const mode of ['plaintext', 'encrypted']) assert.doesNotThrow(() => assertCookieProtectionUnchanged(mode, mode));
+  for (const [before, after] of [['plaintext', 'encrypted'], ['encrypted', 'plaintext'], ['unknown', 'unknown'], [undefined, undefined]]) {
+    assert.throws(() => assertCookieProtectionUnchanged(before, after));
+  }
+  const plain = { value: 'synthetic-session', encrypted_value: new Uint8Array() };
+  const encrypted = { value: '', encrypted_value: Buffer.from('v11synthetic-ciphertext') };
+  assert.doesNotThrow(() => assertCookieStorageRow(plain, 'plaintext', 'linux'));
+  assert.doesNotThrow(() => assertCookieStorageRow(encrypted, 'encrypted', 'linux'));
+  assert.throws(() => assertCookieStorageRow(plain, 'encrypted', 'linux'));
+  assert.throws(() => assertCookieStorageRow(encrypted, 'plaintext', 'linux'));
+  assert.throws(() => assertCookieStorageRow({ ...encrypted, encrypted_value: Buffer.from('v10basic-fallback') }, 'encrypted', 'linux'));
+  assert.throws(() => assertCookieStorageRow(undefined, 'plaintext'));
+  assert.throws(() => assertCookieStorageRow({ ...plain, value: 'lost-session' }, 'plaintext'));
 });

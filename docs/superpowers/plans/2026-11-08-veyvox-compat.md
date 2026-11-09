@@ -158,6 +158,12 @@ sources: [Electron main parts](https://github.com/electron/electron/blob/v45.2.1
 
 ## Task C5: Isolated runtime and installed-replacement acceptance
 
+**Approved 2026-11-09 clarification:** follow the spec's measured-cookie-mode
+policy. The maintainer chose to preserve actual baseline protection, not enable
+encryption during the rebrand. Read both fuse states and require equality;
+validate persisted bytes according to the measured mode and keep every other
+gate. Never label a plaintext baseline as encrypted or accept a crypto-mode change.
+
 **Files:** New `packages/desktop/scripts/run-rebrand-smoke.mjs`, `packages/desktop/test/rebrand/{main.cjs,fixture.html}`; extend existing compatibility fixture documentation rather than its unrelated probe protocol. Add read-only acceptance steps to `.github/workflows/release.yml` and the existing ledger; C1 owns any required identity pins, existing auto-launch helpers/tests own path-refresh logic.
 
 **Interfaces:** `node packages/desktop/scripts/run-rebrand-smoke.mjs` runs a fixture main with compiled production preload and startup/migration helpers, a new temporary appData/userData root and loopback-only fixture pages. It produces bounded PASS/FAIL JSON and capture paths, with a timeout/nonzero failure. This is not a production `--skip-security`/`--skip-migration` flag.

@@ -179,6 +179,8 @@ e registros de moderação têm os limites descritos em
 [diagnósticos](docs/systems/diagnostics.md). Consultas opcionais de atualização,
 embeds, recursos de atividade e integrações podem contatar os respectivos
 serviços; não presuma que todas as operações permanecem offline.
+Esta mudança de marca preserva o modo existente de proteção dos cookies do
+desktop; não introduz uma nova garantia de criptografia dos cookies em disco.
 
 Relate vulnerabilidades de forma privada pelo fluxo de avisos de segurança do
 GitHub, e não em uma issue pública. Consulte [SECURITY.md](SECURITY.md) e

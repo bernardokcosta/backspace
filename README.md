@@ -173,6 +173,8 @@ and the instances/peers you connect to. Instance-side diagnostics and moderation
 records have the limits described in [diagnostics](docs/systems/diagnostics.md).
 Optional update checks, embeds, activity resources and integrations may contact
 their respective services; do not assume all operations stay offline.
+This rebrand preserves the existing desktop cookie-protection mode; it does not
+introduce a new guarantee of at-rest cookie encryption.
 
 Report vulnerabilities privately using the repository's GitHub security advisory
 flow, not a public issue. See [SECURITY.md](SECURITY.md) and

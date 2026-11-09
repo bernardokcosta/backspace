@@ -52,6 +52,24 @@ storage without requiring users to re-register or reconfigure.
 
 ## Testing and success
 
+### Approved measurement clarification — 2026-11-09
+
+The maintainer explicitly chose **“Preservar modo (Recomendado)”** after the
+published, digest-verified 1.16.8 Linux binary and the real 1.17.0 candidate both
+measured `EnableCookieEncryption = Disabled`. Electron defaults that fuse off;
+plaintext cookies in that baseline are not a regression introduced by Veyvox.
+Do not enable/disable a crypto fuse, change keychain/backend, or promise new
+encryption to satisfy an incorrect fixture assumption.
+
+For every native installed format, read the actual baseline/candidate fuse with
+the existing pinned reader and require equality. Plaintext baselines must retain
+both that mode and the exact synthetic persisted cookie; encrypted baselines
+must retain encrypted storage and successful plaintext recovery (Linux may not
+substitute the basic fallback). Report the measured mode truthfully; plaintext
+preservation is not an encrypted-profile PASS. All other installation, state,
+security and publication gates remain mandatory. Adding encryption is a separate
+security project requiring its own scope/approval.
+
 - Synthetic old/fresh/partial/populated/denied/cross-device migration fixtures;
   repeat launch and unchanged source-on-failure assertions.
 - Old client/new shell and new client/old shell bridge/deep-link scenarios, with

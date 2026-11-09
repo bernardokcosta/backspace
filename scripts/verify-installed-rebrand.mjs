@@ -9,6 +9,7 @@ import { createHash } from 'node:crypto';
 import { spawn, execFileSync } from 'node:child_process';
 import { parseArgs } from 'node:util';
 import { pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
 
 export function requireDisposableRunner(env, platform = process.platform) {
   const names = { win32: 'Windows', darwin: 'macOS', linux: 'Linux' };
@@ -50,7 +51,7 @@ export function assertInstalledReport(report, phase, version, startup) {
   if (failed.length) throw new Error(`Installed ${phase} failed checks: ${failed.join(', ')}`);
 }
 
-const run = (file, args) => execFileSync(file, args, { encoding: 'utf8', timeout: 180_000, stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+const run = (file, args, cwd) => execFileSync(file, args, { cwd, encoding: 'utf8', timeout: 180_000, stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 const powershell = script => run('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', `$ErrorActionPreference='Stop'; ${script}`]);
 const quotePS = value => `'${value.replaceAll("'", "''")}'`;
 async function exists(file) { try { await fs.lstat(file); return true; } catch (error) { if (error.code === 'ENOENT') return false; throw error; } }
@@ -143,15 +144,40 @@ function appDataPath() {
   return process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config');
 }
 
-async function verifyEncryptedCookie(profile) {
+export function assertCookieProtectionUnchanged(baseline, candidate) {
+  if (!['plaintext', 'encrypted'].includes(baseline) || baseline !== candidate) throw new Error('Cookie protection differs from the measured baseline');
+}
+
+export function assertCookieStorageRow(row, protection, platform = process.platform) {
+  if (!row || typeof row.value !== 'string' || !ArrayBuffer.isView(row.encrypted_value)) throw new Error('Persistent fixture cookie is missing');
+  const encrypted = Buffer.from(row.encrypted_value);
+  if (protection === 'plaintext') {
+    if (row.value !== 'synthetic-session' || encrypted.length !== 0) throw new Error('Cookie storage differs from the plaintext baseline');
+    return;
+  }
+  if (protection !== 'encrypted' || row.value !== '' || !encrypted.length) throw new Error('Cookie encryption was not established');
+  if (platform === 'linux' && encrypted.subarray(0, 3).toString() !== 'v11') throw new Error('Linux cookie is not protected by the OS keyring');
+}
+
+async function readCookieProtection(binary) {
+  // Reuse the existing pinned reader; never flip a fuse or infer protection from
+  // the display name. Installed jobs install existing dependencies without scripts.
+  const require = createRequire(new URL('../packages/desktop/package.json', import.meta.url));
+  const { getCurrentFuseWire, FuseV1Options, FuseState } = require('@electron/fuses');
+  const wire = await getCurrentFuseWire(binary);
+  const state = wire[FuseV1Options.EnableCookieEncryption];
+  if (state === FuseState.ENABLE) return 'encrypted';
+  if (state === FuseState.DISABLE) return 'plaintext';
+  throw new Error('Unsupported cookie-protection fuse state');
+}
+
+async function verifyCookieStorage(profile, protection) {
   const { DatabaseSync } = await import('node:sqlite');
   const file = (await exists(path.join(profile, 'Network/Cookies'))) ? path.join(profile, 'Network/Cookies') : path.join(profile, 'Cookies');
   const db = new DatabaseSync(file, { readOnly: true });
   try {
     const row = db.prepare("SELECT value, encrypted_value FROM cookies WHERE name='session' AND host_key='127.0.0.1'").get();
-    if (!row || row.value !== '' || !row.encrypted_value?.length) throw new Error('Cookie encryption was not established');
-    // Chromium Linux v10 means the hard-coded basic fallback, not a keyring.
-    if (process.platform === 'linux' && Buffer.from(row.encrypted_value).subarray(0, 3).toString() !== 'v11') throw new Error('Linux cookie is not protected by the OS keyring');
+    assertCookieStorageRow(row, protection);
   } finally { db.close(); }
 }
 
@@ -233,6 +259,7 @@ export async function verifyInstalledRebrand(args) {
     await fs.writeFile(path.join(profile, 'instance-url.json'), JSON.stringify({ url: state.origin }));
     await fs.writeFile(path.join(profile, 'language.json'), '{"language":"auto"}');
     const old = await install(oldFile, evidence);
+    const baselineProtection = await readCookieProtection(old.executable);
     if (old.identity.version !== '1.16.8') throw new Error('Wrong installed baseline version');
     const baselineFeed = await fs.readFile(path.join(old.resources, 'app-update.yml'), 'utf8');
     const cache = /^(?:updaterCacheDirName):\s*['"]?(@backspacedesktop-updater)['"]?\s*$/m;
@@ -241,7 +268,7 @@ export async function verifyInstalledRebrand(args) {
     state.startup = process.platform === 'linux' ? undefined : true;
     const results = [await launchAndVerify(old, 'seed', '1.16.8', state, evidence)];
     verifyWindowsRegistrations(old, false, true);
-    await verifyEncryptedCookie(profile);
+    await verifyCookieStorage(profile, baselineProtection);
     state.enableStartup = false;
     const linuxEntry = path.join(appData, 'autostart/backspace-fork.desktop');
     if (process.platform === 'linux') {
@@ -253,6 +280,8 @@ export async function verifyInstalledRebrand(args) {
       await fs.writeFile(path.join(profile, 'auto-launch.json'), '{"openAtLogin":true,"startMinimized":true}');
     }
     const current = await install(candidate, evidence, old.identity);
+    const candidateProtection = await readCookieProtection(current.executable);
+    assertCookieProtectionUnchanged(baselineProtection, candidateProtection);
     if (current.identity.version !== version || !cache.test(await fs.readFile(path.join(current.resources, 'app-update.yml'), 'utf8'))) throw new Error('Candidate version/cache mismatch');
     state.startup = true;
     for (const phase of ['upgrade', 'repeat']) {
@@ -274,7 +303,7 @@ export async function verifyInstalledRebrand(args) {
       }
       results.push(await launchAndVerify(current, phase, version, state, evidence));
       verifyWindowsRegistrations(current, true, state.startup);
-      await verifyEncryptedCookie(profile);
+      await verifyCookieStorage(profile, candidateProtection);
       if (JSON.parse(await fs.readFile(path.join(profile, 'instance-url.json'))).url !== state.origin
         || JSON.parse(await fs.readFile(path.join(profile, 'language.json'))).language !== 'auto'
         || await exists(path.join(appData, 'Veyvox'))) throw new Error('Candidate changed profile/preferences identity');
@@ -286,20 +315,29 @@ export async function verifyInstalledRebrand(args) {
       const oldImage = path.join(evidence, name), newImage = path.resolve(values.directory, `Veyvox-${version}-${suffix}`);
       if (createHash('sha256').update(await fs.readFile(oldImage)).digest('hex') !== digest) throw new Error('Historical AppImage SHA-256 mismatch');
       for (const file of [oldImage, newImage]) await fs.chmod(file, 0o755);
+      for (const [image, expected, label] of [[oldImage, baselineProtection, 'baseline'], [newImage, candidateProtection, 'candidate']]) {
+        const extracted = await fs.mkdtemp(path.join(evidence, `appimage-${label}-`));
+        // Read an unmodified extracted binary. This executes only the AppImage
+        // packaging runtime, not the application, on the already guarded VM.
+        run(image, ['--appimage-extract'], extracted);
+        assertCookieProtectionUnchanged(expected, await readCookieProtection(path.join(extracted, 'squashfs-root', 'Backspace Fork')));
+      }
       state.startup = undefined; // Old Linux has no working login-item getter.
       results.push(await launchAndVerify({ executable: oldImage, env: { APPIMAGE_EXTRACT_AND_RUN: '1' } }, 'appimage-seed', '1.16.8', state, evidence));
       for (const phase of ['appimage-upgrade', 'appimage-repeat']) {
         state.startup = false;
         results.push(await launchAndVerify({ executable: newImage, env: { APPIMAGE_EXTRACT_AND_RUN: '1' } }, phase, version, state, evidence));
-        await verifyEncryptedCookie(profile);
+        await verifyCookieStorage(profile, candidateProtection);
       }
       if (!(await fs.readFile(linuxEntry, 'utf8')).startsWith('Hidden=true\n')) throw new Error('Disabled Linux entry was re-enabled');
     }
     const report = { status: 'passed', platform: process.platform, arch: process.arch, baselineSha256: baseline[1],
-      baseline: old.identity, candidate: current.identity, encryptedCookie: true, results,
+      baseline: old.identity, candidate: current.identity,
+      cookieProtection: { baseline: baselineProtection, candidate: candidateProtection, unchanged: true },
+      cookiePersistenceVerified: true, encryptedCookie: baselineProtection === 'encrypted', results,
       limitations: ['Synthetic session only; not a live user login. Startup preferences/command arguments are checked, not a real reboot/login or OS-window visibility. Renderer document visibility is metadata only.', 'Linux baseline enabled autostart entry is seeded at the OS file boundary; Electron 1.16.8 did not implement that write.'] };
     await fs.writeFile(path.resolve(values.directory, `installed-${process.platform}-${process.arch}.json`), JSON.stringify(report, null, 2));
-    console.log(JSON.stringify({ status: 'passed', evidence, platform: process.platform, arch: process.arch }));
+    console.log(JSON.stringify({ status: 'passed', evidence, platform: process.platform, arch: process.arch, cookieProtection: report.cookieProtection }));
   } finally { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
 }
 

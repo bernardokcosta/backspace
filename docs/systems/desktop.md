@@ -71,7 +71,7 @@ The separate `scripts/verify-installed-rebrand.mjs` installer gate runs only on
 explicitly opted-in **GitHub-hosted disposable** runners. It verifies pinned
 1.16.8 installer digests, native architecture, NSIS GUID/path/shortcuts/AUMID,
 Debian Package/desktop path or macOS bundle identity/path; launches the actual
-installed main/preload; and compares encrypted cookies, synthetic session,
+installed main/preload; and compares measured cookie protection/persistence, synthetic session,
 IndexedDB, instances and preferences after upgrade and repeat launch. Linux also
 exercises the real AppImages with extract-and-run (no sandbox/fuse bypass).
 OS-disabled startup is checked without auto-reenabling it. macOS disabling uses
@@ -80,6 +80,15 @@ reboot/login. Linux's baseline enabled autostart file is seeded at the OS bounda
 because the old Electron API did not implement that write. No claim of real-user
 login, hardware/media acceptance or successful platform execution follows from
 the existence of this gate: read its per-run reports before publication.
+
+Cookie protection is measured, not inferred from Electron or branding. The
+published 1.16.8 Linux binary and candidate initially measured cookie encryption
+Disabled, matching Electron's default. The rebrand must not silently enable it
+(a one-way transition) or disable it. The installed gate reads baseline/candidate
+fuses with the pinned reader and requires exact equality, then checks persistent
+cookie bytes and application recovery according to that mode. Plaintext
+preservation is explicitly reported as plaintext, not as an encryption guarantee.
+If a baseline is encrypted, the encryption/keyring checks remain mandatory.
 
 ---
 
