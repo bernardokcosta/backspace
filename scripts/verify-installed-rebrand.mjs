@@ -107,6 +107,8 @@ async function install(file, evidence, before) {
       else if (await exists(destination)) throw new Error('Refusing existing macOS app');
       run('ditto', [source, destination]);
       run('codesign', ['--verify', '--deep', '--strict', destination]);
+      const { default: macSigning } = await import('../packages/desktop/scripts/macSign.js');
+      macSigning.verifyMacHelperLayout(destination);
       return { identity: { id: plist.CFBundleIdentifier, location: destination, version: plist.CFBundleShortVersionString },
         executable: path.join(destination, 'Contents/MacOS/Backspace Fork'), resources: path.join(destination, 'Contents/Resources') };
     } finally { run('hdiutil', ['detach', mount]); }

@@ -644,6 +644,11 @@ the same generated content, and the existing Workbox precache extension/budget
 includes `.webmanifest` so metadata remains offline-capable. No extra service
 worker, translation framework, remote font or server route is introduced.
 
+The static native-catalog inspector recognizes script end tags with whitespace
+or browser-tolerated trailing attributes and handles case insensitively. It still
+parses only literal TypeScript/JavaScript bindings; it never evaluates extracted
+code and is not an HTML sanitizer for user content.
+
 Existing renderer-owned bootstrap/crash/offline prompts already use their catalog
 keys. OS install prompt chrome, browser-generated network/permission errors,
 external technical diagnostic values and user/external content are not translated.

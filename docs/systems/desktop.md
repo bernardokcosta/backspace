@@ -90,6 +90,13 @@ cookie bytes and application recovery according to that mode. Plaintext
 preservation is explicitly reported as plaintext, not as an encryption guarantee.
 If a baseline is encrypted, the encryption/keyring checks remain mandatory.
 
+macOS helper executable/bundle paths also retain the internal `Backspace Fork`
+prefix, while their descriptive display names remain Veyvox. Electron resolves
+these paths from the main `CFBundleName`; the packaging hook aligns them before
+fuse flipping and final signing. Build and installed verifiers read the actual
+helper plists/binaries so an internally mismatched, correctly signed bundle
+cannot pass. See [desktop-security.md](desktop-security.md) for the boundary.
+
 ---
 
 ## Architecture Overview

@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
 import { readBuildYaml, validateDesktopBuildGroup } from './desktop-release-assets.mjs';
 import { verifySdrCapturePackage } from '../packages/desktop/scripts/verify-sdr-capture-package.mjs';
+import macSigning from '../packages/desktop/scripts/macSign.js';
 
 const desktop = createRequire(new URL('../packages/desktop/package.json', import.meta.url));
 const builder = createRequire(desktop.resolve('electron-builder/package.json'));
@@ -35,6 +36,7 @@ export async function verifyDesktopBuild(directory, version, group) {
     const resources = path.join(directory, relative);
     const metadata = JSON.parse(asar.extractFile(path.join(resources, 'app.asar'), 'package.json').toString());
     verifyPackagedIdentity(await fs.readFile(path.join(resources, 'app-update.yml'), 'utf8'), metadata, version);
+    if (group === 'release-mac') macSigning.verifyMacHelperLayout(path.resolve(resources, '../..'));
     if (group === 'release-windows') verifySdrCapturePackage(resources, index === 0 ? 'x64' : 'arm64');
   }
   return inventory;

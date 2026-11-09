@@ -67,7 +67,7 @@ export function readDesktopCatalogs(root) {
     try {
       if (!existsSync(path.join(root, file))) throw new Error('Native catalog source is missing');
       const text = readFileSync(path.join(root, file), 'utf8');
-      const code = file.endsWith('.html') ? [...text.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(match => match[1]).join('\n') : text;
+      const code = file.endsWith('.html') ? [...text.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)].map(match => match[1]).join('\n') : text;
       const tables = readLiteralBinding(code, file, name);
       if (!tables || typeof tables !== 'object' || Array.isArray(tables)) throw new Error('Expected a literal language-to-table map');
       for (const [language, values] of Object.entries(tables)) {

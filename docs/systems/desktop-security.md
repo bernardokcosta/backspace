@@ -3,8 +3,8 @@
 Source files:
 - `packages/desktop/src/main.ts` — `BrowserWindow` webPreferences, `will-navigate` deny handler, `setWindowOpenHandler`
 - `packages/desktop/src/navigationPolicy.ts` — pure `will-navigate` allow/deny decision logic (unit-tested)
-- `packages/desktop/scripts/afterPack.js` — native-module cleanup, then Electron fuse-flipping, then (on macOS) ad-hoc signing, in that order (electron-builder's single `afterPack` hook)
-- `packages/desktop/scripts/macSign.js` — macOS ad-hoc `codesign` fallback, called last from `afterPack.js`; stands aside when a real signing identity is configured
+- `packages/desktop/scripts/afterPack.js` — native-module cleanup/target validation, macOS helper-name alignment, then Electron fuse-flipping and (on macOS) final ad-hoc signing, in that order (electron-builder's single `afterPack` hook)
+- `packages/desktop/scripts/macSign.js` — macOS helper-layout alignment/verification and ad-hoc `codesign` fallback; signing stays last and stands aside when a real signing identity is configured
 - `packages/desktop/electron-builder.yml` — build config; `asarUnpack`, `afterPack` wiring
 - `.github/workflows/release.yml` — release build matrix; sets `CSC_IDENTITY_AUTO_DISCOVERY: "false"` for every platform, which stops electron-builder from searching the runner's keychain for a signing identity. That disables identity *discovery*, which is not the same as not signing at all: macOS bundles are still ad-hoc signed by `macSign.js`, while Windows and Linux artifacts ship unsigned. The workflow also re-checks the final macOS `.app` with `codesign --verify --deep --strict` after the build.
 
@@ -77,6 +77,27 @@ pnpm --filter @veyvox/desktop exec electron-fuses read --app /path/to/Backspace.
 This is the *build* Node only. The shipped app runs on the Node that Electron bundles, which none of this touches.
 
 The `flipFuses`/`FuseVersion`/`FuseV1Options` API is unchanged across the major, and so is the `read` CLI's `<Fuse> is <State>` output that `release.yml`'s verification step parses. `2.1.3` also carries a fix specific to how this hook calls it — `pathToFuseFile` now only treats a real `.app` bundle path as a bundle (electron/fuses#123), which is the darwin path `flipElectronFuses()` builds.
+
+## Retained macOS helper identity
+
+Electron 45 resolves helper bundles/executables using `CFBundleName`, not
+`CFBundleDisplayName` or the main executable name. electron-builder 26 derives
+helper filenames from `sanitizedProductName`, even when `executableName` is
+retained. Mixing public Veyvox with internal `Backspace Fork` therefore produces
+a signed but unlaunchable bundle (`Unable to find helper app`, native SIGTRAP).
+Before flipping fuses or signing, the existing hook aligns only helper bundle
+paths, executable filenames and their `CFBundleExecutable` fields with the actual
+retained `CFBundleName`. It preserves helper bundle identifiers, display names,
+binary bytes and the main bundle/profile identity. All collisions/inconsistencies
+are checked before the first rename; failure aborts packaging rather than merging
+or overwriting a destination. Signing still seals the final layout, without new
+entitlements, certificates, trust bypasses or fuse changes. Both the package
+verifier and the actual installed gate check the required helper layout before
+launch. A valid signature alone is not sufficient evidence of a usable bundle.
+
+The name/layout tests include the actual pinned builder's `createMacApp` with
+unexecuted fixture files, demonstrating the mismatch and repair on any host.
+Only native macOS installed acceptance proves the real process launches.
 
 ## Asar integrity — what's NOT enabled, and why
 

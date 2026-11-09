@@ -105,6 +105,7 @@ jobs:
           node --test scripts/probe-desktop-compatibility.test.mjs
           node --test scripts/desktop-release-assets.test.mjs scripts/publish-desktop-release.test.mjs
           node --test scripts/gen-icons.test.mjs scripts/veyvox-brand.test.mjs scripts/veyvox-docs.test.mjs scripts/verify-desktop-build.test.mjs scripts/installed-rebrand.test.mjs
+          node --test packages/desktop/scripts/mac-helpers.test.mjs scripts/i18n-desktop.test.mjs
           pnpm -r test
 
   # ESLint over every workspace package. Its own job rather than a step in the
