@@ -2,6 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
+import { runInNewContext } from 'node:vm';
 import { requireDisposableRunner, BASELINES, assertInstalledReport, assertCookieProtectionUnchanged, assertCookieStorageRow, summarizeMacTermination } from './verify-installed-rebrand.mjs';
 
 test('installed upgrade acceptance refuses to modify a non-runner OS account', () => {
@@ -60,4 +62,20 @@ test('macOS failure evidence reports only the owned process termination fields',
   assert.equal(summarizeMacTermination(report, 456), null);
   assert.equal(summarizeMacTermination({ ...report, pid: undefined }, 123), null);
   assert.deepEqual(summarizeMacTermination({ pid: 123, termination: { namespace: 'must-not-log', code: 'must-not-log' } }, 123), { namespace: 'OTHER', code: null });
+});
+
+test('installer paths stay argument data and never share the shell interpreter helper', () => {
+  const source = readFileSync(new URL('./verify-installed-rebrand.mjs', import.meta.url), 'utf8');
+  assert.doesNotMatch(source, /\brun\(\s*['"](?:sh|bash|cmd(?:\.exe)?|powershell(?:\.exe)?)['"]/i);
+  const declaration = source.match(/^const run = .+;$/m)?.[0];
+  assert.ok(declaration);
+  const parameters = { file: 'hdiutil', args: ['attach', '/fixture/space \';$(not-a-command)/app.dmg'], cwd: '/fixture/working directory' };
+  let call;
+  runInNewContext(`${declaration}\nrun(parameters.file, parameters.args, parameters.cwd);`, {
+    parameters, execFileSync: (...args) => { call = args; return '  success\n'; },
+  });
+  assert.equal(call[0], parameters.file);
+  assert.deepEqual(call[1], parameters.args);
+  assert.equal(call[2].cwd, parameters.cwd);
+  assert.equal(call[2].shell, false);
 });

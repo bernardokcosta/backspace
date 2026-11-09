@@ -51,8 +51,11 @@ export function assertInstalledReport(report, phase, version, startup) {
   if (failed.length) throw new Error(`Installed ${phase} failed checks: ${failed.join(', ')}`);
 }
 
-const run = (file, args, cwd) => execFileSync(file, args, { cwd, encoding: 'utf8', timeout: 180_000, stdio: ['ignore', 'pipe', 'pipe'] }).trim();
-const powershell = script => run('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', `$ErrorActionPreference='Stop'; ${script}`]);
+// OS tools receive literal argv only. Do not route shell interpreters through
+// this helper: doing so conflates their command strings with installer paths.
+const run = (file, args, cwd) => execFileSync(file, args, { cwd, shell: false, encoding: 'utf8', timeout: 180_000, stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+const powershell = script => execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', `$ErrorActionPreference='Stop'; ${script}`],
+  { shell: false, encoding: 'utf8', timeout: 180_000, stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 const quotePS = value => `'${value.replaceAll("'", "''")}'`;
 async function exists(file) { try { await fs.lstat(file); return true; } catch (error) { if (error.code === 'ENOENT') return false; throw error; } }
 
@@ -263,7 +266,17 @@ export async function verifyInstalledRebrand(args) {
     if (await exists(file)) throw new Error('Refusing pre-existing profile on acceptance runner');
   }
   if (process.platform === 'win32') powershell(`if (@(Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*' -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -match '^(Backspace Fork|Veyvox)( |$)' }).Count) { throw 'Refusing existing installation' }`);
-  if (process.platform === 'linux' && run('sh', ['-c', "dpkg-query -W -f='${db:Status-Status}' backspace-fork 2>/dev/null || true"]) === 'installed') throw new Error('Refusing existing Debian install');
+  if (process.platform === 'linux') {
+    let status;
+    try { status = run('dpkg-query', ['-W', '-f=${db:Status-Status}', 'backspace-fork']); }
+    catch (error) {
+      if (error.status !== 1) throw error;
+      // dpkg-query exits 1 for an unknown package. Other launch/OS errors must
+      // remain fatal rather than being hidden by shell redirection/`|| true`.
+      status = '';
+    }
+    if (status === 'installed') throw new Error('Refusing existing Debian install');
+  }
   run('gh', ['release', 'download', 'v1.16.8', '--repo', 'bernardokcosta/backspace', '--pattern', baselineName, '--dir', evidence]);
   const oldFile = path.join(evidence, baselineName);
   if (createHash('sha256').update(await fs.readFile(oldFile)).digest('hex') !== baseline[1]) throw new Error('Historical installer SHA-256 mismatch');
