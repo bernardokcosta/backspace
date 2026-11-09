@@ -11,6 +11,9 @@ for (const name of ['preload', 'userDataMigration', 'deepLinks', 'languageIpc'])
   if (!fs.existsSync(path.join(desktop, 'dist', name + '.js'))) throw new Error('Compile desktop TypeScript before the rebrand smoke test');
 }
 const temp = process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, 'Temp', 'opencode') : os.tmpdir();
+// The maintainer's approved temp root is pre-created locally, not on a fresh
+// Windows hosted runner. Create only this temporary directory, never a profile.
+fs.mkdirSync(temp, { recursive: true });
 const directory = fs.mkdtempSync(path.join(temp, 'veyvox-rebrand-smoke-'));
 const historical = path.join(directory, 'appData', '@backspace', 'desktop');
 fs.mkdirSync(historical, { recursive: true });

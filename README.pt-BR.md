@@ -136,8 +136,8 @@ para conhecer o comportamento completo e os limites por plataforma.
 
 ## Desenvolvimento
 
-Use **Node.js >=22.12.0** e **pnpm 10**. O arquivo `.nvmrc` seleciona Node 24;
-o CI testa Node 22 e 24. O módulo de atalhos globais do desktop precisa das
+Use **Node.js >=22.12.0** e **pnpm 10**. O arquivo `.nvmrc` e o CI atual
+selecionam Node 24. O módulo de atalhos globais do desktop precisa das
 ferramentas C++ nativas da plataforma; se a recompilação não puder ser feita,
 a instalação avisa e continua para o trabalho no servidor/web.
 

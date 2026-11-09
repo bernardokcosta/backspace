@@ -132,8 +132,8 @@ for the full behavior and platform limitations.
 
 ## Development
 
-Use **Node.js >=22.12.0** and **pnpm 10**. `.nvmrc` selects Node 24; CI tests
-Node 22 and 24. The desktop keyboard hook needs platform-native C++ build tools;
+Use **Node.js >=22.12.0** and **pnpm 10**. `.nvmrc` and the current CI select
+Node 24. The desktop keyboard hook needs platform-native C++ build tools;
 if its rebuild cannot run, installation warns and continues for server/web work.
 
 ```bash
