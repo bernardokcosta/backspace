@@ -8,8 +8,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
-import { parseChannelSystemEvent } from '@backspace/shared/src/channelSystemEvents.js';
-import { DEFAULT_EVERYONE_PERMISSIONS, PermissionBits, permissionsToString } from '@backspace/shared/src/permissions.js';
+import { parseChannelSystemEvent } from '@veyvox/shared/src/channelSystemEvents.js';
+import { DEFAULT_EVERYONE_PERMISSIONS, PermissionBits, permissionsToString } from '@veyvox/shared/src/permissions.js';
 
 setWorkerId(3);
 

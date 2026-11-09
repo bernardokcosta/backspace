@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import type { MemberWithUser, User } from '@backspace/shared';
+import type { MemberWithUser, User } from '@veyvox/shared';
 
 // Stub AudioManager to avoid an AudioWorkletNode reference error in jsdom.
 // Reached transitively via spaceStore -> chatStore -> useWebSocket -> voiceStore.

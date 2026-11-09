@@ -9,9 +9,9 @@ import type {
   BotCommandsResponse,
   ChannelType,
   SetBotCommandsRequest,
-} from '@backspace/shared';
-import { COMMAND_STRING_OPTION_MAX } from '@backspace/shared/src/constants.js';
-import { ALL_PERMISSIONS, PermissionBits, parsePermissionString, permissionsToString } from '@backspace/shared/src/permissions.js';
+} from '@veyvox/shared';
+import { COMMAND_STRING_OPTION_MAX } from '@veyvox/shared/src/constants.js';
+import { ALL_PERMISSIONS, PermissionBits, parsePermissionString, permissionsToString } from '@veyvox/shared/src/permissions.js';
 import { getDb, schema } from '../db/index.js';
 import { authenticate } from '../utils/auth.js';
 import { requireBot } from '../utils/botAuth.js';

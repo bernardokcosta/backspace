@@ -1,4 +1,4 @@
-import type { DmChannel } from '@backspace/shared';
+import type { DmChannel } from '@veyvox/shared';
 
 /**
  * Where a DM channel id sits in the client's DM list.

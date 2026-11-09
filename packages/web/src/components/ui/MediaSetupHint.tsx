@@ -1,3 +1,4 @@
+import { getElectronAPI } from '../../platform/platform';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -32,7 +33,7 @@ export function MediaSetupHint() {
   const [dontRemind, setDontRemind] = useState(false);
 
   useEffect(() => {
-    const bridge = window.backspace;
+    const bridge = getElectronAPI();
     if (!bridge?.getMediaSetupHint) return;
     if (safelyRead(localStorage, DISMISSED_KEY) === '1') return;
     if (safelyRead(sessionStorage, SHOWN_KEY) === '1') return;

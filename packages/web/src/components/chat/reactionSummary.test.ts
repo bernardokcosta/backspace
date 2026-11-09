@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import type { Reaction, User } from '@backspace/shared';
+import type { Reaction, User } from '@veyvox/shared';
 import i18n from '../../i18n';
 import { setLanguage } from '../../i18n';
 import { formatters } from '../../i18n/formatters';

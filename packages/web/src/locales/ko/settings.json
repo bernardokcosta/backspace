@@ -325,10 +325,10 @@
   },
   "keybinds": {
     "portal": {
-      "description": "Wayland에서는 데스크톱이 모든 Backspace 단축키를 관리합니다. 시스템 키보드 단축키 설정의 Backspace에서 키를 할당·변경·삭제하세요. 여기서는 로컬 브라우저/X11 바인딩을 사용하지 않습니다.",
+      "description": "Wayland에서는 데스크톱이 모든 Veyvox 단축키를 관리합니다. 시스템 키보드 단축키 설정의 Veyvox에서 키를 할당·변경·삭제하세요. 여기서는 로컬 브라우저/X11 바인딩을 사용하지 않습니다.",
       "idle": "사용 가능한 모든 작업의 첫 등록을 준비 중.",
       "pending": "데스크톱 포털에 연결 중. 시스템 대화 상자가 나타나면 사용할 작업의 단축키를 선택하세요.",
-      "ready": "Backspace가 등록되었습니다. 할당을 변경·삭제하려면 시스템 키보드 단축키 설정을 여세요. 아래 목록은 읽기 전용이며 Backspace로 돌아오면 새로 고쳐집니다.",
+      "ready": "Veyvox가 등록되었습니다. 할당을 변경·삭제하려면 시스템 키보드 단축키 설정을 여세요. 아래 목록은 읽기 전용이며 Veyvox로 돌아오면 새로 고쳐집니다.",
       "unavailable": "포털을 사용할 수 없거나 권한이 거부되었거나 세션이 종료되었습니다. Global Shortcuts 포털 백엔드가 필요합니다. Wayland에서는 로컬 바인딩이 꺼져 있습니다.",
       "retry": "단축키 등록·다시 연결",
       "assigned": "시스템 단축키: {{shortcut}}",
@@ -370,7 +370,7 @@
     },
     "accessibility": {
       "title": "손쉬운 사용 권한 필요",
-      "description": "앱 외부에서 전역 단축키가 동작하려면 Backspace에 손쉬운 사용 권한이 필요합니다.",
+      "description": "앱 외부에서 전역 단축키가 동작하려면 Veyvox에 손쉬운 사용 권한이 필요합니다.",
       "grant": "권한 부여"
     },
     "hookError": {
@@ -387,7 +387,7 @@
     "autoLaunch": {
       "openAtLogin": {
         "label": "로그인 시 시작",
-        "description": "로그인하면 Backspace를 자동 시작"
+        "description": "로그인하면 Veyvox를 자동 시작"
       },
       "startMinimized": {
         "label": "최소화로 시작",
@@ -395,7 +395,7 @@
       }
     },
     "updates": {
-      "appName": "Backspace Desktop",
+      "appName": "Veyvox Desktop",
       "versionLabel": "버전 {{version}}",
       "checking": "업데이트 확인 중…",
       "checkingShort": "확인 중…",
@@ -414,7 +414,7 @@
       "download": "다운로드",
       "restart": "다시 시작",
       "manualNote": "이 빌드는 업데이트를 자동 설치하지 않습니다. GitHub에서 새 버전을 다운로드하고 앱을 수동으로 교체하세요. 플랫폼별 단계는 릴리스 노트를 참조하세요.",
-      "externalNote": "Flatpak은 앱 외부에서 원자적으로 업데이트를 적용합니다. Backspace를 업데이트하려면 소프트웨어 관리나 <code>flatpak update</code> 명령을 사용하세요."
+      "externalNote": "Flatpak은 앱 외부에서 원자적으로 업데이트를 적용합니다. Veyvox를 업데이트하려면 소프트웨어 관리나 <code>flatpak update</code> 명령을 사용하세요."
     },
     "instance": {
       "current": "현재 연결된 인스턴스",

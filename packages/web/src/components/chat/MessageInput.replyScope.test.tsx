@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { MessageWithUser, User } from '@backspace/shared';
+import type { MessageWithUser, User } from '@veyvox/shared';
 import { useAuthStore } from '../../stores/authStore';
 import { useChatStore } from '../../stores/chatStore';
 import { useComposerStore } from '../../stores/composerStore';

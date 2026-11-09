@@ -1,6 +1,6 @@
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Role } from '@backspace/shared';
+import type { Role } from '@veyvox/shared';
 
 /**
  * A space member's roles on their profile card and full profile: a heading in

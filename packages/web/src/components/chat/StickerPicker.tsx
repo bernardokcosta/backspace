@@ -7,7 +7,7 @@ import {
   type PersonalSticker,
   type StickerPackDetail,
   type StickerPackSummary,
-} from '@backspace/shared/src/stickers';
+} from '@veyvox/shared/src/stickers';
 import { api } from '../../api/client';
 import { useAuthStore } from '../../stores/authStore';
 import { StickerUploadForm } from './StickerUploadForm';

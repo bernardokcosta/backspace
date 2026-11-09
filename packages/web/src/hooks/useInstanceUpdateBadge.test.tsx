@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import type { InstanceUpdateStatus } from '@backspace/shared';
+import type { InstanceUpdateStatus } from '@veyvox/shared';
 import { useInstanceUpdateBadge } from './useInstanceUpdateBadge';
 import { useSettingsStore } from '../stores/settingsStore';
 import { EMPTY_ACK } from '../utils/updateAck';

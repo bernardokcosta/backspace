@@ -6,7 +6,7 @@ vi.mock('../audio/AudioManager', () => ({
 
 import { useVoiceStore } from '../stores/voiceStore';
 import { useSpaceStore } from '../stores/spaceStore';
-import type { MemberWithUser } from '@backspace/shared';
+import type { MemberWithUser } from '@veyvox/shared';
 import { isLocallyMutedIn, localVolumeIn, setLocalMute, setLocalVolume, voiceSeatKey } from './voiceLocalKeys';
 
 const member = (userId: string, isBot: boolean): MemberWithUser =>

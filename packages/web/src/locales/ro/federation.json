@@ -22,7 +22,7 @@
   },
   "connections": {
     "title": "Instanțe conectate",
-    "description": "Conectează conturi între instanțe Backspace federate.",
+    "description": "Conectează conturi între instanțe Veyvox federate.",
     "empty": "Nicio instanță la distanță conectată. Adaugă una pentru a începe federarea.",
     "addButton": "+ Adaugă instanță",
     "home": {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { FederationRegistryEntry, FederationRegistryStatus, User } from '@backspace/shared';
+import type { FederationRegistryEntry, FederationRegistryStatus, User } from '@veyvox/shared';
 import { HttpError } from '../api/client';
 
 // ── Home-instance API (`api`) ───────────────────────────────────────────────

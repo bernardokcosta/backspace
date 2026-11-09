@@ -54,7 +54,7 @@ export interface NavigatorLike {
 }
 
 /** The release listing, not `releases/latest`: filenames carry the version, so there is no fixed-name asset. */
-export const RELEASES_URL = 'https://github.com/bernardokcosta/backspace/releases';
+export const RELEASES_URL = 'https://github.com/bernardokcosta/veyvox/releases';
 
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
 
@@ -216,7 +216,10 @@ function primaryBuild(detected: DetectedPlatform): BuildSpec | null {
 }
 
 function toDownload(build: BuildSpec, version: string, versionIsReleasable: boolean): DesktopDownload {
-  const filename = `Backspace-Fork-${version}${build.fileSuffix}.${build.ext}`;
+  // Historical public releases keep their immutable Backspace-Fork basenames.
+  const [major = 0, minor = 0] = version.split('.').map(Number);
+  const prefix = major > 1 || (major === 1 && minor >= 17) ? 'Veyvox' : 'Backspace-Fork';
+  const filename = `${prefix}-${version}${build.fileSuffix}.${build.ext}`;
   return {
     os: build.os,
     arch: build.arch,

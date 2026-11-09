@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { MessageWithUser, User } from '@backspace/shared';
+import type { MessageWithUser, User } from '@veyvox/shared';
 import { findLastOwnEditableMessage } from './messageEditing';
 import { userKey, type SelfIdentity } from '../../utils/identity';
 

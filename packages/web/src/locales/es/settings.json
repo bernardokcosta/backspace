@@ -292,10 +292,10 @@
   },
   "keybinds": {
     "portal": {
-      "description": "En Wayland, el entorno de escritorio gestiona todos los atajos de Backspace. Asigna, cambia o quita teclas en los ajustes de atajos de teclado del sistema, en la sección Backspace. Aquí no se usan las asignaciones locales del navegador ni de X11.",
+      "description": "En Wayland, el entorno de escritorio gestiona todos los atajos de Veyvox. Asigna, cambia o quita teclas en los ajustes de atajos de teclado del sistema, en la sección Veyvox. Aquí no se usan las asignaciones locales del navegador ni de X11.",
       "idle": "Preparando el registro inicial de todas las acciones disponibles.",
       "pending": "Conectando con el portal de escritorio. Si aparece un diálogo del sistema, elige los atajos para las acciones que quieras usar.",
-      "ready": "Backspace está registrado. Abre los ajustes de atajos de teclado del sistema para cambiar o quitar asignaciones. La lista siguiente es de solo lectura y se actualiza al volver a Backspace.",
+      "ready": "Veyvox está registrado. Abre los ajustes de atajos de teclado del sistema para cambiar o quitar asignaciones. La lista siguiente es de solo lectura y se actualiza al volver a Veyvox.",
       "unavailable": "El portal no está disponible, se ha denegado el permiso o ha terminado la sesión. Se necesita una implementación del portal de atajos globales. Los atajos locales están desactivados en Wayland.",
       "retry": "Registrar o reconectar atajos",
       "assigned": "Atajo del sistema: {{shortcut}}",
@@ -333,7 +333,7 @@
     },
     "accessibility": {
       "title": "Se necesita permiso de accesibilidad",
-      "description": "Backspace necesita permiso de accesibilidad para que los atajos globales funcionen fuera de la aplicación.",
+      "description": "Veyvox necesita permiso de accesibilidad para que los atajos globales funcionen fuera de la aplicación.",
       "grant": "Conceder permiso"
     },
     "hookError": {
@@ -348,11 +348,11 @@
   "desktop": {
     "title": "Escritorio",
     "autoLaunch": {
-      "openAtLogin": { "label": "Iniciar con el sistema", "description": "Abrir Backspace automáticamente al iniciar sesión" },
+      "openAtLogin": { "label": "Iniciar con el sistema", "description": "Abrir Veyvox automáticamente al iniciar sesión" },
       "startMinimized": { "label": "Iniciar minimizado", "description": "Iniciar oculto en la bandeja del sistema en lugar de mostrar la ventana" }
     },
     "updates": {
-      "appName": "Backspace Desktop",
+      "appName": "Veyvox Desktop",
       "versionLabel": "Versión {{version}}",
       "checking": "Buscando actualizaciones…",
       "checkingShort": "Buscando…",
@@ -371,7 +371,7 @@
       "download": "Descargar",
       "restart": "Reiniciar",
       "manualNote": "Esta compilación no puede instalar actualizaciones por sí sola. Descarga las versiones nuevas de GitHub y sustituye la aplicación manualmente. Consulta las notas de la versión para ver los pasos de tu plataforma.",
-      "externalNote": "Flatpak instala las actualizaciones de forma atómica fuera de la aplicación. Usa tu gestor de software o el comando <code>flatpak update</code> para actualizar Backspace."
+      "externalNote": "Flatpak instala las actualizaciones de forma atómica fuera de la aplicación. Usa tu gestor de software o el comando <code>flatpak update</code> para actualizar Veyvox."
     },
     "instance": { "current": "Instancia conectada actualmente", "change": "Cambiar de instancia" }
   },

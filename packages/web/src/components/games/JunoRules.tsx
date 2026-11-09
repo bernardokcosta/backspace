@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { JUNO_TURN_MS, type JunoCard as Card, type JunoView } from '@backspace/shared/src/juno';
+import { JUNO_TURN_MS, type JunoCard as Card, type JunoView } from '@veyvox/shared/src/juno';
 import { useFormatters } from '../../i18n/formatters';
 import { JunoCard } from './JunoCard';
 import { JUNO_ASSETS } from './junoAssets';

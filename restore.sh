@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Restore the Backspace SQLite DB from a snapshot in data/backups/.
+# Restore the Veyvox SQLite DB from a snapshot in data/backups/.
 # Usage:
 #   ./restore.sh                 List available snapshots.
 #   ./restore.sh <snapshot.db>   Restore the named snapshot (path or basename).

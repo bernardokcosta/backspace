@@ -6,7 +6,7 @@ import { isVersionDismissed } from './updateDismissal';
  * Shared by the main process notification, the recovery surface, and the
  * renderer toast so the three cannot drift apart.
  */
-export const RELEASES_URL = 'https://github.com/bernardokcosta/backspace/releases/latest';
+export const RELEASES_URL = 'https://github.com/bernardokcosta/veyvox/releases/latest';
 
 /**
  * Where the updater currently is.

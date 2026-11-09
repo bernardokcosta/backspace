@@ -27,7 +27,7 @@ vi.mock('./authStore', async () => {
 
 import { useSpaceStore } from './spaceStore';
 import { userKey } from '../utils/identity';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 function makeUser(extras: Partial<User> & Pick<User, 'id' | 'username'>): User {
   return {

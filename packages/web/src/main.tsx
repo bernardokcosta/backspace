@@ -1,3 +1,4 @@
+import { getElectronAPI } from './platform/platform';
 import './diagnosticsBootstrap';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -8,7 +9,7 @@ import './styles/globals.css';
 import { initializeInterfaceScale } from './platform/interfaceScale';
 import { waitForEmojiShortcodeNames } from './utils/emojiShortcodes';
 import { recordDiagnostic } from './utils/diagnostics';
-import { diagnosticError } from '@backspace/shared/src/diagnostics';
+import { diagnosticError } from '@veyvox/shared/src/diagnostics';
 
 const stopInterfaceScale = initializeInterfaceScale();
 if (import.meta.hot) import.meta.hot.dispose(stopInterfaceScale);
@@ -35,8 +36,9 @@ class ErrorBoundary extends React.Component<
     // Gated on VITE_FORCE_BOOT_STALL so the smoke harness can suppress both
     // ping paths simultaneously when testing the renderer-stalled recovery path.
     if (import.meta.env.VITE_FORCE_BOOT_STALL) return;
-    if (typeof window.backspace?.rendererReady === 'function') {
-      window.backspace.rendererReady();
+    const bridge = getElectronAPI();
+    if (typeof bridge?.rendererReady === 'function') {
+      bridge.rendererReady();
     }
   }
 

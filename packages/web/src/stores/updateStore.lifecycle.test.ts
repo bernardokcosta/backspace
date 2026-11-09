@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-vi.mock('../platform/platform', () => ({ isElectron: () => true }));
 let store: typeof import('./updateStore').useUpdateStore;
 let event: (snapshot: unknown) => void;
 let reply: (snapshot: unknown) => void;

@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "Simpan",
     "cancel": "Batal",
@@ -123,7 +123,7 @@
   },
   "app": {
     "description": "Alternatif Discord dan TeamSpeak yang dihosting sendiri. Voice HD, video, dan berbagi layar — open source dan gratis (AGPL-3.0).",
-    "loading": "Memuat Backspace"
+    "loading": "Memuat Veyvox"
   },
   "chrome": {
     "toggleMemberList": "Tampilkan atau sembunyikan Daftar Anggota",

@@ -21,7 +21,7 @@ import { useFormatters } from '../../../i18n/formatters';
 import { LOCK_ICON } from '../../ui/LockNote';
 import { describeError } from '../../../i18n/errors';
 import { isBotManagedRole, isListedForMember } from '../../../utils/botRoles';
-import type { MemberWithUser, Role } from '@backspace/shared';
+import type { MemberWithUser, Role } from '@veyvox/shared';
 
 
 /** Why a role checkbox is locked: the role ranks too high, or it carries bits the viewer lacks. */

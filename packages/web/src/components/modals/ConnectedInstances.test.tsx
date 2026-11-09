@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 // Stub AudioManager to avoid AudioWorkletNode reference error in jsdom.
 vi.mock('../../audio/AudioManager', () => ({

@@ -1,19 +1,20 @@
 // afterPack hook for electron-builder
 //
-// Four jobs run here, in this order (electron-builder allows only ONE
-// afterPack hook, so all four live in this file):
+// Five jobs run here, in this order (electron-builder allows only ONE
+// afterPack hook, so all five live in this file):
 //
 //   1. Native module cleanup — removes host-compiled uiohook-napi artifacts so
 //      cross-platform builds use the correct prebuilt binaries from the
 //      `prebuilds/` directory.
 //   2. Validate the matching Windows SDR native resource, before fuse checks.
-//   3. Electron security fuses — flips RunAsNode/EnableNodeCliInspectArguments/
+//   3. Align macOS helper paths/executables with the retained CFBundleName.
+//   4. Electron security fuses — flips RunAsNode/EnableNodeCliInspectArguments/
 //      OnlyLoadAppFromAsar on the packaged Electron binary. This runs via
 //      `@electron/fuses` directly, not electron-builder's `electronFuses:`
 //      config key. electron-builder 26 supports that key, but it flips the
 //      fuses after this hook returns, which is after macSign.js has sealed
 //      the bundle below. See docs/systems/desktop-security.md.
-//   4. On macOS, ad-hoc sign the bundle (see macSign.js).
+//   5. On macOS, ad-hoc sign the bundle (see macSign.js).
 //
 // Order matters, and it is load-bearing in both directions:
 //   - Signing seals the bundle's contents, so it must run after every file
@@ -39,7 +40,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const { signMacAppIfUnsigned } = require('./macSign');
+const { signMacAppIfUnsigned, alignMacHelperNames } = require('./macSign');
 
 /**
  * Strips host-compiled artifacts and foreign-platform prebuilts from the
@@ -163,9 +164,14 @@ exports.default = async function afterPack(context) {
     verifySdrCapturePackage(appDir, builderSdrArchitecture(context.arch));
   }
 
+  if (isMac) {
+    const aligned = alignMacHelperNames(path.join(context.appOutDir, appName), context.packager.appInfo.sanitizedProductName);
+    console.log(`[afterPack] Aligned ${aligned} macOS helpers with retained CFBundleName`);
+  }
+
   await flipElectronFuses(context, platform);
 
-  // Must stay last: signing seals the bundle, and both steps above mutate it.
+  // Must stay last: signing seals the final helper layout and all prior mutations.
   if (isMac) {
     signMacAppIfUnsigned(path.join(context.appOutDir, appName));
   }

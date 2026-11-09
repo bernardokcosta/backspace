@@ -1,4 +1,5 @@
-import { diagnosticError, diagnosticLocation, normalizeDiagnostic, type DiagnosticEvent } from '@backspace/shared/src/diagnostics';
+import { getElectronAPI } from '../platform/platform';
+import { diagnosticError, diagnosticLocation, normalizeDiagnostic, type DiagnosticEvent } from '@veyvox/shared/src/diagnostics';
 import { version } from '../../package.json';
 
 interface Entry { event: DiagnosticEvent; key: string; createdAt: number; attempts: number }
@@ -92,7 +93,7 @@ export function startDiagnosticCapture(): () => void {
   if (typeof window === 'undefined' || reporter) return () => {};
   let desktopVersion: string | undefined;
   const current = createDiagnosticReporter({ send: (...args) => fetch(...args), version,
-    context: () => ({ client: typeof window.backspace === 'undefined' ? 'web' : 'desktop', desktopVersion }) });
+    context: () => ({ client: getElectronAPI() === null ? 'web' : 'desktop', desktopVersion }) });
   reporter = current;
   const disposers: Array<() => void> = [];
   const report = (event: DiagnosticEvent['event'], error: unknown) => current.record({ event, subsystem: 'app', level: 'error', ...diagnosticError(error) });
@@ -123,7 +124,7 @@ export function startDiagnosticCapture(): () => void {
     console[method] = wrapped;
     disposers.push(() => { if (console[method] === wrapped) console[method] = original; });
   }
-  const desktop = window.backspace;
+  const desktop = getElectronAPI();
   if (desktop) {
     let alive = true;
     disposers.push(() => { alive = false; });

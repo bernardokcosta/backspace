@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { stickerUrl, stickerPreviewUrl, resolveStickerPreviewUrl } from '@backspace/shared/src/stickers';
+import { stickerUrl, stickerPreviewUrl, resolveStickerPreviewUrl } from '@veyvox/shared/src/stickers';
 
 describe('sticker protocol', () => {
   const asset = `https://chat.test/api/stickers/assets/${'a'.repeat(64)}.webp`;

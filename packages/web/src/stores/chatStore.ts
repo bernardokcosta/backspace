@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { MessageWithUser, PinWithMessage, Reaction, ReadState, User } from '@backspace/shared';
+import type { MessageWithUser, PinWithMessage, Reaction, ReadState, User } from '@veyvox/shared';
 import { wsSend } from '../hooks/useWebSocket';
 import { HttpError } from '../api/client';
 import { isDmChannel, getChannelOrigin, getApiForOrigin, useSpaceStore } from './spaceStore';

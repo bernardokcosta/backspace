@@ -1,6 +1,6 @@
 import { getChannelOrigin, useSpaceStore } from '../stores/spaceStore';
 import type { DmCallCredentials, DmCallRef, VoiceState } from '../stores/voiceStore';
-import type { DmChannel } from '@backspace/shared';
+import type { DmChannel } from '@veyvox/shared';
 import { wsSend } from '../hooks/useWebSocket';
 
 /**

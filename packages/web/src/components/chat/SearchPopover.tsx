@@ -10,7 +10,7 @@ import { highlightMatch } from './searchHighlight';
 import { messageTextForPreview } from '../../utils/stickerMessages';
 import { useEmojiShortcodeNames } from '../../utils/emojiShortcodes';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
-import type { MessageWithUser, DmMessageWithUser, User } from '@backspace/shared';
+import type { MessageWithUser, DmMessageWithUser, User } from '@veyvox/shared';
 
 type AnyMessage = MessageWithUser | DmMessageWithUser;
 

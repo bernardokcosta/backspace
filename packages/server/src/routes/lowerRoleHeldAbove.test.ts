@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
 import { computePermissions } from '../utils/permissions.js';
-import { PermissionBits, permissionsToString, stringToPermissions } from '@backspace/shared/src/permissions.js';
+import { PermissionBits, permissionsToString, stringToPermissions } from '@veyvox/shared/src/permissions.js';
 
 // #365: a role ranked below the actor may be edited even when a member ranked
 // above the actor also holds it, as in Discord. The role hierarchy decides

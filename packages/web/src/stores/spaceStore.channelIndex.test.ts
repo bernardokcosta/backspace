@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
-import type { Channel, DmChannel, SpaceWithChannelsAndMembers } from '@backspace/shared';
+import type { Channel, DmChannel, SpaceWithChannelsAndMembers } from '@veyvox/shared';
 
 vi.mock('../audio/AudioManager', () => ({
   AudioManager: {

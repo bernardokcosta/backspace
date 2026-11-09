@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import type { MemberWithUser, MessageWithUser, User } from '@backspace/shared';
+import type { MemberWithUser, MessageWithUser, User } from '@veyvox/shared';
 
 // jsdom has no AudioWorkletNode; the space store's imports reach the voice stack.
 vi.mock('../../audio/AudioManager', () => ({

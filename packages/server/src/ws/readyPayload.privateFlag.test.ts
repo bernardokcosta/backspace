@@ -6,8 +6,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
-import { PermissionBits, permissionsToString } from '@backspace/shared/src/permissions.js';
-import type { SpaceWithChannelsAndMembers } from '@backspace/shared';
+import { PermissionBits, permissionsToString } from '@veyvox/shared/src/permissions.js';
+import type { SpaceWithChannelsAndMembers } from '@veyvox/shared';
 
 // The ready payload marks channels and categories private with the same rule
 // as the space detail and the broadcasts (`isHiddenFromEveryone`, #365): the

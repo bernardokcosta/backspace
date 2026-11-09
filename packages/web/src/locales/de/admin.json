@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "Allgemein",
-    "description": "Richte deine Backspace-Instanz ein. Diese Einstellungen gelten für alle Nutzer.",
+    "description": "Richte deine Veyvox-Instanz ein. Diese Einstellungen gelten für alle Nutzer.",
     "instanceName": {
       "label": "Instanzname",
       "description": "Der Name, der auf der Anmeldeseite und gegenüber föderierten Instanzen angezeigt wird.",
@@ -300,7 +300,7 @@
     "title": "Updates",
     "badge": {
       "settingsAriaLabel": "Einstellungen, Instanz-Update verfügbar",
-      "toast": "Backspace {{version}} ist für diese Instanz verfügbar",
+      "toast": "Veyvox {{version}} ist für diese Instanz verfügbar",
       "toastAction": "Ansehen"
     },
     "description": "Was auf dieser Instanz läuft und wie es weitergeht.",
@@ -318,11 +318,11 @@
     },
     "available": {
       "label": "Verfügbar",
-      "version": "Backspace {{version}} ist verfügbar",
+      "version": "Veyvox {{version}} ist verfügbar",
       "released": "Veröffentlicht am {{date}} · ",
       "releaseNotes": "Versionshinweise",
       "fromInstallDir": "Aus deinem Installationsverzeichnis:",
-      "scriptDescription": "Erstellt einen Datenbank-Snapshot, holt das neue Image und startet nur den Backspace-Container neu. Startet die neue Version nicht fehlerfrei oder läuft danach weiter der alte Code, wird die Version wiederhergestellt, die du jetzt verwendest.",
+      "scriptDescription": "Erstellt einen Datenbank-Snapshot, holt das neue Image und startet nur den Veyvox-Container neu. Startet die neue Version nicht fehlerfrei oder läuft danach weiter der alte Code, wird die Version wiederhergestellt, die du jetzt verwendest.",
       "noScript": "Ich habe kein update.sh",
       "manualIntro": "update.sh ist ab 1.0.5 dabei. In einem Git-Checkout holt <code>git pull</code> es herein. Andernfalls führe die Schritte von Hand aus, nachdem du mit <code>./backup.sh</code> einen Snapshot erstellt hast.",
       "prebuiltInstall": "Installation mit vorgefertigtem Image:",

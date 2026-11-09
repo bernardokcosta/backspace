@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "บันทึก",
     "cancel": "ยกเลิก",
@@ -123,7 +123,7 @@
   },
   "app": {
     "description": "ทางเลือก Discord และ TeamSpeak แบบโฮสต์เอง เสียง HD วิดีโอ และแชร์จอ — โอเพนซอร์สฟรี (AGPL-3.0)",
-    "loading": "กำลังโหลด Backspace"
+    "loading": "กำลังโหลด Veyvox"
   },
   "chrome": {
     "toggleMemberList": "แสดงหรือซ่อนรายชื่อสมาชิก",

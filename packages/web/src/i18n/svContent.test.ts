@@ -64,9 +64,9 @@ describe('Swedish contextual content', () => {
     expect(chat.message.reactions.byMany).toBe('Reaktioner: {{names}}');
   });
 
-  it('keeps Backspace and Juno automatic labels distinct', () => {
+  it('keeps Veyvox and Juno automatic labels distinct', () => {
     expect(common.language.automatic).toBe('Automatiskt (system)');
-    expect(voice.juno.settings.automatic).toBe('Automatiskt (Backspace)');
+    expect(voice.juno.settings.automatic).toBe('Automatiskt (Veyvox)');
     expect(voice.juno.settings.automaticDubbing).toBe(voice.juno.settings.automatic);
   });
 

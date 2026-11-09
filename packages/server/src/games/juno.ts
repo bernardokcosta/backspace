@@ -1,6 +1,6 @@
 import { randomInt, randomUUID } from 'node:crypto';
 import { JUNO_COLORS, JUNO_TURN_MS, JUNO_REPORT_MS, canPlayJuno, type JunoAction, type JunoCard,
-  type JunoColor, type JunoCommand, type JunoMove, type JunoPerson, type JunoSnapshot, type JunoView, type JunoScoreboard } from '@backspace/shared/src/juno.js';
+  type JunoColor, type JunoCommand, type JunoMove, type JunoPerson, type JunoSnapshot, type JunoView, type JunoScoreboard } from '@veyvox/shared/src/juno.js';
 import { buildJunoStandings } from './junoStandings.js';
 import type { JunoSettlement } from './junoProgression.js';
 import { chooseJunoBlindCard, chooseJunoBotAction } from './junoBot.js';

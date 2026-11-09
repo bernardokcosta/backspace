@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { ownsChosenStatus, type ChosenUserStatus, type UserStatus } from '@backspace/shared';
+import { ownsChosenStatus, type ChosenUserStatus, type UserStatus } from '@veyvox/shared';
 import { getDb, schema } from '../db/index.js';
 import { replicaLiveStatus, statusOnConnect, type StatusSourceRow } from '../utils/presenceStatus.js';
 

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useFormatters } from '../../i18n/formatters';
 import { describeError } from '../../i18n/errors';
 import { useNavigate } from 'react-router-dom';
-import type { User, Activity } from '@backspace/shared';
+import type { User, Activity } from '@veyvox/shared';
 import { Avatar } from '../ui/Avatar';
 import { Username } from '../ui/Username';
 import { BotBadge } from '../ui/BotBadge';

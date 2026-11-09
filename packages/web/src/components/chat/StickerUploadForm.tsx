@@ -1,7 +1,7 @@
 import { StickerUploadPreview, type UploadItem } from './StickerUploadPreview';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MAX_STICKER_BATCH, MAX_STICKER_BYTES, MAX_STICKER_NAME_LENGTH, type PersonalSticker } from '@backspace/shared/src/stickers';
+import { MAX_STICKER_BATCH, MAX_STICKER_BYTES, MAX_STICKER_NAME_LENGTH, type PersonalSticker } from '@veyvox/shared/src/stickers';
 import { uploadSticker } from './stickerUpload';
 import { describeError } from '../../i18n/errors';
 import { HttpError } from '../../api/client';

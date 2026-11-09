@@ -1,6 +1,6 @@
 import { act, cleanup, render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { DmChannel, MessageWithUser, NotificationSetting, User, UserStatus } from '@backspace/shared';
+import type { DmChannel, MessageWithUser, NotificationSetting, User, UserStatus } from '@veyvox/shared';
 
 const playSound = vi.hoisted(() => vi.fn());
 vi.mock('../../audio/AudioManager', () => ({

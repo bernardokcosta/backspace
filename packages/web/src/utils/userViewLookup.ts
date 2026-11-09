@@ -1,4 +1,4 @@
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import { useSpaceStore, type UserViewEntry } from '../stores/spaceStore';
 import { userKey } from './identity';
 

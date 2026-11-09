@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { sortDmChannels } from './dmSorting';
-import type { DmChannel } from '@backspace/shared';
+import type { DmChannel } from '@veyvox/shared';
 
 function makeDm(id: string, lastMessageCreatedAt: number | null, createdAt = 1000): DmChannel {
   return {

@@ -5,7 +5,7 @@ import { useJunoStore } from './junoStore';
 import { useUnreadCountStore } from './unreadCountStore';
 import { useMemo } from 'react';
 import { create } from 'zustand';
-import { isChosenUserStatus, type ChosenUserStatus, type FederatedIdentity, type User } from '@backspace/shared';
+import { isChosenUserStatus, type ChosenUserStatus, type FederatedIdentity, type User } from '@veyvox/shared';
 import { api } from '../api/client';
 import { useChatStore } from './chatStore';
 import { useSpaceStore } from './spaceStore';

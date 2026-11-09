@@ -10,7 +10,7 @@ import { sanitizeUser } from '../../../utils/sanitize.js';
 import { collectProfileBroadcastTargetIds } from '../../../utils/userDeletion.js';
 import { connectionManager } from '../../../ws/handler.js';
 import { and, eq, isNull, or } from 'drizzle-orm';
-import type { DmChannel } from '@backspace/shared';
+import type { DmChannel } from '@veyvox/shared';
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { extractDomain } from '../identity.js';
 import { applyHomeProfile, homeProfileFromAnswer } from '../profile.js';

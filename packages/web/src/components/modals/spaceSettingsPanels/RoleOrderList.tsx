@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Role } from '@backspace/shared';
-import { canManageRoleAt } from '@backspace/shared/src/permissions';
+import type { Role } from '@veyvox/shared';
+import { canManageRoleAt } from '@veyvox/shared/src/permissions';
 import { useSpaceStore, getApiForOrigin } from '../../../stores/spaceStore';
 import { useUIStore } from '../../../stores/uiStore';
 import { describeError } from '../../../i18n/errors';

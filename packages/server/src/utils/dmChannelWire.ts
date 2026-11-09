@@ -1,5 +1,5 @@
 import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
-import type { DmChannel, DmLastMessagePreview, DmMessageWithUser } from '@backspace/shared';
+import type { DmChannel, DmLastMessagePreview, DmMessageWithUser } from '@veyvox/shared';
 import type { getDb } from '../db/index.js';
 import { schema } from '../db/index.js';
 import { sanitizeUser } from './sanitize.js';

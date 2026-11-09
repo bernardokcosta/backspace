@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { DEFAULT_SOUNDBOARD_SETTINGS } from '@backspace/shared/src/soundboard';
-import { PermissionBits, permissionsToString } from '@backspace/shared/src/permissions';
+import { DEFAULT_SOUNDBOARD_SETTINGS } from '@veyvox/shared/src/soundboard';
+import { PermissionBits, permissionsToString } from '@veyvox/shared/src/permissions';
 import { SoundboardLibrary } from './SoundboardLibrary';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useVoiceStore } from '../../stores/voiceStore';
 import { useAuthStore } from '../../stores/authStore';
 import { soundboardKey, useSoundboardPreferences, useSoundboardStore } from '../../stores/soundboardStore';
 import { useKeybindStore } from '../../stores/keybindStore';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import { SoundboardController } from './SoundboardController';
 
 const api = vi.hoisted(() => ({ list: vi.fn(), play: vi.fn(), remove: vi.fn() }));

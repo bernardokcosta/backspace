@@ -1,6 +1,6 @@
 # Design System — "Aether Drift"
 
-Prototype (source of truth): `Backspace-design-prototype.html` (open in browser)
+Historical layout prototype: `Backspace-design-prototype.html` (open in browser). The Brand section below supersedes its pre-Veyvox artwork; do not reuse its old mark.
 Styles: `packages/web/src/styles/globals.css`
 Theme: `packages/web/tailwind.config.js`
 Fonts: DM Sans by default (Latin and Vietnamese, which the bundled subset covers); Inter for the Russian and Ukrainian UI (bundled Cyrillic U+0400-052F); platform stacks for Simplified Chinese, Arabic, Hindi, Thai, Japanese and Korean; system fallbacks (see `docs/systems/localization.md`, "The landing page")
@@ -124,56 +124,39 @@ breakpoint. Native browser zoom and pinch gestures retain their normal behavior.
 
 ## Brand
 
-The mark is the backspace-key glyph. Vector masters live in `assets/brand/`;
-every app icon, favicon, tray icon and social preview is generated from
-them, never hand-edited.
+Veyvox uses the maintainer-supplied two-part V, not the historical backspace-key
+glyph. The immutable raster masters are `assets/brand/veyvox-app-icon.png`
+(boxed composition) and `assets/brand/veyvox-symbol.png` (transparent symbol).
+`scripts/gen-icons.mjs` owns every derived web/PWA, desktop and tray image.
+Historical SVG masters and design archives are not current rendering inputs.
 
-The brand splits by surface, not by file type. UI surfaces (the site
-header, the in-app sidebar tile, favicons, and all tray icons) stay
-flat: a single flat fill, `#7c6cf6` on dark grounds or `#ffffff` on a
-lavender tile or badge shape, no gradient, stroke, glow, shadow, blur or
-blend anywhere the mark appears. The app-icon family, meaning every
-output where the OS shows this app as one launchable icon (dock,
-taskbar, Start menu, Alt-Tab, PWA install, iOS home screen, the
-maskable Android icon), is dimensional: the contributor's original
-badge composition, recoloured to the lavender system. The badge is a
-rounded rectangle with a corner radius of 22.37% of its side (Apple's
-own template radius, not the contributor's original ~36% squircle) on
-a vertical gradient from `#2a2740` (top) to `#12101d` (bottom), called
-"plum", carrying a drop shadow, an inner shadow and a soft-light stroke
-overlay; the glyph inside it is a white-to-`#7c6cf6` gradient, not a
-flat fill.
+UI/tray surfaces remain flat: lavender `#7c6cf6`, white on the lavender home
+tile, and black plus alpha for macOS templates. App-launch icons retain the
+supplied dimensional boxed artwork. Do not redesign the supplied logo or turn
+raster derivatives into files described as vectors. The sidebar uses the white
+`/icons/logo-mark.png`; the colored symbol is `/icons/symbol.png`.
 
-On macOS specifically, the badge also sits on Apple's icon grid: the
-visible artwork occupies an 824px square centred on a 1024 canvas (a
-transparent margin of 100px each side), matching how every other Dock
-icon is framed. `packages/desktop/build/icon.icns` and
-`packages/desktop/build/icon.png` (the dev-mode Dock icon) are the only
-two outputs that carry this margin; every other app-icon output
-(Windows `.ico`, Linux `build/icons/*`, PWA `icon-192`/`icon-512`, the
-in-app `logo.png`, `apple-touch-icon.png`, the maskable icon,
-`app-icon-1024.png`) renders full-bleed to the badge's own edge, because
-those platforms apply their own icon framing. See `macIconPng` in
-`scripts/gen-icons.mjs`.
+The approved minimal cleanup removes only distant alpha <16 noise. Both original
+V components and a one-pixel antialiased fringe remain intact; resizing,
+monochrome fills and platform framing affect derivatives only. Changes to the
+geometry or stronger cleanup require another visual approval.
 
-| Master | Feeds |
-|--------|-------|
-| `app-icon.svg` | App icon outputs above 32px: the dimensional badge (plum gradient, filters, stroke overlay, 22.37%-radius corners) plus the white-to-`#7c6cf6` gradient glyph |
-| `app-icon-small.svg` | App icon outputs at 16/32px (bolder, simplified mark, same dimensional badge geometry) |
-| `mark-icon.svg` | The bare gradient glyph alone, transparent, no badge: the PWA maskable icon's inner mark and the social preview |
-| `mark.svg` | Standalone flat-lavender renders on dark UI-surface grounds |
-| `mark-small.svg` | Favicons, the colour tray icons (Windows `.ico`, Linux PNG; glyph inset in the tray cell and centred by alpha centroid), and any standalone render at 32px or smaller (flat) |
-| `mark-mono-light.svg` | `packages/web/public/icons/logo-mark.svg` (byte copy): the flat white glyph, for the in-app sidebar's lavender home tile |
-| `mark-tray.svg` | The macOS menu-bar template tray icon: a 16px silhouette on an 18x22 canvas (36x44 @2x), centred by alpha centroid so it sits and spaces like the system's own menu-bar glyphs |
-| `mark-mono-dark.svg` | Mono silhouette master; no pipeline output today |
+The maintainer separately requested transparent exterior corners for the boxed
+app icon. Derivatives clear only edge-connected near-black matte outside its
+rounded purple outline; the enclosed tile, both Vs and source RGB are unchanged.
+The original opaque PNG remains immutable. Do not replace this with a new rounded
+rectangle, recolor the edge or apply this matte rule to the standalone symbol.
 
-Regenerate icons with `pnpm gen-icons`; it reads only from `assets/brand/`.
+macOS dock/ICNS artwork keeps the 824/1024 Apple-grid margin. Other app icons
+use the boxed composition directly. The maskable icon has an opaque plum ground
+and the colored V fitted inside a central 60% square, within the safe circle.
+Templates use 22×22/44×44 canvases; Windows/Linux trays keep inset marks and
+measured alpha-centroid centering. Regenerate with `pnpm gen-icons`; inspect real
+small/light/dark outputs and run `node --test scripts/gen-icons.test.mjs`.
 
-The brand primary is `#7c6cf6`. It is a web/app/desktop primary, not a
-pastel accent, and is exposed as `--accent-primary` (see Color Palette
-above). The plum gradient (`#2a2740`/`#12101d`) exists only as the
-app-icon family's ground; it is not a UI surface colour and has no CSS
-variable.
+The Aether Drift primary remains `#7c6cf6` (`--accent-primary`), not a pastel
+accent. The plum gradient (`#2a2740`/`#12101d`) belongs only to icon framing,
+not application surfaces. See `scripts/gen-icons.README.md` for the full matrix.
 
 ---
 

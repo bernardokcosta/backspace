@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AFK_TIMEOUT_OPTIONS } from '@backspace/shared/src/constants';
+import { AFK_TIMEOUT_OPTIONS } from '@veyvox/shared/src/constants';
 import { useSpaceStore } from '../../../stores/spaceStore';
 import { describeError } from '../../../i18n/errors';
 

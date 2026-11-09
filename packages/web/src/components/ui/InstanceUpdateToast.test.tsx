@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import type { InstanceUpdateStatus } from '@backspace/shared';
+import type { InstanceUpdateStatus } from '@veyvox/shared';
 import { InstanceUpdateToast } from './InstanceUpdateToast';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { useUIStore } from '../../stores/uiStore';

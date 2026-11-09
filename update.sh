@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-# Backspace — update a running instance
+# Veyvox — update a running instance
 # ============================================================
 # Takes a database snapshot, refreshes the checkout where that is possible,
 # fetches the new image, restarts only the backspace service, waits for it to
@@ -15,7 +15,7 @@
 #
 # Only the `backspace` service is ever named, and --remove-orphans is never
 # passed. Production hosts run other containers in the same compose project and
-# behind the same Caddy; an update to Backspace has no business recreating or
+# behind the same Caddy; an update to Veyvox has no business recreating or
 # reaping any of them.
 # ============================================================
 
@@ -106,7 +106,7 @@ fi
 
 if [[ ! -f .env ]]; then
   error "No .env in $(pwd)."
-  error "Run this from your Backspace install directory, or ./install.sh first."
+  error "Run this from your Veyvox install directory, or ./install.sh first."
   exit 1
 fi
 
@@ -252,7 +252,7 @@ if [[ "$MODE" == "check" ]]; then
   else
     echo ""
     echo -e "  ${BOLD}Backspace Fork $latest is available.${NC} You are on $CURRENT_VERSION."
-    echo -e "  Release notes: https://github.com/bernardokcosta/backspace/releases/tag/v${latest}"
+    echo -e "  Release notes: https://github.com/bernardokcosta/veyvox/releases/tag/v${latest}"
     echo ""
     echo -e "  Update with: ${BOLD}./update.sh${NC}"
   fi

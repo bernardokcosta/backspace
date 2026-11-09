@@ -37,8 +37,8 @@ export npm_config_nodedir="$electron_headers_dir"
 
 # Install only the desktop workspace and its dependency closure. The lockfile
 # remains the source of truth and pnpm fails if any generated source is missing.
-$PNPM --filter @backspace/desktop... install --offline --frozen-lockfile
-$PNPM --filter @backspace/desktop run build:ts
+$PNPM --filter @veyvox/desktop... install --offline --frozen-lockfile
+$PNPM --filter @veyvox/desktop run build:ts
 
 # Preserve the module electron-rebuild compiled from source. The shared
 # afterPack hook intentionally discards host build artifacts for cross-platform
@@ -67,7 +67,7 @@ case "$FLATPAK_ARCH" in
     ;;
 esac
 
-$PNPM --filter @backspace/desktop exec electron-builder \
+$PNPM --filter @veyvox/desktop exec electron-builder \
   --linux --dir "--$electron_builder_arch" \
   --config.electronDist="$ELECTRON_CACHE"
 

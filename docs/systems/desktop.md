@@ -27,6 +27,76 @@ Source files:
 - `flatpak/` — Flatpak launcher, desktop entry, AppStream metadata, and build instructions
 - `packages/desktop/resources/games.json` — Bundled game dictionary seed (versioned)
 
+## Veyvox 1.17.0 compatibility identities
+
+The visible product and new installer basenames are Veyvox. Workspace names are
+`@veyvox/*`; packaged desktop `name` remains `@backspace/desktop` so its updater
+cache remains `@backspacedesktop-updater`. The appId/AUMID and desktop identity
+remain `io.github.bernardokcosta.backspacefork`. The executable/bundle remains
+`Backspace Fork[.exe/.app]`; macOS `CFBundleName` also remains `Backspace Fork`,
+while `CFBundleDisplayName` is Veyvox. Debian keeps Package `backspace-fork`,
+measured from the published 1.16.8 installer. These are explicit compatibility
+exceptions, not current display branding. Do not rename them without proving
+encrypted-profile and installed-replacement behavior on the affected platform.
+
+Current clients resolve `window.veyvox ?? window.backspace` through
+`getElectronAPI()`. Preload exposes the same bounded implementation under both
+names; IPC channels, sender/frame/focus checks and the `backspace-sdr-frame`
+transport remain unchanged. Both `veyvox://` and `backspace://` accept only the
+supported join/channel routes. Main validates and emits the legacy scheme so
+older hosted clients still understand it; old binaries do not acquire the new
+OS registration from a web-client update. Deep-link listeners now return an
+unsubscribe operation, with void-returning old shells still supported.
+
+Linux keeps only its owned `backspace-fork.desktop` autostart entry. Its enabled
+legacy Debian `/opt/Backspace Fork/Backspace Fork` path can refresh to
+`/opt/Veyvox/Backspace Fork`; branded AppImage path changes use the same owner.
+Missing/unreadable entries, Hidden/desktop-disabled flags and unrelated commands
+are never recreated, re-enabled or overwritten. Windows/macOS OS-authoritative
+startup preferences retain their existing flow.
+
+Electron 45's `Browser::SetLoginItemSettings` is a no-op on Linux (despite the
+old helper's assumption). The existing settings/refresh flow therefore writes
+and reads only `backspace-fork.desktop` itself, using freedesktop Exec escaping;
+Windows/macOS still use Electron. Flatpak remains portal-owned.
+
+`node packages/desktop/scripts/run-rebrand-smoke.mjs` exercises the compiled
+production preload, historical-path migration, persistent Chromium cookie and
+IndexedDB, synthetic session/instances, Automatic language and foreign-frame IPC
+refusal in a temporary profile. It creates no OS registrations/login items,
+initializes no updater and blocks external requests. This fixture is not an
+installed-NSIS/Debian/macOS replacement or hardware-acceptance claim.
+
+The separate `scripts/verify-installed-rebrand.mjs` installer gate runs only on
+explicitly opted-in **GitHub-hosted disposable** runners. It verifies pinned
+1.16.8 installer digests, native architecture, NSIS GUID/path/shortcuts/AUMID,
+Debian Package/desktop path or macOS bundle identity/path; launches the actual
+installed main/preload; and compares measured cookie protection/persistence, synthetic session,
+IndexedDB, instances and preferences after upgrade and repeat launch. Linux also
+exercises the real AppImages with extract-and-run (no sandbox/fuse bypass).
+OS-disabled startup is checked without auto-reenabling it. macOS disabling uses
+the real ServiceManagement bridge. Hidden launch uses `--hidden`, not a real
+reboot/login. Linux's baseline enabled autostart file is seeded at the OS boundary
+because the old Electron API did not implement that write. No claim of real-user
+login, hardware/media acceptance or successful platform execution follows from
+the existence of this gate: read its per-run reports before publication.
+
+Cookie protection is measured, not inferred from Electron or branding. The
+published 1.16.8 Linux binary and candidate initially measured cookie encryption
+Disabled, matching Electron's default. The rebrand must not silently enable it
+(a one-way transition) or disable it. The installed gate reads baseline/candidate
+fuses with the pinned reader and requires exact equality, then checks persistent
+cookie bytes and application recovery according to that mode. Plaintext
+preservation is explicitly reported as plaintext, not as an encryption guarantee.
+If a baseline is encrypted, the encryption/keyring checks remain mandatory.
+
+macOS helper executable/bundle paths also retain the internal `Backspace Fork`
+prefix, while their descriptive display names remain Veyvox. Electron resolves
+these paths from the main `CFBundleName`; the packaging hook aligns them before
+fuse flipping and final signing. Build and installed verifiers read the actual
+helper plists/binaries so an internally mismatched, correctly signed bundle
+cannot pass. See [desktop-security.md](desktop-security.md) for the boundary.
+
 ---
 
 ## Architecture Overview
@@ -123,6 +193,17 @@ No real historical-host acceptance is implied by the probe.
 
 ### Desktop startup
 
+The public Veyvox rebrand does not rename the installed fork's runtime crypto or
+profile identity. `initializeUserData` sets the internal name `Backspace Fork`
+before resolving profile paths. It reuses that profile and migrates only the
+historical `@backspace/desktop` path, never the official upstream `Backspace`
+profile. An existing populated destination wins without merging accounts.
+Missing and inaccessible/invalid paths are distinct: a migration/readability
+failure exits before the window, session or updater is initialized rather than
+silently opening an empty replacement profile. Cross-device migration uses an
+exclusive sibling staging directory, promotes only a complete copy, and retains
+the original safety copy. Uncommitted staging directories are never userData.
+
 Operational failure reports use the serving instance's central diagnostic sink,
 with a short-lived memory queue and no local log files. Existing recovery/update/
 keybind callbacks supply safe status codes; there is no new privileged bridge or
@@ -141,7 +222,7 @@ callers share one attempt per account/session; account changes and store resets
 invalidate late initialization results. Transfers retain their ordinary explicit
 pause, resume and cancellation behavior without a compatibility pause.
 
-The desktop app wraps the Backspace web client in Electron with:
+The desktop app wraps the Veyvox web client in Electron with:
 - **Main process** (`main.ts`): Window lifecycle, tray icon, IPC handler registry, auto-update, deep linking, activity detection, keybind manager
 - **Preload bridge** (`preload.ts`): Exposes `window.backspace` API via `contextBridge` with full sandbox isolation (`contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`)
 - **Renderer**: The standard web client, detecting Electron via `typeof window.backspace !== 'undefined'`
@@ -251,7 +332,7 @@ Dev-mode caveat: if a developer runs Electron pointed at the Vite dev server (`h
 
 ## Instance Picker
 
-When no instance URL is configured, the app loads `resources/instance-picker.html` — a self-contained HTML page where the user enters their Backspace instance URL. The renderer communicates the chosen URL back via the `set-instance-url` IPC handler.
+When no instance URL is configured, the app loads `resources/instance-picker.html` — a self-contained HTML page where the user enters their Veyvox instance URL. The renderer communicates the chosen URL back via the `set-instance-url` IPC handler.
 
 After navigation (both to an instance URL and back to the picker), the main process forces Electron to re-evaluate drag regions by momentarily resizing the window (+1px then back).
 
@@ -261,7 +342,7 @@ The tray menu, macOS app menu, and recovery surface all include a "Change Instan
 
 - Pre-fills the URL input with the current value.
 - Shows a Cancel button (hidden by default; only shown when a saved URL exists).
-- Switches the header copy from "Welcome to Backspace / Connect to your instance" to "Switch instance / Connect to a different Backspace instance, or cancel to stay."
+- Switches the header copy from "Welcome to Veyvox / Connect to your instance" to "Switch instance / Connect to a different Veyvox instance, or cancel to stay."
 
 **Cancel button behavior:** Clicking Cancel re-saves the existing URL via `setInstanceUrl` (idempotent) and navigates back to it. The saved URL is only overwritten when the user explicitly clicks Connect on a *different* URL. This means the user can always back out of an accidental "Change Instance" click.
 
@@ -350,7 +431,7 @@ All four assets are produced by `scripts/gen-icons.mjs` from `assets/brand/{mark
 
 | Item | Action |
 |------|--------|
-| Show Backspace | `window.show()` + `focus()` |
+| Show Veyvox | `window.show()` + `focus()` |
 | Hide | `window.hide()` |
 | Change Instance | Load picker (non-destructive — saved URL preserved), show + focus |
 | Quit | Set `isQuitting = true`, `app.quit()` |
@@ -564,7 +645,7 @@ suppressed when the window is focused (the in-app toast covers that) and when
 
 | Capability | Title | Body | Click |
 |---|---|---|---|
-| `auto` | Backspace update ready | Click to restart and install version X. | `quitAndInstall()` |
+| `auto` | Veyvox update ready | Click to restart and install version X. | `quitAndInstall()` |
 | `manual` | Backspace Fork X is available | Click to open the download page. | `shell.openExternal(RELEASES_URL)` |
 | `external` | — | No in-app notification; the package manager notifies the user. | — |
 
@@ -575,7 +656,7 @@ startup so notifications attribute to "Backspace Fork" in Windows Action Center.
 
 All `autoUpdater` events update the `RecoveryStateStore`. `UpdateState` gained
 **`available-manual`**: an update exists but this build cannot install it. The
-recovery surface then offers a versioned "Download Backspace X" button
+recovery surface then offers a versioned "Download Veyvox X" button
 (`open-releases` action) instead of "Restart to Install Update", and the tray and
 macOS app menus do the same via `updateActionItem`. Without this the recovery
 screen, which is the escape hatch for a user whose app will not start, would
@@ -666,7 +747,7 @@ in `flatpak/README.md` under "Release-paired offline sources".
 fires for a full release and for a prerelease promoted to one, never for a
 prerelease). A tag outside `vX.Y.Z`, a prerelease, or a release that has
 already landed makes the run a successful no-op that logs why. A release has
-landed when main's manifest pins the Backspace source to the tag's commit
+landed when main's manifest pins the Veyvox source to the tag's commit
 (read with `flatpak/manifest-pin.mjs`), which only its merged metadata pull
 request does. An AppStream entry for the version on main does not count as
 landed: see step 2. Otherwise, checked out at the tag, it:
@@ -825,11 +906,11 @@ Page reads initial state via `getRecoveryState()` IPC and subscribes to `recover
 | Change Instance | always | always |
 | Open Releases Page | `updateState === 'error'` or `'available-manual'` | always when visible |
 
-In `'available-manual'` the Open Releases button relabels to "Download Backspace
+In `'available-manual'` the Open Releases button relabels to "Download Veyvox
 X". Restart to Install is never shown in that state, because the build cannot
 install in place.
 
-| Quit Backspace | always | always |
+| Quit Veyvox | always | always |
 
 **Change Instance from recovery is non-destructive.** The saved URL is not cleared when navigating to the picker; see the Instance Picker section above for the full behavior (pre-filled input, Cancel button, header copy update).
 
@@ -973,13 +1054,13 @@ There is no persistent grant: the portal asks per share by design, and one scree
 3. Renderer sends `screen-share-selected` with `sourceId` (or `null` to cancel) and `shareAudio`
 4. Main calls `callback({ video: selectedSource, audio: 'loopback' })`
 
-### System audio and Backspace's own playback
+### System audio and Veyvox's own playback
 
-Whether a System Audio share also carries Backspace's own playback (the voice chat, so viewers hear themselves) is decided by the OS build, and only main can read it. `systemAudioCapability.ts` answers from `process.platform` and `process.getSystemVersion()`; the rule and its Chromium sources are stated once in `voice.md` ("System Audio Loopback"). The renderer asks through `getSystemAudioCapability()` (IPC `get-system-audio-capability`) and words the note under the System Audio switch from the answer. The method is optional: a renderer on an older desktop build gets no answer and keeps the generic per-platform note, so no existing `window.backspace` method changed.
+Whether a System Audio share also carries Veyvox's own playback (the voice chat, so viewers hear themselves) is decided by the OS build, and only main can read it. `systemAudioCapability.ts` answers from `process.platform` and `process.getSystemVersion()`; the rule and its Chromium sources are stated once in `voice.md` ("System Audio Loopback"). The renderer asks through `getSystemAudioCapability()` (IPC `get-system-audio-capability`) and words the note under the System Audio switch from the answer. The method is optional: a renderer on an older desktop build gets no answer and keeps the generic per-platform note, so no existing `window.backspace` method changed.
 
 The prompted flow stays because the desktop app loads whatever web client its instance serves: an older instance still calls `getDisplayMedia()` first, and a newer instance on an older desktop build lacks `getScreenSources` and falls back to this path (`preselectScreenSource` / `getScreenSources` are optional in `electron.d.ts` for that reason).
 
-On Linux with PipeWire the main process builds the system-audio capture itself so that Backspace is not in it (`systemAudio.ts`, `startSystemAudio()` / `stopSystemAudio()`; mechanism in `voice.md`, "Linux system-audio source"). `get-system-audio-capability` returns `excluded` while that source is available, but only to a web client that passes `true` (`getSystemAudioCapability(true)`, sent by a client that has the `startSystemAudio` / `stopSystemAudio` bridge and opens the source itself). A web client from before the source passes nothing, keeps Chromium's loopback, and gets the OS answer (`included` on Linux); main does not load the module for it. A new web client on a desktop build without the argument gets the OS answer as well, which is right because that build has no source. `@vencord/venmic` is an `optionalDependency` of this package (Linux only; its prebuilt `.node` files are covered by `asarUnpack: **/*.node`; its build tool `cmake-js` is removed by a `pnpm.overrides` entry, see `security-scanning.md`).
+On Linux with PipeWire the main process builds the system-audio capture itself so that Veyvox is not in it (`systemAudio.ts`, `startSystemAudio()` / `stopSystemAudio()`; mechanism in `voice.md`, "Linux system-audio source"). `get-system-audio-capability` returns `excluded` while that source is available, but only to a web client that passes `true` (`getSystemAudioCapability(true)`, sent by a client that has the `startSystemAudio` / `stopSystemAudio` bridge and opens the source itself). A web client from before the source passes nothing, keeps Chromium's loopback, and gets the OS answer (`included` on Linux); main does not load the module for it. A new web client on a desktop build without the argument gets the OS answer as well, which is right because that build has no source. `@vencord/venmic` is an `optionalDependency` of this package (Linux only; its prebuilt `.node` files are covered by `asarUnpack: **/*.node`; its build tool `cmake-js` is removed by a `pnpm.overrides` entry, see `security-scanning.md`).
 
 No sources (0 results) typically means Screen Recording permission not granted on macOS.
 
@@ -1051,7 +1132,7 @@ All handlers registered in `main.ts:registerIpcHandlers()`.
 | `get-recovery-state` | R->M | `RecoveryState` | Recovery page reads initial state on mount |
 | `get-update-status` | R->M | `UpdateSnapshot` | Renderer reads the current snapshot on mount |
 | `is-sandboxed` | R->M | `boolean` | Detect package sandbox restrictions independently of update capability |
-| `get-system-audio-capability` | R->M | `'excluded' \| 'included' \| 'unavailable' \| 'unknown'` | Whether a System Audio share on this OS build carries Backspace's own playback: `ownAudioInSystemAudio(process.platform, process.getSystemVersion())` (`systemAudioCapability.ts`), or `excluded` when the argument is exactly `true` and the Linux system-audio source is available (`withSystemAudioSource()` in `systemAudio.ts`). Same sender guard as the screen-share handlers; anything else gets `'unknown'` |
+| `get-system-audio-capability` | R->M | `'excluded' \| 'included' \| 'unavailable' \| 'unknown'` | Whether a System Audio share on this OS build carries Veyvox's own playback: `ownAudioInSystemAudio(process.platform, process.getSystemVersion())` (`systemAudioCapability.ts`), or `excluded` when the argument is exactly `true` and the Linux system-audio source is available (`withSystemAudioSource()` in `systemAudio.ts`). Same sender guard as the screen-share handlers; anything else gets `'unknown'` |
 
 ### Main -> Renderer Events
 
@@ -1100,7 +1181,7 @@ Detection: `typeof window.backspace !== 'undefined'` (see `platform.ts:isElectro
 | `onDeepLink(cb)` | listen | M->R | |
 | `onScreenShareSources(cb)` | listen | M->R | |
 | `selectScreenSource(id, audio?)` | fire | R->M | |
-| `getSystemAudioCapability(usesAppSource?)` | invoke | R->M | Optional (older builds lack it, and builds before the Linux source ignore the argument). `usesAppSource` is `true` from a web client that opens the Linux system-audio source itself. Returns `Promise<'excluded' \| 'included' \| 'unavailable' \| 'unknown'>`; see "System audio and Backspace's own playback" |
+| `getSystemAudioCapability(usesAppSource?)` | invoke | R->M | Optional (older builds lack it, and builds before the Linux source ignore the argument). `usesAppSource` is `true` from a web client that opens the Linux system-audio source itself. Returns `Promise<'excluded' \| 'included' \| 'unavailable' \| 'unknown'>`; see "System audio and Veyvox's own playback" |
 | `startSystemAudio()` | invoke | R->M | Optional. Linux: routes every other app's playback into a virtual source. Returns `Promise<{ ok: true, label } \| { ok: false, reason }>`; the renderer opens the device named `label` as a microphone |
 | `stopSystemAudio()` | invoke | R->M | Optional. Unlinks the virtual source; idempotent |
 | `getInstanceUrl()` | invoke | R->M | Returns `Promise<string \| null>` |
@@ -1341,7 +1422,7 @@ without this flag need to open Keybinds once to save it.
 After cancellation or failure, the explicit retry button can register a new session.
 
 On Wayland the settings panel has no local recorder, edit or delete controls.
-It directs users to the system's Backspace shortcut settings and shows a read-only
+It directs users to the system's Veyvox shortcut settings and shows a read-only
 list of actual assignments. Closing a session unregisters its runtime listeners;
 it does **not** delete the desktop's persistent shortcut configuration. Change or
 remove those assignments in the desktop settings instead.
@@ -1390,7 +1471,7 @@ uIOhook reports hardware scan codes. The web UI stores keybinds as djb2 hashes o
 | Digits | 0-9 (keycodes 2-11) |
 | Function keys | F1-F24 (keycodes 59-107) |
 | Modifiers | ControlLeft/Right, AltLeft/Right, ShiftLeft/Right, MetaLeft/Right |
-| Special | Backspace, Tab, Enter, CapsLock, Escape, Space |
+| Special | Veyvox, Tab, Enter, CapsLock, Escape, Space |
 | Navigation | PageUp/Down, Home, End, Arrows, Insert, Delete |
 | Punctuation | Semicolon, Equal, Comma, Minus, Period, Slash, Backquote, Brackets, Backslash, Quote |
 | Numpad | Numpad0-9, NumpadMultiply/Add/Subtract/Decimal/Divide |
@@ -1590,7 +1671,7 @@ output: dist-electron
 
 **Rebuild:** `electron-rebuild -f -w uiohook-napi` runs on `postinstall` to compile for the build machine's Electron ABI. `uiohook-napi` is the only native module this rebuild touches, and it is the only one in the desktop dependency tree. `better-sqlite3` belongs to `packages/server` and never enters the packaged app, so an Electron ABI mismatch cannot reach it.
 
-`@electron/rebuild` 4 is ESM-only and declares `engines.node: >=22.12.0`, which the repository's own floor now matches (`engines.node: >=22.12.0`, CI legs on 22 and 24). While one `ci.yml` leg still ran Node 20 the CLI was measured on 20.19.5 and completed the rebuild anyway: it uses `parseArgs`, `styleText` and `import.meta.dirname`, all of which exist in 20.19. The `postinstall` also ends in `|| node -e "console.warn(...)"`, so a future failure degrades to a warning rather than breaking `pnpm install`. That fallback is what makes the engines mismatch tolerable, not the measurement: if the rebuild ever does stop running on Node 20, `pnpm dev` breaks locally while release builds keep working, because packaging uses `prebuilds/` and `npmRebuild: false`.
+`@electron/rebuild` 4 is ESM-only and declares `engines.node: >=22.12.0`, which the repository's declared floor now matches (`engines.node: >=22.12.0`; the current CI runs Node 24 only). Historically, while one `ci.yml` leg still ran Node 20, the CLI was measured on 20.19.5 and completed the rebuild anyway: it uses `parseArgs`, `styleText` and `import.meta.dirname`, all of which exist in 20.19. The `postinstall` also ends in `|| node -e "console.warn(...)"`, so a rebuild failure degrades to a warning rather than breaking server/web installation. That historical measurement does not make Node 20 supported. Packaging uses `prebuilds/` and `npmRebuild: false`.
 
 **ASAR unpacking:** All `.node` files are unpacked from the ASAR archive (`asarUnpack: "**/*.node"`). Native modules cannot load from inside ASAR.
 
@@ -1659,7 +1740,7 @@ The split is by surface, not file type: UI surfaces (favicons, tray icons, the i
 
 `apple-touch-icon.png` composites the app icon full-bleed over an opaque copy of its own plum gradient (`#2a2740` to `#12101d`, matching `app-icon.svg`'s squircle) so no pixel is transparent. iOS otherwise paints transparent corners black.
 
-The `dev` script copies the committed `build/icon.icns` into Electron's bundled `Resources/electron.icns` so the macOS dev dock shows the Backspace mark instead of the default Electron logo. This dev-only patch is independent of how `.icns` is generated.
+The `dev` script copies the committed `build/icon.icns` into Electron's bundled `Resources/electron.icns` so the macOS dev dock shows the Veyvox mark instead of the default Electron logo. This dev-only patch is independent of how `.icns` is generated.
 
 See `scripts/gen-icons.README.md` for the regeneration workflow and version-bump caveat (sharp / png-to-ico / png2icons upgrades change encoder output, requiring a follow-up regen+commit).
 

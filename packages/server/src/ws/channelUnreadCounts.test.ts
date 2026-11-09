@@ -1,5 +1,5 @@
-import type { DmChannel, DmMessageWithUser, MessageWithUser, ServerEvent } from '@backspace/shared';
-import { PermissionBits } from '@backspace/shared/src/permissions.js';
+import type { DmChannel, DmMessageWithUser, MessageWithUser, ServerEvent } from '@veyvox/shared';
+import { PermissionBits } from '@veyvox/shared/src/permissions.js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
@@ -17,7 +17,7 @@ const computePermissions = vi.fn<(userId: string, spaceId: string, channelId?: s
 
 vi.mock('../db/index.js', () => ({ getDb: () => db, schema }));
 vi.mock('../utils/permissions.js', async () => {
-  const shared = await import('@backspace/shared/src/permissions.js');
+  const shared = await import('@veyvox/shared/src/permissions.js');
   return {
     PermissionBits: shared.PermissionBits,
     computePermissions: (userId: string, spaceId: string, channelId?: string) => computePermissions(userId, spaceId, channelId),

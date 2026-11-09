@@ -21,7 +21,7 @@
   },
   "connections": {
     "title": "Anslutna instanser",
-    "description": "Koppla konton över federerade Backspace-instanser.",
+    "description": "Koppla konton över federerade Veyvox-instanser.",
     "empty": "Inga externa instanser anslutna. Lägg till en för att börja federera.",
     "addButton": "+ Lägg till instans",
     "home": {

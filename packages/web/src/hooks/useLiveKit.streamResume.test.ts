@@ -8,7 +8,7 @@ import { useAuthStore } from '../stores/authStore';
 import { STREAM_RESUME_WINDOW_MS } from '../utils/streamResume';
 import { publishScreenShare, stopScreenShare } from '../utils/screenShare';
 import { SoundController } from '../components/voice/SoundController';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 /**
  * A full LiveKit reconnect drops the reconnecting participant for everyone

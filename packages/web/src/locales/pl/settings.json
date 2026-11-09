@@ -328,10 +328,10 @@
   },
   "keybinds": {
     "portal": {
-      "description": "Na Wayland wszystkimi skrótami Backspace zarządza komputer. Przypisuj, zmieniaj i usuwaj klawisze w systemowych ustawieniach skrótów, w Backspace. Lokalne wiązania przeglądarki/X11 nie są tu używane.",
+      "description": "Na Wayland wszystkimi skrótami Veyvox zarządza komputer. Przypisuj, zmieniaj i usuwaj klawisze w systemowych ustawieniach skrótów, w Veyvox. Lokalne wiązania przeglądarki/X11 nie są tu używane.",
       "idle": "Przygotowanie pierwszej rejestracji wszystkich dostępnych akcji.",
       "pending": "Łączenie z portalem systemowym. Jeśli pojawi się okno systemowe, wybierz skróty dla potrzebnych akcji.",
-      "ready": "Zarejestrowano Backspace. Otwórz systemowe ustawienia skrótów, aby zmienić albo usunąć przypisania. Lista poniżej jest tylko do odczytu i odświeża się po powrocie do Backspace.",
+      "ready": "Zarejestrowano Veyvox. Otwórz systemowe ustawienia skrótów, aby zmienić albo usunąć przypisania. Lista poniżej jest tylko do odczytu i odświeża się po powrocie do Veyvox.",
       "unavailable": "Portal niedostępny, odmówiono pozwolenia albo sesja się zakończyła. Potrzebny backend portalu skrótów globalnych. Lokalne wiązania są wyłączone na Wayland.",
       "retry": "Zarejestruj albo połącz skróty ponownie",
       "assigned": "Skrót systemowy: {{shortcut}}",
@@ -373,7 +373,7 @@
     },
     "accessibility": {
       "title": "Wymagane pozwolenie dostępności",
-      "description": "Backspace potrzebuje pozwolenia dostępności, aby skróty globalne działały poza aplikacją.",
+      "description": "Veyvox potrzebuje pozwolenia dostępności, aby skróty globalne działały poza aplikacją.",
       "grant": "Przyznaj pozwolenie"
     },
     "hookError": {
@@ -390,7 +390,7 @@
     "autoLaunch": {
       "openAtLogin": {
         "label": "Uruchamiaj przy logowaniu",
-        "description": "Automatycznie uruchamiaj Backspace po zalogowaniu"
+        "description": "Automatycznie uruchamiaj Veyvox po zalogowaniu"
       },
       "startMinimized": {
         "label": "Uruchamiaj zminimalizowany",
@@ -398,7 +398,7 @@
       }
     },
     "updates": {
-      "appName": "Backspace Desktop",
+      "appName": "Veyvox Desktop",
       "versionLabel": "Wersja {{version}}",
       "checking": "Sprawdzanie aktualizacji…",
       "checkingShort": "Sprawdzanie…",
@@ -417,7 +417,7 @@
       "download": "Pobierz",
       "restart": "Uruchom ponownie",
       "manualNote": "Ta kompilacja nie instaluje aktualizacji sama. Pobierz nowe wersje z GitHub i wymień aplikację ręcznie. Kroki dla Twojej platformy znajdziesz w notatkach do wydania.",
-      "externalNote": "Flatpak stosuje aktualizacje atomowo poza aplikacją. Użyj menedżera oprogramowania albo polecenia <code>flatpak update</code>, aby zaktualizować Backspace."
+      "externalNote": "Flatpak stosuje aktualizacje atomowo poza aplikacją. Użyj menedżera oprogramowania albo polecenia <code>flatpak update</code>, aby zaktualizować Veyvox."
     },
     "instance": {
       "current": "Aktualnie połączona instancja",

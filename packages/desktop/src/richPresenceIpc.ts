@@ -41,7 +41,7 @@ const DISCONNECT_GRACE_MS = 2500;
 
 const CLIENT_ID_RE = /^\d{1,64}$/;
 
-/** Shared activity limits (kept in sync with @backspace/shared ACTIVITY_LIMITS). */
+/** Shared activity limits (kept in sync with @veyvox/shared ACTIVITY_LIMITS). */
 const LIMITS = {
   MAX_NAME_LENGTH: 128,
   MAX_DETAILS_LENGTH: 128,

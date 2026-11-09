@@ -1,7 +1,7 @@
-import { stickerUrl } from '@backspace/shared/src/stickers.js';
+import { stickerUrl } from '@veyvox/shared/src/stickers.js';
 import { eq, inArray } from 'drizzle-orm';
 import sharp from 'sharp';
-import type { Embed } from '@backspace/shared';
+import type { Embed } from '@veyvox/shared';
 import { getDb, schema } from '../db/index.js';
 import { generateSnowflake } from './snowflake.js';
 import { classifyUrl } from './embedClassifier.js';

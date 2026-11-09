@@ -37,15 +37,16 @@ export function isBrowserPlayer(player?: string): boolean {
  * Whether an SMTC session belongs to this app itself and must never become a
  * "listening" activity. The app registers the AppUserModelId
  * `io.github.bernardokcosta.backspacefork` (main.ts) and its document title is
- * "Backspace Fork" (web/index.html), so any audible element in our own
+ * "Veyvox" (web/index.html), so any audible element in our own
  * renderer — a rogue LiveKit element before the AppLayout observer kills it,
  * an unmuted tile, a cue — surfaces as a playing session titled
- * "Backspace Fork" and would otherwise be reported as music the user is
+ * "Veyvox" and would otherwise be reported as music the user is
  * listening to (e.g. for the whole duration of a screen share).
  */
 export function isOwnAppSession(appId?: string): boolean {
   if (!appId) return false;
-  return appId.toLowerCase().includes('backspace');
+  const name = appId.toLowerCase();
+  return name.includes('backspace') || name.includes('veyvox');
 }
 
 export function resolvePlayerFromAppId(appId: string): string {

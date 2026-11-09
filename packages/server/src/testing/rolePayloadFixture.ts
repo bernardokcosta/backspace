@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
-import { PermissionBits, permissionsToString } from '@backspace/shared/src/permissions.js';
+import { PermissionBits, permissionsToString } from '@veyvox/shared/src/permissions.js';
 
 // A space with one member of each audience the role and override shaping
 // distinguishes (docs/systems/permissions.md, "Who receives role and override

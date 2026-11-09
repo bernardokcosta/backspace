@@ -655,7 +655,7 @@ MENTION_EVERYONE (bit 15):
 | Token | Reaches |
 |---|---|
 | `@everyone` | every member who can see the channel |
-| `@here` | the same members as `@everyone`. Backspace has no "online only" audience when it decides an alert; each member's own settings decide |
+| `@here` | the same members as `@everyone`. Veyvox has no "online only" audience when it decides an alert; each member's own settings decide |
 | `<@&roleId>` | every member holding that role in the channel's space |
 
 A token inside inline code or a fenced block is text. `@everyone` and `@here`

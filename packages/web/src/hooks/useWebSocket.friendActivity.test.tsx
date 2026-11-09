@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import type { Activity, MemberWithUser, ServerEvent, User } from '@backspace/shared';
+import type { Activity, MemberWithUser, ServerEvent, User } from '@veyvox/shared';
 
 // jsdom has no AudioWorkletNode; the handler's imports reach the voice stack.
 vi.mock('../audio/AudioManager', () => ({

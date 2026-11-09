@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import type { Friend, FriendRequest, SendFriendRequest, User } from '@backspace/shared';
-import { api, type BackspaceApiClient } from '../api/client';
+import type { Friend, FriendRequest, SendFriendRequest, User } from '@veyvox/shared';
+import { api, type VeyvoxApiClient } from '../api/client';
 import { getFriendsHomeOrigin, useInstanceStore, waitForAutoConnect } from './instanceStore';
 import { normalizeUserAssets } from '../utils/assetUrls';
 import { addressedTo } from '../utils/friendRequestTarget';
@@ -66,7 +66,7 @@ export class SocialInstanceNotConnectedError extends Error {
  * `getApiForOrigin` in `crossStoreResolvers.ts`, which other surfaces rely on
  * to fall back.
  */
-function apiAt(origin: string): BackspaceApiClient {
+function apiAt(origin: string): VeyvoxApiClient {
   if (!origin) return api;
   const instance = useInstanceStore.getState().instances.find(i => i.origin === origin);
   if (!instance) throw new SocialInstanceNotConnectedError(origin);

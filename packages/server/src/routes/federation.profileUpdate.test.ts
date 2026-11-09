@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { eq } from 'drizzle-orm';
-import type { FederationRelayEvent } from '@backspace/shared';
+import type { FederationRelayEvent } from '@veyvox/shared';
 import { connectionManager } from '../ws/handler.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

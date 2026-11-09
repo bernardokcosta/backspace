@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "Lưu",
     "cancel": "Hủy",
@@ -123,7 +123,7 @@
   },
   "app": {
     "description": "Giải pháp thay thế Discord và TeamSpeak tự lưu trữ. Giọng HD, video và chia sẻ màn hình — mã nguồn mở và miễn phí (AGPL-3.0).",
-    "loading": "Đang tải Backspace"
+    "loading": "Đang tải Veyvox"
   },
   "chrome": {
     "toggleMemberList": "Hiện hoặc ẩn danh sách thành viên",

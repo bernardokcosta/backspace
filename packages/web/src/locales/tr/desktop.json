@@ -2,7 +2,7 @@
   "mediaSetup": {
     "neteaseSmtc": {
       "title": "NetEase Cloud Music'te SMTC'yi aç",
-      "body": "NetEase Cloud Music → Ayarlar → Sistem → SMTC'yi etkinleştir yolunu izleyip uygulamayı yeniden başlat. Backspace'in oynatma, duraklatma ve ilerlemeyi doğru algılaması için buna ihtiyacı var.",
+      "body": "NetEase Cloud Music → Ayarlar → Sistem → SMTC'yi etkinleştir yolunu izleyip uygulamayı yeniden başlat. Veyvox'in oynatma, duraklatma ve ilerlemeyi doğru algılaması için buna ihtiyacı var.",
       "gotIt": "Anladım",
       "dontRemind": "Bir daha hatırlatma",
       "dismiss": "Bu ipucunu yoksay"
@@ -13,14 +13,14 @@
     "dismiss": "Bu güncellemeyi yoksay",
     "failed": {
       "title": "Güncelleme yüklenemedi",
-      "body": "Backspace {{version}} indirildi ancak yükleme başarısız oldu. Elle yükleyebilirsin."
+      "body": "Veyvox {{version}} indirildi ancak yükleme başarısız oldu. Elle yükleyebilirsin."
     },
     "ready": {
       "title": "Güncelleme hazır",
-      "body": "Backspace {{version}} indirildi ve yüklemeye hazır."
+      "body": "Veyvox {{version}} indirildi ve yüklemeye hazır."
     },
     "available": {
-      "title": "Backspace {{version}} kullanılabilir",
+      "title": "Veyvox {{version}} kullanılabilir",
       "body": "Bu sürüm kendini güncelleyemiyor; ilerlemek için yeni sürümü indir.",
       "bodyWithCurrent": "{{currentVersion}} sürümündesin. Bu sürüm kendini güncelleyemiyor; ilerlemek için yeni sürümü indir."
     },

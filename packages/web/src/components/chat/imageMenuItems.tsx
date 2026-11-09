@@ -1,4 +1,4 @@
-import { stickerIdOf, stickerUrl } from '@backspace/shared/src/stickers';
+import { stickerIdOf, stickerUrl } from '@veyvox/shared/src/stickers';
 import type { ContextMenuAction, ContextMenuItem } from '../../stores/contextMenuStore';
 import { saveImage, copyImageToClipboard } from '../../utils/imageActions';
 import { useUIStore } from '../../stores/uiStore';

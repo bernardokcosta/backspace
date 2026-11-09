@@ -21,7 +21,7 @@
   },
   "connections": {
     "title": "Forbundne instanser",
-    "description": "Kobl konti på tværs af fødererede Backspace-instanser.",
+    "description": "Kobl konti på tværs af fødererede Veyvox-instanser.",
     "empty": "Ingen eksterne instanser forbundet. Tilføj en for at føderere.",
     "addButton": "+ Tilføj instans",
     "home": {

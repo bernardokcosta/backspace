@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../stores/authStore';
 import { api, RateLimitError } from '../../api/client';
-import type { InstanceInfoResponse } from '@backspace/shared';
+import type { InstanceInfoResponse } from '@veyvox/shared';
 import { SourceCodeLink } from '../ui/SourceCodeLink';
 import { describeError } from '../../i18n/errors';
 

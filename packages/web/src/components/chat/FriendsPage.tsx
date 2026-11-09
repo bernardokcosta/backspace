@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import { friendEntryOf, isIncomingRequest, isOutgoingRequest, pendingRequestWith, useSocialStore, type TaggedFriend, type TaggedFriendRequest, type TaggedUser } from '../../stores/socialStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useDiscoverStore, type TaggedDiscoverUser } from '../../stores/discoverStore';
@@ -18,7 +18,7 @@ import { getAvatarGradient } from '../../utils/gradients';
 import { Mascot } from '../ui/Mascot';
 import { useActivityStore, activitiesFor } from '../../stores/activityStore';
 import { ActivityCard, hasRichActivity, getActivityAccentClass } from '../ui/ActivityCard';
-import { getPrimaryActivity } from '@backspace/shared/src/activities.js';
+import { getPrimaryActivity } from '@veyvox/shared/src/activities.js';
 import { parseFederatedUsername, isFederationGlobeApplicable, userDisplayName, type IdentityFields } from '../../utils/identity';
 import { openDirectMessage } from '../../utils/openDirectMessage';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
@@ -42,7 +42,7 @@ function ActivityFriendItem({
 }: {
   friend: TaggedFriend;
   isOffline: boolean;
-  activities: import('@backspace/shared').Activity[];
+  activities: import('@veyvox/shared').Activity[];
   isRichActivity: boolean;
   accentClass: string;
   mobile?: boolean;

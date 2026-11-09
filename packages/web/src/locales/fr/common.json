@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "Enregistrer", "cancel": "Annuler", "close": "Fermer", "delete": "Supprimer", "bot": "BOT",
     "confirm": "Confirmer", "copy": "Copier", "copied": "Copié", "retry": "Réessayer", "back": "Retour",
@@ -42,7 +42,7 @@
   "crash": { "title": "Une erreur est survenue", "reload": "Recharger la page", "details": "Détails de l’erreur" },
   "app": {
     "description": "L’alternative auto-hébergée à Discord et TeamSpeak. Voix HD, vidéo et partage d’écran : libre et gratuite (AGPL-3.0).",
-    "loading": "Chargement de Backspace"
+    "loading": "Chargement de Veyvox"
   },
   "chrome": { "toggleMemberList": "Afficher ou masquer la liste des membres", "closeSettings": "Fermer les paramètres" },
   "sourceCode": {

@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "حفظ",
     "cancel": "إلغاء",
@@ -123,7 +123,7 @@
   },
   "app": {
     "description": "البديل المستضاف ذاتيًا لـ Discord وTeamSpeak. صوت عالي الدقة وفيديو ومشاركة شاشة — مفتوح المصدر ومجاني (AGPL-3.0).",
-    "loading": "جارٍ تحميل Backspace"
+    "loading": "جارٍ تحميل Veyvox"
   },
   "chrome": {
     "toggleMemberList": "إظهار قائمة الأعضاء أو إخفاؤها",

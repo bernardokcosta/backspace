@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 // Same shims as instanceStore.tokenResolver.test.ts so importing instanceStore
 // doesn't pull in real WS / audio / federation machinery.

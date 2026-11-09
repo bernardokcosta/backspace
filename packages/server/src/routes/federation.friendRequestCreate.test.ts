@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
-import type { FederationRelayEvent, FederationFriendshipPayload } from '@backspace/shared';
+import type { FederationRelayEvent, FederationFriendshipPayload } from '@veyvox/shared';
 
 setWorkerId(1);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

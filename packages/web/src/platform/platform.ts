@@ -1,11 +1,11 @@
 export function isElectron(): boolean {
-  return typeof window !== 'undefined' && typeof window.backspace !== 'undefined';
+  return getElectronAPI() !== null;
 }
 
 export function isElectronMac(): boolean {
-  return isElectron() && window.backspace?.platform === 'darwin';
+  return getElectronAPI()?.platform === 'darwin';
 }
 
-export function getElectronAPI(): BackspaceElectronAPI | null {
-  return window.backspace ?? null;
+export function getElectronAPI(): VeyvoxElectronAPI | null {
+  return typeof window === 'undefined' ? null : window.veyvox ?? window.backspace ?? null;
 }

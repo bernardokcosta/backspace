@@ -11,7 +11,7 @@ import type { PermissionDef } from '../ui/OverrideEntry';
 import { describeError } from '../../i18n/errors';
 import { useEntityOverrides } from '../../hooks/useEntityOverrides';
 import { PrivacySetting } from './PrivacySetting';
-import { CATEGORY_NAME_MAX_LENGTH, normalizeCategoryName } from '@backspace/shared/src/constants';
+import { CATEGORY_NAME_MAX_LENGTH, normalizeCategoryName } from '@veyvox/shared/src/constants';
 
 // ─── Permission Definitions for Category Overrides ──────────────────────────────
 

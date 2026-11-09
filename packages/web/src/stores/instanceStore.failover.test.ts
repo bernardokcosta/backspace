@@ -19,7 +19,7 @@ import { useInstanceStore } from './instanceStore';
 import type { ConnectedInstance } from './instanceStore';
 import { useSpaceStore } from './spaceStore';
 import { useSocialStore } from './socialStore';
-import type { DmChannel, Friend } from '@backspace/shared';
+import type { DmChannel, Friend } from '@veyvox/shared';
 
 let mockFailover: ReturnType<typeof vi.spyOn>;
 

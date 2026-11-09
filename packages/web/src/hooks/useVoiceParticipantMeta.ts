@@ -5,7 +5,7 @@ import { parseFederatedUsername } from '../utils/identity';
 import { getCanonicalUserView } from '../utils/userViewLookup';
 import { voiceSessionOrigin } from '../utils/dmCall';
 import type { ParticipantInfo } from './useLiveKit';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 /**
  * Resolves display metadata (displayName, avatar, user) for a voice participant

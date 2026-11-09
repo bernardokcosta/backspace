@@ -1,7 +1,7 @@
 {
   // Type-checks the federation e2e suites and the shared test helpers, which the
   // main tsconfig does not cover (it includes only `src/**/*`, because that is
-  // what `pnpm build` emits). Run via `pnpm --filter @backspace/server typecheck:e2e`.
+  // what `pnpm build` emits). Run via `pnpm --filter @veyvox/server typecheck:e2e`.
   //
   // The two live-server security suites (cors-posture, http-security-headers)
   // are listed explicitly rather than by a `test/*.test.ts` glob, because a

@@ -1,5 +1,5 @@
-import type { MessageWithUser } from '@backspace/shared';
-import { parseChannelSystemEvent } from '@backspace/shared/src/channelSystemEvents';
+import type { MessageWithUser } from '@veyvox/shared';
+import { parseChannelSystemEvent } from '@veyvox/shared/src/channelSystemEvents';
 import { useAuthStore, selectMyChosenStatus, getMyUserIdForOrigin } from '../../stores/authStore';
 import { useChatStore } from '../../stores/chatStore';
 import { getChannelOrigin } from '../../stores/spaceStore';

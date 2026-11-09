@@ -36,6 +36,94 @@ const path = require('path');
 // keeps the build hermetic rather than relying on that default.
 const AD_HOC_SIGN_ARGS = ['--force', '--sign', '-', '--timestamp=none'];
 
+const MAC_HELPERS = [
+  { directory: 'Frameworks', suffix: ' Helper', required: true },
+  { directory: 'Frameworks', suffix: ' Helper (Renderer)', required: true },
+  { directory: 'Frameworks', suffix: ' Helper (GPU)', required: true },
+  { directory: 'Frameworks', suffix: ' Helper (Plugin)', required: true },
+  { directory: 'Frameworks', suffix: ' Helper EH', required: false },
+  { directory: 'Frameworks', suffix: ' Helper NP', required: false },
+  { directory: path.join('Library', 'LoginItems'), suffix: ' Login Helper', required: false },
+];
+
+function readPlistValue(file, key, execute) {
+  return execute('plutil', ['-extract', key, 'raw', '-o', '-', file], { encoding: 'utf8' }).trim();
+}
+
+function checkHelperPrefix(name) {
+  if (typeof name !== 'string' || !name || name === '.' || name === '..' || /[/\\\u0000-\u001f]/.test(name)) {
+    throw new Error('Invalid macOS helper name');
+  }
+  return name;
+}
+
+function helperPaths(appPath, prefix, helper) {
+  const name = prefix + helper.suffix;
+  const bundle = path.join(appPath, 'Contents', helper.directory, name + '.app');
+  return { name, bundle, plist: path.join(bundle, 'Contents', 'Info.plist'), executable: path.join(bundle, 'Contents', 'MacOS', name) };
+}
+
+function checkHelper(files, execute) {
+  if (!fs.lstatSync(files.bundle).isDirectory() || !fs.lstatSync(files.executable).isFile() || !fs.lstatSync(files.plist).isFile()
+    || readPlistValue(files.plist, 'CFBundleExecutable', execute) !== files.name) {
+    throw new Error('Inconsistent macOS helper executable');
+  }
+}
+
+/** Read the actual packaged layout that Electron resolves from CFBundleName.
+ * Neither a valid codesign seal nor the main executable's name proves this.
+ */
+function verifyMacHelperLayout(appPath, execute = execFileSync) {
+  const prefix = checkHelperPrefix(readPlistValue(path.join(appPath, 'Contents', 'Info.plist'), 'CFBundleName', execute));
+  let count = 0;
+  for (const helper of MAC_HELPERS) {
+    const files = helperPaths(appPath, prefix, helper);
+    if (!fs.existsSync(files.bundle)) {
+      if (helper.required) throw new Error('Missing macOS helper for retained CFBundleName');
+      continue;
+    }
+    checkHelper(files, execute);
+    count++;
+  }
+  return count;
+}
+
+/** electron-builder 26 names helpers from sanitizedProductName even when
+ * executableName is pinned. Electron 45 instead resolves them from CFBundleName.
+ * Keep that installed/crypto name; align only helper paths/executable metadata,
+ * before fuses/signing, preserving display names, identifiers and binary bytes.
+ */
+function alignMacHelperNames(appPath, productName, execute = execFileSync) {
+  const sourcePrefix = checkHelperPrefix(productName);
+  const targetPrefix = checkHelperPrefix(readPlistValue(path.join(appPath, 'Contents', 'Info.plist'), 'CFBundleName', execute));
+  const planned = [];
+  for (const helper of MAC_HELPERS) {
+    const source = helperPaths(appPath, sourcePrefix, helper);
+    const target = helperPaths(appPath, targetPrefix, helper);
+    if (sourcePrefix === targetPrefix || !fs.existsSync(source.bundle)) {
+      if (!fs.existsSync(target.bundle)) {
+        if (helper.required) throw new Error('Missing macOS helper during packaging');
+        continue;
+      }
+      checkHelper(target, execute);
+      continue;
+    }
+    if (fs.existsSync(target.bundle)) throw new Error('Conflicting macOS helper destination');
+    checkHelper(source, execute);
+    if (fs.existsSync(path.join(path.dirname(source.executable), target.name))) throw new Error('Conflicting macOS helper executable');
+    planned.push({ source, target });
+  }
+  // Complete all validation before the first mutation; never merge/overwrite a
+  // destination. A later filesystem/plutil failure aborts packaging, not signing.
+  for (const { source, target } of planned) {
+    fs.renameSync(source.executable, path.join(path.dirname(source.executable), target.name));
+    execute('plutil', ['-replace', 'CFBundleExecutable', '-string', target.name, source.plist], { encoding: 'utf8' });
+    fs.renameSync(source.bundle, target.bundle);
+  }
+  verifyMacHelperLayout(appPath, execute);
+  return planned.length;
+}
+
 /**
  * True when electron-builder has a real identity to sign with, in which case
  * this fallback must stay out of the way and let it sign properly.
@@ -134,4 +222,4 @@ function signMacAppIfUnsigned(appPath) {
   adhocSignMacApp(appPath);
 }
 
-module.exports = { signMacAppIfUnsigned };
+module.exports = { signMacAppIfUnsigned, alignMacHelperNames, verifyMacHelperLayout };

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canPlayJuno, type JunoAction, type JunoCard } from '@backspace/shared/src/juno.js';
+import { canPlayJuno, type JunoAction, type JunoCard } from '@veyvox/shared/src/juno.js';
 import { actInRound, JunoRooms, startRound, type JunoRound } from './juno.js';
 
 const card = (id: string, face: JunoCard['face'] = '3', color: JunoCard['color'] = 'coral'): JunoCard => ({ id, face, color });

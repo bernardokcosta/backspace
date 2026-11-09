@@ -7,7 +7,7 @@ import { useChatStore } from '../../stores/chatStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useUIStore } from '../../stores/uiStore';
 import { wsSend } from '../../hooks/useWebSocket';
-import type { DmChannel, User } from '@backspace/shared';
+import type { DmChannel, User } from '@veyvox/shared';
 
 vi.mock('../../hooks/useWebSocket', () => ({ wsSend: vi.fn() }));
 vi.mock('../../audio/AudioManager', () => ({

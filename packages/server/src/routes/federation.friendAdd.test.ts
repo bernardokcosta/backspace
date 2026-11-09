@@ -24,7 +24,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
-import type { FederationRelayEvent } from '@backspace/shared';
+import type { FederationRelayEvent } from '@veyvox/shared';
 import { connectionManager } from '../ws/handler.js';
 
 setWorkerId(1);

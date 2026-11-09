@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 // The card reaches into the space store, the API client and the federated
 // mutuals loader. None of that is under test here; stub it so the test sees

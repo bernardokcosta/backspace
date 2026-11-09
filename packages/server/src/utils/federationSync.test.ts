@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { and, eq } from 'drizzle-orm';
-import type { FederationRelayEvent, FederationSyncRequest } from '@backspace/shared';
+import type { FederationRelayEvent, FederationSyncRequest } from '@veyvox/shared';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from './snowflake.js';
 

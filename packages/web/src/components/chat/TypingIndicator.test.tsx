@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { DmChannel, MemberWithUser, User } from '@backspace/shared';
+import type { DmChannel, MemberWithUser, User } from '@veyvox/shared';
 import { setLanguage } from '../../i18n';
 import { useAuthStore } from '../../stores/authStore';
 import { useChatStore } from '../../stores/chatStore';

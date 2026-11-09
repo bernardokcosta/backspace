@@ -7,7 +7,7 @@ import {
   type NotificationLevel,
   type NotificationMuteDuration,
   type UpdateNotificationSettingRequest,
-} from '@backspace/shared';
+} from '@veyvox/shared';
 import { describeCodedError } from '../../i18n/errors';
 import { Toggle } from '../ui/Toggle';
 import { useFormatters } from '../../i18n/formatters';

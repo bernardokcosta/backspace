@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { Channel } from '@backspace/shared';
+import type { Channel } from '@veyvox/shared';
 vi.mock('../audio/AudioManager', () => ({ AudioManager: { getInstance: () => ({ setOutputDevice: vi.fn(), setVolume: vi.fn() }) } }));
 vi.mock('./instanceStore', () => ({ useInstanceStore: { getState: () => ({ _autoConnectDone: true, instances: [] }), subscribe: () => () => {} } }));
 import { usePendingMessageStore } from './pendingMessageStore';

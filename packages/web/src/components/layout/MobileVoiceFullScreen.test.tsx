@@ -13,7 +13,7 @@
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import type { DmChannel } from '@backspace/shared';
+import type { DmChannel } from '@veyvox/shared';
 import { MemoryRouter } from 'react-router-dom';
 
 // jsdom doesn't ship ResizeObserver; useGridLayout needs it.

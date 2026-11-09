@@ -328,10 +328,10 @@
   },
   "keybinds": {
     "portal": {
-      "description": "Na Waylandu všechny zkratky Backspace spravuje počítač. Přiřazuj, měň či odebírej klávesy v systémovém nastavení klávesových zkratek, v Backspace. Místní vazby prohlížeče/X11 se tu nepoužívají.",
+      "description": "Na Waylandu všechny zkratky Veyvox spravuje počítač. Přiřazuj, měň či odebírej klávesy v systémovém nastavení klávesových zkratek, v Veyvox. Místní vazby prohlížeče/X11 se tu nepoužívají.",
       "idle": "Příprava první registrace všech dostupných akcí.",
       "pending": "Připojování k systémovému portálu. Objeví-li se systémové okno, vyber zkratky pro potřebné akce.",
-      "ready": "Backspace registrován. Otevři systémové nastavení klávesových zkratek pro změnu či odebrání přiřazení. Seznam níže je jen ke čtení a obnoví se po návratu do Backspace.",
+      "ready": "Veyvox registrován. Otevři systémové nastavení klávesových zkratek pro změnu či odebrání přiřazení. Seznam níže je jen ke čtení a obnoví se po návratu do Veyvox.",
       "unavailable": "Portál nedostupný, povolení odepřeno či relace skončila. Je potřeba backend portálu globálních zkratek. Místní vazby jsou na Waylandu vypnuté.",
       "retry": "Registrovat či připojit zkratky znovu",
       "assigned": "Systémová zkratka: {{shortcut}}",
@@ -373,7 +373,7 @@
     },
     "accessibility": {
       "title": "Vyžadováno povolení přístupnosti",
-      "description": "Backspace potřebuje povolení přístupnosti, aby globální zkratky fungovaly mimo aplikaci.",
+      "description": "Veyvox potřebuje povolení přístupnosti, aby globální zkratky fungovaly mimo aplikaci.",
       "grant": "Udělit povolení"
     },
     "hookError": {
@@ -390,7 +390,7 @@
     "autoLaunch": {
       "openAtLogin": {
         "label": "Spouštět při přihlášení",
-        "description": "Automaticky spouštět Backspace po přihlášení"
+        "description": "Automaticky spouštět Veyvox po přihlášení"
       },
       "startMinimized": {
         "label": "Spouštět minimalizovaně",
@@ -398,7 +398,7 @@
       }
     },
     "updates": {
-      "appName": "Backspace Desktop",
+      "appName": "Veyvox Desktop",
       "versionLabel": "Verze {{version}}",
       "checking": "Ověřování aktualizací…",
       "checkingShort": "Ověřování…",
@@ -417,7 +417,7 @@
       "download": "Stáhnout",
       "restart": "Restartovat",
       "manualNote": "Toto sestavení si aktualizace samo neinstaluje. Stáhni nové verze z GitHub a aplikaci vyměň ručně. Kroky pro tvou platformu najdeš v poznámkách k vydání.",
-      "externalNote": "Flatpak uplatňuje aktualizace atomicky mimo aplikaci. K aktualizaci Backspace použij správce softwaru či příkaz <code>flatpak update</code>."
+      "externalNote": "Flatpak uplatňuje aktualizace atomicky mimo aplikaci. K aktualizaci Veyvox použij správce softwaru či příkaz <code>flatpak update</code>."
     },
     "instance": {
       "current": "Aktuálně připojená instance",

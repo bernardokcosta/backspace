@@ -78,7 +78,7 @@ further file writes for that process and increases failure/drop counters instead
 of failing chat; restart after repairing storage. No database migration or row
 cleanup is involved. Backups, uploads and user data are never retention targets.
 
-Compose caps each of Backspace, Caddy and LiveKit stdout/stderr at 50,000,000 bytes
+Compose caps each of Veyvox, Caddy and LiveKit stdout/stderr at 50,000,000 bytes
 × 3 files. Together those are at most 450 MB plus small rotation overhead;
 4.5 GB + 450 MB leaves margin under **5,000,000,000 bytes** of application logs.
 This budget covers the managed application logs, not unrelated host services,

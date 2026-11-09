@@ -3,13 +3,13 @@ import { eq } from 'drizzle-orm';
 import { generateSnowflake } from '../utils/snowflake.js';
 import { buildMessageWithUser } from '../routes/messages.js';
 import { dmSystemName } from '../utils/dmSystemMessages.js';
-import { channelSystemContent } from '@backspace/shared/src/channelSystemEvents.js';
+import { channelSystemContent } from '@veyvox/shared/src/channelSystemEvents.js';
 import { getDb, schema } from '../db/index.js';
 import { getChannelSpaceId, getMember, hasPermission, PermissionBits } from '../utils/permissions.js';
 import { connectionManager } from './handler.js';
 import { errorText } from '../utils/httpErrors.js';
 import { createFixedWindowLimit } from '../utils/fixedWindowLimit.js';
-import type { ErrorCode, ErrorDetails } from '@backspace/shared/src/errors';
+import type { ErrorCode, ErrorDetails } from '@veyvox/shared/src/errors';
 
 /**
  * Refuse a poke with a coded `error` on the socket that sent it, as

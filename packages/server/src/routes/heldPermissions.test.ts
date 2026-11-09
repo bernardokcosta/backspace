@@ -14,7 +14,7 @@ import {
   PermissionBits,
   permissionsToString,
   stringToPermissions,
-} from '@backspace/shared/src/permissions.js';
+} from '@veyvox/shared/src/permissions.js';
 
 // #299, role management: the role hierarchy decides WHICH roles and members a
 // MANAGE_ROLES holder may touch; the held-bits rule decides WHICH permission

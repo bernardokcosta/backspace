@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { inArray, isNotNull, like, lt } from 'drizzle-orm';
-import { stickerIdOf } from '@backspace/shared/src/stickers.js';
+import { stickerIdOf } from '@veyvox/shared/src/stickers.js';
 import { config } from '../config.js';
 import { getDb, schema } from '../db/index.js';
 

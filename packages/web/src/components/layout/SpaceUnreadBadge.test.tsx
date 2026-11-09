@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Space } from '@backspace/shared';
+import type { Space } from '@veyvox/shared';
 import { useUnreadCountStore } from '../../stores/unreadCountStore';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useChatStore } from '../../stores/chatStore';

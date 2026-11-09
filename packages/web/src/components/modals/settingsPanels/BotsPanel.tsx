@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { BotActivity, BotActivityType, BotSpaceOption, BotSummary, BotTokenSummary } from '@backspace/shared';
+import type { BotActivity, BotActivityType, BotSpaceOption, BotSummary, BotTokenSummary } from '@veyvox/shared';
 import {
   BOT_ACTIVITY_TYPES,
   BOT_NAME_MAX_LENGTH,
@@ -9,8 +9,8 @@ import {
   MAX_BOT_TOKENS_PER_BOT,
   MAX_BOTS_PER_USER,
   PROFILE_BIO_MAX_LENGTH,
-} from '@backspace/shared/src/constants';
-import { ACTIVITY_LIMITS } from '@backspace/shared/src/activities.js';
+} from '@veyvox/shared/src/constants';
+import { ACTIVITY_LIMITS } from '@veyvox/shared/src/activities.js';
 import { api } from '../../../api/client';
 import { describeError } from '../../../i18n/errors';
 import { useFormatters } from '../../../i18n/formatters';

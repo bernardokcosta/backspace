@@ -6,7 +6,7 @@ import { useVoiceStore } from '../../stores/voiceStore';
 import { useChatStore } from '../../stores/chatStore';
 import { useUIStore } from '../../stores/uiStore';
 import { useSpaceStore } from '../../stores/spaceStore';
-import type { DmChannel } from '@backspace/shared';
+import type { DmChannel } from '@veyvox/shared';
 
 // AudioManager loads an AudioWorklet module that jsdom cannot evaluate.
 vi.mock('../../audio/AudioManager', () => ({

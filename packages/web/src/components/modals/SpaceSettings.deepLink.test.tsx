@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
-import type { InstanceStreamingLimits } from '@backspace/shared';
+import type { InstanceStreamingLimits } from '@veyvox/shared';
 
 // Stub AudioManager to avoid AudioWorkletNode reference error in jsdom.
 // Reached transitively via spaceStore -> chatStore -> useWebSocket -> voiceStore.

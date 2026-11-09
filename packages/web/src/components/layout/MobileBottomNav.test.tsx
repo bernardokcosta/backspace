@@ -17,7 +17,7 @@ vi.mock('../../hooks/useInstanceUpdateBadge', () => ({
 }));
 
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import { MemoryRouter } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useSocialStore, type TaggedFriendRequest } from '../../stores/socialStore';

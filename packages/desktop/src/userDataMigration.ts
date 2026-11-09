@@ -14,9 +14,11 @@ export interface MigrationOptions {
 
 function dirExists(dir: string): boolean {
   try {
-    return fs.statSync(dir).isDirectory();
-  } catch {
-    return false;
+    if (!fs.statSync(dir).isDirectory()) throw new Error('Profile path is not a directory');
+    return true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false;
+    throw error;
   }
 }
 
@@ -34,7 +36,7 @@ function copyDirRecursive(src: string, dest: string): void {
     } else if (entry.isSymbolicLink()) {
       fs.symlinkSync(fs.readlinkSync(s), d);
     } else {
-      fs.copyFileSync(s, d);
+      fs.copyFileSync(s, d, fs.constants.COPYFILE_EXCL);
     }
   }
 }
@@ -46,13 +48,18 @@ export function migrateUserData(opts: MigrationOptions): MigrationResult {
     if (path.resolve(oldDir) === path.resolve(newDir)) {
       return { kind: 'no-op', reason: 'identical' };
     }
-    if (!dirExists(oldDir)) {
-      return { kind: 'no-op', reason: 'old-missing' };
-    }
-    if (dirExists(newDir)) {
+    const destinationExists = dirExists(newDir);
+    if (destinationExists) {
       if (!isEmpty(newDir)) {
         return { kind: 'no-op', reason: 'new-populated' };
       }
+    }
+    if (!dirExists(oldDir)) {
+      return { kind: 'no-op', reason: 'old-missing' };
+    }
+    // A stat-able but unreadable directory is not a safe profile to move.
+    fs.readdirSync(oldDir);
+    if (destinationExists) {
       fs.rmdirSync(newDir);
     }
 
@@ -62,8 +69,19 @@ export function migrateUserData(opts: MigrationOptions): MigrationResult {
       fs.renameSync(oldDir, newDir);
     } catch (err) {
       if ((err as NodeJS.ErrnoException).code !== 'EXDEV') throw err;
-      copyDirRecursive(oldDir, newDir);
-      fs.rmSync(oldDir, { recursive: true, force: true });
+      // Never expose a partial copy as a usable profile. Staging is exclusively
+      // owned by this invocation and promotion stays on the destination volume.
+      const staging = fs.mkdtempSync(`${newDir}.migrating-`);
+      try {
+        copyDirRecursive(oldDir, staging);
+        if (dirExists(newDir)) throw new Error('Profile destination appeared during migration');
+        fs.renameSync(staging, newDir);
+      } catch (copyError) {
+        try { fs.rmSync(staging, { recursive: true, force: true }); } catch { /* A leftover staging directory is never selected as userData. */ }
+        throw copyError;
+      }
+      // Keep the cross-device original as a safety copy. The committed,
+      // populated destination wins on every subsequent startup; never merge.
     }
 
     try {
@@ -75,5 +93,24 @@ export function migrateUserData(opts: MigrationOptions): MigrationResult {
     return { kind: 'migrated', from: oldDir, to: newDir };
   } catch (err) {
     return { kind: 'failed', error: err instanceof Error ? err : new Error(String(err)) };
+  }
+}
+
+/** Keep runtime crypto/profile identity separate from the public product name. */
+export function initializeUserData(app: {
+  setName(name: string): void;
+  getPath(name: 'appData'): string;
+}): MigrationResult {
+  try {
+    app.setName('Backspace Fork');
+    const appDataDir = app.getPath('appData');
+    const oldParent = path.join(appDataDir, '@backspace');
+    return migrateUserData({
+      oldDir: path.join(oldParent, 'desktop'),
+      newDir: path.join(appDataDir, 'Backspace Fork'),
+      oldParent,
+    });
+  } catch (error) {
+    return { kind: 'failed', error: error instanceof Error ? error : new Error(String(error)) };
   }
 }

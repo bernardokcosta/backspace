@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeDiagnostic, diagnosticError, diagnosticRoute, diagnosticLocation } from '@backspace/shared/src/diagnostics';
+import { normalizeDiagnostic, diagnosticError, diagnosticRoute, diagnosticLocation } from '@veyvox/shared/src/diagnostics';
 
 describe('privacy-safe diagnostic contract', () => {
   it('keeps only bounded operational metadata, never arbitrary content', () => {

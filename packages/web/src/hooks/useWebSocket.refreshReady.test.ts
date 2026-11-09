@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { MessageWithUser, ServerEvent, User } from '@backspace/shared';
+import type { MessageWithUser, ServerEvent, User } from '@veyvox/shared';
 import { getActiveRoom } from './useLiveKit';
 
 vi.mock('./useLiveKit', () => ({ getActiveRoom: vi.fn(() => null) }));

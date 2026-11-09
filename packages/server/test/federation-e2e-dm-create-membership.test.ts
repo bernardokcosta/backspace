@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
-import type { FederationRelayEvent, FederationRelayParticipant } from '@backspace/shared';
+import type { FederationRelayEvent, FederationRelayParticipant } from '@veyvox/shared';
 import {
   bootIdentityPeered,
   identityOrigin,

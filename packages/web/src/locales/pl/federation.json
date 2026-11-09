@@ -23,7 +23,7 @@
   },
   "connections": {
     "title": "Połączone instancje",
-    "description": "Łącz konta między sfederowanymi instancjami Backspace.",
+    "description": "Łącz konta między sfederowanymi instancjami Veyvox.",
     "empty": "Brak połączonych zdalnych instancji. Dodaj jedną, aby zacząć federację.",
     "addButton": "+ Dodaj instancję",
     "home": {

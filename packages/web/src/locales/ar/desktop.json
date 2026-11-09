@@ -2,7 +2,7 @@
   "mediaSetup": {
     "neteaseSmtc": {
       "title": "شغّل SMTC في NetEase Cloud Music",
-      "body": "افتح NetEase Cloud Music ← الإعدادات ← النظام ← فعّل SMTC، ثم أعد تشغيل التطبيق. يحتاج Backspace هذا لاكتشاف التشغيل والإيقاف والتقدم بدقة.",
+      "body": "افتح NetEase Cloud Music ← الإعدادات ← النظام ← فعّل SMTC، ثم أعد تشغيل التطبيق. يحتاج Veyvox هذا لاكتشاف التشغيل والإيقاف والتقدم بدقة.",
       "gotIt": "فهمت",
       "dontRemind": "لا تذكّرني مجددًا",
       "dismiss": "إغلاق هذا التلميح"
@@ -13,14 +13,14 @@
     "dismiss": "إغلاق هذا التحديث",
     "failed": {
       "title": "تعذّر تثبيت التحديث",
-      "body": "تم تنزيل Backspace {{version}}، لكن التثبيت فشل. يمكنك تثبيته يدويًا."
+      "body": "تم تنزيل Veyvox {{version}}، لكن التثبيت فشل. يمكنك تثبيته يدويًا."
     },
     "ready": {
       "title": "التحديث جاهز",
-      "body": "تم تنزيل Backspace {{version}} وهو جاهز للتثبيت."
+      "body": "تم تنزيل Veyvox {{version}} وهو جاهز للتثبيت."
     },
     "available": {
-      "title": "يتوفر Backspace {{version}}",
+      "title": "يتوفر Veyvox {{version}}",
       "body": "هذه النسخة لا تحدّث نفسها، لذا نزّل النسخة الجديدة للانتقال إليها.",
       "bodyWithCurrent": "أنت تستخدم {{currentVersion}}. هذه النسخة لا تحدّث نفسها، لذا نزّل النسخة الجديدة للانتقال إليها."
     },

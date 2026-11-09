@@ -1,9 +1,13 @@
-Backspace
+Veyvox — independently maintained derivative of Backspace
 Copyright (c) 2026 Jannis Braun
 
-Backspace is free and open source software under the GNU Affero General Public
-License v3.0 (AGPL-3.0-only); see the LICENSE file. A separate commercial license
-is also available; see LICENSE-COMMERCIAL.md.
+Veyvox's code is free and open source software under the GNU Affero General
+Public License v3.0 (AGPL-3.0-only); see LICENSE. Original Backspace was created
+by Jannis Braun (TheZwiss), https://github.com/TheZwiss/backspace. We thank him
+and all original contributors. This fork and its new visual identity are
+maintained independently, without implying upstream endorsement or affiliation.
+LICENSE-COMMERCIAL.md records upstream's separate terms, not a commercial offer
+covering this independent fork's changes.
 
 It bundles, depends on, or redistributes the third-party components listed
 below. Each remains under its own license.
@@ -41,11 +45,16 @@ authored for the Backspace project and are covered by the project license.
 Icons and brand assets
 ================================================================================
 
-The Backspace name, logo, and app icons (assets/brand/,
-packages/web/public/icons/, packages/desktop build resources) are original
-works and trademarks of the project. Neither the AGPL nor the commercial license
-grants any right to use these trademarks; trademark use is governed separately by
-applicable law.
+The legacy Backspace name, logo and app icons are original project works and
+trademarks. Their historical source artwork remains distinguishable from the
+current Veyvox masters. Neither the AGPL nor upstream's commercial license grants
+rights to those trademarks; applicable trademark law governs their use.
+
+Veyvox artwork masters assets/brand/veyvox-app-icon.png and
+assets/brand/veyvox-symbol.png were supplied by this fork's maintainer. They are
+not attributed to Jannis Braun. scripts/gen-icons.mjs reproducibly derives the
+current web/PWA, desktop and tray images without modifying the supplied masters.
+This provenance notice does not create additional trademark or licensing grants.
 
 In-application UI icons are hand-authored inline SVGs and are covered by the
 project license.
@@ -54,11 +63,11 @@ project license.
 npm dependencies
 ================================================================================
 
-Backspace depends on open-source packages distributed via npm, all under
+Veyvox depends on open-source packages distributed via npm, all under
 permissive licenses (predominantly MIT, ISC, Apache-2.0, and BSD variants).
 The image-processing dependency "sharp" loads libvips, distributed as a
 prebuilt binary under the LGPL-3.0-or-later license; it is used unmodified and
-dynamically, and is not statically linked into Backspace.
+dynamically, and is not statically linked into Veyvox.
 
 The desktop app on Linux optionally depends on "@vencord/venmic"
 (https://github.com/Vencord/venmic), a prebuilt native PipeWire module distributed

@@ -22,7 +22,7 @@
   },
   "connections": {
     "title": "Instancias conectadas",
-    "description": "Vincula cuentas entre instancias federadas de Backspace.",
+    "description": "Vincula cuentas entre instancias federadas de Veyvox.",
     "empty": "No hay instancias remotas conectadas. Añade una para empezar a usar la federación.",
     "addButton": "+ Añadir instancia",
     "home": {

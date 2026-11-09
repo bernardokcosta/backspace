@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "Zapisz",
     "cancel": "Anuluj",
@@ -123,7 +123,7 @@
   },
   "app": {
     "description": "Samodzielnie hostowana alternatywa dla Discorda i TeamSpeaka. Głos w HD, wideo i udostępnianie ekranu — otwarte oprogramowanie, darmowe (AGPL-3.0).",
-    "loading": "Ładowanie Backspace"
+    "loading": "Ładowanie Veyvox"
   },
   "chrome": {
     "toggleMemberList": "Pokaż/ukryj listę członków",

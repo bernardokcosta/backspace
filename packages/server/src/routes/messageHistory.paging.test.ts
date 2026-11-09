@@ -11,8 +11,8 @@ import {
   PermissionBits,
   DEFAULT_EVERYONE_PERMISSIONS,
   permissionsToString,
-} from '@backspace/shared/src/permissions.js';
-import { MESSAGE_PAGING_HEADER, MESSAGE_PAGING_AFTER } from '@backspace/shared';
+} from '@veyvox/shared/src/permissions.js';
+import { MESSAGE_PAGING_HEADER, MESSAGE_PAGING_AFTER } from '@veyvox/shared';
 
 setWorkerId(3);
 

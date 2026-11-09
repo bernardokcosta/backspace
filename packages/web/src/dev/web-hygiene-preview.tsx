@@ -25,7 +25,7 @@
 //                       next to a bio line with shortcodes
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import type { Embed, InstanceInfoResponse, MemberWithUser, SpaceInviteSystemPayload, User } from '@backspace/shared';
+import type { Embed, InstanceInfoResponse, MemberWithUser, SpaceInviteSystemPayload, User } from '@veyvox/shared';
 import { CreateSpaceModal } from '../components/modals/CreateSpace';
 import { UserSettingsModal } from '../components/modals/UserSettings';
 import { useAuthStore } from '../stores/authStore';
@@ -292,7 +292,7 @@ async function main(): Promise<void> {
       federatedRegistrationOpen: true,
       spaceCreationOpen: true,
       instanceId: 'instance-1',
-      sourceCodeUrl: 'https://github.com/bernardokcosta/backspace',
+      sourceCodeUrl: 'https://github.com/bernardokcosta/veyvox',
       commit: null,
     };
     answer('/instance/info', info);

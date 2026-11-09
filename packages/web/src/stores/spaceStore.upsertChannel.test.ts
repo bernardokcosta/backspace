@@ -32,7 +32,7 @@ vi.mock('./authStore', () => ({
 }));
 
 import { useSpaceStore } from './spaceStore';
-import type { Channel } from '@backspace/shared';
+import type { Channel } from '@veyvox/shared';
 
 const SPACE = 'space-1';
 

@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { Channel, DmChannel, MemberWithUser, User } from '@backspace/shared';
+import type { Channel, DmChannel, MemberWithUser, User } from '@veyvox/shared';
 // The store graph reaches the audio engine, which needs Web Audio at import.
 vi.mock('../audio/AudioManager', () => ({
   AudioManager: {

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 import { ProfileAvatar } from './ProfileAvatar';
 import { useUIStore } from '../../stores/uiStore';

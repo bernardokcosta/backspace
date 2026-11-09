@@ -64,9 +64,9 @@ describe('Turkish contextual content', () => {
     expect(voice.soundboard.shortcutHint).toContain('Geri silme tuşu (Backspace) bir kısayolu temizler.');
   });
 
-  it('keeps Backspace and Juno automatic labels distinct', () => {
+  it('keeps Veyvox and Juno automatic labels distinct', () => {
     expect(common.language.automatic).toBe('Otomatik (sistem)');
-    expect(voice.juno.settings.automatic).toBe('Otomatik (Backspace)');
+    expect(voice.juno.settings.automatic).toBe('Otomatik (Veyvox)');
     expect(voice.juno.settings.automaticDubbing).toBe(voice.juno.settings.automatic);
   });
 

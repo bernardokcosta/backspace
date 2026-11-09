@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { and, asc, eq } from 'drizzle-orm';
-import type { FederationRelayEvent, FederationSyncRequest, FederationSyncResponse } from '@backspace/shared';
+import type { FederationRelayEvent, FederationSyncRequest, FederationSyncResponse } from '@veyvox/shared';
 import { getDb, schema } from '../db/index.js';
 import { buildFederationHeaders, getOurOrigin, normalizeOriginForCompare } from './federationAuth.js';
 import { federationFetch } from './federationFetch.js';

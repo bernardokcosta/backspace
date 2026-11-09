@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { MemberWithUser, Activity } from '@backspace/shared';
+import type { MemberWithUser, Activity } from '@veyvox/shared';
 import { useFormatters } from '../../i18n/formatters';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useActivityStore, activitiesFor } from '../../stores/activityStore';
 import { useUIStore } from '../../stores/uiStore';
 import { Avatar } from '../ui/Avatar';
 import { ActivityCard, hasRichActivity, getActivityAccentClass } from '../ui/ActivityCard';
-import { getPrimaryActivity } from '@backspace/shared/src/activities.js';
+import { getPrimaryActivity } from '@veyvox/shared/src/activities.js';
 import { parseFederatedUsername, isFederationGlobeApplicable, spaceMemberName } from '../../utils/identity';
 import { useSpaceOrigin } from '../../hooks/useSpaceOrigin';
 import { useCanonicalUserView } from '../../utils/userViewLookup';

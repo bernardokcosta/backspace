@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { PASSWORD_MIN_LENGTH } from '@backspace/shared/src/constants';
+import { PASSWORD_MIN_LENGTH } from '@veyvox/shared/src/constants';
 import { setLanguage } from '../../i18n';
 import { RegisterPage } from './RegisterPage';
 

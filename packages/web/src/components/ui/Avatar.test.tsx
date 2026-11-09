@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { AVATAR_COLORS, type User } from '@backspace/shared';
+import { AVATAR_COLORS, type User } from '@veyvox/shared';
 
 import { Avatar } from './Avatar';
 import { getAvatarGradient, getSpaceGradient, randomAvatarColor } from '../../utils/gradients';

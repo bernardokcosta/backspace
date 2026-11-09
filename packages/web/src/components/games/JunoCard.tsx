@@ -1,4 +1,4 @@
-import type { JunoCard as Card } from '@backspace/shared/src/juno';
+import type { JunoCard as Card } from '@veyvox/shared/src/juno';
 import { junoCardUrl, resolveJunoDubbing } from './junoAssets';
 import { useJunoPreferences } from '../../stores/junoPreferences';
 import { useTranslation } from 'react-i18next';

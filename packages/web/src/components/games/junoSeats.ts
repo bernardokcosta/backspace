@@ -1,4 +1,4 @@
-import type { JunoPerson } from '@backspace/shared/src/juno';
+import type { JunoPerson } from '@veyvox/shared/src/juno';
 
 export function junoSeats<T extends JunoPerson>(players: readonly T[], selfId?: string): Record<'top' | 'left' | 'right' | 'bottom', T | null> {
   const seats: Record<'top' | 'left' | 'right' | 'bottom', T | null> = { top: null, left: null, right: null, bottom: null };

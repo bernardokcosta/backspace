@@ -1,4 +1,4 @@
-import type { SpaceFolder, SpaceLayoutItem } from '@backspace/shared';
+import type { SpaceFolder, SpaceLayoutItem } from '@veyvox/shared';
 import type { TaggedSpace } from '../stores/spaceStore';
 
 /** One entry of the space rail as it is drawn: a lone space or a folder of them. */

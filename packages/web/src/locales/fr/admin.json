@@ -1,6 +1,6 @@
 {
   "general": {
-    "title": "Général", "description": "Configure ton instance de Backspace. Ces paramètres s’appliquent à tous les utilisateurs.",
+    "title": "Général", "description": "Configure ton instance de Veyvox. Ces paramètres s’appliquent à tous les utilisateurs.",
     "instanceName": { "label": "Nom de l’instance", "description": "Le nom affiché sur la page de connexion et auprès des instances fédérées.", "counter": "{{length}}/{{max}}" },
     "gif": {
       "label": "Recherche de GIF", "description": "Active la recherche de GIF avec Klipy. Obtiens une clé API gratuite sur le portail développeur de Klipy.",
@@ -115,12 +115,12 @@
     "capWarning": { "title": "Les valeurs de la matrice dépassent le plafond global.", "description": "Certains débits dépassent ton maximum de {{max}}. La qualité des diffusions utilisant ces combinaisons sera réduite pour respecter cette limite." }
   },
   "updates": {
-    "title": "Mises à jour", "badge": { "settingsAriaLabel": "Paramètres, une mise à jour de l’instance est disponible", "toast": "Backspace {{version}} est disponible pour cette instance", "toastAction": "Voir" },
+    "title": "Mises à jour", "badge": { "settingsAriaLabel": "Paramètres, une mise à jour de l’instance est disponible", "toast": "Veyvox {{version}} est disponible pour cette instance", "toastAction": "Voir" },
     "description": "La version exécutée par cette instance et comment la mettre à jour.", "loading": "Chargement de l’état des mises à jour…", "loadFailed": "Impossible de charger l’état des mises à jour.", "copyFailed": "Impossible de copier. Sélectionne la commande et copie-la manuellement.",
     "running": { "label": "Version en cours", "commit": "commit {{commit}} · ", "channel": { "prebuilt": "image précompilée", "source": "compilée depuis les sources", "unknown": "mode d’installation non enregistré" } },
     "available": {
-      "label": "Disponible", "version": "Backspace {{version}} est disponible", "released": "Publiée le {{date}} · ", "releaseNotes": "Notes de version", "fromInstallDir": "Depuis ton répertoire d’installation :",
-      "scriptDescription": "Crée un instantané de la base de données, récupère la nouvelle image et redémarre uniquement le conteneur Backspace. Si la nouvelle version ne démarre pas correctement ou exécute encore l’ancien code, la version actuelle est restaurée.",
+      "label": "Disponible", "version": "Veyvox {{version}} est disponible", "released": "Publiée le {{date}} · ", "releaseNotes": "Notes de version", "fromInstallDir": "Depuis ton répertoire d’installation :",
+      "scriptDescription": "Crée un instantané de la base de données, récupère la nouvelle image et redémarre uniquement le conteneur Veyvox. Si la nouvelle version ne démarre pas correctement ou exécute encore l’ancien code, la version actuelle est restaurée.",
       "noScript": "Je n’ai pas update.sh", "manualIntro": "update.sh est fourni depuis la version 1.0.5. Dans un clone Git, <code>git pull</code> permet de l’obtenir. Sinon, exécute les étapes manuellement après avoir créé un instantané avec <code>./backup.sh</code>.",
       "prebuiltInstall": "Installation avec une image précompilée :", "sourceInstall": "Installation depuis les sources :",
       "manualWarning": "Indique le service <code>backspace</code> et n’ajoute pas <code>--remove-orphans</code>. Compose le suggère si tu exécutes d’autres conteneurs dans ce projet, mais cela les supprimerait."

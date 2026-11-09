@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach, type MockInstance } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
-import type { MemberWithUser, Role, User } from '@backspace/shared';
+import type { MemberWithUser, Role, User } from '@veyvox/shared';
 
 // Reached transitively via spaceStore -> chatStore -> useWebSocket -> voiceStore.
 vi.mock('../../../audio/AudioManager', () => ({
@@ -14,7 +14,7 @@ import { RolesPanel } from './RolesPanel';
 import { useSpaceStore, type TaggedSpace } from '../../../stores/spaceStore';
 import { useAuthStore } from '../../../stores/authStore';
 import { useUIStore } from '../../../stores/uiStore';
-import { api, type BackspaceApiClient } from '../../../api/client';
+import { api, type VeyvoxApiClient } from '../../../api/client';
 import { setApiForOriginResolver } from '../../../utils/crossStoreResolvers';
 import { ALL_PERMISSIONS, PermissionBits, permissionsToString } from '../../../utils/permissions';
 
@@ -59,7 +59,7 @@ function remoteClient() {
     update: vi.fn(async () => HELPERS),
     delete: vi.fn(async () => ({ success: true })),
   };
-  return { client: { roles } as unknown as BackspaceApiClient, roles };
+  return { client: { roles } as unknown as VeyvoxApiClient, roles };
 }
 
 beforeEach(() => {

@@ -5,7 +5,7 @@ import { drizzle } from 'drizzle-orm/better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MAX_MESSAGE_LENGTH } from '@backspace/shared';
+import { MAX_MESSAGE_LENGTH } from '@veyvox/shared';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
 

@@ -325,10 +325,10 @@
   },
   "keybinds": {
     "portal": {
-      "description": "在 Wayland 下，桌面环境负责管理 Backspace 的所有快捷键。请在系统的键盘快捷键设置中（Backspace 项下）分配、更改或删除快捷键。此处不使用本地浏览器/X11 绑定。",
+      "description": "在 Wayland 下，桌面环境负责管理 Veyvox 的所有快捷键。请在系统的键盘快捷键设置中（Veyvox 项下）分配、更改或删除快捷键。此处不使用本地浏览器/X11 绑定。",
       "idle": "正在准备首次注册所有可用操作。",
       "pending": "正在连接到桌面门户。如果弹出系统对话框，请为您要使用的操作选择快捷键。",
-      "ready": "Backspace 已注册。打开系统的键盘快捷键设置可更改或移除绑定。下方的列表为只读，当您切回 Backspace 时会自动刷新。",
+      "ready": "Veyvox 已注册。打开系统的键盘快捷键设置可更改或移除绑定。下方的列表为只读，当您切回 Veyvox 时会自动刷新。",
       "unavailable": "门户不可用、权限被拒绝或会话已结束。需要全局快捷键门户后端支持。Wayland 下已禁用本地绑定。",
       "retry": "注册或重新连接快捷键",
       "assigned": "系统快捷键：{{shortcut}}",
@@ -370,7 +370,7 @@
     },
     "accessibility": {
       "title": "需要辅助功能权限",
-      "description": "Backspace 需要辅助功能权限才能在应用外部使用全局快捷键。",
+      "description": "Veyvox 需要辅助功能权限才能在应用外部使用全局快捷键。",
       "grant": "授予权限"
     },
     "hookError": {
@@ -387,7 +387,7 @@
     "autoLaunch": {
       "openAtLogin": {
         "label": "开机启动",
-        "description": "在您登录系统时自动启动 Backspace"
+        "description": "在您登录系统时自动启动 Veyvox"
       },
       "startMinimized": {
         "label": "启动时最小化",
@@ -395,7 +395,7 @@
       }
     },
     "updates": {
-      "appName": "Backspace 桌面端",
+      "appName": "Veyvox 桌面端",
       "versionLabel": "版本 {{version}}",
       "checking": "正在检查更新…",
       "checkingShort": "正在检查…",
@@ -414,7 +414,7 @@
       "download": "下载",
       "restart": "重启",
       "manualNote": "当前构建版本无法自动安装更新，因此需要从 GitHub 下载新版本并手动替换应用。请查阅发布说明以获取适用于您平台的步骤。",
-      "externalNote": "Flatpak 在应用外部以原子方式应用更新。请使用您的软件管理器或运行 <code>flatpak update</code> 命令来更新 Backspace。"
+      "externalNote": "Flatpak 在应用外部以原子方式应用更新。请使用您的软件管理器或运行 <code>flatpak update</code> 命令来更新 Veyvox。"
     },
     "instance": {
       "current": "当前连接的实例",

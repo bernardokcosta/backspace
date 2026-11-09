@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { JUNO_COLORS, type JunoFace } from '@backspace/shared/src/juno';
+import { JUNO_COLORS, type JunoFace } from '@veyvox/shared/src/juno';
 import { junoCardUrl, JUNO_ASSETS, JUNO_DUBBINGS, resolveJunoDubbing } from './junoAssets';
 import { supportedLanguages } from '../../i18n/languages';
 

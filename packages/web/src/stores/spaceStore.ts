@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import type { Space, Channel, ChannelCategory, MemberWithUser, SpaceWithChannelsAndMembers, Role, SpaceFolder, SpaceLayoutItem, DmChannel, DmMessageWithUser, User, UpdateSpaceRequest, CreateSpaceRequest, UpdateChannelRequest } from '@backspace/shared';
-import { DEFAULT_AFK_TIMEOUT_SECONDS } from '@backspace/shared/src/constants';
-import { api, BackspaceApiClient, HttpError } from '../api/client';
+import type { Space, Channel, ChannelCategory, MemberWithUser, SpaceWithChannelsAndMembers, Role, SpaceFolder, SpaceLayoutItem, DmChannel, DmMessageWithUser, User, UpdateSpaceRequest, CreateSpaceRequest, UpdateChannelRequest } from '@veyvox/shared';
+import { DEFAULT_AFK_TIMEOUT_SECONDS } from '@veyvox/shared/src/constants';
+import { api, VeyvoxApiClient, HttpError } from '../api/client';
 import { JoinRequestRequiredError } from '../utils/joinErrors';
 import { resolveAssetUrl, normalizeUserAssets } from '../utils/assetUrls';
 import { userKey, isIssuedByHome, withUserUpdate, type IdentityFields, type PresenceSubject } from '../utils/identity';
@@ -1190,7 +1190,7 @@ export const useSpaceStore = create<SpaceState>((set, get) => ({
     set({ spaceLayout: items, _layoutUpdatedAt: now });
 
     // Push to ALL connected instances in parallel (browsing + remotes)
-    const targets: { origin: string; apiClient: BackspaceApiClient }[] = [
+    const targets: { origin: string; apiClient: VeyvoxApiClient }[] = [
       { origin: '', apiClient: api },
     ];
 

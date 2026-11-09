@@ -5,7 +5,7 @@ import { Modal } from '../ui/Modal';
 import { Avatar } from '../ui/Avatar';
 import { useUIStore } from '../../stores/uiStore';
 import { api } from '../../api/client';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import { parseFederatedUsername } from '../../utils/identity';
 import { openDirectMessage } from '../../utils/openDirectMessage';
 import { useCanonicalUserView } from '../../utils/userViewLookup';

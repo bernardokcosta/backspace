@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, type PersistStorage, type StorageValue } from 'zustand/middleware';
 import { Upload, type UploadOptions } from 'tus-js-client';
 import { resolveTusUrl, tusEndpoint } from '../utils/tusUrl';
-import type { Attachment } from '@backspace/shared';
+import type { Attachment } from '@veyvox/shared';
 import { useAuthStore } from './authStore';
 import { getTokenForOrigin } from '../utils/crossStoreResolvers';
 import { getHandle, putHandle, ensurePermission, queryHandlePermission } from '../utils/idbHandles';

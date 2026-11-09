@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { deriveMissingOneOnOneKeys, oneOnOneFederatedId } from './dmConversationKey';
 import { wireDm, asListedBy161 } from '../test/dmWireShape';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 function user(id: string, homeUserId: string | null = null, homeInstance: string | null = null): User {
   return {

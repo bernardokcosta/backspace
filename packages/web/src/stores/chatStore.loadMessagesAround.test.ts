@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { MessageWithUser, User } from '@backspace/shared';
+import type { MessageWithUser, User } from '@veyvox/shared';
 
 vi.mock('../hooks/useWebSocket', () => ({
   wsSend: vi.fn(),

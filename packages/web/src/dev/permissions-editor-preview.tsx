@@ -30,7 +30,7 @@
 //              the Permissions tab and saved, then back to Overview: public,
 //              without reopening the dialog.
 import { createRoot } from 'react-dom/client';
-import type { Channel, ChannelCategory, MemberWithUser, Role, User } from '@backspace/shared';
+import type { Channel, ChannelCategory, MemberWithUser, Role, User } from '@veyvox/shared';
 import { ChannelSettingsModal } from '../components/modals/ChannelSettingsModal';
 import { CategorySettingsModal } from '../components/modals/CategorySettingsModal';
 import { useSpaceStore, type TaggedSpace } from '../stores/spaceStore';

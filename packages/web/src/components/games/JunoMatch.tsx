@@ -1,6 +1,6 @@
 import { useId, useRef, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import { JUNO_COLORS, canPlayJuno, type JunoCard as Card, type JunoColor, type JunoPerson } from '@backspace/shared/src/juno';
+import { JUNO_COLORS, canPlayJuno, type JunoCard as Card, type JunoColor, type JunoPerson } from '@veyvox/shared/src/juno';
 import { useJunoStore } from '../../stores/junoStore';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useSharedSecondBeat } from '../../hooks/useSharedSecondBeat';

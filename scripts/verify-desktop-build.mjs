@@ -2,13 +2,27 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
 import { readBuildYaml, validateDesktopBuildGroup } from './desktop-release-assets.mjs';
 import { verifySdrCapturePackage } from '../packages/desktop/scripts/verify-sdr-capture-package.mjs';
+import macSigning from '../packages/desktop/scripts/macSign.js';
+
+const desktop = createRequire(new URL('../packages/desktop/package.json', import.meta.url));
+const builder = createRequire(desktop.resolve('electron-builder/package.json'));
+const buildLib = createRequire(builder.resolve('app-builder-lib/package.json'));
+const asar = buildLib('@electron/asar');
 
 export function verifyUpdaterPublisher(text) {
   const config = readBuildYaml(text);
-  if (config?.provider !== 'github' || config.owner !== 'bernardokcosta' || config.repo !== 'backspace'
+  if (config?.provider !== 'github' || config.owner !== 'bernardokcosta' || config.repo !== 'veyvox'
     || config.token || config.url || config.private) throw new Error('Packaged updater must target the public fork without credentials/alternate feed');
+}
+export function verifyPackagedIdentity(text, metadata, version) {
+  verifyUpdaterPublisher(text);
+  if (readBuildYaml(text).updaterCacheDirName !== '@backspacedesktop-updater'
+    || metadata?.name !== '@backspace/desktop' || metadata.version !== version) {
+    throw new Error('Packaged app/cache identity must match the installed fork');
+  }
 }
 export async function verifyDesktopBuild(directory, version, group) {
   const inventory = await validateDesktopBuildGroup(directory, version, group);
@@ -20,7 +34,9 @@ export async function verifyDesktopBuild(directory, version, group) {
   }[group];
   for (const [index, relative] of resourcePaths.entries()) {
     const resources = path.join(directory, relative);
-    verifyUpdaterPublisher(await fs.readFile(path.join(resources, 'app-update.yml'), 'utf8'));
+    const metadata = JSON.parse(asar.extractFile(path.join(resources, 'app.asar'), 'package.json').toString());
+    verifyPackagedIdentity(await fs.readFile(path.join(resources, 'app-update.yml'), 'utf8'), metadata, version);
+    if (group === 'release-mac') macSigning.verifyMacHelperLayout(path.resolve(resources, '../..'));
     if (group === 'release-windows') verifySdrCapturePackage(resources, index === 0 ? 'x64' : 'arm64');
   }
   return inventory;

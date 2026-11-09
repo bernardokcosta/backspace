@@ -30,7 +30,7 @@
 // that as "no mutuals", which is what a stranger's profile shows.
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import { UserProfilePopout } from '../components/ui/UserProfilePopout';
 import { UserProfileModal } from '../components/modals/UserProfileModal';
 import { ActivityCard } from '../components/ui/ActivityCard';

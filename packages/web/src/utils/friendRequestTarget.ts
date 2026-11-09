@@ -1,4 +1,4 @@
-import type { SendFriendRequest } from '@backspace/shared';
+import type { SendFriendRequest } from '@veyvox/shared';
 import { deliveringHost, homeIdentityOf, parseFederatedUsername, type IdentityFields } from './identity';
 
 /**

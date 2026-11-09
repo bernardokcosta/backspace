@@ -4,7 +4,7 @@ vi.mock('../../stores/authStore', () => ({ useAuthStore: { getState: () => ({}) 
 vi.mock('../../stores/chatStore', () => ({ useChatStore: { getState: () => ({ currentChannelId: state.current }) } }));
 vi.mock('../../stores/spaceStore', () => ({ getChannelOrigin: () => '' }));
 vi.mock('../../hooks/useNotificationSettings', () => ({ getChannelNotificationPolicy: () => state }));
-import type { MessageWithUser } from '@backspace/shared';
+import type { MessageWithUser } from '@veyvox/shared';
 import { receiveChannelPoke } from './channelPoke';
 const event = {
   id: '1', channelId: 'chat', userId: 'actor', type: 'system', replyToId: null, editedAt: null, createdAt: 1,

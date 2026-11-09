@@ -1,5 +1,5 @@
-import type { DmChannel, MessageWithUser } from '@backspace/shared';
-import { parseDmSystemEvent } from '@backspace/shared/src/dmSystemEvents';
+import type { DmChannel, MessageWithUser } from '@veyvox/shared';
+import { parseDmSystemEvent } from '@veyvox/shared/src/dmSystemEvents';
 import { useTranslation } from 'react-i18next';
 import { SpaceInviteCard } from './SpaceInviteCard';
 import { dmSystemActor, dmSystemActorName, dmSystemIcon, dmSystemText } from '../../utils/dmFormatters';

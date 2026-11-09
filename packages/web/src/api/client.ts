@@ -1,9 +1,9 @@
-import type { ChatCommandsResponse, CreateInteractionRequest, CreateInteractionResponse } from '@backspace/shared';
-import type { PersonalSticker, StickerPackSummary, StickerPackDetail, StickerPackItem } from '@backspace/shared/src/stickers';
-import type { SoundboardDocument, SoundboardSettings, SoundboardSound } from '@backspace/shared/src/soundboard';
-import type { GameIconUpload } from '@backspace/shared/src/gameIcons';
-import type { JunoCommand, JunoSnapshot, JunoRankingPage } from '@backspace/shared/src/juno';
-import { isErrorCode, type ErrorCode, type ErrorDetails } from '@backspace/shared/src/errors';
+import type { ChatCommandsResponse, CreateInteractionRequest, CreateInteractionResponse } from '@veyvox/shared';
+import type { PersonalSticker, StickerPackSummary, StickerPackDetail, StickerPackItem } from '@veyvox/shared/src/stickers';
+import type { SoundboardDocument, SoundboardSettings, SoundboardSound } from '@veyvox/shared/src/soundboard';
+import type { GameIconUpload } from '@veyvox/shared/src/gameIcons';
+import type { JunoCommand, JunoSnapshot, JunoRankingPage } from '@veyvox/shared/src/juno';
+import { isErrorCode, type ErrorCode, type ErrorDetails } from '@veyvox/shared/src/errors';
 import i18n from '../i18n';
 import type {
   NotificationSetting,
@@ -99,10 +99,10 @@ import type {
   CreateBotTokenRequest,
   CreateBotTokenResponse,
   BotSpacesResponse,
-} from '@backspace/shared';
-import { MESSAGE_PAGING_AFTER, MESSAGE_PAGING_HEADER } from '@backspace/shared';
+} from '@veyvox/shared';
+import { MESSAGE_PAGING_AFTER, MESSAGE_PAGING_HEADER } from '@veyvox/shared';
 import { recordDiagnostic } from '../utils/diagnostics';
-import { diagnosticError } from '@backspace/shared/src/diagnostics';
+import { diagnosticError } from '@veyvox/shared/src/diagnostics';
 
 export type { FederationPeer, FederationOrphanedAccount, FederationResetEvent, FederationResetEventsResponse, ApprovalRequest, PeeringSubscription, PeeringNotification };
 
@@ -231,7 +231,7 @@ export class RateLimitError extends HttpError {
   }
 }
 
-export class BackspaceApiClient {
+export class VeyvoxApiClient {
   readonly auth: {
     register: (data: RegisterRequest) => Promise<AuthResponse>;
     login: (data: LoginRequest) => Promise<AuthResponse>;
@@ -1166,14 +1166,14 @@ function handleUnauthorized(): void {
   }
 }
 
-export const api = new BackspaceApiClient(
+export const api = new VeyvoxApiClient(
   '/api',
   () => localStorage.getItem('backspace_token'),
   handleUnauthorized,
 );
 
-export function createApiClient(origin: string, getToken: () => string | null, onUnauthorized?: () => void): BackspaceApiClient {
+export function createApiClient(origin: string, getToken: () => string | null, onUnauthorized?: () => void): VeyvoxApiClient {
   const baseUrl = origin ? `${origin}/api` : '/api';
-  return new BackspaceApiClient(baseUrl, getToken, onUnauthorized);
+  return new VeyvoxApiClient(baseUrl, getToken, onUnauthorized);
 }
 

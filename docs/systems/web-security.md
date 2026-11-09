@@ -21,7 +21,7 @@ Source files:
 
 ## 1. What the policy is for
 
-Backspace renders arbitrary user content and federates with instances it
+Veyvox renders arbitrary user content and federates with instances it
 discovers at runtime. A message can carry a link to any site on the web, and the
 embed pipeline pulls that site's preview image. A user can connect to a peer
 instance whose origin nobody knew about at build time. So `img-src`, `media-src`

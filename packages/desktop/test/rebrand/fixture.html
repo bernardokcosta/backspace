@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Veyvox isolated compatibility fixture</title>
+<style>body{font:16px system-ui;background:#13131a;color:#eee;padding:48px}h1{color:#a99afa}</style>
+<h1>Veyvox — isolated profile verification</h1><p id="result">Checking synthetic state…</p>
+<script>
+(async () => {
+  const api = window.veyvox ?? window.backspace;
+  const seed = new URLSearchParams(location.search).get('phase') === 'seed';
+  try {
+    if (location.pathname === '/foreign') {
+      let denied = false;
+      try { await api.getSystemLanguages(); } catch { denied = true; }
+      window.__rebrandReport.send({ ok: true, denied }); return;
+    }
+    if (!api || typeof api.getSystemLanguages !== 'function') throw new Error('Missing production desktop bridge');
+    await api.getSystemLanguages();
+    if (seed) {
+      localStorage.setItem('backspace_token', 'synthetic-session');
+      localStorage.setItem('backspace-language', 'auto');
+      localStorage.setItem('backspace_instances_synthetic-owner', '[{"origin":"https://peer.example","token":"synthetic-peer"}]');
+      document.cookie = 'session=synthetic-session; Max-Age=3600; SameSite=Strict; Path=/';
+    }
+    const db = await new Promise((resolve, reject) => {
+      const request = indexedDB.open('backspace-transfers', 1);
+      request.onupgradeneeded = () => {
+        if (!seed) { request.transaction.abort(); reject(new Error('Persisted IndexedDB was lost')); return; }
+        request.result.createObjectStore('fs-handles');
+      };
+      request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error);
+    });
+    const pending = await new Promise((resolve, reject) => {
+      const transaction = db.transaction('fs-handles', 'readwrite');
+      const store = transaction.objectStore('fs-handles'), request = store.get('rebrand-pending');
+      let value;
+      request.onsuccess = () => { value = request.result; if (seed && !value) { value = 'synthetic-pending'; store.put(value, 'rebrand-pending'); } };
+      transaction.oncomplete = () => resolve(value); transaction.onerror = () => reject(transaction.error);
+    });
+    db.close();
+    const stop = api.onDeepLink(() => {});
+    const deepLinkCleanup = typeof stop === 'function'; if (deepLinkCleanup) stop();
+    document.getElementById('result').textContent = 'Synthetic session, cookie, language and IndexedDB verified.';
+    window.__rebrandReport.send({ ok: true, token: localStorage.getItem('backspace_token'), language: localStorage.getItem('backspace-language'), pending,
+      cookie: document.cookie.split('; ').find(value => value.startsWith('session='))?.slice(8), hasCanonical: !!window.veyvox, hasLegacy: !!window.backspace, deepLinkCleanup });
+  } catch (error) { window.__rebrandReport.send({ ok: false, error: String(error.message ?? error) }); }
+})();
+</script></html>

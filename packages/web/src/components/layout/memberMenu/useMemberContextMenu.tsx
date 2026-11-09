@@ -1,7 +1,7 @@
 import { useEffect, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import type { MemberWithUser, User } from '@backspace/shared';
+import type { MemberWithUser, User } from '@veyvox/shared';
 import { menuPositionFor, useContextMenuStore, type ContextMenuItem, type ContextMenuCheckbox } from '../../../stores/contextMenuStore';
 import { getMyUserIdForOrigin, useSpaceStore, type TaggedSpace } from '../../../stores/spaceStore';
 import { useUIStore } from '../../../stores/uiStore';

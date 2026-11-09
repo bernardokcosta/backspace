@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CHANNEL_TOPIC_MAX_LENGTH, normalizeChannelTopic } from '@backspace/shared/src/constants';
+import { CHANNEL_TOPIC_MAX_LENGTH, normalizeChannelTopic } from '@veyvox/shared/src/constants';
 
 interface ChannelTopicEditorProps {
   /** The stored topic, `null` when the channel has none. */

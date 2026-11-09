@@ -32,7 +32,7 @@ vi.mock('./authStore', () => ({
 }));
 
 import { useSpaceStore } from './spaceStore';
-import type { DmChannel, User } from '@backspace/shared';
+import type { DmChannel, User } from '@veyvox/shared';
 
 describe('updateUserEverywhere → DM member patch (drives the live Deleted-User update)', () => {
   beforeEach(() => {

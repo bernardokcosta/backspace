@@ -1,5 +1,5 @@
 import { and, asc, desc, eq, gt, inArray, notExists, or, sql } from 'drizzle-orm';
-import type { JunoPerson, JunoRankingPage, JunoScoreboard, JunoSnapshot, JunoStanding, JunoView } from '@backspace/shared/src/juno.js';
+import type { JunoPerson, JunoRankingPage, JunoScoreboard, JunoSnapshot, JunoStanding, JunoView } from '@veyvox/shared/src/juno.js';
 import { getDb, schema, type DB, type DBHandle } from '../db/index.js';
 import { buildJunoStandings } from './junoStandings.js';
 import { sanitizeUser } from '../utils/sanitize.js';

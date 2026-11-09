@@ -64,7 +64,7 @@
     },
     "settings": {
       "title": "Juno settings",
-      "languageGroup": "Language", "language": "Game language", "automatic": "Automatic (Backspace)", "automaticDubbing": "Automatic (Backspace)",
+      "languageGroup": "Language", "language": "Game language", "automatic": "Automatic (Veyvox)", "automaticDubbing": "Automatic (Veyvox)",
       "dubbing": "Dubbing and card text", "brazilianPortuguese": "Portuguese (Brazil)",
       "audioGroup": "Audio", "effects": "Sound effects", "music": "Background music",
       "autoplayBlocked": "The browser paused the music. Press play to enable it.", "musicFailed": "Music could not play. You can try again.", "playMusic": "Play music"
@@ -229,7 +229,7 @@
     "subtitle": "Pick what to share, tune the quality, then start.",
     "stageIdle": "Nothing selected yet",
     "stageReady": "Ready to go live",
-    "permissionHintMac": "macOS blocks screen capture until Backspace has Screen Recording permission. Grant it in System Settings → Privacy & Security → Screen Recording, then try again.",
+    "permissionHintMac": "macOS blocks screen capture until Veyvox has Screen Recording permission. Grant it in System Settings → Privacy & Security → Screen Recording, then try again.",
     "retrySources": "Try again",
     "kind": {
       "monitor": "Screen",
@@ -266,15 +266,15 @@
     "forceSdrUnavailable": "Requires a compatible Windows desktop app.",
     "forceSdrRestart": "Stop sharing and start again to change Force SDR.",
     "forceSdrFailed": "Force SDR failed. Disable it and try sharing again.",
-    "chromeEchoNote": "Chrome can exclude Backspace audio when the capture type supports it",
+    "chromeEchoNote": "Chrome can exclude Veyvox audio when the capture type supports it",
     "electronWindowsAudioNote": "Windows loopback may capture call audio when restrictOwnAudio is unsupported",
     "electronMacAudioNote": "macOS 13+ requires Screen & System Audio Recording permission",
-    "electronLinuxAudioNote": "Linux requires PulseAudio compatibility; Backspace audio may also be captured",
+    "electronLinuxAudioNote": "Linux requires PulseAudio compatibility; Veyvox audio may also be captured",
     "systemAudioNote": {
-      "excluded": "Viewers hear your computer's sound, but not the voice chat or other Backspace audio.",
-      "excludedMac": "Viewers hear your Mac's sound, but not the voice chat or other Backspace audio. macOS asks for Screen & System Audio Recording permission.",
-      "includedWindows": "This Windows version shares all sound, the voice chat included: viewers will hear their own voices. On Windows 11, Backspace's own audio is left out.",
-      "includedMac": "This macOS version shares all sound, the voice chat included: viewers will hear their own voices. On macOS 14.2 and later, Backspace's own audio is left out. macOS asks for Screen & System Audio Recording permission.",
+      "excluded": "Viewers hear your computer's sound, but not the voice chat or other Veyvox audio.",
+      "excludedMac": "Viewers hear your Mac's sound, but not the voice chat or other Veyvox audio. macOS asks for Screen & System Audio Recording permission.",
+      "includedWindows": "This Windows version shares all sound, the voice chat included: viewers will hear their own voices. On Windows 11, Veyvox's own audio is left out.",
+      "includedMac": "This macOS version shares all sound, the voice chat included: viewers will hear their own voices. On macOS 14.2 and later, Veyvox's own audio is left out. macOS asks for Screen & System Audio Recording permission.",
       "includedLinux": "Linux shares all sound, the voice chat included: viewers will hear their own voices. Needs PulseAudio, or PipeWire with pipewire-pulse.",
       "unavailableMac": "System audio needs macOS 13 or later."
     },

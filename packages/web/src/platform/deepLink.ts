@@ -1,56 +1,42 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { isElectron } from './platform';
+import { getElectronAPI } from './platform';
+import { buildInstanceJoinUrl } from '../utils/inviteParser';
 
-/**
- * Listens for deep link events from the Electron main process and navigates accordingly.
- *
- * Supported routes:
- *   backspace://join/{code}            → /join/{code}
- *   backspace://join/{code}@{host}     → /join/{code}@{host}
- *   backspace://channel/{spaceId}/{channelId} → /channels/{spaceId}/{channelId}
- */
+/** Only bounded in-app routes, never external navigation or arbitrary URLs. */
+export function getDeepLinkRoute(input: string): string | null {
+  if (/[\u0000-\u0020\u007f\\]/.test(input)) return null;
+  const match = /^(?:veyvox|backspace):\/\/(join|channel)\/([^?#]+)$/i.exec(input);
+  if (!match) return null;
+  let parts: string[];
+  try { parts = match[2]!.split('/').map(part => decodeURIComponent(part)); } catch { return null; }
+  const identifier = /^[A-Za-z0-9_-]+$/;
+  if (match[1]!.toLowerCase() === 'channel') {
+    if (parts.length !== 2 || !(identifier.test(parts[0]!) || parts[0] === '@me') || !identifier.test(parts[1]!)) return null;
+    return `/channels/${parts[0]}/${parts[1]}`;
+  }
+  if (parts.length !== 1) return null;
+  const value = parts[0]!;
+  const [code, host, ...extra] = value.split('@');
+  if (!code || !identifier.test(code) || extra.length) return null;
+  if (host !== undefined && (!host || !buildInstanceJoinUrl(host, value))) return null;
+  return `/join/${value}`;
+}
+
+/** New shells normalize their event to backspace: for older hosted clients. */
 export function useDeepLinkHandler(): void {
   const navigate = useNavigate();
-
   useEffect(() => {
-    if (!isElectron()) return;
-
-    const api = window.backspace!;
-    api.onDeepLink((url: string) => {
-      let parsed: URL;
-      try {
-        parsed = new URL(url);
-      } catch {
-        console.warn('[DeepLink] Invalid URL:', url);
-        return;
-      }
-
-      if (parsed.protocol !== 'backspace:') return;
-
-      // URL host + pathname gives us the route
-      // backspace://join/code  → host="join", pathname="/code"
-      // backspace://channel/spaceId/channelId → host="channel", pathname="/spaceId/channelId"
-      const host = parsed.hostname;
-      const pathParts = parsed.pathname.split('/').filter(Boolean);
-
-      if (host === 'join' && pathParts.length >= 1) {
-        const code = pathParts[0]!;
-        navigate(`/join/${code}`);
-      } else if (host === 'channel' && pathParts.length >= 2) {
-        const spaceId = pathParts[0]!;
-        const channelId = pathParts[1]!;
-        navigate(`/channels/${spaceId}/${channelId}`);
-      } else {
-        console.warn('[DeepLink] Unknown route:', url);
-      }
+    const api = getElectronAPI();
+    if (!api) return;
+    const offDeep = api.onDeepLink((input: string) => {
+      const route = getDeepLinkRoute(input);
+      if (route !== null) navigate(route);
     });
-
-    // Origin-aware /join/ interception from the main process
-    const offInternal = api.onOpenInternalRoute((path: string) => {
-      // path is e.g. '/join/cb265c4e' — already a normalized React Router path
-      navigate(path);
-    });
-    return () => { offInternal(); };
+    const offInternal = api.onOpenInternalRoute((route: string) => { navigate(route); });
+    return () => {
+      if (typeof offDeep === 'function') offDeep(); // Older shells returned void.
+      offInternal();
+    };
   }, [navigate]);
 }

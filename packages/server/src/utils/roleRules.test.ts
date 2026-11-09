@@ -8,9 +8,9 @@ import {
   roleBitsChangeRefusal,
   overrideChangeRefusal,
   type HierarchyStanding,
-} from '@backspace/shared/src/permissions.js';
+} from '@veyvox/shared/src/permissions.js';
 
-// The role rules in @backspace/shared (docs/systems/permissions.md, "Role
+// The role rules in @veyvox/shared (docs/systems/permissions.md, "Role
 // hierarchy" and "Held-bits rule"). The server enforces them and the client
 // gates with them, so they are tested once here, as pure functions.
 

@@ -1,6 +1,6 @@
 {
-  "name": "@backspace/web",
-  "version": "1.16.8",
+  "name": "@veyvox/web",
+  "version": "1.17.0",
   "private": true,
   "license": "AGPL-3.0-only",
   "author": "Jannis Braun",
@@ -15,7 +15,7 @@
     "e2e:identity-deletion": "playwright test e2e/identity-deletion.spec.ts"
   },
   "dependencies": {
-    "@backspace/shared": "workspace:*",
+    "@veyvox/shared": "workspace:*",
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
     "@livekit/components-react": "^2.9.24",

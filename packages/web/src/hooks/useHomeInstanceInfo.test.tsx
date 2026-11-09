@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import type { InstanceInfoResponse } from '@backspace/shared';
+import type { InstanceInfoResponse } from '@veyvox/shared';
 import { api } from '../api/client';
 import {
   useHomeInstanceInfo,

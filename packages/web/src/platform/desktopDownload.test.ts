@@ -24,6 +24,12 @@ const CHROME_ANDROID =
 const SAFARI_IPHONE =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 17_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Mobile/15E148 Safari/604.1';
 
+it('uses Veyvox artifacts from 1.17.0 onward but preserves historical download names', () => {
+  const platform: DetectedPlatform = { os: 'windows', arch: 'x64', archGuessed: false };
+  expect(buildDesktopDownloads('1.17.0', platform).primary?.filename).toBe('Veyvox-1.17.0-win-x64.exe');
+  expect(buildDesktopDownloads('1.16.8', platform).primary?.filename).toBe('Backspace-Fork-1.16.8-win-x64.exe');
+});
+
 function hints(values: Record<string, unknown>): (h: string[]) => Promise<Record<string, unknown>> {
   return () => Promise.resolve(values);
 }

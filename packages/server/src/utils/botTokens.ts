@@ -1,6 +1,6 @@
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { and, eq } from 'drizzle-orm';
-import { BOT_TOKEN_NAME_MAX_LENGTH, MAX_BOT_TOKENS_PER_BOT } from '@backspace/shared/src/constants.js';
+import { BOT_TOKEN_NAME_MAX_LENGTH, MAX_BOT_TOKENS_PER_BOT } from '@veyvox/shared/src/constants.js';
 import { getDb, schema } from '../db/index.js';
 
 /**

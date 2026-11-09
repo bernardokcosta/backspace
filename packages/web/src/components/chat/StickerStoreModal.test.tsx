@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { StickerStoreModal } from './StickerStoreModal';
 import { api } from '../../api/client';
-import type { StickerPackDetail, StickerPackSummary } from '@backspace/shared/src/stickers';
+import type { StickerPackDetail, StickerPackSummary } from '@veyvox/shared/src/stickers';
 
 let mockIsAdmin = false;
 

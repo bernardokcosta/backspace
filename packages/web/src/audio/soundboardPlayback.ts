@@ -1,5 +1,5 @@
-import type { SoundboardSound } from '@backspace/shared/src/soundboard';
-import { MAX_SOUNDBOARD_BYTES } from '@backspace/shared/src/soundboard';
+import type { SoundboardSound } from '@veyvox/shared/src/soundboard';
+import { MAX_SOUNDBOARD_BYTES } from '@veyvox/shared/src/soundboard';
 import { AudioManager } from './AudioManager';
 import { useVoiceStore } from '../stores/voiceStore';
 import { getChannelOrigin, getMyUserIdForOrigin } from '../stores/spaceStore';

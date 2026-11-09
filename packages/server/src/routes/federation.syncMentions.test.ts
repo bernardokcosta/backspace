@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
-import type { FederationRelayEvent, FederationSyncResponse } from '@backspace/shared';
+import type { FederationRelayEvent, FederationSyncResponse } from '@veyvox/shared';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
 import { signRequest } from '../utils/federationAuth.js';

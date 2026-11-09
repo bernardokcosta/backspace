@@ -3,9 +3,9 @@ import { drizzle } from 'drizzle-orm/better-sqlite3';
 import Fastify, { type FastifyInstance } from 'fastify';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as schema from '../db/schema.js';
-import { MAX_PINS_PER_CHANNEL } from '@backspace/shared';
+import { MAX_PINS_PER_CHANNEL } from '@veyvox/shared';
 import { PermissionBits } from '../utils/permissions.js';
-import { DEFAULT_EVERYONE_PERMISSIONS, permissionsToString } from '@backspace/shared/src/permissions.js';
+import { DEFAULT_EVERYONE_PERMISSIONS, permissionsToString } from '@veyvox/shared/src/permissions.js';
 import { setWorkerId } from '../utils/snowflake.js';
 
 setWorkerId(1);

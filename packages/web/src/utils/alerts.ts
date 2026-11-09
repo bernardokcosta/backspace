@@ -1,4 +1,4 @@
-import type { ChosenUserStatus } from '@backspace/shared';
+import type { ChosenUserStatus } from '@veyvox/shared';
 import { getMyUserIdForOrigin, isMe, selectMyChosenStatus, useAuthStore } from '../stores/authStore';
 import type { RealtimeMessageEvent } from '../stores/chatStore';
 import { getChannelOrigin, isDmChannel, selectMyRoleIdsInChannel, useSpaceStore } from '../stores/spaceStore';

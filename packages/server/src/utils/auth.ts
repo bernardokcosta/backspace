@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { config } from '../config.js';
 import { getDb, schema } from '../db/index.js';
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import type { ErrorCode } from '@backspace/shared/src/errors';
+import type { ErrorCode } from '@veyvox/shared/src/errors';
 import { isBotTokenString, isRetiredLegacyBotJwt, verifyBotToken } from './botTokens.js';
 
 export async function hashPassword(password: string): Promise<string> {

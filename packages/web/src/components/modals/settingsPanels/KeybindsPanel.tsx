@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { useKeybindStore, BINDABLE_ACTIONS, Keybind } from '../../../stores/keybindStore';
-import { isElectron, isElectronMac } from '../../../platform/platform';
+import { isElectron, isElectronMac, getElectronAPI } from '../../../platform/platform';
 import { useKeybindPortalStatus } from '../../../hooks/useKeybindPortalStatus';
 
 // ---------------------------------------------------------------------------
@@ -140,7 +140,7 @@ export function KeybindsPanel() {
   useEffect(() => {
     // Only opening this panel initiates first-time registration. A cancelled
     // request becomes unavailable and requires an explicit retry, not a loop.
-    if (portal?.state === 'idle') window.backspace?.retryKeybindPortal?.();
+    if (portal?.state === 'idle') getElectronAPI()?.retryKeybindPortal?.();
   }, [portal?.state]);
 
   const [recordingActionId, setRecordingActionId] = useState<string | null>(null);
@@ -164,11 +164,12 @@ export function KeybindsPanel() {
 
   // --- Platform checks on mount ---
   useEffect(() => {
-    if (isElectronMac() && window.backspace?.checkAccessibility) {
-      window.backspace.checkAccessibility().then(setAccessibilityTrusted);
+    const bridge = getElectronAPI();
+    if (isElectronMac() && bridge?.checkAccessibility) {
+      bridge.checkAccessibility().then(setAccessibilityTrusted);
     }
-    if (isElectron() && window.backspace?.onAccessibilityStatus) {
-      const cleanup = window.backspace.onAccessibilityStatus((status) => {
+    if (isElectron() && bridge?.onAccessibilityStatus) {
+      const cleanup = bridge.onAccessibilityStatus((status) => {
         setAccessibilityTrusted(status.trusted);
       });
       return cleanup;
@@ -176,8 +177,9 @@ export function KeybindsPanel() {
   }, []);
 
   useEffect(() => {
-    if (isElectron() && window.backspace?.onKeybindHookError) {
-      const cleanup = window.backspace.onKeybindHookError((error) => {
+    const bridge = getElectronAPI();
+    if (isElectron() && bridge?.onKeybindHookError) {
+      const cleanup = bridge.onKeybindHookError((error) => {
         setHookError(error.message);
       });
       return cleanup;
@@ -323,7 +325,7 @@ export function KeybindsPanel() {
           <p>{t('keybinds.portal.description')}</p>
           <p className="mt-2">{t(`keybinds.portal.${portal.state}`)}</p>
           {portal.state === 'unavailable' && (
-            <button type="button" onClick={() => window.backspace?.retryKeybindPortal?.()}
+            <button type="button" onClick={() => getElectronAPI()?.retryKeybindPortal?.()}
               className="mt-3 rounded px-3 py-1.5 bg-white/[0.06] text-txt-primary hover:bg-white/[0.1]">
               {t('keybinds.portal.retry')}
             </button>
@@ -357,7 +359,7 @@ export function KeybindsPanel() {
           </div>
           <button
             onClick={() => {
-              window.backspace?.checkAccessibility().then(setAccessibilityTrusted);
+              getElectronAPI()?.checkAccessibility().then(setAccessibilityTrusted);
             }}
             className="mt-2 text-xs px-3 py-1.5 rounded bg-amber-500/20 text-amber-200 hover:bg-amber-500/30 transition-colors"
           >

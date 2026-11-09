@@ -12,7 +12,7 @@ import { getApiForOrigin } from '../../utils/crossStoreResolvers';
 import { isMine, parseFederatedUsername, personRequest, userKey, type IdentityFields, type PersonTarget } from '../../utils/identity';
 import { useDmViewer } from '../../hooks/useDmViewer';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
-import type { BotSummary, GroupDmUserIdentity, User } from '@backspace/shared';
+import type { BotSummary, GroupDmUserIdentity, User } from '@veyvox/shared';
 
 /**
  * How the instance at `to` is told about the person `row` names (issued by

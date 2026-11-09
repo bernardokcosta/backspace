@@ -19,7 +19,7 @@ vi.mock('../chat/MessageInput', () => ({ MessageInput: () => null }));
 
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import type { DmChannel, User } from '@backspace/shared';
+import type { DmChannel, User } from '@veyvox/shared';
 import { useAuthStore } from '../../stores/authStore';
 import { useChatStore } from '../../stores/chatStore';
 import { useSpaceStore } from '../../stores/spaceStore';

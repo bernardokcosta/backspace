@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "Genel",
-    "description": "Backspace örneğini yapılandır. Bu ayarlar tüm kullanıcıları etkiler.",
+    "description": "Veyvox örneğini yapılandır. Bu ayarlar tüm kullanıcıları etkiler.",
     "instanceName": {
       "label": "Örnek adı",
       "description": "Giriş sayfasında ve federasyondaki örneklerde gösterilen ad.",
@@ -300,7 +300,7 @@
     "title": "Güncellemeler",
     "badge": {
       "settingsAriaLabel": "Ayarlar, örnek güncellemesi mevcut",
-      "toast": "Bu örnek için Backspace {{version}} kullanılabilir",
+      "toast": "Bu örnek için Veyvox {{version}} kullanılabilir",
       "toastAction": "Görüntüle"
     },
     "description": "Bu örneğin ne çalıştırdığı ve nasıl ilerletileceği.",
@@ -318,11 +318,11 @@
     },
     "available": {
       "label": "Mevcut",
-      "version": "Backspace {{version}} kullanılabilir",
+      "version": "Veyvox {{version}} kullanılabilir",
       "released": "{{date}} tarihinde yayınlandı · ",
       "releaseNotes": "Sürüm notları",
       "fromInstallDir": "Kurulum dizininden:",
-      "scriptDescription": "Veritabanı anlık görüntüsü alır, yeni imajı indirir ve yalnızca Backspace konteynerini yeniden başlatır. Yeni sürüm sağlıklı başlamazsa veya hâlâ eski kodu çalıştırarak başlarsa, şu anki sürümüne geri döner.",
+      "scriptDescription": "Veritabanı anlık görüntüsü alır, yeni imajı indirir ve yalnızca Veyvox konteynerini yeniden başlatır. Yeni sürüm sağlıklı başlamazsa veya hâlâ eski kodu çalıştırarak başlarsa, şu anki sürümüne geri döner.",
       "noScript": "update.sh dosyam yok",
       "manualIntro": "update.sh 1.0.5'ten itibaren gelir. Git checkout'ta <code>git pull</code> dosyayı getirir. Aksi halde <code>./backup.sh</code> ile anlık görüntü aldıktan sonra adımları elle çalıştır.",
       "prebuiltInstall": "Önceden derlenmiş imaj kurulumu:",

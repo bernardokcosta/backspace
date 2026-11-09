@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { stickerUrl, stickerPreviewUrl, type StickerPackDetail, type StickerPackSummary } from '@backspace/shared/src/stickers';
+import { stickerUrl, stickerPreviewUrl, type StickerPackDetail, type StickerPackSummary } from '@veyvox/shared/src/stickers';
 import { api } from '../../api/client';
 import { describeError } from '../../i18n/errors';
 import { usePortalContainer } from '../../hooks/usePortalContainer';

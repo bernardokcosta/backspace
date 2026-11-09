@@ -4,7 +4,7 @@ import { getOurOrigin, normalizeOriginForCompare } from './federationAuth.js';
 import { mapCallReasonToEventReason, sendCallRelay, type CallFanoutFailure, type CallRelayResult } from './federationOutbox.js';
 import { generateSnowflake } from './snowflake.js';
 import { relayActorOfUser, type RelayActor } from '../routes/federation/identity.js';
-import type { FederatedIdentity, FederationRelayEvent } from '@backspace/shared';
+import type { FederatedIdentity, FederationRelayEvent } from '@veyvox/shared';
 
 type Db = ReturnType<typeof getDb>;
 

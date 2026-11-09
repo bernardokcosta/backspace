@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { resolveChannelNotificationPolicy, type NotificationSetting } from '@backspace/shared';
+import { resolveChannelNotificationPolicy, type NotificationSetting } from '@veyvox/shared';
 
 const list = vi.fn();
 const updateSpace = vi.fn();

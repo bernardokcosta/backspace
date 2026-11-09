@@ -3,6 +3,9 @@ import {
   deriveStartMinimizedFromArgs,
   parseExecPathFromDesktopFile,
   shouldReapplyAppImage,
+  shouldRefreshLinuxAutoLaunch,
+  linuxAutoLaunchEnabled,
+  linuxAutoLaunchEntry,
 } from './autoLaunch';
 
 describe('deriveStartMinimizedFromArgs', () => {
@@ -74,5 +77,31 @@ describe('shouldReapplyAppImage', () => {
   it('returns false when there is no current AppImage env (not in AppImage runtime)', () => {
     expect(shouldReapplyAppImage(null, '/anything')).toBe(false);
     expect(shouldReapplyAppImage(null, null)).toBe(false);
+  });
+});
+
+describe('compatible Linux install-path refresh', () => {
+  it('serializes the owned entry safely and reads the OS enable/disable flags', () => {
+    const entry = linuxAutoLaunchEntry('/opt/Veyvox/Backspace Fork', true);
+    expect(entry).toContain('Exec="/opt/Veyvox/Backspace Fork" --hidden');
+    expect(linuxAutoLaunchEnabled(entry)).toBe(true);
+    expect(linuxAutoLaunchEnabled('Hidden=true\n' + entry)).toBe(false);
+    expect(linuxAutoLaunchEnabled('X-GNOME-Autostart-enabled=false\n' + entry)).toBe(false);
+    expect(linuxAutoLaunchEnabled(null)).toBe(false);
+    const unusual = '/home/u/A"$%.AppImage';
+    expect(parseExecPathFromDesktopFile(linuxAutoLaunchEntry(unusual, false))).toBe(unusual);
+    expect(() => linuxAutoLaunchEntry('/tmp/a\nExec=evil', false)).toThrow();
+  });
+  it('refreshes the owned Debian path and branded AppImage paths only', () => {
+    expect(shouldRefreshLinuxAutoLaunch('/opt/Veyvox/Backspace Fork', 'Exec="/opt/Backspace Fork/Backspace Fork" --hidden')).toBe(true);
+    expect(shouldRefreshLinuxAutoLaunch('/home/u/Veyvox-1.17.0.AppImage', 'Exec=/home/u/Backspace-Fork-1.16.8.AppImage')).toBe(true);
+  });
+  it('never recreates a disabled/missing entry or overwrites another executable', () => {
+    expect(shouldRefreshLinuxAutoLaunch('/opt/Veyvox/Backspace Fork', null)).toBe(false);
+    expect(shouldRefreshLinuxAutoLaunch('/opt/Veyvox/Backspace Fork', 'Exec="/opt/Veyvox/Backspace Fork"')).toBe(false);
+    expect(shouldRefreshLinuxAutoLaunch('/opt/Veyvox/Backspace Fork', 'Exec=/usr/bin/another-app')).toBe(false);
+    expect(shouldRefreshLinuxAutoLaunch('/home/u/Veyvox-1.17.0.AppImage', 'Exec=/home/u/Another.AppImage')).toBe(false);
+    expect(shouldRefreshLinuxAutoLaunch('/opt/Veyvox/Backspace Fork', 'Hidden=true\nExec="/opt/Backspace Fork/Backspace Fork"')).toBe(false);
+    expect(shouldRefreshLinuxAutoLaunch('/opt/Veyvox/Backspace Fork', 'X-GNOME-Autostart-enabled=false\nExec="/opt/Backspace Fork/Backspace Fork"')).toBe(false);
   });
 });

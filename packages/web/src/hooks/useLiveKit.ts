@@ -23,7 +23,7 @@ import { wsSend } from './useWebSocket';
 import { useVoiceStore, type VoiceConnectionQuality } from '../stores/voiceStore';
 import { myRowForOrigin } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import { broadcastVoiceStatus, clearSpaceVoiceForDmCall } from '../utils/voice';
 import { consumeIntentionalCameraOff, markIntentionalCameraOff } from '../utils/voiceActions';
 import { dmCallChannelId, dmCallOrigin, dmCallRoomKey, voiceSessionOrigin } from '../utils/dmCall';

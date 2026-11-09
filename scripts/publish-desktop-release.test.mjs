@@ -12,11 +12,11 @@ import { createGitHubReleaseApi, prepareDesktopRelease, publishDesktopRelease } 
 const COMMIT = 'a'.repeat(40);
 async function fixture(t) {
   const directory = await releaseFixture(t); const notesPath = path.join(path.dirname(directory), path.basename(directory) + '-notes.md');
-  await fs.writeFile(notesPath, '# Backspace Fork 1.15.1\n\nSynthetic release notes with a complete summary and explicit acceptance limitations for these local HTTP fixture tests.\n');
+  await fs.writeFile(notesPath, '# Veyvox 1.15.1\n\nSynthetic release notes with a complete summary and explicit acceptance limitations for these local HTTP fixture tests.\n');
   t.after(() => fs.unlink(notesPath));
   const state = { releases: [], assets: [], uploads: 0, publishes: 0, failUpload: false, commit: COMMIT };
   const server = http.createServer(async (req, res) => {
-    const url = new URL(req.url, 'http://fixture'); const route = url.pathname.replace('/repos/bernardokcosta/backspace', '');
+    const url = new URL(req.url, 'http://fixture'); const route = url.pathname.replace('/repos/bernardokcosta/veyvox', '');
     const chunks = []; for await (const chunk of req) chunks.push(chunk); const bytes = Buffer.concat(chunks);
     let result;
     if (route === '/commits/v1.15.1') result = { sha: state.commit };
@@ -40,7 +40,7 @@ async function fixture(t) {
     assert.ok(['api.github.com', 'uploads.github.com'].includes(original.hostname));
     return fetch(`http://127.0.0.1:${server.address().port}${original.pathname}${original.search}`, options);
   } });
-  const options = { repository: 'bernardokcosta/backspace', tag: 'v1.15.1', commit: COMMIT, notesPath, directory,
+  const options = { repository: 'bernardokcosta/veyvox', tag: 'v1.15.1', commit: COMMIT, notesPath, directory,
     inventory: await validateDesktopRelease(directory, '1.15.1'), releaseId: 42, publish: true };
   return { options, state, api };
 }
@@ -93,13 +93,13 @@ test('digest fallback verifies bytes without forwarding authorization to signed 
     return seen.length === 1 ? new Response(null, { status: 302, headers: { location: 'https://release-assets.githubusercontent.com/test?signature=synthetic' } })
       : new Response('ok');
   } });
-  const digest = await api.assetDigest('bernardokcosta/backspace', { id: 1, size: 2 });
+  const digest = await api.assetDigest('bernardokcosta/veyvox', { id: 1, size: 2 });
   assert.equal(digest.sha256, createHash('sha256').update('ok').digest('hex'));
   assert.deepEqual(seen, [{ host: 'api.github.com', authorization: 'Bearer synthetic-test-token' }, { host: 'release-assets.githubusercontent.com', authorization: undefined }]);
   let calls = 0;
   const unsafe = createGitHubReleaseApi({ token: 'synthetic-test-token', fetch: async () => {
     calls++; return new Response(null, { status: 302, headers: { location: 'https://foreign.test/exfiltrate' } });
   } });
-  await assert.rejects(unsafe.assetDigest('bernardokcosta/backspace', { id: 1, size: 2 }), /untrusted/i);
+  await assert.rejects(unsafe.assetDigest('bernardokcosta/veyvox', { id: 1, size: 2 }), /untrusted/i);
   assert.equal(calls, 1);
 });

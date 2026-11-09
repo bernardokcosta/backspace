@@ -325,10 +325,10 @@
   },
   "keybinds": {
     "portal": {
-      "description": "Waylandではデスクトップが全Backspaceショートカットを管理。システムのキーボードショートカット設定のBackspace下で割当・変更・削除。ここのブラウザ/X11バインドは未使用。",
+      "description": "Waylandではデスクトップが全Veyvoxショートカットを管理。システムのキーボードショートカット設定のVeyvox下で割当・変更・削除。ここのブラウザ/X11バインドは未使用。",
       "idle": "全利用可能操作の初回登録を準備。",
       "pending": "デスクトップポータルに接続中。システムダイアログが出たら使う操作のショートカットを選択。",
-      "ready": "Backspace登録済み。変更・削除はシステムのキーボードショートカット設定を開く。下の一覧は読取専用でBackspace復帰時に更新。",
+      "ready": "Veyvox登録済み。変更・削除はシステムのキーボードショートカット設定を開く。下の一覧は読取専用でVeyvox復帰時に更新。",
       "unavailable": "ポータル不可・権限拒否・セッション終了。Global Shortcutsポータルバックエンドが必要。Waylandではローカルバインド無効。",
       "retry": "ショートカット登録・再接続",
       "assigned": "システムショートカット: {{shortcut}}",
@@ -370,7 +370,7 @@
     },
     "accessibility": {
       "title": "アクセシビリティ権限が必要",
-      "description": "全体ショートカットがアプリ外で働くにはBackspaceにアクセシビリティ権限が必要。",
+      "description": "全体ショートカットがアプリ外で働くにはVeyvoxにアクセシビリティ権限が必要。",
       "grant": "権限を付与"
     },
     "hookError": {
@@ -387,7 +387,7 @@
     "autoLaunch": {
       "openAtLogin": {
         "label": "ログイン時に起動",
-        "description": "ログイン時にBackspaceを自動起動"
+        "description": "ログイン時にVeyvoxを自動起動"
       },
       "startMinimized": {
         "label": "最小化で起動",
@@ -395,7 +395,7 @@
       }
     },
     "updates": {
-      "appName": "Backspace Desktop",
+      "appName": "Veyvox Desktop",
       "versionLabel": "バージョン {{version}}",
       "checking": "更新を確認中…",
       "checkingShort": "確認中…",

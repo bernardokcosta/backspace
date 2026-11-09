@@ -1,9 +1,9 @@
-import type { DmSystemEvent } from '@backspace/shared';
+import type { DmSystemEvent } from '@veyvox/shared';
 
 /**
  * DM system messages on the server: the one place their content is written,
  * and the rule that they cannot be edited. The event shapes and the parser are
- * `@backspace/shared/src/dmSystemEvents`; the rules are in
+ * `@veyvox/shared/src/dmSystemEvents`; the rules are in
  * docs/systems/dm-system.md, "System messages".
  */
 

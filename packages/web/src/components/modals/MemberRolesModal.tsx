@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { MemberWithUser, Role } from '@backspace/shared';
+import type { MemberWithUser, Role } from '@veyvox/shared';
 import { Modal } from '../ui/Modal';
 import { Avatar } from '../ui/Avatar';
 import { LockNote, LOCK_ICON } from '../ui/LockNote';

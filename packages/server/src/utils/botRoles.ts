@@ -1,5 +1,5 @@
 import { and, eq, inArray } from 'drizzle-orm';
-import { ALL_PERMISSIONS, parsePermissionString, permissionsToString, stringToPermissions } from '@backspace/shared/src/permissions.js';
+import { ALL_PERMISSIONS, parsePermissionString, permissionsToString, stringToPermissions } from '@veyvox/shared/src/permissions.js';
 import { getDb, getRawDb, schema } from '../db/index.js';
 import { normalizeRolePositions } from '../db/rolePositions.js';
 import { generateSnowflake } from './snowflake.js';

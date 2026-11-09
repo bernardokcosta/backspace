@@ -1,7 +1,7 @@
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import type { MemberWithUser, User } from '@backspace/shared';
+import type { MemberWithUser, User } from '@veyvox/shared';
 
 // Reached transitively via spaceStore -> chatStore -> useWebSocket -> voiceStore.
 vi.mock('../../audio/AudioManager', () => ({

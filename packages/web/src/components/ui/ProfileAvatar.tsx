@@ -1,5 +1,5 @@
 import React from 'react';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import { Avatar } from './Avatar';
 import { useUIStore, type ProfileMemberContext } from '../../stores/uiStore';
 import type { Placement } from '../../hooks/useFloatingPosition';

@@ -13,14 +13,14 @@
     "dismiss": "이 업데이트 닫기",
     "failed": {
       "title": "업데이트를 설치하지 못했습니다",
-      "body": "Backspace {{version}}을(를) 다운로드했지만 설치에 실패했습니다. 수동으로 설치할 수 있습니다."
+      "body": "Veyvox {{version}}을(를) 다운로드했지만 설치에 실패했습니다. 수동으로 설치할 수 있습니다."
     },
     "ready": {
       "title": "업데이트 준비됨",
-      "body": "Backspace {{version}}을(를) 다운로드했고 설치할 수 있습니다."
+      "body": "Veyvox {{version}}을(를) 다운로드했고 설치할 수 있습니다."
     },
     "available": {
-      "title": "Backspace {{version}} 사용 가능",
+      "title": "Veyvox {{version}} 사용 가능",
       "body": "이 빌드는 자동 업데이트할 수 없으므로 새 버전을 다운로드하여 진행하세요.",
       "bodyWithCurrent": "{{currentVersion}}을(를) 사용 중입니다. 이 빌드는 자동 업데이트할 수 없으므로 새 버전을 다운로드하여 진행하세요."
     },

@@ -1,4 +1,4 @@
-import type { AvatarColor, InvitePreview, SpaceVisibility } from '@backspace/shared';
+import type { AvatarColor, InvitePreview, SpaceVisibility } from '@veyvox/shared';
 import { eq } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
 import { safeFetch } from './ssrf.js';
@@ -30,7 +30,7 @@ export function getLocalInvitePreview(inviteCode: string): InvitePreview | null 
 
   const settings = db.select().from(schema.instanceSettings)
     .where(eq(schema.instanceSettings.id, 1)).get();
-  const instanceName = settings?.instanceName ?? 'Backspace';
+  const instanceName = settings?.instanceName ?? 'Veyvox';
 
   return {
     spaceId: space.id,
@@ -94,7 +94,7 @@ export async function fetchSpaceInviteSnapshot(
       icon: data.icon ?? null,
       avatarColor: data.avatarColor ?? null,
       memberCount: typeof data.memberCount === 'number' ? data.memberCount : 0,
-      instanceName: data.instanceName ?? 'Backspace',
+      instanceName: data.instanceName ?? 'Veyvox',
     };
   } catch {
     return null;

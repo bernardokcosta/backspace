@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import type { BotSummary } from '@backspace/shared';
+import type { BotSummary } from '@veyvox/shared';
 
 const mocks = vi.hoisted(() => ({
   list: vi.fn(),

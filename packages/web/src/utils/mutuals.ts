@@ -1,4 +1,4 @@
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import { api } from '../api/client';
 import { useInstanceStore, waitForAutoConnect } from '../stores/instanceStore';
 import { normalizeUserAssets, resolveAssetUrl } from './assetUrls';

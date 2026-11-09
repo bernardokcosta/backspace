@@ -1,8 +1,8 @@
-import type { MemberWithUser, UpdateMemberRequest } from '@backspace/shared';
+import type { MemberWithUser, UpdateMemberRequest } from '@veyvox/shared';
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { and, eq } from 'drizzle-orm';
-import { MAX_MEMBER_NICKNAME_LENGTH, normalizeMemberNickname } from '@backspace/shared/src/constants.js';
-import { canActOnMember, canManageRoleAt, roleBitsChangeRefusal, stringToPermissions, type HeldBitsRefusal } from '@backspace/shared/src/permissions.js';
+import { MAX_MEMBER_NICKNAME_LENGTH, normalizeMemberNickname } from '@veyvox/shared/src/constants.js';
+import { canActOnMember, canManageRoleAt, roleBitsChangeRefusal, stringToPermissions, type HeldBitsRefusal } from '@veyvox/shared/src/permissions.js';
 import { getDb, schema } from '../db/index.js';
 import { authenticate } from '../utils/auth.js';
 import { sendError } from '../utils/httpErrors.js';

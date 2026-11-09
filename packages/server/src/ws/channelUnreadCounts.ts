@@ -1,4 +1,4 @@
-import type { ServerEvent } from '@backspace/shared';
+import type { ServerEvent } from '@veyvox/shared';
 import { and, eq, isNull, ne, sql } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
 import { computePermissions, PermissionBits } from '../utils/permissions.js';

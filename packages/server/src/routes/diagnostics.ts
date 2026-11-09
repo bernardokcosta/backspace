@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { normalizeDiagnostic } from '@backspace/shared/src/diagnostics';
+import { normalizeDiagnostic } from '@veyvox/shared/src/diagnostics';
 import { authenticate, requireAdmin } from '../utils/auth.js';
 import { sendError } from '../utils/httpErrors.js';
 import { DiagnosticLogStore, writeDiagnostic } from '../utils/diagnosticLogs.js';

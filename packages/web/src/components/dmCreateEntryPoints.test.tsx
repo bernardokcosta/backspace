@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
-import type { DmChannel, User } from '@backspace/shared';
+import type { DmChannel, User } from '@veyvox/shared';
 
 /**
  * Every UI entry point that creates a DM hands the server's answer to the DM
@@ -75,7 +75,7 @@ vi.mock('../api/client', async (importOriginal) => ({
 
 import { useSpaceStore } from '../stores/spaceStore';
 import { setApiForOriginResolver, setOriginFromHostnameResolver } from '../utils/crossStoreResolvers';
-import type { BackspaceApiClient } from '../api/client';
+import type { VeyvoxApiClient } from '../api/client';
 import { useChatStore } from '../stores/chatStore';
 import { useUIStore } from '../stores/uiStore';
 import { useSocialStore, type TaggedFriend } from '../stores/socialStore';
@@ -390,7 +390,7 @@ describe('the add-member modal asks the user\'s home when the session is signed 
     dm: { createGroup: remoteCreateGroup, addMember: remoteAddMember },
     // The modal also lists the user's bots on their home.
     bots: { list: vi.fn().mockResolvedValue({ bots: [] }) },
-  } as unknown as BackspaceApiClient;
+  } as unknown as VeyvoxApiClient;
 
   beforeEach(() => {
     auth.state.user = { id: 'erin-page', username: 'erin@remote.example', homeInstance: 'remote.example', homeUserId: 'erin-true' };

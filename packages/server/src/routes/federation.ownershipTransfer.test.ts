@@ -31,7 +31,7 @@ import { fileURLToPath } from 'node:url';
 import { eq } from 'drizzle-orm';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
-import type { FederationRelayEvent } from '@backspace/shared';
+import type { FederationRelayEvent } from '@veyvox/shared';
 
 setWorkerId(5);
 

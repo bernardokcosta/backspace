@@ -1,5 +1,5 @@
 import { beforeEach, describe, it, expect } from 'vitest';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import {
   isMyFederatedIdentity,
   myChosenStatus,

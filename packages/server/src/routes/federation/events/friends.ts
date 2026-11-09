@@ -6,7 +6,7 @@ import { generateSnowflake } from '../../../utils/snowflake.js';
 import { connectionManager } from '../../../ws/handler.js';
 import { exchangeFriendPresence } from '../../../ws/presence.js';
 import { and, eq, or } from 'drizzle-orm';
-import type { FederationRelayEvent } from '@backspace/shared';
+import type { FederationRelayEvent } from '@veyvox/shared';
 import { extractDomain, isOwnDomain, resolveOrCreateReplicatedUser, resolveRelayActor, attributionRefusal, type RelayActor } from '../identity.js';
 import { hydrateReplicatedUserProfile } from '../profile.js';
 

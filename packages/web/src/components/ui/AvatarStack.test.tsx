@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 // AvatarStack pulls in `useCanonicalUserView` → spaceStore, which transitively
 // imports AudioManager. Stub it out so jsdom doesn't choke on AudioWorkletNode.

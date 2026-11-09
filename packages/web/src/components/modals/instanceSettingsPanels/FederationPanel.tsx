@@ -9,7 +9,7 @@ import { Toggle } from '../../ui/Toggle';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
 import { api, HttpError } from '../../../api/client';
 import { onFederationPeersChanged, onFederationPeerResetDetected } from '../../../hooks/useWebSocket';
-import type { ApprovalRequestSubscriberSummary, FederationPeerStatusReason, InstanceAdminSettings } from '@backspace/shared';
+import type { ApprovalRequestSubscriberSummary, FederationPeerStatusReason, InstanceAdminSettings } from '@veyvox/shared';
 import type { FederationPeer, ApprovalRequest, FederationResetEvent, FederationOrphanedAccount } from '../../../api/client';
 
 type FederationT = TFunction<['federation', 'common']>;

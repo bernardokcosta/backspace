@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 // ── Store mocks ─────────────────────────────────────────────────────────────
 // AccountPanel reads its self user from `useAuthStore((s) => s.user)`. We drive

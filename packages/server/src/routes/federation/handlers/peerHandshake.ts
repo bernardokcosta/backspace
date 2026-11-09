@@ -14,7 +14,7 @@ import { resolveLocalOrigin, sanitizePeer, validateOrigin } from '../origin.js';
 import { isAcceptRateLimited, isEnsureRateLimited } from '../rateLimits.js';
 import { federationFetch } from '../../../utils/federationFetch.js';
 import { sendError } from '../../../utils/httpErrors.js';
-import { PEER_ENSURE_REASONS, type PeerEnsureReason } from '@backspace/shared';
+import { PEER_ENSURE_REASONS, type PeerEnsureReason } from '@veyvox/shared';
 
 /**
  * The reason a `/peer/ensure` request states, or `null` when it states one a

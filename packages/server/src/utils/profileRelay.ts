@@ -1,4 +1,4 @@
-import type { FederationProfileUpdatePayload } from '@backspace/shared';
+import type { FederationProfileUpdatePayload } from '@veyvox/shared';
 import type { schema } from '../db/index.js';
 import { getOurOrigin } from './federationAuth.js';
 import { appendMutationLog, isFederationRelayEnabled, queueOutboxEvent } from './federationOutbox.js';

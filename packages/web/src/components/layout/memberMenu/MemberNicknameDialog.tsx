@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MAX_MEMBER_NICKNAME_LENGTH, normalizeMemberNickname } from '@backspace/shared/src/constants';
+import { MAX_MEMBER_NICKNAME_LENGTH, normalizeMemberNickname } from '@veyvox/shared/src/constants';
 import { Modal } from '../../ui/Modal';
 import { getApiForOrigin } from '../../../stores/spaceStore';
 import { applySpaceMemberUpdate } from '../../../stores/spaceMemberUpdates';

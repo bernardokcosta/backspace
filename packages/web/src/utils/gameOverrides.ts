@@ -1,5 +1,5 @@
-import type { Activity } from '@backspace/shared';
-import { ACTIVITY_LIMITS } from '@backspace/shared/src/activities';
+import type { Activity } from '@veyvox/shared';
+import { ACTIVITY_LIMITS } from '@veyvox/shared/src/activities';
 
 /**
  * What the player decided about the games they are shown as playing.

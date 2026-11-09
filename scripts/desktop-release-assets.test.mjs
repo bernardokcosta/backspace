@@ -22,9 +22,9 @@ test('build group fails if either architecture is missing and updater publisher 
   const directory = await releaseFixture(t); const grouped = path.join(directory, 'candidate'); await fs.mkdir(grouped);
   for (const name of expectedDesktopGroupAssets(VERSION, 'release-windows')) await fs.copyFile(path.join(directory, name), path.join(grouped, name));
   assert.equal((await validateDesktopBuildGroup(grouped, VERSION, 'release-windows')).assets.length, 5);
-  await fs.unlink(path.join(grouped, `Backspace-Fork-${VERSION}-win-arm64.exe`));
+  await fs.unlink(path.join(grouped, `Veyvox-${VERSION}-win-arm64.exe`));
   await assert.rejects(validateDesktopBuildGroup(grouped, VERSION, 'release-windows'));
-  verifyUpdaterPublisher('provider: github\nowner: bernardokcosta\nrepo: backspace\n');
+  verifyUpdaterPublisher('provider: github\nowner: bernardokcosta\nrepo: veyvox\n');
   for (const text of ['provider: generic\nurl: https://foreign.test', 'provider: github\nowner: TheZwiss\nrepo: backspace', 'provider: github\nowner: bernardokcosta\nrepo: backspace\ntoken: secret']) assert.throws(() => verifyUpdaterPublisher(text));
 });
 
@@ -39,7 +39,16 @@ test('workflow keeps matrix read-only, fuses/signature before artifact upload an
   const uploadIndex = build.steps.findIndex((step) => step.uses?.startsWith('actions/upload-artifact@'));
   assert.ok(fuseIndex >= 0 && signIndex > fuseIndex && uploadIndex > signIndex);
   assert.match(build.steps[fuseIndex].run, /if \[ "\$failed" -ne 0 \]/);
-  assert.deepEqual(workflow.jobs.publish.needs, ['build', 'native-sdr', 'validate']);
+  assert.deepEqual(workflow.jobs.publish.needs, ['build', 'native-sdr', 'validate', 'installed']);
+  assert.deepEqual(workflow.jobs.installed.needs, ['build', 'validate']);
+  assert.equal(workflow.jobs.installed.permissions.contents, 'read');
+  assert.equal(workflow.jobs.installed.strategy.matrix.include.length, 6);
+  assert.ok(workflow.jobs.installed.steps.some(step => step.run?.includes('verify-installed-rebrand.mjs')));
+  const installedScript = workflow.jobs.installed.steps.find(step => step.run?.includes('xvfb-run')).run;
+  assert.match(installedScript, /<<'LINUX_ACCEPTANCE'/);
+  assert.doesNotMatch(installedScript, /bash -euo pipefail -c '/);
+  const parsed = spawnSync('bash', ['-n'], { input: installedScript, encoding: 'utf8' });
+  assert.equal(parsed.status, 0, parsed.stderr);
   assert.match(workflow.jobs.publish.if, /github.event_name == 'push'.*refs\/tags\//);
   assert.equal(workflow.jobs.validate.needs, 'build');
   assert.ok(workflow.on.pull_request && Object.hasOwn(workflow.on, 'workflow_dispatch'));
@@ -62,7 +71,7 @@ test('the actual workflow bootstrap snippet writes the selected release id to Gi
 
 test('missing, empty and truncated assets fail before publication', async (t) => {
   const directory = await releaseFixture(t);
-  const asset = path.join(directory, `Backspace-Fork-${VERSION}-win-arm64.exe`);
+  const asset = path.join(directory, `Veyvox-${VERSION}-win-arm64.exe`);
   const bytes = await fs.readFile(asset);
   await fs.writeFile(asset, bytes.subarray(0, 3));
   await assert.rejects(validateDesktopRelease(directory, VERSION), /hash|size/i);

@@ -15,7 +15,7 @@ import {
   viewerCanManageRoleAt,
   viewerCanActOn,
 } from '../../utils/roleHierarchy';
-import type { Role, MemberWithUser } from '@backspace/shared';
+import type { Role, MemberWithUser } from '@veyvox/shared';
 
 export type Override = StoredOverride;
 

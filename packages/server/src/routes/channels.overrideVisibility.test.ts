@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
-import { PermissionBits, permissionsToString } from '@backspace/shared/src/permissions.js';
+import { PermissionBits, permissionsToString } from '@veyvox/shared/src/permissions.js';
 
 // Who can see a channel changes with an override on it or on its category, and
 // with a move to another category (#365). Every such change tells each

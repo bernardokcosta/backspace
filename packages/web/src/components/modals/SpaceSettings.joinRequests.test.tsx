@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 vi.mock('../../audio/AudioManager', () => ({ AudioManager: { getInstance: vi.fn(() => ({ setOutputDevice: vi.fn(), setVolume: vi.fn() })) } }));
-import type { JoinRequest, User } from '@backspace/shared';
+import type { JoinRequest, User } from '@veyvox/shared';
 import { createApiClient } from '../../api/client';
 import { useAuthStore } from '../../stores/authStore';
 import { useInstanceStore, type ConnectedInstance } from '../../stores/instanceStore';

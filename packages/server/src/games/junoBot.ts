@@ -1,5 +1,5 @@
 import { randomInt } from 'node:crypto';
-import { JUNO_COLORS, canPlayJuno, type JunoAction, type JunoCard, type JunoColor } from '@backspace/shared/src/juno.js';
+import { JUNO_COLORS, canPlayJuno, type JunoAction, type JunoCard, type JunoColor } from '@veyvox/shared/src/juno.js';
 
 /** Deliberately cannot receive a round, another hand, or the draw pile. */
 export function chooseJunoBotAction(hand: readonly JunoCard[], top: JunoCard, color: JunoColor, drawnCardId: string | null): JunoAction {

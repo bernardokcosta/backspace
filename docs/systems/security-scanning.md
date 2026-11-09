@@ -262,13 +262,13 @@ wrong:
 
 - **`@babel/preset-env` looks gone and is not.** `@vitejs/plugin-react` 6 dropped
   Babel, which removed `@babel/core` and the JSX transform plugins. Babel is still
-  in the tree by another path: `@backspace/web` to `vite-plugin-pwa` to
+  in the tree by another path: `@veyvox/web` to `vite-plugin-pwa` to
   `workbox-build` to `@babel/preset-env`. Build-time, but present.
 - **`js-yaml` looks like electron-builder tooling.** It arrives that way as well,
   but it also arrives through `electron-updater`, which is a runtime `dependencies`
   entry of `@backspace/desktop`. It ships inside the packaged desktop app.
 - **`esbuild` looks build-time and is in two buckets at once.** Version 0.28.2
-  arrives through `tsx`, a runtime `dependencies` entry of `@backspace/server`, so
+  arrives through `tsx`, a runtime `dependencies` entry of `@veyvox/server`, so
   it is installed into the server image. The 0.18.20 copy, which is the one OSV
   flags, arrives through `drizzle-kit` and is build-time only.
 

@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import type { FederationRelayEvent } from '@backspace/shared';
+import type { FederationRelayEvent } from '@veyvox/shared';
 import { oneOnOneKey } from '../../src/utils/dmConversation.js';
 import { queuedRelayEvents, readDb, withWritableDb, type RelayPostResult } from './federationE2E.js';
 import type { TestUser } from './testUsers.js';

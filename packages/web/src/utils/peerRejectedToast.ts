@@ -1,4 +1,4 @@
-import type { FederationPeerStatusReason } from '@backspace/shared';
+import type { FederationPeerStatusReason } from '@veyvox/shared';
 import i18n from '../i18n';
 
 /**

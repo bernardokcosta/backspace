@@ -1,6 +1,6 @@
-import type { Activity, BotActivity, BotActivityType } from '@backspace/shared';
-import { ACTIVITY_LIMITS } from '@backspace/shared/src/activities.js';
-import { BOT_ACTIVITY_TYPES } from '@backspace/shared/src/constants.js';
+import type { Activity, BotActivity, BotActivityType } from '@veyvox/shared';
+import { ACTIVITY_LIMITS } from '@veyvox/shared/src/activities.js';
+import { BOT_ACTIVITY_TYPES } from '@veyvox/shared/src/constants.js';
 
 /**
  * A bot's stored status (`users.bot_activity`): the owner sets it in Settings >

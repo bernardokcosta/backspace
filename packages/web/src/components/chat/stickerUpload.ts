@@ -1,4 +1,4 @@
-import { MAX_STICKER_BYTES, type PersonalSticker } from '@backspace/shared/src/stickers';
+import { MAX_STICKER_BYTES, type PersonalSticker } from '@veyvox/shared/src/stickers';
 import { api } from '../../api/client';
 import i18n from '../../i18n';
 

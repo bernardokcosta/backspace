@@ -3,7 +3,7 @@ import { getDb, schema } from '../db/index.js';
 import { computePermissions, PermissionBits, permissionsToString } from './permissions.js';
 import { sanitizeUser } from './sanitize.js';
 import { memberRolesView, rolesForViewer } from './permissionDataView.js';
-import type { Channel, MemberWithUser, SpaceWithChannelsAndMembers } from '@backspace/shared';
+import type { Channel, MemberWithUser, SpaceWithChannelsAndMembers } from '@veyvox/shared';
 
 /** Full joined-space payload, with channels and role data shaped for its recipient. */
 export function buildJoinedSpace(spaceId: string, forUserId: string): SpaceWithChannelsAndMembers | null {

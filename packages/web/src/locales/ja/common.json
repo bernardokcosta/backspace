@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "保存",
     "cancel": "キャンセル",
@@ -123,7 +123,7 @@
   },
   "app": {
     "description": "自ホスト型Discord・TeamSpeak代替。HD音声・ビデオ・画面共有 — オープンソースで無料 (AGPL-3.0)。",
-    "loading": "Backspaceを読み込み中"
+    "loading": "Veyvoxを読み込み中"
   },
   "chrome": {
     "toggleMemberList": "メンバーリスト表示切替",

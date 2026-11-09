@@ -1,4 +1,4 @@
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import { isMine, ownRowAt, selfIdentityOf, type IdentityFields, type SelfIdentity } from '../utils/identity';
 
 /** The part of the auth state a test that replaces `stores/authStore` controls. */

@@ -1,5 +1,5 @@
 import { stringToPermissions } from './permissions';
-import type { OverrideBits } from '@backspace/shared/src/permissions';
+import type { OverrideBits } from '@veyvox/shared/src/permissions';
 
 // Channel and category overrides as the client reads and edits them
 // (docs/systems/permissions.md, "Resolution Algorithm", step 3). An override

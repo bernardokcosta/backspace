@@ -42,9 +42,9 @@ describe('Japanese contextual content', () => {
     expect(chat.message.reactions.byMany).toBe('反応: {{names}}');
   });
 
-  it('keeps Backspace and Juno automatic labels distinct', () => {
+  it('keeps Veyvox and Juno automatic labels distinct', () => {
     expect(common.language.automatic).toBe('自動 (システム)');
-    expect(voice.juno.settings.automatic).toBe('自動 (Backspace)');
+    expect(voice.juno.settings.automatic).toBe('自動 (Veyvox)');
     expect(voice.juno.settings.automaticDubbing).toBe(voice.juno.settings.automatic);
   });
 

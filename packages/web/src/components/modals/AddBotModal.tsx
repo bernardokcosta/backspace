@@ -7,7 +7,7 @@ import { describeError } from '../../i18n/errors';
 import { BotPermissionChecklist } from '../ui/BotPermissionChecklist';
 import { permissionsToString, stringToPermissions } from '../../utils/permissions';
 import { useViewerHeldPermissions, viewerCanSwitchBit } from '../../utils/roleHierarchy';
-import type { BotSearchResult } from '@backspace/shared';
+import type { BotSearchResult } from '@veyvox/shared';
 
 /**
  * A space manager adds a bot to a space: a native bot of the instance the

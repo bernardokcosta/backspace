@@ -1,4 +1,4 @@
-import type { JunoCard, JunoColor } from '@backspace/shared/src/juno';
+import type { JunoCard, JunoColor } from '@veyvox/shared/src/juno';
 
 const ROOT = '/games/juno';
 export const JUNO_MUSIC_URL = `${ROOT}/music/charting-the-dark.mp3`;

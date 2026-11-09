@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "Kaydet",
     "cancel": "İptal",
@@ -123,7 +123,7 @@
   },
   "app": {
     "description": "Kendi sunucunda barındırabileceğin Discord ve TeamSpeak alternatifi. HD ses, video ve ekran paylaşımı — açık kaynak ve ücretsiz (AGPL-3.0).",
-    "loading": "Backspace yükleniyor"
+    "loading": "Veyvox yükleniyor"
   },
   "chrome": {
     "toggleMemberList": "Üye listesini aç/kapat",

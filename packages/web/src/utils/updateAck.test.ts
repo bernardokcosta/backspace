@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { InstanceUpdateStatus } from '@backspace/shared';
+import type { InstanceUpdateStatus } from '@veyvox/shared';
 import {
   EMPTY_ACK,
   ackStorageKey,

@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "일반",
-    "description": "Backspace 인스턴스를 구성하세요. 이 설정은 모든 사용자에게 적용됩니다.",
+    "description": "Veyvox 인스턴스를 구성하세요. 이 설정은 모든 사용자에게 적용됩니다.",
     "instanceName": {
       "label": "인스턴스 이름",
       "description": "로그인 페이지와 연합 인스턴스에 표시되는 이름.",
@@ -287,7 +287,7 @@
     "title": "업데이트",
     "badge": {
       "settingsAriaLabel": "설정, 인스턴스 업데이트 가능",
-      "toast": "이 인스턴스에 Backspace {{version}} 있음",
+      "toast": "이 인스턴스에 Veyvox {{version}} 있음",
       "toastAction": "보기"
     },
     "description": "이 인스턴스에서 실행 중인 버전과 업데이트 방법.",
@@ -305,11 +305,11 @@
     },
     "available": {
       "label": "사용 가능",
-      "version": "Backspace {{version}} 있음",
+      "version": "Veyvox {{version}} 있음",
       "released": "릴리스 {{date}} · ",
       "releaseNotes": "릴리스 노트",
       "fromInstallDir": "설치 디렉터리에서:",
-      "scriptDescription": "데이터베이스 스냅샷을 만들고 새 이미지를 다운로드하며 Backspace 컨테이너만 다시 시작. 새 버전이 정상 시작하지 않거나 기존 코드로 시작하면 현재 버전으로 복귀.",
+      "scriptDescription": "데이터베이스 스냅샷을 만들고 새 이미지를 다운로드하며 Veyvox 컨테이너만 다시 시작. 새 버전이 정상 시작하지 않거나 기존 코드로 시작하면 현재 버전으로 복귀.",
       "noScript": "update.sh 없음",
       "manualIntro": "update.sh는 1.0.5부터 포함. git 복사본에서는 <code>git pull</code>이 추가. 그렇지 않으면 <code>./backup.sh</code>로 스냅샷 후 수동 단계.",
       "prebuiltInstall": "프리빌드 설치:",

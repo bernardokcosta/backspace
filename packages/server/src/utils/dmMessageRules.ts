@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm';
-import { MAX_MESSAGE_LENGTH } from '@backspace/shared';
-import type { ErrorCode, ErrorDetails } from '@backspace/shared/src/errors';
+import { MAX_MESSAGE_LENGTH } from '@veyvox/shared';
+import type { ErrorCode, ErrorDetails } from '@veyvox/shared/src/errors';
 import { getDb, schema } from '../db/index.js';
 import { isDeadOneOnOne, isDmMember } from './permissions.js';
 import { dmMessageEditRefusal } from './dmSystemMessages.js';

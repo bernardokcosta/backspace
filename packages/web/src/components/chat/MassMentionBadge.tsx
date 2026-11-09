@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { MassMentionKeyword } from '@backspace/shared/src/mentions';
+import type { MassMentionKeyword } from '@veyvox/shared/src/mentions';
 import { useSpaceStore } from '../../stores/spaceStore';
 
 /** `@everyone` / `@here`, and a role with no colour of its own. */

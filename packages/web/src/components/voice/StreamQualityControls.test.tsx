@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import type { InstanceStreamingLimits } from '@backspace/shared';
+import type { InstanceStreamingLimits } from '@veyvox/shared';
 import { StreamQualityControls, StreamHostSubtitle } from './StreamQualityControls';
 import { useVoiceStore } from '../../stores/voiceStore';
 import { useSettingsStore } from '../../stores/settingsStore';

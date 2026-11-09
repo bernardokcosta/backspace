@@ -1,4 +1,4 @@
-import type { MemberWithUser, Role } from '@backspace/shared';
+import type { MemberWithUser, Role } from '@veyvox/shared';
 import {
   canActOnMember,
   canManageRoleAt,
@@ -10,7 +10,7 @@ import {
   stringToPermissions,
   type HierarchyStanding,
   type OverrideBits,
-} from '@backspace/shared/src/permissions';
+} from '@veyvox/shared/src/permissions';
 import { useSpaceStore, getMyUserIdForOrigin, type TaggedSpace } from '../stores/spaceStore';
 import { canReorderRoles, rolesInRankOrder } from './roleOrder';
 

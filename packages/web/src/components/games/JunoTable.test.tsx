@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { JunoView } from '@backspace/shared/src/juno';
+import type { JunoView } from '@veyvox/shared/src/juno';
 import { useJunoStore } from '../../stores/junoStore';
 import { RateLimitError } from '../../api/client';
 import { JunoTable } from './JunoTable';

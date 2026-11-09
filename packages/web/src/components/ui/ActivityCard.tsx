@@ -1,5 +1,5 @@
-import type { Activity } from '@backspace/shared';
-import { getPrimaryActivity } from '@backspace/shared/src/activities.js';
+import type { Activity } from '@veyvox/shared';
+import { getPrimaryActivity } from '@veyvox/shared/src/activities.js';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';

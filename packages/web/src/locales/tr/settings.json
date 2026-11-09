@@ -326,10 +326,10 @@
   },
   "keybinds": {
     "portal": {
-      "description": "Wayland'de tüm Backspace kısayollarını masaüstü yönetir. Tuşları sistemin klavye kısayolu ayarlarında Backspace altında ata, değiştir veya kaldır. Tarayıcı/X11 yerel atamaları burada kullanılmaz.",
+      "description": "Wayland'de tüm Veyvox kısayollarını masaüstü yönetir. Tuşları sistemin klavye kısayolu ayarlarında Veyvox altında ata, değiştir veya kaldır. Tarayıcı/X11 yerel atamaları burada kullanılmaz.",
       "idle": "Kullanılabilir tüm işlemler için ilk kayıt hazırlanıyor.",
       "pending": "Masaüstü portalına bağlanılıyor. Bir sistem iletişim kutusu açılırsa kullanmak istediğin işlemler için kısayolları seç.",
-      "ready": "Backspace kaydedildi. Atamaları değiştirmek veya kaldırmak için sisteminin klavye kısayolu ayarlarını aç. Aşağıdaki liste salt okunurdur ve Backspace'e döndüğünde yenilenir.",
+      "ready": "Veyvox kaydedildi. Atamaları değiştirmek veya kaldırmak için sisteminin klavye kısayolu ayarlarını aç. Aşağıdaki liste salt okunurdur ve Veyvox'a döndüğünde yenilenir.",
       "unavailable": "Portal kullanılamıyor, izin reddedildi veya oturum sona erdi. Bir Global Shortcuts portal arka ucu gerekiyor. Wayland'de yerel atamalar devre dışıdır.",
       "retry": "Kısayolları kaydet veya yeniden bağla",
       "assigned": "Sistem kısayolu: {{shortcut}}",
@@ -371,7 +371,7 @@
     },
     "accessibility": {
       "title": "Erişilebilirlik izni gerekiyor",
-      "description": "Genel kısayolların uygulama dışında çalışması için Backspace'in erişilebilirlik iznine ihtiyacı var.",
+      "description": "Genel kısayolların uygulama dışında çalışması için Veyvox'in erişilebilirlik iznine ihtiyacı var.",
       "grant": "İzin ver"
     },
     "hookError": {
@@ -388,7 +388,7 @@
     "autoLaunch": {
       "openAtLogin": {
         "label": "Açılışta başlat",
-        "description": "Oturum açtığında Backspace'i otomatik başlat"
+        "description": "Oturum açtığında Veyvox'i otomatik başlat"
       },
       "startMinimized": {
         "label": "Simge durumunda başlat",
@@ -396,7 +396,7 @@
       }
     },
     "updates": {
-      "appName": "Backspace Desktop",
+      "appName": "Veyvox Desktop",
       "versionLabel": "Sürüm {{version}}",
       "checking": "Güncellemeler kontrol ediliyor…",
       "checkingShort": "Kontrol ediliyor…",
@@ -415,7 +415,7 @@
       "download": "İndir",
       "restart": "Yeniden başlat",
       "manualNote": "Bu derleme güncellemeleri kendisi kuramaz. Yeni sürümleri GitHub'dan indir ve uygulamayı elle değiştir. Platformundaki adımlar için sürüm notlarına bak.",
-      "externalNote": "Flatpak güncellemeleri uygulamanın dışında atomik olarak uygular. Backspace'i güncellemek için yazılım yöneticini veya <code>flatpak update</code> komutunu kullan."
+      "externalNote": "Flatpak güncellemeleri uygulamanın dışında atomik olarak uygular. Veyvox'i güncellemek için yazılım yöneticini veya <code>flatpak update</code> komutunu kullan."
     },
     "instance": {
       "current": "Şu anda bağlı örnek",

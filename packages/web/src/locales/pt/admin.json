@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "Geral",
-    "description": "Configure sua instância do Backspace. Estas configurações afetam todos os usuários.",
+    "description": "Configure sua instância do Veyvox. Estas configurações afetam todos os usuários.",
     "instanceName": {
       "label": "Nome da instância",
       "description": "O nome exibido na página de login e para instâncias federadas.",
@@ -313,7 +313,7 @@
     "title": "Atualizações",
     "badge": {
       "settingsAriaLabel": "Configurações, atualização da instância disponível",
-      "toast": "O Backspace {{version}} está disponível para esta instância",
+      "toast": "O Veyvox {{version}} está disponível para esta instância",
       "toastAction": "Ver"
     },
     "description": "O que esta instância está executando e como atualizá-la.",
@@ -331,11 +331,11 @@
     },
     "available": {
       "label": "Disponível",
-      "version": "O Backspace {{version}} está disponível",
+      "version": "O Veyvox {{version}} está disponível",
       "released": "Lançado em {{date}} · ",
       "releaseNotes": "Notas da versão",
       "fromInstallDir": "Do seu diretório de instalação:",
-      "scriptDescription": "Cria um snapshot do banco de dados, baixa a nova imagem e reinicia apenas o contêiner do Backspace. Se a nova versão não iniciar corretamente ou continuar executando o código antigo, ela restaura a versão que você está usando agora.",
+      "scriptDescription": "Cria um snapshot do banco de dados, baixa a nova imagem e reinicia apenas o contêiner do Veyvox. Se a nova versão não iniciar corretamente ou continuar executando o código antigo, ela restaura a versão que você está usando agora.",
       "noScript": "Não tenho o update.sh",
       "manualIntro": "O update.sh acompanha o projeto a partir da versão 1.0.5. Em um checkout do Git, <code>git pull</code> o traz. Caso contrário, execute as etapas manualmente, depois de criar um snapshot com <code>./backup.sh</code>.",
       "prebuiltInstall": "Instalação por imagem pré-compilada:",

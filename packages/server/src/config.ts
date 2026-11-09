@@ -90,7 +90,7 @@ if (publicOrigin !== undefined) {
 // to this fork's source. Operators with their own further fork MUST point
 // BACKSPACE_SOURCE_URL at it so the offer stays accurate.
 const UPSTREAM_SOURCE_URL = 'https://github.com/TheZwiss/backspace';
-const FORK_SOURCE_URL = 'https://github.com/bernardokcosta/backspace';
+const FORK_SOURCE_URL = 'https://github.com/bernardokcosta/veyvox';
 const sourceCodeUrl = envOptional('BACKSPACE_SOURCE_URL') ?? FORK_SOURCE_URL;
 if (!/^https?:\/\//i.test(sourceCodeUrl)) {
   throw new Error(

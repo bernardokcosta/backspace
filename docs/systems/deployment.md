@@ -1,9 +1,20 @@
 # Deployment & Operations
 
+## Veyvox rebrand compatibility
+
+Veyvox 1.17.0 keeps the existing Compose project/service/container `backspace`,
+`./data:/app/data`, `/app/data/backspace.db`, backup paths, `.env` and
+`BACKSPACE_*` operator/build options. Update in the existing directory; a new
+clone directory can create a different Compose project and must not be used as
+a migration/reset shortcut. Never regenerate credentials to rebrand an instance.
+The public compatibility image remains `ghcr.io/bernardokcosta/backspace`; the
+workflow pins that destination rather than deriving it from the renamed GitHub
+repository. OCI/source/update links identify `bernardokcosta/veyvox`.
+
 ## Operational logs (1.15.9)
 
 Central JSONL diagnostics live beside `DB_PATH` under `diagnostics/`, capped at
-4.5 GB with oldest-first rotation. Compose caps Backspace, LiveKit and Caddy
+4.5 GB with oldest-first rotation. Compose caps Veyvox, LiveKit and Caddy
 stdout/stderr to 50 MB × 3 files each, leaving the combined application-log budget
 below 5 GB. Existing containers must be recreated for Docker limits to apply;
 schedule that restart around active calls. No client log files or persistent
@@ -48,7 +59,7 @@ unconfirmed. Fork releases do not invoke upstream-only Flatpak metadata writes.
 
 Anonymous installer/update access and OCI revision still need independent
 post-publication checks. Preserve a consistent
-SQLite backup/environment/image rollback record, and restart only Backspace.
+SQLite backup/environment/image rollback record, and restart only Veyvox.
 Unavailable hardware/historical-host acceptance must remain explicit; a green
 workflow is not a substitute for installed-app or active-media recovery tests.
 
@@ -59,7 +70,7 @@ job; a manual/PR run can never create a draft or upload public release assets.
 This catches platform-specific `--publish never` output issues without having
 to move a tag or repair an already-public partial release.
 
-Operator- and contributor-facing reference for hosting Backspace: the Docker build pipeline, admin bootstrap, database backup/restore, image pinning, and the relevant environment variables.
+Operator- and contributor-facing reference for hosting Veyvox: the Docker build pipeline, admin bootstrap, database backup/restore, image pinning, and the relevant environment variables.
 
 Source files:
 - `Dockerfile` -- multi-stage build (builder → runtime)
@@ -88,17 +99,17 @@ Source files:
 
 ## 1. Pipeline Overview
 
-Backspace ships as a single application container. In the default **All-in-One** deployment it is fronted by the bundled Caddy (automatic HTTPS); behind an operator's own reverse proxy or a tunnel, Caddy is dropped and the container is published on a host loopback port instead (see [Deployment modes](#deployment-modes) below). The application image is a **prebuilt multi-architecture image published to GHCR** — `docker compose pull` (install.sh's default path) fetches `ghcr.io/thezwiss/backspace` for `linux/amd64` or `linux/arm64`, so weak/ARM hosts skip the heavy local build; a from-source build is the fallback when the image can't be pulled.
+Veyvox ships as a single application container. In the default **All-in-One** deployment it is fronted by the bundled Caddy (automatic HTTPS); behind an operator's own reverse proxy or a tunnel, Caddy is dropped and the container is published on a host loopback port instead (see [Deployment modes](#deployment-modes) below). The application image is a **prebuilt multi-architecture image published to GHCR** — `docker compose pull` (install.sh's default path) fetches `ghcr.io/bernardokcosta/backspace` for `linux/amd64` or `linux/arm64`, so weak/ARM hosts skip the heavy local build; a from-source build is the fallback when the image can't be pulled.
 
 ### Prebuilt image (GHCR)
 
-`.github/workflows/docker-publish.yml` builds and pushes the application image to `ghcr.io/thezwiss/backspace` on every `v*` tag (and on manual `workflow_dispatch`). It is deliberately **separate from** the desktop-installer workflow (`release.yml`): the two share the `v*` tag trigger but build entirely different artifacts and must not be entangled.
+`.github/workflows/docker-publish.yml` builds and pushes the application image to `ghcr.io/bernardokcosta/backspace` on every `v*` tag (and on manual `workflow_dispatch`). It is deliberately **separate from** the desktop-installer workflow (`release.yml`): the two share the `v*` tag trigger but build entirely different artifacts and must not be entangled.
 
 - **Multi-arch.** `docker/setup-qemu-action` + `buildx` build `linux/amd64,linux/arm64` in one push, so a Raspberry Pi pulls a native image instead of cross-building (the Vite build OOMs small ARM boxes).
 - **Tags.** `docker/metadata-action` derives `{version}`, `{major}.{minor}`, `latest` (on `v*` tags), and `sha-<short>`. A `workflow_dispatch` with an extra `tag` input publishes that tag too (e.g. `latest` without cutting a release).
 - **AGPL § 13 commit stamping is preserved.** The workflow resolves `git rev-parse --short HEAD` and passes it as `--build-arg BACKSPACE_COMMIT=…`, exactly like `install.sh`/`deploy.sh`, plus OCI labels (`source`, `licenses=AGPL-3.0-only`, `revision`). The pulled image therefore advertises its exact source version via `GET /api/instance/info`.
 - **Auth.** The push authenticates with the built-in `GITHUB_TOKEN` (`permissions: packages: write`). The GHCR package must be set **public** once for unauthenticated `docker pull` to work.
-- **Compose wiring.** `docker-compose.yml` declares **both** `image: ${BACKSPACE_IMAGE:-ghcr.io/thezwiss/backspace}:${BACKSPACE_IMAGE_TAG:-latest}` **and** `build: .`. `pull`/`up` uses the image; `up --build` (deploy.sh, or install.sh's fallback) builds from source and tags the result under the same ref. Operators pin a version or point at a fork's registry via `BACKSPACE_IMAGE` / `BACKSPACE_IMAGE_TAG`.
+- **Compose wiring.** `docker-compose.yml` declares **both** `image: ${BACKSPACE_IMAGE:-ghcr.io/bernardokcosta/backspace}:${BACKSPACE_IMAGE_TAG:-latest}` **and** `build: .`. `pull`/`up` uses the image; `up --build` (deploy.sh, or install.sh's fallback) builds from source and tags the result under the same ref. Operators pin a version or point at a fork's registry via `BACKSPACE_IMAGE` / `BACKSPACE_IMAGE_TAG`.
 
 ### Deployment modes
 
@@ -160,7 +171,7 @@ not disable rate limits or change credentials, user data or the application imag
 `Dockerfile` has three stages:
 
 1. **`deps`** (`node:24-slim`): enables pnpm via corepack and produces the production dependency tree with `pnpm install --prod --frozen-lockfile` (`tsx` is a server runtime dependency). This is the only stage that installs `better-sqlite3`. It carries no C toolchain: the prebuilt binary ships inside the npm package and nothing is compiled.
-2. **`builder`** (`node:24-slim`): installs just the frontend's dependency subset with `pnpm install --frozen-lockfile --filter @backspace/web...`, copies `shared`/`web` source, and runs `pnpm --filter @backspace/web build` to produce the static frontend (`packages/web/dist`). The filter keeps the server's dependencies out of this stage, so no toolchain is needed here either.
+2. **`builder`** (`node:24-slim`): installs just the frontend's dependency subset with `pnpm install --frozen-lockfile --filter @veyvox/web...`, copies `shared`/`web` source, and runs `pnpm --filter @veyvox/web build` to produce the static frontend (`packages/web/dist`). The filter keeps the server's dependencies out of this stage, so no toolchain is needed here either.
 3. **`runtime`** (`node:24-slim`): installs `ffmpeg` (media) + `gosu` (privilege drop) only, with **no C toolchain**. Copies the production `node_modules` from `deps`, `shared` + `server` source, and the prebuilt `web/dist` from `builder`, creates `/app/data/uploads`, and runs the server **as the non-root `node` user** via `docker-entrypoint.sh` (which chowns `/app/data` as root, then `exec gosu node`) with `node --import tsx/esm src/index.ts` from `/app/packages/server`. It runs no `pnpm install` of its own.
 
 **No package manager ships in the runtime stage.** It installs nothing from a registry, so `pnpm` is not activated there and the `npm`/`npx` that `node:24-slim` bundles are deleted. Both used to ride along unused, and together they accounted for 17 of the image's 20 fixable HIGH/CRITICAL scan findings, in code that never executed (see [security-scanning.md](security-scanning.md)). Anything a future change needs to install at build time belongs in `deps`, copied into `runtime` the way `better-sqlite3` already is.
@@ -171,7 +182,7 @@ not disable rate limits or change credentials, user data or the application imag
 
 **Why the image carries no C toolchain.** `better-sqlite3` 13.x is an N-API addon (`NAPI_VERSION=10`, which is why it declares `engines.node: >=22`) and publishes its prebuilt binaries inside the npm package itself: `prebuilds/linux-x64.node`, `linux-arm64.node`, the musl pair, darwin and win32. The binary is not tied to one Node ABI, so a Node major bump within the supported range needs no new asset, and the install downloads nothing beyond the package. That is why the `deps` stage installs neither `python3`, `make` nor `g++`, and it is also why the root `package.json` lists `better-sqlite3` under `pnpm.ignoredBuiltDependencies` rather than `onlyBuiltDependencies`: the package still carries a `binding.gyp`, and pnpm runs `node-gyp rebuild` on sight of one regardless of the package's `gypfile: false`, which on an image with no Python fails the build. Ignoring the build script is the correct call because there is nothing to build. Before changing the base again, confirm the `better-sqlite3` release still ships `prebuilds/linux-x64.node` and `prebuilds/linux-arm64.node` (`npm pack better-sqlite3@<version>` and list the tarball) and that its `engines.node` still admits the new major. If a future version drops a prebuild, the build fails at import time inside the container rather than falling back to a compile, and the toolchain has to come back together with the `onlyBuiltDependencies` entry.
 
-Node 20 is no longer a supported runtime: `engines.node` is `>=22.12.0`, which is the floor every dependency in the tree declares (`better-sqlite3` 13 needs 22, `wrangler` and `miniflare` need 22, `@electron/rebuild` and `@electron/fuses` need 22.12), and CI tests 22 and 24.
+Node 20 is no longer a supported runtime: `engines.node` is `>=22.12.0` (`better-sqlite3` 13 needs 22, `wrangler` and `miniflare` need 22, `@electron/rebuild` and `@electron/fuses` need 22.12). The current CI validates Node 24, matching `.nvmrc` and Docker; the declared lower bound does not imply a separate Node 22 CI leg.
 
 **All three `FROM` lines are pinned by digest.** The digest is the one for the multi-arch index, not for a single platform's manifest, so the same pin resolves on `linux/amd64` and `linux/arm64`. The human-readable tag stays in the reference (`node:24-slim@sha256:...`) and the exact Node version is recorded in the comment above each stage. Renewing the pin means resolving the index digest again, `docker buildx imagetools inspect node:24-slim --format '{{.Manifest.Digest}}'`, and confirming the new image's Node major is still inside `better-sqlite3`'s `engines.node` range.
 
@@ -381,7 +392,7 @@ Remediation applies only to pre-change instances; newly installed instances neve
 
 ## 3. Database Backups
 
-Backspace takes **DB-only** SQLite snapshots via `VACUUM INTO`, which produces a consistent, fully-checkpointed copy of the live database without locking it for the duration of a file copy. Snapshots live in `data/backups/` (configurable). Uploads and other files under `data/` are **not** included — see the same-disk limitation below.
+Veyvox takes **DB-only** SQLite snapshots via `VACUUM INTO`, which produces a consistent, fully-checkpointed copy of the live database without locking it for the duration of a file copy. Snapshots live in `data/backups/` (configurable). Uploads and other files under `data/` are **not** included — see the same-disk limitation below.
 
 ### Triggers
 
@@ -508,7 +519,7 @@ The third-party images are **pinned to explicit tags** in `docker-compose.yml`, 
 
 Pinning makes deploys reproducible — a rebuild pulls the exact same proxy/SFU version every time, so an upstream release can't silently change behavior under you.
 
-The `backspace` image itself defaults to `ghcr.io/thezwiss/backspace:latest` (`BACKSPACE_IMAGE` / `BACKSPACE_IMAGE_TAG`). `latest` is chosen for a frictionless first install, but it is a **moving** tag: operators who want reproducible upgrades should pin `BACKSPACE_IMAGE_TAG` to a released version (e.g. `1.0.0`) in `.env` and bump it deliberately. On the source-build paths (`deploy.sh`, `install.sh`'s fallback) the image is built from the `Dockerfile`, which pins the `node:24-slim` base by digest.
+The `backspace` image itself defaults to `ghcr.io/bernardokcosta/backspace:latest` (`BACKSPACE_IMAGE` / `BACKSPACE_IMAGE_TAG`). `latest` is chosen for a frictionless first install, but it is a **moving** tag: operators who want reproducible upgrades should pin `BACKSPACE_IMAGE_TAG` to a released version (e.g. `1.0.0`) in `.env` and bump it deliberately. On the source-build paths (`deploy.sh`, `install.sh`'s fallback) the image is built from the `Dockerfile`, which pins the `node:24-slim` base by digest.
 
 **Upgrade procedure:** bump the tag in `docker-compose.yml` → test the new version (locally or on one box) → redeploy. Concretely:
 

@@ -5,7 +5,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { formatters, useFormatters } from '../../i18n/formatters';
-import type { MessageWithUser, Embed, Reaction, User } from '@backspace/shared';
+import type { MessageWithUser, Embed, Reaction, User } from '@veyvox/shared';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { InlineMessageText } from './InlineMessageText';
 import { Avatar } from '../ui/Avatar';

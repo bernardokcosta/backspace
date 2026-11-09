@@ -6,7 +6,7 @@ import { api } from '../../../api/client';
 import { Avatar } from '../../ui/Avatar';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
 import { useAuthStore } from '../../../stores/authStore';
-import type { AdminBlockedBot, AdminUser, AdminUserListResponse } from '@backspace/shared';
+import type { AdminBlockedBot, AdminUser, AdminUserListResponse } from '@veyvox/shared';
 import { BotBadge } from '../../ui/BotBadge';
 
 /** A bot whose home is another instance: only such an account can be blocked. */

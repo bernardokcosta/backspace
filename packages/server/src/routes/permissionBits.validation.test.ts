@@ -8,7 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
-import { PermissionBits, permissionsToString } from '@backspace/shared/src/permissions.js';
+import { PermissionBits, permissionsToString } from '@veyvox/shared/src/permissions.js';
 
 // #365: the request boundary of the role and override routes. A permissions
 // value is a canonical non-negative decimal string, and a member's role list

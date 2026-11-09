@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 import i18n from '../../../i18n';
 import { openDirectMessage } from '../../../utils/openDirectMessage';
 import { useAuthStore } from '../../../stores/authStore';

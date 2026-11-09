@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { SystemMessage } from './SystemMessage';
-import type { DmChannel, MessageWithUser, User } from '@backspace/shared';
+import type { DmChannel, MessageWithUser, User } from '@veyvox/shared';
 
 // SpaceInviteCard is unrelated to the cases under test but is imported by
 // SystemMessage; stub its store hooks so the import graph resolves cleanly.

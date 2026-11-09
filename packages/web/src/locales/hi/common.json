@@ -1,5 +1,5 @@
 {
-  "appName": "Backspace",
+  "appName": "Veyvox",
   "actions": {
     "save": "सहेजें",
     "cancel": "रद्द करें",
@@ -123,7 +123,7 @@
   },
   "app": {
     "description": "स्व-होस्टेड Discord और TeamSpeak विकल्प। HD वॉयस, वीडियो और स्क्रीन शेयर — ओपन सोर्स और मुफ्त (AGPL-3.0)।",
-    "loading": "Backspace लोड हो रहा"
+    "loading": "Veyvox लोड हो रहा"
   },
   "chrome": {
     "toggleMemberList": "सदस्य सूची दिखाएं या छिपाएं",

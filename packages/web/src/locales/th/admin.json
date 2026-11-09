@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "ทั่วไป",
-    "description": "กำหนดค่าอินสแตนซ์ Backspace ของคุณ การตั้งค่านี้ใช้กับผู้ใช้ทุกคน",
+    "description": "กำหนดค่าอินสแตนซ์ Veyvox ของคุณ การตั้งค่านี้ใช้กับผู้ใช้ทุกคน",
     "instanceName": {
       "label": "ชื่ออินสแตนซ์",
       "description": "ชื่อที่แสดงบนหน้าเข้าสู่ระบบและต่ออินสแตนซ์สหพันธ์",
@@ -287,7 +287,7 @@
     "title": "อัปเดต",
     "badge": {
       "settingsAriaLabel": "ตั้งค่า มีอัปเดตอินสแตนซ์",
-      "toast": "มี Backspace {{version}} สำหรับอินสแตนซ์นี้",
+      "toast": "มี Veyvox {{version}} สำหรับอินสแตนซ์นี้",
       "toastAction": "ดู"
     },
     "description": "เวอร์ชันใดรันบนอินสแตนซ์นี้และวิธีอัปเดต",
@@ -305,11 +305,11 @@
     },
     "available": {
       "label": "พร้อม",
-      "version": "มี Backspace {{version}}",
+      "version": "มี Veyvox {{version}}",
       "released": "ปล่อย {{date}} · ",
       "releaseNotes": "บันทึกปล่อย",
       "fromInstallDir": "จากไดเรกทอรีติดตั้ง:",
-      "scriptDescription": "สร้างสแน็ปฐานข้อมูล ดาวน์โหลดอิมเมจใหม่ และรีสตาร์ทเฉพาะคอนเทนเนอร์ Backspace หากเวอร์ชันใหม่ไม่รันดีหรือรันโค้ดเก่า จะคืนเวอร์ชันปัจจุบัน",
+      "scriptDescription": "สร้างสแน็ปฐานข้อมูล ดาวน์โหลดอิมเมจใหม่ และรีสตาร์ทเฉพาะคอนเทนเนอร์ Veyvox หากเวอร์ชันใหม่ไม่รันดีหรือรันโค้ดเก่า จะคืนเวอร์ชันปัจจุบัน",
       "noScript": "ฉันไม่มี update.sh",
       "manualIntro": "update.sh มาตั้งแต่ 1.0.5 ในสำเนา git <code>git pull</code> เพิ่มให้ มิฉะนั้นทำเองหลังสแน็ปด้วย <code>./backup.sh</code>",
       "prebuiltInstall": "ติดตั้งอิมเมจสำเร็จ:",

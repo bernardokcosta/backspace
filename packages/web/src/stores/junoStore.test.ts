@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { JunoRankingPage, JunoSnapshot } from '@backspace/shared/src/juno';
+import type { JunoRankingPage, JunoSnapshot } from '@veyvox/shared/src/juno';
 import { junoGame, junoRanking } from '../components/games/junoTestFixtures';
 import { HttpError, RateLimitError } from '../api/client';
 const api = vi.hoisted(() => ({ get: vi.fn(), command: vi.fn(), ranking: vi.fn() }));

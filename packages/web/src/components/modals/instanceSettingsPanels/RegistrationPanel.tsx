@@ -3,7 +3,7 @@ import i18n from '../../../i18n';
 import { formatters, useFormatters } from '../../../i18n/formatters';
 import { describeError } from '../../../i18n/errors';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { InviteLinkSummary, InviteRedemption, InviteStatus } from '@backspace/shared';
+import type { InviteLinkSummary, InviteRedemption, InviteStatus } from '@veyvox/shared';
 import { api } from '../../../api/client';
 import { useSettingsStore } from '../../../stores/settingsStore';
 import { useUIStore } from '../../../stores/uiStore';

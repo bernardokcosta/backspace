@@ -470,6 +470,7 @@ describe('Media Detector - Win32 SMTC Parser', () => {
   it('ignores media sessions from the app itself', () => {
     expect(isOwnAppSession('io.github.bernardokcosta.backspacefork')).toBe(true);
     expect(isOwnAppSession('Backspace Fork')).toBe(true);
+    expect(isOwnAppSession('Veyvox')).toBe(true);
     expect(isOwnAppSession('cloudmusic.exe')).toBe(false);
     expect(isOwnAppSession('chrome.exe')).toBe(false);
     expect(isOwnAppSession('')).toBe(false);

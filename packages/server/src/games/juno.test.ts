@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { JUNO_TURN_MS, canPlayJuno, type JunoAction, type JunoCard, type JunoScoreboard } from '@backspace/shared/src/juno.js';
+import { JUNO_TURN_MS, canPlayJuno, type JunoAction, type JunoCard, type JunoScoreboard } from '@veyvox/shared/src/juno.js';
 import type { JunoSettlement } from './junoProgression.js';
 import { createJunoDeck, JunoRooms, startRound, actInRound, type JunoRound } from './juno.js';
 

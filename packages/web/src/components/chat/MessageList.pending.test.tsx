@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import type { MessageWithUser, User } from '@backspace/shared';
+import type { MessageWithUser, User } from '@veyvox/shared';
 
 vi.mock('../../hooks/useWebSocket', () => ({
   wsSend: vi.fn(),

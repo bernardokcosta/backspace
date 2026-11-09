@@ -22,7 +22,7 @@ import {
   type SpaceInviteRequest,
   type SpaceInviteResponse,
   type SpaceInviteSystemPayload,
-} from '@backspace/shared';
+} from '@veyvox/shared';
 import { fetchSpaceInviteSnapshot, getLocalInviteSnapshot } from '../utils/spaceInviteSnapshot.js';
 import { sanitizeUser } from '../utils/sanitize.js';
 import { loadDmChannelWire, loadOpenDmChannels } from '../utils/dmChannelWire.js';
@@ -39,7 +39,7 @@ import {
   GROUP_DM_NAME_MAX_LENGTH,
   GROUP_DM_ICON_MAX_BYTES,
   GROUP_DM_ICON_MIME_PREFIX,
-} from '@backspace/shared/src/constants.js';
+} from '@veyvox/shared/src/constants.js';
 import { fetchDmEmbedsForMessages, resolveEmbeds, reResolveEmbeds, embedRowToEmbed } from '../utils/embedResolver.js';
 import {
   appendMutationLog,
@@ -58,12 +58,12 @@ import {
 import { getOurOrigin, canonicalizeHomeInstance } from '../utils/federationAuth.js';
 import { recordLocalMemberChange } from '../utils/federationSubjectClock.js';
 import { resolveOriginFromHostname } from '../utils/federationOriginResolve.js';
-import type { FederationRelayEvent } from '@backspace/shared';
+import type { FederationRelayEvent } from '@veyvox/shared';
 import { resolveLocalUser } from './federation.js';
 import { resolveRemoteIdentityForClient } from '../utils/federationClientIdentity.js';
 import { dmSystemContent, dmSystemName } from '../utils/dmSystemMessages.js';
 import { announceDmReconcile } from '../utils/dmConversationEvents.js';
-import { parseDmSystemEvent } from '@backspace/shared/src/dmSystemEvents.js';
+import { parseDmSystemEvent } from '@veyvox/shared/src/dmSystemEvents.js';
 
 /**
  * Batch-fetch reactions for a set of DM message IDs.

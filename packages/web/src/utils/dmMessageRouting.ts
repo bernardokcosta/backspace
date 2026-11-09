@@ -1,4 +1,4 @@
-import type { DmChannel, DmMessageWithUser, MessageWithUser } from '@backspace/shared';
+import type { DmChannel, DmMessageWithUser, MessageWithUser } from '@veyvox/shared';
 import { isMe } from '../stores/authStore';
 import { useChatStore } from '../stores/chatStore';
 import { useSpaceStore, resolveDmChannelId } from '../stores/spaceStore';

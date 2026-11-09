@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { SpaceFolder } from '@backspace/shared';
+import type { SpaceFolder } from '@veyvox/shared';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useContextMenuStore } from '../../stores/contextMenuStore';
 import { useDragToClose } from '../../hooks/useDragToClose';

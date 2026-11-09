@@ -1,5 +1,5 @@
-import type { User } from '@backspace/shared';
-import type { JunoRankingPage, JunoView } from '@backspace/shared/src/juno';
+import type { User } from '@veyvox/shared';
+import type { JunoRankingPage, JunoView } from '@veyvox/shared/src/juno';
 
 export function junoUser(id = 'a', name = id === 'a' ? 'Ada' : id === 'b' ? 'Bo' : id): User {
   return { id, username: id, displayName: name, avatar: null, banner: null, accentColor: null, avatarColor: null,

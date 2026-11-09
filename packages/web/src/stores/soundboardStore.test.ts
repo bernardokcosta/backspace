@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { DEFAULT_SOUNDBOARD_SETTINGS, type SoundboardDocument } from '@backspace/shared/src/soundboard';
+import { DEFAULT_SOUNDBOARD_SETTINGS, type SoundboardDocument } from '@veyvox/shared/src/soundboard';
 import { useAuthStore } from './authStore';
 import { soundboardKey, useSoundboardStore } from './soundboardStore';
 import { useSpaceStore } from './spaceStore';
 import { useVoiceStore } from './voiceStore';
 import { RateLimitError } from '../api/client';
-import type { User } from '@backspace/shared';
-import { DEFAULT_EVERYONE_PERMISSIONS, permissionsToString } from '@backspace/shared/src/permissions';
+import type { User } from '@veyvox/shared';
+import { DEFAULT_EVERYONE_PERMISSIONS, permissionsToString } from '@veyvox/shared/src/permissions';
 
 const api = vi.hoisted(() => ({ list: vi.fn(), play: vi.fn() }));
 vi.mock('../audio/AudioManager', () => ({ AudioManager: { getInstance: () => ({}) } }));

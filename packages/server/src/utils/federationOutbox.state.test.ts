@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { eq } from 'drizzle-orm';
 import { setWorkerId } from './snowflake.js';
-import type { DmMessageWithUser, User } from '@backspace/shared';
+import type { DmMessageWithUser, User } from '@veyvox/shared';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 type TestDb = ReturnType<typeof drizzle<typeof schema>>;

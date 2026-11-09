@@ -543,10 +543,5 @@
     "@typescript-eslint/ban-ts-comment": {
       "count": 1
     }
-  },
-  "scripts/gen-icons.mjs": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
   }
 }

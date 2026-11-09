@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "一般",
-    "description": "Backspaceインスタンスを設定。これらの設定は全ユーザーに適用。",
+    "description": "Veyvoxインスタンスを設定。これらの設定は全ユーザーに適用。",
     "instanceName": {
       "label": "インスタンス名",
       "description": "ログイン画面と連合インスタンスに表示される名。",
@@ -287,7 +287,7 @@
     "title": "更新",
     "badge": {
       "settingsAriaLabel": "設定、インスタンス更新あり",
-      "toast": "このインスタンスに Backspace {{version}} あり",
+      "toast": "このインスタンスに Veyvox {{version}} あり",
       "toastAction": "表示"
     },
     "description": "このインスタンスで動作中のバージョンと更新方法。",
@@ -305,11 +305,11 @@
     },
     "available": {
       "label": "利用可能",
-      "version": "Backspace {{version}} あり",
+      "version": "Veyvox {{version}} あり",
       "released": "リリース {{date}} · ",
       "releaseNotes": "リリースノート",
       "fromInstallDir": "インストールディレクトリから:",
-      "scriptDescription": "データベースのスナップショットを作成し新イメージをダウンロードしBackspaceコンテナのみ再起動。新版が正常起動しないか旧コードで起動すれば現行版に戻します。",
+      "scriptDescription": "データベースのスナップショットを作成し新イメージをダウンロードしVeyvoxコンテナのみ再起動。新版が正常起動しないか旧コードで起動すれば現行版に戻します。",
       "noScript": "update.shなし",
       "manualIntro": "update.shは1.0.5以降付属。gitコピーでは <code>git pull</code> が追加。そうでなければ <code>./backup.sh</code> でスナップショット後に手動実施。",
       "prebuiltInstall": "プリビルドインストール:",

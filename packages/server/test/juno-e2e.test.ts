@@ -3,7 +3,7 @@ import { mkdir, mkdtemp, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { canPlayJuno, type JunoAction, type JunoSnapshot, type JunoRankingPage } from '@backspace/shared/src/juno.js';
+import { canPlayJuno, type JunoAction, type JunoSnapshot, type JunoRankingPage } from '@veyvox/shared/src/juno.js';
 import { spawnInstance, type SpawnedInstance } from './helpers/twoInstanceHarness.js';
 import { registerLocal, type TestUser } from './helpers/testUsers.js';
 import { connectWs, type WsCapture } from './helpers/wsListener.js';

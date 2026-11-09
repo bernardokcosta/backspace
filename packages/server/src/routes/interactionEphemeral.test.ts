@@ -5,7 +5,7 @@ import { drizzle } from 'drizzle-orm/better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { EphemeralReply } from '@backspace/shared';
+import type { EphemeralReply } from '@veyvox/shared';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
 

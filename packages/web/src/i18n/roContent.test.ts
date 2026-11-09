@@ -60,9 +60,9 @@ describe('Romanian contextual content', () => {
     expect(voice.micPrearm.denied).not.toContain('modul ascultare');
   });
 
-  it('keeps Backspace and Juno automatic labels distinct', () => {
+  it('keeps Veyvox and Juno automatic labels distinct', () => {
     expect(common.language.automatic).toBe('Automat (sistem)');
-    expect(voice.juno.settings.automatic).toBe('Automat (Backspace)');
+    expect(voice.juno.settings.automatic).toBe('Automat (Veyvox)');
     expect(voice.juno.settings.automaticDubbing).toBe(voice.juno.settings.automatic);
   });
 

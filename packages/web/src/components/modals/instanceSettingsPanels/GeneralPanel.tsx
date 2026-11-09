@@ -4,7 +4,7 @@ import { useSettingsStore } from '../../../stores/settingsStore';
 import { useUIStore } from '../../../stores/uiStore';
 import { describeError } from '../../../i18n/errors';
 import { invalidateHomeInstanceInfo } from '../../../hooks/useHomeInstanceInfo';
-import type { InstanceAdminSettings } from '@backspace/shared';
+import type { InstanceAdminSettings } from '@veyvox/shared';
 
 const INSTANCE_NAME_MAX_LENGTH = 32;
 

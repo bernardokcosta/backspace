@@ -2,7 +2,7 @@
   "mediaSetup": {
     "neteaseSmtc": {
       "title": "Ota SMTC käyttöön NetEase Cloud Musicissa",
-      "body": "Avaa NetEase Cloud Music → Asetukset → Järjestelmä → ota SMTC käyttöön ja käynnistä sovellus uudelleen. Backspace tarvitsee tätä havaitakseen toiston, tauon ja edistymisen tarkasti.",
+      "body": "Avaa NetEase Cloud Music → Asetukset → Järjestelmä → ota SMTC käyttöön ja käynnistä sovellus uudelleen. Veyvox tarvitsee tätä havaitakseen toiston, tauon ja edistymisen tarkasti.",
       "gotIt": "Selvä",
       "dontRemind": "Älä muistuta uudelleen",
       "dismiss": "Sulje tämä vinkki"
@@ -13,14 +13,14 @@
     "dismiss": "Sulje tämä päivitys",
     "failed": {
       "title": "Päivityksen asennus epäonnistui",
-      "body": "Backspace {{version}} ladattiin, mutta asennus epäonnistui. Voit asentaa sen manuaalisesti."
+      "body": "Veyvox {{version}} ladattiin, mutta asennus epäonnistui. Voit asentaa sen manuaalisesti."
     },
     "ready": {
       "title": "Päivitys valmis",
-      "body": "Backspace {{version}} on ladattu ja valmis asennettavaksi."
+      "body": "Veyvox {{version}} on ladattu ja valmis asennettavaksi."
     },
     "available": {
-      "title": "Backspace {{version}} on saatavilla",
+      "title": "Veyvox {{version}} on saatavilla",
       "body": "Tämä koontiversio ei osaa päivittää itseään, joten lataa uusi versio jatkaaksesi.",
       "bodyWithCurrent": "Käytät versiota {{currentVersion}}. Tämä koontiversio ei osaa päivittää itseään, joten lataa uusi versio jatkaaksesi."
     },

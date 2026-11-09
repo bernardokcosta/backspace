@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { soundboardWavDuration } from '@backspace/shared/src/soundboard';
+import { soundboardWavDuration } from '@veyvox/shared/src/soundboard';
 import { audioBase64, encodePcmWav, encodeSoundboardClip, soundboardSelectionSamples } from './soundboardAudio';
 import i18n, { setLanguage } from '../i18n';
 

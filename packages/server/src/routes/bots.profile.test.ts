@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { eq } from 'drizzle-orm';
-import type { BotSummary } from '@backspace/shared';
+import type { BotSummary } from '@veyvox/shared';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
 import { signJwt } from '../utils/auth.js';

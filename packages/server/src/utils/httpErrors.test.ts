@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ERROR_CODES } from '@backspace/shared/src/errors';
+import { ERROR_CODES } from '@veyvox/shared/src/errors';
 import { sendError, ERROR_MESSAGES } from './httpErrors';
 
 function fakeReply() {

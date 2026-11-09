@@ -1,5 +1,6 @@
+import { getElectronAPI } from '../platform/platform';
 import { create } from 'zustand';
-import type { Activity } from '@backspace/shared';
+import type { Activity } from '@veyvox/shared';
 import { wsSendAll } from '../hooks/useWebSocket';
 import { api } from '../api/client';
 import { userKey, type PresenceSubject } from '../utils/identity';
@@ -21,7 +22,7 @@ import {
   withRenames,
   type ManualGame,
 } from '../utils/gameOverrides';
-import { ACTIVITY_LIMITS } from '@backspace/shared/src/activities';
+import { ACTIVITY_LIMITS } from '@veyvox/shared/src/activities';
 import { syncManualBindings } from '../platform/manualGameBinding';
 
 let pushTimer: ReturnType<typeof setTimeout> | null = null;
@@ -197,7 +198,7 @@ function rememberIconUrl(name: string, url: string): void {
 
 /** Fetch the locally extracted icon, upload it to the instance, return the URL. Null on any failure. */
 async function resolveGameIconUrl(name: string): Promise<string | null> {
-  const getGameIcon = window.backspace?.getGameIcon;
+  const getGameIcon = getElectronAPI()?.getGameIcon;
   if (!getGameIcon) return null;
   try {
     const icon = await getGameIcon(name);
@@ -242,7 +243,7 @@ function attachCachedIcons(activities: Activity[]): Activity[] {
  * Never awaited: the activity goes out with the cached URL either way.
  */
 function renewStaleIcons(activities: Activity[]): void {
-  if (!window.backspace?.getGameIcon) return;
+  if (!getElectronAPI()?.getGameIcon) return;
   for (const activity of activities) {
     if (!GAME_ICON_TYPES.has(activity.type)) continue;
     const name = activity.name;
@@ -259,7 +260,7 @@ function renewStaleIcons(activities: Activity[]): void {
 
 /** Names that would benefit from an icon upload: game activity, no art, no cached URL, no fresh miss, and a desktop bridge to ask. */
 function pendingIconNames(activities: Activity[]): string[] {
-  if (!window.backspace?.getGameIcon) return [];
+  if (!getElectronAPI()?.getGameIcon) return [];
   const names: string[] = [];
   for (const activity of activities) {
     if (!GAME_ICON_TYPES.has(activity.type) || activity.assets?.largeImage) continue;

@@ -5,8 +5,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { WebSocket } from 'ws';
-import type { MessageWithUser } from '@backspace/shared';
-import { PermissionBits, permissionsToString } from '@backspace/shared/src/permissions.js';
+import type { MessageWithUser } from '@veyvox/shared';
+import { PermissionBits, permissionsToString } from '@veyvox/shared/src/permissions.js';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
 

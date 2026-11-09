@@ -7,8 +7,8 @@ import { availableLanguages, getLanguageDirection, type SupportedLanguage } from
 
 /** One install identity/template; only descriptive language varies. */
 export const BASE_MANIFEST: Partial<ManifestOptions> = {
-  name: 'Backspace Fork',
-  short_name: 'Backspace Fork',
+  name: 'Veyvox',
+  short_name: 'Veyvox',
   description: english.app.description,
   display: 'standalone',
   start_url: '/',
@@ -49,7 +49,7 @@ export function localizedManifests(): Plugin {
     return localizedManifest(language, description);
   }
   return {
-    name: 'backspace:localized-manifests',
+    name: 'veyvox:localized-manifests',
     configResolved(config) { root = config.root; base = config.base; },
     transformIndexHtml: {
       order: 'pre',

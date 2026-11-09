@@ -22,7 +22,7 @@ import {
 } from '../utils/thumbnail.js';
 import { classifyVideoPlayable } from '../utils/mediaPlayable.js';
 import { eq } from 'drizzle-orm';
-import type { Attachment } from '@backspace/shared';
+import type { Attachment } from '@veyvox/shared';
 import fs from 'node:fs';
 import path from 'node:path';
 

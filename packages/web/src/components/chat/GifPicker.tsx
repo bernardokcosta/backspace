@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../api/client';
-import type { GifResult } from '@backspace/shared';
+import type { GifResult } from '@veyvox/shared';
 
 interface GifPickerProps {
   onGifSelect: (url: string) => void;

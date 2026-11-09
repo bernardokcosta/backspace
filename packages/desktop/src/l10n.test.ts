@@ -79,7 +79,7 @@ describe('native preference lifecycle', () => {
 
 describe('translateDesktop', () => {
   it('translates native update notification text with the real version', () => {
-    expect(translateDesktop('pt', 'update.notificationReady')).toBe('Atualização do Backspace Fork pronta');
+    expect(translateDesktop('pt', 'update.notificationReady')).toBe('Atualização do Veyvox pronta');
     expect(translateDesktop('pt', 'update.notificationRestart', { version: '9.9.9' })).toBe('Clique para reiniciar e instalar a versão 9.9.9.');
   });
   it('describes a failed restart directly, without a recursive startup phrase', () => {
@@ -87,21 +87,21 @@ describe('translateDesktop', () => {
     expect(translateDesktop('zh', 'update.restartFailed')).toBe('无法重新启动以安装更新。');
   });
   it('returns the string for the language', () => {
-    expect(translateDesktop('en', 'tray.show')).toBe('Show Backspace');
-    expect(translateDesktop('ru', 'tray.show')).toBe('Показать Backspace');
-    expect(translateDesktop('de', 'tray.show')).toBe('Backspace anzeigen');
+    expect(translateDesktop('en', 'tray.show')).toBe('Show Veyvox');
+    expect(translateDesktop('ru', 'tray.show')).toBe('Показать Veyvox');
+    expect(translateDesktop('de', 'tray.show')).toBe('Veyvox anzeigen');
   });
 
   it('interpolates a version into the download item', () => {
-    expect(translateDesktop('en', 'update.downloadVersion', { version: '1.2.3' })).toBe('Download Backspace 1.2.3…');
-    expect(translateDesktop('de', 'update.downloadVersion', { version: '1.2.3' })).toBe('Backspace 1.2.3 herunterladen…');
+    expect(translateDesktop('en', 'update.downloadVersion', { version: '1.2.3' })).toBe('Download Veyvox 1.2.3…');
+    expect(translateDesktop('de', 'update.downloadVersion', { version: '1.2.3' })).toBe('Veyvox 1.2.3 herunterladen…');
   });
 
   it('uses bundled English for an untranslated native key', () => {
     const translated = DESKTOP_CATALOGS.fr['tray.show'];
     try {
       delete DESKTOP_CATALOGS.fr['tray.show'];
-      expect(translateDesktop('fr', 'tray.show')).toBe('Show Backspace');
+      expect(translateDesktop('fr', 'tray.show')).toBe('Show Veyvox');
     } finally {
       if (translated !== undefined) DESKTOP_CATALOGS.fr['tray.show'] = translated;
     }

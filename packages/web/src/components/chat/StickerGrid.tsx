@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { stickerPreviewUrl, stickerUrl, type PersonalSticker } from '@backspace/shared/src/stickers';
+import { stickerPreviewUrl, stickerUrl, type PersonalSticker } from '@veyvox/shared/src/stickers';
 
 interface StickerGridProps {
   /** The entries the search leaves, in collection order. */

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { isElectron } from '../platform/platform';
+import { isElectron, getElectronAPI } from '../platform/platform';
 
 /**
  * Desktop update state for the renderer.
@@ -188,7 +188,7 @@ export const useUpdateStore = create<UpdateStoreState>((set, get) => ({
     const version = snapshot ? statusVersion(snapshot.status) : null;
     if (version === null || snapshot === null) return;
 
-    const api = window.backspace;
+    const api = getElectronAPI();
     if (api?.dismissUpdate) {
       // The main process persists it and echoes a new snapshot back, so the
       // store is not updated optimistically here. If the write fails, the
@@ -202,22 +202,22 @@ export const useUpdateStore = create<UpdateStoreState>((set, get) => ({
   },
 
   install: () => {
-    window.backspace?.installUpdate();
+    getElectronAPI()?.installUpdate();
   },
 
   openDownloadPage: () => {
-    const api = window.backspace;
+    const api = getElectronAPI();
     if (api?.openReleasePage) {
       api.openReleasePage();
       return;
     }
     // Older host with no dedicated channel. The renderer's window.open is
     // intercepted by setWindowOpenHandler and routed to the default browser.
-    window.open('https://github.com/bernardokcosta/backspace/releases/latest', '_blank', 'noopener');
+    window.open('https://github.com/bernardokcosta/veyvox/releases/latest', '_blank', 'noopener');
   },
 
   checkNow: () => {
-    window.backspace?.checkForUpdates();
+    getElectronAPI()?.checkForUpdates();
   },
 }));
 
@@ -234,8 +234,8 @@ type SetState = (
  * renders an update surface.
  */
 function startBridge(set: SetState): () => void {
-  if (!isElectron() || !window.backspace) return () => {};
-  const api = window.backspace;
+  const api = getElectronAPI();
+  if (!isElectron() || !api) return () => {};
   let disposed = false;
   const update: SetState = (state) => { if (!disposed) set(state); };
 

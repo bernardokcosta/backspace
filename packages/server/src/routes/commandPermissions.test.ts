@@ -5,10 +5,10 @@ import { drizzle } from 'drizzle-orm/better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { BotCommand, BotCommandListing, BotCommandOption } from '@backspace/shared';
+import type { BotCommand, BotCommandListing, BotCommandOption } from '@veyvox/shared';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
-import { PermissionBits, permissionsToString } from '@backspace/shared/src/permissions.js';
+import { PermissionBits, permissionsToString } from '@veyvox/shared/src/permissions.js';
 
 /**
  * Permissions a command asks of the people who use it (bots.md, "Required

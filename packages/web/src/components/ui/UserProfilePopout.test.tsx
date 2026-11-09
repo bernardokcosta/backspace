@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 // The popout reaches into the space store (origin routing), the API client and
 // the federated-mutuals loader. None of that is under test here — stub it so the

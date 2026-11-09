@@ -1,6 +1,6 @@
 import { act } from '@testing-library/react';
 import { vi } from 'vitest';
-import type { MessageWithUser, User } from '@backspace/shared';
+import type { MessageWithUser, User } from '@veyvox/shared';
 
 /**
  * Shared fixtures for the MessageList tests. jsdom has no layout, so these

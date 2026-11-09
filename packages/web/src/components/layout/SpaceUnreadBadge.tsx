@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { isMuteActive } from '@backspace/shared';
+import { isMuteActive } from '@veyvox/shared';
 import { useUnreadCountStore } from '../../stores/unreadCountStore';
 import { useChatStore } from '../../stores/chatStore';
 import { useSpaceStore } from '../../stores/spaceStore';

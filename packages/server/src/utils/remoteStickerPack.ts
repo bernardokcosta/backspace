@@ -1,5 +1,5 @@
 import { MAX_STICKER_NAME_LENGTH, MAX_STICKER_PACK_NAME_LENGTH, MAX_STICKER_PACK_DESC_LENGTH,
-  MAX_STICKERS_PER_PACK, STICKER_ID_PATTERN, normalizeStickerName } from '@backspace/shared/src/stickers.js';
+  MAX_STICKERS_PER_PACK, STICKER_ID_PATTERN, normalizeStickerName } from '@veyvox/shared/src/stickers.js';
 
 export const MAX_STICKER_PACK_METADATA_BYTES = 256 * 1024;
 

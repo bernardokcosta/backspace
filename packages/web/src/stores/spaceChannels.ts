@@ -1,4 +1,4 @@
-import type { Channel } from '@backspace/shared';
+import type { Channel } from '@veyvox/shared';
 
 /**
  * The client's space-channel index: one entry per space channel the user can

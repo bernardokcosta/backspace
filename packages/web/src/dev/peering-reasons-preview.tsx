@@ -29,7 +29,7 @@ import type {
   PeeringNotification,
   PeeringSubscription,
   User,
-} from '@backspace/shared';
+} from '@veyvox/shared';
 import { FederationPanel } from '../components/modals/instanceSettingsPanels/FederationPanel';
 import { ConnectedInstances } from '../components/modals/ConnectedInstances';
 import { ToastContainer } from '../components/ui/ToastContainer';

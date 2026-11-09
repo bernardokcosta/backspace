@@ -1,4 +1,4 @@
-import { isElectron } from './platform';
+import { isElectron, getElectronAPI } from './platform';
 
 export interface NotificationOptions {
   channelId?: string;
@@ -12,7 +12,7 @@ const clicks = new EventTarget();
 export function onNotificationClick(callback: (options: NotificationOptions) => void): () => void {
   const handler = (event: Event) => callback((event as CustomEvent<NotificationOptions>).detail);
   clicks.addEventListener('click', handler);
-  const unsubscribe = window.backspace?.onNotificationClick?.(callback);
+  const unsubscribe = getElectronAPI()?.onNotificationClick?.(callback);
   return () => {
     clicks.removeEventListener('click', handler);
     unsubscribe?.();
@@ -21,7 +21,7 @@ export function onNotificationClick(callback: (options: NotificationOptions) => 
 
 export function sendNotification(title: string, body: string, options?: NotificationOptions): void {
   if (isElectron()) {
-    window.backspace!.showNotification(title, body, options);
+    getElectronAPI()!.showNotification(title, body, options);
   } else if ('Notification' in window && Notification.permission === 'granted') {
     const notification = new Notification(title, { body, icon: '/icons/icon-192.png' });
     notification.onclick = () => {
@@ -40,6 +40,6 @@ export function requestNotificationPermission(): Promise<boolean> {
 
 export function updateBadgeCount(count: number): void {
   if (isElectron()) {
-    window.backspace!.setBadgeCount(count);
+    getElectronAPI()!.setBadgeCount(count);
   }
 }

@@ -1,4 +1,4 @@
-import type { Activity, DmChannel, PresenceIdentity, SpaceWithChannelsAndMembers } from '@backspace/shared';
+import type { Activity, DmChannel, PresenceIdentity, SpaceWithChannelsAndMembers } from '@veyvox/shared';
 import { friendRowAt, useSocialStore } from '../stores/socialStore';
 import { useSpaceStore } from '../stores/spaceStore';
 import { useActivityStore, type ActivityEntry } from '../stores/activityStore';

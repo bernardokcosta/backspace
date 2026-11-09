@@ -197,7 +197,7 @@ until a time (1 h, 8 h, 24 h from when it was set, server clock) or until
 lifted. A space's level defaults to `mentions`; a channel's level is "not
 chosen" until set, and then it inherits its space's. A channel is muted while
 its own mute or its space's is in force. `resolveChannelNotificationPolicy`
-in `@backspace/shared` holds the inheritance and mute rules in one place.
+in `@veyvox/shared` holds the inheritance and mute rules in one place.
 The space setting also has two switches, `suppressEveryone` and
 `suppressRoles` (off by default). They are space-wide only: a channel inherits
 them and cannot set them, so a channel's level never undoes them.
@@ -381,7 +381,7 @@ Mirrors the envelope already used by `playTestTone`.
 
 LiveKit JS 2.17 does **not** expose per-subscriber events on the publisher
 side: `LocalTrackSubscribed` only fires for the *first* subscriber and has no
-unsubscribe twin; there is no public `numSubscribers` API. Backspace uses a
+unsubscribe twin; there is no public `numSubscribers` API. Veyvox uses a
 small data-channel ping instead, mirroring the existing `deafen` pattern in
 `useLiveKit.ts`.
 
@@ -521,4 +521,4 @@ of them is a future change that requires sourcing new audio:
 - Moderator move-to-channel / kick-from-voice (the LK disconnect already plays
   `disconnect.ogg` for forced disconnects)
 - Friend request received / accepted
-- Mention-everyone / @here (Backspace doesn't currently parse these)
+- Mention-everyone / @here (Veyvox doesn't currently parse these)

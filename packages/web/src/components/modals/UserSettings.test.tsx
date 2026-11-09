@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
-import type { InstanceInfoResponse, User } from '@backspace/shared';
+import type { InstanceInfoResponse, User } from '@veyvox/shared';
 
 // ── Fixtures and store mocks ────────────────────────────────────────────────
 // The modal reads four stores through selectors. Each is mocked with the
@@ -34,7 +34,7 @@ const mocks = vi.hoisted(() => {
     registrationOpen: true,
     federatedRegistrationOpen: true,
     instanceId: 'instance-1',
-    sourceCodeUrl: 'https://github.com/bernardokcosta/backspace',
+    sourceCodeUrl: 'https://github.com/bernardokcosta/veyvox',
     commit: 'abc1234',
   };
 

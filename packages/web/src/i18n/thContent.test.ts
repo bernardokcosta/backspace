@@ -31,9 +31,9 @@ describe('Thai contextual content', () => {
     expect(chat.message.reactions.byMany).toBe('ปฏิกิริยา: {{names}}');
   });
 
-  it('keeps Backspace and Juno automatic labels distinct', () => {
+  it('keeps Veyvox and Juno automatic labels distinct', () => {
     expect(common.language.automatic).toBe('อัตโนมัติ (ระบบ)');
-    expect(voice.juno.settings.automatic).toBe('อัตโนมัติ (Backspace)');
+    expect(voice.juno.settings.automatic).toBe('อัตโนมัติ (Veyvox)');
     expect(voice.juno.settings.automaticDubbing).toBe(voice.juno.settings.automatic);
   });
 

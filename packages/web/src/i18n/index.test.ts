@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import i18n, { initI18n, setLanguage, setLanguagePreference, getLanguagePreference, subscribeLanguagePreference, getLanguage, LANGUAGE_STORAGE_KEY } from './index';
+import { availableLanguages, type LanguagePreference } from './languages';
 
 const allReleased = new Set(['en', 'ru', 'de']);
 
@@ -148,6 +149,16 @@ describe('initI18n preview', () => {
 });
 
 describe('setLanguage', () => {
+  it.each(availableLanguages.map(entry => entry.code))('selects only the internal manifest filename for %s', async language => {
+    await setLanguage(language);
+    expect(document.querySelector('link[rel="manifest"]')?.getAttribute('href')).toBe(`/manifest-${language}.webmanifest`);
+  });
+  it.each(['javascript:alert(1)', '//foreign.example/manifest', '../other', 'pt\" onload=\"alert(1)'])('does not put an unexpected preference into a URL: %s', async value => {
+    await setLanguage('pt');
+    await setLanguagePreference(value as LanguagePreference);
+    expect(document.querySelector('link[rel="manifest"]')?.getAttribute('href')).toBe('/manifest-pt.webmanifest');
+    expect(getLanguagePreference()).toBe('pt');
+  });
   it('translates app metadata and selects a localized manifest without changing install identity', async () => {
     document.querySelector('meta[name="description"]')?.remove();
     document.querySelector('link[rel="manifest"]')?.remove();

@@ -1,3 +1,4 @@
+import { getElectronAPI } from '../../../platform/platform';
 import { useState, useEffect } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import type { TFunction } from 'i18next';
@@ -13,7 +14,7 @@ function AutoLaunchSettings() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    window.backspace?.getAutoLaunchSettings().then((settings) => {
+    getElectronAPI()?.getAutoLaunchSettings().then((settings) => {
       setOpenAtLogin(settings.openAtLogin);
       setStartMinimized(settings.startMinimized);
       setLoading(false);
@@ -24,7 +25,7 @@ function AutoLaunchSettings() {
     if (busy) return;
     setBusy(true);
     try {
-      const result = await window.backspace!.setAutoLaunchSettings({ openAtLogin: enabled });
+      const result = await getElectronAPI()!.setAutoLaunchSettings({ openAtLogin: enabled });
       setOpenAtLogin(result.openAtLogin);
       setStartMinimized(result.startMinimized);
     } catch (err) {
@@ -38,7 +39,7 @@ function AutoLaunchSettings() {
     if (busy) return;
     setBusy(true);
     try {
-      const result = await window.backspace!.setAutoLaunchSettings({ startMinimized: enabled });
+      const result = await getElectronAPI()!.setAutoLaunchSettings({ startMinimized: enabled });
       setOpenAtLogin(result.openAtLogin);
       setStartMinimized(result.startMinimized);
     } catch (err) {
@@ -229,7 +230,7 @@ export function DesktopPanel() {
 
   useEffect(() => initialize(), [initialize]);
   useEffect(() => {
-    const probe = window.backspace?.isSandboxed;
+    const probe = getElectronAPI()?.isSandboxed;
     if (!probe) {
       // Older desktop builds predate sandbox support and are ordinary native
       // packages, so preserving the existing controls is the compatible path.
@@ -255,7 +256,7 @@ export function DesktopPanel() {
             <div className="text-xs text-txt-tertiary mt-0.5">{t('desktop.instance.current')}</div>
           </div>
           <button
-            onClick={() => window.backspace?.clearInstanceUrl()}
+            onClick={() => getElectronAPI()?.clearInstanceUrl()}
             className="px-3 py-1.5 text-sm text-txt-secondary hover:text-txt-primary bg-white/[0.04] hover:bg-white/[0.08] rounded-lg transition-colors"
           >
             {t('desktop.instance.change')}

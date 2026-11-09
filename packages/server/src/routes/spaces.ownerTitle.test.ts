@@ -1,4 +1,4 @@
-import { MAX_OWNER_TITLE_LENGTH } from '@backspace/shared/src/constants.js';
+import { MAX_OWNER_TITLE_LENGTH } from '@veyvox/shared/src/constants.js';
 import Database from 'better-sqlite3';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/better-sqlite3';

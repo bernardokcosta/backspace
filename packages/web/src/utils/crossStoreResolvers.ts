@@ -18,22 +18,22 @@
 // IMPORTANT: do not add imports from any `./stores/*` module here. Doing so
 // re-creates the exact cycle this module was carved out to break.
 
-import { api, BackspaceApiClient } from '../api/client';
+import { api, VeyvoxApiClient } from '../api/client';
 
 // ─── API client resolution ────────────────────────────────────────────────────
 // Registered by instanceStore on import; maps an origin to the instance-
 // specific API client. `'' | null | undefined` origin always returns the home
 // `api` client.
 
-let _getApiForOrigin: ((origin: string) => BackspaceApiClient) | null = null;
+let _getApiForOrigin: ((origin: string) => VeyvoxApiClient) | null = null;
 
 export function setApiForOriginResolver(
-  resolver: (origin: string) => BackspaceApiClient
+  resolver: (origin: string) => VeyvoxApiClient
 ): void {
   _getApiForOrigin = resolver;
 }
 
-export function getApiForOrigin(origin: string): BackspaceApiClient {
+export function getApiForOrigin(origin: string): VeyvoxApiClient {
   if (!origin || !_getApiForOrigin) return api;
   return _getApiForOrigin(origin);
 }

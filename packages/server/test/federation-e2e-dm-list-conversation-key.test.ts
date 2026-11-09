@@ -13,7 +13,7 @@ import {
 import { registerLocal, createFederatedUser, type TestUser } from './helpers/testUsers.js';
 import { connectWs, type WsEvent } from './helpers/wsListener.js';
 import type { SpawnedInstance } from './helpers/twoInstanceHarness.js';
-import type { DmChannel } from '@backspace/shared';
+import type { DmChannel } from '@veyvox/shared';
 
 // Real instances over real HTTP; the 5s unit default is too tight.
 vi.setConfig({ testTimeout: 30_000 });

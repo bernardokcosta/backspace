@@ -1,5 +1,5 @@
 import { and, eq, inArray } from 'drizzle-orm';
-import type { MemberWithUser } from '@backspace/shared';
+import type { MemberWithUser } from '@veyvox/shared';
 import { getDb, schema } from '../db/index.js';
 import { connectionManager } from '../ws/handler.js';
 import { sanitizeUser } from './sanitize.js';

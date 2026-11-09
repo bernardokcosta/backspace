@@ -8,7 +8,7 @@ import { parseArgs } from 'node:util';
 import { isDeepStrictEqual } from 'node:util';
 import { expectedDesktopAssets, validateDesktopRelease } from './desktop-release-assets.mjs';
 
-const REPOSITORY = 'bernardokcosta/backspace';
+const REPOSITORY = 'bernardokcosta/veyvox';
 function identity(options) {
   if (options.repository !== REPOSITORY || !/^v\d+\.\d+\.\d+$/.test(options.tag) || !/^[a-f0-9]{40}$/.test(options.commit)) throw new Error('Invalid release repository/tag/commit');
   expectedDesktopAssets(options.tag.slice(1));
@@ -32,9 +32,9 @@ export async function prepareDesktopRelease(options, api) {
   const existing = await releaseState(options, api);
   if (existing) { await validateIdentity(options, existing); return existing.id; }
   const notes = await fs.readFile(options.notesPath, 'utf8');
-  if (!notes.startsWith(`# Backspace Fork ${options.tag.slice(1)}\n\n`) || notes.length < 100) throw new Error('Missing versioned release notes and summary');
+  if (!notes.startsWith(`# Veyvox ${options.tag.slice(1)}\n\n`) || notes.length < 100) throw new Error('Missing versioned release notes and summary');
   const created = await api.createRelease(options.repository, { tag_name: options.tag, target_commitish: options.commit,
-    name: `Backspace Fork ${options.tag.slice(1)}`, body: notes, draft: true, prerelease: false });
+    name: `Veyvox ${options.tag.slice(1)}`, body: notes, draft: true, prerelease: false });
   await validateIdentity(options, created);
   return created.id;
 }

@@ -4,7 +4,7 @@ import { Room, RoomEvent, DisconnectReason } from 'livekit-client';
 import { useLiveKit } from './useLiveKit';
 import { useVoiceStore } from '../stores/voiceStore';
 import { isMe, useAuthStore } from '../stores/authStore';
-import type { User } from '@backspace/shared';
+import type { User } from '@veyvox/shared';
 
 /**
  * The local participant's fallback row (no member row lists the user) is the

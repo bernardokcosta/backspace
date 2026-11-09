@@ -15,7 +15,7 @@ import { parseRequestedPermissions, renameManagedBotRoles } from '../../utils/bo
 import { and, eq, isNull, lt, or, sql, type SQL } from 'drizzle-orm';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import type { BotActivity, FederationRelayEvent, FederationRelayProfileSnapshot, FederationUserLookupProfile } from '@backspace/shared';
+import type { BotActivity, FederationRelayEvent, FederationRelayProfileSnapshot, FederationUserLookupProfile } from '@veyvox/shared';
 import { extractDomain, resolveRelayActor } from './identity.js';
 import { announceUserUpdated, applyPlaceholderRename, handleFromHint } from './stubName.js';
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { SoundboardSettings } from '@backspace/shared/src/soundboard';
+import type { SoundboardSettings } from '@veyvox/shared/src/soundboard';
 import { useSpaceStore } from '../../../stores/spaceStore';
 import { useSoundboard } from '../../../hooks/useSoundboard';
 import { getApiForOrigin } from '../../../utils/crossStoreResolvers';

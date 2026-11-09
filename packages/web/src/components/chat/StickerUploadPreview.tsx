@@ -1,7 +1,7 @@
 import { useId, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFormatters } from '../../i18n/formatters';
-import { MAX_STICKER_NAME_LENGTH } from '@backspace/shared/src/stickers';
+import { MAX_STICKER_NAME_LENGTH } from '@veyvox/shared/src/stickers';
 
 export interface UploadItem {
   id: string;

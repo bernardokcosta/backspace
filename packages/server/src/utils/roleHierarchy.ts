@@ -4,10 +4,10 @@ import {
   canActOnMember,
   canManageRoleAt,
   type HierarchyStanding,
-} from '@backspace/shared/src/permissions.js';
+} from '@veyvox/shared/src/permissions.js';
 
 // Server side of the role hierarchy (docs/systems/permissions.md, "Role
-// hierarchy"). The rule itself lives in @backspace/shared so the client gates
+// hierarchy"). The rule itself lives in @veyvox/shared so the client gates
 // with the same comparison the routes enforce; this module only reads the
 // facts it compares from the database.
 //

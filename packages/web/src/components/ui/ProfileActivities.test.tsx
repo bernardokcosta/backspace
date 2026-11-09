@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
-import type { Activity } from '@backspace/shared';
+import type { Activity } from '@veyvox/shared';
 import { setLanguage } from '../../i18n';
 import { ProfileActivities } from './ProfileActivities';
 

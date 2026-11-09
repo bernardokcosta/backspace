@@ -11,7 +11,7 @@ import { buildJoinedSpace } from '../utils/spaceJoinPayload.js';
 import type {
   JoinRequest,
   MemberWithUser,
-} from '@backspace/shared';
+} from '@veyvox/shared';
 
 function rowToJoinRequest(
   row: typeof schema.joinRequests.$inferSelect,

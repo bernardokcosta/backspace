@@ -51,7 +51,7 @@ export interface GameIconTarget {
 
 /**
  * Icons are small images; anything bigger is not read. Kept in sync with
- * MAX_GAME_ICON_BYTES in @backspace/shared, the most the server accepts: a
+ * MAX_GAME_ICON_BYTES in @veyvox/shared, the most the server accepts: a
  * larger file would only travel to the renderer and come back refused.
  */
 const MAX_ICON_BYTES = 512 * 1024;

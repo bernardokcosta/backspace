@@ -1,4 +1,4 @@
-import { isChosenUserStatus, ownsChosenStatus, type ChosenUserStatus, type User } from '@backspace/shared';
+import { isChosenUserStatus, ownsChosenStatus, type ChosenUserStatus, type User } from '@veyvox/shared';
 import { homeHostOf, userKey } from './identity';
 
 /**

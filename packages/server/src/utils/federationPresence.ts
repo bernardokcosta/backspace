@@ -1,5 +1,5 @@
 import { and, eq, inArray, isNull, or } from 'drizzle-orm';
-import type { Activity, FederationRelayEvent, FederationPresenceUpdatePayload, ReplicatedInstance } from '@backspace/shared';
+import type { Activity, FederationRelayEvent, FederationPresenceUpdatePayload, ReplicatedInstance } from '@veyvox/shared';
 import { getDb, schema } from '../db/index.js';
 import { getOurOrigin } from './federationAuth.js';
 import { getFriendEventTargets, isFederationRelayEnabled, queueOutboxEvent } from './federationOutbox.js';

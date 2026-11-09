@@ -326,10 +326,10 @@
   },
   "keybinds": {
     "portal": {
-      "description": "Waylandilla tietokone hallitsee kaikkia Backspace-pikanäppäimiä. Määritä, muuta tai poista näppäimiä järjestelmän näppäinoikinasetuksissa, kohdassa Backspace. Paikallisia selain/X11-sidoksia ei käytetä tässä.",
+      "description": "Waylandilla tietokone hallitsee kaikkia Veyvox-pikanäppäimiä. Määritä, muuta tai poista näppäimiä järjestelmän näppäinoikinasetuksissa, kohdassa Veyvox. Paikallisia selain/X11-sidoksia ei käytetä tässä.",
       "idle": "Valmistellaan kaikkien käytettävissä olevien toimintojen ensimmäistä rekisteröintiä.",
       "pending": "Yhdistetään työpöytäportaaliin. Jos järjestelmäikkuna tulee, valitse pikanäppäimet haluamillesi toiminnoille.",
-      "ready": "Backspace on rekisteröity. Avaa järjestelmän näppäinoikinasetukset muuttaaksesi tai poistaaksesi määrityksiä. Alla oleva luettelo on vain luku -tilassa ja päivittyy kun palaat Backspaceen.",
+      "ready": "Veyvox on rekisteröity. Avaa järjestelmän näppäinoikinasetukset muuttaaksesi tai poistaaksesi määrityksiä. Alla oleva luettelo on vain luku -tilassa ja päivittyy kun palaat Veyvoxiin.",
       "unavailable": "Portaali ei ole käytettävissä, lupa evätty tai istunto päättyi. Global Shortcuts -portaalitausta vaaditaan. Paikalliset sidokset pois Waylandilla.",
       "retry": "Rekisteröi tai yhdistä pikanäppäimet uudelleen",
       "assigned": "Järjestelmäpikanäppäin: {{shortcut}}",
@@ -371,7 +371,7 @@
     },
     "accessibility": {
       "title": "Esteettömyyslupa vaaditaan",
-      "description": "Backspace tarvitsee esteettömyysluvan, jotta globaalit pikanäppäimet toimivat sovelluksen ulkopuolella.",
+      "description": "Veyvox tarvitsee esteettömyysluvan, jotta globaalit pikanäppäimet toimivat sovelluksen ulkopuolella.",
       "grant": "Myönnä lupa"
     },
     "hookError": {
@@ -388,7 +388,7 @@
     "autoLaunch": {
       "openAtLogin": {
         "label": "Käynnistä kirjautuessa",
-        "description": "Käynnistä Backspace automaattisesti kun kirjaudut"
+        "description": "Käynnistä Veyvox automaattisesti kun kirjaudut"
       },
       "startMinimized": {
         "label": "Käynnistä pienennettynä",
@@ -396,7 +396,7 @@
       }
     },
     "updates": {
-      "appName": "Backspace Desktop",
+      "appName": "Veyvox Desktop",
       "versionLabel": "Versio {{version}}",
       "checking": "Tarkistetaan päivityksiä…",
       "checkingShort": "Tarkistetaan…",
@@ -415,7 +415,7 @@
       "download": "Lataa",
       "restart": "Käynnistä uudelleen",
       "manualNote": "Tämä koontiversio ei asenna päivityksiä itse. Lataa uudet versiot GitHubista ja korvaa sovellus manuaalisesti. Katso julkaisutiedoista vaiheet alustallasi.",
-      "externalNote": "Flatpak käyttää päivitykset atomisesti sovelluksen ulkopuolella. Käytä ohjelmistonhallintaasi tai <code>flatpak update</code>-komentoa päivittääksesi Backspacen."
+      "externalNote": "Flatpak käyttää päivitykset atomisesti sovelluksen ulkopuolella. Käytä ohjelmistonhallintaasi tai <code>flatpak update</code>-komentoa päivittääksesi Veyvoxin."
     },
     "instance": {
       "current": "Yhdistetty instanssi nyt",

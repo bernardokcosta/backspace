@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { MemberWithUser } from '@backspace/shared';
+import type { MemberWithUser } from '@veyvox/shared';
 import { getApiForOrigin, useSpaceStore } from '../../../stores/spaceStore';
 import { applySpaceMemberUpdate } from '../../../stores/spaceMemberUpdates';
 import { useUIStore } from '../../../stores/uiStore';

@@ -19,7 +19,7 @@ import { config } from '../config.js';
  *     attempt around forty a day. If that ever matters, lengthen the failure
  *     TTL rather than narrowing the trigger.
  *  2. **Nothing identifying leaves the box.** The User-Agent is the bare word
- *     "Backspace" (GitHub requires one). No instance id, no domain, not even
+ *     "Veyvox" (GitHub requires one). No instance id, no domain, not even
  *     the running version, which would otherwise turn GitHub's logs into a
  *     version census of every deployment.
  *  3. **Every failure is soft.** A timeout, a rate limit, a captive portal, or
@@ -30,7 +30,7 @@ import { config } from '../config.js';
  * the SSRF policy in docs/systems/embeds.md does not apply here.
  */
 
-const RELEASES_API = 'https://api.github.com/repos/bernardokcosta/backspace/releases/latest';
+const RELEASES_API = 'https://api.github.com/repos/bernardokcosta/veyvox/releases/latest';
 const REQUEST_TIMEOUT_MS = 5_000;
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 /** Enough for a release payload; anything larger is not a release payload. */
@@ -82,7 +82,7 @@ export function parseLatestRelease(payload: unknown): LatestRelease | null {
     version,
     url: typeof raw.html_url === 'string' && raw.html_url.startsWith('https://github.com/')
       ? raw.html_url
-      : `https://github.com/bernardokcosta/backspace/releases/tag/${tag}`,
+      : `https://github.com/bernardokcosta/veyvox/releases/tag/${tag}`,
     publishedAt: typeof raw.published_at === 'string' ? raw.published_at : '',
   };
 }

@@ -13,7 +13,7 @@ import { useEntityOverrides } from '../../hooks/useEntityOverrides';
 import { PrivacySetting } from './PrivacySetting';
 import { ChannelTopicEditor } from './ChannelTopicEditor';
 import { LOCK_ICON } from '../ui/LockNote';
-import { CHANNEL_NAME_MAX_LENGTH, normalizeChannelName } from '@backspace/shared/src/constants';
+import { CHANNEL_NAME_MAX_LENGTH, normalizeChannelName } from '@veyvox/shared/src/constants';
 
 // ─── Permission Definitions for Channel Overrides ──────────────────────────────
 

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { DmChannel, MemberWithUser, User } from '@backspace/shared';
+import type { DmChannel, MemberWithUser, User } from '@veyvox/shared';
 import { useAuthStore, useSelfIdentity } from '../stores/authStore';
 import { useSpaceStore, type TaggedSpace } from '../stores/spaceStore';
 import { isMine, selfIdentityOf, type SelfIdentity } from './identity';

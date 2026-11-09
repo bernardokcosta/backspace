@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { JUNO_TURN_MS } from '@backspace/shared/src/juno';
+import { JUNO_TURN_MS } from '@veyvox/shared/src/juno';
 import { AudioManager } from '../../audio/AudioManager';
 import { useJunoStore, type JunoTarget } from '../../stores/junoStore';
 import { useVoiceStore } from '../../stores/voiceStore';

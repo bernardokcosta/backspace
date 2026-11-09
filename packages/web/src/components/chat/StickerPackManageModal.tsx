@@ -10,7 +10,7 @@ import {
   stickerPreviewUrl,
   type StickerPackDetail,
   type StickerPackItem,
-} from '@backspace/shared/src/stickers';
+} from '@veyvox/shared/src/stickers';
 import { api } from '../../api/client';
 import { describeError } from '../../i18n/errors';
 import { usePortalContainer } from '../../hooks/usePortalContainer';

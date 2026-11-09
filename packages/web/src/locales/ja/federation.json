@@ -20,7 +20,7 @@
   },
   "connections": {
     "title": "接続中インスタンス",
-    "description": "連合Backspaceインスタンス間でアカウントをリンク。",
+    "description": "連合Veyvoxインスタンス間でアカウントをリンク。",
     "empty": "接続中リモートインスタンスなし。追加して連合開始。",
     "addButton": "+ インスタンス追加",
     "home": {

@@ -3,14 +3,14 @@ import { eq } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
 import { config } from '../config.js';
 import { getInstanceId } from '../utils/federationEpoch.js';
-import type { InstanceInfoResponse } from '@backspace/shared';
+import type { InstanceInfoResponse } from '@veyvox/shared';
 
 export async function instanceRoutes(app: FastifyInstance): Promise<void> {
   app.get('/api/instance/info', async (_request, reply) => {
     const db = getDb();
 
     const settings = db.select().from(schema.instanceSettings).where(eq(schema.instanceSettings.id, 1)).get();
-    const instanceName = settings?.instanceName ?? 'Backspace';
+    const instanceName = settings?.instanceName ?? 'Veyvox';
 
     // DB setting overrides env var if explicitly set by admin
     const registrationOpen = settings?.registrationOpen !== null && settings?.registrationOpen !== undefined

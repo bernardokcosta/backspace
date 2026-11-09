@@ -1,6 +1,6 @@
 name: Publish Container Image
 
-# Builds and publishes the Backspace application image to the GitHub Container
+# Builds and publishes the Veyvox application image to the GitHub Container
 # Registry (GHCR) as a multi-architecture (linux/amd64 + linux/arm64) image, so
 # self-hosters — including weak/ARM boxes like a Raspberry Pi — can `docker pull`
 # a prebuilt image instead of building the ~1.6 GB image locally (the Vite build
@@ -71,9 +71,9 @@ jobs:
         id: docker_meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
-          # github.repository is "TheZwiss/backspace"; metadata-action lowercases
-          # it → ghcr.io/thezwiss/backspace (GHCR requires lowercase).
-          images: ghcr.io/${{ github.repository }}
+          # Repository renames do not redirect registry packages. Retain the
+          # established public upgrade channel used by existing installations.
+          images: ghcr.io/bernardokcosta/backspace
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -81,9 +81,9 @@ jobs:
             type=sha
             type=raw,value=${{ github.event.inputs.tag }},enable=${{ github.event.inputs.tag != '' }}
           labels: |
-            org.opencontainers.image.title=Backspace Fork
+            org.opencontainers.image.title=Veyvox
             org.opencontainers.image.description=Self-hosted Discord alternative — text, voice, video, and federation.
-            org.opencontainers.image.source=https://github.com/TheZwiss/backspace
+            org.opencontainers.image.source=https://github.com/bernardokcosta/veyvox
             org.opencontainers.image.licenses=AGPL-3.0-only
             org.opencontainers.image.revision=${{ github.sha }}
 

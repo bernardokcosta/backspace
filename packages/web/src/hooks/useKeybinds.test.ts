@@ -20,7 +20,6 @@ vi.mock('../utils/voiceActions', () => ({
   handleMuteAction: mock.mute, handleDeafenAction: vi.fn(), handleCameraAction: vi.fn(),
   handleScreenShareAction: vi.fn(), handleDisconnectAction: vi.fn(),
 }));
-vi.mock('../platform/platform', () => ({ isElectron: () => !!window.backspace }));
 
 function hash(code: string) {
   let value = 5381;

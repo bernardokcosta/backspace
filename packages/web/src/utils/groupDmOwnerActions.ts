@@ -1,5 +1,5 @@
-import type { DmChannel, User } from '@backspace/shared';
-import type { BackspaceApiClient, DmMemberTarget } from '../api/client';
+import type { DmChannel, User } from '@veyvox/shared';
+import type { VeyvoxApiClient, DmMemberTarget } from '../api/client';
 import { getChannelOrigin, dmCopyIdOnOrigin, getOwnerInstanceForDm } from '../stores/spaceStore';
 import { getApiForOrigin, resolveOriginFromHostname } from './crossStoreResolvers';
 import { deliveringHost, normalizeOriginToHost } from './identity';
@@ -27,7 +27,7 @@ export class OwnerInstanceUnavailableError extends Error {
 }
 
 interface OwnerRoute {
-  client: BackspaceApiClient;
+  client: VeyvoxApiClient;
   /** The owner instance's id for the conversation. */
   channelId: string;
   /** Whether that is the instance whose copy the client shows. */

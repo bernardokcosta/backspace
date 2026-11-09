@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { FederationRegistryEntry, User } from '@backspace/shared';
-import type { BackspaceApiClient } from '../api/client';
+import type { FederationRegistryEntry, User } from '@veyvox/shared';
+import type { VeyvoxApiClient } from '../api/client';
 
 vi.mock('../api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api/client')>()),
@@ -53,7 +53,7 @@ function makeInstance(overrides: Partial<ConnectedInstance> = {}): ConnectedInst
       id: 'remote-1', username: 'erin@nova.example',
       homeInstance: 'nova.example', homeUserId: 'user-1',
     } as User,
-    api: {} as BackspaceApiClient,
+    api: {} as VeyvoxApiClient,
     ...overrides,
   };
 }

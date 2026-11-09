@@ -14,7 +14,7 @@ import {
   overrideVersion,
   type HeldBitsRefusal,
   type OverrideBits,
-} from '@backspace/shared/src/permissions.js';
+} from '@veyvox/shared/src/permissions.js';
 import {
   CATEGORY_NAME_MAX_LENGTH,
   CATEGORY_NAME_MIN_LENGTH,
@@ -22,7 +22,7 @@ import {
   CHANNEL_NAME_MIN_LENGTH,
   normalizeCategoryName,
   normalizeChannelName,
-} from '@backspace/shared/src/constants.js';
+} from '@veyvox/shared/src/constants.js';
 import { connectionManager } from '../ws/handler.js';
 import { checkVoicePermissions } from '../ws/events.js';
 import { deleteAttachmentFiles } from '../utils/fileCleanup.js';
@@ -35,7 +35,7 @@ import type {
   UpdateChannelRequest,
   Channel,
   ChannelCategory,
-} from '@backspace/shared';
+} from '@veyvox/shared';
 
 function rowToChannel(row: typeof schema.channels.$inferSelect): Channel {
   return {

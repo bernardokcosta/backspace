@@ -37,7 +37,7 @@ describe('personal Juno settings modal', () => {
     expect(screen.getByRole('dialog').querySelector('p')).toBeNull();
     expect(screen.getByRole('combobox', { name: 'Game language' }).querySelectorAll('option')).toHaveLength(26);
     const dubbing = screen.getByRole('combobox', { name: 'Dubbing and card text' }); expect(dubbing.querySelectorAll('option')).toHaveLength(2); expect(dubbing).toHaveValue('auto');
-    for (const select of screen.getAllByRole('combobox')) expect(select.querySelector('option[value="auto"]')).toHaveTextContent('Automatic (Backspace)');
+    for (const select of screen.getAllByRole('combobox')) expect(select.querySelector('option[value="auto"]')).toHaveTextContent('Automatic (Veyvox)');
     expect(screen.getByRole('slider', { name: 'Sound effects' })).toHaveValue('100'); expect(screen.getByRole('slider', { name: 'Background music' })).toHaveValue('100');
     fireEvent.change(screen.getByRole('slider', { name: 'Background music' }), { target: { value: '35' } });
     expect(useJunoPreferences.getState().musicVolume).toBe(35); expect(screen.getByText('35%')).toBeInTheDocument();

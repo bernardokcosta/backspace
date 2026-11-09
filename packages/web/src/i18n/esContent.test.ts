@@ -73,7 +73,7 @@ describe('Spanish contextual content', () => {
 
   it('keeps automatic system and automatic game preferences semantically distinct', () => {
     expect(common.language.automatic).toBe('Automático (sistema)');
-    expect(voice.juno.settings.automatic).toBe('Automático (Backspace)');
+    expect(voice.juno.settings.automatic).toBe('Automático (Veyvox)');
     expect(voice.juno.settings.automaticDubbing).toBe(voice.juno.settings.automatic);
   });
 

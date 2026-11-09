@@ -8,7 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
-import { PermissionBits, permissionsToString } from '@backspace/shared/src/permissions.js';
+import { PermissionBits, permissionsToString } from '@veyvox/shared/src/permissions.js';
 
 // #299: moderation follows the role hierarchy. The owner is exempt and never
 // a target; otherwise the actor's top role must sit strictly above the

@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import type { WebSocket } from 'ws';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
-import { DEFAULT_EVERYONE_PERMISSIONS, permissionsToString } from '@backspace/shared/src/permissions.js';
+import { DEFAULT_EVERYONE_PERMISSIONS, permissionsToString } from '@veyvox/shared/src/permissions.js';
 
 setWorkerId(1);
 

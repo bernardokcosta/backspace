@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detachedHomeOf, isChosenUserStatus, ownsChosenStatus } from '@backspace/shared';
+import { detachedHomeOf, isChosenUserStatus, ownsChosenStatus } from '@veyvox/shared';
 import { statusOnConnect } from './presenceStatus.js';
 
 describe('isChosenUserStatus', () => {

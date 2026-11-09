@@ -7,7 +7,7 @@ import { connectionManager } from '../ws/handler.js';
 import { sendError } from '../utils/httpErrors.js';
 import { generateSnowflake } from '../utils/snowflake.js';
 import { buildMessageWithUser } from './messages.js';
-import { MAX_PINS_PER_CHANNEL, type PinnedMessage, type PinWithMessage } from '@backspace/shared';
+import { MAX_PINS_PER_CHANNEL, type PinnedMessage, type PinWithMessage } from '@veyvox/shared';
 
 function toPinnedMessage(row: typeof schema.pinnedMessages.$inferSelect): PinnedMessage {
   return {

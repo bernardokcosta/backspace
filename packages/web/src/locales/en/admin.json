@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "General",
-    "description": "Configure your Backspace instance. These settings affect all users.",
+    "description": "Configure your Veyvox instance. These settings affect all users.",
     "instanceName": {
       "label": "Instance Name",
       "description": "The name shown on the login page and to federated instances.",
@@ -300,7 +300,7 @@
     "title": "Updates",
     "badge": {
       "settingsAriaLabel": "Settings, instance update available",
-      "toast": "Backspace {{version}} is available for this instance",
+      "toast": "Veyvox {{version}} is available for this instance",
       "toastAction": "View"
     },
     "description": "What this instance is running, and how to move it forward.",
@@ -318,11 +318,11 @@
     },
     "available": {
       "label": "Available",
-      "version": "Backspace {{version}} is available",
+      "version": "Veyvox {{version}} is available",
       "released": "Released {{date}} · ",
       "releaseNotes": "Release notes",
       "fromInstallDir": "From your install directory:",
-      "scriptDescription": "Takes a database snapshot, fetches the new image, and restarts only the Backspace container. If the new version does not come up healthy, or comes up still running the old code, it puts back the version you are on now.",
+      "scriptDescription": "Takes a database snapshot, fetches the new image, and restarts only the Veyvox container. If the new version does not come up healthy, or comes up still running the old code, it puts back the version you are on now.",
       "noScript": "I do not have update.sh",
       "manualIntro": "update.sh ships from 1.0.5 onward. On a git checkout, <code>git pull</code> brings it in. Otherwise run the steps by hand, after taking a snapshot with <code>./backup.sh</code>.",
       "prebuiltInstall": "Prebuilt-image install:",

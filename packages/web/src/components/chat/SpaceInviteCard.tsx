@@ -8,7 +8,7 @@ import { Avatar } from '../ui/Avatar';
 import { getApiForOrigin } from '../../stores/spaceStore';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useUIStore } from '../../stores/uiStore';
-import type { SpaceInviteSystemPayload, SpaceVisibility } from '@backspace/shared';
+import type { SpaceInviteSystemPayload, SpaceVisibility } from '@veyvox/shared';
 
 type LiveState =
   | { kind: 'loading' }

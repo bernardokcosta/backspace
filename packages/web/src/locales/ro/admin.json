@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "General",
-    "description": "Configurează instanța Backspace. Aceste setări afectează toți utilizatorii.",
+    "description": "Configurează instanța Veyvox. Aceste setări afectează toți utilizatorii.",
     "instanceName": {
       "label": "Numele instanței",
       "description": "Numele afișat pe pagina de conectare și pe instanțele federate.",
@@ -313,7 +313,7 @@
     "title": "Actualizări",
     "badge": {
       "settingsAriaLabel": "Setări, actualizare de instanță disponibilă",
-      "toast": "Backspace {{version}} este disponibil pentru această instanță",
+      "toast": "Veyvox {{version}} este disponibil pentru această instanță",
       "toastAction": "Vezi"
     },
     "description": "Ce rulează această instanță și cum o poți actualiza.",
@@ -331,11 +331,11 @@
     },
     "available": {
       "label": "Disponibil",
-      "version": "Backspace {{version}} este disponibil",
+      "version": "Veyvox {{version}} este disponibil",
       "released": "Lansat {{date}} · ",
       "releaseNotes": "Note de lansare",
       "fromInstallDir": "Din directorul de instalare:",
-      "scriptDescription": "Creează un instantaneu al bazei de date, descarcă noua imagine și repornește doar containerul Backspace. Dacă noua versiune nu pornește sănătos sau pornește rulând încă codul vechi, revine la versiunea actuală.",
+      "scriptDescription": "Creează un instantaneu al bazei de date, descarcă noua imagine și repornește doar containerul Veyvox. Dacă noua versiune nu pornește sănătos sau pornește rulând încă codul vechi, revine la versiunea actuală.",
       "noScript": "Nu am update.sh",
       "manualIntro": "update.sh este livrat începând cu 1.0.5. Pe un checkout git, <code>git pull</code> îl aduce. Altfel, rulează pașii manual, după ce faci un instantaneu cu <code>./backup.sh</code>.",
       "prebuiltInstall": "Instalare din imagine preconstruită:",

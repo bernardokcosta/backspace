@@ -1,7 +1,7 @@
 {
   "general": {
     "title": "Yleiset",
-    "description": "Määritä Backspace-instanssisi. Nämä asetukset koskevat kaikkia käyttäjiä.",
+    "description": "Määritä Veyvox-instanssisi. Nämä asetukset koskevat kaikkia käyttäjiä.",
     "instanceName": {
       "label": "Instanssin nimi",
       "description": "Nimi, joka näkyy kirjautumissivulla ja federoiduille instansseille.",
@@ -300,7 +300,7 @@
     "title": "Päivitykset",
     "badge": {
       "settingsAriaLabel": "Asetukset, instanssipäivitys saatavilla",
-      "toast": "Backspace {{version}} on saatavilla tälle instanssille",
+      "toast": "Veyvox {{version}} on saatavilla tälle instanssille",
       "toastAction": "Näytä"
     },
     "description": "Mikä versio tällä instanssilla käy ja miten päivität sen.",
@@ -318,11 +318,11 @@
     },
     "available": {
       "label": "Saatavilla",
-      "version": "Backspace {{version}} saatavilla",
+      "version": "Veyvox {{version}} saatavilla",
       "released": "Julkaistu {{date}} · ",
       "releaseNotes": "Julkaisutiedot",
       "fromInstallDir": "Asennushakemistostasi:",
-      "scriptDescription": "Ottaa tietokannasta tilannekuvan, lataa uuden imagen ja käynnistää vain Backspace-säiliön uudelleen. Jos uusi versio ei käynnisty kunnolla tai käynnistyy vanhalla koodilla, se palauttaa nykyisen version.",
+      "scriptDescription": "Ottaa tietokannasta tilannekuvan, lataa uuden imagen ja käynnistää vain Veyvox-säiliön uudelleen. Jos uusi versio ei käynnisty kunnolla tai käynnistyy vanhalla koodilla, se palauttaa nykyisen version.",
       "noScript": "Minulla ei ole update.sh:ää",
       "manualIntro": "update.sh tulee mukana versiosta 1.0.5. Git-kopiossa <code>git pull</code> lisää sen. Muuten tee vaiheet manuaalisesti otettuasi tilannekuvan <code>./backup.sh</code>:llä.",
       "prebuiltInstall": "Valmiin imagen asennus:",

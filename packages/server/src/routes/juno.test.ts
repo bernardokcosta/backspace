@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
 import rateLimit from '@fastify/rate-limit';
-import type { JunoSnapshot } from '@backspace/shared/src/juno.js';
+import type { JunoSnapshot } from '@veyvox/shared/src/juno.js';
 
 const state = vi.hoisted(() => ({ member: true, permission: true, room: 'voice', socket: 1, bot: false, changed: vi.fn() }));
 vi.mock('../db/index.js', () => ({ schema: { channels: { id: 'id' }, users: { id: 'id' } }, getDb: () => ({
