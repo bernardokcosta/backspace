@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { JUNO_COLORS, type JunoFace } from '@veyvox/shared/src/juno';
 import { junoCardUrl, JUNO_ASSETS, JUNO_DUBBINGS, resolveJunoDubbing } from './junoAssets';
 import { supportedLanguages } from '../../i18n/languages';
+import { JUNO_SOUNDS } from './junoSoundCues';
 
 const root = path.resolve(import.meta.dirname, '../../../public/games/juno');
 interface Manifest {
@@ -12,6 +13,23 @@ interface Manifest {
   memoryAudio: { path: string; sha256: string; sourceSha256: string; bytes: number; durationSeconds: number };
 }
 describe('supplied Juno asset inventory', () => {
+  it('ships all 16 unchanged neon Ogg cues with exact hashes and no duplicate formats', () => {
+    const sounds = path.resolve(root, '../../sounds/juno');
+    const manifest = JSON.parse(readFileSync(path.join(sounds, 'manifest.json'), 'utf8')) as {
+      suppliedLicenseStatement: string;
+      files: { path: string; sourceFile: string; bytes: number; sha256: string; unchanged: boolean }[];
+    };
+    expect(manifest.files).toHaveLength(16);
+    expect(manifest.suppliedLicenseStatement).toBe('Efeitos criados originalmente para este projeto; não incorporam gravações comerciais.');
+    const catalog = Object.values(JUNO_SOUNDS).filter(cue => cue.sound.startsWith('juno/')).map(cue => `${cue.sound.slice(5)}.ogg`).sort();
+    expect(manifest.files.map(file => file.path).sort()).toEqual(catalog);
+    for (const file of manifest.files) {
+      expect(file.path).toMatch(/^[a-z_]+\.ogg$/); expect(file.sourceFile).toBe(`ogg/${file.path}`); expect(file.unchanged).toBe(true);
+      const bytes = readFileSync(path.join(sounds, file.path));
+      expect(bytes.subarray(0, 4).toString()).toBe('OggS'); expect(bytes.includes(Buffer.from('vorbis'))).toBe(true);
+      expect(bytes.length).toBe(file.bytes); expect(createHash('sha256').update(bytes).digest('hex')).toBe(file.sha256);
+    }
+  });
   it('resolves Automatic dubbing to the only real pt-BR edition for every interface language', () => {
     expect(JUNO_DUBBINGS['pt-BR'].languageCode).toBe('pt');
     for (const { code: language } of supportedLanguages) {
