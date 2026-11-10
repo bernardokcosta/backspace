@@ -53,3 +53,21 @@ Provider plans own source/docs/config. Add one final validation record under `do
 ## Self-review
 
 All five Review Focus conditions have explicit readbacks/gates. The GitHub state is not inferred from local pass counts, and every original sensible change is preserved through actual ancestry.
+
+### Task3: Approved missing-baseline CI follow-up
+
+**Files:** `scripts/verify-installed-rebrand.mjs` owns fixed release metadata and
+existing OS acceptance; `scripts/installed-rebrand.test.mjs` pins all eight
+digests/release identity and retains all safety tests; `docs/systems/desktop.md`
+and the validation record explain the changed measurement boundary. No workflow
+or application change.
+
+**Interfaces:** export `BASELINE_RELEASE` with fixed repository/tag/version/prefix
+and the existing `APPIMAGES` table for pure tooling tests; reuse `BASELINES` and
+the guarded `verifyInstalledRebrand` flow. No new production API/dependency.
+
+- [x] Pin the eight published1.17.0 digests and release metadata in a failing pure test; run `node --test scripts/installed-rebrand.test.mjs` and observe RED.
+- [x] Add one fixed release descriptor; replace both baseline-download origins/names and all baseline version expectations. Update existing SHA tables from verified public release bytes. Keep OS/profile/cookie/startup/identity assertions; clarify Linux fixture seeding rather than claim the new baseline lacks support. The new baseline's disabled AppImage startup getter is now also checked.
+- [x] Run focused tests, all tooling and lint; verify all eight downloaded byte hashes without executing installers locally. Record exact evidence and scope difference in docs.
+- [x] Obtain the single material-scope follow-up from the same Sol reviewer, covering original reviewed range plus this follow-up. Commit/push only after approval.
+- [ ] Await complete PR CI including all six installed legs, reread heads/protection and continue Task2 without bypass/publication.

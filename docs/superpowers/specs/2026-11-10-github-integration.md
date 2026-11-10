@@ -35,6 +35,26 @@ remediation. The user authorized commit, push and normal protected merges.
 
 ## Observable success criteria
 
+### Approved CI baseline amendment
+
+On 2026-11-10 PR25 passed all protected checks, native capture, container build
+and cross-OS packaging, but all six installed-replacement jobs failed before
+running the candidate: the historical `v1.16.8` release is unavailable. The user
+chose a fixed `bernardokcosta/veyvox` `v1.17.0` baseline instead of merging with
+that limitation or awaiting unavailable old installers.
+
+Reuse the existing installed acceptance flow, opt-in/disposable-runner guards,
+six-platform matrix and eight per-installer SHA-256 pins. Fix the repository,
+tag, version and filename prefix together; no latest lookup, dynamic fallback,
+skipped assertion, relaxed cookie protection or publication. Verify public
+release bytes against the recorded digests before committing. Keep identity,
+profile/session/cookie, OS-disabled startup, AppImage, version/cache and repeat-
+launch checks. Document explicitly that this now measures Veyvox upgrade from
+1.17.0, not the unavailable historical 1.16.8 rebrand path. Require green installed
+CI and one material-scope follow-up to the same Sol reviewer before publication.
+
+### Original integration criteria
+
 1. Original valid PR heads, or explicitly reviewed successors, are ancestors of
    the final master; dependency and onboarding requirements pass together.
 2. `gh pr list --state open` returns an empty list, including the new integration

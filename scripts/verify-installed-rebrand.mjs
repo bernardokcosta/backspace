@@ -20,18 +20,20 @@ export function requireDisposableRunner(env, platform = process.platform) {
   }
 }
 
-// Digests measured from the published, immutable 1.16.8 assets before rename.
+// Fixed available prior Veyvox release; no latest lookup or fallback. These
+// eight digests were verified against the public installer bytes on 2026-11-10.
+export const BASELINE_RELEASE = Object.freeze({ repository: 'bernardokcosta/veyvox', tag: 'v1.17.0', version: '1.17.0', prefix: 'Veyvox' });
 export const BASELINES = Object.freeze({
-  'win32-x64': ['win-x64.exe', '444f6f792c4b7b3fb2c3fa93afbea40cec3b91caae5e8a142a541c50d6af2c29'],
-  'win32-arm64': ['win-arm64.exe', '49b34edff9963c5413240b3991b605afc9a8e0282f3d56d47e769e99452f7e22'],
-  'darwin-x64': ['mac-x64.dmg', '83d6624ccb086839c7ddc135d2cdcb58ab48ec0de36a501c1d84ff1ca734fc8a'],
-  'darwin-arm64': ['mac-arm64.dmg', '5f3f790712139e3589ef8f5b51c006c7f3c9ae9e9da50ad585a49b44bb4c4fcc'],
-  'linux-x64': ['linux-amd64.deb', 'ddda87cb5de34a7fb4813e1cd35d052236d12f9c84cd4f9a2274c7381cd88e00'],
-  'linux-arm64': ['linux-arm64.deb', 'a5077d98036c53d6bd796516669f09b560851972421240244144de1df8dba3f0'],
+  'win32-x64': ['win-x64.exe', 'af0a9e97d0c5b073f074c8ed0639517650dbdadaab1ca19c0a5005e4be815ff7'],
+  'win32-arm64': ['win-arm64.exe', '47618274b4a724dcf901b9ad4c41450d28ea529f876b9a8d3b44007138707ed0'],
+  'darwin-x64': ['mac-x64.dmg', 'b54563d74b9662ec1dc18028c904524173b67be7c84f536d615d77207802b882'],
+  'darwin-arm64': ['mac-arm64.dmg', '893fd487634b80a8107d714ff07da2c15e3546d4ece2880fd0e14fd577e8e39b'],
+  'linux-x64': ['linux-amd64.deb', '7572b3ef8c5bcb093202dfb5cab801bc2a6d43a6ffbd6257bae382e33c5c4df4'],
+  'linux-arm64': ['linux-arm64.deb', '981e5a8da0e4332542e68cef18e312bcdd3a6d006db3d957d3472bb2bf99f803'],
 });
-const APPIMAGES = {
-  x64: ['linux-x86_64.AppImage', 'c900d1f483d707b2917cd67c966b0adb89a2cc3a813f5c6c161bf039426cefe4'],
-  arm64: ['linux-arm64.AppImage', 'ee3cb04da0f8fbb3ff437e229093bc905f992a72ffdb05182ce8e32175b0eff4'],
+export const APPIMAGES = {
+  x64: ['linux-x86_64.AppImage', '43d6cf9b9ee8ab3d80faa2521a993af2d354e77d6eb371d6a5cc69e8f2e372d1'],
+  arm64: ['linux-arm64.AppImage', 'ce1879b4a4d252e021707737461c49f876867be392d638e89d2c47434a817340'],
 };
 
 export function assertInstalledReport(report, phase, version, startup) {
@@ -257,7 +259,7 @@ export async function verifyInstalledRebrand(args) {
   const baseline = BASELINES[`${process.platform}-${process.arch}`];
   if (!baseline) throw new Error('No matching native baseline');
   const evidence = await fs.mkdtemp(path.join(process.env.RUNNER_TEMP, 'veyvox-installed-'));
-  const baselineName = `Backspace-Fork-1.16.8-${baseline[0]}`;
+  const baselineName = `${BASELINE_RELEASE.prefix}-${BASELINE_RELEASE.version}-${baseline[0]}`;
   const version = JSON.parse(await fs.readFile(new URL('../packages/desktop/package.json', import.meta.url))).version;
   const candidate = path.resolve(values.directory, `Veyvox-${version}-${baseline[0]}`);
   await fs.access(candidate);
@@ -279,7 +281,7 @@ export async function verifyInstalledRebrand(args) {
     }
     if (status === 'installed') throw new Error('Refusing existing Debian install');
   }
-  run('gh', ['release', 'download', 'v1.16.8', '--repo', 'bernardokcosta/backspace', '--pattern', baselineName, '--dir', evidence]);
+  run('gh', ['release', 'download', BASELINE_RELEASE.tag, '--repo', BASELINE_RELEASE.repository, '--pattern', baselineName, '--dir', evidence]);
   const oldFile = path.join(evidence, baselineName);
   if (createHash('sha256').update(await fs.readFile(oldFile)).digest('hex') !== baseline[1]) throw new Error('Historical installer SHA-256 mismatch');
   const state = { phase: '', report: null, origin: '' };
@@ -309,20 +311,20 @@ export async function verifyInstalledRebrand(args) {
     await fs.writeFile(path.join(profile, 'language.json'), '{"language":"auto"}');
     const old = await install(oldFile, evidence);
     const baselineProtection = await readCookieProtection(old.executable);
-    if (old.identity.version !== '1.16.8') throw new Error('Wrong installed baseline version');
+    if (old.identity.version !== BASELINE_RELEASE.version) throw new Error('Wrong installed baseline version');
     const baselineFeed = await fs.readFile(path.join(old.resources, 'app-update.yml'), 'utf8');
     const cache = /^(?:updaterCacheDirName):\s*['"]?(@backspacedesktop-updater)['"]?\s*$/m;
     if (!cache.test(baselineFeed)) throw new Error('Unexpected baseline updater cache identity');
     state.enableStartup = process.platform !== 'linux';
     state.startup = process.platform === 'linux' ? undefined : true;
-    const results = [await launchAndVerify(old, 'seed', '1.16.8', state, evidence)];
+    const results = [await launchAndVerify(old, 'seed', BASELINE_RELEASE.version, state, evidence)];
     verifyWindowsRegistrations(old, false, true);
     await verifyCookieStorage(profile, baselineProtection);
     state.enableStartup = false;
     const linuxEntry = path.join(appData, 'autostart/backspace-fork.desktop');
     if (process.platform === 'linux') {
-      // 1.16.8's Electron API was a Linux no-op. Simulate a real OS-owned
-      // enabled legacy entry to exercise the candidate's path-refresh owner.
+      // Seed an existing OS-owned enabled entry directly to exercise path refresh
+      // independently of the baseline's settings UI. Never reseed the candidate.
       await fs.mkdir(path.dirname(linuxEntry), { recursive: true });
       if (await exists(linuxEntry)) throw new Error('Unexpected Linux startup entry');
       await fs.writeFile(linuxEntry, `[Desktop Entry]\nType=Application\nName=Backspace Fork\nExec="${old.executable}" --hidden\n`);
@@ -359,8 +361,8 @@ export async function verifyInstalledRebrand(args) {
     }
     if (process.platform === 'linux') {
       const [suffix, digest] = APPIMAGES[process.arch];
-      const name = `Backspace-Fork-1.16.8-${suffix}`;
-      run('gh', ['release', 'download', 'v1.16.8', '--repo', 'bernardokcosta/backspace', '--pattern', name, '--dir', evidence]);
+      const name = `${BASELINE_RELEASE.prefix}-${BASELINE_RELEASE.version}-${suffix}`;
+      run('gh', ['release', 'download', BASELINE_RELEASE.tag, '--repo', BASELINE_RELEASE.repository, '--pattern', name, '--dir', evidence]);
       const oldImage = path.join(evidence, name), newImage = path.resolve(values.directory, `Veyvox-${version}-${suffix}`);
       if (createHash('sha256').update(await fs.readFile(oldImage)).digest('hex') !== digest) throw new Error('Historical AppImage SHA-256 mismatch');
       for (const file of [oldImage, newImage]) await fs.chmod(file, 0o755);
@@ -371,8 +373,8 @@ export async function verifyInstalledRebrand(args) {
         run(image, ['--appimage-extract'], extracted);
         assertCookieProtectionUnchanged(expected, await readCookieProtection(path.join(extracted, 'squashfs-root', 'Backspace Fork')));
       }
-      state.startup = undefined; // Old Linux has no working login-item getter.
-      results.push(await launchAndVerify({ executable: oldImage, env: { APPIMAGE_EXTRACT_AND_RUN: '1' } }, 'appimage-seed', '1.16.8', state, evidence));
+      state.startup = false; // The existing OS-disabled entry must stay disabled.
+      results.push(await launchAndVerify({ executable: oldImage, env: { APPIMAGE_EXTRACT_AND_RUN: '1' } }, 'appimage-seed', BASELINE_RELEASE.version, state, evidence));
       for (const phase of ['appimage-upgrade', 'appimage-repeat']) {
         state.startup = false;
         results.push(await launchAndVerify({ executable: newImage, env: { APPIMAGE_EXTRACT_AND_RUN: '1' } }, phase, version, state, evidence));
@@ -381,10 +383,10 @@ export async function verifyInstalledRebrand(args) {
       if (!(await fs.readFile(linuxEntry, 'utf8')).startsWith('Hidden=true\n')) throw new Error('Disabled Linux entry was re-enabled');
     }
     const report = { status: 'passed', platform: process.platform, arch: process.arch, baselineSha256: baseline[1],
-      baseline: old.identity, candidate: current.identity,
+      baselineRelease: BASELINE_RELEASE, baseline: old.identity, candidate: current.identity,
       cookieProtection: { baseline: baselineProtection, candidate: candidateProtection, unchanged: true },
       cookiePersistenceVerified: true, encryptedCookie: baselineProtection === 'encrypted', results,
-      limitations: ['Synthetic session only; not a live user login. Startup preferences/command arguments are checked, not a real reboot/login or OS-window visibility. Renderer document visibility is metadata only.', 'Linux baseline enabled autostart entry is seeded at the OS file boundary; Electron 1.16.8 did not implement that write.'] };
+      limitations: ['Synthetic session only; not a live user login. Startup preferences/command arguments are checked, not a real reboot/login or OS-window visibility. Renderer document visibility is metadata only.', 'Linux baseline enabled autostart entry is seeded at the OS file boundary.', 'Measures upgrade from Veyvox 1.17.0, not historical pre-rebrand migration.'] };
     await fs.writeFile(path.resolve(values.directory, `installed-${process.platform}-${process.arch}.json`), JSON.stringify(report, null, 2));
     console.log(JSON.stringify({ status: 'passed', evidence, platform: process.platform, arch: process.arch, cookieProtection: report.cookieProtection }));
   } finally { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }

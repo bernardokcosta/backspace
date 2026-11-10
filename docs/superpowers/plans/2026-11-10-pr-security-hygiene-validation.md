@@ -104,6 +104,35 @@ PR states, and confirm Dependabot1fixed/open-alert inventory empty via GitHub.
 The PR/check/merge links provide the subsequent remote evidence; this record does
 not prematurely claim that GitHub has refreshed its graph.
 
+### First PR CI and approved baseline follow-up
+
+[PR25](https://github.com/bernardokcosta/veyvox/pull/25), head
+`a3c63523ff92daec3e1be9419bc6fb977392403e`, passed all six protected checks,
+the container image build, Windows native capture/load on both architectures,
+all four desktop packaging builds and the complete candidate inventory. The
+[Release Desktop run](https://github.com/bernardokcosta/veyvox/actions/runs/42861089495)
+failed all six installed-replacement jobs before launching the candidate:
+`gh release download v1.16.8` reported `release not found`.
+
+The user explicitly chose the existing fixed Veyvox 1.17.0 baseline, not a merge
+with the failure hidden or a skipped gate. Its eight public installers were
+streamed without saving/executing binaries, and every byte count/SHA-256 matched
+GitHub's published digest. New contract tests pin repository/tag/version/prefix
+and all eight hashes; observed RED before implementation, then8/8focused GREEN.
+Both native installers and AppImage download/version checks now reuse that fixed
+descriptor, never latest/fallback. Existing runner/profile/identity/session/
+cookie/startup checks remain; the baseline AppImage's already-disabled startup
+state is now also asserted instead of ignoring that getter.
+
+The measurement boundary is **Veyvox 1.17.0 → candidate**, not the unavailable
+historical 1.16.8 rebrand migration. Linux autostart fixture seeding remains an
+explicit OS-boundary fixture, not a claim that 1.17.0 lacks startup support.
+All159tooling tests and lint passed after this follow-up. The same Sol reviewer
+approved this material-scope follow-up without actionable findings, independently
+confirming focused8/8, tooling159/159, lint, whitespace, public asset digests and
+retained security checks. Complete remote CI, including all six installed legs
+on the new head, is still required.
+
 No release/tag, container/installer publication, production deployment/restart,
 governance change, scanner weakening or historical artifact repair is part of
 this task. Zero Dependabot alerts would not certify old published images.

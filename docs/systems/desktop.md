@@ -69,7 +69,7 @@ installed-NSIS/Debian/macOS replacement or hardware-acceptance claim.
 
 The separate `scripts/verify-installed-rebrand.mjs` installer gate runs only on
 explicitly opted-in **GitHub-hosted disposable** runners. It verifies pinned
-1.16.8 installer digests, native architecture, NSIS GUID/path/shortcuts/AUMID,
+Veyvox 1.17.0 installer digests, native architecture, NSIS GUID/path/shortcuts/AUMID,
 Debian Package/desktop path or macOS bundle identity/path; launches the actual
 installed main/preload; and compares measured cookie protection/persistence, synthetic session,
 IndexedDB, instances and preferences after upgrade and repeat launch. Linux also
@@ -77,9 +77,17 @@ exercises the real AppImages with extract-and-run (no sandbox/fuse bypass).
 OS-disabled startup is checked without auto-reenabling it. macOS disabling uses
 the real ServiceManagement bridge. Hidden launch uses `--hidden`, not a real
 reboot/login. Linux's baseline enabled autostart file is seeded at the OS boundary
-because the old Electron API did not implement that write. No claim of real-user
+to exercise path refresh independently of the baseline's settings UI. No claim of real-user
 login, hardware/media acceptance or successful platform execution follows from
 the existence of this gate: read its per-run reports before publication.
+
+The current fixed baseline is `bernardokcosta/veyvox` `v1.17.0`, using eight
+SHA-256 pins checked against the published installer bytes on 2026-11-10. The
+historical 1.16.8 release became unavailable; the user approved this baseline
+change after all six runner legs failed at its download, before executing the
+candidate. No latest lookup, fallback, skipped security assertion or publication
+is introduced. These jobs now measure Veyvox upgrades from 1.17.0; they do not
+prove the unavailable pre-rebrand 1.16.8 migration path.
 
 Cookie protection is measured, not inferred from Electron or branding. The
 published 1.16.8 Linux binary and candidate initially measured cookie encryption
