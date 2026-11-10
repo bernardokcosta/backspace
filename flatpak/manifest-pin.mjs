@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 
 // The one place that knows where the Flatpak manifest pins the Backspace
-// source commit. update-release.mjs moves the pin to a release's commit, and
-// flatpak-release-metadata.yml reads main's pin to tell whether a release has
-// already landed: the pin equals the tag's commit exactly when that release's
-// metadata pull request has merged.
+// source commit. The optional update-release.mjs tool can move this historical
+// pin together with its offline sources; this fork has no automatic Flatpak
+// release writer. Local checkout builds use prepare-ci-manifest.mjs instead.
 //
 // Command line: node flatpak/manifest-pin.mjs < io.github.TheZwiss.backspace.yml
 // prints the pinned commit, or the reason on stderr with exit status 1.

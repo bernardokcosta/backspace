@@ -105,15 +105,12 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Deliberately still report-only, and this is the one scanner that is.
-      # Measured 2026-09-03 against an image built from main, after the runtime
-      # stage stopped shipping pnpm and npm: 3 fixable HIGH/CRITICAL, down from
-      # 20. All three are one cluster (fastify, @fastify/static, find-my-way) and
-      # none has a fix inside the Fastify 4 line, so clearing them is the Fastify
-      # 5 migration, not a version bump. Until that lands, making this blocking
-      # would fail every release publish, and holding security fixes behind a
-      # scanner backlog is the exact inversion this project already decided
-      # against. See docs/systems/security-scanning.md.
+      # Deliberately report-only. The measured 1.17.0 SARIF has fixable Debian
+      # package debt; the old Fastify 4 migration rationale no longer applies.
+      # Preserve the report and assess a base-image refresh / severity gate in
+      # a separately authorized image-remediation pass. Do not suppress debt
+      # or replace an immutable published release to make this green.
+      # See docs/systems/security-scanning.md for dated scan provenance/triage.
       - name: Trivy image scan (report-only)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         continue-on-error: true # report-only: see the note above, not an oversight

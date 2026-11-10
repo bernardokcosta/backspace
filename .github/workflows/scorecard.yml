@@ -1,8 +1,8 @@
 name: OpenSSF Scorecard
 
 # Scores the repo's security posture (branch protection, pinned deps, token
-# permissions, etc.) and publishes to the OpenSSF public API so a badge can be
-# shown (badge is added in Plan E). REQUIRES the canonical repo to be PUBLIC —
+# permissions, etc.) and publishes to the OpenSSF public API. Requires the repo
+# to be PUBLIC —
 # see the maintainer checklist in docs/systems/security-scanning.md.
 
 on:

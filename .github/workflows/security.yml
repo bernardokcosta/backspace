@@ -41,6 +41,13 @@ jobs:
         uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_VERSION: 8.24.3
+      - name: Setup Node.js for scanner policy regression
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - name: Verify new commits cannot reuse historical secret-scan exceptions
+        run: node scripts/verify-gitleaks-policy.mjs --binary gitleaks
 
   osv-scanner:
     name: Dependency scan (OSV-Scanner)

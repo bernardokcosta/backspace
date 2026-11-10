@@ -1,10 +1,9 @@
 name: CI
 
 # Runs the workspace's lint, typecheck, production build, and full test suite on
-# every pull request and on pushes to main. Purpose: catch compile errors and test
-# regressions before merge instead of relying on each contributor running tests
-# locally. Once this check is green on a PR, enable branch protection on `main`
-# ("Require status checks to pass" → select "Build & test") to make it blocking.
+# every pull request and on pushes to the supported default branches. The stable
+# "Build & test" aggregate includes lint, image and Windows native validation.
+# master protection also requires the separate enforcing security/CodeQL checks.
 
 on:
   pull_request:
@@ -32,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Node 24 only: the current active LTS, what `.nvmrc` selects and what
+        # Node 24 only: the pinned LTS line, what `.nvmrc` selects and what
         # the Docker image runs. (`engines.node` still admits >=22.12, so
         # Node 22 installs keep working; CI just validates the LTS we ship.)
         node-version: [24]
@@ -45,6 +44,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # source-pairing and historical-fingerprint contract tests
 
       - name: Setup pnpm
         uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -75,8 +76,8 @@ jobs:
       - name: Check precache sizes
         run: node scripts/check-precache-size.mjs
 
-      # Desktop is not part of `pnpm build` (that produces an Electron installer,
-      # which release.yml owns). Type-check its source here so desktop TS errors
+      # Desktop is not part of `pnpm build`; release.yml owns installers.
+      # Type-check its source here so desktop TS errors
       # surface on PRs rather than only at release-tag time.
       - name: Typecheck desktop
         run: pnpm --filter @veyvox/desktop build:ts
@@ -94,27 +95,26 @@ jobs:
       # This includes the two-instance federation e2e suites
       # (packages/server/test/federation-e2e-*.test.ts), which spawn real server
       # processes on ephemeral ports, peer them over the real HMAC handshake and
-      # relay real events between them. They are deliberately part of THIS job
-      # rather than a job of their own: branch protection requires the
-      # "Build & test" context (produced by the aggregate gate below), so a
-      # separate job would run on PRs without being able to block a merge — no
-      # use for a suite whose whole purpose is gating security fixes. They need
+      # relay real events between them. Keeping them in this job feeds their
+      # result into the required aggregate gate below. They need
       # no Docker, Caddy or LiveKit, and add roughly a minute of wall clock.
       - name: Test
         run: |
-          node --test scripts/probe-desktop-compatibility.test.mjs
-          node --test scripts/desktop-release-assets.test.mjs scripts/publish-desktop-release.test.mjs
-          node --test scripts/gen-icons.test.mjs scripts/veyvox-brand.test.mjs scripts/veyvox-docs.test.mjs scripts/verify-desktop-build.test.mjs scripts/installed-rebrand.test.mjs
-          node --test packages/desktop/scripts/mac-helpers.test.mjs scripts/i18n-desktop.test.mjs
+          pnpm test:tooling
           pnpm -r test
 
-  # ESLint over every workspace package. Its own job rather than a step in the
-  # matrix above: the rule set is not type-aware and reads no compiled output,
-  # so the result cannot differ between Node 22 and Node 24, and a step would
-  # run it twice and add its runtime to the critical path of both legs. Here it
-  # runs in parallel with them and gates through the aggregate job below. The
-  # install is the same one the matrix does, on its own runner; nothing is
-  # built, because linting needs sources only.
+      - name: Check Flatpak Node SDK references
+        run: node flatpak/node-sdk-version.mjs
+
+      - name: Check Flatpak release source pairing
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node flatpak/sources-pairing.mjs "$BASE_SHA" "$HEAD_SHA"
+
+  # ESLint reads sources only, so run it in parallel with compilation/tests.
+  # Both results feed the same required aggregate gate.
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -204,8 +204,8 @@ jobs:
           cache-to: type=gha,mode=max
 
   # Aggregate gate reporting a single, matrix-independent "Build & test" status.
-  # Branch protection on main requires the "Build & test" context, but the matrix
-  # job above reports per-version contexts ("Build & test (Node 22/24)"). This job
+  # master protection requires this context, while the matrix job above reports
+  # per-version contexts (currently "Build & test (Node 24)"). This job
   # keeps the stable required context alive and fails unless every matrix leg
   # succeeded (if: always() so a matrix failure still reports a definitive result
   # instead of leaving the required check pending forever).

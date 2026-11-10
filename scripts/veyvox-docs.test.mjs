@@ -6,6 +6,20 @@ import sharp from 'sharp';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const read = name => fs.readFileSync(path.join(ROOT, name), 'utf8');
+test('presents Juno only as a minigame example', () => {
+  for (const [file, category, label] of [
+    ['README.md', 'minigames', 'Minigames and soundboard'],
+    ['README.pt-BR.md', 'minijogos', 'Minijogos e soundboard'],
+  ]) {
+    const text = read(file);
+    const hero = text.slice(0, text.indexOf('</div>'));
+    assert.match(hero, new RegExp(` · ${category}\\r?$`, 'm'));
+    assert.doesNotMatch(hero, /\bJuno\b/);
+    assert.match(text, new RegExp(`^- \\*\\*${label}:\\*\\*[^\\n]*\\bJuno\\b`, 'm'));
+    assert.doesNotMatch(text, /^#{1,6}[^\n]*\bJuno\b|^- \*\*[^*\n]*\bJuno\b/im);
+  }
+});
+
 function anchors(text) {
   const result = new Set([...text.matchAll(/(?:id|name)=["']([^"']+)["']/g)].map(m => m[1]));
   for (const match of text.matchAll(/^#{1,6}\s+(.+)$/gm)) result.add(match[1].toLowerCase().replace(/[^\p{L}\p{N}_\s-]/gu, '').trim().replace(/\s/g, '-'));

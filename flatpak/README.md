@@ -44,29 +44,17 @@ flatpak-builder --user --install-deps-from=flathub --install --force-clean \
 flatpak run io.github.TheZwiss.backspace
 ```
 
-Upstream's separate release metadata workflow updates its manifest commit, AppStream release and
-screenshot URLs, and `node-sources.json` automatically through
-`.github/workflows/flatpak-release-metadata.yml`; its upstream-only writer is not
-invoked for this fork's desktop release. Historical AppStream entries and source
-pins are not rewritten by a rebrand. The AppStream release
-description is the first paragraph of the release notes, extracted by
-`release-summary.mjs`; notes without one fail the run instead of shipping a
-placeholder. The draft release already carries the `# Backspace X.Y.Z` heading,
-so the upstream human step is to write that paragraph directly under it. The workflow
-builds the exact generated manifest on native x86_64 and aarch64 runners, opens
-the metadata pull request only after both builds pass, and that pull request
-merges itself once CI passes. Re-run a release by dispatching the workflow with
-its tag; the re-run replaces the open pull request's branch. The full sequence,
-including what to do when the pull request job fails, is in
-`docs/systems/desktop.md` under "Release publishing". The committed
-`node-sources.json` stays paired with the pinned release; see
-"Release-paired offline sources" below.
+This fork does not publish a Flathub package or automatically update Flatpak
+release metadata. Historical AppStream entries, source pins and offline sources
+are preserved as a matching pair, not rewritten by a desktop release. Optional
+`update-release.mjs` / `release-summary.mjs` tools and their tests remain available
+for deliberate packaging work; they do not publish anything on their own.
 
-The Flatpak CI workflow generates `node-sources.ci.json` automatically from the
-checked-out lockfile before building on both x86_64 and aarch64. Contributors on
-Windows or macOS can update dependencies and submit the lockfile normally,
-without installing Flatpak or committing generated sources. Generation failures
-appear in the named generation step before the offline build starts.
+The main CI runs the Flatpak tooling's Node tests, validates the SDK references
+and checks release pairing on PRs. It does **not** run a two-architecture Flatpak
+build. Generate and build locally using the commands above when testing the
+actual sandbox package; ordinary dependency changes need no committed generated
+source list.
 
 To build a single-file bundle after either build above, export the local
 repository created by `flatpak-builder`:
@@ -101,22 +89,20 @@ use the desktop environment's autostart settings instead.
 The committed `node-sources.json` belongs to the release commit the manifest
 pins, not to the working tree: it is generated from that release's lockfile,
 and the published manifest builds only with that pair. The two move together,
-and only in the release metadata pull request. Ordinary dependency PRs must not
-regenerate or hand-edit `node-sources.json`; the Flatpak workflow builds them
-against `node-sources.ci.json`, generated from their own lockfile.
+in a deliberate packaging update. Ordinary dependency PRs must not regenerate
+or hand-edit `node-sources.json`; local checkout builds use
+`node-sources.ci.json`, generated from their own lockfile.
 
-The `Check release pairing` job in `.github/workflows/flatpak.yml` enforces
-this on pull requests with `flatpak/sources-pairing.mjs`: it fails when
+The main `.github/workflows/ci.yml` enforces this on pull requests with
+`flatpak/sources-pairing.mjs`: it fails when
 `flatpak/node-sources.json` changes while the pinned `commit:` in
 `io.github.TheZwiss.backspace.yml` stays the same, and passes any change that
-moves the pin. The step skips on pushes and manual runs: a push to main has
-already landed, and a deliberate hand restore of the release-paired file (as in
-#147), merged over this check on its pull request, must be able to land without
-turning main red. If main ever ends up off this rule, the next release's
-metadata pull request regenerates the file and pairs it again.
+moves the pin. It compares the PR's base/head revisions; a dependency-only
+lockfile update leaves this historical pair intact. The unit tests also exercise
+changed/deleted sources with an unchanged pin and unreadable revisions.
 
-The same job runs `flatpak/node-sdk-version.mjs` on every run: each reference
-to the Node SDK extension in the two Flatpak workflows, this README and
+CI runs `flatpak/node-sdk-version.mjs` on every run: each reference
+to the Node SDK extension in this README and
 `prepare-ci-manifest.mjs` must name an extension from the manifest's
 `sdk-extensions` on its `runtime-version` branch. Moving to a new freedesktop
 runtime fails the pull request until all of them move with the manifest.

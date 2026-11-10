@@ -60,7 +60,7 @@ Desktop.ini
 *.swo
 *~
 
-# Internal process docs / scratch (never published; see scripts/prepare-public-release.sh)
+# Local rich-text scratch (never published)
 *.rtf
 *.rtfd/
 

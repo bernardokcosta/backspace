@@ -1,14 +1,25 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 
-import { checkNodeSdkExtension } from './node-sdk-version.mjs';
+import { checkNodeSdkExtension, REFERENCING_FILES } from './node-sdk-version.mjs';
 
 const script = fileURLToPath(new URL('./node-sdk-version.mjs', import.meta.url));
 const manifest = readFileSync(new URL('../io.github.TheZwiss.backspace.yml', import.meta.url), 'utf8');
 
+test('checks retained local commands rather than removed release automation', () => {
+  assert.deepEqual(REFERENCING_FILES, [
+    { path: 'flatpak/README.md', generator: true },
+    { path: 'flatpak/prepare-ci-manifest.mjs', generator: false },
+  ]);
+  for (const file of REFERENCING_FILES) {
+    assert.ok(existsSync(new URL(`../${file.path}`, import.meta.url)), file.path);
+  }
+});
+
+// Synthetic parser input, not a workflow shipped by this fork.
 const workflow = [
   'jobs:',
   '  build:',
