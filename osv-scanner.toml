@@ -1,28 +1,7 @@
-# OSV-Scanner ratchet. Consumed by .github/workflows/security.yml.
-#
-# The dependency scan blocks on any vulnerability that is NOT listed here, so a
-# newly introduced one fails the build. Each entry below is in one of two
-# shapes: the fix needs a major upgrade that is its own compatibility decision,
-# or no fixed release exists and the package is build-time only. They are
-# deferred, not dismissed. The argument for each lives in
-# docs/systems/security-scanning.md, section "What is left open, and why".
-#
-# ignoreUntil is deliberate. A waiver with no expiry is how a backlog becomes
-# permanent. When these dates pass the findings come back and block, which
-# forces the upgrade decision to be made rather than forgotten.
-#
-# Removing an entry is the goal. Adding one needs the same written reason.
-
-# deepmerge 4.3.1 (CVE-2026-93753 / GHSA-gcqx-w48m-w2h4). No fixed release
-# exists: 4.3.1 is the latest published version and the advisory covers
-# through 4.3.1 (introduced in 4.2.0). Build-time only: @rollup/plugin-node-resolve
-# (via vite-plugin-pwa/workbox-build and prism-react-renderer) merges build
-# config via deepMerge({}, defaults); it is not shipped in the web bundle, the
-# server image, or the desktop app, and the merge inputs are repo-controlled
-# build config rather than attacker data. The parent requires deepmerge ^4.2.2,
-# so a floor below 4.2.0 would violate its range. Revisit when a fixed release
-# ships.
-[[IgnoredVulns]]
-id = "CVE-2026-93753"
-ignoreUntil = 2026-12-01
-reason = "deepmerge 4.3.1, no fixed release exists (latest). Build-time only via @rollup/plugin-node-resolve. Does not ship to users."
+# OSV-Scanner ratchet, consumed by .github/workflows/security.yml.
+# No dependency exceptions remain. The deepmerge CVE-2026-93753 waiver was
+# removed after eliminating its parent dependency edge and replacing only the
+# resolver's private constant clone with native structuredClone.
+# See docs/systems/security-scanning.md for evidence and patch exit conditions.
+# Any future exception needs a concrete rationale and expiry; scanners must not
+# be weakened merely to obtain a green dependency-update PR.

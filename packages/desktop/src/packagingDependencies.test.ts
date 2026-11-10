@@ -118,13 +118,14 @@ describe('packaging dependency security upgrades', () => {
   });
 
   it('retains minimatch preprocessing amplification limits', () => {
-    const parsed = new glob.GlobSync(`pre/${'**/../a/b/'.repeat(6)}file`, {
+    // minimatch11.0.5 rejects the expansion instead of returning a truncated
+    // pattern set. A RangeError is the intended fail-closed security boundary.
+    expect(() => new glob.GlobSync(`pre/${'**/../a/b/'.repeat(6)}file`, {
       cwd: source,
       noprocess: true,
       optimizationLevel: 2,
       braceExpandMax: 4,
-    });
-    expect(parsed.minimatch.globParts.length).toBeLessThanOrEqual(4);
+    })).toThrowError(new RangeError("optimizationLevel 2: too many patterns from '**/..'"));
   });
 
   it('packs real files while unpacking native modules and directory patterns', async () => {

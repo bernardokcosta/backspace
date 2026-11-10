@@ -69,7 +69,7 @@ installed-NSIS/Debian/macOS replacement or hardware-acceptance claim.
 
 The separate `scripts/verify-installed-rebrand.mjs` installer gate runs only on
 explicitly opted-in **GitHub-hosted disposable** runners. It verifies pinned
-1.16.8 installer digests, native architecture, NSIS GUID/path/shortcuts/AUMID,
+Veyvox 1.17.0 installer digests, native architecture, NSIS GUID/path/shortcuts/AUMID,
 Debian Package/desktop path or macOS bundle identity/path; launches the actual
 installed main/preload; and compares measured cookie protection/persistence, synthetic session,
 IndexedDB, instances and preferences after upgrade and repeat launch. Linux also
@@ -77,9 +77,17 @@ exercises the real AppImages with extract-and-run (no sandbox/fuse bypass).
 OS-disabled startup is checked without auto-reenabling it. macOS disabling uses
 the real ServiceManagement bridge. Hidden launch uses `--hidden`, not a real
 reboot/login. Linux's baseline enabled autostart file is seeded at the OS boundary
-because the old Electron API did not implement that write. No claim of real-user
+to exercise path refresh independently of the baseline's settings UI. No claim of real-user
 login, hardware/media acceptance or successful platform execution follows from
 the existence of this gate: read its per-run reports before publication.
+
+The current fixed baseline is `bernardokcosta/veyvox` `v1.17.0`, using eight
+SHA-256 pins checked against the published installer bytes on 2026-11-10. The
+historical 1.16.8 release became unavailable; the user approved this baseline
+change after all six runner legs failed at its download, before executing the
+candidate. No latest lookup, fallback, skipped security assertion or publication
+is introduced. These jobs now measure Veyvox upgrades from 1.17.0; they do not
+prove the unavailable pre-rebrand 1.16.8 migration path.
 
 Cookie protection is measured, not inferred from Electron or branding. The
 published 1.16.8 Linux binary and candidate initially measured cookie encryption
@@ -1607,7 +1615,7 @@ output: dist-electron
 
 **Rebuild:** `electron-rebuild -f -w uiohook-napi` runs on `postinstall` to compile for the build machine's Electron ABI. `uiohook-napi` is the only native module this rebuild touches, and it is the only one in the desktop dependency tree. `better-sqlite3` belongs to `packages/server` and never enters the packaged app, so an Electron ABI mismatch cannot reach it.
 
-`@electron/rebuild` 4 is ESM-only and declares `engines.node: >=22.12.0`, which the repository's declared floor now matches (`engines.node: >=22.12.0`; the current CI runs Node 24 only). Historically, while one `ci.yml` leg still ran Node 20, the CLI was measured on 20.19.5 and completed the rebuild anyway: it uses `parseArgs`, `styleText` and `import.meta.dirname`, all of which exist in 20.19. The `postinstall` also ends in `|| node -e "console.warn(...)"`, so a rebuild failure degrades to a warning rather than breaking server/web installation. That historical measurement does not make Node 20 supported. Packaging uses `prebuilds/` and `npmRebuild: false`.
+`@electron/rebuild` 4 is ESM-only and requires Node >=22.12.0. The repository's stricter supported ranges now follow jsdom 31: `^22.22.2 || ^24.15.0 || >=26.0.0`; CI/`.nvmrc`/Docker remain Node 24. Historically the rebuild CLI was measured on 20.19.5, but that does not make Node 20 supported. The `postinstall` still ends in `|| node -e "console.warn(...)"`, so a rebuild failure warns rather than breaking server/web installation. Packaging retains `prebuilds/` and `npmRebuild: false`.
 
 **ASAR unpacking:** All `.node` files are unpacked from the ASAR archive (`asarUnpack: "**/*.node"`). Native modules cannot load from inside ASAR.
 

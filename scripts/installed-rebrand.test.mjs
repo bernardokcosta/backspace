@@ -5,6 +5,27 @@ import path from 'node:path';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import { requireDisposableRunner, BASELINES, assertInstalledReport, assertCookieProtectionUnchanged, assertCookieStorageRow, summarizeMacTermination } from './verify-installed-rebrand.mjs';
+import * as acceptance from './verify-installed-rebrand.mjs';
+
+test('pins the available Veyvox upgrade baseline and all eight verified installer hashes', () => {
+  assert.deepEqual(acceptance.BASELINE_RELEASE, { repository: 'bernardokcosta/veyvox', tag: 'v1.17.0', version: '1.17.0', prefix: 'Veyvox' });
+  assert.equal(Object.isFrozen(acceptance.BASELINE_RELEASE), true);
+  assert.deepEqual(Object.fromEntries([...Object.values(BASELINES), ...Object.values(acceptance.APPIMAGES)]), {
+    'win-x64.exe': 'af0a9e97d0c5b073f074c8ed0639517650dbdadaab1ca19c0a5005e4be815ff7',
+    'win-arm64.exe': '47618274b4a724dcf901b9ad4c41450d28ea529f876b9a8d3b44007138707ed0',
+    'mac-x64.dmg': 'b54563d74b9662ec1dc18028c904524173b67be7c84f536d615d77207802b882',
+    'mac-arm64.dmg': '893fd487634b80a8107d714ff07da2c15e3546d4ece2880fd0e14fd577e8e39b',
+    'linux-amd64.deb': '7572b3ef8c5bcb093202dfb5cab801bc2a6d43a6ffbd6257bae382e33c5c4df4',
+    'linux-arm64.deb': '981e5a8da0e4332542e68cef18e312bcdd3a6d006db3d957d3472bb2bf99f803',
+    'linux-x86_64.AppImage': '43d6cf9b9ee8ab3d80faa2521a993af2d354e77d6eb371d6a5cc69e8f2e372d1',
+    'linux-arm64.AppImage': 'ce1879b4a4d252e021707737461c49f876867be392d638e89d2c47434a817340',
+  });
+  const source = readFileSync(new URL('./verify-installed-rebrand.mjs', import.meta.url), 'utf8');
+  assert.doesNotMatch(source, /1\.16\.8|Backspace-Fork-|bernardokcosta\/backspace/);
+  assert.equal([...source.matchAll(/BASELINE_RELEASE\.tag/g)].length, 2);
+  assert.equal([...source.matchAll(/BASELINE_RELEASE\.repository/g)].length, 2);
+  assert.equal([...source.matchAll(/BASELINE_RELEASE\.prefix/g)].length, 2);
+});
 
 test('installed upgrade acceptance refuses to modify a non-runner OS account', () => {
   const result = spawnSync(process.execPath, [path.join(import.meta.dirname, 'verify-installed-rebrand.mjs')], {
