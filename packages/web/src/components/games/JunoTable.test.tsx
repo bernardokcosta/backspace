@@ -20,6 +20,19 @@ beforeEach(() => {
     connected: true, snapshot: { revision: 1, game: game() }, observedAt: Date.now(), command, open: true });
 });
 describe('Juno native table', () => {
+  it('routes enabled clicks and keyboard card selection to local audio, including settings portals', async () => {
+    const feedback = vi.fn();
+    useJunoStore.setState({ snapshot: { revision: 1, game: game('playing') }, playFeedback: feedback });
+    render(<JunoTable />);
+    await userEvent.click(screen.getByRole('button', { name: /play.*blue.*8/i }));
+    expect(feedback).not.toHaveBeenCalled();
+    const wild = screen.getByRole('button', { name: /play.*wild/i }); wild.focus();
+    await userEvent.keyboard('{Enter}'); expect(feedback).toHaveBeenLastCalledWith('select');
+    await userEvent.click(screen.getByRole('button', { name: 'Juno settings' }));
+    expect(feedback).toHaveBeenLastCalledWith('button');
+    feedback.mockClear(); await userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    expect(feedback).toHaveBeenCalledExactlyOnceWith('button'); expect(command).not.toHaveBeenCalled();
+  });
   it('groups accessible icon-only header actions on the right, including settings', () => {
     useJunoStore.setState({ snapshot: { revision: 1, game: game('playing') } });
     const { container } = render(<JunoTable />);

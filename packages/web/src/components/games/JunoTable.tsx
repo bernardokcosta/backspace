@@ -32,7 +32,13 @@ function JunoTableContent() {
   const rankingOpen = !!target && rankingContext === context;
   const isPlayer = !!game?.players.some(p => p.userId === target?.selfId);
   const { language: gameLanguage, dir: gameDir } = useJunoLanguage();
-  return <section ref={table} className="juno-table" aria-label={t('juno.name')} lang={gameLanguage} dir={gameDir}>
+  return <section ref={table} className="juno-table" aria-label={t('juno.name')} lang={gameLanguage} dir={gameDir}
+    onClickCapture={event => {
+      if (!(event.target instanceof Element)) return;
+      const control = event.target.closest('button,summary');
+      if (!control || control.matches(':disabled,[aria-disabled="true"]')) return;
+      useJunoStore.getState().playFeedback?.(control.classList.contains('juno-hand-card') ? 'select' : 'button');
+    }}>
     <header className="juno-header">
       <div className="juno-header-brand"><img className="juno-header-logo" src={JUNO_ASSETS.logo} alt={t('juno.name')} />
         {game?.practice && <span className="juno-practice" title={t('juno.practiceHint')}>{t('juno.practice')}</span>}</div>

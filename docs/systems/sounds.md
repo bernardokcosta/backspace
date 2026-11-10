@@ -5,7 +5,9 @@ Single source of truth for the in-app audio cue layer. Files live in
 to exactly one event; the two `stream_user_*` cues are dual-audience (see
 their rows). Ordinary cues are self-authored (no third-party/Discord audio).
 The Juno memory clip is separately user-supplied; no authorship/license claim
-is inferred (source/output hashes in `public/games/juno/manifest.json`).
+is inferred (source/output hashes in `public/games/juno/manifest.json`). Juno's
+16 user-supplied neon effects live in `public/sounds/juno/`, with unchanged
+Ogg bytes/hashes and the supplied provenance statement in its `manifest.json`.
 
 Source files:
 - Controller: `packages/web/src/components/voice/SoundController.tsx`
@@ -56,7 +58,7 @@ limiter, but have an independent panel volume and voice-scoped lifecycle.
 | `stream_user_joined.ogg` | (a) a viewer started watching **my** stream; (b) **I** started watching someone's stream | streamer **and** the acting viewer | (a) streamer-side: `streamWatchers[own LiveKit identity]` gains a watcher identity. (b) viewer-side: local feedback played by `handleViewerWatchToggle(_, true)` on the explicit "Watch Stream" action. |
 | `stream_user_left.ogg` | (a) a viewer stopped watching **my** stream; (b) **I** stopped watching someone's stream | streamer **and** the acting viewer | (a) streamer-side: `streamWatchers[own LiveKit identity]` loses a watcher identity (suppressed for the whole set when self-stream-end fires — see Mechanism Notes). (b) viewer-side: local feedback played by `handleViewerWatchToggle(_, false)` on the explicit "Stop Watching" action. |
 | `message.ogg` | new chat message arrived | self | The message is a `message` alert (see "Which messages alert" below). User can flip `messageSoundAllChannels` to fire on every channel. Alert: withheld on Do Not Disturb (see below). |
-| `juno_memory.ogg` | confirmed rare memory-card play | supported clients following the voice table, including spectators | `JunoSession` owns one `JunoMemorySound`; a new confirmed memory `lastMove.id` plays the user-supplied 2.79s clip through AudioManager/SFX output only. |
+| `juno_memory.ogg` | confirmed rare memory-card play | supported clients following the voice table, including spectators | `JunoSession` owns one `JunoSounds`; a new confirmed memory `lastMove.id` plays the user-supplied 2.79s clip through AudioManager/SFX output only. |
 
 The memory cue is not a message/notification alert and is never published to
 LiveKit or microphone capture. It obeys existing SFX volume, self deafen and
@@ -68,6 +70,50 @@ seconds are stopped on completion. Pending and playing cues are canceled on
 scope/account/room exit, disconnection, deafen or zero SFX volume. Audio/autoplay
 failure never rejects a game update. Browser validation proves decode/output
 playback, not the clip's spoken content or a live multi-device voice session.
+
+### Juno neon effects
+
+`components/games/junoSoundCues.ts` is the typed inventory/transition selector;
+the session's `JunoSounds` owns all short cues, including original memory dubbing.
+Every file below is under `public/sounds/juno/`, unchanged from the supplied pack:
+
+| File | Confirmed event / audience |
+|---|---|
+| `carta_jogada.ogg` | Ordinary numbered-card play; all followers |
+| `carta_comprada.ogg` | Positive-amount draw/timeout; all followers; memory miss for other followers |
+| `mais_dois.ogg`, `mais_quatro.ogg` | +2 / +4 play, replacing ordinary play |
+| `inverter.ogg`, `bloquear.ogg`, `coringa.ogg` | Reverse / skip / wild play, replacing ordinary play |
+| `embaralhar.ogg` | New confirmed round start, including after a rematch lobby |
+| `uno.ogg` | Confirmed announce or newly announced play; prior explicit announcement is not repeated |
+| `denuncia_martelo.ogg` | Confirmed positive-amount report; all followers |
+| `seu_turno.ogg` | Transition to the local seated player's turn, including first turn |
+| `vitoria.ogg`, `derrota.ogg` | Live playing→finished transition with a winner, for seated players only |
+| `jogada_invalida.ogg` | New `juno_invalid_move` refusal or own confirmed memory miss, local only |
+| `botao.ogg`, `selecionar_carta.ogg` | Enabled button/summary click or hand-card selection, local only |
+
+The table's capture handler also covers keyboard-generated clicks and its React
+portal controls. Disabled controls, hovering, focus and slider movement do not
+make click sounds. A transient callback in the existing Juno store reaches only
+the current session owner; no local feedback is sent to the server.
+
+Gain multiplies `getSfxVolume() * effectsPercent/100` by pack gain 0.65 for ordinary
+cues, 0.70 for specials/announcement/report/victory, and 0.35 for UI/invalid cues.
+Memory keeps its existing gain 1. Separate envelope and volume gains provide
+10ms fades and live slider changes without restarting any source. Five bounded
+lanes (move, announcement, turn, result, interface) replace older same-lane work,
+including pending loads. Results supersede all prior audio and do not stack a
+final-card sound. Spectators get game actions but never victory/defeat/turn cues.
+
+Initial views, different rounds, polls and reconnect are silent; stale/private
+state loss stops audio and rebaselines. Turn-resetting moves use the existing
+42s-remaining freshness check, including every memory miss and a draw whose actor
+is no longer the current player (an unplayable/empty draw advances the turn).
+Announce/report and playable draws retain the deadline, so new confirmed ids are
+their trigger even late in a turn; the wire contract has no independent move
+timestamp. All loads still expire after 3s.
+Every lane and pending load obeys local/global SFX zero, self/space deafen,
+account/origin/channel identity, voice disconnection and owner cleanup. Failures
+never reject gameplay. Music and microphone/publication routing are unchanged.
 
 ### Juno personal audio and focused music
 
