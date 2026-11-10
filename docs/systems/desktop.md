@@ -1607,7 +1607,7 @@ output: dist-electron
 
 **Rebuild:** `electron-rebuild -f -w uiohook-napi` runs on `postinstall` to compile for the build machine's Electron ABI. `uiohook-napi` is the only native module this rebuild touches, and it is the only one in the desktop dependency tree. `better-sqlite3` belongs to `packages/server` and never enters the packaged app, so an Electron ABI mismatch cannot reach it.
 
-`@electron/rebuild` 4 is ESM-only and declares `engines.node: >=22.12.0`, which the repository's declared floor now matches (`engines.node: >=22.12.0`; the current CI runs Node 24 only). Historically, while one `ci.yml` leg still ran Node 20, the CLI was measured on 20.19.5 and completed the rebuild anyway: it uses `parseArgs`, `styleText` and `import.meta.dirname`, all of which exist in 20.19. The `postinstall` also ends in `|| node -e "console.warn(...)"`, so a rebuild failure degrades to a warning rather than breaking server/web installation. That historical measurement does not make Node 20 supported. Packaging uses `prebuilds/` and `npmRebuild: false`.
+`@electron/rebuild` 4 is ESM-only and requires Node >=22.12.0. The repository's stricter supported ranges now follow jsdom 31: `^22.22.2 || ^24.15.0 || >=26.0.0`; CI/`.nvmrc`/Docker remain Node 24. Historically the rebuild CLI was measured on 20.19.5, but that does not make Node 20 supported. The `postinstall` still ends in `|| node -e "console.warn(...)"`, so a rebuild failure warns rather than breaking server/web installation. Packaging retains `prebuilds/` and `npmRebuild: false`.
 
 **ASAR unpacking:** All `.node` files are unpacked from the ASAR archive (`asarUnpack: "**/*.node"`). Native modules cannot load from inside ASAR.
 

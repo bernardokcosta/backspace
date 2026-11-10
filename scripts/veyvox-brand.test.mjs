@@ -9,7 +9,7 @@ import { readBuildYaml } from './desktop-release-assets.mjs';
 const ROOT = path.resolve(import.meta.dirname, '..');
 const read = name => fs.readFileSync(path.join(ROOT, name), 'utf8').replaceAll('\r\n', '\n');
 const json = name => JSON.parse(read(name));
-test('uses Veyvox workspace names without changing third-party resolutions', () => {
+test('uses Veyvox workspace names and links without freezing third-party updates', () => {
   assert.equal(json('package.json').name, 'veyvox');
   for (const name of ['shared', 'server', 'web', 'desktop']) {
     const manifest = json(`packages/${name}/package.json`);
@@ -18,10 +18,20 @@ test('uses Veyvox workspace names without changing third-party resolutions', () 
       for (const key of Object.keys(dependencies ?? {})) assert.ok(!key.startsWith('@backspace/'), key);
     }
   }
-  const lock = read('pnpm-lock.yaml').replaceAll('\r\n', '\n');
-  const start = lock.indexOf('\npackages:\n');
-  assert.ok(start > 0);
-  assert.equal(createHash('sha256').update(lock.slice(start)).digest('hex'), 'cbf9066fcf73dd5a68b6d2861e7bba94c0ce74b7df4321a9a84c23ef36a0adf9');
+  const lock = readBuildYaml(read('pnpm-lock.yaml'));
+  assert.equal(lock.lockfileVersion, '9.0');
+  for (const name of ['server', 'web']) {
+    const importer = lock.importers[`packages/${name}`];
+    assert.deepEqual(importer.dependencies['@veyvox/shared'], { specifier: 'workspace:*', version: 'link:../shared' });
+  }
+  for (const importer of Object.values(lock.importers)) {
+    for (const dependencies of [importer.dependencies, importer.devDependencies]) {
+      for (const [name, resolution] of Object.entries(dependencies ?? {})) {
+        assert.ok(!name.startsWith('@backspace/'), name);
+        assert.ok(!resolution.specifier.startsWith('npm:@backspace/'), name);
+      }
+    }
+  }
   assert.match(read('package.json'), /@veyvox\/shared build && pnpm --filter @veyvox\/server build && pnpm --filter @veyvox\/web build/);
 });
 

@@ -12,7 +12,7 @@
 # better-sqlite3 under pnpm.ignoredBuiltDependencies. The runtime stage copies
 # the resulting node_modules and runs no install of its own.
 #
-# The base is node:24-slim, Node v24.20.0. All three stages pin it by the digest
+# The base is node:24-slim, Node v24.22.2. All three stages pin it by the digest
 # of the multi-arch index, so the same pin resolves on amd64 and on arm64.
 FROM node:24-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9 AS deps
 
@@ -42,7 +42,7 @@ RUN pnpm install --prod --frozen-lockfile
 # keeps the server dependencies, better-sqlite3 among them, out of this stage, so
 # the native module is installed once, in `deps`.
 #
-# Base: node:24-slim, Node v24.20.0.
+# Base: node:24-slim, Node v24.22.2.
 FROM node:24-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9 AS builder
 
 RUN corepack enable && corepack prepare pnpm@10.34.3 --activate
@@ -80,7 +80,7 @@ RUN pnpm --filter @veyvox/web build
 # ============================================================
 # Stage 3: Production runtime
 #
-# Base: node:24-slim, Node v24.20.0.
+# Base: node:24-slim, Node v24.22.2.
 FROM node:24-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9 AS runtime
 
 # No package manager ships in the runtime image. This stage installs nothing

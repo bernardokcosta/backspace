@@ -16,7 +16,8 @@ Chat · voice · video · screen sharing · federation · minigames
 Veyvox is an independently maintained, self-hosted communication platform derived
 from [Backspace](https://github.com/TheZwiss/backspace). It combines spaces and
 channels, private conversations and optional voice/video with federation between
-independent instances. The source tree targets; download only builds
+independent instances. See [package.json](package.json) for the source version;
+download only builds
 listed in the published releases.
 
 ## Start here
@@ -45,11 +46,11 @@ listed in the published releases.
 
 Use [Releases](https://github.com/bernardokcosta/veyvox/releases) to select a **published** build for your machine:
 
-| Platform | x.xx.x installer naming | Notes |
+| Platform | Installer patterns (`<version>` is the published release version) | Notes |
 | --- | --- | --- |
-| Windows | `Veyvox-x.xx.x-win-x64.exe` / `-win-arm64.exe` | Choose your architecture; x64 is the fallback when unsure. Installers are not Authenticode-signed. |
-| Linux | `Veyvox-x.xx.x-linux-x86_64.AppImage` / `-linux-arm64.AppImage`; `-linux-amd64.deb` / `-linux-arm64.deb` | AppImage or Debian package; artifacts are unsigned. |
-| macOS | `Veyvox-x.x.x-mac-arm64.dmg` / `-mac-x64.dmg` | Apple Silicon or Intel. Ad-hoc signed, not notarized; updates require a manual download. |
+| Windows | `Veyvox-<version>-win-x64.exe` / `-win-arm64.exe` | Choose your architecture; x64 is the fallback when unsure. Installers are not Authenticode-signed. |
+| Linux | `Veyvox-<version>-linux-x86_64.AppImage` / `-linux-arm64.AppImage`; `-linux-amd64.deb` / `-linux-arm64.deb` | AppImage or Debian package; artifacts are unsigned. |
+| macOS | `Veyvox-<version>-mac-arm64.dmg` / `-mac-x64.dmg` | Apple Silicon or Intel. Ad-hoc signed, not notarized; updates require a manual download. |
 
 The app asks for your instance address. No central Veyvox account or public
 default server is required. Updater manifests and `.blockmap` files are not
@@ -132,8 +133,8 @@ for the full behavior and platform limitations.
 
 ## Development
 
-Use **Node.js >=22.12.0** and **pnpm 10**. `.nvmrc` and the current CI select
-Node 24. The desktop keyboard hook needs platform-native C++ build tools;
+Use **Node.js 22.22.2+ (22.x), 24.15.0+ (24.x), or 26+** and **pnpm 10**.
+`.nvmrc`, Docker and the current CI select Node 24. The desktop keyboard hook needs platform-native C++ build tools;
 if its rebuild cannot run, installation warns and continues for server/web work.
 
 ```bash

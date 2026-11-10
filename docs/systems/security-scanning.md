@@ -20,8 +20,9 @@ list does **not** prove that a published image is vulnerability-free.
 `native-sdr-capture.yml` is reusable from CI and tag releases, with a manual
 diagnostic trigger. It has no independent push trigger duplicating its callers.
 Its checksum-verified actionlint validates **all** retained workflows. CI runs
-Node 24 (the pinned `.nvmrc`/Docker line); `engines.node >=22.12` is a declared
-floor, not evidence of a second Node 22 CI leg.
+Node 24 (the pinned `.nvmrc`/Docker line); root engines are now
+`^22.22.2 || ^24.15.0 || >=26.0.0`, matching jsdom31. This does not claim
+separate Node 22/26 CI legs.
 
 ## Tiered policy
 
@@ -69,16 +70,27 @@ rotation/revocation decisions, not another broad exception.
 
 ### What is left open, and why
 
-One dependency exception remains in `osv-scanner.toml`:
+No dependency exception remains in `osv-scanner.toml`. On 2026-11-10 the
+deepmerge 4.3.1 CVE-2026-93753 / GHSA-gcqx-w48m-w2h4 waiver was removed by
+eliminating the vulnerable package, not by dismissing its alert or downgrading.
 
-| Package / advisory | Bucket | Reason | Expiry |
-|--------------------|--------|--------|--------|
-| deepmerge 4.3.1, CVE-2026-93753 / GHSA-gcqx-w48m-w2h4 | Build tooling through `@rollup/plugin-node-resolve` (`vite-plugin-pwa`/Workbox and `prism-react-renderer`) | No fixed release recorded; repo-controlled build configuration inputs, not shipped runtime code | 2026-12-01 |
+The sole current parent, node-resolve 16.0.3 through Workbox/vite-plugin-pwa,
+used deepmerge only to clone a private data-only defaults constant. The versioned
+`patches/@rollup__plugin-node-resolve@16.0.3.patch` replaces that one call with
+structuredClone in both CJS/ESM; the exact parent edge is removed with the existing
+pnpm override mechanism. No generic merge library/API is substituted and no new
+dependency is added. Root/installed lockfile and actual resolver tests verify
+absence, frozen defaults, independent instances and real Rollup resolution.
+The production Workbox build must still pass. Remove the patch/override only
+when an upstream version no longer needs the vulnerable edge or ships a verified
+fix; rerun the same checks. Node's supported ranges all provide structuredClone.
 
-The exception is a dated deferral, not a clean scan. Review a fixed release when
-available; do not silently extend expiry or weaken the scanner. The old thirteen-
-finding/Fastify-4 backlog is not the current dependency state: this fork uses
-Fastify 5 and Vitest 5, and has no active Cloudflare Workers workspace.
+The historical release-paired Flatpak sources remain paired with their old
+upstream source pin, as required by flatpak/README.md; current checkout builds
+regenerate their own ignored source list. This remediation does not rewrite a
+historical release or prove old published artifacts are vulnerability-free.
+The old Fastify4 backlog is also not the current dependency state: the fork uses
+Fastify 5/Vitest 5 and has no active Cloudflare Workers workspace.
 
 ### The image scan is the exception
 

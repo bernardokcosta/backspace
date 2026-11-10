@@ -32,8 +32,8 @@ jobs:
       fail-fast: false
       matrix:
         # Node 24 only: the pinned LTS line, what `.nvmrc` selects and what
-        # the Docker image runs. (`engines.node` still admits >=22.12, so
-        # Node 22 installs keep working; CI just validates the LTS we ship.)
+        # the Docker image runs. The declared jsdom31-compatible Node ranges
+        # are broader; this matrix measures only the LTS line we ship.
         node-version: [24]
 
     steps:
@@ -132,12 +132,8 @@ jobs:
         with:
           version: 10.34.3
 
-      # ESLint 10 declares `node: ^20.19 || ^22.13 || >=24`, which excludes
-      # this repository's 22.12 floor. Nothing enforces that range: the eslint
-      # bin has no version check, pnpm prints no warning without
-      # engine-strict, and `pnpm lint` on 22.12.0 exits 0 today. The pin is so
-      # CI runs on a version the package says it supports, not because the run
-      # would otherwise fail.
+      # Use the same supported Node24 line as the build and shipped image.
+      # The root engines also satisfy ESLint10's declared Node requirements.
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:

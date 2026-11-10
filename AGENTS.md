@@ -1,6 +1,6 @@
 # AGENTS.md — Veyvox
 
-Self-hosted Discord alternative (AGPL-3.0-only, independently maintained fork). TypeScript strict monorepo: pnpm workspaces, Node ≥22.12 + pnpm 10 (`.nvmrc` selects Node 24, which Docker and the current CI use).
+Self-hosted Discord alternative (AGPL-3.0-only, independently maintained fork). TypeScript strict monorepo: pnpm workspaces, Node `^22.22.2 || ^24.15.0 || >=26.0.0` + pnpm 10 (`.nvmrc` selects Node 24, which Docker and the current CI use).
 
 ## Commands
 
@@ -26,7 +26,7 @@ pnpm --filter @veyvox/server test:federation-e2e     # federation e2e only
 pnpm --filter @veyvox/web test -- <file|pattern>     # single web test
 ```
 
-CI (`ci.yml`) gates PRs on: build+test (Node 24), lint, native capture checks, and an amd64 container-image build. The declared Node ≥22.12 floor is not a claim of a separate Node 22 CI leg.
+CI (`ci.yml`) gates PRs on: build+test (Node 24), lint, native capture checks, and an amd64 container-image build. The declared Node ranges match jsdom 31; they are not a claim of separate Node 22/26 CI legs.
 
 ## Gotchas (read before touching code)
 

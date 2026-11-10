@@ -25,10 +25,19 @@ function anchors(text) {
   for (const match of text.matchAll(/^#{1,6}\s+(.+)$/gm)) result.add(match[1].toLowerCase().replace(/[^\p{L}\p{N}_\s-]/gu, '').trim().replace(/\s/g, '-'));
   return result;
 }
+test('documents equivalent installer placeholders and a discoverable source version', () => {
+  for (const file of ['README.md', 'README.pt-BR.md']) {
+    const text = read(file);
+    assert.match(text, /\[package\.json\]\(package\.json\)/, file);
+    for (const suffix of ['win-x64.exe', 'linux-x86_64.AppImage', 'mac-arm64.dmg']) assert.ok(text.includes(`Veyvox-<version>-${suffix}`), `${file}: ${suffix}`);
+    assert.doesNotMatch(text, /Veyvox-x\.x{1,2}\.x|source tree targets;|prepara a versão;/, file);
+    assert.doesNotMatch(text, /releases\/download\/v\d/);
+  }
+});
 test('ships equivalent bilingual onboarding and original attribution with real local links', () => {
   for (const file of ['README.md', 'README.pt-BR.md']) {
     const text = read(file);
-    for (const required of ['Veyvox', '1.17.0', 'Jannis Braun', 'TheZwiss', 'https://github.com/TheZwiss/backspace', 'AGPL-3.0-only', 'LiveKit', 'Juno', 'soundboard', 'PWA', '25', 'pnpm install --frozen-lockfile', '@veyvox/desktop', '3005', '5173', '3000', 'JWT_SECRET', '32', 'ghcr.io/bernardokcosta/backspace']) assert.ok(text.includes(required), `${file}: ${required}`);
+    for (const required of ['Veyvox', 'Jannis Braun', 'TheZwiss', 'https://github.com/TheZwiss/backspace', 'AGPL-3.0-only', 'LiveKit', 'Juno', 'soundboard', 'PWA', '25', 'pnpm install --frozen-lockfile', '@veyvox/desktop', '3005', '5173', '3000', 'JWT_SECRET', '32', 'ghcr.io/bernardokcosta/backspace']) assert.ok(text.includes(required), `${file}: ${required}`);
     assert.match(text, /docker compose pull backspace/);
     assert.doesNotMatch(text, /docker compose (?:pull|up[^\n]*) veyvox/);
     assert.ok(text.slice(0, 250).includes(file === 'README.md' ? 'README.pt-BR.md' : 'README.md'));
