@@ -16,7 +16,7 @@ Chat · voz · vídeo · compartilhamento de tela · federação · minijogos
 Veyvox é uma plataforma de comunicação auto-hospedada e mantida de forma
 independente, derivada do [Backspace](https://github.com/TheZwiss/backspace).
 Reúne espaços e canais, conversas privadas e voz/vídeo opcionais, com federação
-entre instâncias independentes. Este código-fonte prepara a versão **1.17.0**;
+entre instâncias independentes. Este código-fonte prepara a versão;
 baixe apenas as compilações presentes nas releases publicadas.
 
 ## Comece por aqui
@@ -45,11 +45,11 @@ baixe apenas as compilações presentes nas releases publicadas.
 
 Use [Releases](https://github.com/bernardokcosta/veyvox/releases) para escolher uma compilação **publicada** para sua máquina:
 
-| Plataforma | Nomes dos instaladores da versão 1.17.0 | Observações |
+| Plataforma | Nomes dos instaladores da versão x.xx.x | Observações |
 | --- | --- | --- |
-| Windows | `Veyvox-1.17.0-win-x64.exe` / `-win-arm64.exe` | Escolha sua arquitetura; em caso de dúvida, use x64. Os instaladores não têm assinatura Authenticode. |
-| Linux | `Veyvox-1.17.0-linux-x86_64.AppImage` / `-linux-arm64.AppImage`; `-linux-amd64.deb` / `-linux-arm64.deb` | AppImage ou pacote Debian; os arquivos não são assinados. |
-| macOS | `Veyvox-1.17.0-mac-arm64.dmg` / `-mac-x64.dmg` | Apple Silicon ou Intel. Assinatura ad-hoc, sem notarização; as atualizações exigem download manual. |
+| Windows | `Veyvox-x.xx.x-win-x64.exe` / `-win-arm64.exe` | Escolha sua arquitetura; em caso de dúvida, use x64. Os instaladores não têm assinatura Authenticode. |
+| Linux | `Veyvox-x.xx.x-linux-x86_64.AppImage` / `-linux-arm64.AppImage`; `-linux-amd64.deb` / `-linux-arm64.deb` | AppImage ou pacote Debian; os arquivos não são assinados. |
+| macOS | `Veyvox-x.xx.x-mac-arm64.dmg` / `-mac-x64.dmg` | Apple Silicon ou Intel. Assinatura ad-hoc, sem notarização; as atualizações exigem download manual. |
 
 O aplicativo pede o endereço da sua instância. Não é necessária uma conta central
 do Veyvox nem um servidor público padrão. Manifestos de atualização e arquivos
