@@ -16,7 +16,7 @@ Chat · voice · video · screen sharing · federation · minigames
 Veyvox is an independently maintained, self-hosted communication platform derived
 from [Backspace](https://github.com/TheZwiss/backspace). It combines spaces and
 channels, private conversations and optional voice/video with federation between
-independent instances. The source tree targets **1.17.0**; download only builds
+independent instances. The source tree targets; download only builds
 listed in the published releases.
 
 ## Start here
@@ -45,11 +45,11 @@ listed in the published releases.
 
 Use [Releases](https://github.com/bernardokcosta/veyvox/releases) to select a **published** build for your machine:
 
-| Platform | 1.17.0 installer naming | Notes |
+| Platform | x.xx.x installer naming | Notes |
 | --- | --- | --- |
-| Windows | `Veyvox-1.17.0-win-x64.exe` / `-win-arm64.exe` | Choose your architecture; x64 is the fallback when unsure. Installers are not Authenticode-signed. |
-| Linux | `Veyvox-1.17.0-linux-x86_64.AppImage` / `-linux-arm64.AppImage`; `-linux-amd64.deb` / `-linux-arm64.deb` | AppImage or Debian package; artifacts are unsigned. |
-| macOS | `Veyvox-1.17.0-mac-arm64.dmg` / `-mac-x64.dmg` | Apple Silicon or Intel. Ad-hoc signed, not notarized; updates require a manual download. |
+| Windows | `Veyvox-x.xx.x-win-x64.exe` / `-win-arm64.exe` | Choose your architecture; x64 is the fallback when unsure. Installers are not Authenticode-signed. |
+| Linux | `Veyvox-x.xx.x-linux-x86_64.AppImage` / `-linux-arm64.AppImage`; `-linux-amd64.deb` / `-linux-arm64.deb` | AppImage or Debian package; artifacts are unsigned. |
+| macOS | `Veyvox-x.x.x-mac-arm64.dmg` / `-mac-x64.dmg` | Apple Silicon or Intel. Ad-hoc signed, not notarized; updates require a manual download. |
 
 The app asks for your instance address. No central Veyvox account or public
 default server is required. Updater manifests and `.blockmap` files are not
