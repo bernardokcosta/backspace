@@ -7,7 +7,7 @@
 
 **Comunicação para sua comunidade, na infraestrutura que você controla.**
 
-Chat · voz · vídeo · compartilhamento de tela · federação · Juno
+Chat · voz · vídeo · compartilhamento de tela · federação · minijogos
 
 [Downloads](https://github.com/bernardokcosta/veyvox/releases) · [Documentação](docs/systems/) · [Problemas](https://github.com/bernardokcosta/veyvox/issues) · [Segurança](SECURITY.md)
 
@@ -36,7 +36,7 @@ baixe apenas as compilações presentes nas releases publicadas.
 - **Conversas privadas:** amigos, mensagens diretas e DMs em grupo; chamadas opcionais de voz/vídeo.
 - **Voz, vídeo e compartilhamento de tela:** integração opcional com LiveKit, controles de qualidade, volume por pessoa/transmissão, push-to-talk e supressão de ruído. A disponibilidade depende do servidor, sistema, navegador e hardware.
 - **Federação:** conecte instâncias independentes para os recursos compatíveis de amizade, mensagens, chamadas e presença; contas e permissões continuam vinculadas às respectivas instâncias.
-- **Juno e soundboard:** jogue Juno nos canais de voz dos espaços e use atalhos pessoais para sons. As regras, artes, músicas e dublagem original em português do Juno são preservadas.
+- **Minijogos e soundboard:** jogue minijogos como Juno nos canais de voz dos espaços e use atalhos pessoais para sons.
 - **25 idiomas de interface:** seleção automática pelo sistema ou escolha manual, incluindo português brasileiro e árabe com escrita RTL.
 - **Web, computador e celular:** cliente web responsivo, aplicativo Electron para computador e PWA instalável no celular.
 - **Ferramentas de administração:** controles de cadastro/moderação, snapshots SQLite, backup/restauração e identificação da versão do código-fonte.

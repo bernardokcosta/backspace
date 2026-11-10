@@ -1,838 +1,226 @@
 # Security Scanning & Supply-Chain Assurance
 
-Automated, continuous scanning wired into GitHub Actions. This document is the
-reference for what runs, where results go, and the one-time settings a maintainer
-must enable. **Current state: enforcing**, with one documented exception. The
-scanners in `security.yml` fail the job on a finding the tiered policy says must
-block. The published-image scan in `docker-publish.yml` is the exception and is
-still report-only, for the measured reason in "The image scan is the exception"
-below.
+This is the current fork's scanning and repository-governance contract, not the
+upstream repository's historical alert/settings inventory. Workflow success,
+uploaded results and merge protection are distinct signals. An empty GitHub alert
+list does **not** prove that a published image is vulnerability-free.
 
 ## Workflows
 
-| File | Purpose | Trigger | Result |
-|------|---------|---------|--------|
-| `.github/dependabot.yml` | Dependency + action + base-image update PRs | weekly | PRs |
-| `.github/workflows/codeql.yml` | CodeQL SAST (`javascript-typescript`, build-mode none) | PR + push + weekly | Security tab |
-| `.github/workflows/security.yml` | gitleaks (secrets, full history), OSV-Scanner (deps), Trivy config (IaC), Trivy license | PR + push + weekly | Security tab |
-| `.github/workflows/scorecard.yml` | OpenSSF Scorecard (repo posture) | push + weekly + on branch-protection change | Security tab + public badge |
-| `.github/workflows/dast.yml` | ZAP baseline against an ephemeral instance (spider + passive, unauthenticated) | push + weekly + manual + PRs touching its own config | Job summary + artifact (advisory) |
-| `.github/workflows/docker-publish.yml` | Image scan (Trivy) + SBOM + provenance for the published container | tag push / manual | image scan (report-only) + SBOM + provenance |
+| File | Purpose | Trigger | Enforcement |
+|------|---------|---------|-------------|
+| `.github/workflows/ci.yml` | Build, tooling/workspace tests, lint, desktop/e2e typechecks, image build and reusable Windows native validation | Every PR; main/master pushes | Stable `Build & test` aggregate rejects unsuccessful dependencies |
+| `.github/workflows/security.yml` | Full-history Gitleaks, OSV dependencies, Trivy config and licenses | Every PR; main/master pushes; weekly | Four separate enforcing checks |
+| `.github/workflows/codeql.yml` | JavaScript/TypeScript SAST, build mode `none` | PR; main/master pushes; weekly | Analysis status plus separate alert-based merge protection |
+| `.github/workflows/scorecard.yml` | Repository/supply-chain posture | main/master push; weekly; classic branch-protection changes | Advisory SARIF and public results |
+| `.github/workflows/dast.yml` | Ephemeral-container OWASP ZAP baseline | main/master push; weekly; manual; PRs touching its configuration | Findings advisory; container startup failures fail the job |
+| `.github/workflows/docker-publish.yml` | Published image scan, SBOM and provenance | Tag push; manual | Image findings advisory; not a PR merge check |
+| `.github/dependabot.yml` | npm, GitHub Actions and Dockerfile update PRs | Weekly | Updates must pass ordinary PR checks |
 
-> **gitleaks findings** surface in the workflow's job log and PR summary — the
-> `gitleaks` job does not upload SARIF, so secret hits do **not** appear under
-> Security → Code scanning (unlike the OSV / Trivy / CodeQL / Scorecard jobs).
+`native-sdr-capture.yml` is reusable from CI and tag releases, with a manual
+diagnostic trigger. It has no independent push trigger duplicating its callers.
+Its checksum-verified actionlint validates **all** retained workflows. CI runs
+Node 24 (the pinned `.nvmrc`/Docker line); `engines.node >=22.12` is a declared
+floor, not evidence of a second Node 22 CI leg.
 
 ## Tiered policy
 
-- **Always block:** gitleaks secret hit; OSV/Trivy fixable HIGH/CRITICAL; Trivy
-  disallowed license.
-- **Advisory (SARIF → Security tab):** CodeQL alerts; OSV/Trivy unfixable or
-  medium/low; Scorecard.
+- **Secrets:** any non-excepted Gitleaks finding fails `Secret scan (gitleaks)`.
+  Checkout uses full Git history. The action emits a redacted report/log; the job
+  does not separately upload secret SARIF to the code-scanning dashboard.
+- **Dependencies:** `Dependency scan (OSV-Scanner)` fails for any vulnerability not
+  covered by the explicit expiring exception in `osv-scanner.toml`. It is not
+  limited to fixable or HIGH/CRITICAL findings.
+- **IaC and licenses:** `IaC/config scan (Trivy)` and
+  `License compliance scan (Trivy)` set `exit-code: '1'` and severity
+  `HIGH,CRITICAL`. Merely uploading SARIF is not enforcement.
+- **CodeQL:** require completed analysis and block new high/critical security
+  alerts with the repository's code-scanning rule. A successful analysis job
+  alone is not alert-based merge protection.
+- **Image/ZAP/Scorecard:** retain advisory findings and reports. Never dismiss or
+  filter a real finding merely to obtain a green release or a better score.
 
-Code-level gates (OSV, Trivy, gitleaks) block via workflow exit codes. CodeQL
-merge-blocking, Dependabot alerts, and native secret-scanning are GitHub *settings*
-— see the checklist below.
+### Historical secret-scan exceptions
 
-### How enforcement is actually wired
+The 2026-11-09 scheduled Gitleaks 8.24.3 run
+[42632232304](https://github.com/bernardokcosta/veyvox/actions/runs/42632232304)
+reported 16 historical `generic-api-key` matches. Each was checked against its
+original commit and context, without publishing matched values:
 
-Turning this on was not a matter of deleting `continue-on-error`. Two things had to
-be true first, and both were measured rather than assumed.
+| Classification | Count | Evidence |
+|----------------|-------|----------|
+| Natural-language prose | 3 | Auth comments and a design instruction containing authenticated/S2S-proof-gated wording, not credentials |
+| Disposable-container example | 1 | Synthetic JWT environment value in a named local hardening-test command |
+| Mocked test configuration | 12 | Explicitly test-prefixed JWT literals inside `vi.mock` configurations |
 
-**Trivy exits 0 in SARIF mode whatever it finds.** Removing `continue-on-error`
-alone would have looked like enforcement while enforcing nothing. The config and
-license jobs carry `exit-code: '1'` plus `severity: 'HIGH,CRITICAL'`; the exit code
-is what blocks, and the severity filter is what keeps it aligned with the tiered
-policy above.
+`.gitleaksignore` records **one full commit/path/rule/line fingerprint per match**,
+each with a safe rationale. There are no whole-file, rule-wide, global-fingerprint
+or history exclusions. A match added in a different commit is not ignored, even
+at the same path and line. Do not rewrite history to remove these fixtures.
 
-**All thirteen remaining OSV findings are fixable**, and five are HIGH, so a plain
-flip would have turned `main` red and blocked every pull request. `osv-scanner.toml`
-resolves that as a **ratchet rather than a waiver**: it lists exactly the backlog
-that existed at flip time, one entry per finding, each with the reason and the
-version that fixes it. Anything not in that file fails the job, so a newly
-introduced vulnerability blocks while the documented backlog stays visible.
-
-Every entry carries `ignoreUntil = 2026-12-01`. **A waiver with no expiry is how a
-backlog becomes permanent.** When that date passes these findings come back and
-block, which forces the upgrade decision instead of letting it rot. That is
-deliberate, and it means `main` can go red on that date if nobody has acted. The
-fix is to do the upgrades, not to push the date.
-
-### The image scan is the exception
-
-`docker-publish.yml`'s Trivy image scan stays report-only, but the backlog behind
-that decision is now mostly gone. The findings the scan reports are not the ones
-the dependency pass covers: Trivy inspects the image's real `node_modules` and its
-installed OS and Node packages, while OSV reads the lockfile, so the two see
-different things.
-
-**Measured 2026-09-03 against an image built from `main`: 20 fixable
-HIGH/CRITICAL.** Seventeen of them had nothing to do with the application. They
-came from two package managers that sat in the runtime image without ever running:
-
-- `pnpm` 10.34.3, which the runtime stage installed itself via
-  `corepack prepare`, along with the copy of `brace-expansion`, `ip-address` and
-  `tar` bundled inside pnpm's own distribution. Those bundled copies are not
-  reachable from `pnpm-lock.yaml`, so no `pnpm.overrides` entry could have fixed
-  them. Thirteen findings.
-- `npm`, which `node:24-slim` bundles, with its own vendored `brace-expansion`,
-  `ip-address` and `tar`. Four findings.
-
-The runtime stage installs nothing from a registry. `node_modules` is copied
-wholesale from `deps` and the CMD starts `node` directly, so neither manager was
-ever invoked. The `Dockerfile` now removes both from that stage (the `deps` and
-`builder` stages still need pnpm and keep it). **The count after that change is 3.**
-
-The three that remain are one cluster, all reached through Fastify 4:
-`fastify` 4.29.1 (CVE-2026-25223), `@fastify/static` 7.0.4 (CVE-2026-15074) and
-`find-my-way` 8.2.2 (CVE-2026-47219). Every fixed version Trivy names is in a
-later major: Fastify 5.7.2, `@fastify/static` 10.1.1, `find-my-way` 9.7.0, and
-`@fastify/static` 10 requires Fastify 5 anyway. There is no fix inside the 4.x
-line, so clearing these is the Fastify 5 migration and its plugin ecosystem, not a
-version bump. That is a code change with a real blast radius and it belongs in its
-own pass.
-
-So the job stays report-only for now. Making it blocking today would fail every
-release publish until the Fastify migration lands, and holding security fixes
-behind a scanner backlog is the exact inversion this project already decided
-against when the release track was changed from one release at the end to a patch
-per landed track. **When the Fastify migration lands, re-measure, and if the count
-is zero add `exit-code: '1'` and drop `continue-on-error` from the Trivy step in
-`docker-publish.yml`.** Do not reach the same place with `.trivyignore` entries;
-suppressing the count is not the same as clearing it.
-
-## Dynamic scanning (DAST)
-
-`dast.yml` builds the image from the tree under test, starts a single container,
-and runs an OWASP ZAP baseline against it. Baseline means spider plus passive
-checks: ZAP sends no attack traffic.
-
-**The rig is the production compose file, not a separate one.** The workflow runs
-`docker compose -p backspace-dast up -d --build --wait backspace`, naming the one
-service it wants. That single detail is what keeps the rig small:
-
-- `caddy` sits in the default profile and would hang on ACME without public DNS,
-  so it must not be started. Naming `backspace` explicitly is what excludes it.
-- `livekit` is already gated behind the `voice` profile and never starts here.
-- The compose file publishes no ports for `backspace`, so ZAP joins the compose
-  network and addresses the container as `http://backspace:3000`. Nothing is
-  reachable on the runner's localhost, and nothing needs to be. The `-p` flag
-  fixes the project name, which is what makes the network name
-  (`backspace-dast_internal`) deterministic.
-- `--wait` blocks on the healthcheck already declared in the compose file, so the
-  workflow needs no polling loop.
-- A throwaway `.env` is written first, because the service declares
-  `env_file: .env` and compose fails outright without it. `DOMAIN` has to be set
-  even though `caddy` never starts: compose interpolates the entire file before it
-  filters services, and the `caddy` service declares
-  `${DOMAIN:?Set DOMAIN in .env}`.
-
-ZAP runs as a plain `docker run` rather than through the marketplace action,
-because the target only resolves if the scanner is on the compose network, and
-`--network` is a `docker run` flag that the action does not expose.
-
-**What it covers, measured rather than assumed.** The scan is unauthenticated, and
-the spider reaches the SPA shell and its static assets only. The measured run
-visited 11 URLs: `/`, the JS bundle, three icons, `manifest.webmanifest`, and ZAP's
-own probes for `robots.txt` and `sitemap.xml`. **None were under `/api/`**, because
-the shell contains no links for the spider to follow. Adding explicit seed URLs
-would widen this. It has not been done, because the API routes carry the identical
-security header set (verified in the same run) and the passive checks would
-therefore find nothing new.
-
-Treat the job as proof that the image still builds and the container still becomes
-healthy, plus a passive header check on what it reaches. It is not an assessment of
-the application. Note also that `/robots.txt` and `/sitemap.xml` return the SPA
-shell with HTTP 200, because `setNotFoundHandler` in `packages/server/src/index.ts`
-serves `index.html` for every path that is not under `/api/` or `/ws`.
-
-**Advisory, deliberately.** ZAP runs with `-I`, so a finding never fails the job. A
-container that will not become healthy does fail it, because that is a real
-regression and the reason the job is worth running on every push to `main`.
-
-**Why not on every pull request.** It builds the whole image, which costs minutes
-of runner time, and an advisory result does not belong in the merge path. It does
-run on pull requests that touch `.github/workflows/dast.yml` or `.zap/**`, so its
-own configuration is self-testing.
-
-### Tuned rules
-
-`.zap/rules.tsv` is the only place a rule is downgraded, one line per rule with the
-reason inline. `IGNORE` is reserved for findings that are artefacts of scanning the
-app container directly instead of the deployed system. Everything else stays at
-`WARN`.
-
-| Rule | Alert | Why it is ignored |
-|---|---|---|
-| 10109 | Modern Web Application | Not a finding. ZAP is reporting that the target is a single-page app and that spider coverage is therefore limited, which is a statement about the scanner rather than about the app. |
-
-Two back-to-back runs against the same live container on 2026-09-03 give the exact
-effect of the file. Control, with no rule file:
-
-```
-FAIL-NEW: 0  WARN-NEW: 7  IGNORE: 0  PASS: 60
-```
-
-Tuned, with `-c /zap/cfg/rules.tsv`:
-
-```
-FAIL-NEW: 0  WARN-NEW: 5  IGNORE: 2  PASS: 60
-```
-
-**That measurement was taken while the rule file still carried two entries**,
-10038 and 10109. 10038 was deleted when the CSP flipped to enforcing on
-2026-09-03, because the alert it silenced ("Report-Only Header Found") can no
-longer fire for a good reason and silencing it would hide a regression. The
-control run is unaffected; the tuned run should now read `IGNORE: 1`, and 10038
-should not appear at all. That has not been re-measured, and the next scheduled
-DAST run is what will confirm it.
-
-The one moved to `IGNORE` is 10109. The five that stay at `WARN` are 10027,
-10049, 10055, 10063 and 90004. Two of those look like candidates for `IGNORE`
-and deliberately are not:
-
-- **10055 (CSP directive warnings)** used to evaluate only the narrow enforcing
-  policy in the `index.html` meta tag, because the real policy was report-only.
-  Since the flip on 2026-09-03 it evaluates the real policy, so its output is now
-  worth reading rather than noise. It stays at WARN: `-I` means a warning never
-  fails the job.
-- **90004 (insufficient site isolation)** is deliberate: `crossOriginEmbedderPolicy`
-  is off because embeds pull third-party images that carry no CORP header. That is
-  a property of the deployed system, not an artefact of scanning it, so it stays
-  visible.
-
-**`Strict-Transport-Security` (rule 10035) is deliberately absent from this file.**
-It never fires. ZAP raises it only over HTTPS and this rig is plain HTTP, so the one
-header Caddy owns is also the one header ZAP never asks about. It reported `PASS`.
-An earlier draft of this document listed it as the main entry; that was a
-prediction, and the measured run disproved it. Do not add it back.
-
-**Open finding this scan surfaced, not tuned away:** the app sends no
-`Permissions-Policy` header on any route (rule 10063). helmet adds none by default,
-and unlike HSTS, Caddy does not supply it either, so a real deployment has the same
-gap. It is not fixed here because a wrong value silently breaks voice and screen
-sharing, which need `camera`, `microphone` and `display-capture` granted to self.
-It belongs with the CSP enforcement flip, which already carries the real-deployment
-observation phase a change like this needs.
-
-**The generated reports are not filtered.** The `-c` rule file changes only the
-console classification and the exit-code arithmetic. `report.md`, `report.html` and
-`report.json` still carry full entries for the ignored rules, so the job summary
-built from `report.md` shows them too. The `IGNORE:` count on the console
-classification line is the thing to read, not the body of the report.
-
-**The file needs three tab separated columns, not two.** `zap_common.py:148` splits
-each line on tabs and raises `ValueError` if it finds fewer than two, and ZAP then
-aborts the scan without writing any report at all. The third column is only a
-label, so it holds the alert name as ZAP prints it. A space separated line is the
-same trap. Check the separators after any edit:
-
-```bash
-grep -Pn '^\d+\t(WARN|IGNORE|FAIL)\t' .zap/rules.tsv
-```
-
-The trailing `\t` in that pattern is the point: it is what proves a third column
-exists. Every non-comment line in the file must match.
-
-## Triage policy
-
-Every finding a scanner reports ends in one of three states: fixed, dismissed with
-a written reason, or left open with the reason it is still open. **A dismissal with
-no reason is not a dismissal.** The code-scanning API caps `dismissed_comment` at
-280 characters, so the comment attached to an alert is a pointer and the register
-below is where the argument lives.
-
-### Reachability buckets
-
-Urgency comes from where the affected package ends up, not from the severity string
-in the advisory. Four buckets:
-
-| Bucket | Meaning | What it implies |
-|--------|---------|-----------------|
-| **Server image** | Installed into the container self-hosters run (`fastify`, `find-my-way`, `@fastify/static`, `undici`, `drizzle-orm`, `sharp`, `ws`, `better-sqlite3`) | Fix by upgrade, or pin the transitive with `pnpm.overrides`. Highest urgency: reachable from a request. |
-| **Web bundle** | Shipped in the JavaScript a browser loads (`react-router`, `nanoid`, PostCSS output) | Same treatment. Reachable from a page load. |
-| **Desktop app** | Inside the packaged Electron artifact (`electron` itself, and every runtime `dependencies` entry of `@backspace/desktop`) | Patch within the current major. A major bump is its own decision with its own build evidence. |
-| **Build-time only** | Present while building or testing and in no artifact a user receives (`vite`, `rollup`, `vitest`, `@babel/*`, `app-builder-lib`, `extract-zip`, `drizzle-kit`) | Record the reasoning once for the group rather than per finding. Upgrade when convenient, not on an advisory clock. |
-
-**The bucket is measured, not inferred from what the package usually does.**
-`pnpm why <package>` is how it is established, and a package is in the shipped
-bucket whenever the path from a workspace package runs through a `dependencies`
-entry rather than a `devDependencies` one. Three cases where the obvious guess was
-wrong:
-
-- **`@babel/preset-env` looks gone and is not.** `@vitejs/plugin-react` 6 dropped
-  Babel, which removed `@babel/core` and the JSX transform plugins. Babel is still
-  in the tree by another path: `@veyvox/web` to `vite-plugin-pwa` to
-  `workbox-build` to `@babel/preset-env`. Build-time, but present.
-- **`js-yaml` looks like electron-builder tooling.** It arrives that way as well,
-  but it also arrives through `electron-updater`, which is a runtime `dependencies`
-  entry of `@backspace/desktop`. It ships inside the packaged desktop app.
-- **`esbuild` looks build-time and is in two buckets at once.** Version 0.28.2
-  arrives through `tsx`, a runtime `dependencies` entry of `@veyvox/server`, so
-  it is installed into the server image. The 0.18.20 copy, which is the one OSV
-  flags, arrives through `drizzle-kit` and is build-time only.
-
-### Measuring the backlog
-
-Three plausible ways of measuring give a wrong answer.
-
-- **`ref=refs/heads/main` reports main's state, not a branch's.** A branch that has
-  not merged has changed nothing on main, so this query cannot measure what a pull
-  request cleared. Querying `refs/heads/<branch>` returns nothing at all, because
-  no analysis is recorded against a branch ref, and `refs/pull/N/merge` reports only
-  findings that fall on the changed lines, so a clean PR run means "nothing on this
-  diff" rather than "nothing in the repository".
-- **A green scanner check is not always a measurement.** Where a scan step still
-  carries `continue-on-error: true`, the check passing means the analysis ran and
-  the SARIF uploaded, nothing more. Since the enforcement flip in PR #77 that
-  applies only to the container image scan in `docker-publish.yml`.
-- **`trivy config .` reports more locally than in CI.** Run locally after an install
-  it walks `node_modules` and reports DS-0001, DS-0017 and DS-0026 against a
-  Dockerfile vendored inside `@surma/rollup-plugin-off-main-thread`. The CI job
-  checks out and scans without installing dependencies, so it never sees that file.
-  A local reproduction showing extra findings is the expected difference, not a
-  regression.
-
-The measurement that does work for dependencies is a local `osv-scanner` run against
-each lockfile, validated by reproducing main's count exactly before trusting the
-branch's:
-
-```bash
-osv-scanner scan source --lockfile=pnpm-lock.yaml --format=json \
-  | jq '[.results[].packages[].vulnerabilities[]?] | length'
-```
-
-| Lockfile | Findings |
-|----------|----------|
-| `main` | 151 |
-| Dependency branch, after the version bumps, before the transitive pins | 110 |
-| Dependency branch, after the transitive pins | 13 |
-
-### The size of the backlog, corrected
-
-The master plan for this security pass estimated 30 lockfile CVEs. The measured
-figure on `main` was **189 open alerts** across all tools, of which **151 came from
-OSV-Scanner** across **123 distinct advisory identifiers** (120 of which carry a
-CVE alias). The rest were 18 CodeQL, 19 Scorecard and 1 Trivy. The estimate was low
-by a factor of five, which is why the triage buckets above exist: 151 findings
-cannot be worked one at a time.
+`scripts/gitleaks-policy.test.mjs` checks syntax, uniqueness, rationale and
+historical blob existence. `scripts/verify-gitleaks-policy.mjs` exercises the real
+scanner in an isolated temporary Git repo: detect a generated synthetic fixture
+(exit 2), ignore only its first commit (exit 0), then remove/reintroduce it at the
+same path/line in a new commit (exit 2). It runs in the security job after the
+pinned action installs Gitleaks. It never uses provider credentials or prints the
+synthetic value. Any genuine or uncertain secret requires investigation and
+rotation/revocation decisions, not another broad exception.
 
 ### What is left open, and why
 
-One OSV finding is held in `osv-scanner.toml`. It has no fixed release and
-sits only in build tooling. It is deferred, not dismissed:
+One dependency exception remains in `osv-scanner.toml`:
 
-| Package | Findings | Bucket | Fixed in |
-|---------|----------|--------|----------|
-| `deepmerge` 4.3.1 | 1 | build-time (`@rollup/plugin-node-resolve` via `vite-plugin-pwa`/`workbox-build` and `prism-react-renderer`) | no fixed release (4.3.1 is the latest; advisory covers through 4.3.1) |
+| Package / advisory | Bucket | Reason | Expiry |
+|--------------------|--------|--------|--------|
+| deepmerge 4.3.1, CVE-2026-93753 / GHSA-gcqx-w48m-w2h4 | Build tooling through `@rollup/plugin-node-resolve` (`vite-plugin-pwa`/Workbox and `prism-react-renderer`) | No fixed release recorded; repo-controlled build configuration inputs, not shipped runtime code | 2026-12-01 |
 
-The prior backlog (fastify 4, `@fastify/static` 7, `find-my-way` 8, `esbuild`
-0.18, `react-router`, `lodash`, and the `pnpm.overrides` floors below) was
-cleared by upgrades and its entries removed. The three `CVE-2026-*` ignores
-(`postcss-selector-parser` CVE-2026-104844, `braces` CVE-2026-93687,
-`sprintf-js` CVE-2026-97058) stopped matching the lockfile and were removed
-when the scanner flagged them as unused.
+The exception is a dated deferral, not a clean scan. Review a fixed release when
+available; do not silently extend expiry or weaken the scanner. The old thirteen-
+finding/Fastify-4 backlog is not the current dependency state: this fork uses
+Fastify 5 and Vitest 5, and has no active Cloudflare Workers workspace.
 
-The five fastify findings published on 2026-09-30 were each checked against the
-server rather than only deferred. Each needs a feature the server does not use:
-HTTP/2 with `reply.trailer()`, an `$async` request schema, a header schema with
-the `dependencies` keyword, a `false` request-part schema, or not-found handlers
-encapsulated under an auth hook (the server registers one, at the root, as the
-SPA fallback). A new route that uses one of those makes the matching finding
-reachable, which is a reason to do the fastify 5 upgrade first.
+### The image scan is the exception
 
-The October 2026 pass removed four entries. The two `react-router` ones no longer
-matched anything, since `react-router-dom` is on 7.18.4. The two `lodash` ones were
-recorded as needing an upgrade, but 4.18.0 is a minor inside the `^4.17.15` range
-`@malept/flatpak-bundler` asks for, so a `lodash@^4` floor of `^4.18.0` replaced them;
-`electron-winstaller` in the same build was already on 4.18.1.
+The image scan remains report-only. The old explanation that it awaits a Fastify
+4→5 migration is obsolete. The published 1.17.0 image has measured OS-package debt
+that must not be hidden by an empty alert list or a host-system upgrade.
 
-The same pass cleared everything else by raising floors in `pnpm.overrides`, each
-inside the major the parent already accepts: `@fastify/busboy` 3.2.2 (through
-`@fastify/multipart`), `proxy-addr` 2.0.8 and `fast-uri` 2.4.7 and 3.1.8 (through
-fastify), `brace-expansion` 1.1.21, 2.1.7 and 5.0.12, `source-map-js` 1.2.2,
-`http-cache-semantics` 4.3.0 (the advisory covers "through 4.2.0" and lists no
-fix; 4.3.0 was published after it), `esbuild` 0.28.2 (overriding `esbuild@^0.18` pulled transitively by `drizzle-kit` → `@esbuild-kit/core-utils` to clear `GHSA-67mh-4wv8-2f99`), and `sharp` 0.35.5, below.
+**Measurement:** GitHub SARIF analysis
+[2126525016](https://api.github.com/repos/bernardokcosta/veyvox/code-scanning/analyses/2126525016),
+category `trivy-image`, `refs/tags/v1.17.0`, commit
+`25d7a8f41766045ba6e5d211e5a8121f6c9e20df`, recorded 2026-11-09.
+All **25 results / 24 advisory rules** were classified. They total 3 CRITICAL,
+8 HIGH, 10 MEDIUM, 1 LOW and 3 UNKNOWN; the report names fixes for all 25.
+One advisory affects two packages, so rule count and result count differ.
 
-### Fixed with compatibility patches: minimatch and glob (2026-10-30)
+| Package | Installed | Fixed version(s) named in report | Results |
+|---------|-----------|----------------------------------|---------|
+| apt | 2.6.1 | 2.6.2 | 1 HIGH |
+| libapt-pkg6.0 | 2.6.1 | 2.6.2 | 1 HIGH |
+| libpcre2-8-0 | 10.42-1+deb12u1 | 10.42-1+deb12u2 | 1 HIGH |
+| libssl3 | 3.0.22-1~deb12u1 | 3.0.22-1~deb12u2 | 1 HIGH, 4 MEDIUM, 1 LOW |
+| perl-base | 5.36.0-7+deb12u3 | 5.36.0-7+deb12u4 | 3 CRITICAL, 4 HIGH, 6 MEDIUM |
+| tzdata | 2026b-0+deb12u1 | 2026c/2026e/2026f-0+deb12u1 | 3 UNKNOWN (Debian update advisories) |
 
-`GHSA-g3hv-75wg-m249` / `CVE-2026-118764` affects minimatch <11.0.1
-(globparts amplification denial of service). `GHSA-3g3m-2fjr-6pw4` /
-`CVE-2026-118773` affects glob >=9 through 14.0.1 (AbortSignal cancellation
-bypass). Both were published on 2026-10-30 and affect the 1.15.9 lockfile.
-They are fixed, not added to the exception
-register: `pnpm.overrides` selects minimatch ^11.0.3 everywhere and glob
-^14.0.3 for consumers requesting glob >=9 (`@fastify/static` and Workbox).
+This is the report's package/severity/fix classification, not proof that every
+advisory is reachable through a request or that the present source tree has the
+same inventory. The scan covers the amd64 artifact; it does not establish the
+arm64 image's state. OSV's lockfile scan answers a different question.
 
-A blanket override alone breaks desktop packaging. minimatch 11 exports named
-functions, and its parsed pattern components are nonrecursive `Matcher` objects,
-not regular expressions. Three version-specific pnpm patches preserve the
-existing Electron builder and its callers:
+**Follow-up:** inventory the current multi-architecture base-image digest and
+Debian repositories; evaluate a maintained base/package refresh that includes the
+reported fixes; build both architectures, rescan and run health/migration/data
+compatibility checks. Propose a measured severity/fix-availability gate after that
+baseline is understood. Obtain separate release/deployment authorization. Do not
+replace immutable 1.17.0 assets/tags, republish its image or deploy production as
+part of repository hygiene. Upgrading the host does not update image packages.
 
-- `@electron/asar@3.4.1`: use the named `minimatch` function for unpack patterns.
-- `dir-compare@4.2.0`: use the named function for include/exclude filters used by
-  `@electron/universal`.
-- `glob@7.2.3`: use `Matcher.pattern` and `Matcher.test()` in both walkers instead
-  of RegExp `_glob` and `String.match()`. Keep its callback API for asar and
-  rimraf/temp. Its local `Minimatch` subclass skips only row merging, preserving
-  the one-row-per-brace-alternative metadata expected by glob 7 (including
-  explicit dotfiles and `nonull`); parsing and amplification limits are inherited
-  unchanged. glob 7 itself is outside the new glob advisory's affected range.
+## Dynamic scanning (DAST)
 
-Other consumers already use the supported named exports, `Minimatch`, or
-`minimatch.match()` (filelist via ejs/jake). The overrides do not restore the old
-regular-expression matcher or disable the upstream safety limits. Both updated
-libraries support the repository's Node floor and use the permissive BlueOak
-license. The existing `COPY patches/ patches/` supplies these patches to Docker
-installs as well.
+`dast.yml` builds the checked-out tree into an ephemeral app container and runs
+OWASP ZAP baseline: spider plus passive checks, not active attack traffic. It uses
+the production Compose graph with an isolated project name, a synthetic `.env`
+and only service `backspace`; it must not start Caddy/ACME or LiveKit. ZAP joins
+the isolated Compose network and scans `http://backspace:3000`.
 
-`packages/desktop/src/packagingDependencies.test.ts` resolves the actual
-electron-builder dependency graph and checks recursive sync/callback traversal,
-braces, dotfiles, ignores, unpacked native resources, dir-compare filters,
-electron-builder exclusions, ejs rendering, filelist traversal, sync/callback
-brace alternatives and the upstream preprocessing amplification limit. The
-production web build also exercises Workbox.
-Remove the compatibility patches when the pinned callers support minimatch 11;
-remove the overrides when all upstream dependency ranges require fixed versions.
-No additional OSV exception is introduced. The workflow uses `--output-file`,
-the non-deprecated spelling, without changing scan enforcement or SARIF upload.
+The unauthenticated spider primarily reaches the SPA shell/assets, not
+authenticated API, federation, voice or user flows. A historical 2026-09-03 sample
+visited 11 URLs and no `/api/` routes; do not present that sample as a fresh
+measurement. A healthy container plus an advisory baseline is not an application
+security assessment, and HTTP cannot verify deployment-owned HTTPS/HSTS behavior.
 
-### Fixed by override rather than deferred: sharp
+`.zap/rules.tsv` keeps rule 10109 (Modern Web Application) ignored because it
+describes this coverage limitation, not a vulnerability. Other findings remain
+visible. Preserve its three tab-separated columns. ZAP's `-I` keeps findings
+advisory; an image/container that cannot become healthy still fails the job.
+Full reports remain available regardless of console rule classification.
 
-`GHSA-rgj7-g3m4-5g8c` (HIGH, published 2026-09-08) reports sharp bundling a
-libheif with two critical RCEs. It is worth writing down because the shape is
-unusual and the response looks, at a glance, like the wrong one.
+## Triage and supply-chain safeguards
 
-The advisory is fixed in sharp 0.35.4, and both manifests that ask for sharp
-directly already asked for `^0.35.4`. The finding came from a *second* copy:
-`wrangler` and `miniflare`, devDependencies of the telemetry receiver, pin
-`sharp` at exactly `0.35.2`, so the lockfile carried both versions and the
-scanner saw the old one.
-
-That made it a candidate for the `osv-scanner.toml` backlog on the usual
-grounds, since it is build-time only and never enters the server image or the
-desktop app. It was fixed instead, with `"sharp@^0.35": "^0.35.4"` in
-`pnpm.overrides`. Deferring is for findings whose fix is a major upgrade and a
-compatibility decision; this one is a patch bump inside a single minor whose
-entire content is the bundled libheif going to 1.23.2, so there was nothing to
-decide. Forcing a dependency off an exact pin is the assertive part, and it is
-justified here by the change being that narrow.
-
-Verified rather than assumed: `require('sharp').versions` reports
-`libheif 1.23.2` after the override, and the receiver's 34 tests pass with
-miniflare running against the forced version. The override is removable the day
-miniflare moves off `0.35.2`, and removing it then is the goal.
-
-`GHSA-wq5f-xc86-pv6w` (2026-10-06, librsvg) moved the floor to 0.35.5, both in
-the override and in the two direct `sharp` ranges, by the same reasoning: a patch
-inside the minor whose content is the bundled librsvg going to 2.63.2.
-
-### Removed rather than pinned: cmake-js under venmic
-
-`@vencord/venmic` (an optional, Linux-only dependency of `@backspace/desktop`, see
-`desktop.md`) lists `cmake-js` 7 as a runtime dependency, and `cmake-js` 7 depends
-on `tar` 6, which OSV reports with twelve findings fixed only in 7.5.x. `cmake-js`
-is venmic's build-from-source tool: its `install` script runs it only when no
-prebuilt binary matches, and pnpm does not run that script here (venmic is not in
-`onlyBuiltDependencies`). The package ships prebuilt binaries for Linux x64 and
-arm64 and loads them through `pkg-prebuilds` alone. `"@vencord/venmic>cmake-js": "-"`
-in `pnpm.overrides` therefore removes `cmake-js` and its subtree (`tar` 6, `axios`,
-`npmlog` and others) from the lockfile and from the packaged Linux app, the same way
-`dbus-next>usocket` is removed. If venmic is ever added to `onlyBuiltDependencies`,
-its `install` script still passes on x64 and arm64, because `pkg-prebuilds-verify`
-finds the shipped binary before the build step is reached.
-
-## Dismissal register
-
-`.trivyignore` and `.github/codeql/codeql-config.yml` are the machine-readable half
-of this. What follows is the half a human reads.
-
-### CodeQL alerts
-
-Seven alerts are dismissed. Two are in test files and are also excluded going forward
-by the CodeQL config, so they will not recur; the other five are judgements about
-shipped code, two of them the same finding reported again at a moved line.
-
-**#123 `js/request-forgery`, `packages/server/src/utils/ssrf.ts:70`, dismissed as a
-false positive.** This is the `fetch` inside `safeFetch`, one line after
-`await validateExternalUrl(currentUrl)`. It carries seven converging dataflow paths,
-which are its seven callers: the SSRF work collapsed seven separately-flagged sinks
-into one choke point, and CodeQL flags the choke point because a validator living in
-another module is not something it models as a sanitizer. Redirects are followed
-manually and every hop is revalidated before it is fetched, so there is no path to
-this line that skipped the check.
-
-**This one names a residual risk rather than claiming the alert is pure noise.**
-`validateExternalUrl` resolves the hostname and classifies the resulting address,
-and then `fetch` resolves the hostname again when it connects. A name whose answer
-changes between the two lookups is fetched on the second answer, which the validator
-never saw. That is a DNS-rebind time-of-check-to-time-of-use window. Closing it
-needs a custom undici dispatcher that pins the address resolved during validation
-and connects to that address rather than re-resolving. That is out of scope for the
-work that produced this dismissal and is not fixed. The window is narrow and the
-dismissal is still the right call for this alert, because the alert is about taint
-flow and not about rebinding, but the residual is real and is recorded in the
-function comment at the call site as well as here.
-
-**#217 `js/clear-text-storage-of-sensitive-data`, `packages/web/src/stores/authStore.ts:116`,
-dismissed as won't fix.** The session token is in `localStorage` deliberately. That
-choice is the premise the instance CORS posture and the security-header split rest
-on, and it is written up with its cost in `docs/systems/web-security.md`. Moving the
-token is a decision for that document and a change to how the origin is trusted, not
-a defect in this line.
-
-**#130 `js/shell-command-injection-from-environment`, `packages/server/src/utils/backup.ts:50`,
-dismissed as won't fix.** The call is
-`execFile('/bin/sh', ['-c', `${cmd} "$1"`, 'sh', snapshotPath])`, where `cmd` is
-`config.backup.offsiteCmd`, a server environment variable. Anyone who can set it
-already controls the process the server runs in, so it names an operator rather than
-an attacker. The one value that is not operator-supplied, the snapshot path, is
-passed positionally as `$1` and quoted at the use site rather than concatenated into
-the command text. No request reaches this function.
-
-**#124 and #420 `js/insecure-randomness`, `packages/web/src/components/ui/Avatar.tsx`,
-dismissed as a false positive.** One finding reported twice: #124 at line 57, and
-#420 at line 63 after `Avatar` gained a `palette` prop that picks
-`getSpaceGradient` for a space and `getAvatarGradient` otherwise. The tainted
-source is the `Math.random()` in `CreateSpace.tsx` and `RegisterPage.tsx` that
-pre-selects one of the preset colours as the form's default, a decorative choice
-the user can change before submitting. Both selectors in
-`packages/web/src/utils/gradients.ts` contain no randomness of their own: each
-maps a stored preset name to its gradient, or falls back to a djb2 hash of the id
-or name taken modulo the number of presets, so an account or space renders the
-same colour on every device and every reload. The value picks one of a handful of
-decorative gradients and feeds nothing with an identity, secrecy or uniqueness
-requirement. If the alert moves again, it is this entry.
-
-**#348 `js/shell-command-injection-from-environment`, `packages/server/test/cors-posture.test.ts:66`,
-and #106 `js/missing-rate-limiting`, `packages/server/src/routes/federation/handlers/s2sAuth.test.ts:75`,
-both dismissed as used in tests.** Each reports the test doing the thing the test
-exists to prove. See the CodeQL config below.
-
-### CodeQL config: test files are not analysed
-
-`.github/codeql/codeql-config.yml` sets `paths-ignore` over `**/*.test.ts`,
-`**/*.test.tsx`, `packages/server/test/**` and `packages/web/src/test/**`, and
-`codeql.yml` passes it to the `init` step. Before that file existed there was no
-CodeQL config at all, which is why test code was being analysed.
-
-Test files model attacker behaviour on purpose. A suite that proves a route is rate
-limited contains an unlimited-request loop, and one that boots a server from the
-environment contains an exec built from the environment. Analysing them produces
-findings about the tests rather than about what ships, and those findings crowd out
-the ones that matter.
-
-The exclusion is safe because every listed path holds test code only: no file under
-`packages/*/src` that ships to a user is named `*.test.ts` or `*.test.tsx`,
-`packages/server/test` holds the suite helpers and the vitest environment setup, and
-`packages/web/src/test` holds the jsdom setup file. Verify that again before adding
-a path to the list.
-
-### Trivy config: DS-0002
-
-`.trivyignore` suppresses one rule, DS-0002, "Specify at least 1 USER command in
-Dockerfile with non-root user". The `trivy-config` job names the file explicitly
-with `trivyignores: .trivyignore` rather than relying on the default working
-directory.
-
-The image has no `USER` line on purpose. `docker-entrypoint.sh` runs as root only
-long enough to chown the mounted data volume, then execs the CMD as the
-unprivileged `node` user. A `USER` directive would take effect before the entrypoint
-runs and leave the volume unwritable on first start. The container does not run its
-workload as root; the check reads the Dockerfile and cannot see the entrypoint.
-
-This was re-verified against the current `node:24-slim` base rather than carried
-over from the note written against the old Node 20 base. A container started from a
-fresh build reports Uid 1000 for pid 1, and `trivy config Dockerfile` against the
-current file reports DS-0002 and nothing else.
-
-### Scorecard: the TokenPermissions findings that stay
-
-Nine `TokenPermissionsID` findings were reported. Each write scope was either
-removed or moved from workflow level onto the single job that makes the call needing
-it, with a comment at each surviving grant saying which API call requires it.
-
-**Moving a write down to the job level does not clear the finding in general.** This
-is not a guess; it is what `ossf/scorecard` v5.4.0 does in
-`checks/raw/permissions.go` and `checks/evaluation/permissions.go`:
-
-- Only seven scopes are examined at all: `statuses`, `checks`, `security-events`,
-  `deployments`, `contents`, `packages`, `actions`. `pages`, `id-token`,
-  `pull-requests` and `issues` are never reported, at either level.
-- **Top-level writes are reported unconditionally.** `validateTopLevelPermissions`
-  passes an empty ignore map, so no matcher can excuse a workflow-level write.
-- **Job-level writes are ignored only for three scopes, and only on a match.**
-  `createIgnoredPermissions` can excuse `security-events` when a step uses
-  `github/codeql-action/analyze`, `github/codeql-action/upload-sarif`,
-  `ossf/scorecard-action`, `haskell-actions/hlint-scan` or
-  `zizmorcore/zizmor-action`; `packages` when the workflow matches a packaging
-  matcher, one of which is `docker/build-push-action`; and `contents` only for a
-  fixed list of release tooling (`python-semantic-release`, an
-  `npx|pnpm|yarn semantic-release` run, `setup-go` plus `goreleaser-action`, the two
-  SLSA generator workflows, an `mvn release:prepare` run) or for a GitHub Pages
-  deployment using `peaceiris/actions-gh-pages`.
-- **`actions`, `statuses`, `checks` and `deployments` are never ignored at job
-  level.** No matcher can excuse them.
-
-Applying that rule to the workflows as they now stand, the findings expected to
-survive are:
-
-| Workflow | Scope | Why it stays granted |
-|----------|-------|----------------------|
-| `release.yml` | `contents: write` | electron-builder runs with `--publish always`, which creates the release for the tag and uploads the installers. electron-builder is not on Scorecard's release-tooling list, so the matcher does not fire. |
-
-`docker-publish.yml`'s `packages: write` and `security-events: write` and every
-`security-events: write` in `codeql.yml`, `security.yml` and `scorecard.yml` do
-clear, because those workflows match the packaging and SARIF matchers above.
-Check that again before moving a pin.
-
-These six are the correct trade. Each is load-bearing, each is commented at the
-grant, and Scorecard reporting them is the tool working as designed rather than a
-gap. Do not remove one to raise the score.
-
-The Scorecard checks that no code change satisfies (`CIIBestPracticesID`,
-`FuzzingID`, `CodeReviewID`, `BranchProtectionID`, `SecurityPolicyID`) are maintainer
-settings or process. They belong to the checklist below, not to remediation.
+- Classify findings by actual placement: server image, browser bundle, installed
+  desktop app or build-only tooling. Inspect `pnpm -r why <package>` and manifests;
+  a tool's name alone does not establish whether it ships.
+- Record fixed, deferred or dismissed outcomes with evidence. GitHub alert IDs
+  and settings from the upstream repository do not transfer to this fork.
+- Keep `paths-ignore` in `.github/codeql/codeql-config.yml` limited to test-only
+  TS/TSX paths and server/web test helpers. Tests model attacker behavior; never
+  exclude shipped code to silence a finding. Runtime/security assumptions belong
+  in [web-security.md](web-security.md) and
+  [desktop-security.md](desktop-security.md), not a stale alert-number register.
+- `.trivyignore` contains only DS-0002: the entrypoint needs root to initialize
+  mounted-data ownership, then execs the app as `node`. A Dockerfile `USER` before
+  that initialization would break a fresh mount. Re-verify actual runtime UID when
+  changing the image/entrypoint; the static exemption is not proof by itself.
+- Keep compatibility patches for `@electron/asar`, `dir-compare` and glob 7 until
+  their callers support the safe minimatch/glob APIs. Their packaging regression
+  tests, Workbox build and `COPY patches/ patches/` are load-bearing. Do not remove
+  patches/overrides merely because the original advisory is old.
+- Keep full-SHA Action pins, checksum verification for downloaded actionlint,
+  least-privilege job tokens, supported-runner hardening, image SBOM and provenance.
+  Build-only jobs must not inherit release-writing tokens. A network-free aggregate
+  job need not install runner hardening just to compare dependency results.
+- Scorecard is advisory posture analysis. Some justified release-writing scopes
+  remain reportable; do not remove them merely to improve a score. A single
+  maintainer's zero-human-approval PR policy is not independent human review.
 
 ## Dependency update policy
 
-`.github/dependabot.yml` drives three ecosystems on a weekly schedule. Routine
-npm minor and patch bumps are collapsed into one grouped PR (`npm-minor-patch`),
-and action bumps into another (`github-actions`). Those two are the ones that
-carry nearly all of the patching value, and they land green most weeks.
+Dependabot covers npm, GitHub Actions and the pinned Dockerfile base. Minor/patch
+npm updates and Action updates are grouped; major upgrades are reviewed separately.
+The remaining deliberate ignores are Tailwind 3, TypeScript 5, per-package
+`@types/node`, the exact-patched `uiohook-napi` and Node-image majors. Their
+conditions live in `.github/dependabot.yml`; the Workers-based Vitest deferral no
+longer applies. React 19, Fastify 5, tus 2 and Electron 45 are already in use.
 
-Majors are deliberately **not** grouped: each arrives as its own PR so it can be
-judged on its own. A major that the project is not ready for gets an `ignore`
-entry rather than a weekly close.
+Node 24 remains pinned pending a separate, measured next-LTS migration, not because
+Node 26's October 2026 transition is still in the future. Do not silently upgrade
+runtime/toolchain majors in a cleanup. Check dependency runtime APIs as well as
+types; manifests' type versions are not runtime guarantees.
 
-### Why closing a major PR does not make it go away
-
-Closing a Dependabot PR suppresses only that exact `from -> to` version pair. The
-`npm-minor-patch` group keeps moving the *from* side, so the next weekly run sees
-a pair it has never proposed and opens the PR again. `better-sqlite3` is the
-worked example: closed at `11.10.0 -> 13.0.3`, the group moved the floor to
-`12.11.1`, and the following run opened `12.11.1 -> 13.0.3` as a new PR.
-
-A close is therefore a one-week reprieve, not a decision. The decision lives in
-the `ignore` block.
-
-### The shape of an ignore entry
-
-Every deferred major is pinned with `update-types: ["version-update:semver-major"]`
-so minor and patch releases, **including security patches**, keep flowing through
-the group. Nothing is frozen wholesale. Each entry carries a comment saying what
-unblocks it, and the upgrade is then done as its own PR with the entry deleted in
-the same change.
-
-Currently deferred, with the condition that releases each one:
-
-| Pinned at | Why | Unblocked by |
-|-----------|-----|--------------|
-| react / react-dom / `@types/*` 18 | `RefObject<T \| null>` variance and `useState` arity break across the chat components | the UI pass landing; then one PR moving all four together |
-| tailwindcss 3 | v4 moves the PostCSS plugin to `@tailwindcss/postcss` and replaces the config model the design system is built on | a dedicated port of the theme, surface/input tiers and `globals.css` |
-| typescript 5 | v7 removes the `baseUrl` compiler option (TS5102) that the workspace tsconfigs rely on | migrating every tsconfig off `baseUrl` first |
-| fastify 4 + all `@fastify/*` | the 11.x plugin lines target Fastify 5; on Fastify 4 the server stops booting | one PR taking core and every plugin across together |
-| `@tus/file-store` + `@tus/server` 1.x | matched pair; bumping either alone splits it | one PR moving both, upload pipeline exercised end to end |
-| `@types/node` 22 (24 for the script packages) | types describing a newer Node than the runtime let code typecheck clean and fail in production | whenever a runtime moves, in that same PR |
-| jsdom 28 | jsdom 30 pulls undici 8 against the `undici@^7` override, so every vitest worker dies with `webidl.util.markAsUncloneable is not a function` and the web suite does not run; it also changes SVG attribute-selector matching | extending the undici override to 8, then re-testing both |
-| vitest 4 | `@cloudflare/vitest-pool-workers` supports `vitest ^4.1.0` only and rides internal Vitest APIs; under 5 the receiver's Workers runtime throws before any test runs | upstream shipping vitest 5 support |
-| electron 43 | Electron 44 removes the macOS login-item API `src/main.ts` uses, and a major moves the Chromium and Node the shipped app runs on | a dedicated desktop PR, with the Flatpak sources regenerated |
-
-Two entries predate this policy and stay as they are: `uiohook-napi` is ignored
-outright (an exact-version pnpm patch makes any bump break
-`pnpm install --frozen-lockfile`), and `docker-compose.yml` images are bumped by
-hand for the reason in the maintainer checklist below.
-
-Widening an ignore entry to get past a red build is the failure mode this section
-exists to prevent. If a major is genuinely wanted, do the migration.
-
-### The queue limit hides the backlog
-
-`open-pull-requests-limit: 10` caps how many npm PRs Dependabot keeps open, not
-how many updates it has waiting. Clearing the queue therefore does not drain the
-backlog, it reveals the next slice of it: the first pass through the deferred
-majors above was followed within twenty minutes by nine more PRs that the cap had
-been holding back.
-
-Do not raise the limit to find the bottom. Ask the resolver instead:
-
-```
-pnpm outdated -r
-```
-
-That lists every package behind its latest across the workspace in one shot, with
-no PR churn, and it is the right way to check whether an ignore entry is still
-earning its place.
-
-One entry can also preempt several future PRs. The `@fastify/*` wildcard covers
-`cors`, `helmet`, `multipart` and `static`, all of which are sitting a major
-behind and would otherwise arrive as four separate proposals for the same
-Fastify 5 migration.
-
-### A green check is not a verified upgrade
-
-Two cases from the first pass are worth keeping in mind:
-
-- **bcryptjs 2 to 3** was green, but green says nothing about whether existing
-  password hashes still verify. The check that mattered was running v3
-  `compareSync` against a hash produced by v2, and v2 against a v3 hash for
-  rollback safety. Both hold, and the async API and default export are unchanged;
-  v3 emits `$2b$` where v2 emitted `$2a$`, and either verifies under either
-  version. Since bcryptjs 3 ships its own types, `@types/bcryptjs` became a
-  deprecated stub and was dropped rather than bumped.
-- **png-to-ico 2 to 3** is invisible to CI, because `pnpm gen-icons` is a manual
-  script. Running the generator under both versions produced a byte-identical
-  `icon.ico`, so the bump is inert. It did surface that the committed icon set
-  has already drifted from what the current lockfile generates, which is separate
-  from any one bump and wants its own regen-and-commit.
-
-## Supply-chain hardening
-
-- Every action is pinned to a full commit SHA (`# vX.Y.Z` comment) — resists
-  tag-move attacks and satisfies Scorecard's Pinned-Dependencies check.
-- `step-security/harden-runner` (egress-policy `audit`) on every workflow in
-  `.github/workflows/`. One job deliberately goes
-  without it, and it is not a gap:
-  `ci.yml`'s `build-and-test-required`, which only compares a `needs` result and
-  makes no network call. In
-  `release.yml` the step is gated on `runner.os == 'Linux'`, because harden-runner
-  does not support the macOS and Windows legs of the build matrix.
-- Least-privilege `permissions:` per workflow/job.
-- SBOM + SLSA provenance are attached to the published container image at push
-  (`.github/workflows/docker-publish.yml`), alongside a report-only Trivy scan
-  of the amd64 image (the arm64 image ships unscanned; enforcement is turned
-  on in a later plan).
-- **The tests run inside Cloudflare's workerd**, started by
-  `@cloudflare/vitest-pool-workers`, not in Node. That is a second runtime,
-  pulled from npm as part of the install and executing the Worker for real
-  rather than a mock of it. `ci.yml`'s `pnpm -r test` runs this package too, so
-  the runtime is already exercised on both Node legs of the main pipeline; this
-  workflow adds the path-filtered check and the deploy.
-- **This workflow reads `.nvmrc` (24), not the `engines.node` floor of 22.12.**
-  `ci.yml`'s matrix covers the floor; the `deploy` job runs wrangler against the
-  live account and should run the version the deploy is known to work on, so a
-  wrangler bump that needs a newer Node fails a pull request, not a deploy.
-- **`permissions: contents: read`** at workflow level and nothing added at job
-  level. The `environment:` key needs no scope of its own.
+Closing one major-update PR is not a lasting ignore: a changed `from` version can
+produce a new PR. Use a justified major-only ignore when deferring a migration;
+do not suppress security patches wholesale. Keep the npm PR limit at 10 rather
+than raising it to discover the backlog; use `pnpm outdated -r` to inventory.
+Compose's Caddy/LiveKit image pins require separate manual review; Dependabot's
+Dockerfile ecosystem does not maintain Compose `image:` entries here.
 
 ## Maintainer checklist (one-time GitHub settings — NOT code)
 
-Status verified against the live repository on 2026-09-03 (`gh api`). These are
-settings, not code, so nothing in this repository keeps the boxes honest — re-check
-them when something in the Security tab looks wrong, and after any transfer or
-rename.
+The initial fork audit on 2026-11-09 found Pages disabled but two failed legacy
+deployments/environment, no effective `master` protection, and native secret
+scanning/push protection/security updates disabled. The following is the required
+maintained configuration; validate actual API readback rather than inferring it
+from this document or from a successful workflow.
 
-### Done
+| Setting | Required state / verification |
+|---------|-------------------------------|
+| Public repo / default branch | `bernardokcosta/veyvox`, repository ID 1431316690, public, `master` |
+| GitHub Pages | Disabled; no residual `github-pages` deployments/environment |
+| Native secrets | Secret scanning and push protection enabled |
+| Dependabot | Alerts and automated security updates enabled; updates still use PR checks |
+| Actions defaults | `default_workflow_permissions: read`; `can_approve_pull_request_reviews: false` |
+| `master` policy | Active branch ruleset; PR required, zero human approvals, conversations resolved, branch up to date |
+| Destructive/direct writes | No force-push/deletion/direct push; no bypass actors, including admins |
+| Required checks | All six contexts below, bound to the correct GitHub integrations |
+| Alert protection | CodeQL tool results required; new high/critical security alerts block merge |
 
-- [x] Repository is **public** (required for the Scorecard badge/publish and the
-      CodeQL free tier).
-- [x] **Dependabot alerts** enabled (`PUT /repos/{owner}/{repo}/vulnerability-alerts`,
-      confirmed by `GET` returning 204 where it previously returned 404). The
-      repository had been running OSV-Scanner while GitHub's own advisory feed was
-      switched off.
-- [x] **Dependabot security updates left off**, deliberately.
-      `GET /repos/{owner}/{repo}/automated-security-fixes` reports
-      `{"enabled":false,"paused":false}`. Enabling it means Dependabot opens pull
-      requests by itself for every new advisory. Clearing the backlog above took a
-      dedicated pass, so advisories now surface as alerts while the pull-request
-      queue stays under human control. Revisit once the remainder is down to
-      packages that can be bumped without a compatibility review.
-- [x] Ruleset on the `metrics-data` branch blocking **deletion** and
-      **force-push**, with no bypass actors (`Protect metrics data store`,
-      alongside the `Protect CLA signature store` precedent it copies). It
-      deliberately does **not** require pull requests or status checks: the
-      collector commits directly, and requiring a PR would break every run. This
-      branch holds the only irreplaceable data in the repository.
-- [x] Settings → Actions → General: **Allow GitHub Actions to create and approve
-      pull requests** enabled (`can_approve_pull_request_reviews: true` on
-      `GET /repos/{owner}/{repo}/actions/permissions/workflow`; the default
-      workflow token permission stays **read**). It was turned on because the
-      `update-flatpak-metadata` job opened the `automation/flatpak-<tag>` pull
-      request with `GITHUB_TOKEN`, which GitHub rejects while this is off (it
-      was off when the v1.0.6 chain first ran on 2026-09-04 and was turned on
-      before the re-run). That job now lives in `flatpak-release-metadata.yml`
-      and opens the pull request with the release bot's token (next item), so
-      no workflow in the repository creates a pull request with `GITHUB_TOKEN`
-      any more. Whether to turn the setting off again is a separate decision;
-      make it only after a release has gone through the new workflow. Every
-      job still declares its own `permissions:` block, so the setting widens
-      nothing for jobs that do not ask for `pull-requests: write`.
-- [x] **Release bot GitHub App** (`backspace-release-bot`), installed on
-      this repository only. Its installation holds **Administration: read**,
-      **Contents: read/write** and **Pull requests: read/write**, plus the
-      **Metadata: read** every app holds. Two repository secrets:
-      `RELEASE_BOT_APP_ID` (the numeric App ID) and `RELEASE_BOT_PRIVATE_KEY`
-      (its PEM private key). The private key only ever goes to
-      `actions/create-github-app-token`, pinned by SHA
-      (`bcd2ba49218906704ab6c1aa796996da409d3eb1`, v3.2.0), which mints an
-      installation token narrowed to this repository and to the scopes the job
-      uses, and revokes it when the job ends. Two jobs do that, and no other
-      workflow reads the secrets.
-      **`update-flatpak-metadata` in `flatpak-release-metadata.yml`** mints
-      `permission-contents: write` and `permission-pull-requests: write`; the
-      job's own `GITHUB_TOKEN` is `contents: read`. The app exists for this job
-      because pushes and pull requests made with `GITHUB_TOKEN` start no
-      workflows: the required `Build & test` check never ran on the metadata
-      pull request (measured on #278, where the bot commit `8cc48c38` had 0
-      check runs and the human commit after it had 18), so a human had to push
-      to every one. The app's token starts CI, the job updates the branch when
-      main has moved past the tag (the ruleset's up-to-date rule), and it turns
-      on squash auto-merge (`allow_auto_merge` is on for the repository). The
-      workflow runs on `release: released`, or on `workflow_dispatch` with a
-      `tag` input to re-run a release. The `Require CI on main` ruleset carries
-      `require_extra_approval_for_unattributed_changes: true`, which does not
-      hold these pull requests: GitHub documents it as one extra approval for
-      Copilot pull requests not attributed to a person, with no effect when the
-      ruleset requires zero approvals, as this one does, and #278 and #283
-      (opened by the github-actions app) merged with 0 reviews under it. The
-      app's commits are attributed to `backspace-release-bot[bot]` in any case.
-      See
-      [desktop.md](desktop.md#release-publishing) for the release flow itself.
-      **Rotating the key:** generate a new private key in the app's settings,
-      replace `RELEASE_BOT_PRIVATE_KEY`, then delete the old key there. The
-      Flatpak job picks it up on its next run. A permission withdrawn from
-      the installation makes minting fail: the Flatpak job stops before pushing.
+Required contexts are `Build & test`, `Secret scan (gitleaks)`,
+`Dependency scan (OSV-Scanner)`, `IaC/config scan (Trivy)` and
+`License compliance scan (Trivy)` from GitHub Actions (app 15368), plus `CodeQL`
+from GitHub Advanced Security (app 57789). Verify those identities on the actual
+PR commit/merge analysis before enforcing them. Do not require a tag-only
+publisher or advisory scheduled scan as a PR check.
 
-### Outstanding
+Read back `/rules/branches/master` plus the full ruleset, repository
+`security_and_analysis`, `/actions/permissions/workflow`,
+`/vulnerability-alerts` and `/automated-security-fixes`. Check the actual candidate
+SHA, check conclusions and CodeQL analysis separately. If a feature/API is
+unavailable or a check fails, report the limitation; never use an admin bypass or
+weaken protection for the cleanup PR. No independent human approval is required
+while there is only one maintainer; that does not mean direct master pushes.
 
-- [ ] Settings → Code security: enable **Secret scanning** + **Push protection**.
-      Both currently disabled — note that `security.yml`'s gitleaks job scans full
-      history on PR and push, but it is not push protection and cannot stop a
-      secret from landing.
-- [ ] Settings → Code security: enable **CodeQL / code-scanning merge protection**
-      so high-severity alerts block PRs (the code-level gates do the rest). No
-      code-scanning rule is present on any ruleset today.
-- [ ] Branch protection on `main`: **partly done.** The `Require CI on main`
-      ruleset is active and blocks deletion and force-push, requires a pull
-      request, and requires the `Build & test` check. It does **not** require any
-      check from `security.yml`, `codeql.yml`, or `scorecard.yml` — add those
-      contexts when enforcement is turned on, or the tiered policy above has no
-      gate on `main`.
-- [ ] Settings → Code security: enable **Secret scanning validity checks**.
-      Currently disabled. It asks the provider whether a detected credential is
-      still live, which is the difference between an alert and an incident.
-- [ ] The five Scorecard checks that are maintainer settings or process rather than
-      code, and therefore cannot be fixed from a pull request: `Branch-Protection`,
-      `CII-Best-Practices`, `Code-Review`, `Fuzzing`, `Security-Policy`.
-      `Security-Policy` was expected to resolve once `SECURITY.md` documented the
-      testing pipeline. **It did not.** Measured after the Scorecard run on
-      `16828e99`, which is the commit that added that section: the finding is
-      still open. The check scores the file's contents rather than its existence,
-      so more prose does not move it on its own. Investigate what it actually
-      wants before assuming the next edit will clear it. `Code-Review` reflects
-      commits reaching `main` without a reviewed pull request, which is inherent
-      to a single-maintainer repository.
-- [ ] **Cloudflare deploy secrets.** `CLOUDFLARE_API_TOKEN` and
-      `CLOUDFLARE_ACCOUNT_ID` on the `telemetry-receiver` environment, plus a
-      branch policy on that environment allowing `main` only. The same pair,
-      on a `directory-hub` environment, drives the space directory's hub. Each
-      token carries three permissions and no more: account `Workers Scripts:
-      Edit`, account `D1: Edit` and zone `Workers Routes: Edit`, never an
-      account-wide edit; the reasoning for the zone one is in
-      [directory.md](directory.md) section 12. Until they exist a dispatched
-      deploy fails at the wrangler step; nothing else in the repository is
-      affected.
-- [ ] **Manual image bumps:** Dependabot does not track `docker-compose.yml`
-      `image:` pins — update `caddy` and `livekit/livekit-server` by hand when new
-      releases ship. (Renovate, which parses compose, is an optional future
-      alternative.) Standing task, never "done".
+There is no active metrics/CLA store, upstream release-bot writer or Cloudflare
+Workers deployment in this fork. Do not provision their old secrets/environments
+from historical upstream instructions. Optional provider validity checks and
+future image enforcement are separate decisions, not silently enabled here.

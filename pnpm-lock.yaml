@@ -31,7 +31,6 @@ overrides:
   source-map-js@^1: ^1.2.2
   lodash@^4: ^4.18.0
   typescript@7.0.2: 5.9.3
-  '@cloudflare/vitest-pool-workers>zod': 4.6.7
   esbuild@^0.18: ^0.28.2
 
 patchedDependencies:

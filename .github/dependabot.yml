@@ -63,29 +63,18 @@ updates:
       - dependency-name: typescript
         update-types: ["version-update:semver-major"]
 
-      # @types/node tracks the RUNTIME, not npm's latest. Node 22 is the
-      # lowest supported runtime (`engines: node >=22.12`), so types describing
-      # a newer Node let code typecheck clean and fail at runtime on it, even
-      # though the image itself runs 24.
+      # Keep @types/node changes deliberate and per-package. The manifests
+      # currently select their own versions (the server uses 26), while the
+      # declared runtime floor remains >=22.12 and CI/Docker run Node 24.
+      # Types alone do not establish runtime API availability.
       #
       # This one is ignored OUTRIGHT, not just for majors, which is the
       # exception to the rule stated above. Dependabot's npm updater resolves
       # one version per dependency across the whole pnpm workspace and cannot
-      # express a per-package split, so even a PATCH bump to the server's
-      # Node 22 types rewrites every other manifest to match. Nothing catches
-      # that: the older types are a subset, so it compiles clean and CI goes
-      # green while every newer API others are entitled to use silently
-      # becomes a type error.
+      # express a per-package split; a grouped rewrite can remove that deliberate
+      # distinction. Review actual runtime APIs when changing these versions.
       # Unblock: whenever a runtime moves, in that same PR, per package.
       - dependency-name: "@types/node"
-
-      # vitest majors stay deferred while @cloudflare/vitest-pool-workers
-      # supports `vitest ^4.1.0` only (its peers, plus internal Vitest APIs
-      # with no semver guarantee). The two worker packages (removed from this
-      # fork) were the only consumers; the app packages run vitest 5.
-      # Unblock: when @cloudflare/vitest-pool-workers ships vitest 5 support.
-      - dependency-name: vitest
-        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
@@ -102,8 +91,8 @@ updates:
       interval: weekly
     ignore:
       # The base image moves on purpose, not on release. docs/systems/deployment.md
-      # sets the policy: stay on the active LTS line (24), move to 26 after it
-      # becomes LTS on 2026-10-28, in a PR that also adds a CI leg for it,
+      # sets the policy: retain the pinned LTS line (24), evaluate 26 after its
+      # 2026-10-28 LTS transition in a PR that adds a CI leg,
       # resolves the multi-arch index digest and confirms better-sqlite3 has a
       # prebuild for the new ABI on both architectures. Odd-numbered lines
       # (25, 27, ...) are Current only and never qualify; node:25-slim also

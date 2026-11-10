@@ -2,8 +2,8 @@
 
 // Enforces the pairing between the committed offline sources and the release
 // the Flatpak manifest pins: flatpak/node-sources.json may change only in a
-// change that also moves the manifest's pinned Backspace commit, which is what
-// the release metadata pull request from flatpak-release-metadata.yml does.
+// change that also moves the manifest's pinned Backspace commit. Local builds
+// use a generated source list instead of modifying this historical pair.
 // The rule itself is stated in flatpak/README.md under README_SECTION.
 //
 // Command line, from the checkout root:
@@ -47,8 +47,8 @@ export function checkSourcesPairing({ baseManifest, headManifest, baseSources, h
     ok: false,
     message: `${SOURCES} changed but the commit pinned in ${MANIFEST} did not (${headPin}). `
       + 'The committed offline sources belong to that release and move only together with its pin, '
-      + 'in the release metadata pull request. Revert the change to the file: the Flatpak workflow '
-      + 'generates flatpak/node-sources.ci.json from this checkout\'s lockfile by itself. '
+      + 'in a deliberate packaging update. Restore the paired file and generate '
+      + 'flatpak/node-sources.ci.json from this checkout\'s lockfile for a local build. '
       + `See "${README_SECTION}" in flatpak/README.md.`,
   };
 }

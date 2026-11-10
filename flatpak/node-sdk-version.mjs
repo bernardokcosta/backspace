@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 // The Node SDK extension appears in files flatpak-builder never reads: the
-// workflows install it and pass it to flatpak-node-generator, and the README
-// and prepare-ci-manifest.mjs show the same commands. Every such reference has
+// README and prepare-ci-manifest.mjs show the local generator commands. Every reference has
 // to name an extension the manifest lists in sdk-extensions, on the branch
 // that matches the manifest's runtime-version, or the generated offline
 // sources target an SDK the build does not use. This checks that they agree.
@@ -16,8 +15,7 @@ import { pathToFileURL } from 'node:url';
 
 /** Files that reference the Node SDK extension. `generator` marks the ones that must pass --node-sdk-extension. */
 export const REFERENCING_FILES = [
-  { path: '.github/workflows/flatpak-release-metadata.yml', generator: true },
-  { path: 'flatpak/README.md', generator: false },
+  { path: 'flatpak/README.md', generator: true },
   { path: 'flatpak/prepare-ci-manifest.mjs', generator: false },
 ];
 

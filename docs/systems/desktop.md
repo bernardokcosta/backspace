@@ -731,89 +731,32 @@ produce an unpacked Linux application inside the SDK. It then installs that
 output on the Electron BaseApp and uses `zypak-wrapper` for Chromium sandbox
 integration.
 
-The published manifest remains pinned to a released commit. Pull-request CI
-generates `flatpak/node-sources.ci.json` from the checked-out `pnpm-lock.yaml`
-on each architecture, then uses `flatpak/prepare-ci-manifest.mjs` to generate
-an ignored manifest that swaps both the pinned application source for `type:
-dir` and the committed offline source list for that generated one, so both
-x86_64 and aarch64 jobs compile the actual checkout against its own
-dependencies, and a contributor changing dependencies needs no Flatpak
-installation on any platform. How the committed `flatpak/node-sources.json`
-relates to the pinned release, and the pull-request check that enforces it, is
-in `flatpak/README.md` under "Release-paired offline sources".
+The committed Flatpak manifest/offline sources retain their historical upstream
+release pin; they are not a published Veyvox 1.17.0 Flathub package. Local builds
+generate `flatpak/node-sources.ci.json` from this checkout's lockfile, then use
+`flatpak/prepare-ci-manifest.mjs` to replace both the source pin and offline-source
+reference in an ignored manifest. See [the local build guide](../../flatpak/README.md).
+Main CI validates the SDK references, release pairing and tooling tests; it does
+not claim to compile a two-architecture Flatpak package. The upstream-only
+automatic metadata writer was removed; optional local metadata tools remain.
 
-**Flatpak release metadata.** Publishing a GitHub release starts
-`.github/workflows/flatpak-release-metadata.yml` (`release: released`, which
-fires for a full release and for a prerelease promoted to one, never for a
-prerelease). A tag outside `vX.Y.Z`, a prerelease, or a release that has
-already landed makes the run a successful no-op that logs why. A release has
-landed when main's manifest pins the Veyvox source to the tag's commit
-(read with `flatpak/manifest-pin.mjs`), which only its merged metadata pull
-request does. An AppStream entry for the version on main does not count as
-landed: see step 2. Otherwise, checked out at the tag, it:
+`.github/workflows/release.yml` uses four **build-only** runners (mac arm64+x64,
+win x64+arm64, Linux x64 and Linux arm64), with `--publish never` and no release
+writer token. It assembles/validates one complete candidate, then exercises six
+native installed-replacement acceptance legs against the retained prior release.
+Only a `v*` tag push can reach `Validate and publish one release`, after all build,
+validation, native-capture and installed checks pass. PR/manual runs are build-
+and-validation only, not permission to publish.
 
-1. Reads the release notes and takes the paragraph under the
-   `# Backspace X.Y.Z` title as the AppStream release description, which is
-   the "What's New" text in GNOME Software, KDE Discover and Flathub
-   (`flatpak/release-summary.mjs`: wrapped lines are joined, links and images
-   become their text, emphasis and code markers are dropped, backslash escapes
-   become the literal character). Notes that do not open with that title
-   followed by a prose paragraph (a heading, table, list, quote, code block or
-   HTML in its place, or nothing) fail the job with the reason, so a
-   placeholder never ships. Fix the notes on the release page and dispatch a
-   new run.
-2. Runs `flatpak/update-release.mjs`, which updates the source pin, the
-   screenshot tag and the AppStream entry. The script reads the metainfo as it
-   is at the tag. To write the entry by hand instead of taking the notes'
-   paragraph, commit it to main before cutting the tag: the script then keeps
-   it and never replaces it, while the pin, the screenshot tag and
-   `node-sources.json` still move and the pull request still opens. The notes
-   still need their summary paragraph, because step 1 runs either way. An entry
-   written by hand on the metadata pull request's branch is not kept: a re-run
-   while that pull request is open force-pushes a fresh branch from the tag
-   over it.
-3. Regenerates `node-sources.json`, lints the manifest and AppStream file,
-   uploads those exact files, and builds their published manifest natively on
-   x86_64 and aarch64. The metadata pull request also runs `flatpak.yml`, but
-   that builds the working tree; this is the only build of the manifest as it
-   will be published.
-4. Only after both builds pass, pushes `automation/flatpak-<tag>` and opens (or
-   reuses) the metadata pull request as the release bot GitHub App. The app's
-   token, unlike `GITHUB_TOKEN`, starts CI on the pull request. The job updates
-   the branch when main has moved past the tag, because the ruleset requires
-   it to be up to date, and turns on squash auto-merge, so the pull request
-   merges itself once `Build & test` passes.
-
-To re-run a release, dispatch the workflow with its tag (`workflow_dispatch`,
-input `tag`); a malformed tag fails the dispatch. A re-run replaces the open
-pull request's branch, as described in step 2. A tag cut before this workflow
-existed cannot be re-run, and a release that has already landed opens nothing.
-Use a fresh dispatch rather than "Re-run failed jobs" on
-the pull request job after the first day: the builds hand their files to that
-job as an artifact kept for one day, so a re-run after that fails to find it.
-
-When the pull request job goes red at the update-branch step, click "Update
-branch" on the pull request. Auto-merge is already on and finishes once CI
-passes on the updated branch.
-
-The app and its two secrets are described in
-[security-scanning.md](security-scanning.md#done).
-
-`create-release` writes the `# Backspace X.Y.Z` heading at the top of the
-draft, above the Downloads table. The one human step for Flatpak is to write
-the summary paragraph directly under that heading before publishing. Flathub
-shows that paragraph, so write it as the store-facing summary of the release.
-
-CI publishes via `.github/workflows/release.yml` (tag `v*` on the public repo).
-A `create-release` job runs first and creates the draft for the tag, then four
-native build jobs fan out (mac arm64+x64, win x64+arm64, linux x64, linux
-arm64), each uploading its installers, `.blockmap`s, and platform `latest*.yml`
-manifest into that one draft. The draft must be published manually, because
-drafts are invisible to electron-updater. Publishing it also starts the Flatpak
-metadata workflow above.
+The single publisher validates the exact tag/commit, inventory, feed digests and
+versioned `.github/release-notes/` file before publishing through
+`scripts/publish-desktop-release.mjs`. An existing published immutable release is
+not a writable staging area. Never repair a release by replacing its assets or
+making parallel build jobs publish independently. Desktop publishing does not
+start a Flatpak release or publish a container; those are separate contracts.
 
 A release carries 16 assets, named
-`Backspace-<version>-<os>-<arch>.<ext>` (`artifactName` in
+`Veyvox-<version>-<os>-<arch>.<ext>` (`artifactName` in
 `electron-builder.yml`, `${os}` being `win`, `mac` or `linux`):
 
 | Asset | Reader |
@@ -831,19 +774,12 @@ zip: the zip only serves Squirrel.Mac auto-update, which ad-hoc signed builds
 cannot use.
 
 GitHub sorts the asset list by name and offers no other order, which puts
-Linux first and Windows last. So `create-release` writes a Downloads table
-into the draft body, in Windows, Linux, macOS order with plain labels, from
-the names electron-builder will produce; the "What's new" notes are written
-by hand above it before publishing. The web client's Desktop tab
-(`packages/web/src/platform/desktopDownload.ts`) and the README table spell
-the same names out and have to move with `artifactName`.
-
-The `create-release` job exists because electron-builder creates the release
-itself when it cannot find one for the tag, and four jobs doing that lookup
-concurrently can all miss. On v1.0.3 two of them created a draft and the assets
-split across the pair, which needed manual consolidation before the release
-could be published. Creating the draft once, ahead of the matrix, leaves the
-build jobs with nothing to create.
+Linux first and Windows last. The versioned release notes provide a human-facing
+Downloads table; the publisher validates that it agrees with the actual inventory.
+The web client's Desktop tab (`packages/web/src/platform/desktopDownload.ts`) and
+release asset validators must remain aligned with `artifactName`. Public asset
+names do not authorize changing installed profile/app IDs or retained legacy
+update-channel compatibility.
 
 
 ## Recovery Mode

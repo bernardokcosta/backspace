@@ -1,6 +1,2 @@
 packages:
   - "packages/*"
-  # Repo tooling that needs typecheck + tests, listed explicitly rather than as
-  # `scripts/*` so unrelated one-off scripts (gen-icons.mjs) stay out of the
-  # workspace. The upstream-only tooling (metrics collector, telemetry
-  # receiver, PR triage bot, directory hub) was removed from this fork.
