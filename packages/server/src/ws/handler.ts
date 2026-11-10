@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import type { WebSocket } from 'ws';
 import { verifyJwt } from '../utils/auth.js';
+import { consumeWsEvent, wsEventRateLimitError } from '../utils/rateLimits.js';
 import { getDb, schema } from '../db/index.js';
 import { eq, and, or, inArray, desc, sql } from 'drizzle-orm';
 import { handleClientEvent } from './events.js';
@@ -187,8 +188,6 @@ class ConnectionManager implements ReplicaSessionHost {
   // The specific WebSocket that initiated voice_join / DM call for this user.
   // When THIS socket closes, voice cleanup enters the reconnect grace period.
   private voiceWs: Map<string, WebSocket> = new Map();
-  // Per-user WebSocket rate limiters (shared across all tabs/connections)
-  private userRateLimiters: Map<string, WsRateLimiter> = new Map();
 
   // ─── Rich Presence ──────────────────────────────────────────────────────
   // userId → Activity[] (ephemeral, same lifecycle as voiceUserStates)
@@ -443,7 +442,6 @@ class ConnectionManager implements ReplicaSessionHost {
     this.lastActivityUpdate.delete(userId);
     // userSpaces is re-populated on the next connect via setUserSpaces.
     this.userSpaces.delete(userId);
-    this.userRateLimiters.delete(userId);
   }
 
   getUserConnections(userId: string): Set<WebSocket> {
@@ -453,15 +451,6 @@ class ConnectionManager implements ReplicaSessionHost {
   isUserOnline(userId: string): boolean {
     const conns = this.connections.get(userId);
     return conns !== undefined && conns.size > 0;
-  }
-
-  getUserRateLimiter(userId: string): WsRateLimiter {
-    let limiter = this.userRateLimiters.get(userId);
-    if (!limiter) {
-      limiter = new WsRateLimiter();
-      this.userRateLimiters.set(userId, limiter);
-    }
-    return limiter;
   }
 
   // ─── Activity accessors ─────────────────────────────────────────────────
@@ -1645,35 +1634,6 @@ class ConnectionManager implements ReplicaSessionHost {
 export const connectionManager = new ConnectionManager();
 attachReplicaSessionHost(connectionManager);
 
-// ─── WebSocket Rate Limiter (Token Bucket) ─────────────────────────────────
-
-class WsRateLimiter {
-  private tokens: number;
-  private readonly maxTokens: number;
-  private readonly refillRate: number; // tokens per second
-  private lastRefill: number;
-
-  constructor(maxTokens = 30, refillRate = 2) {
-    this.maxTokens = maxTokens;
-    this.tokens = maxTokens;
-    this.refillRate = refillRate;
-    this.lastRefill = Date.now();
-  }
-
-  consume(): boolean {
-    const now = Date.now();
-    const elapsed = (now - this.lastRefill) / 1000;
-    this.tokens = Math.min(this.maxTokens, this.tokens + elapsed * this.refillRate);
-    this.lastRefill = now;
-
-    if (this.tokens >= 1) {
-      this.tokens -= 1;
-      return true;
-    }
-    return false;
-  }
-}
-
 /**
  * When a bot account's socket authenticates: if the account shows activities
  * and has no live ones yet (no other session of it reported any), its stored
@@ -2348,9 +2308,10 @@ export async function registerWebSocket(app: FastifyInstance): Promise<void> {
         return;
       }
 
-      // Rate limit all post-auth, non-ping messages (per-user, shared across tabs)
-      if (!connectionManager.getUserRateLimiter(userId!).consume()) {
-        ws.send(JSON.stringify({ type: 'error', message: 'Rate limited' }));
+      // Ephemeral traffic cannot spend the capacity needed to leave/end/mute.
+      const retryAfter = consumeWsEvent(userId!, parsed.type);
+      if (retryAfter > 0) {
+        ws.send(JSON.stringify(wsEventRateLimitError(retryAfter, parsed)));
         return;
       }
 

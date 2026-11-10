@@ -523,12 +523,13 @@ a hundred-odd findings naming fragments of the file rather than the comment
 that caused them. Prose in that array is ordinary English; the stripping is
 what keeps it safe.
 
-The global rate limiter (`@fastify/rate-limit` in `index.ts`, 200 per minute,
+The post-auth HTTP limiter (`utils/httpRateLimit.ts`, see api.md for policies,
 and every per-route override of it) answers in the same shape through its
 `errorResponseBuilder`, built with `errorBody` from `httpErrors.ts` so the
 code is typed there too: `{ error, code: 'rate_limited', statusCode: 429,
-retryAfter }`, with `retryAfter` in seconds next to the `Retry-After` header
-the plugin sets. On the client every 429 throws `RateLimitError`, an
+retryAfter, rateLimitScope? }`, with `retryAfter` in seconds next to `Retry-After`.
+Manual/action quotas use that contract too. Scoped safe reads can recover once
+within a bounded cancellable wait; an exhausted/legacy refusal throws `RateLimitError`, an
 `HttpError` with `status 429`, the body's own code when the route sends
 one and `rate_limited` otherwise, plus `retryAfter`, so `describeError`
 localizes it like any other server error and the auth pages keep their

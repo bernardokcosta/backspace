@@ -115,6 +115,17 @@ afterEach(() => {
 });
 
 describe('a refused dm_call_start', () => {
+  it('keeps a ringing call when an unrelated ephemeral event was rate limited', () => {
+    const ws = homeSocket(); startDmCall(GROUP);
+    ws.deliver({ type: 'error', message: 'Too many requests', code: 'rate_limited', retryAfter: 1 });
+    expect(useVoiceStore.getState().outgoingCall).toEqual(outgoing(GROUP));
+  });
+
+  it('still clears a rate-limited call start correlated to that DM', () => {
+    const ws = homeSocket(); startDmCall(GROUP);
+    ws.deliver({ type: 'error', message: 'Too many requests', code: 'rate_limited', retryAfter: 1, dmChannelId: GROUP });
+    expect(useVoiceStore.getState().outgoingCall).toBeNull();
+  });
   it('clears the calling state and says why', () => {
     const ws = homeSocket();
     expect(startDmCall(GROUP)).toBe(true);

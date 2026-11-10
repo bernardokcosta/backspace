@@ -12,7 +12,7 @@ Source files:
   - `routes/federation/reconciliation.ts` -- DM federated-id reconciliation + dead-incarnation artifact sweeps (worker-facing maintenance)
   - `routes/federation/events/*.ts` -- Inbound relay event processors, grouped by domain: `dmMessages`, `membership`, `friends`, `calls`, `dmState` (presence/read-state/close/reopen/file-rejected), and `dispatch` (`processRelayEvents`, the fan-out entry point shared by the HTTP relay handler and the initial-sync worker)
   - `routes/federation/handlers/*.ts` -- Fastify route registrars, grouped by endpoint concern: `peerHandshake` (initiate/accept/ensure/rotate/denied), `peerAdmin` (peer list/CRUD/reset/recheck/rotate), `approvals` (approval queue + peering subscriptions/notifications + approve/deny helpers), `relay` (identity delete, relay, epoch, sync), `lookup` (user lookups), `attach` (verify-attach-proof, `/api/users/@me/reattach`)
-    - `routes/federation/handlers/s2sAuth.ts` -- `authenticateS2SPeer(request, reply, opts?)`: the shared inbound S2S-HMAC auth preamble (parse headers → resolve active peer → optional per-peer rate limit **before** signature → verify HMAC signature → nonce replay). Adopted by the six endpoints whose preamble is byte-identical: `DELETE /identity`, `POST /relay`, `POST /sync` (`relay.ts`), `POST /users/lookup`, `POST /users/by-home-id` (`lookup.ts`), and `POST /verify-attach-proof` (`attach.ts`). Returns `{ ok: true, peer, nonce }` or, having already sent the rejection reply, `{ ok: false }` (caller must `return`). **Intentional non-adopters** (each keeps a load-bearing gate the helper would flatten, documented in its own docstring/comment): `POST /epoch` (revoked-only gate for peer recovery, 400 on missing headers, no nonce check), `POST /peer/rotate` (active-only, no nonce check), `POST /peer/denied` (`awaiting_approval` gate, synthetic no-grace secret verify).
+    - `routes/federation/handlers/s2sAuth.ts` -- `authenticateS2SPeer(request, reply, opts?)`: shared inbound auth (headers → active peer → HMAC/rotation verification → non-mutating nonce replay check → verified-peer quota → record admitted nonce). Invalid signatures and replays cannot spend another peer's quota, and a 429 nonce remains retryable. Early HTTP address admission independently bounds untrusted traffic. Adopted by `DELETE /identity`, `POST /relay`, `POST /sync`, `POST /users/lookup`, `POST /users/by-home-id`, `POST /verify-attach-proof`. Returns `{ ok: true, peer, nonce }` or sends the refusal and returns `{ ok: false }`. Intentional non-adopters retain their gates: `/epoch` (revoked recovery, missing headers 400, no nonce check), `/peer/rotate` (active-only, no nonce check), `/peer/denied` (awaiting_approval, synthetic no-grace verification).
 - `packages/server/src/utils/federationAuth.ts` -- HMAC signing, verification, header parsing, `getOurOrigin()`
 - `packages/server/src/utils/federationFetch.ts` -- The outbound path for peer-addressed requests: origin trust levels (`approved` / `asserted`), origin format checks, no redirect following. See §1b.
 - `packages/server/src/utils/federationOutbox.ts` -- Event queuing (which peers), relay payload construction, mutation log, participant/target resolution
@@ -789,6 +789,7 @@ Two layers of replay protection:
 3. Re-serialize request body to JSON: `JSON.stringify(request.body)`
 4. `verifySignature(bodyString, signature, peer.hmacSecret, timestamp, nonce)` -- reject if false
 5. Nonce enforcement: duplicate nonce → 409, missing nonce from ratcheted peer → 401, legacy peer → warn
+   (non-mutating check, then verified-peer quota; only admission records a new nonce).
 6. **Source-to-peer binding:** `normalizeOriginForCompare(body.sourceInstance)` must equal `normalizeOriginForCompare(peer.origin)` -- otherwise `403`
 
 **Source-to-peer binding.** The HMAC proves *who sent* the request; `body.sourceInstance` is only what the body *claims*, and every per-event attribution check downstream reads it. Step 6 collapses the two: a batch is only processed when its claimed origin is the peer that actually signed it. An honest sender always stamps its own `getOurOrigin()` there (`federationWorker.ts`), so a mismatch is never a legitimate configuration -- it is one peer speaking as another. `processRelayEvents` re-asserts the same equality as a structural invariant and rejects every event in the batch with `source_peer_mismatch` if it does not hold, so no caller -- HTTP or in-process (`federationPeerActivation.ts` initial sync) -- can feed the pipeline a source the peer did not prove.
@@ -1272,6 +1273,16 @@ empty array when missing), so upgrade skew is a no-op until both sides are on
 new code.
 
 ### Inbound Relay Dispatch (`POST /api/federation/relay`)
+
+Outbound relay HTTP429 is peer backpressure, not a network/auth failure:
+honor Retry-After seconds/date, fallback30s, cap1h, without incrementing row
+attempts or consecutiveFailures. Existing rows get `nextRetryAt` no earlier
+than the peer deadline; all that peer's new entities are excluded before the
+outbox batch limit, so another peer cannot be starved. Queue ordering and
+offered-delivery semantics remain intact. Deadlines are process-local,
+expiry-pruned and cleared on shutdown; persisted retry fields survive restart.
+Inbound manual429s include actual remaining seconds in body and header. Nonce
+checks precede quota admission but only admitted requests record new nonces.
 
 Body limit: 10 MB. Max 50 events per batch. Rate-limited to 90 requests/min per peer (sliding window, keyed by `peer.origin`). Returns 429 when exceeded. Raised from 30 after FED-009 reduced the outbox worker interval from 10s to 1s — a busy sender can now hit 60 req/min during sustained traffic.
 

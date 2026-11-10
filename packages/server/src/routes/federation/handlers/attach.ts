@@ -14,7 +14,7 @@ import type { DmChannel } from '@veyvox/shared';
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { extractDomain } from '../identity.js';
 import { applyHomeProfile, homeProfileFromAnswer } from '../profile.js';
-import { isLookupRateLimited } from '../rateLimits.js';
+import { isLookupRateLimited, lookupRetryAfterMs } from '../rateLimits.js';
 import { authenticateS2SPeer } from './s2sAuth.js';
 import { keepNewerReadPointer, reconcileDmChannelFederatedId, type DmReconcileResult } from '../../../utils/dmConversation.js';
 import { announceDmReconcile } from '../../../utils/dmConversationEvents.js';
@@ -52,7 +52,7 @@ export function registerAttachRoutes(app: FastifyInstance): void {
       // design (this is the same friend-request-originator flow as /users/lookup),
       // running BEFORE signature with `Retry-After: 60`; no missing-nonce warning.
       const auth = authenticateS2SPeer(request, reply, {
-        rateLimiter: { limited: isLookupRateLimited, retryAfterSeconds: 60 },
+        rateLimiter: { limited: isLookupRateLimited, retryAfterMs: lookupRetryAfterMs },
       });
       if (!auth.ok) return;
       const { peer } = auth;

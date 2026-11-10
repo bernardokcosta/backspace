@@ -13,6 +13,7 @@ import { getOurOrigin } from '../utils/federationAuth.js';
 import { gameIconAssetDir, gameIconAssetPath } from '../utils/gameIconAssets.js';
 import { sendError } from '../utils/httpErrors.js';
 import { createFixedWindowLimit } from '../utils/fixedWindowLimit.js';
+import { sendRateLimit } from '../utils/rateLimits.js';
 
 /**
  * Game icon uploads. The desktop client extracts an icon for a detected game
@@ -108,7 +109,8 @@ export async function gameIconRoutes(app: FastifyInstance): Promise<void> {
       properties: { image: { type: 'string', minLength: 4 } } } },
   }, async (request, reply) => {
     const { image } = request.body;
-    if (!uploadLimit.consume(request.userId)) return sendError(reply, 429, 'rate_limited');
+    const retryAfter = uploadLimit.consumeAll([request.userId]);
+    if (retryAfter > 0) return sendRateLimit(reply, retryAfter);
     if (!/^[A-Za-z0-9+/]*={0,2}$/.test(image)) return sendError(reply, 400, 'validation_failed');
     const bytes = Buffer.from(image, 'base64');
     if (bytes.toString('base64') !== image) return sendError(reply, 400, 'validation_failed');

@@ -233,6 +233,9 @@ async function deferredSend(b: PendingBubble, attempt = 0, revision = generation
       const isRateLimited = err instanceof RateLimitError;
 
       if ((status >= 400 && status < 500) || isRateLimited) {
+        // A server refusal is not an offline send: retain it for the user's
+        // explicit retry, without replaying it on a later browser online event.
+        usePendingMessageStore.getState().bumpRetry(b.clientId);
         usePendingMessageStore.getState().markFailed(b.clientId);
         return;
       }

@@ -8,9 +8,10 @@ import { getDb, schema } from '../db/index.js';
 import { config } from '../config.js';
 import { authenticate } from '../utils/auth.js';
 import { hasPermission, isMember } from '../utils/permissions.js';
-import { errorBody, sendError } from '../utils/httpErrors.js';
+import { sendError } from '../utils/httpErrors.js';
 import { generateSnowflake } from '../utils/snowflake.js';
 import { createFixedWindowLimit } from '../utils/fixedWindowLimit.js';
+import { sendRateLimit } from '../utils/rateLimits.js';
 import { connectionManager } from '../ws/handler.js';
 
 const uploads = createFixedWindowLimit({ max: 10, windowMs: 60_000 });
@@ -76,7 +77,8 @@ export async function soundboardRoutes(app: FastifyInstance): Promise<void> {
       return sendError(reply, 403, 'missing_permission', { permission: settings.allowMemberUploads ? 'ATTACH_FILES' : 'MANAGE_SPACE' });
     }
     if (!settings.enabled) return sendError(reply, 403, 'soundboard_disabled');
-    if (!uploads.consume(request.userId)) return sendError(reply, 429, 'rate_limited');
+    const retryAfter = uploads.consumeAll([request.userId]);
+    if (retryAfter > 0) return sendRateLimit(reply, retryAfter);
     const { name, emoji, audio } = request.body;
     if (!name.trim() || !emoji.trim() || !/^[A-Za-z0-9+/]*={0,2}$/.test(audio)) return sendError(reply, 400, 'validation_failed');
     const bytes = Buffer.from(audio, 'base64');
@@ -154,11 +156,7 @@ export async function soundboardRoutes(app: FastifyInstance): Promise<void> {
     if (sound.durationSeconds > settings.maxDurationSeconds) return sendError(reply, 400, 'soundboard_duration_limit', { max: settings.maxDurationSeconds });
     const retryAfter = plays.consumeAll([`user:${request.userId}`, `room:${channelId}`]);
     if (retryAfter > 0) {
-      const seconds = Math.ceil(retryAfter / 1000);
-      reply.header('Retry-After', seconds);
-      // Retry-After is not CORS-safelisted. Existing clients also read the
-      // numeric body field, so remote members get the same short cooldown.
-      return reply.code(429).send({ ...errorBody(429, 'rate_limited'), retryAfter: seconds });
+      return sendRateLimit(reply, retryAfter);
     }
     const payload = JSON.stringify({ type: 'soundboard_play', channelId, spaceId, sound });
     for (const uid of connectionManager.getRoomParticipants(channelId)) {

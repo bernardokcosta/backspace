@@ -29,8 +29,7 @@ vi.mock('../../../db/index.js', () => ({
   schema,
 }));
 
-// Wrap verifyPeerSignature in a passthrough spy so ordering (rate-limit BEFORE
-// signature) can be asserted by call count while real HMAC verification still runs.
+// Real HMAC verification with a spy to pin verified-peer quota ordering.
 const { verifySpy } = vi.hoisted(() => ({ verifySpy: vi.fn() }));
 vi.mock('../../../utils/federationAuth.js', async (importActual) => {
   const actual = await importActual<typeof import('../../../utils/federationAuth.js')>();
@@ -165,28 +164,40 @@ describe('authenticateS2SPeer', () => {
     const res = await probe(app, signedHeaders(JSON.stringify(body)), body);
     expect(res.statusCode).toBe(429);
     expect(res.headers['retry-after']).toBe('60');
-    expect(JSON.parse(res.body)).toEqual({ error: 'Rate limit exceeded', statusCode: 429 });
+    expect(JSON.parse(res.body)).toMatchObject({ code: 'rate_limited', statusCode: 429, retryAfter: 60 });
   });
 
-  it('rate-limited WITHOUT retryAfterSeconds → 429, no Retry-After header', async () => {
+  it('a legacy limiter without metadata gets a bounded thirty-second wait', async () => {
     seedPeer('active');
     const app = await buildApp({ rateLimiter: { limited: () => true } });
     const body = { hello: 'world' };
     const res = await probe(app, signedHeaders(JSON.stringify(body)), body);
     expect(res.statusCode).toBe(429);
-    expect(res.headers['retry-after']).toBeUndefined();
-    expect(JSON.parse(res.body)).toEqual({ error: 'Rate limit exceeded', statusCode: 429 });
+    expect(res.headers['retry-after']).toBe('30');
+    expect(JSON.parse(res.body)).toMatchObject({ code: 'rate_limited', statusCode: 429, retryAfter: 30 });
   });
 
-  it('rate-limit fires BEFORE signature verification (verifyPeerSignature not reached)', async () => {
+  it('invalid signatures cannot consume or trigger a claimed peer quota', async () => {
     seedPeer('active');
-    const app = await buildApp({ rateLimiter: { limited: () => true, retryAfterSeconds: 60 } });
-    // Deliberately BAD signature: if signature ran first we would see 401, not 429.
+    const limited = vi.fn(() => true);
+    const app = await buildApp({ rateLimiter: { limited, retryAfterSeconds: 60 } });
     const headers = signedHeaders(JSON.stringify({ hello: 'world' }));
     headers['X-Federation-Signature'] = 'sha256=' + 'f'.repeat(64);
-    const res = await probe(app, headers, { hello: 'world' });
-    expect(res.statusCode).toBe(429);
-    expect(verifySpy).not.toHaveBeenCalled();
+    for (let i = 0; i < 60; i++) expect((await probe(app, headers, { hello: 'world' })).statusCode).toBe(401);
+    expect(verifySpy).toHaveBeenCalled();
+    expect(limited).not.toHaveBeenCalled();
+  });
+
+  it('a throttled fresh nonce can be retried and a replay does not spend peer capacity', async () => {
+    seedPeer('active');
+    const limited = vi.fn().mockReturnValueOnce(true).mockReturnValue(false);
+    const app = await buildApp({ rateLimiter: { limited, retryAfterSeconds: 1 } });
+    const body = { hello: 'world' };
+    const headers = signedHeaders(JSON.stringify(body));
+    expect((await probe(app, headers, body)).statusCode).toBe(429);
+    expect((await probe(app, headers, body)).statusCode).toBe(200);
+    expect((await probe(app, headers, body)).statusCode).toBe(409);
+    expect(limited).toHaveBeenCalledTimes(2);
   });
 
   it('bad signature → 401 with exact body', async () => {

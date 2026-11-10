@@ -234,7 +234,7 @@ export function AppLayout() {
     };
   }, []);
 
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, loadError, retry } = useAuth();
   const showBootSkeleton = useDelayedLoading(isLoading);
   const setCurrentSpace = useSpaceStore((s) => s.setCurrentSpace);
   const loadSpaceDetail = useSpaceStore((s) => s.loadSpaceDetail);
@@ -361,6 +361,19 @@ export function AppLayout() {
       navigate(`/channels/${spaceId}`, { replace: true });
     }
   }, [spaceId, channelId, channels, navigate]);
+
+  if (!user && loadError && !isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center bg-surface-base p-6">
+        <div className="max-w-md text-center space-y-3">
+          <p role="alert" className="text-sm text-txt-secondary">{loadError}</p>
+          <button type="button" onClick={() => { void retry(); }} className="text-accent-primary hover:underline">
+            {t('actions.tryAgain')}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!user || showBootSkeleton) {
     return (

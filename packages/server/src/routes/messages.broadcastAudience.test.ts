@@ -174,8 +174,10 @@ async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({ logger: false });
   const { messageRoutes } = await import('./messages.js');
   const { channelRoutes } = await import('./channels.js');
+  const { dmRoutes } = await import('./dm.js');
   await app.register(messageRoutes);
   await app.register(channelRoutes);
+  await app.register(dmRoutes);
   await app.ready();
   return app;
 }
@@ -225,6 +227,28 @@ describe('channel message events reach only the channel audience', () => {
   });
 
   describe('fixture controls', () => {
+    it('shares one actor create budget through real channel/DM REST and WS handlers', async () => {
+      const clock = vi.spyOn(Date, 'now').mockReturnValue(Date.now());
+      try {
+        testDb.insert(schema.dmChannels).values({ id: 'shared-dm', ownerId: 'author', createdAt: Date.now() }).run();
+        testDb.insert(schema.dmMembers).values([{ dmChannelId: 'shared-dm', userId: 'author' }, { dmChannelId: 'shared-dm', userId: 'viewer' }]).run();
+        const { handleClientEvent } = await import('../ws/events.js');
+        for (let i = 0; i < 3; i++) {
+          expect((await app.inject({ method: 'POST', url: `/api/channels/${OPEN}/messages`, payload: { content: 'rest channel' } })).statusCode).toBe(201);
+          expect((await app.inject({ method: 'POST', url: '/api/dm/shared-dm/messages', payload: { content: 'rest dm' } })).statusCode).toBe(201);
+          handleClientEvent({ type: 'message_create', channelId: OPEN, content: 'ws channel' }, 'author', 'author', sockets.author as unknown as WebSocket, false);
+          handleClientEvent({ type: 'dm_message_create', dmChannelId: 'shared-dm', content: 'ws dm' }, 'author', 'author', sockets.author as unknown as WebSocket, false);
+        }
+        sockets.author.received.length = 0;
+        handleClientEvent({ type: 'message_create', channelId: OPEN, content: 'refuse' }, 'author', 'author', sockets.author as unknown as WebSocket, false);
+        expect(sockets.author.received).toEqual([expect.objectContaining({ code: 'rate_limited', retryAfter: 1 })]);
+        expect((await app.inject({ method: 'POST', url: '/api/dm/shared-dm/messages', payload: { content: 'refuse' } })).statusCode).toBe(429);
+        expect(testDb.select().from(schema.messages).all()).toHaveLength(8);
+        expect(testDb.select().from(schema.dmMessages).all()).toHaveLength(6);
+        currentUserId = 'viewer';
+        expect((await app.inject({ method: 'POST', url: `/api/channels/${OPEN}/messages`, payload: { content: 'neighbor' } })).statusCode).toBe(201);
+      } finally { clock.mockRestore(); }
+    });
     it('the denied member can read the open channel', async () => {
       currentUserId = 'denied';
       const res = await app.inject({ method: 'GET', url: `/api/channels/${OPEN}/messages` });

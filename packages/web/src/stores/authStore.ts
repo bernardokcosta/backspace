@@ -20,6 +20,7 @@ import { deleteAccountOnRemotes } from '../utils/federationOps';
 import { homeHostOf, homeIdentityOf, isMine, ownRowAt, selfIdentityOf, type IdentityFields, type SelfIdentity } from '../utils/identity';
 import { myChosenStatus, statusAuthority, type OwnStatusReport } from '../utils/selfStatus';
 import i18n from '../i18n';
+import { describeError } from '../i18n/errors';
 
 interface AuthState {
   token: string | null;
@@ -42,6 +43,8 @@ interface AuthState {
   myRowIds: ReadonlyMap<string, string>;
   isLoading: boolean;
   error: string | null;
+  /** A refused bootstrap is settled until explicit retry, not another automatic load. */
+  userLoadError: string | null;
   initSession: (token: string, user: User) => void;
   login: (username: string, password: string) => Promise<void>;
   register: (username: string, password: string, displayName?: string, avatarColor?: string) => Promise<void>;
@@ -64,6 +67,7 @@ interface AuthState {
  * Reset all user-scoped stores to prevent data leaking between sessions.
  */
 function resetUserStores() {
+  api.cancelPendingReads?.();
   useChatStore.getState().clearAllMessages();
   useSpaceStore.getState().reset();
   useChannelPokeStore.getState().reset();
@@ -221,11 +225,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   myRowIds: new Map(),
   isLoading: false,
   error: null,
+  userLoadError: null,
 
   initSession: (token: string, user: User) => {
     resetUserStores();
     const sessionJwt = persistSessionToken(token);
-    set({ token: sessionJwt, user, trueHomeStatus: seedTrueHomeStatus(user), myRowIds: new Map(), isLoading: false });
+    set({ token: sessionJwt, user, trueHomeStatus: seedTrueHomeStatus(user), myRowIds: new Map(), isLoading: false, error: null, userLoadError: null });
     useInstanceStore.getState().autoConnectAll().catch(() => {});
   },
 
@@ -255,27 +260,32 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     localStorage.removeItem('backspace_token');
     resetUserStores();
     cancelKeptStatusExpiry();
-    set({ token: null, user: null, trueHomeStatus: null, myRowIds: new Map() });
+    set({ token: null, user: null, trueHomeStatus: null, myRowIds: new Map(), isLoading: false, userLoadError: null });
   },
 
   loadUser: async () => {
     const token = get().token;
     if (!token) return;
 
-    set({ isLoading: true });
+    set({ isLoading: true, userLoadError: null });
     try {
       const user = await api.users.me();
       if (get().token !== token) return;
       // A value already in the page (the true home's report, or the kept
       // report a sign-in started from, with its expiry) is kept as it is.
-      set({ user, trueHomeStatus: get().trueHomeStatus ?? seedTrueHomeStatus(user), isLoading: false });
+      set({ user, trueHomeStatus: get().trueHomeStatus ?? seedTrueHomeStatus(user), isLoading: false, userLoadError: null });
       // Auto-connect to remote instances (fire-and-forget)
       useInstanceStore.getState().autoConnectAll().catch(() => {});
-    } catch {
+    } catch (error) {
       if (get().token !== token) return;
+      if (!(typeof error === 'object' && error !== null && 'status' in error && error.status === 401)) {
+        const message = describeError(error);
+        set({ isLoading: false, error: message, userLoadError: message });
+        return;
+      }
       localStorage.removeItem('backspace_token');
       cancelKeptStatusExpiry();
-      set({ token: null, user: null, trueHomeStatus: null, myRowIds: new Map(), isLoading: false });
+      set({ token: null, user: null, trueHomeStatus: null, myRowIds: new Map(), isLoading: false, userLoadError: null });
     }
   },
 
@@ -326,10 +336,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     localStorage.removeItem('backspace_token');
     resetUserStores();
     cancelKeptStatusExpiry();
-    set({ token: null, user: null, trueHomeStatus: null, myRowIds: new Map() });
+    set({ token: null, user: null, trueHomeStatus: null, myRowIds: new Map(), isLoading: false, userLoadError: null });
   },
 
-  setUser: (user: User) => set({ user }),
+  setUser: (user: User) => set({ user, userLoadError: null }),
 
   recordMyRow: (origin, userId) => {
     if (!origin || get().myRowIds.get(origin) === userId) return;

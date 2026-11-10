@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm';
+import { parseRetryAfterSeconds } from '@veyvox/shared/src/retryAfter';
 import { getDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
 import { buildFederationHeaders, getOurOrigin } from './federationAuth.js';
@@ -70,8 +71,7 @@ export async function lookupRemoteUser(peerOrigin: string, username: string): Pr
   }
 
   if (response.status === 429) {
-    const raw = Number(response.headers.get('Retry-After') ?? '60');
-    const retryAfter = Number.isFinite(raw) ? raw : 60;
+    const retryAfter = parseRetryAfterSeconds(null, response.headers.get('Retry-After'));
     return { ok: false, reason: 'rate_limited', retryAfter };
   }
 
@@ -154,8 +154,7 @@ export async function lookupRemoteUserByHomeId(
   }
 
   if (response.status === 429) {
-    const raw = Number(response.headers.get('Retry-After') ?? '60');
-    const retryAfter = Number.isFinite(raw) ? raw : 60;
+    const retryAfter = parseRetryAfterSeconds(null, response.headers.get('Retry-After'));
     return { ok: false, reason: 'rate_limited', retryAfter };
   }
 

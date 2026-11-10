@@ -22,8 +22,9 @@ function rateLimitsDisabled(): boolean {
   return value === '1' || value === 'true';
 }
 
-export function createFixedWindowLimit(limit: { readonly max: number; readonly windowMs: number }): FixedWindowLimit {
+export function createFixedWindowLimit(limit: { readonly max: number; readonly windowMs: number; readonly maxKeys?: number }): FixedWindowLimit {
   const windows: Map<string, { count: number; startedAt: number }> = new Map();
+  const maxKeys = limit.maxKeys ?? 10_000;
   let lastSweepAt = 0;
 
   function sweep(now: number): void {
@@ -38,6 +39,7 @@ export function createFixedWindowLimit(limit: { readonly max: number; readonly w
     if (rateLimitsDisabled()) return 0;
     sweep(now);
     const unique = [...new Set(keys)];
+    if (windows.size + unique.filter(key => !windows.has(key)).length > maxKeys) return limit.windowMs;
     let retryAfter = 0;
     for (const key of unique) {
       const window = windows.get(key);

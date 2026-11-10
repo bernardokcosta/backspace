@@ -5,6 +5,8 @@ import type { GameIconUpload } from '@veyvox/shared/src/gameIcons';
 import type { JunoCommand, JunoSnapshot, JunoRankingPage } from '@veyvox/shared/src/juno';
 import { isErrorCode, type ErrorCode, type ErrorDetails } from '@veyvox/shared/src/errors';
 import i18n from '../i18n';
+import { isRateLimitScope, parseRetryAfterSeconds, type RateLimitScope } from '@veyvox/shared/src/retryAfter';
+import { createReadRecovery } from './readRecovery';
 import type {
   NotificationSetting,
   NotificationSettingsResponse,
@@ -222,16 +224,22 @@ export class HttpError extends Error {
 export class RateLimitError extends HttpError {
   /** Seconds until the limiter admits the next request: the body's `retryAfter`, the Retry-After header, or 60. */
   readonly retryAfter: number;
+  readonly scope?: RateLimitScope;
 
   constructor(retryAfter: number, body?: unknown) {
     const { errorText, code, details } = readErrorBody(body);
     super(429, errorText ?? 'Rate limit exceeded', body, code ?? 'rate_limited', details);
     this.name = 'RateLimitError';
-    this.retryAfter = retryAfter;
+    this.retryAfter = parseRetryAfterSeconds({ retryAfter }, null);
+    const scope = typeof body === 'object' && body !== null
+      ? (body as { rateLimitScope?: unknown }).rateLimitScope : undefined;
+    this.scope = isRateLimitScope(scope) ? scope : undefined;
   }
 }
 
 export class VeyvoxApiClient {
+  /** Cancel this client's reads/recovery, never a handed-off mutation. */
+  readonly cancelPendingReads: () => void;
   readonly auth: {
     register: (data: RegisterRequest) => Promise<AuthResponse>;
     login: (data: LoginRequest) => Promise<AuthResponse>;
@@ -526,64 +534,83 @@ export class VeyvoxApiClient {
   };
 
   constructor(baseUrl: string, getToken: () => string | null, onUnauthorized?: () => void) {
-    /** Send a request and return the successful response; a failure throws. */
-    async function send(
+    const recovery = createReadRecovery(getToken, error =>
+      error instanceof RateLimitError && error.scope ? error.retryAfter : null);
+    this.cancelPendingReads = () => recovery.cancel();
+    const unauthorizedReads = new WeakSet<HttpError>();
+
+    function safeRead<T>(key: string, read: (signal: AbortSignal) => Promise<T>, requireAuth = true): Promise<T> {
+      const session = getToken();
+      return recovery.run(key, read).then(value => structuredClone(value)).catch((error: unknown) => {
+        // Notify only after recovery has settled the authoritative refusal.
+        // The callback may itself clear the token/cancel other pending reads.
+        if (error instanceof HttpError && error.status === 401 && requireAuth
+            && getToken() === session && !unauthorizedReads.has(error)) {
+          unauthorizedReads.add(error); onUnauthorized?.();
+        }
+        throw error;
+      });
+    }
+
+    /** Keep cancellation/timeout ownership through body consumption, not just headers. */
+    async function send<T>(
       method: string,
       path: string,
-      body?: unknown,
-      requireAuth = true,
-    ): Promise<Response> {
+      body: unknown,
+      requireAuth: boolean,
+      consume: (response: Response) => Promise<T>,
+      signal?: AbortSignal,
+    ): Promise<T> {
       const headers: Record<string, string> = {};
 
       if (body) {
         headers['Content-Type'] = 'application/json';
       }
 
-      if (requireAuth) {
-        const token = getToken();
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
-      }
+      const token = getToken();
+      if (requireAuth && token) headers['Authorization'] = `Bearer ${token}`;
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
+      const abort = () => controller.abort();
+      signal?.addEventListener('abort', abort, { once: true });
+      if (signal?.aborted) controller.abort();
 
-      let response: Response;
       try {
-        response = await fetch(`${baseUrl}${path}`, {
-          method,
-          headers,
-          body: body ? JSON.stringify(body) : undefined,
-          signal: controller.signal,
-        });
+        let response: Response;
+        try {
+          response = await fetch(`${baseUrl}${path}`, {
+            method, headers, body: body ? JSON.stringify(body) : undefined, signal: controller.signal,
+          });
+        } catch (error) {
+          if (!signal?.aborted) recordDiagnostic({ event: 'api-failed', subsystem: 'api', level: 'error', method, route: path, ...diagnosticError(error) });
+          throw error;
+        }
+        const current = () => !signal?.aborted && (!requireAuth || getToken() === token);
+        if (method === 'GET' && !current()) { void response.body?.cancel().catch(() => {}); throw new DOMException('', 'AbortError'); }
+        if (!response.ok) {
+          const errorBody: unknown = await response.json().catch(() => null);
+          const error = HttpError.fromBody(response.status, errorBody);
+          if (method === 'GET' && !current()) throw new DOMException('', 'AbortError');
+          recordDiagnostic({ event: 'api-failed', subsystem: 'api', level: response.status >= 500 ? 'error' : 'warning',
+            method, route: path, status: response.status, ...(error.code ? { errorCode: error.code } : {}) });
+          if (method !== 'GET' && response.status === 401 && requireAuth && current()) onUnauthorized?.();
+          if (response.status === 429) throw new RateLimitError(parseRetryAfterSeconds(errorBody, response.headers.get('retry-after')), errorBody);
+          throw error;
+        }
+        const value = await consume(response);
+        if (method === 'GET' && !current()) throw new DOMException('', 'AbortError');
+        return value;
       } catch (err) {
-        recordDiagnostic({ event: 'api-failed', subsystem: 'api', level: 'error', method, route: path, ...diagnosticError(err) });
-        if (err instanceof DOMException && err.name === 'AbortError') {
+        if (!signal?.aborted && err instanceof DOMException && err.name === 'AbortError'
+            && (!requireAuth || getToken() === token)) {
           throw new Error(i18n.t('errors:clientRequestTimeout'));
         }
         throw err;
       } finally {
         clearTimeout(timeoutId);
+        signal?.removeEventListener('abort', abort);
       }
-
-      if (!response.ok) {
-        const body: unknown = await response.json().catch(() => null);
-        const error = HttpError.fromBody(response.status, body);
-        recordDiagnostic({ event: 'api-failed', subsystem: 'api', level: response.status >= 500 ? 'error' : 'warning',
-          method, route: path, status: response.status, ...(error.code ? { errorCode: error.code } : {}) });
-        if (response.status === 401 && requireAuth && onUnauthorized) {
-          onUnauthorized();
-        }
-        if (response.status === 429) {
-          const retryAfter = (body as { retryAfter?: number } | null)?.retryAfter
-            ?? (parseInt(response.headers.get('retry-after') || '', 10) || 60);
-          throw new RateLimitError(retryAfter, body);
-        }
-        throw error;
-      }
-
-      return response;
     }
 
     async function request<T>(
@@ -592,16 +619,15 @@ export class VeyvoxApiClient {
       body?: unknown,
       requireAuth = true,
     ): Promise<T> {
-      const response = await send(method, path, body, requireAuth);
-      const value = await response.json() as T;
-      return value;
+      const read = (signal?: AbortSignal) => send(method, path, body, requireAuth, response => response.json() as Promise<T>, signal);
+      return method === 'GET' ? safeRead(`json:${requireAuth}:${path}`, read, requireAuth) : read();
     }
 
     async function messageReceipt(path: string, data: CreateMessageRequest | CreateDmMessageRequest): Promise<void> {
-      const response = await send('POST', path, data);
-      // These endpoints commit before sending success. Deferred messages are
-      // reconciled by WS/history; parsing a body here only delays settlement.
-      void response.body?.cancel().catch(() => {});
+      await send('POST', path, data, true, async response => {
+        // Acknowledged mutations settle even if a read lifecycle was cancelled.
+        void response.body?.cancel().catch(() => {});
+      });
     }
 
     /**
@@ -614,10 +640,11 @@ export class VeyvoxApiClient {
       const params = new URLSearchParams();
       params.set('after', after);
       params.set('limit', String(limit));
-      const response = await send('GET', `${path}?${params}`);
-      const forward = response.headers.get(MESSAGE_PAGING_HEADER) === MESSAGE_PAGING_AFTER;
-      const messages = await response.json() as T[];
-      return { messages, forward };
+      const target = `${path}?${params}`;
+      return safeRead(`history:${target}`, signal => send('GET', target, undefined, true, async response => ({
+        messages: await response.json() as T[],
+        forward: response.headers.get(MESSAGE_PAGING_HEADER) === MESSAGE_PAGING_AFTER,
+      }), signal));
     }
     this.juno = {
       get: (channelId) => request<JunoSnapshot>('GET', `/channels/${encodeURIComponent(channelId)}/juno?memory=1`),
@@ -1157,6 +1184,7 @@ export class VeyvoxApiClient {
 }
 
 function handleUnauthorized(): void {
+  api.cancelPendingReads();
   localStorage.removeItem('backspace_token');
   if (
     !window.location.pathname.startsWith('/login') &&

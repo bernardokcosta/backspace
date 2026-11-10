@@ -140,6 +140,22 @@ describe('transferStore.startUpload', () => {
     expect(useTransferStore.getState().get(id)!.state).toBe('paused');
   });
 
+  it('keeps a rate-limited upload resumable with its URL, reference and in-memory file', async () => {
+    // The mock completes synchronously; inject a later HTTP429 to drive the
+    // real error handler, then prime the file-availability signal it preserves.
+    const file = new File(['draft'], 'draft.txt', { type: 'text/plain' });
+    const id = await useTransferStore.getState().startUpload(file, { tray: false });
+    const before = useTransferStore.getState().get(id)!;
+    useTransferStore.setState({ hasInMemoryFile: new Set([id]) });
+    lastUploadOpts().onError(Object.assign(new Error('HTTP429'), { originalResponse: { getStatus: () => 429 } }));
+    const after = useTransferStore.getState().get(id)!;
+    expect(after.state).toBe('failed'); expect(after.error?.permanent).toBe(false);
+    expect(after.tusUploadUrl).toBe(before.tusUploadUrl);
+    expect(after.attachmentId).toBe(before.attachmentId);
+    expect(useTransferStore.getState().hasInMemoryFile.has(id)).toBe(true);
+    expect(startMock).toHaveBeenCalledOnce();
+  });
+
   it('startUpload uses the per-origin token + endpoint for federated uploads', async () => {
     // Register a resolver that returns a federated token for a specific origin
     // and the home token (from the mocked authStore) for the empty origin.

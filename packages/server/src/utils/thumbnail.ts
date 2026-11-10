@@ -8,6 +8,9 @@ const execFile = promisify(execFileCb);
 const FFMPEG_TIMEOUT = 10_000; // 10 seconds
 
 let ffmpegAvailable: boolean | null = null;
+let availabilityProbe: Promise<boolean> | null = null;
+let probeFailedAt = 0;
+const PROBE_RETRY_MS = 30_000;
 
 const PROFILE_LIMITS = { avatar: 256, icon: 256, banner: 1280 } as const;
 
@@ -108,17 +111,32 @@ export async function generateThumbnail(
   }
 }
 
-/** Check if ffmpeg/ffprobe are available on the system PATH. Caches result. */
+/** Cache success, coalesce concurrent callers, retry failure on later demand. */
 export async function checkFfmpeg(): Promise<boolean> {
-  if (ffmpegAvailable !== null) return ffmpegAvailable;
-  try {
-    await execFile('ffprobe', ['-version'], { timeout: 5000 });
-    ffmpegAvailable = true;
-  } catch {
-    console.warn('ffmpeg/ffprobe not found — video thumbnails and metadata extraction disabled');
-    ffmpegAvailable = false;
-  }
-  return ffmpegAvailable;
+  if (ffmpegAvailable === true) return true;
+  if (availabilityProbe) return availabilityProbe;
+  const now = Date.now();
+  if (ffmpegAvailable === false && now >= probeFailedAt && now - probeFailedAt < PROBE_RETRY_MS) return false;
+  availabilityProbe = (async () => {
+    try {
+      await execFile('ffprobe', ['-version'], { timeout: 5000, maxBuffer: 65_536 });
+      ffmpegAvailable = true;
+      return true;
+    } catch (error: unknown) {
+      ffmpegAvailable = false;
+      probeFailedAt = Date.now();
+      const details = error as { code?: unknown; killed?: unknown } | null;
+      // A new fixed-text error keeps the safe call site, not child stderr,
+      // command arguments, local paths or an uploaded filename.
+      const safe = new Error('Optional media probe failed');
+      const code = details?.code === 'ENOENT' ? 'ENOENT'
+        : details?.code === 'ETIMEDOUT' || details?.killed === true ? 'ETIMEDOUT' : undefined;
+      if (code) Object.assign(safe, { code });
+      console.warn('Optional media processing unavailable; probe retries on demand after 30 seconds', safe);
+      return false;
+    } finally { availabilityProbe = null; }
+  })();
+  return availabilityProbe;
 }
 
 /** Extract width/height from an image file using sharp. Works for all formats including animated GIFs and small images. */

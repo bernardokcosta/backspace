@@ -16,7 +16,7 @@ vi.mock('../hooks/useWebSocket', () => ({
 
 import { useAuthStore } from './authStore';
 import { useSpaceStore } from './spaceStore';
-import { api } from '../api/client';
+import { api, HttpError, RateLimitError } from '../api/client';
 
 const user: User = {
   id: 'u1',
@@ -56,6 +56,23 @@ beforeEach(() => {
 });
 
 describe('the session reset fan-out', () => {
+  it.each([new RateLimitError(1), new HttpError(502, 'gateway')])('retains a valid session on temporary lookup failure', async error => {
+    localStorage.setItem('backspace_token', 'tok');
+    const me = vi.spyOn(api.users, 'me').mockRejectedValueOnce(error);
+    try {
+      await useAuthStore.getState().loadUser();
+      expect(useAuthStore.getState().token).toBe('tok');
+      expect(useAuthStore.getState().user?.id).toBe('u1');
+      expect(localStorage.getItem('backspace_token')).toBe('tok');
+      expect(useAuthStore.getState().isLoading).toBe(false);
+    } finally { me.mockRestore(); }
+  });
+
+  it('cancels pending API reads when the session is reset', () => {
+    const cancel = vi.spyOn(api, 'cancelPendingReads');
+    try { useAuthStore.getState().logout(); expect(cancel).toHaveBeenCalled(); }
+    finally { cancel.mockRestore(); }
+  });
   it('ignores a late user lookup failure after the account changes', async () => {
     let reject: (error: Error) => void = () => {};
     const me = vi.spyOn(api.users, 'me').mockImplementationOnce(() => new Promise((_resolve, no) => { reject = no; }));

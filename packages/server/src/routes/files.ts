@@ -25,58 +25,13 @@ import { eq } from 'drizzle-orm';
 import type { Attachment } from '@veyvox/shared';
 import fs from 'node:fs';
 import path from 'node:path';
+import { createFixedWindowLimit } from '../utils/fixedWindowLimit.js';
+import { errorBody } from '../utils/httpErrors.js';
 
-// ─── Per-user rate limit for upload creation (30 creates / min) ─────────────
-const UPLOAD_CREATE_LIMIT = 30;
-const UPLOAD_CREATE_WINDOW_MS = 60_000;
-const createCounts = new Map<string, { count: number; windowStart: number }>();
-
-function checkCreateRateLimit(userId: string): boolean {
-  const now = Date.now();
-  const entry = createCounts.get(userId);
-  if (!entry || now - entry.windowStart > UPLOAD_CREATE_WINDOW_MS) {
-    createCounts.set(userId, { count: 1, windowStart: now });
-    return true;
-  }
-  if (entry.count >= UPLOAD_CREATE_LIMIT) return false;
-  entry.count += 1;
-  return true;
-}
-
-// ─── Per-user rate limit for PATCH (slowloris defense, ~1000 / min / user) ──
-// Production runs behind Caddy, so req.socket.remoteAddress is always
-// 127.0.0.1 — keying on userId is the only meaningful identifier.
-const PATCH_PER_USER_LIMIT = 1000;
-const PATCH_WINDOW_MS = 60_000;
-const patchCounts = new Map<string, { count: number; windowStart: number }>();
-
-function withinPatchLimit(userId: string): boolean {
-  const now = Date.now();
-  const entry = patchCounts.get(userId);
-  if (!entry || now - entry.windowStart > PATCH_WINDOW_MS) {
-    patchCounts.set(userId, { count: 1, windowStart: now });
-    return true;
-  }
-  if (entry.count >= PATCH_PER_USER_LIMIT) return false;
-  entry.count += 1;
-  return true;
-}
-
-// ─── Periodic prune of stale rate-limit entries (every 60s) ─────────────────
-let rateLimitPruneTimer: ReturnType<typeof setInterval> | null = null;
-function startRateLimitPruner(): void {
-  if (rateLimitPruneTimer) return;
-  rateLimitPruneTimer = setInterval(() => {
-    const now = Date.now();
-    for (const [k, v] of createCounts) {
-      if (now - v.windowStart > UPLOAD_CREATE_WINDOW_MS) createCounts.delete(k);
-    }
-    for (const [k, v] of patchCounts) {
-      if (now - v.windowStart > PATCH_WINDOW_MS) patchCounts.delete(k);
-    }
-  }, 60_000);
-  // Don't keep the event loop alive solely for this timer
-  if (typeof rateLimitPruneTimer.unref === 'function') rateLimitPruneTimer.unref();
+function uploadRateLimit(retryAfterMs: number) {
+  const retryAfter = Math.max(1, Math.ceil(retryAfterMs / 1000));
+  return { status_code: 429, retryAfter,
+    body: JSON.stringify({ ...errorBody(429, 'rate_limited'), retryAfter, rateLimitScope: 'resource' }) };
 }
 
 // ─── Derive mimetype from metadata filename, falling back to octet-stream ───
@@ -106,7 +61,8 @@ const requestUserIds = new WeakMap<object, string>();
 export async function filesRoutes(app: FastifyInstance): Promise<void> {
   // Ensure tus staging directory exists
   fs.mkdirSync(config.tusUploadDir, { recursive: true });
-  startRateLimitPruner();
+  const creates = createFixedWindowLimit({ max: 30, windowMs: 60_000 });
+  const patches = createFixedWindowLimit({ max: 1000, windowMs: 60_000 });
 
   const tusServer = new TusServer({
     path: '/api/files',
@@ -123,6 +79,17 @@ export async function filesRoutes(app: FastifyInstance): Promise<void> {
     // to be right.
     relativeLocation: true,
     disableTerminationForFinishedUploads: true,
+    exposedHeaders: ['Location', 'Tus-Resumable', 'Tus-Version', 'Tus-Extension', 'Tus-Max-Size',
+      'Tus-Checksum-Algorithm', 'Upload-Offset', 'Upload-Length', 'Upload-Metadata', 'Upload-Expires', 'Retry-After'],
+    onResponseError(req, error) {
+      if ('retryAfter' in error && typeof error.retryAfter === 'number') {
+        // @tus/server's hook maps status/body only; NodeRequest exposes its
+        // response for Node transport headers. The JSON body is the fallback.
+        const request = req as Request & { runtime?: { node?: { res?: { setHeader(name: string, value: number): unknown } } } };
+        request.runtime?.node?.res?.setHeader('Retry-After', error.retryAfter);
+      }
+      return undefined;
+    },
 
     // ── Auth: verify JWT on every incoming request ─────────────────────────
     async onIncomingRequest(req, uploadId) {
@@ -156,9 +123,8 @@ export async function filesRoutes(app: FastifyInstance): Promise<void> {
       if (guarded && uploadId) {
         // PATCH-specific slowloris/rate defense (per-user, see comment above).
         if (req.method === 'PATCH') {
-          if (!withinPatchLimit(userId)) {
-            throw { status_code: 429, body: 'PATCH rate limit exceeded' };
-          }
+          const wait = patches.consumeAll([userId]);
+          if (wait > 0) throw uploadRateLimit(wait);
         }
 
         let upload;
@@ -186,9 +152,8 @@ export async function filesRoutes(app: FastifyInstance): Promise<void> {
       }
 
       // Per-user create rate limit
-      if (!checkCreateRateLimit(userId)) {
-        throw { status_code: 429, body: 'Upload creation rate limit exceeded' };
-      }
+      const wait = creates.consumeAll([userId]);
+      if (wait > 0) throw uploadRateLimit(wait);
 
       // Read dynamic upload limit from instance_settings, fall back to config
       const db = getDb();

@@ -27,8 +27,7 @@ import { canActOnMemberInSpace } from '../utils/roleHierarchy.js';
 import { ERROR_MESSAGES, errorText } from '../utils/httpErrors.js';
 import type { ErrorCode, ErrorDetails } from '@veyvox/shared/src/errors';
 import { checkDmMessageCreate, checkDmMessageDelete, checkDmMessageEdit } from '../utils/dmMessageRules.js';
-import { consumeWsDmMessageCreate } from '../utils/dmMessageRateLimit.js';
-import { socketAddressOf } from './socketAddress.js';
+import { consumeMessageCreate, consumeReaction, rateLimitEvent } from '../utils/rateLimits.js';
 
 /**
  * Re-evaluate SPEAK permission for all participants in voice channels
@@ -164,7 +163,7 @@ export function handleClientEvent(
 
   switch (type) {
     case 'message_create':
-      handleMessageCreate(event, userId);
+      handleMessageCreate(event, userId, ws);
       break;
     case 'message_edit':
       handleMessageEdit(event, userId);
@@ -206,10 +205,10 @@ export function handleClientEvent(
       handleDmMessageDelete(event, userId, ws);
       break;
     case 'reaction_add':
-      handleReactionAdd(event, userId);
+      handleReactionAdd(event, userId, ws);
       break;
     case 'reaction_remove':
-      handleReactionRemove(event, userId);
+      handleReactionRemove(event, userId, ws);
       break;
     case 'channel_ack':
       handleChannelAck(event, userId, isFederated);
@@ -269,7 +268,7 @@ function sendMissingMentionEveryone(userId: string): void {
   connectionManager.sendToUser(userId, { type: 'error', message: errorText('missing_permission', details), code: 'missing_permission', details });
 }
 
-function handleMessageCreate(event: Record<string, unknown>, userId: string): void {
+function handleMessageCreate(event: Record<string, unknown>, userId: string, ws: WebSocket): void {
   const channelId = event.channelId as string;
   const content = event.content as string;
   const replyToId = event.replyToId as string | undefined;
@@ -310,6 +309,9 @@ function handleMessageCreate(event: Record<string, unknown>, userId: string): vo
     connectionManager.sendToUser(userId, { type: 'error', message: 'Invalid reply target' });
     return;
   }
+
+  const retryAfter = consumeMessageCreate(userId);
+  if (retryAfter > 0) { connectionManager.sendToWs(ws, rateLimitEvent(retryAfter)); return; }
 
   const db = getDb();
   const messageId = generateSnowflake();
@@ -996,19 +998,10 @@ function refuseDmMessage(ws: WebSocket, code: ErrorCode, details?: ErrorDetails)
 }
 
 /**
- * `dm_message_create`. The limit and the checks are the REST route's: 5
- * creates per 5 seconds per client address (`rate_limited`), counted before
- * anything else as the route's limiter is, then `checkDmMessageCreate`, so a
- * 1-on-1 whose partner was deleted refuses with `recipient_deleted` here too.
+ * `dm_message_create` uses REST validation and the same actor-scoped creation
+ * bucket as both HTTP and WS channel/DM messages, immediately before persistence.
  */
 function handleDmMessageCreate(event: Record<string, unknown>, userId: string, ws: WebSocket): void {
-  // A socket accepted on /ws always has an address; a stand-in without one
-  // counts under the user's row id rather than going uncounted.
-  if (!consumeWsDmMessageCreate(socketAddressOf(ws) ?? `user:${userId}`)) {
-    refuseDmMessage(ws, 'rate_limited');
-    return;
-  }
-
   const dmChannelId = event.dmChannelId;
   if (!dmChannelId || typeof dmChannelId !== 'string') {
     refuseDmMessage(ws, 'validation_failed');
@@ -1025,6 +1018,9 @@ function handleDmMessageCreate(event: Record<string, unknown>, userId: string, w
     return;
   }
   const { content, attachmentIds, replyToId } = check.value;
+
+  const retryAfter = consumeMessageCreate(userId);
+  if (retryAfter > 0) { connectionManager.sendToWs(ws, rateLimitEvent(retryAfter)); return; }
 
   const db = getDb();
   const messageId = generateSnowflake();
@@ -1229,6 +1225,7 @@ function handleDmMessageDelete(event: Record<string, unknown>, userId: string, w
 
 export type ReactionOutcome =
   | { ok: true; changed: boolean }
+  | { ok: false; reason: 'rate_limited'; retryAfterMs: number }
   | { ok: false; reason: 'message_not_found' | 'missing_permission' | 'read_only' };
 
 /**
@@ -1248,6 +1245,11 @@ export function applyReactionAdd(messageId: string, emoji: string, userId: strin
     if (!hasPermission(userId, spaceId, PermissionBits.ADD_REACTIONS, message.channelId)) {
       return { ok: false, reason: 'missing_permission' };
     }
+    if (db.select({ id: schema.reactions.id }).from(schema.reactions).where(and(
+      eq(schema.reactions.messageId, messageId), eq(schema.reactions.userId, userId), eq(schema.reactions.emoji, emoji),
+    )).get()) return { ok: true, changed: false };
+    const retryAfterMs = consumeReaction(userId);
+    if (retryAfterMs > 0) return { ok: false, reason: 'rate_limited', retryAfterMs };
     const reactionId = generateSnowflake();
     const now = Date.now();
     // The unique index on (message_id, user_id, emoji) keeps one reaction per
@@ -1281,6 +1283,12 @@ export function applyReactionAdd(messageId: string, emoji: string, userId: strin
   // Read-only enforcement: a dead 1-on-1 thread (partner tombstoned) accepts no
   // reaction mutations — the relay would fan out to all peers via undefined origins.
   if (isDeadOneOnOne(dmMsg.dmChannelId, userId)) return { ok: false, reason: 'read_only' };
+
+  if (db.select({ id: schema.dmReactions.id }).from(schema.dmReactions).where(and(
+    eq(schema.dmReactions.dmMessageId, messageId), eq(schema.dmReactions.userId, userId), eq(schema.dmReactions.emoji, emoji),
+  )).get()) return { ok: true, changed: false };
+  const retryAfterMs = consumeReaction(userId);
+  if (retryAfterMs > 0) return { ok: false, reason: 'rate_limited', retryAfterMs };
 
   const reactionId = generateSnowflake();
   const now = Date.now();
@@ -1341,6 +1349,12 @@ export function applyReactionRemove(messageId: string, emoji: string, userId: st
     const spaceId = getChannelSpaceId(message.channelId);
     if (!spaceId || !isMember(spaceId, userId)) return { ok: false, reason: 'message_not_found' };
 
+    if (!db.select({ id: schema.reactions.id }).from(schema.reactions).where(and(
+      eq(schema.reactions.messageId, messageId), eq(schema.reactions.userId, userId), eq(schema.reactions.emoji, emoji),
+    )).get()) return { ok: true, changed: false };
+    const retryAfterMs = consumeReaction(userId);
+    if (retryAfterMs > 0) return { ok: false, reason: 'rate_limited', retryAfterMs };
+
     const result = db.delete(schema.reactions)
       .where(and(
         eq(schema.reactions.messageId, messageId),
@@ -1364,6 +1378,12 @@ export function applyReactionRemove(messageId: string, emoji: string, userId: st
   const dmMsg = db.select().from(schema.dmMessages).where(eq(schema.dmMessages.id, messageId)).get();
   if (!dmMsg || !isDmMember(dmMsg.dmChannelId, userId)) return { ok: false, reason: 'message_not_found' };
   if (isDeadOneOnOne(dmMsg.dmChannelId, userId)) return { ok: false, reason: 'read_only' };
+
+  if (!db.select({ id: schema.dmReactions.id }).from(schema.dmReactions).where(and(
+    eq(schema.dmReactions.dmMessageId, messageId), eq(schema.dmReactions.userId, userId), eq(schema.dmReactions.emoji, emoji),
+  )).get()) return { ok: true, changed: false };
+  const retryAfterMs = consumeReaction(userId);
+  if (retryAfterMs > 0) return { ok: false, reason: 'rate_limited', retryAfterMs };
 
   const result = db.delete(schema.dmReactions)
     .where(and(
@@ -1411,25 +1431,31 @@ export function applyReactionRemove(messageId: string, emoji: string, userId: st
   return { ok: true, changed: result.changes > 0 };
 }
 
-function handleReactionAdd(event: Record<string, unknown>, userId: string): void {
+function handleReactionAdd(event: Record<string, unknown>, userId: string, ws: WebSocket): void {
   const messageId = event.messageId as string;
   const emoji = event.emoji as string;
 
   if (!messageId || !emoji) return;
 
   const outcome = applyReactionAdd(messageId, emoji, userId);
+  if (!outcome.ok && outcome.reason === 'rate_limited') {
+    connectionManager.sendToWs(ws, rateLimitEvent(outcome.retryAfterMs));
+  }
   if (!outcome.ok && outcome.reason === 'missing_permission') {
     connectionManager.sendToUser(userId, { type: 'error', message: 'Missing ADD_REACTIONS permission' });
   }
 }
 
-function handleReactionRemove(event: Record<string, unknown>, userId: string): void {
+function handleReactionRemove(event: Record<string, unknown>, userId: string, ws: WebSocket): void {
   const messageId = event.messageId as string;
   const emoji = event.emoji as string;
 
   if (!messageId || !emoji) return;
 
-  applyReactionRemove(messageId, emoji, userId);
+  const outcome = applyReactionRemove(messageId, emoji, userId);
+  if (!outcome.ok && outcome.reason === 'rate_limited') {
+    connectionManager.sendToWs(ws, rateLimitEvent(outcome.retryAfterMs));
+  }
 }
 
 // ─── Read State Handler ────────────────────────────────────────────────────

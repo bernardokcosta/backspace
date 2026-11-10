@@ -1,4 +1,5 @@
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyInstance, FastifyReply } from 'fastify';
+import { sendRateLimit } from '../utils/rateLimits.js';
 import { authenticate } from '../utils/auth.js';
 import { sendError } from '../utils/httpErrors.js';
 import { applyReactionAdd, applyReactionRemove, type ReactionOutcome } from '../ws/events.js';
@@ -12,17 +13,9 @@ const EMOJI_MAX_LENGTH = 64;
  * handlers use. Both calls are idempotent: `changed` says whether anything moved.
  */
 export async function reactionRoutes(app: FastifyInstance): Promise<void> {
-  const config = {
-    rateLimit: {
-      max: 10,
-      timeWindow: '5 seconds',
-      // Per client address, like every limit in this app (see api.md, "Rate limiting").
-      keyGenerator: (request: FastifyRequest) => request.ip,
-    },
-  };
-
   const answer = (reply: FastifyReply, outcome: ReactionOutcome): FastifyReply => {
     if (outcome.ok) return reply.send({ success: true, changed: outcome.changed });
+    if (outcome.reason === 'rate_limited') return sendRateLimit(reply, outcome.retryAfterMs, 'action');
     if (outcome.reason === 'missing_permission') {
       return sendError(reply, 403, 'missing_permission', { permission: 'ADD_REACTIONS' });
     }
@@ -34,7 +27,6 @@ export async function reactionRoutes(app: FastifyInstance): Promise<void> {
 
   app.put<{ Params: { id: string; emoji: string } }>('/api/messages/:id/reactions/:emoji', {
     preHandler: authenticate,
-    config,
   }, async (request, reply) => {
     const { id, emoji } = request.params;
     if (emojiProblem(emoji)) {
@@ -45,7 +37,6 @@ export async function reactionRoutes(app: FastifyInstance): Promise<void> {
 
   app.delete<{ Params: { id: string; emoji: string } }>('/api/messages/:id/reactions/:emoji', {
     preHandler: authenticate,
-    config,
   }, async (request, reply) => {
     const { id, emoji } = request.params;
     if (emojiProblem(emoji)) {

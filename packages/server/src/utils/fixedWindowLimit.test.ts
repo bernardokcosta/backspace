@@ -4,6 +4,13 @@ import { createFixedWindowLimit } from './fixedWindowLimit.js';
 afterEach(() => { vi.unstubAllEnvs(); });
 
 describe('createFixedWindowLimit', () => {
+  it('bounds new keys without partially spending an atomic multi-key admission', () => {
+    const limit = createFixedWindowLimit({ max: 2, windowMs: 1000, maxKeys: 2 });
+    expect(limit.consumeAll(['a', 'b'], 0)).toBe(0);
+    expect(limit.consumeAll(['a', 'c'], 0)).toBeGreaterThan(0);
+    expect(limit.consumeAll(['a', 'b'], 0)).toBe(0);
+    expect(limit.consumeAll(['c'], 1000)).toBe(0);
+  });
   it('admits max events per key until the window ends', () => {
     const limit = createFixedWindowLimit({ max: 2, windowMs: 1000 });
     expect([limit.consume('a', 0), limit.consume('a', 10), limit.consume('a', 20)]).toEqual([true, true, false]);

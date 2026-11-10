@@ -12,7 +12,7 @@ import type { FederationIdentityDeleteS2SRequest, FederationRelayRequest, Federa
 import type { FastifyInstance } from 'fastify';
 import { processRelayEvents } from '../events/dispatch.js';
 import { extractDomain } from '../identity.js';
-import { isRelayRateLimited } from '../rateLimits.js';
+import { isRelayRateLimited, relayRetryAfterMs } from '../rateLimits.js';
 import { markOutboxOfferedForPeer } from '../../../utils/federationOutboxQueue.js';
 import { authenticateS2SPeer } from './s2sAuth.js';
 import { buildSyncResponse, type SyncPosition } from './syncPage.js';
@@ -142,12 +142,9 @@ export function registerRelayRoutes(app: FastifyInstance): void {
     async (request, reply) => {
       const db = getDb();
 
-      // Shared inbound S2S-auth preamble: headers → active peer → rate limit →
-      // signature → nonce replay. The per-peer relay rate limiter runs BEFORE
-      // signature verification (avoid HMAC work on a flood); warns on a legacy
-      // peer's missing nonce.
+      // Charge verified peer identity only, preserving HMAC/nonce checks.
       const auth = authenticateS2SPeer(request, reply, {
-        rateLimiter: { limited: isRelayRateLimited },
+        rateLimiter: { limited: isRelayRateLimited, retryAfterMs: relayRetryAfterMs },
         logMissingNonce: true,
       });
       if (!auth.ok) return;

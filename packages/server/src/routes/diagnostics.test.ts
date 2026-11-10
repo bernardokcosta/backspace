@@ -50,4 +50,17 @@ describe('bounded untrusted diagnostic ingestion', () => {
     }
     expect(status).toBe(429);
   });
+  it('reports remaining process-byte cooldown rather than a fresh minute', async () => {
+    const now = Date.now();
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(now + 59_000);
+    try {
+      for (let i = 0; i < 16; i++) await app.inject({ method: 'POST', url: '/api/diagnostics', remoteAddress: `10.2.0.${i + 1}`,
+        payload: { events: [event], ignored: 'x'.repeat(16_000) } });
+      const response = await app.inject({ method: 'POST', url: '/api/diagnostics', remoteAddress: '10.2.1.1',
+        payload: { events: [event], ignored: 'x'.repeat(16_000) } });
+      expect(response.statusCode).toBe(429);
+      expect(Number(response.headers['retry-after'])).toBeLessThanOrEqual(1);
+      expect(response.json()).toMatchObject({ retryAfter: 1 });
+    } finally { clock.mockRestore(); }
+  });
 });

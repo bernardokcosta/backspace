@@ -196,6 +196,50 @@ const timeout = (): never => {
 
 const sentEvents = (sent: Sent[], origin = PEER_1) => sent.filter(s => s.origin === origin).flatMap(s => s.body.events);
 
+describe('outbox rate-limit backpressure', () => {
+  beforeEach(() => {
+    stopFederationWorkers();
+    sqlite = new Database(':memory:'); testDb = drizzle(sqlite, { schema });
+    applyMigrations(sqlite); seed();
+  });
+  afterEach(() => { stopFederationWorkers(); vi.restoreAllMocks(); sqlite.close(); });
+
+  it.each([
+    ['2', 2000], [null, 30_000], ['garbage', 30_000],
+    [new Date(Date.UTC(2030, 0, 1)).toUTCString(), 3_600_000],
+    ['9999999', 3_600_000],
+  ] as const)('preserves queue/attempts/peer health and waits for %s', async (header, wait) => {
+    const now = Date.now();
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(now);
+    queueDm('limited', 'create');
+    testDb.update(schema.federationPeers).set({ consecutiveFailures: 9 }).where(eq(schema.federationPeers.id, 'peer-1')).run();
+    const sent = mockRelay((entry, index) => index === 0
+      ? new Response('', { status: 429, headers: header ? { 'Retry-After': header } : {} }) : acceptAll(entry));
+    await processOutboxTick();
+    expect(rows('peer-1')[0]).toMatchObject({ attempts: 0, nextRetryAt: now + wait });
+    const peer = testDb.select().from(schema.federationPeers).where(eq(schema.federationPeers.id, 'peer-1')).get();
+    expect(peer).toMatchObject({ status: 'active', consecutiveFailures: 9 });
+    await processOutboxTick(); expect(sent).toHaveLength(1);
+    clock.mockReturnValue(now + wait);
+    await processOutboxTick(); expect(sent).toHaveLength(2);
+    expect(rows('peer-1')).toHaveLength(0);
+  });
+
+  it('holds newly queued entities before selection limit without starving another peer', async () => {
+    const now = Date.now(); vi.spyOn(Date, 'now').mockReturnValue(now);
+    queueDm('first', 'create');
+    const sent = mockRelay(entry => entry.origin === PEER_1
+      ? new Response('', { status: 429, headers: { 'Retry-After': '60' } }) : acceptAll(entry));
+    await processOutboxTick();
+    for (let i = 0; i < 60; i++) queueDm(`more-${i}`, 'create');
+    queuePresence('healthy', 'online');
+    await processOutboxTick();
+    expect(sent.map(entry => entry.origin)).toEqual([PEER_1, PEER_2]);
+    expect(rows('peer-1')).toHaveLength(62);
+    expect(rows('peer-2')).toHaveLength(0);
+  });
+});
+
 describe('outbox worker: a send with an unknown outcome may have reached the peer (#372)', () => {
   beforeEach(() => {
     sqlite = new Database(':memory:');

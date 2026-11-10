@@ -188,6 +188,7 @@ describe('the violation sink sits behind the rate limiter', () => {
     expect(limited?.body).toEqual({
       error: 'Too many requests',
       code: 'rate_limited',
+      rateLimitScope: 'http',
       statusCode: 429,
       retryAfter: Number(limited?.retryAfter),
     });

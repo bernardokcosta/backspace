@@ -291,6 +291,33 @@ describe('a connection moves both of its projections together', () => {
     expect(agreedStatuses(REMOTE)).toEqual({ live: 'error', registry: 'auth_expired' });
     expect(useInstanceStore.getState().registry.get(REMOTE)?.errorMessage).toBe('session_expired');
   });
+
+  it('keeps rate-limited sessions resumable instead of claiming their token expired', async () => {
+    seed('disconnected', 'connected');
+    remoteMe.mockRejectedValueOnce(new HttpError(429, 'temporary'));
+    await useInstanceStore.getState().reconnectInstance(REMOTE);
+    expect(agreedStatuses(REMOTE)).toEqual({ live: 'connecting', registry: 'connected' });
+    expect(connectInstance).toHaveBeenCalledWith(REMOTE, 'cached-token');
+  });
+
+  it.each([new Error('O tempo limite da solicitação foi excedido.'), new HttpError(502, 'gateway')])('keeps credentials on temporary read failure %s', async error => {
+    seed('disconnected', 'connected'); remoteMe.mockRejectedValueOnce(error);
+    await useInstanceStore.getState().reconnectInstance(REMOTE);
+    expect(agreedStatuses(REMOTE)).toEqual({ live: 'disconnected', registry: 'unreachable' });
+    expect(connectInstance).toHaveBeenCalledWith(REMOTE, 'cached-token');
+  });
+
+  it('cancels old client reads before disconnecting or replacing credentials', () => {
+    seed('connected', 'connected');
+    const cancel = vi.fn();
+    const instance = useInstanceStore.getState().instances[0]!;
+    Object.assign(instance.api, { cancelPendingReads: cancel });
+    useInstanceStore.getState().disconnectInstance(REMOTE);
+    expect(cancel).toHaveBeenCalled();
+    cancel.mockClear();
+    useInstanceStore.getState().updateInstanceToken(REMOTE, 'new-token');
+    expect(cancel).toHaveBeenCalled();
+  });
 });
 
 describe('every path that opens a session on a remote asks the home instance to peer with it', () => {

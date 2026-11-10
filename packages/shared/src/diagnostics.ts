@@ -34,7 +34,7 @@ const ERROR_NAMES = new Set(['Error', 'TypeError', 'RangeError', 'ReferenceError
   'NotFoundError', 'NotReadableError', 'NotSupportedError', 'SecurityError', 'InvalidStateError',
   'OverconstrainedError', 'OperationError', 'ConnectionError', 'TrackInvalidError', 'MediaDeviceFailure']);
 const NETWORK_CODES = new Set(['ECONNREFUSED', 'ECONNRESET', 'ETIMEDOUT', 'ENOTFOUND', 'EAI_AGAIN', 'EADDRINUSE', 'EADDRNOTAVAIL',
-  'ENOSPC', 'EACCES', 'EPERM', 'EPIPE', 'ERR_NETWORK', 'ERR_CONNECTION_CLOSED', 'ERR_INTERNET_DISCONNECTED']);
+  'ENOENT', 'ENOSPC', 'EACCES', 'EPERM', 'EPIPE', 'ERR_NETWORK', 'ERR_CONNECTION_CLOSED', 'ERR_INTERNET_DISCONNECTED']);
 const STATES = new Set(['connecting', 'connected', 'reconnecting', 'signalReconnecting', 'disconnected',
   'load-failed', 'render-gone', 'unresponsive', 'renderer-stalled', 'failed', 'error', 'ready',
   'checking', 'idle', 'normal', 'recovery', 'available', 'downloading', 'up-to-date', 'available-manual',

@@ -62,7 +62,7 @@ export async function cspReportRoutes(app: FastifyInstance): Promise<void> {
     app.addContentTypeParser(contentType, parseReportBody);
   }
 
-  app.post(CSP_REPORT_PATH, async (request, reply) => {
+  app.post(CSP_REPORT_PATH, { config: { rateLimit: { max: 200, timeWindow: 60_000 } } }, async (request, reply) => {
     const body = typeof request.body === 'string'
       ? request.body
       : JSON.stringify(request.body ?? {});

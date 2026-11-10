@@ -15,6 +15,14 @@ Source files:
 
 ## Architecture Overview
 
+Each origin's API client owns bounded GET single-flight/recovery. Recognized
+optional `rateLimitScope` permits one retry within 60s plus jitter; missing or
+unknown scope is an immediate typed refusal, not an origin-wide pause.
+Disconnect, remove, replacement and logout cancel waits/in-flight results;
+stale 401 cannot expire another session. A temporary 429 during reconnect keeps
+credentials and lets the existing socket reconnect flow resume rather than
+reporting an expired token. Mutations do not enter read recovery.
+
 **Client-side vs S2S federation by feature:**
 - **Friend & DM relay are S2S.** Sending a friend request to `alice@orbit.tld` does not require having a federated account on `orbit.tld`; the sender's home server queues the relay (see `social.md` §6 outbound flow). DM messages are similarly relayed server-to-server once the initial channel exists.
 - **Spaces are client-federated.** Joining a remote space still requires creating a federated account on that instance via the Connections UI.

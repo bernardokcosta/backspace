@@ -11,7 +11,9 @@ import { eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { queueApprovalRequest } from './approvals.js';
 import { resolveLocalOrigin, sanitizePeer, validateOrigin } from '../origin.js';
-import { isAcceptRateLimited, isEnsureRateLimited } from '../rateLimits.js';
+import { isAcceptRateLimited, isEnsureRateLimited, acceptRetryAfterMs, ensureRetryAfterMs } from '../rateLimits.js';
+import { sendRateLimit } from '../../../utils/rateLimits.js';
+import { clientAddressKey } from '../../../utils/httpRateLimit.js';
 import { federationFetch } from '../../../utils/federationFetch.js';
 import { sendError } from '../../../utils/httpErrors.js';
 import { PEER_ENSURE_REASONS, type PeerEnsureReason } from '@veyvox/shared';
@@ -147,12 +149,9 @@ export function registerPeerHandshakeRoutes(app: FastifyInstance): void {
   app.post<{ Body: { sourceOrigin: string; challenge?: string; hmacSecret: string; instanceName?: string; instanceId?: string; approvalToken?: string } }>(
     '/api/federation/peer/accept',
     async (request, reply) => {
-      const clientIp = request.ip;
+      const clientIp = clientAddressKey(request);
       if (isAcceptRateLimited(clientIp)) {
-        return reply.code(429).send({
-          error: 'Too many peering requests — try again later',
-          statusCode: 429,
-        });
+        return sendRateLimit(reply, acceptRetryAfterMs(clientIp));
       }
 
       const { sourceOrigin: rawOrigin, hmacSecret, instanceName: reqInstanceName, instanceId: reqInstanceId, approvalToken: inboundToken } = request.body ?? {};
@@ -328,10 +327,7 @@ export function registerPeerHandshakeRoutes(app: FastifyInstance): void {
       // at app start, so confirming a peering that already exists (no network,
       // no writes) must not use up the allowance a new connection needs.
       if (!settledPeeringResult(remoteOrigin) && isEnsureRateLimited(request.userId)) {
-        return reply.code(429).send({
-          error: 'Too many peering requests — try again later',
-          statusCode: 429,
-        });
+        return sendRateLimit(reply, ensureRetryAfterMs(request.userId));
       }
 
       // The reason is what the local admin's approval queue and the user's

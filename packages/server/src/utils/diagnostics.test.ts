@@ -59,3 +59,6 @@ describe('privacy-safe diagnostic contract', () => {
     }
   });
 });
+it('recognizes the fixed absent-media-tool code without retaining command output', () => {
+  expect(diagnosticError(Object.assign(new Error('private command output'), { code: 'ENOENT' }))).toMatchObject({ errorName: 'Error', errorCode: 'ENOENT' });
+});

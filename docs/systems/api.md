@@ -91,19 +91,22 @@ voice ownership, moderation mute and deafen using `soundboard_voice_required`,
 are atomic; a refusal returns the actual remaining `Retry-After` in seconds
 and the same numeric `retryAfter` in JSON for cross-origin clients.
 
-Every request passes a limit: the global **200 per minute** registered in
-`packages/server/src/index.ts`, or the route's own where it declares one. A
-route with `config.rateLimit` **replaces** the global limit for itself rather
-than sitting under it, so a route that allows 100 per minute allows 100 per
-minute even though the global number is smaller. Read the per-route numbers
-below as the whole budget for that route, not as a second gate. **The key is
-the client address and nothing else.** The limiter runs on Fastify's `onRequest` hook while `authenticate` is
-a route `preHandler`, so no user is attached to the request yet when the key is
-taken. Nothing in the HTTP limiter is per account; the only per-user budgets in
-the app are the two hand-written upload limits in `routes/files.ts` (30 upload
-creates and 1000 PATCHes per minute per user), which run inside the tus handler
-after auth, and the sticker upload limit in `routes/stickers.ts` (30 per minute
-per account, also counted after auth).
+`utils/httpRateLimit.ts` registers two independent gates. Early `onRequest`
+admission uses normalized trusted client addresses (IPv6 /64): API 5,000/min,
+static/public assets 12,000/min, upload transport 6,000/min, WS handshakes
+300/min and health 120/min, each independent. This is emergency shared-address
+protection, not the ordinary account budget.
+
+The plugin's ordinary `preHandler` runs after existing authentication: reads
+are 1,200/min/account and mutations 600/min/account; anonymous API fallback is
+600/min/address. Asset/WS/health/upload transport families remain separate.
+`config.rateLimit` replaces only this ordinary plugin budget, never the early
+gate. Protected route overrides use the verified hosting-instance account row,
+not a bearer token, claimed identity or address. Public authentication and
+diagnostics limits remain address-based. All counters are per process, not
+distributed. The plugin caches at most 10,000 keys per store; action/fixed-window
+registries also bound key cardinality and do not evict exhausted actors for
+fresh admission.
 
 The address comes from Fastify's `trustProxy`, which is a **count of trusted
 hops**: the `TRUSTED_PROXY_HOPS` environment variable, default 1, read in
@@ -114,25 +117,26 @@ proxy, or with no proxy at all, sets a different number; see
 [web-security.md](web-security.md) section 9 and
 [deployment.md](deployment.md), "Server proxy-awareness".
 
-What an operator should take from that: **everyone sharing one public address
-shares one budget.** A school, an office behind a corporate proxy, a VPN exit
-or a household on CGNAT counts as a single client, and a busy client there can
-spend the minute's 200 for everybody at that address. The countermeasure is not
-in the app: give such a deployment its own address, or raise the limit.
-
-Routes may tighten the limit for themselves with `config.rateLimit`; those
-overrides sit with their routes (`routes/auth.ts`,
-`routes/joinRequests.ts`, `routes/messages.ts`, `routes/dm.ts`, `routes/gif.ts`,
-`routes/users.ts`, `routes/social.ts`), and they are keyed the same way, per
-address, for the same reason. The WebSocket `dm_message_create` event applies
-the DM create route's limit to the socket's address in a counter of its own
-(websocket.md, "DM Messages"). `DISABLE_RATE_LIMITS=1` or `=true`
-switches every limit off and exists for test harnesses that share the loopback
-address; it is never set in production.
+Channel + DM message creates share one account token bucket across REST, WS,
+tabs and credentials: burst 12, refill 2/second, charged immediately before
+persistence after validation. Reactions share burst 20/refill 5/second across
+add/remove/transports; authorized idempotent no-ops do not spend action capacity.
+Separate coarse gates still bound attempts. Upload creates remain 30/min/account,
+PATCH 1,000/min/account; stickers 30, game icons 10, soundboard uploads 10,
+Juno creates 5/actions 60 and pokes 5 per minute. Soundboard playback retains
+atomic account+room 1/2s limits. Other protected route overrides retain their
+counts/windows, now per verified account. `DISABLE_RATE_LIMITS=1|true` is an
+explicit test-only bypass, never set in production.
 
 Over the limit: `429` with the shared error body (`{ error, code:
 'rate_limited', statusCode: 429 }`, see [localization.md](localization.md))
-plus `retryAfter` in whole seconds, and the plugin's own `Retry-After` header.
+plus numeric `retryAfter` in whole seconds and `Retry-After`, including manual
+limits' actual remaining wait. Optional `rateLimitScope` is a closed vocabulary:
+`http`, `action`, `resource`, `transport`. CORS exposes retry/limit headers.
+Clients bound wait metadata to 1..3600s, supporting numeric JSON and header
+seconds/HTTP dates. Scoped GETs may retry once (at most 60s + 0..250ms jitter),
+deduplicated per target/client and cancelled on session/origin teardown.
+Unscoped legacy 429s throw immediately. Mutations never use this read recovery.
 
 ---
 
@@ -804,7 +808,7 @@ GET /health          (public) → { status: 'ok', timestamp }
 POST /csp-report     (no auth) -> 204
 ```
 
-**`POST /api/csp-report`** is the Content Security Policy violation sink named by the policy's `report-uri` and `report-to`. Unauthenticated on purpose: a violation can happen on the login screen before any token exists. It registers content-type parsers for `application/csp-report` and `application/reports+json` in addition to the built-in `application/json`. Fastify ships parsers for neither of the first two and would otherwise answer 415, leaving an empty report log that looks exactly like a clean policy. It answers `204` to everything, including a malformed body, because a browser cannot act on an error and would only retry. It reads at most 16 KB off the wire and logs at most 4096 characters per report at `warn` level with the message `CSP violation reported`. Registered after `@fastify/rate-limit` so the shared 200/minute limit applies; that ordering is load-bearing. See `docs/systems/web-security.md`.
+**`POST /api/csp-report`** is the Content Security Policy violation sink named by the policy's `report-uri` and `report-to`. Unauthenticated on purpose: a violation can happen on the login screen before any token exists. It registers content-type parsers for `application/csp-report` and `application/reports+json` in addition to the built-in `application/json`. Fastify ships parsers for neither of the first two and would otherwise answer 415, leaving an empty report log that looks exactly like a clean policy. Admitted reports answer `204`, including malformed bodies, because a browser cannot act on an error and would only retry. It reads at most 16 KB off the wire and logs at most 4096 characters per report at `warn` level with the message `CSP violation reported`. Registered after `@fastify/rate-limit` with an explicit 200/min/address override and independent early API admission. See `docs/systems/web-security.md`.
 
 ## Bots (`routes/bots.ts`, `routes/reactions.ts`)
 

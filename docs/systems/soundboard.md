@@ -1,5 +1,9 @@
 # Space soundboard
 
+Upload refusals use the common remaining-wait contract (`retryAfter`,
+`Retry-After`, optional `rateLimitScope: resource`); quotas stay unchanged.
+The HTTP coarse guard is independent of authenticated upload/play budgets.
+
 Shared clips belong to the space's hosting instance, not to the uploader's home.
 The client uses that instance's API/token and row ids for every request. No S2S
 relay is needed: space voice users already connect directly to their host.
