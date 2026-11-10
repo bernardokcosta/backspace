@@ -18,6 +18,8 @@ interface JunoState {
   stale: boolean;
   error: unknown;
   open: boolean;
+  /** Session-owned local feedback; never persisted or sent to the host. */
+  playFeedback: ((cue: 'button' | 'select') => void) | null;
   /** Token leases attest actual large table views; never persisted or inferred from open. */
   presentedViews: ReadonlySet<symbol>;
   presentView: (target: JunoTarget) => () => void;
@@ -72,7 +74,7 @@ const sameTarget = (a: JunoTarget | null, b: JunoTarget | null) => a === b || !!
   && a.accountId === b.accountId && a.origin === b.origin && a.channelId === b.channelId && a.selfId === b.selfId;
 export const useJunoStore = create<JunoState>((set, get) => ({
   target: null, connected: false, hosts: {}, snapshot: null, observedAt: 0, loading: false, pending: false, stale: false, error: null, open: false,
-  ranking: emptyRanking(), presentedViews: new Set(),
+  ranking: emptyRanking(), presentedViews: new Set(), playFeedback: null,
   presentView: target => {
     if (!sameTarget(target, get().target)) return () => {};
     const token = Symbol(); set(s => ({ presentedViews: new Set([...s.presentedViews, token]) }));
@@ -117,6 +119,9 @@ export const useJunoStore = create<JunoState>((set, get) => ({
     if (!sameTarget(target, get().target)) {
       get().clearRanking();
       epoch++; readRun++; cancelRecovery();
+      // The child audio effect may register before JunoSession's parent bind
+      // effect. Its callback validates the full target, so retain it until its
+      // owner replaces/cleans it up rather than clearing a newly registered one.
       set({ target, connected, snapshot: null, observedAt: 0, loading: false, pending: false, stale: false, error: null, open: false, presentedViews: new Set() });
     } else set({ connected });
   },
@@ -188,6 +193,6 @@ export const useJunoStore = create<JunoState>((set, get) => ({
   reset: () => {
     get().clearRanking();
     epoch++; readRun++; cancelRecovery();
-    set({ target: null, connected: false, hosts: {}, snapshot: null, loading: false, pending: false, stale: false, error: null, open: false, presentedViews: new Set() });
+    set({ target: null, connected: false, hosts: {}, snapshot: null, loading: false, pending: false, stale: false, error: null, open: false, presentedViews: new Set(), playFeedback: null });
   },
 }));

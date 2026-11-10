@@ -1,0 +1,155 @@
+{
+  "source": "User-supplied JUNO_Efeitos_Sonoros_Neon, 2026-11-09",
+  "pack": "JUNO – Efeitos Sonoros Neon",
+  "version": "1.0.0",
+  "suppliedLicenseStatement": "Efeitos criados originalmente para este projeto; não incorporam gravações comerciais.",
+  "format": "Ogg Vorbis",
+  "sampleRate": 48000,
+  "channels": 2,
+  "files": [
+    {
+      "path": "carta_jogada.ogg",
+      "sourceFile": "ogg/carta_jogada.ogg",
+      "event": "carta_jogada",
+      "durationSeconds": 0.38,
+      "bytes": 9491,
+      "sha256": "7feeaab7d1af807bcf9685cb6677000a2c864f7a480e5480355aa84953d2dd16",
+      "unchanged": true
+    },
+    {
+      "path": "carta_comprada.ogg",
+      "sourceFile": "ogg/carta_comprada.ogg",
+      "event": "carta_comprada",
+      "durationSeconds": 0.48,
+      "bytes": 10518,
+      "sha256": "da9437575440ed56c1cc100fe188e812febc88f432a8cb87a5b00132c223b6bf",
+      "unchanged": true
+    },
+    {
+      "path": "mais_dois.ogg",
+      "sourceFile": "ogg/mais_dois.ogg",
+      "event": "carta_mais_dois",
+      "durationSeconds": 0.77,
+      "bytes": 13472,
+      "sha256": "c47dbdb27e4860a56f335cf66dfe73e46c47b2ba4bdf5f26656f67858c06847d",
+      "unchanged": true
+    },
+    {
+      "path": "mais_quatro.ogg",
+      "sourceFile": "ogg/mais_quatro.ogg",
+      "event": "carta_mais_quatro",
+      "durationSeconds": 1.27,
+      "bytes": 19877,
+      "sha256": "48cb1532c552e4ab5059d5b3db2d2fdaf0ed87020debec08ce9445274b3ffdd9",
+      "unchanged": true
+    },
+    {
+      "path": "inverter.ogg",
+      "sourceFile": "ogg/inverter.ogg",
+      "event": "carta_inverter",
+      "durationSeconds": 0.91,
+      "bytes": 18315,
+      "sha256": "aed3c0b15e856727dac39d27685f2455fa3b90dcea9fa8d27bc8898ae0b90607",
+      "unchanged": true
+    },
+    {
+      "path": "bloquear.ogg",
+      "sourceFile": "ogg/bloquear.ogg",
+      "event": "carta_bloquear",
+      "durationSeconds": 0.6,
+      "bytes": 10287,
+      "sha256": "4a32814a9c034cb2ac6f11d32ebf459c5e847660b2cb3e82ba27357464ee1093",
+      "unchanged": true
+    },
+    {
+      "path": "coringa.ogg",
+      "sourceFile": "ogg/coringa.ogg",
+      "event": "carta_coringa",
+      "durationSeconds": 1.12,
+      "bytes": 18649,
+      "sha256": "f0f43131917f8ce1dfc5b2ede1bbe3efb8591466dc7264e8464cb32e29f03c08",
+      "unchanged": true
+    },
+    {
+      "path": "seu_turno.ogg",
+      "sourceFile": "ogg/seu_turno.ogg",
+      "event": "inicio_turno",
+      "durationSeconds": 0.68,
+      "bytes": 11284,
+      "sha256": "775c1b50553be8b2b7ae7cefdcbcf106f0b18408c9e005f32a979f64f3d42508",
+      "unchanged": true
+    },
+    {
+      "path": "uno.ogg",
+      "sourceFile": "ogg/uno.ogg",
+      "event": "anunciar_uno",
+      "durationSeconds": 1.18,
+      "bytes": 18187,
+      "sha256": "1de8891bac0a4554cf001034e53cde958ece0b53005f98a8dd1682b70d753c20",
+      "unchanged": true
+    },
+    {
+      "path": "vitoria.ogg",
+      "sourceFile": "ogg/vitoria.ogg",
+      "event": "vitoria",
+      "durationSeconds": 2.3,
+      "bytes": 35185,
+      "sha256": "3d2744d473fda3b345926610cb6b0d9796dd0dd7c00078100ef72e987cba73bf",
+      "unchanged": true
+    },
+    {
+      "path": "derrota.ogg",
+      "sourceFile": "ogg/derrota.ogg",
+      "event": "derrota",
+      "durationSeconds": 1.22,
+      "bytes": 9684,
+      "sha256": "9bafa2ef3cb43cdde3e8d448c41403d295dad76b1c120209ef52739c395623e3",
+      "unchanged": true
+    },
+    {
+      "path": "jogada_invalida.ogg",
+      "sourceFile": "ogg/jogada_invalida.ogg",
+      "event": "jogada_invalida",
+      "durationSeconds": 0.39,
+      "bytes": 7857,
+      "sha256": "915e475ec514dbb80dc0e619d19e3f8287a5f292a0f3c001e85a37f90c91e07a",
+      "unchanged": true
+    },
+    {
+      "path": "denuncia_martelo.ogg",
+      "sourceFile": "ogg/denuncia_martelo.ogg",
+      "event": "denuncia",
+      "durationSeconds": 0.76,
+      "bytes": 13105,
+      "sha256": "b438a1c814a8dd042181c241ba3d1cb874290e5a85548f70a9958820012e95e2",
+      "unchanged": true
+    },
+    {
+      "path": "botao.ogg",
+      "sourceFile": "ogg/botao.ogg",
+      "event": "clique_botao",
+      "durationSeconds": 0.21,
+      "bytes": 7394,
+      "sha256": "a58f920324c0667844c493277b5413a713f16294d771843cfbb31b990a78c963",
+      "unchanged": true
+    },
+    {
+      "path": "embaralhar.ogg",
+      "sourceFile": "ogg/embaralhar.ogg",
+      "event": "embaralhar",
+      "durationSeconds": 0.61,
+      "bytes": 14953,
+      "sha256": "18a55538cb00a5710dc6356d78d4454e2d06286f76c8538da30335db3f9d202a",
+      "unchanged": true
+    },
+    {
+      "path": "selecionar_carta.ogg",
+      "sourceFile": "ogg/selecionar_carta.ogg",
+      "event": "selecionar_carta",
+      "durationSeconds": 0.54,
+      "bytes": 9478,
+      "sha256": "945fec062f77d2b28eb68c08965816341293781ce15b4316b6fc5cd27cbd96ed",
+      "unchanged": true
+    }
+  ]
+}

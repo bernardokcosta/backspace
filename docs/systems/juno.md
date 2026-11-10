@@ -283,16 +283,21 @@ Stable optional lastMove.id keys drive short confirmed play/draw/special/JUNO
 effects; polls and initial mounts do not replay them. The JUNO logo flies from
 the actual announcing avatar center, using interface-scale-aware geometry.
 Effects are pointer-transparent and expire; reduced motion removes travel/pulsing
-while keeping static feedback. No sound capture, synthesized voice or new audio
-asset is used for a call of JUNO.
+while keeping static feedback. Confirmed JUNO announcements use the supplied
+neon cue, never sound capture or synthesized voice (see sounds.md).
 The memory curse uses identical neutral fog placeholders, not CSS-blurred fronts:
 no face URLs, color labels or legality highlights remain in the affected hand.
 All slots have localized “hidden card N” labels and equal selection behavior;
 draw/pass are disabled/hidden. A brief violet/cyan arrival settles into static
 fog, with no geometry changes; reduced motion skips arrival. Confirmed misses
 show localized actual-amount feedback without exposing the selected card.
-`JunoMemorySound`, owned once by `JunoSession` even while minimized, plays the
-supplied local `juno_memory.ogg` for a new confirmed memory move (see sounds.md).
+`JunoSounds`, owned once by `JunoSession` even while minimized, plays the supplied
+16 neon effects and original `juno_memory.ogg` for confirmed moves (see sounds.md).
+It reuses the existing effects slider/global SFX gain and output device; local
+selection/button/error/turn cues never alter commands or notify opponents. Initial
+reads, same-id polls and reconnect do not replay history; victory/defeat apply
+only to a live finish for seated players. Source lanes and pending loads are
+bounded and canceled on silence, scope/access loss or disconnect.
 No LiveKit/microphone publication or additional audio bus is involved.
 The settings gear beside the logo opens personal controls in every phase. UI
 language defaults to Automatic (following Veyvox); an explicit choice affects
