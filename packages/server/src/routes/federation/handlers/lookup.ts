@@ -1,7 +1,7 @@
 import { getDb, schema } from '../../../db/index.js';
 import { and, eq, isNull, or } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
-import { isLookupRateLimited } from '../rateLimits.js';
+import { isLookupRateLimited, lookupRetryAfterMs } from '../rateLimits.js';
 import { authenticateS2SPeer } from './s2sAuth.js';
 import { relayHandleOf } from '../stubName.js';
 import { parseStoredBotActivity } from '../../../utils/botActivity.js';
@@ -27,7 +27,7 @@ export function registerLookupRoutes(app: FastifyInstance): void {
       // BEFORE signature verification and sends `Retry-After: 60`. This endpoint
       // never logged on a missing nonce (logMissingNonce omitted).
       const auth = authenticateS2SPeer(request, reply, {
-        rateLimiter: { limited: isLookupRateLimited, retryAfterSeconds: 60 },
+        rateLimiter: { limited: isLookupRateLimited, retryAfterMs: lookupRetryAfterMs },
       });
       if (!auth.ok) return;
 
@@ -96,7 +96,7 @@ export function registerLookupRoutes(app: FastifyInstance): void {
       // rate limiter (60/min) BEFORE signature, `Retry-After: 60`, no
       // missing-nonce warning.
       const auth = authenticateS2SPeer(request, reply, {
-        rateLimiter: { limited: isLookupRateLimited, retryAfterSeconds: 60 },
+        rateLimiter: { limited: isLookupRateLimited, retryAfterMs: lookupRetryAfterMs },
       });
       if (!auth.ok) return;
 

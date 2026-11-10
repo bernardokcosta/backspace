@@ -22,7 +22,8 @@ import type {
 } from '@veyvox/shared';
 import { sanitizeUser } from '../utils/sanitize.js';
 import { relayHandleOf } from './federation/stubName.js';
-import { sendError } from '../utils/httpErrors.js';
+import { errorBody, sendError } from '../utils/httpErrors.js';
+import { parseRetryAfterSeconds } from '@veyvox/shared/src/retryAfter';
 
 export function buildProfileSnapshot(user: typeof schema.users.$inferSelect): FederationRelayProfileSnapshot {
   if (user.isDeleted) {
@@ -310,9 +311,10 @@ async function handleFederatedFriendRequest(
       return sendError(reply, 503, 'peer_unreachable', { domain: targetDomain });
     }
     if (lookup.reason === 'rate_limited') {
-      const headers: Record<string, string> = {};
-      if (lookup.retryAfter) headers['Retry-After'] = String(lookup.retryAfter);
-      return sendError(reply.headers(headers), 429, 'lookup_rate_limited');
+      const retryAfter = parseRetryAfterSeconds({ retryAfter: lookup.retryAfter }, null);
+      return reply.header('Retry-After', retryAfter).code(429).send({
+        ...errorBody(429, 'lookup_rate_limited'), retryAfter, rateLimitScope: 'resource',
+      });
     }
     // Exhaustive — should be unreachable.
     return sendError(reply, 500, 'lookup_failed');

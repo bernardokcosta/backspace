@@ -831,7 +831,7 @@ export type ServerEvent =
   // `max`), as in an HTTP error body. `dmChannelId` names the call of a refused `dm_call_start` or
   // `dm_call_accept`; a client calling or in that call drops it (voice.md,
   // "DM Call State Machine").
-  | { type: 'error'; message: string; code?: ErrorCode; details?: ErrorDetails; dmChannelId?: string }
+  | { type: 'error'; message: string; code?: ErrorCode; details?: ErrorDetails; dmChannelId?: string; retryAfter?: number }
   // The space's roles or a member's roles changed: what the receiver may see
   // or do there, and how its roles and members look, may be different now.
   // The client refetches that space's detail (docs/systems/websocket.md).

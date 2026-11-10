@@ -1,6 +1,7 @@
 import { getDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
-import { eq, and, lte, asc, inArray, notExists, sql } from 'drizzle-orm';
+import { eq, and, lte, asc, inArray, notInArray, notExists, sql } from 'drizzle-orm';
+import { parseRetryAfterSeconds } from '@veyvox/shared/src/retryAfter';
 import { config } from '../config.js';
 import {
   isFederationRelayEnabled,
@@ -109,6 +110,8 @@ const pendingPeerHandshakes = new Map<string, Promise<void>>();
 let outboxAbortController: AbortController | null = null;
 let fileQueueAbortController: AbortController | null = null;
 let recoveryAbortController: AbortController | null = null;
+// One bounded (at most one-hour) deadline per actually throttled configured peer.
+const peerCooldowns = new Map<string, number>();
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -216,6 +219,7 @@ type OutboxEntry = {
 type DeliveryOutcome =
   | { kind: 'answered'; result: FederationRelayResponse }
   | { kind: 'auth_refused'; status: number }
+  | { kind: 'rate_limited'; retryAfterMs: number }
   | { kind: 'failed'; reason: string }
   | { kind: 'aborted' };
 
@@ -257,6 +261,11 @@ async function sendOutboxBatch(
       ]),
     }, 'approved');
 
+    if (response.status === 429) {
+      const retryAfterMs = parseRetryAfterSeconds(null, response.headers.get('retry-after'), Date.now(), 30) * 1000;
+      void response.body?.cancel().catch(() => {});
+      return { kind: 'rate_limited', retryAfterMs };
+    }
     if (response.status === 401 || response.status === 403) {
       return { kind: 'auth_refused', status: response.status };
     }
@@ -359,6 +368,9 @@ export async function processOutboxTick(): Promise<void> {
   // they overlap this tick's delivery instead of delaying it.
   resolvePendingPeers(now);
 
+  for (const [peerId, deadline] of peerCooldowns) if (deadline <= now) peerCooldowns.delete(peerId);
+  const coolingPeers = [...peerCooldowns.keys()];
+
   // Due rows for active peers that head their queue: a row waits while an
   // older row of its entity is still queued, backing off or not.
   const entries = db
@@ -372,6 +384,7 @@ export async function processOutboxTick(): Promise<void> {
       and(
         lte(schema.federationOutbox.nextRetryAt, now),
         eq(schema.federationPeers.status, 'active'),
+        coolingPeers.length > 0 ? notInArray(schema.federationPeers.id, coolingPeers) : undefined,
         isOutboxQueueHead(),
       ),
     )
@@ -433,6 +446,17 @@ export async function processOutboxTick(): Promise<void> {
         applyOutboxEntryBackoff(db, batch, settledAt);
         handleRelayAuthRefusal(db, peerId, peerOrigin, outcome.status, settledAt);
         break;
+      case 'rate_limited': {
+        const deadline = Math.max(peerCooldowns.get(peerId) ?? 0, settledAt + outcome.retryAfterMs);
+        peerCooldowns.set(peerId, deadline);
+        // Preserve ordering, delivery state and attempt/failure counts. Defer
+        // all existing entities, not just this batch; new entities are excluded
+        // by peer before the next selection limit.
+        db.update(schema.federationOutbox)
+          .set({ nextRetryAt: sql`max(${schema.federationOutbox.nextRetryAt}, ${deadline})` })
+          .where(eq(schema.federationOutbox.peerId, peerId)).run();
+        break;
+      }
       case 'failed':
         console.error(`[federation-worker] Failed to deliver to peer ${peerOrigin}: ${outcome.reason}`);
         handleOutboxDeliveryFailure(db, peerId, batch, settledAt);
@@ -1460,6 +1484,7 @@ export function stopFederationWorkers(): void {
   }
 
   stopPeerSyncWorkers();
+  peerCooldowns.clear();
 
   outboxAbortController?.abort();
   outboxAbortController = null;

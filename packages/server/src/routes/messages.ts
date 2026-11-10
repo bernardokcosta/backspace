@@ -1,4 +1,5 @@
-import type { FastifyInstance, FastifyRequest } from 'fastify';
+import type { FastifyInstance } from 'fastify';
+import { consumeMessageCreate, sendRateLimit } from '../utils/rateLimits.js';
 import { eq, and, inArray } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
 import { authenticate } from '../utils/auth.js';
@@ -315,16 +316,6 @@ export async function messageRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/channels/:id/messages - Create a message
   app.post<{ Params: { id: string }; Body: CreateMessageRequest }>('/api/channels/:id/messages', {
     preHandler: authenticate,
-    config: {
-      rateLimit: {
-        max: 5,
-        timeWindow: '5 seconds',
-        // Per client address, like every limit in this app. A route limit runs
-        // on `onRequest` too, before `authenticate`, so there is no user on the
-        // request to key on. See docs/systems/api.md, "Rate limiting".
-        keyGenerator: (request: FastifyRequest) => request.ip,
-      },
-    },
   }, async (request, reply) => {
     const { id } = request.params;
     const { content, attachments: attachmentIds, replyToId } = request.body;
@@ -382,6 +373,9 @@ export async function messageRoutes(app: FastifyInstance): Promise<void> {
         }
       }
     }
+
+    const retryAfter = consumeMessageCreate(request.userId);
+    if (retryAfter > 0) return sendRateLimit(reply, retryAfter, 'action');
 
     // Insert message and link attachments atomically
     db.transaction((tx) => {

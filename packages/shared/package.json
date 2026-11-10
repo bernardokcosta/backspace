@@ -19,6 +19,8 @@
     "./src/constants.js": "./src/constants.ts",
     "./src/errors": "./src/errors.ts",
     "./src/errors.js": "./src/errors.ts",
+    "./src/retryAfter": "./src/retryAfter.ts",
+    "./src/retryAfter.js": "./src/retryAfter.ts",
     "./src/diagnostics": "./src/diagnostics.ts",
     "./src/diagnostics.js": "./src/diagnostics.ts",
     "./src/dmSystemEvents": "./src/dmSystemEvents.ts",

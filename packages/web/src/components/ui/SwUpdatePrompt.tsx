@@ -1,5 +1,5 @@
 import { useRegisterSW } from 'virtual:pwa-register/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { hasVoiceSession, useVoiceStore } from '../../stores/voiceStore';
 import { holdVoiceSessionLock, runWhenNoVoiceSession } from '../../utils/voiceSessionLock';
 
@@ -85,15 +85,15 @@ async function ownBuildWorker(container: ServiceWorkerContainer): Promise<OwnBui
  */
 export function SwAutoUpdate() {
   const [reloadPending, setReloadPending] = useState(false);
+  const [registration, setRegistration] = useState<ServiceWorkerRegistration>();
+  const disposed = useRef(false);
+  const checking = useRef(false);
   const {
     needRefresh: [needRefresh],
     updateServiceWorker,
   } = useRegisterSW({
     onRegisteredSW(_swUrl, registration) {
-      if (!registration) return;
-      setInterval(() => {
-        registration.update();
-      }, UPDATE_CHECK_INTERVAL_MS);
+      if (!disposed.current && registration) setRegistration(registration);
     },
     // Suppresses the plugin's own immediate reload, which would ignore voice.
     // The controllerchange listener below decides when a reload is due; the
@@ -101,6 +101,41 @@ export function SwAutoUpdate() {
     onNeedReload() {},
   });
   const inSession = useVoiceStore(hasVoiceSession);
+
+  useEffect(() => {
+    disposed.current = false;
+    return () => { disposed.current = true; };
+  }, []);
+
+  useEffect(() => {
+    const container = navigator.serviceWorker;
+    if (!registration || !container) return;
+    let stopped = false;
+    let warned: ServiceWorkerRegistration | undefined;
+    async function check() {
+      if (stopped || checking.current || !navigator.onLine) return;
+      checking.current = true;
+      let current: ServiceWorkerRegistration | undefined;
+      try {
+        // Registration references can outlive unregistration (including desktop
+        // startup). Resolve the current one rather than repeatedly using it.
+        current = await container.getRegistration(registration!.scope);
+        if (stopped || !current || !(current.active || current.installing || current.waiting)) return;
+        await current.update();
+        warned = undefined;
+      } catch (error: unknown) {
+        const failedRegistration = current ?? registration;
+        if (!stopped && !(error instanceof DOMException && error.name === 'InvalidStateError')
+            && warned !== failedRegistration) {
+          // No arbitrary exception text, URL or paths in diagnostic capture.
+          console.warn('[SwAutoUpdate] Periodic update check failed; will retry later');
+          warned = failedRegistration;
+        }
+      } finally { checking.current = false; }
+    }
+    const interval = setInterval(() => { void check(); }, UPDATE_CHECK_INTERVAL_MS);
+    return () => { stopped = true; clearInterval(interval); };
+  }, [registration]);
 
   useEffect(() => {
     const container = navigator.serviceWorker;

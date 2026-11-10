@@ -118,6 +118,8 @@ describe('game icons', () => {
     const extra = await pngBytes('#ffffff');
     const response = await upload(extra);
     expect(response.statusCode).toBe(429);
+    expect(response.json()).toMatchObject({ code: 'rate_limited', retryAfter: expect.any(Number) });
+    expect(Number(response.headers['retry-after'])).toBeGreaterThan(0);
   });
 
   it('enforces the per-account quota of distinct icons', async () => {

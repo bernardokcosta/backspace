@@ -149,3 +149,46 @@ describe('history after a cursor', () => {
     expect(url).toBe('https://home.test/api/dm/dm-1/messages?after=10&limit=50');
   });
 });
+
+describe('scoped safe-read recovery', () => {
+  afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
+
+  it('retains the authoritative 401 after its callback clears the session token', async () => {
+    let token: string | null = 'token';
+    answer(401, JSON.stringify({ code: 'unauthorized' }));
+    const unauthorized = vi.fn(() => { token = null; });
+    const client = createApiClient('https://origin.test', () => token, unauthorized);
+    const error = await thrownBy(() => client.users.me());
+    expect(error).toBeInstanceOf(HttpError);
+    expect((error as HttpError).status).toBe(401);
+    expect(unauthorized).toHaveBeenCalledTimes(1);
+  });
+
+  it('recovers one deduplicated GET from a current-server cooldown, never a POST', async () => {
+    vi.useFakeTimers(); vi.spyOn(Math, 'random').mockReturnValue(0);
+    const limited = () => new Response(JSON.stringify({ code: 'rate_limited', retryAfter: 1, rateLimitScope: 'http' }), { status: 429 });
+    globalThis.fetch = vi.fn().mockResolvedValueOnce(limited()).mockResolvedValueOnce(new Response(JSON.stringify({ id: 'me' })));
+    const client = createApiClient('https://origin.test', () => 'token');
+    const first = client.users.me(); const second = client.users.me();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(await first).toEqual({ id: 'me' }); expect(await second).toEqual({ id: 'me' });
+    expect(await first).not.toBe(await second);
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+    globalThis.fetch = vi.fn().mockResolvedValueOnce(limited());
+    await expect(client.channels.sendMessage('channel', { content: 'one' })).rejects.toBeInstanceOf(RateLimitError);
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('cancels reads on lifecycle teardown and never logs out a replacement session', async () => {
+    let complete!: (response: Response) => void;
+    globalThis.fetch = vi.fn().mockImplementation(() => new Promise<Response>(resolve => { complete = resolve; }));
+    const unauthorized = vi.fn();
+    const client = createApiClient('https://origin.test', () => 'token', unauthorized);
+    const result = client.users.me().catch(error => error);
+    client.cancelPendingReads();
+    expect(await result).toMatchObject({ name: 'AbortError' });
+    complete(new Response(JSON.stringify({ code: 'unauthorized' }), { status: 401 }));
+    await Promise.resolve(); await Promise.resolve();
+    expect(unauthorized).not.toHaveBeenCalled();
+  });
+});

@@ -1,5 +1,5 @@
 import { hasPendingBotRevocation } from '../utils/botRevocationQueue.js';
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyInstance, FastifyReply } from 'fastify';
 import { and, eq, or, lt } from 'drizzle-orm';
 import { randomBytes } from 'node:crypto';
 import { getDb, schema } from '../db/index.js';
@@ -17,6 +17,9 @@ import { verifyAttachProofWithPeer } from '../utils/federationAttach.js';
 import { getInviteByToken, inviteStatus, redeemInvite, InviteUnavailableError } from '../utils/inviteService.js';
 import { sendError, errorText } from '../utils/httpErrors.js';
 import type { ErrorCode, ErrorDetails } from '@veyvox/shared/src/errors';
+import { clientAddressKey } from '../utils/httpRateLimit.js';
+import { createTokenBucketLimit } from '../utils/tokenBucketLimit.js';
+import { sendRateLimit } from '../utils/rateLimits.js';
 
 const USERNAME_MIN = 3;
 const USERNAME_MAX = 32;
@@ -56,12 +59,13 @@ function isSameHomeAccount(
 }
 
 export async function authRoutes(app: FastifyInstance): Promise<void> {
+  const loginAttempts = createTokenBucketLimit({ capacity: 10, refillPerSecond: 1 / 12 });
   app.post<{ Body: RegisterRequest }>('/api/auth/register', {
     config: {
       rateLimit: {
         max: 10,
         timeWindow: '2 minutes',
-        keyGenerator: (request: FastifyRequest) => request.ip,
+        keyGenerator: clientAddressKey,
       },
     },
   }, async (request, reply) => {
@@ -312,7 +316,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       rateLimit: {
         max: 30,
         timeWindow: '1 minute',
-        keyGenerator: (request: FastifyRequest) => request.ip,
+        keyGenerator: clientAddressKey,
       },
     },
   }, async (request, reply) => {
@@ -359,7 +363,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       rateLimit: {
         max: 30,
         timeWindow: '1 minute',
-        keyGenerator: (request: FastifyRequest) => request.ip,
+        keyGenerator: clientAddressKey,
       },
     },
   }, async (request, reply) => {
@@ -390,9 +394,9 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
   app.post<{ Body: LoginRequest }>('/api/auth/login', {
     config: {
       rateLimit: {
-        max: 15,
+        max: 120,
         timeWindow: '2 minutes',
-        keyGenerator: (request: FastifyRequest) => request.ip,
+        keyGenerator: clientAddressKey,
       },
     },
   }, async (request, reply) => {
@@ -406,9 +410,17 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       return sendError(reply, 400, 'password_required');
     }
 
+    const normalizedUsername = username.trim().toLowerCase();
+    // Reserve before expensive password work; only a verified successful login
+    // refunds. Bound attacker-supplied key length without changing account lookup.
+    const reservation = loginAttempts.reserve(JSON.stringify([
+      clientAddressKey(request), normalizedUsername.slice(0, FEDERATED_USERNAME_MAX + 1),
+    ]));
+    if (reservation.retryAfterMs > 0) return sendRateLimit(reply, reservation.retryAfterMs, 'action');
+
     const db = getDb();
 
-    const user = db.select().from(schema.users).where(eq(schema.users.username, username.trim().toLowerCase())).get();
+    const user = db.select().from(schema.users).where(eq(schema.users.username, normalizedUsername)).get();
     if (!user) {
       return sendError(reply, 401, 'invalid_credentials');
     }
@@ -534,6 +546,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       user: sanitizeUser(user, true),
     };
 
+    reservation.refund();
     return reply.code(200).send(response);
   });
 

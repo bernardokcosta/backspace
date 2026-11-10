@@ -49,6 +49,7 @@ vi.mock('virtual:pwa-register/react', () => ({
 // ── navigator.serviceWorker ────────────────────────────────────────────────
 
 class FakeServiceWorkerContainer extends EventTarget {
+  registration: ServiceWorkerRegistration | undefined;
   controller: ServiceWorker | null = null;
   /** The registration's active worker, which a hard-reloaded page is not controlled by. */
   active: ServiceWorker | null = null;
@@ -57,6 +58,7 @@ class FakeServiceWorkerContainer extends EventTarget {
 
   async getRegistration(): Promise<ServiceWorkerRegistration | undefined> {
     if (this.registrationGate) await this.registrationGate;
+    if (this.registration) return this.registration;
     if (!this.active && !this.controller) return undefined;
     return { active: this.active ?? this.controller } as unknown as ServiceWorkerRegistration;
   }
@@ -271,6 +273,71 @@ afterEach(() => {
   Reflect.deleteProperty(navigator, 'serviceWorker');
   Reflect.deleteProperty(navigator, 'locks');
   useVoiceStore.getState().resetSession();
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+});
+
+describe('SwAutoUpdate: periodic check ownership', () => {
+  function registration(update = vi.fn().mockResolvedValue(undefined)): ServiceWorkerRegistration {
+    return { scope: 'https://localhost/', active: fakeWorker('active'), update } as unknown as ServiceWorkerRegistration;
+  }
+  async function registered(value: ServiceWorkerRegistration) {
+    container.registration = value;
+    await act(async () => { pwa.options?.onRegisteredSW?.('/sw.js', value); });
+  }
+  async function tick(ms = 60_000) { await act(async () => { await vi.advanceTimersByTimeAsync(ms); }); }
+
+  it('owns one timer, skips offline periods and resumes without activating/reloading', async () => {
+    vi.useFakeTimers();
+    const view = render(<SwAutoUpdate />);
+    const current = registration(); await registered(current);
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    await tick(); expect(current.update).not.toHaveBeenCalled();
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true);
+    await tick(); expect(current.update).toHaveBeenCalledOnce();
+    expect(pwa.updateServiceWorker).not.toHaveBeenCalled(); expect(reload).not.toHaveBeenCalled();
+    view.unmount(); await tick(); expect(current.update).toHaveBeenCalledOnce();
+    expect(vi.getTimerCount()).toBe(0);
+    pwa.options?.onRegisteredSW?.('/sw.js', current);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it.each(['InvalidStateError', 'TypeError', 'synchronous'])('handles %s and discovers a replacement', async kind => {
+    vi.useFakeTimers();
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    render(<SwAutoUpdate />);
+    const update = vi.fn(() => {
+      if (kind === 'synchronous') throw new Error('private error text');
+      return Promise.reject(new DOMException('private error text', kind));
+    });
+    await registered(registration(update));
+    await tick(); await tick();
+    expect(warn.mock.calls.length).toBeLessThanOrEqual(1);
+    expect(JSON.stringify(warn.mock.calls)).not.toContain('private error text');
+    const replacement = registration(); container.registration = replacement;
+    await tick(); expect(replacement.update).toHaveBeenCalledOnce();
+    expect(pwa.updateServiceWorker).not.toHaveBeenCalled(); expect(reload).not.toHaveBeenCalled();
+  });
+
+  it('does not overlap slow work or let disposed completion disrupt a remount', async () => {
+    vi.useFakeTimers();
+    let finish!: () => void;
+    const old = registration(vi.fn(() => new Promise<void>(resolve => { finish = resolve; })));
+    const view = render(<SwAutoUpdate />); await registered(old);
+    await tick(); await tick(); expect(old.update).toHaveBeenCalledOnce();
+    view.unmount();
+    render(<SwAutoUpdate />); const next = registration(); await registered(next);
+    finish(); await tick(); expect(next.update).toHaveBeenCalledOnce();
+    cleanup(); expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('keeps polling for a registration after unregistration without calling a stale reference', async () => {
+    vi.useFakeTimers(); render(<SwAutoUpdate />);
+    const current = registration(); await registered(current); container.registration = undefined;
+    await tick(); expect(current.update).not.toHaveBeenCalled();
+    const next = registration(); container.registration = next;
+    await tick(); expect(next.update).toHaveBeenCalledOnce();
+  });
 });
 
 describe('SwAutoUpdate: applying a waiting build', () => {

@@ -386,3 +386,8 @@ HTTP/WS and signaling, **not** LiveKit media or a four-device call. Browser visu
 checks use the actual React table with controlled fixture state; they are not
 evidence of a live media session. Acceptance details are in the Juno progress
 ledger under `docs/superpowers/plans/`.
+## Temporary refusal
+
+Action/create refusals retain `rate_limited` and report actual remaining
+`retryAfter` seconds/`Retry-After`; quota values are unchanged. Ordinary read
+quotas are verified-account scoped, separate from early address flood admission.

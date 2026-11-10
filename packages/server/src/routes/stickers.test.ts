@@ -154,7 +154,8 @@ describe('personal stickers', () => {
     }
     const limited = await upload();
     expect(limited.statusCode).toBe(429);
-    expect(limited.json()).toMatchObject({ code: 'rate_limited' });
+    expect(limited.json()).toMatchObject({ code: 'rate_limited', retryAfter: expect.any(Number), rateLimitScope: 'resource' });
+    expect(Number(limited.headers['retry-after'])).toBeGreaterThan(0);
     const image = await sharp({ create: { width: 8, height: 8, channels: 4, background: 'red' } }).png().toBuffer();
     const otherAccount = await app.inject({ method: 'POST', url: '/api/stickers', headers: { authorization: 'bob' },
       payload: { name: 'Happy', image: image.toString('base64') } });

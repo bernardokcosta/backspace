@@ -5,6 +5,12 @@ usage telemetry. No reports go to the project maintainer or a third-party host.
 
 ## Sources and privacy
 
+Optional media availability warnings use a fixed fresh error at the probe call
+site: recognized `ENOENT` for missing tools, `ETIMEDOUT` for killed/timed-out
+probes, generic Error for other exits. No original child output/path/message is
+logged. Failures retry on demand after 30s, not on every upload. The process-wide
+diagnostic input-byte budget also reports its actual remaining wait on 429.
+
 - `packages/shared/src/diagnostics.ts`: closed event/subsystem vocabulary,
   numeric bounds, known error codes/names, API route vocabulary and basename-only
   stack frames. Both sender and receiver normalize; unknown properties drop.

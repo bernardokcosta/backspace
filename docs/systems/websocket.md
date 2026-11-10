@@ -35,6 +35,18 @@ Source: `packages/server/src/ws/handler.ts`, `packages/server/src/ws/events.ts`
 
 ## Client → Server
 
+Post-auth non-ping events share bounded account buckets across sockets:
+ephemeral typing/activity/presence/read-ack events have burst 60/refill 10/s;
+controls and other/unknown events have a separate burst 60/refill 10/s.
+Ephemeral saturation cannot exhaust leave/end/mute admission. Reconnecting does
+not reset capacity. Ping remains independent. Refusals are coded `rate_limited`
+with optional numeric remaining `retryAfter` seconds and call correlation when
+supplied; never replay a stale command. Message creates additionally share one
+REST/WS channel+DM burst 12/refill 2/s bucket; reactions share burst 20/refill 5/s.
+Only refusal of `dm_call_start`/`dm_call_accept` includes call correlation:
+`dm_typing_start` and other unrelated DM throttles never carry `dmChannelId` on
+the error, so a ringing outgoing call is not cancelled by typing saturation.
+
 Soundboard commands use REST. Server events: `soundboard_updated {spaceId}` to
 space members and `soundboard_play {channelId, spaceId, sound}` only to eligible
 participants' voice-owning sockets. See [soundboard.md](soundboard.md).
@@ -57,7 +69,7 @@ reconnect ready invalidates the client's previous view. See [juno.md](juno.md).
 ### DM Messages
 | type | fields | notes |
 |------|--------|-------|
-| `dm_message_create` | dmChannelId, content?, attachments?, replyToId? | member; `replyToId` must name a message in the same DM channel; 5 per 5 seconds per client address, as `POST /api/dm/:id/messages` (`rate_limited`) |
+| `dm_message_create` | dmChannelId, content?, attachments?, replyToId? | member; same-DM reply target; shared actor-scoped message-create policy above, after validation |
 | `dm_message_edit` | messageId, content | member, author only; a system message cannot be edited |
 | `dm_message_delete` | messageId | member, author only |
 | `dm_typing_start` | dmChannelId | 5s auto-expire |
@@ -124,7 +136,7 @@ All four also need the actor to outrank the target (permissions.md, "Role hierar
 |------|--------|-------|
 | `ready` | (see Ready Payload below) | user |
 | `pong` | — | user |
-| `error` | message, code?, details?, dmChannelId? | user; `details` fills the code's placeholders, as in an HTTP error body (`content_too_long` carries `max`); a refused `dm_call_start` or `dm_call_accept` goes to the sending socket only and names its `dmChannelId`; a refused `dm_message_create`, `dm_message_edit`, `dm_message_delete` or `channel_poke` goes to the sending socket only |
+| `error` | message, code?, details?, dmChannelId?, retryAfter? | existing localized error; actionable throttles carry `rate_limited` and remaining seconds; DM/call/poke refusals go to the sending socket, preserving call correlation |
 | `instance_settings_updated` | spaceCreationOpen: boolean | all connected users on this instance (broadcast when an admin changes `spaceCreationOpen` via `PATCH /api/settings/instance`) |
 
 ### Messages

@@ -1,4 +1,4 @@
-import type { FastifyInstance, FastifyRequest } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import { eq, and, or, inArray, isNull } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
 import { insertDmMember, reopenClosedDmMembers, setDmMemberClosed } from '../utils/dmMemberClosed.js';
@@ -6,7 +6,7 @@ import { authenticate } from '../utils/auth.js';
 import { generateSnowflake } from '../utils/snowflake.js';
 import { isDmMember } from '../utils/permissions.js';
 import { checkDmMessageCreate, checkDmMessageDelete, checkDmMessageEdit } from '../utils/dmMessageRules.js';
-import { DM_MESSAGE_CREATE_RATE_LIMIT } from '../utils/dmMessageRateLimit.js';
+import { consumeMessageCreate, sendRateLimit } from '../utils/rateLimits.js';
 import { connectionManager } from '../ws/handler.js';
 import {
   type DmMessage,
@@ -1955,11 +1955,7 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
       rateLimit: {
         max: 30,
         timeWindow: '60 seconds',
-        // Per client address, like every limit in this app. A route limit runs
-        // on `onRequest`, and the DM routes authenticate in a plugin-level
-        // `preHandler` (see dmRoutes), so there is no user on the request to
-        // key on. See docs/systems/api.md, "Rate limiting".
-        keyGenerator: (request: FastifyRequest) => request.ip,
+        // The HTTP hook runs after this plugin's authentication hook.
       },
     },
   }, async (request, reply) => {
@@ -2077,18 +2073,7 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /api/dm/:id/messages - Send a DM message
-  app.post<{ Params: { id: string }; Body: CreateDmMessageRequest }>('/api/dm/:id/messages', {
-    config: {
-      rateLimit: {
-        // The WebSocket dm_message_create applies the same numbers, keyed on
-        // the same address (utils/dmMessageRateLimit.ts).
-        max: DM_MESSAGE_CREATE_RATE_LIMIT.max,
-        timeWindow: DM_MESSAGE_CREATE_RATE_LIMIT.windowMs,
-        // Per client address; see the note on the space-invite limit above.
-        keyGenerator: (request: FastifyRequest) => request.ip,
-      },
-    },
-  }, async (request, reply) => {
+  app.post<{ Params: { id: string }; Body: CreateDmMessageRequest }>('/api/dm/:id/messages', async (request, reply) => {
     const { id } = request.params;
 
     const check = checkDmMessageCreate(id, request.userId, request.body ?? {});
@@ -2096,6 +2081,9 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
       return sendError(reply, check.refusal.status, check.refusal.code, check.refusal.details);
     }
     const { content, attachmentIds, replyToId } = check.value;
+
+    const retryAfter = consumeMessageCreate(request.userId);
+    if (retryAfter > 0) return sendRateLimit(reply, retryAfter, 'action');
 
     const db = getDb();
     const messageId = generateSnowflake();

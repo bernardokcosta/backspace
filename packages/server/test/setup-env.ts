@@ -10,5 +10,11 @@
 // every test that transitively imports a server module aborts during import.
 // `??=` keeps a value the shell exported deliberately.
 
+import { beforeEach } from 'vitest';
+import { _resetActionLimits } from '../src/utils/rateLimits.js';
+
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET ??= 'test-only-jwt-secret-not-for-production-use!!';
+
+// Each test gets independent account/action capacity without bypassing enforcement.
+beforeEach(_resetActionLimits);

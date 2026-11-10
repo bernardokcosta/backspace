@@ -7,6 +7,7 @@ export function useAuth() {
   const user = useAuthStore((s) => s.user);
   const isLoading = useAuthStore((s) => s.isLoading);
   const loadUser = useAuthStore((s) => s.loadUser);
+  const loadError = useAuthStore((s) => s.userLoadError);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,10 +16,10 @@ export function useAuth() {
       return;
     }
 
-    if (!user && !isLoading) {
+    if (!user && !isLoading && !loadError) {
       loadUser();
     }
-  }, [token, user, isLoading, loadUser, navigate]);
+  }, [token, user, isLoading, loadError, loadUser, navigate]);
 
-  return { user, isLoading, isAuthenticated: !!token };
+  return { user, isLoading, isAuthenticated: !!token, loadError, retry: loadUser };
 }

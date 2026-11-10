@@ -32,6 +32,7 @@ export function JoinPage() {
   const user = useAuthStore((s) => s.user);
   const loadUser = useAuthStore((s) => s.loadUser);
   const isAuthLoading = useAuthStore((s) => s.isLoading);
+  const userLoadError = useAuthStore((s) => s.userLoadError);
   const logout = useAuthStore((s) => s.logout);
   const joinByCode = useSpaceStore((s) => s.joinByCode);
   const connectToRemote = useInstanceStore((s) => s.connectToRemote);
@@ -40,10 +41,10 @@ export function JoinPage() {
   // Hydrate auth store when token exists — useAuth() can't be used here because
   // it hard-redirects to /login when there's no token, and JoinPage is a public route.
   useEffect(() => {
-    if (token && !user && !isAuthLoading) {
+    if (token && !user && !isAuthLoading && !userLoadError) {
       loadUser();
     }
-  }, [token, user, isAuthLoading, loadUser]);
+  }, [token, user, isAuthLoading, userLoadError, loadUser]);
 
   const [preview, setPreview] = useState<InvitePreview | null>(null);
   const [previewError, setPreviewError] = useState('');
@@ -408,6 +409,13 @@ export function JoinPage() {
                     {t('auth:join.otherInstance')}
                   </button>
                 </p>
+              </div>
+            ) : token && userLoadError ? (
+              <div className="space-y-3 text-center">
+                <p role="alert" className="text-sm text-txt-secondary">{userLoadError}</p>
+                <button type="button" onClick={() => { void loadUser(); }} className="text-accent-primary hover:underline">
+                  {t('common:actions.tryAgain')}
+                </button>
               </div>
             ) : token ? (
               /* Token exists but user still loading */

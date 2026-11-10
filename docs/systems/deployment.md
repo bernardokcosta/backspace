@@ -13,6 +13,14 @@ repository. OCI/source/update links identify `bernardokcosta/veyvox`.
 
 ## Operational logs (1.15.9)
 
+Periodic frontend update checks are component-owned, single-flight and skipped
+offline. Every minute the current registration is re-resolved; unregistered
+workers are skipped and later replacements checked normally. Stale
+`InvalidStateError` is handled; other failures warn once per registration until
+success. Unmount/replacement clears the timer. Polling never activates/reloads a
+worker on failure, and existing cross-tab voice locks still gate activation.
+Desktop startup continues clearing service workers unchanged.
+
 Central JSONL diagnostics live beside `DB_PATH` under `diagnostics/`, capped at
 4.5 GB with oldest-first rotation. Compose caps Veyvox, LiveKit and Caddy
 stdout/stderr to 50 MB × 3 files each, leaving the combined application-log budget

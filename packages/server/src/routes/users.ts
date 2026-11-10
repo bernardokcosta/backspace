@@ -70,7 +70,10 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /api/users/@me/verify-password — verify password matches current account
-  app.post<{ Body: VerifyPasswordRequest }>('/api/users/@me/verify-password', { preHandler: authenticate }, async (request, reply) => {
+  app.post<{ Body: VerifyPasswordRequest }>('/api/users/@me/verify-password', {
+    preHandler: authenticate,
+    config: { rateLimit: { max: 10, timeWindow: '2 minutes' } },
+  }, async (request, reply) => {
     const { password } = request.body;
 
     if (!password || typeof password !== 'string') {

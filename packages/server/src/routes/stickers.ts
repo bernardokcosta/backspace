@@ -15,6 +15,7 @@ import { getOurOrigin } from '../utils/federationAuth.js';
 import { stickerAssetPath as assetPath, stickerPreviewPath } from '../utils/stickerAssets.js';
 import { sendError } from '../utils/httpErrors.js';
 import { createFixedWindowLimit } from '../utils/fixedWindowLimit.js';
+import { sendRateLimit } from '../utils/rateLimits.js';
 import { MAX_STICKER_JSON_BYTES, stickerUploadBodyLimit } from '../utils/stickerUpload.js';
 
 export const tokenFor = (id: string) => `${STICKER_PREFIX}${getOurOrigin()}/api/stickers/assets/${id}.webp`;
@@ -180,7 +181,8 @@ export async function stickerRoutes(app: FastifyInstance): Promise<void> {
     const { image } = request.body;
     const name = normalizeStickerName(request.body.name);
     if (name === undefined) return sendError(reply, 400, 'sticker_name_invalid', { max: MAX_STICKER_NAME_LENGTH });
-    if (!uploadLimit.consume(request.userId)) return sendError(reply, 429, 'rate_limited');
+    const retryAfter = uploadLimit.consumeAll([request.userId]);
+    if (retryAfter > 0) return sendRateLimit(reply, retryAfter);
     // Refused before the decode; collectSticker checks again where the row is written.
     if (collectionSize(request.userId) >= MAX_PERSONAL_STICKERS) {
       return sendError(reply, 409, 'sticker_collection_full', { max: MAX_PERSONAL_STICKERS });

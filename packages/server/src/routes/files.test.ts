@@ -121,6 +121,24 @@ function tusMetadata(fields: Record<string, string>): string {
 }
 
 describe('POST /api/files — tus upload endpoint', () => {
+  it('reports the actual remaining wait while keeping resumable upload headers', async () => {
+    const start = Date.now();
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(start);
+    try {
+      const token = signJwt({ userId: USER_A_ID, username: 'user_a' });
+      const create = () => app.inject({ method: 'POST', url: '/api/files', headers: {
+        authorization: `Bearer ${token}`, 'tus-resumable': '1.0.0', 'upload-length': '4',
+        'upload-metadata': tusMetadata({ originalName: 'limit.bin' }), 'content-length': '0',
+      } });
+      for (let i = 0; i < 30; i++) expect((await create()).statusCode).toBe(201);
+      clock.mockReturnValue(start + 59_000);
+      const refused = await create();
+      expect(refused.statusCode).toBe(429);
+      expect(refused.json()).toMatchObject({ code: 'rate_limited', retryAfter: 1 });
+      expect(refused.headers['retry-after']).toBe('1');
+      expect(refused.headers['tus-resumable']).toBe('1.0.0');
+    } finally { clock.mockRestore(); }
+  });
   it('unauthenticated POST returns 401', async () => {
     const res = await app.inject({
       method: 'POST',

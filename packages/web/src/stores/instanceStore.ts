@@ -95,14 +95,6 @@ function saveCachedTokens(instances: ConnectedInstance[], userId: string): void 
   localStorage.setItem(storageKey(userId), JSON.stringify(cache));
 }
 
-// ─── Network error detection ────────────────────────────────────────────────
-
-/** Detect network-level failures (unreachable, DNS, timeout) vs application errors (401, etc.) */
-function isNetworkError(err: unknown): boolean {
-  return err instanceof TypeError ||
-    (err instanceof Error && /fetch|network|ECONNREFUSED|ETIMEDOUT/i.test(err.message));
-}
-
 // ─── Error types ────────────────────────────────────────────────────────────
 
 /**
@@ -603,6 +595,10 @@ function writeConnectionState(
   write: ConnectionWrite = {},
 ): ConnectedInstance | undefined {
   const spec: PhaseSpec | null = phase ? CONNECTION_PHASES[phase] : null;
+  const previous = useInstanceStore.getState().instances.find(instance => instance.origin === origin);
+  if ((write.insert && previous?.api !== write.insert.api) || spec?.live === 'disconnected' || spec?.live === 'error') {
+    previous?.api.cancelPendingReads?.();
+  }
   const error = spec ? (write.error ?? spec.error) : undefined;
   // A phase's registry half is the only thing that may create a row, because it
   // is the only one that names a status. A null-phase write carries fields
@@ -995,6 +991,8 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
 
     try {
       const user = await inst.api.users.me();
+      if (get().instances.find(entry => entry.origin === origin)?.api !== inst.api
+          || get().instances.find(entry => entry.origin === origin)?.status !== 'connecting') return;
 
       // Refresh the instance label (non-critical — a failure here must not
       // block a successful token reconnect).
@@ -1005,6 +1003,8 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
         // Keep whatever label the instance already had.
       }
 
+      if (get().instances.find(entry => entry.origin === origin)?.api !== inst.api
+          || get().instances.find(entry => entry.origin === origin)?.status !== 'connecting') return;
       writeConnectionState(origin, 'connected', {
         live: { user, ...(info ? { label: info.name } : {}) },
       });
@@ -1024,7 +1024,13 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
 
       void peerHomeWithRemote(origin, null);
     } catch (err) {
-      if (isNetworkError(err)) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+      if (get().instances.find(entry => entry.origin === origin)?.api !== inst.api
+          || get().instances.find(entry => entry.origin === origin)?.status !== 'connecting') return;
+      if (err instanceof HttpError && err.status === 429) {
+        writeConnectionState(origin, 'live-connecting');
+        connectInstance(origin, inst.token);
+      } else if (!(err instanceof HttpError) || (err.status !== 401 && err.status !== 403)) {
         writeConnectionState(origin, 'unreachable');
         // The socket's own backoff is what recovers this one.
         connectInstance(origin, inst.token);
@@ -1035,6 +1041,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
   },
 
   reauthenticateInstance: async (origin: string, password: string) => {
+    get().instances.find(instance => instance.origin === origin)?.api.cancelPendingReads?.();
     // The stale placeholder (error or disconnected) stays in `instances`
     // until connectToRemote replaces it by origin on success. Removing it up
     // front would lose it for good on a wrong password. Its spaces and socket
@@ -1060,6 +1067,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
       instances: state.instances.map(i => {
         if (i.origin !== origin) return i;
         // Recreate API client with new token
+        i.api.cancelPendingReads?.();
         const newApi = createApiClient(origin, () => newToken);
         return { ...i, token: newToken, api: newApi };
       }),
@@ -1169,6 +1177,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
   },
 
   forceRemoveEntry: (origin: string) => {
+    get().instances.find(instance => instance.origin === origin)?.api.cancelPendingReads?.();
     // Tear down WebSocket if connected
     disconnectWs(origin);
 
@@ -1397,6 +1406,9 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
           if (!work.isCurrent()) return;
           // Create client with cached token
           const client = createApiClient(origin, () => cachedEntry.token);
+          const currentOrigin = () => work.isCurrent()
+            && get().instances.find(instance => instance.origin === origin)?.api === client
+            && get().instances.find(instance => instance.origin === origin)?.status === 'connecting';
 
           // Set as connecting
           writeConnectionState(origin, 'live-connecting', {
@@ -1413,7 +1425,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
           try {
             // Verify the token is still valid
             const user = await client.users.me();
-            if (!work.isCurrent()) return;
+            if (!currentOrigin()) return;
 
             // Fetch instance info for a fresh label
             let label = cachedEntry.label || new URL(origin).host;
@@ -1424,7 +1436,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
             } catch {
               // Non-critical — keep cached label
             }
-            if (!work.isCurrent()) return;
+            if (!currentOrigin()) return;
 
             // Backfill homeUserId if missing (existing federated users before this field existed)
             if (user.homeInstance && !user.homeUserId) {
@@ -1459,8 +1471,11 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
 
             void peerHomeWithRemote(origin, null);
           } catch (err) {
-            if (!work.isCurrent()) return;
-            if (isNetworkError(err)) {
+            if (!currentOrigin() || (err instanceof DOMException && err.name === 'AbortError')) return;
+            if (err instanceof HttpError && err.status === 429) {
+              writeConnectionState(origin, 'live-connecting');
+              connectInstance(origin, cachedEntry.token);
+            } else if (!(err instanceof HttpError) || (err.status !== 401 && err.status !== 403)) {
               // Instance unreachable (NAT hairpinning, DNS, server down) — token may still be valid
               writeConnectionState(origin, 'unreachable');
 
@@ -1510,6 +1525,7 @@ export const useInstanceStore = create<InstanceState>((set, get) => ({
     // Clean up space store for each connected remote instance before tearing down
     const { instances } = get();
     for (const inst of instances) {
+      inst.api.cancelPendingReads?.();
       useSpaceStore.getState().removeInstanceSpaces(inst.origin);
     }
 

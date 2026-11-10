@@ -8,6 +8,7 @@ import type { WebSocket } from 'ws';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
 import { DEFAULT_EVERYONE_PERMISSIONS, permissionsToString } from '@veyvox/shared/src/permissions.js';
+import { _resetActionLimits } from '../utils/rateLimits.js';
 
 setWorkerId(1);
 
@@ -112,6 +113,7 @@ function reactionAddedEvents(mock: ReturnType<typeof vi.fn>): unknown[] {
 
 describe('WS reaction_add repeated by the same user', () => {
   beforeEach(() => {
+    _resetActionLimits();
     sqlite = new Database(':memory:');
     testDb = drizzle(sqlite, { schema });
     applyMigrations(sqlite);
@@ -159,6 +161,22 @@ describe('WS reaction_add repeated by the same user', () => {
     send('alice', '👍');
     expect(countRows('dm_reactions', 'dm_message_id', 'dmmsg1')).toBe(2);
     expect(queueOutboxEvent).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not spend mutation capacity on duplicates and shares add/remove admission', async () => {
+    seedDmMessage();
+    const { applyReactionAdd, applyReactionRemove } = await import('./events.js');
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(NOW);
+    try {
+      for (let i = 0; i < 20; i++) expect(applyReactionAdd('dmmsg1', `e${i}`, 'bob')).toMatchObject({ ok: true, changed: true });
+      expect(applyReactionAdd('dmmsg1', 'e0', 'bob')).toEqual({ ok: true, changed: false });
+      expect(applyReactionAdd('dmmsg1', 'new', 'bob')).toMatchObject({ ok: false, reason: 'rate_limited' });
+      expect(applyReactionRemove('dmmsg1', 'e0', 'bob')).toMatchObject({ ok: false, reason: 'rate_limited' });
+      expect(applyReactionRemove('dmmsg1', 'absent', 'bob')).toEqual({ ok: true, changed: false });
+      expect(applyReactionAdd('dmmsg1', 'new', 'alice')).toEqual({ ok: true, changed: true });
+      expect(countRows('dm_reactions', 'dm_message_id', 'dmmsg1')).toBe(21);
+      expect(queueOutboxEvent).toHaveBeenCalledTimes(21);
+    } finally { clock.mockRestore(); }
   });
 
   it('adds the reaction again after it was removed', async () => {

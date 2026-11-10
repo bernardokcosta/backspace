@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyInstance, FastifyReply } from 'fastify';
 import { and, eq, gt, inArray, lt, sql } from 'drizzle-orm';
 import type {
   BotCommandListing,
@@ -294,10 +294,8 @@ function visibleOptions(options: BotCommandOption[], required: string | null, he
 export async function interactionRoutes(app: FastifyInstance): Promise<void> {
   const sendLimit = {
     rateLimit: {
-      max: 5,
+      max: 30,
       timeWindow: '5 seconds',
-      // Per client address, like every limit in this app (api.md, "Rate limiting").
-      keyGenerator: (request: FastifyRequest) => request.ip,
     },
   };
 
@@ -432,7 +430,6 @@ export async function interactionRoutes(app: FastifyInstance): Promise<void> {
 
   app.post<{ Params: { id: string }; Body: RespondToInteractionRequest }>('/api/interactions/:id/respond', {
     preHandler: [authenticate, requireBot],
-    config: sendLimit,
   }, async (request, reply) => {
     const db = getDb();
     // Another bot's interaction looks like a missing one.

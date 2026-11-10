@@ -1,5 +1,23 @@
 # Authentication & Session System
 
+## Request admission and temporary session failures
+
+Login request admission is 120/2min per normalized trusted address. Password
+attempts reserve a separate burst 10/refill 1 per 12s budget keyed by address
+and normalized username, refunded once only after confirmed successful login.
+It cannot lock an account across unrelated addresses. Register remains
+10/2min/address; public username/invite checks 30/min/address. Password
+verification is 10/2min/account; protected password/deletion/attach quotas keep
+their counts/windows but key on verified account after authentication.
+See [api.md](api.md), "Rate limiting", for independent early flood admission.
+Client user lookup retains session/data on temporary 429/network/5xx; only an
+authoritative 401 clears credentials. Reset/logout cancels pending read recovery.
+If bootstrap has a saved token but no loaded user, a temporary refusal settles
+as `userLoadError`, not another pending load. Protected and public-invite entry
+points stop automatic attempts and offer explicit retry without clearing the
+token. Retry/success/new session/logout clear that error; no persistent retry
+queue or timer is added.
+
 Source files:
 - `packages/server/src/routes/auth.ts` -- Registration, login, username availability, invite-token check endpoints
 - `packages/server/src/routes/invites.ts` -- Admin invite-link CRUD (create / list / patch / revoke / reinstate / delete / redemptions)
@@ -255,7 +273,9 @@ Validates format (same rules as local registration: 3-32 chars, `/^[a-z0-9_]+$/`
 ## 4. Login Flow
 
 **Endpoint:** `POST /api/auth/login`
-**Rate limit:** 15 requests / 2 minutes per IP
+**Rate limits:** 120 requests / 2 minutes per normalized address; separate
+address+normalized-username credential attempts burst10/refill1 per12s, with
+one-shot success refund (see admission policy above).
 **Auth:** None
 
 ### Steps

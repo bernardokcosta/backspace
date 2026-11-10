@@ -1,5 +1,21 @@
 # File & Upload System
 
+## Temporary backpressure and media-probe recovery
+
+Upload creation stays 30/min/account, PATCH 1,000/min/account, separate from
+ordinary navigation. Refusals include actual remaining JSON `retryAfter` and
+`Retry-After` (exposed through tus CORS). Client tus retries use the existing
+finite schedule, respecting a bounded server wait for 429; exhausted 429/408
+remain temporary, preserving file/attachment references and resumable URL.
+Ownership/validation failures remain permanent. A refused deferred message
+stays available for explicit retry and is not replayed by an `online` event.
+
+Optional `checkFfmpeg()` probes `ffprobe -version` with a 5s timeout and 64KiB
+output bound. Success stays cached; a failed probe is single-flight and retries
+only on demand after 30s. A backwards clock jump restarts a bounded cooldown.
+Missing tools, timeouts and other failures remain non-fatal to boot/uploads;
+later callers recover without restart. No background backfill changes old media.
+
 Source files:
 - `packages/server/src/routes/uploads.ts` -- File serving (cache, security, Range)
 - `packages/server/src/routes/files.ts` -- tus protocol endpoints (`/api/files/*`), PRE_CREATE / PRE_PATCH / POST_FINISH hooks, janitor helpers

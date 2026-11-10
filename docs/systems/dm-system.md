@@ -471,7 +471,7 @@ Users tombstoned **before** this fix already had their 1-on-1 `dm_members` row d
 
 **Endpoint:** `POST /api/dm/:id/messages` -- `dm.ts:dmRoutes`
 
-**Rate limit:** 5 per 5 seconds per client address (`DM_MESSAGE_CREATE_RATE_LIMIT` in `utils/dmMessageRateLimit.ts`), `429 rate_limited` over it. The WS `dm_message_create` event applies the same numbers to the socket's address (recorded when it connects, `ws/socketAddress.ts`) before any other check and refuses with an `error` carrying `rate_limited`. The two paths count separately: the REST counter lives inside `@fastify/rate-limit`, which nothing outside the plugin can reach.
+**Rate limit:** one verified account bucket for channel+DM creation across REST/WS, tabs and credentials: burst 12/refill 2 per second (`utils/rateLimits.ts`). Charged after existing validation, immediately before persistence. REST refusals carry `429 rate_limited`, remaining `retryAfter`, `Retry-After` and `rateLimitScope: action`; WS refusals go to the sending socket with code and numeric `retryAfter`. NAT neighbors do not spend each other's action allowance. Coarse HTTP/WS flood guards remain separate.
 
 **Request:** `{ content?: string, attachments?: string[], replyToId?: string }`
 

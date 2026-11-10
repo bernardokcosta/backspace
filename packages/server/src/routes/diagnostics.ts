@@ -3,6 +3,7 @@ import { normalizeDiagnostic } from '@veyvox/shared/src/diagnostics';
 import { authenticate, requireAdmin } from '../utils/auth.js';
 import { sendError } from '../utils/httpErrors.js';
 import { DiagnosticLogStore, writeDiagnostic } from '../utils/diagnosticLogs.js';
+import { sendRateLimit } from '../utils/rateLimits.js';
 
 const MAX_BATCH_BYTES_PER_MINUTE = 256 * 1024;
 
@@ -23,8 +24,7 @@ export async function diagnosticRoutes(app: FastifyInstance, { store }: { store:
     if (now - windowStarted >= 60_000 || now < windowStarted) { windowStarted = now; acceptedBytes = 0; }
     const bytes = Buffer.byteLength(JSON.stringify(body));
     if (acceptedBytes + bytes > MAX_BATCH_BYTES_PER_MINUTE) {
-      reply.header('Retry-After', '60');
-      return sendError(reply, 429, 'rate_limited');
+      return sendRateLimit(reply, Math.max(1, windowStarted + 60_000 - now));
     }
     acceptedBytes += bytes;
     for (const event of events) if (event) writeDiagnostic(store, 'client', event);

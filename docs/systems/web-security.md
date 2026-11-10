@@ -657,8 +657,8 @@ server renders different HTML.
 
 ## 9. The client address, and what rests on it
 
-`request.ip` is what every rate limit in the app is billed to, so where that
-address comes from is a security property, not a detail. The app runs Fastify
+`request.ip` supplies early flood admission and anonymous/public quotas, so where
+it comes from is a security property, not a detail. The app runs Fastify
 with `trustProxy: config.trustedProxyHops`, a **count of trusted hops** that
 defaults to 1 and is set with the `TRUSTED_PROXY_HOPS` environment variable
 (read and validated in `packages/server/src/config.ts`, documented there and in
@@ -710,15 +710,14 @@ mattering; a route that builds a URL from the request host would change that
 (see the CVE note in
 `docs/superpowers/plans/2026-09-03-deferred-dependency-upgrades.md`).
 
-**What rests on the address.** The global rate limiter keys on it and has
-nothing else to key on (see [api.md](api.md), "Rate limiting"); the per-route
-limits key the same way; the hand-written limiter on
-`POST /federation/peer/accept`
-(`routes/federation/handlers/peerHandshake.ts`, unauthenticated first contact)
-buckets on it; and Fastify's request log records it as `remoteAddress`, so it
-is also what an operator reads when deciding who to block. Limits keyed on a
-user instead (the two upload limits in `routes/files.ts`) do not depend on any
-of this.
+**What rests on the address.** Independent early API/assets/upload/WS/health
+admission and public auth/diagnostic/first-contact quotas use the trusted
+normalized address (IPv6 /64). Ordinary protected HTTP/action quotas instead
+use the verified hosting-instance account after authentication; peer quotas
+follow HMAC+nonce validation. A forged token or claimed origin cannot spend
+another actor's budget. See [api.md](api.md), "Rate limiting", for thresholds.
+No proxy trust semantics changed with that split. Diagnostics do not retain
+visitor addresses; normal Fastify address resolution remains authoritative.
 
 **What each front yields at a hop count of 1.**
 

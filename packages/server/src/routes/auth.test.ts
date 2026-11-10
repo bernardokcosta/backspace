@@ -8,6 +8,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
+import bcrypt from 'bcryptjs';
+import * as authUtils from '../utils/auth.js';
+import { registerHttpRateLimits } from '../utils/httpRateLimit.js';
 
 setWorkerId(2);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -41,6 +44,7 @@ function applyMigrations(db: Database.Database): void {
 async function buildApp(): Promise<FastifyInstance> {
   const { authRoutes } = await import('./auth.js');
   const f = Fastify();
+  await registerHttpRateLimits(f);
   await f.register(authRoutes);
   return f;
 }
@@ -64,6 +68,35 @@ beforeEach(async () => {
   }).run();
 
   app = await buildApp();
+});
+
+describe('login admission', () => {
+  async function seedLogin(): Promise<void> {
+    testDb.insert(schema.users).values({
+      id: 'login-user', username: 'loginuser', passwordHash: await bcrypt.hash('valid-password', 4), createdAt: Date.now(),
+    }).run();
+  }
+
+  it('does not count twenty successful sign-ins as credential failures', async () => {
+    await seedLogin();
+    for (let i = 0; i < 20; i++) {
+      expect((await app.inject({ method: 'POST', url: '/api/auth/login', payload: { username: 'loginuser', password: 'valid-password' } })).statusCode).toBe(200);
+    }
+  });
+
+  it('bounds failed password work by normalized username and address, independently', async () => {
+    await seedLogin();
+    const verify = vi.spyOn(authUtils, 'verifyPassword');
+    try {
+      for (let i = 0; i < 10; i++) expect((await app.inject({ method: 'POST', url: '/api/auth/login', payload: { username: ' LOGINUSER ', password: 'wrong' } })).statusCode).toBe(401);
+      const refused = await app.inject({ method: 'POST', url: '/api/auth/login', payload: { username: 'loginuser', password: 'wrong' } });
+      expect(refused.statusCode).toBe(429);
+      expect(refused.json()).toMatchObject({ code: 'rate_limited', retryAfter: expect.any(Number) });
+      expect(verify).toHaveBeenCalledTimes(10);
+      expect((await app.inject({ method: 'POST', url: '/api/auth/login', remoteAddress: '203.0.113.7', payload: { username: 'loginuser', password: 'valid-password' } })).statusCode).toBe(200);
+      expect((await app.inject({ method: 'POST', url: '/api/auth/login', payload: { username: 'another-user', password: 'wrong' } })).statusCode).toBe(401);
+    } finally { verify.mockRestore(); }
+  });
 });
 
 describe('GET /api/auth/check-invite', () => {

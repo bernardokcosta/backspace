@@ -1,4 +1,4 @@
-import type { FastifyInstance, FastifyRequest } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
 import { authenticate } from '../utils/auth.js';
@@ -85,10 +85,7 @@ export async function gifRoutes(app: FastifyInstance): Promise<void> {
       rateLimit: {
         max: 30,
         timeWindow: '1 minute',
-        // Per client address, like every limit in this app. A route limit runs
-        // on `onRequest` too, before `authenticate`, so there is no user on the
-        // request to key on. See docs/systems/api.md, "Rate limiting".
-        keyGenerator: (request: FastifyRequest) => request.ip,
+        // The post-authentication HTTP hook keys this on the verified account.
       },
     },
   }, async (request, reply) => {
@@ -136,8 +133,6 @@ export async function gifRoutes(app: FastifyInstance): Promise<void> {
       rateLimit: {
         max: 30,
         timeWindow: '1 minute',
-        // Per client address; see the note on the trending limit above.
-        keyGenerator: (request: FastifyRequest) => request.ip,
       },
     },
   }, async (request, reply) => {

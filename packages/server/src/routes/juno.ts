@@ -8,6 +8,7 @@ import { authenticate } from '../utils/auth.js';
 import { isMember, isBanned, hasPermission } from '../utils/permissions.js';
 import { sendError } from '../utils/httpErrors.js';
 import { createFixedWindowLimit } from '../utils/fixedWindowLimit.js';
+import { sendRateLimit } from '../utils/rateLimits.js';
 import { connectionManager } from '../ws/handler.js';
 import { JunoRooms, JunoError } from '../games/juno.js';
 import { JUNO_ACCOUNT_MERGED_EVENT, hydrateJunoSnapshot, readJunoRanking, settleJunoRound } from '../games/junoProgression.js';
@@ -121,9 +122,10 @@ export async function junoRoutes(app: FastifyInstance): Promise<void> {
     if (!gate(channelId, request.userId, reply)) return;
     const user = getDb().select().from(schema.users).where(eq(schema.users.id, request.userId)).get();
     if (!user || user.isDeleted || user.isBot) return sendError(reply, 403, 'forbidden');
-    if (!actions.consume(request.userId) || (request.body.type === 'create' && !creates.consume(request.userId))) {
-      return sendError(reply, 429, 'rate_limited');
-    }
+    const actionWait = actions.consumeAll([request.userId]);
+    if (actionWait > 0) return sendRateLimit(reply, actionWait);
+    const createWait = request.body.type === 'create' ? creates.consumeAll([request.userId]) : 0;
+    if (createWait > 0) return sendRateLimit(reply, createWait);
     reply.header('Cache-Control', 'no-store');
     try {
       const spaceId = getDb().select().from(schema.channels).where(eq(schema.channels.id, channelId)).get()!.spaceId;

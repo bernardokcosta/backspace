@@ -3,6 +3,7 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import { getDb, schema } from '../../../db/index.js';
 import { parseFederationHeaders, verifyPeerSignature } from '../../../utils/federationAuth.js';
 import { isNonceDuplicate } from '../rateLimits.js';
+import { sendRateLimit } from '../../../utils/rateLimits.js';
 
 /** A `federation_peers` row, as returned by a `select().from(...).get()`. */
 type FederationPeerRow = typeof schema.federationPeers.$inferSelect;
@@ -15,10 +16,11 @@ type FederationPeerRow = typeof schema.federationPeers.$inferSelect;
 export interface S2SRateLimiter {
   limited: (key: string) => boolean;
   retryAfterSeconds?: number;
+  retryAfterMs?: (key: string) => number;
 }
 
 export interface S2SAuthOptions {
-  /** Run this limiter (keyed on `peer.origin`) BEFORE signature verification. */
+  /** Charge only authenticated, non-replayed peer requests. */
   rateLimiter?: S2SRateLimiter;
   /**
    * When a request omits a nonce AND the peer has never advertised nonce
@@ -48,12 +50,10 @@ export type S2SAuthResult =
  * Runs, IN THIS EXACT ORDER, the boilerplate that six endpoints share verbatim:
  *   1. Parse federation headers — missing/malformed → 401.
  *   2. Resolve the peer by origin; require `status === 'active'` → else 403.
- *   3. (optional) Rate-limit on `peer.origin` — 429 (+ `Retry-After` when
- *      configured). Deliberately BEFORE signature verification so a flooded peer
- *      never costs an HMAC computation.
- *   4. Verify the HMAC signature (honours rotation grace) → 401 on failure.
- *   5. Nonce replay protection: present + duplicate → 409; absent while the peer
- *      advertises nonce support → 401; absent otherwise → pass (optionally warn).
+ *   3. Verify HMAC (rotation grace preserved), then validate the nonce.
+ *   4. Charge the verified peer's quota. Untrusted floods are bounded by HTTP's
+ *      separate early address admission, not another peer's claimed identity.
+ *   5. Record the admitted nonce; a 429 can retry without becoming a replay.
  *
  * On success returns `{ ok: true, peer, nonce }`; the caller resumes with its
  * own body validation and side effects. On any rejection the reply is sent and
@@ -102,26 +102,17 @@ export function authenticateS2SPeer(
     return { ok: false };
   }
 
-  // 3. Rate-limit BEFORE signature verification (avoid HMAC work on a flood).
-  if (opts.rateLimiter && opts.rateLimiter.limited(peer.origin)) {
-    reply.code(429);
-    if (opts.rateLimiter.retryAfterSeconds !== undefined) {
-      reply.header('Retry-After', String(opts.rateLimiter.retryAfterSeconds));
-    }
-    reply.send({ error: 'Rate limit exceeded', statusCode: 429 });
-    return { ok: false };
-  }
-
-  // 4. Verify the HMAC signature over the exact serialized body.
+  // Verify the HMAC signature over the exact serialized body.
   const bodyString = JSON.stringify(request.body);
   if (!verifyPeerSignature(bodyString, fedHeaders.signature, fedHeaders.timestamp, fedHeaders.nonce, peer)) {
     reply.code(401).send({ error: 'Invalid signature', statusCode: 401 });
     return { ok: false };
   }
 
-  // 5. Nonce-based replay protection.
+  // Non-mutating replay check before charging quota. This function is entirely
+  // synchronous: no request can interleave between this check and recording it.
   if (fedHeaders.nonce) {
-    if (isNonceDuplicate(peer.origin, fedHeaders.nonce)) {
+    if (isNonceDuplicate(peer.origin, fedHeaders.nonce, false)) {
       reply.code(409).send({ error: 'Duplicate nonce — possible replay', statusCode: 409 });
       return { ok: false };
     }
@@ -129,7 +120,16 @@ export function authenticateS2SPeer(
     // Peer previously proved nonce support but this request omits one — reject.
     reply.code(401).send({ error: 'Nonce required — peer previously supported nonces', statusCode: 401 });
     return { ok: false };
-  } else if (opts.logMissingNonce) {
+  }
+
+  if (opts.rateLimiter?.limited(peer.origin)) {
+    const wait = opts.rateLimiter.retryAfterMs?.(peer.origin)
+      ?? (opts.rateLimiter.retryAfterSeconds ?? 30) * 1000;
+    sendRateLimit(reply, wait);
+    return { ok: false };
+  }
+  if (fedHeaders.nonce) isNonceDuplicate(peer.origin, fedHeaders.nonce);
+  else if (opts.logMissingNonce) {
     const suffix = opts.logContext ? ` [${opts.logContext}]` : '';
     console.warn(`[federation] Peer ${peer.origin} does not support replay protection (no nonce)${suffix}`);
   }

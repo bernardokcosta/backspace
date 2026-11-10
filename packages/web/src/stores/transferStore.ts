@@ -7,6 +7,7 @@ import { useAuthStore } from './authStore';
 import { getTokenForOrigin } from '../utils/crossStoreResolvers';
 import { getHandle, putHandle, ensurePermission, queryHandlePermission } from '../utils/idbHandles';
 import i18n from '../i18n';
+import { isPermanentUploadError, shouldRetryTusUpload } from '../utils/tusRetry';
 
 export type TransferType = 'upload' | 'download';
 export type TransferState =
@@ -256,6 +257,7 @@ export const useTransferStore = create<TransferStore>()(
         const tusOpts: UploadOptions = {
           endpoint,
           retryDelays: [0, 1000, 3000, 5000, 10_000],
+          onShouldRetry: shouldRetryTusUpload,
           metadata: {
             filename: fileLike.name,
             filetype: fileLike.mimetype,
@@ -294,8 +296,7 @@ export const useTransferStore = create<TransferStore>()(
           },
           onError: (err: Error) => {
             const msg = err.message ?? i18n.t('uploads:failure.uploadError');
-            // Treat 4xx as permanent (no retry past tus's own retry chain).
-            const permanent = /\b4\d\d\b/.test(msg);
+            const permanent = isPermanentUploadError(err);
             get().setError(id, { message: msg, permanent });
             liveUploads.delete(id);
           },
@@ -422,6 +423,7 @@ export const useTransferStore = create<TransferStore>()(
         const tusOpts: UploadOptions = {
           endpoint: tusEndpoint(t.origin),
           retryDelays: [0, 1000, 3000, 5000, 10_000],
+          onShouldRetry: shouldRetryTusUpload,
           chunkSize: 5 * 1024 * 1024,
           headers: { Authorization: `Bearer ${token}` },
           ...(resumeUrl
@@ -460,7 +462,7 @@ export const useTransferStore = create<TransferStore>()(
           },
           onError: (err: Error) => {
             const msg = err.message ?? i18n.t('uploads:failure.uploadError');
-            const permanent = /\b4\d\d\b/.test(msg);
+            const permanent = isPermanentUploadError(err);
             get().setError(id, { message: msg, permanent });
             liveUploads.delete(id);
           },
