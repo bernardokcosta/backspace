@@ -40,6 +40,29 @@ completed the remaining acceptance matrix.
 
 ## Remaining acceptance
 
+### Hosted PR CodeQL follow-up
+
+PR26's first hosted analysis blocked on alert75, `js/request-forgery` (critical),
+at the Node HTTP constructor. Existing tests already proved validated DNS pins;
+the original user URL was nevertheless still supplied as constructor authority.
+This is a scanner finding, not a reproduced private-network fetch exploit. It
+was not dismissed, suppressed or bypassed. A bounded adapter correction makes
+the validated IP the native `hostname`; the URL contributes only logical
+Host/SNI/certificate identity, port and path/query. Public API, classifier,
+timeouts, byte/decompression caps, redirect handling and default TLS checks stay.
+
+Three RED assertions reproduced the original constructor contract; corrected
+preview/classifier suite **6 / 114 PASS**. An isolated actual Node24 HTTPS fixture
+with a temporary process-local test CA verified physical pin + logical Host/SNI,
+path/query, wrong-name rejection and untrusted-CA rejection; no OS trust store
+was changed and temporary key/certificate files were removed. Full affected
+server **201 suites / 2,258 PASS** with two workers; tooling185, server TypeScript/
+build and lint pass. An earlier default-worker run timed out one sticker-rate
+case; isolated18 and full bounded rerun passed without changing its5s timeout.
+Exact-SHA hosted reanalysis remains required before merge.
+This narrow explicit-pinning correction was checked locally within the two-review
+limit; no third review, custom sanitizer, taint-only encoding or scanner waiver.
+
 - Real S1 matrix now covers signed-claim/algorithm/expiry/deleted/password-revoked
   sessions, native admin/space/channel/DM/message/bot IDOR, REST/WS actor spoofing,
   private voice-token denial and tus HEAD/GET/PATCH/DELETE ownership with unchanged

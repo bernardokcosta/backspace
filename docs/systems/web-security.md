@@ -32,6 +32,13 @@ all-address validation, connection-time pins, normal TLS identity checks, capped
 redirects, one body-inclusive deadline and bounded wire/decoded streams. This does
 not grant private-network fetch access merely because a browser can display media.
 
+The preview transport supplies the validated public IP as the native HTTP(S)
+client's `hostname`, not the original user URL. Only the logical HTTP Host header,
+TLS SNI/certificate name, port and path/query come from the validated logical URL.
+Normal certificate verification remains enabled. The pin-only lookup is retained
+as defense in depth; there is no pooled/second-DNS destination or global-fetch
+fallback. The native URL object is not socket authority.
+
 That is a trade, not a gap waiting to be closed. Do not open a task to "tighten
 img-src". The directives that carry the weight here are the ones that stop
 script injection and clickjacking, and those are tight:

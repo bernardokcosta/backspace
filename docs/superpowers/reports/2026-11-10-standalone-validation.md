@@ -222,13 +222,26 @@ remain required, not inferred from local unit tests or the advisory browser run.
 
 ## Conditional publication
 
+First reviewed commit `b5361dae` was pushed and PR26 opened against protected
+master. Hosted secrets/OSV/IaC/license/lint checks passed, but CodeQL blocked on
+critical SSRF alert75 at the preview constructor. A point adapter correction
+now uses the validated IP as physical native-client hostname instead of passing
+the logical URL as socket authority. Local preview/classifier114 and real
+loopback HTTPS pin/Host/SNI/certificate-refusal checks pass. No alert was dismissed
+and no protection was bypassed. Publication still awaits the corrected commit's
+complete exact-SHA hosted gates; the previous commit's results cannot authorize it.
+The complete affected server rerun passed **201 suites / 2,258 tests** (two
+workers), alongside tooling185, lint and server build/types. The old commit's
+read-only desktop workflow completed successfully, including all six installed
+OS/architecture legs; that result is not substituted for the corrected commit.
+
 The user authorized the complete reviewed change to GitHub master/main and
 release **1.17.2**, clarifying that “Shinogit” meant GitHub. Use existing origin
 `bernardokcosta/veyvox` and protected PR/check/merge flow, never force-push or
 bypass the sole gated publisher. All five manifests are prepared at **1.17.2**
-using the existing bump script, with upgrade/security notes. HEAD/origin master
-remain `c286abdb`; no current-task commit, push, tag, release or deployment exists.
-No open PR or remote `v1.17.2` was present at the last preflight. Local validation
-and external finding disposition are complete; next is the protected commit/PR
-flow. Release still awaits exact-SHA hosted security/native/installed/image gates.
+using the existing bump script, with upgrade/security notes. At the initial
+precommit checkpoint HEAD/origin master were `c286abdb` and no PR/tag existed;
+subsequent commit/PR progress is recorded above. No tag/release/deployment has
+occurred. Release still awaits the corrected exact-SHA hosted security/native/
+installed/image gates and protected merge.
 A production deployment remains outside the authorization.

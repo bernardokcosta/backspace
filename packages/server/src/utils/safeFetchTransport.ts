@@ -23,13 +23,17 @@ export function requestPinned(url: URL, address: PinnedAddress, init: PinnedRequ
   return new Promise((resolve, reject) => {
     const secure = url.protocol === 'https:', hostname = url.hostname.replace(/^\[|\]$/g, '');
     const options: https.RequestOptions & { autoSelectFamily: false } = {
-      method: init.method, headers: Object.fromEntries(init.headers), signal: init.signal,
+      // The validated IP, never the original user URL, is socket authority.
+      // The logical origin remains only HTTP Host/TLS identity and path data.
+      hostname: address.address, port: Number(url.port || (secure ? 443 : 80)),
+      path: url.pathname + url.search,
+      method: init.method, headers: { ...Object.fromEntries(init.headers), host: url.host }, signal: init.signal,
       agent: false, family: address.family, autoSelectFamily: false, maxHeaderSize: 16_384,
       lookup: (_hostname, options, callback) => options.all ? callback(null, [address]) : callback(null, address.address, address.family),
       ...(secure && !isIP(hostname) ? { servername: hostname } : {}),
     };
     let source: http.IncomingMessage | undefined, output: Transform | undefined;
-    const request = (secure ? https : http).request(url, options, incoming => {
+    const request = (secure ? https : http).request(options, incoming => {
       source = incoming;
       const status = incoming.statusCode ?? 0;
       if (status < 200 || status > 599) { incoming.destroy(); reject(new Error('Invalid external response status')); return; }

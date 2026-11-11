@@ -10,11 +10,12 @@ import { safeFetch } from './ssrf.js';
 let server: http.Server, port: number, closed: number;
 let seen: Array<{ url: string; headers: http.IncomingHttpHeaders }>;
 let optionsSeen: http.RequestOptions[];
+let destinationsSeen: Array<URL | http.RequestOptions>;
 const realHttpRequest = http.request;
 const publicAddress = { address: '93.184.216.34', family: 4 as const };
 beforeEach(async () => {
   lookup.mockReset().mockResolvedValue([{ address: '93.184.216.34', family: 4 }]);
-  closed = 0; seen = []; optionsSeen = [];
+  closed = 0; seen = []; optionsSeen = []; destinationsSeen = [];
   server = http.createServer((req, res) => {
     seen.push({ url: req.url!, headers: req.headers }); res.once('close', () => { closed++; });
     const body = Buffer.from('<title>Native transport</title>');
@@ -39,18 +40,32 @@ beforeEach(async () => {
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve)); port = (server.address() as AddressInfo).port;
   // Test-only connector substitution: production code still receives a public
   // URL/pin. There is no runtime private-address bypass or injected factory.
-  vi.spyOn(http, 'request').mockImplementation(((url: URL, options: http.RequestOptions, callback: (response: http.IncomingMessage) => void) => {
+  vi.spyOn(http, 'request').mockImplementation(((destination: URL | http.RequestOptions, optionsOrCallback: http.RequestOptions | ((response: http.IncomingMessage) => void), callback?: (response: http.IncomingMessage) => void) => {
+    const options = destination instanceof URL ? optionsOrCallback as http.RequestOptions : destination;
+    const respond = typeof optionsOrCallback === 'function' ? optionsOrCallback : callback!;
+    destinationsSeen.push(destination);
     optionsSeen.push(options);
-    return realHttpRequest(new URL(`http://127.0.0.1:${port}${url.pathname}`), {
-      ...options, hostname: '127.0.0.1', port, lookup: undefined, family: 4,
-      headers: { ...options.headers, host: url.host },
-    }, callback);
+    return realHttpRequest({
+      ...options, protocol: 'http:', hostname: '127.0.0.1', port, lookup: undefined, family: 4,
+      path: destination instanceof URL ? destination.pathname + destination.search : options.path,
+      headers: { ...options.headers, ...(destination instanceof URL ? { host: destination.host } : {}) },
+    }, respond);
   }) as typeof http.request);
 });
 afterEach(async () => { vi.useRealTimers(); vi.restoreAllMocks(); server.closeAllConnections(); await new Promise<void>(resolve => server.close(() => resolve())); });
 const get = (path: string, signal = new AbortController().signal, method: 'GET' | 'HEAD' = 'GET') =>
   requestPinned(new URL(`http://public.example:8443${path}`), publicAddress, { method, headers: new Headers(), signal });
 describe('private Node transport uses the validated destination and native response streams', () => {
+  it.each([
+    ['http://public.example:8443/path?query=a%20b', publicAddress, 'public.example:8443'],
+    ['http://[2606:4700::1111]:8443/path?query=a%20b', { address: '2606:4700::1111', family: 6 as const }, '[2606:4700::1111]:8443'],
+  ] as const)('gives the native client only the validated IP as its network destination for %s', async (value, pin, host) => {
+    const response = await requestPinned(new URL(value), pin, { method: 'GET', headers: new Headers(), signal: new AbortController().signal });
+    expect(await response.text()).toBe('<title>Native transport</title>');
+    expect(destinationsSeen[0]).not.toBeInstanceOf(URL);
+    expect(optionsSeen[0]).toMatchObject({ hostname: pin.address, port: 8443, path: '/path?query=a%20b', headers: { host } });
+    expect(seen[0]).toMatchObject({ url: '/path?query=a%20b', headers: { host } });
+  });
   it('retains logical Host/port and uses only the pinned lookup answer without pooled sockets', async () => {
     const response = await get('/plain'); expect(await response.text()).toBe('<title>Native transport</title>');
     expect(seen[0]?.headers.host).toBe('public.example:8443'); const options = optionsSeen[0]!;
@@ -94,9 +109,11 @@ describe('private Node transport uses the validated destination and native respo
   });
   it('keeps the logical TLS name and normal certificate verification, propagating a certificate refusal', async () => {
     let tlsOptions: https.RequestOptions | undefined;
-    vi.spyOn(https, 'request').mockImplementation(((url: URL, options: https.RequestOptions, callback: (response: http.IncomingMessage) => void) => {
+    vi.spyOn(https, 'request').mockImplementation(((destination: URL | https.RequestOptions, optionsOrCallback: https.RequestOptions | ((response: http.IncomingMessage) => void), callback?: (response: http.IncomingMessage) => void) => {
+      const options = destination instanceof URL ? optionsOrCallback as https.RequestOptions : destination;
+      const respond = typeof optionsOrCallback === 'function' ? optionsOrCallback : callback!;
       tlsOptions = options;
-      const request = realHttpRequest(`http://127.0.0.1:${port}`, callback);
+      const request = realHttpRequest(`http://127.0.0.1:${port}`, respond);
       queueMicrotask(() => request.destroy(Object.assign(new Error('synthetic certificate refusal'), { code: 'ERR_TLS_CERT_ALTNAME_INVALID' })));
       return request;
     }) as typeof https.request);
@@ -104,6 +121,7 @@ describe('private Node transport uses the validated destination and native respo
       { method: 'GET', headers: new Headers(), signal: new AbortController().signal })).rejects.toThrow('certificate refusal');
     expect(tlsOptions?.servername).toBe('public.example'); expect(tlsOptions?.rejectUnauthorized).not.toBe(false);
     expect(tlsOptions?.checkServerIdentity).toBeUndefined(); expect(tlsOptions?.agent).toBe(false);
+    expect(tlsOptions).toMatchObject({ hostname: publicAddress.address, port: 8443, path: '/image', headers: { host: 'public.example:8443' } });
   });
   it('uses the real adapter through safeFetch without consulting a rebinding second DNS answer', async () => {
     lookup.mockResolvedValueOnce([publicAddress]).mockResolvedValue([{ address: '127.0.0.1', family: 4 }]);
