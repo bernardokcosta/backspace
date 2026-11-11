@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach, vi } from 'vitest';
 import { createApiClient, HttpError, RateLimitError } from './client';
 import { describeError } from '../i18n/errors';
 import { recordDiagnostic } from '../utils/diagnostics';
-import { setLanguage } from '../i18n';
+import i18n, { setLanguage } from '../i18n';
 
 vi.mock('../utils/diagnostics', () => ({ recordDiagnostic: vi.fn() }));
 
@@ -93,14 +93,15 @@ describe('a 429 answer', () => {
   });
 
   it('keeps the server\'s own 429 code so its catalog text is reachable', async () => {
-    answer(429, JSON.stringify({ error: 'Too many lookups', code: 'lookup_rate_limited', statusCode: 429, retryAfter: 60 }), {
+    // Native code deliberately differs from the generic rate_limited fallback.
+    answer(429, JSON.stringify({ error: 'Message too long', code: 'content_too_long', details: { max: 10 }, statusCode: 429, retryAfter: 60 }), {
       'content-type': 'application/json',
     });
     const err = (await thrownBy(() => client.users.me())) as RateLimitError;
     expect(err).toBeInstanceOf(RateLimitError);
-    expect(err.code).toBe('lookup_rate_limited');
+    expect(err.code).toBe('content_too_long');
     expect(err.retryAfter).toBe(60);
-    expect(describeError(err)).toBe('Too many lookups. Try again in a minute.');
+    expect(describeError(err)).toBe(i18n.t('errors:content_too_long', { max: 10 }));
   });
 
   it('keeps details from the body when there are any', async () => {

@@ -1,7 +1,7 @@
 import { Room, Track, BackupCodecPolicy, AudioPresets, ConnectionState, LocalVideoTrack } from 'livekit-client';
 import { useVoiceStore } from '../stores/voiceStore';
 import type { ScreenShareConfig, ScreenShareAudioState } from '../stores/voiceStore';
-import { getStreamHostLimits } from './streamHostLimits';
+import { getStreamingLimits } from '../stores/settingsStore';
 import { resolveScreenShareCodec, type ScreenShareCodec } from './screenShareCodec';
 import { getPublisherPC, getMediaStreamTrack, getPublishedMediaStreamTracks, isRtpSenderActive, syncSingleCodecVideoEncodingCeilings } from './livekitInternals';
 import { broadcastVoiceStatus } from './voice';
@@ -163,7 +163,7 @@ export function effectiveScreenShareConfig(
 }
 
 export function buildScreenShareOptions(savedConfig: ScreenShareConfig): ScreenShareBuildResult {
-  const limits = getStreamHostLimits();
+  const limits = getStreamingLimits();
   const config = effectiveScreenShareConfig(savedConfig, limits);
   const { height, fps, mode, customBitrateKbps } = config;
   const isNative = height === 'native';
@@ -237,7 +237,7 @@ export function resolveNativeOverdrive(
   savedConfig: ScreenShareConfig,
   opts: ScreenShareBuildResult,
 ): void {
-  const limits = getStreamHostLimits();
+  const limits = getStreamingLimits();
   const config = effectiveScreenShareConfig(savedConfig, limits);
   if (config.height !== 'native' || config.customBitrateKbps != null || !mediaTrack) return;
   const settings = mediaTrack.getSettings();

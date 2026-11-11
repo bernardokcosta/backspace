@@ -12,7 +12,6 @@ import {
   AppearancePanel,
   VoicePanel,
   PrivacyPanel,
-  ConnectionsPanel,
   DesktopPanel,
   DesktopDownloadPanel,
   InstancePanel,
@@ -37,7 +36,6 @@ const USER_SETTINGS_TABS = [
   { id: 'appearance', group: 'user', label: 'settings:nav.tabs.appearance' },
   { id: 'voice', group: 'user', label: 'settings:nav.tabs.voice' },
   { id: 'privacy', group: 'user', label: 'settings:nav.tabs.privacy' },
-  { id: 'connections', group: 'app', label: 'settings:nav.tabs.connections' },
   { id: 'keybinds', group: 'app', label: 'settings:nav.tabs.keybinds' },
   { id: 'desktop', group: 'app', label: 'settings:nav.tabs.desktop' },
   { id: 'developer', group: 'app', label: 'settings:nav.tabs.developer' },
@@ -213,7 +211,6 @@ export function UserSettingsModal() {
     privacy: () => <PrivacyPanel />,
     bots: () => <BotsPanel />,
     developer: () => <DeveloperPanel />,
-    connections: () => <ConnectionsPanel />,
     keybinds: () => <KeybindsPanel />,
     desktop: () => (isElectron()
       ? <DesktopPanel />

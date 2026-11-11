@@ -1,19 +1,9 @@
 import type { DmChannel, DmMessageWithUser, DmLastMessagePreview, User, DmSystemEvent } from '@veyvox/shared';
 import { parseDmSystemEvent } from '@veyvox/shared/src/dmSystemEvents';
-import { parseFederatedUsername, isMine, type SelfIdentity } from './identity';
+import { userDisplayName } from './identity';
 import i18n from '../i18n';
 import { formatters } from '../i18n/formatters';
 import { messageTextForPreview } from './stickerMessages';
-
-/**
- * Who is looking at a DM: the signed-in user (`useSelfIdentity`) and the
- * instance that issued the DM's member rows (`getChannelOrigin(dm.id)`),
- * which together say which member is the viewer (`isMine`).
- */
-export interface DmViewer {
-  self: SelfIdentity | null;
-  origin: string;
-}
 
 // ─── DM Preview Formatting ────────────────────────────────────────────────────
 
@@ -127,8 +117,7 @@ export type DmSystemForm = 'timeline' | 'preview';
 
 function resolveDisplayName(user: User | null | undefined): string {
   if (!user) return i18n.t('common:states.unknown');
-  if (user.displayName) return user.displayName;
-  return parseFederatedUsername(user.username ?? '').baseName || i18n.t('common:states.unknown');
+  return userDisplayName(user) || i18n.t('common:states.unknown');
 }
 
 /**
@@ -204,13 +193,12 @@ function isSystemMessage(m: LastMessageLike): boolean {
  */
 export function formatDmSidebarPreview(
   dm: Pick<DmChannel, 'lastMessage' | 'ownerId' | 'members'>,
-  viewer: DmViewer,
+  selfUserId: string | null,
 ): string | null {
   const lastMessage = dm.lastMessage ?? null;
   if (!lastMessage) return null;
 
-  // The author: the roster entry, else the user a DmMessageWithUser carries
-  // (e.g. a remote actor in federation bootstrap).
+  // Prefer the roster's fresh profile, then the profile the message carries.
   const actor = dmSystemActor(
     { userId: lastMessage.userId, user: 'user' in lastMessage ? lastMessage.user : null },
     dm.members,
@@ -227,7 +215,7 @@ export function formatDmSidebarPreview(
   if (!isGroup) return text;
 
   // Group user messages: prefix with sender display name unless it's the current user.
-  if (isMine(actor ?? { id: lastMessage.userId }, viewer.origin, viewer.self)) return text;
+  if (lastMessage.userId === selfUserId) return text;
 
   return i18n.t('dm:preview.withSender', { name: resolveDisplayName(actor), text });
 }
@@ -264,13 +252,13 @@ export function formatDmTimestamp(createdAt: number): string {
 // ─── DM Display Names ─────────────────────────────────────────────────────────
 
 /** Other-side member resolution, identical to every other DM display path. */
-function otherMembersOf(dm: Pick<DmChannel, 'members'>, viewer: DmViewer): User[] {
-  return dm.members.filter(m => !isMine(m, viewer.origin, viewer.self));
+function otherMembersOf(dm: Pick<DmChannel, 'members'>, selfUserId: string | null): User[] {
+  return dm.members.filter(member => member.id !== selfUserId);
 }
 
-/** Member's visible name — display name if set, else the parsed base of the username. */
+/** The native account name, never a truncated username. */
 function memberDisplayName(m: User): string {
-  return m.displayName ?? parseFederatedUsername(m.username ?? '').baseName ?? '';
+  return userDisplayName(m);
 }
 
 /**
@@ -285,9 +273,9 @@ function memberDisplayName(m: User): string {
  * dropped `dm.name`, so a renamed group still showed the joined-names
  * fallback in those two surfaces while every other site honored it.
  */
-export function formatDmHeaderName(dm: DmChannel, viewer: DmViewer): string {
+export function formatDmHeaderName(dm: DmChannel, selfUserId: string | null): string {
   const isGroup = !!dm.ownerId;
-  const others = otherMembersOf(dm, viewer);
+  const others = otherMembersOf(dm, selfUserId);
 
   if (isGroup) {
     if (dm.name && dm.name.trim().length > 0) return dm.name;
@@ -312,7 +300,7 @@ export function formatDmHeaderName(dm: DmChannel, viewer: DmViewer): string {
  * has 4+ members ("Message #Test, Nova, erin, Nova" runs off-screen
  * and obscures the actual call-to-action).
  */
-export function formatDmInputLabel(dm: DmChannel, viewer: DmViewer): string {
+export function formatDmInputLabel(dm: DmChannel, selfUserId: string | null): string {
   const isGroup = !!dm.ownerId;
 
   if (isGroup) {
@@ -320,7 +308,7 @@ export function formatDmInputLabel(dm: DmChannel, viewer: DmViewer): string {
     return i18n.t('dm:names.theGroup');
   }
 
-  const partner = otherMembersOf(dm, viewer)[0];
+  const partner = otherMembersOf(dm, selfUserId)[0];
   if (!partner) return `@${i18n.t('dm:names.unknownHandle')}`;
   return `@${memberDisplayName(partner) || i18n.t('dm:names.unknownHandle')}`;
 }
@@ -329,9 +317,9 @@ export function formatDmInputLabel(dm: DmChannel, viewer: DmViewer): string {
  * True when `dm` is a 1-on-1 whose only other participant(s) are tombstoned.
  * Drives the read-only composer — you cannot message a deleted user.
  */
-export function isDeletedPartnerDm(dm: Pick<DmChannel, 'ownerId' | 'members'>, viewer: DmViewer): boolean {
+export function isDeletedPartnerDm(dm: Pick<DmChannel, 'ownerId' | 'members'>, selfUserId: string | null): boolean {
   if (dm.ownerId) return false; // group
-  const others = otherMembersOf(dm, viewer);
+  const others = otherMembersOf(dm, selfUserId);
   if (others.length === 0) return false;
   return others.every(m => m.isDeleted === true);
 }

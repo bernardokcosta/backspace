@@ -10,7 +10,7 @@ beforeEach(() => {
   game.scoreboard = { roundId: game.id, status: 'credited', standings: game.players.map((p, i) => ({
     ...p, place: i === 0 ? 1 : 2, cardCount: i === 0 ? 0 : 7, xp: i === 0 ? 120 : 80, outcome: 'completed',
   })) };
-  useJunoStore.setState({ target: { accountId: 'a', selfId: 'a', origin: '', channelId: 'voice' },
+  useJunoStore.setState({ target: { userId: 'a', origin: window.location.origin, channelId: 'voice' },
     connected: true, snapshot: { revision: 1, game }, command: vi.fn(async () => {}) });
 });
 describe('Juno authoritative result view', () => {
@@ -30,7 +30,7 @@ describe('Juno authoritative result view', () => {
     expect(screen.getByText('+80 XP earned')).toBeInTheDocument();
   });
   it('does not claim personal victory for a loser or allow their rematch', () => {
-    useJunoStore.setState({ target: { accountId: 'b', selfId: 'b', origin: '', channelId: 'voice' } });
+    useJunoStore.setState({ target: { userId: 'b', origin: window.location.origin, channelId: 'voice' } });
     render(<JunoResult />); expect(screen.queryByRole('heading', { name: 'Victory!' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /open a new lobby/i })).not.toBeInTheDocument();
   });

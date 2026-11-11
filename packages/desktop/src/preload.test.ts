@@ -13,6 +13,7 @@ describe('one bounded preload implementation', () => {
     expect(canonical).toBeDefined();
     expect(canonical).toBe(legacy); // Same privileged object BEFORE crossing contextBridge.
     expect(Object.keys(canonical ?? {})).not.toContain('send');
+    expect(Object.keys(canonical ?? {})).not.toContain('setConnectedOrigins');
     canonical?.minimize(); canonical?.rendererReady();
     expect(mocks.send).toHaveBeenCalledWith('minimize-window');
     expect(mocks.send).toHaveBeenCalledWith('renderer-ready');

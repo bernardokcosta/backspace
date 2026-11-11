@@ -1,15 +1,10 @@
 import type { TFunction } from 'i18next';
 import type { Reaction } from '@veyvox/shared';
 import type { Formatters } from '../../i18n/formatters';
-import { isMine, type SelfIdentity } from '../../utils/identity';
 
-/**
- * The current user's own reaction, on a message the instance at `origin`
- * issued. A reaction carries the reacting user's row (older payloads only its
- * id); `isMine` reads either.
- */
-export function isOwnReaction(reaction: Reaction, origin: string, self: SelfIdentity | null): boolean {
-  return isMine(reaction.user ?? { id: reaction.userId }, origin, self);
+/** Reactions belong to the native authenticated account ID, never a profile name. */
+export function isOwnReaction(reaction: Reaction, selfUserId: string | undefined): boolean {
+  return reaction.userId === selfUserId;
 }
 
 /** Who reacted with one emoji, as the tooltip says it. */
@@ -31,9 +26,8 @@ const MAX_NAMED = 3;
  * Summarizes the reactions for one emoji on one message.
  *
  * `isYou` and `nameOf` resolve identity at the call site, where the current
- * user and the cross-instance user views are known. A reactor is counted once
- * even if two rows name them (the current user seen under two of their
- * instance ids, for instance).
+ * user and native cached profiles are known. Duplicate rows count each native
+ * account only once.
  */
 export function summarizeReactors(
   reactions: readonly Reaction[],

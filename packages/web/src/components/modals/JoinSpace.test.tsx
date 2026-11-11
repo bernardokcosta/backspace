@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 
@@ -16,8 +16,8 @@ vi.mock('../../audio/AudioManager', () => ({
 
 import { JoinSpaceModal } from './JoinSpace';
 import { useUIStore } from '../../stores/uiStore';
-import { useSpaceStore, NotConnectedError } from '../../stores/spaceStore';
-import { useInstanceStore, RemoteLoginRequiredError } from '../../stores/instanceStore';
+import { useSpaceStore } from '../../stores/spaceStore';
+import { useAuthStore } from '../../stores/authStore';
 import { HttpError } from '../../api/client';
 import { JoinRequestRequiredError } from '../../utils/joinErrors';
 import { sendInviteJoinRequest } from '../../utils/inviteJoinRequest';
@@ -54,43 +54,25 @@ function renderModal() {
 }
 
 describe('JoinSpaceModal', () => {
-  it('connects to the explicit invitation origin with the existing password flow', async () => {
+  it.each(['https://other.example/join/code', 'code@other.example'])('refuses foreign invite %s before any join, session or credential request', async input => {
     const user = userEvent.setup();
-    const origin = 'https://orbit.example';
-    const join = vi.fn().mockRejectedValueOnce(new NotConnectedError(origin)).mockResolvedValueOnce({ id: 'remote-space' });
-    const connect = vi.fn().mockResolvedValue(undefined);
+    const join = vi.fn().mockResolvedValue({ id: 'colliding-local-space' });
     useSpaceStore.setState({ joinByCode: join });
-    useInstanceStore.setState({ connectToRemote: connect });
     useUIStore.setState({ activeModal: 'joinSpace' }); renderModal();
-    await user.type(screen.getByPlaceholderText('e.g. abc123 or https://instance.com/join/abc123'), `${origin}/join/code`);
+    await user.type(screen.getByPlaceholderText('e.g. abc123 or https://instance.com/join/abc123'), input);
     await user.click(screen.getByRole('button', { name: 'Join Space' }));
-    await user.type(await screen.findByPlaceholderText('Your account password'), 'fixture-password');
-    await user.click(screen.getByRole('button', { name: 'Connect & Join' }));
-    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/channels/remote-space'));
-    expect(connect).toHaveBeenCalledWith(origin, 'fixture-password', undefined);
-    expect(join).toHaveBeenLastCalledWith('code', origin);
+    await screen.findByText('Invalid invite link');
+    expect(join).not.toHaveBeenCalled(); expect(mockNavigate).not.toHaveBeenCalled();
+    expect(document.querySelector('input[type="password"]')).toBeNull();
     expect(fetch).not.toHaveBeenCalled();
   });
-  it('retains explicit remote-account fallback without any directory lookup', async () => {
-    const user = userEvent.setup();
-    const origin = 'https://orbit.example';
-    const join = vi.fn().mockRejectedValueOnce(new NotConnectedError(origin)).mockResolvedValueOnce({ id: 'remote-space' });
-    const login = vi.fn().mockResolvedValue(undefined);
-    useSpaceStore.setState({ joinByCode: join });
-    useInstanceStore.setState({
-      connectToRemote: vi.fn().mockRejectedValue(new RemoteLoginRequiredError('mira', 'credential-refused')),
-      loginToRemote: login,
-    });
-    useUIStore.setState({ activeModal: 'joinSpace' }); renderModal();
-    await user.type(screen.getByPlaceholderText('e.g. abc123 or https://instance.com/join/abc123'), `${origin}/join/code`);
-    await user.click(screen.getByRole('button', { name: 'Join Space' }));
-    await user.type(await screen.findByPlaceholderText('Your account password'), 'home-password');
-    await user.click(screen.getByRole('button', { name: 'Connect & Join' }));
-    await user.type(await screen.findByPlaceholderText('Password on the remote instance'), 'remote-password');
-    await user.click(screen.getByRole('button', { name: 'Login & Join' }));
-    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/channels/remote-space'));
-    expect(login).toHaveBeenCalledWith(origin, 'mira', 'remote-password');
-    expect(fetch).not.toHaveBeenCalled();
+  it('does not close or navigate a replacement session after an old native join', async () => {
+    let finish!: (value: { id: string }) => void;
+    useSpaceStore.setState({ joinByCode: vi.fn().mockReturnValueOnce(new Promise(resolve => { finish = resolve; })) });
+    useUIStore.getState().openModal('joinSpace'); renderModal();
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'code' } }); fireEvent.click(screen.getByText('Join Space'));
+    act(() => { useAuthStore.setState(s => ({ sessionRevision: s.sessionRevision + 1 })); useUIStore.getState().openModal('newDm'); });
+    await act(async () => finish({ id: 'old' })); expect(useUIStore.getState().activeModal).toBe('newDm'); expect(mockNavigate).not.toHaveBeenCalled();
   });
   it('does not render when activeModal is not "joinSpace"', () => {
     useUIStore.setState({ activeModal: null });
@@ -134,10 +116,8 @@ describe('JoinSpaceModal', () => {
     const submitButton = screen.getByText('Join Space');
     await user.click(submitButton);
 
-    // joinByCode(code, origin) — bare code has no origin, so second arg is
-    // undefined (parseInviteInput returns { code, origin: undefined }).
     await waitFor(() => {
-      expect(mockJoinByCode).toHaveBeenCalledWith('my-invite-code', undefined);
+      expect(mockJoinByCode).toHaveBeenCalledWith('my-invite-code');
     });
 
     // Should navigate to the new space
@@ -182,7 +162,6 @@ describe('JoinSpaceModal', () => {
       return new JoinRequestRequiredError(
         new HttpError(403, 'requests', undefined, 'join_request_required', { spaceId: 'S-REQ' }),
         'S-REQ',
-        '',
       );
     }
 
@@ -204,7 +183,7 @@ describe('JoinSpaceModal', () => {
       await user.type(screen.getByLabelText('Note with your request'), 'hello');
       await user.click(screen.getByRole('button', { name: 'Send Request' }));
 
-      expect(requestJoinSpace).toHaveBeenCalledWith('S-REQ', '', 'hello');
+      expect(requestJoinSpace).toHaveBeenCalledWith('S-REQ', 'hello');
       expect(await screen.findByText('Request sent. A manager will review it, and the space appears in your list once they approve.')).toBeInTheDocument();
       expect(mockNavigate).not.toHaveBeenCalled();
     });

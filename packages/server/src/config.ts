@@ -7,10 +7,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // The test suite never reads the checkout's `.env`. CI has none, so a value a
 // developer keeps there (DOMAIN, REGISTRATION_OPEN, PORT) would make the same
-// suite pass in CI and fail locally: the self-homed identity guard, for one,
-// reads `config.domain` before the origin the federation tests mock. Vitest's
+// suite pass in CI and fail locally. Vitest's
 // setup file (`test/setup-env.ts`) sets NODE_ENV and the keys the suite needs,
-// and the two-instance harness passes a child instance its whole environment
+// and the native instance harness passes a child its whole environment
 // explicitly, so under test everything comes from the process environment.
 if (process.env.NODE_ENV !== 'test') {
   dotenvConfig({ path: resolve(__dirname, '../../../.env') });
@@ -70,11 +69,8 @@ function envCount(key: string, defaultValue: number): number {
   return Number(trimmed);
 }
 
-// PUBLIC_ORIGIN overrides the federation transport URL returned by getOurOrigin().
-// Used by integration test harnesses that bind to 127.0.0.1:<ephemeral> and by
-// reverse-proxy setups where federation must advertise an http:// origin (the
-// proxy terminates TLS upstream). When unset, getOurOrigin() falls back to
-// https://${DOMAIN} for production safety.
+// Public base for native asset/invitation URLs behind the operator's proxy.
+// Falls back to HTTPS DOMAIN (or localhost in development) in publicOrigin.ts.
 const publicOrigin = envOptional('PUBLIC_ORIGIN');
 if (publicOrigin !== undefined) {
   if (!/^https?:\/\//i.test(publicOrigin)) {
@@ -135,8 +131,7 @@ const MAX_TRUSTED_PROXY_HOPS = 4;
  *
  * That matters because this address is what every rate limit in the app keys
  * on, the global one and the per-route ones (`docs/systems/api.md`, "Rate
- * limiting") and the hand-written limiter on `POST /federation/peer/accept`,
- * which is unauthenticated first contact. It is also what the request log
+ * limiting"). It is also what the request log
  * records as `remoteAddress`.
  *
  * **What an operator sets it to.** The number of proxies they actually run
@@ -231,15 +226,6 @@ const version = readPackageVersion();
  */
 const passwordHashCost = process.env.NODE_ENV === 'test' ? 4 : 12;
 
-/**
- * `FEDERATION_BACKOFF_DIVISOR`, test only. What it divides and why the harness
- * sets it: docs/systems/federation.md, "Retry backoff divisor (test only)".
- */
-const federationBackoffDivisor = envCount('FEDERATION_BACKOFF_DIVISOR', 1);
-if (federationBackoffDivisor < 1) {
-  throw new Error('Environment variable FEDERATION_BACKOFF_DIVISOR must be at least 1, got: 0');
-}
-
 export const config = {
   port: envInt('PORT', 3000),
   host: env('HOST', '0.0.0.0'),
@@ -258,25 +244,6 @@ export const config = {
     url: envOptional('LIVEKIT_URL'),
     apiKey: envOptional('LIVEKIT_API_KEY'),
     apiSecret: envOptional('LIVEKIT_API_SECRET'),
-  },
-
-  federation: {
-    /**
-     * Allow an origin that a stranger asserted to resolve to a private address.
-     *
-     * Off by default. While it is off, an origin supplied by someone with no
-     * established peering relationship must be publicly routable before this
-     * instance will send a request to it. Origins an admin approved are
-     * unaffected either way, so peering with a private peer keeps working
-     * through the admin routes.
-     *
-     * Turn it on for a LAN-only deployment where every instance sits on a
-     * private address and users add each other by handle. The two-instance
-     * test harness sets it for the same reason.
-     */
-    allowPrivatePeers: envBool('FEDERATION_ALLOW_PRIVATE_PEERS', false),
-    /** `FEDERATION_BACKOFF_DIVISOR`, see above. */
-    backoffDivisor: federationBackoffDivisor,
   },
 
   uploadDir: env('UPLOAD_DIR', resolve(__dirname, '../../../data/uploads')),

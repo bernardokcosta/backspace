@@ -19,7 +19,6 @@
     "activity": "It's quiet for now... When friends start an activity, we'll show it here!"
   },
   "friend": {
-    "viaInstance": "via {{host}}",
     "message": "Message",
     "remove": "Remove Friend"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "Find People",
-    "hint": "Search by username or use <handle>user@instance</handle> to add someone directly.",
     "placeholder": "Search or add by username...",
     "direct": "Send friend request to <handle>{{handle}}</handle>",
     "sendRequest": "Send Request",
@@ -81,7 +79,7 @@
     "quietDescription": "When a friend starts an activity—like playing a game or hanging out on voice—we'll show it here!",
     "online": "Online — {{n}}",
     "offline": "Offline — {{n}}",
-    "resizeHandle": "Resize friends list",
+    "resizeHandle": "Resize friends list",
     "types": {
       "playing": "Playing a Game",
       "listening": "Listening to Music",
@@ -99,6 +97,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "Open Track"
-  },
-  "instanceNotConnected": "Not connected to {{host}}. Connect to it again and retry."
+  }
 }

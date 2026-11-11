@@ -48,9 +48,9 @@ const DIRECTIVES = new Set(['default-src', 'script-src', 'script-src-elem', 'scr
 const ROUTE_PARTS = new Set(['api', 'auth', 'login', 'register', 'users', '@me', 'spaces', 'channels',
   'messages', 'dm', 'pins', 'reactions', 'members', 'roles', 'settings', 'admin', 'instance', 'info',
   'health', 'files', 'uploads', 'livekit', 'token', 'soundboard', 'play', 'social', 'friends',
-  'requests', 'search', 'stickers', 'sticker-store', 'packs', 'sticker-packs', 'federation',
+  'requests', 'search', 'stickers', 'sticker-store', 'packs', 'sticker-packs',
   'join-requests', 'request-join', 'join', 'invites', 'bots', 'diagnostics', 'updates',
-  'federation-registry', 'federation-credential', 'verify-password', 'change-password']);
+  'verify-password', 'change-password']);
 const VERSION = /^\d{1,6}\.\d{1,6}\.\d{1,6}(?:-[a-zA-Z0-9.-]{1,32})?$/;
 const FRAME = /^[a-zA-Z0-9_.-]{1,100}\.(?:[cm]?js|tsx?):\d{1,8}:\d{1,8}$/;
 

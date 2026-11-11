@@ -170,10 +170,7 @@ const desktopApi = {
     return () => { ipcRenderer.removeListener('deep-link', handler); };
   },
 
-  // Instance-origin-aware URL routing
-  setConnectedOrigins: (origins: string[]) => {
-    ipcRenderer.send('set-connected-origins', origins);
-  },
+  // Current-server internal URL routing
   onOpenInternalRoute: (callback: (path: string) => void) => {
     const handler = (_evt: Electron.IpcRendererEvent, path: string) => callback(path);
     ipcRenderer.on('open-internal-route', handler);

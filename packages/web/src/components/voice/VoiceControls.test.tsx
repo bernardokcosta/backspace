@@ -11,7 +11,7 @@ vi.mock('./ScreenShareSettingsPopover', () => ({ ScreenShareSettingsPopover: () 
 vi.mock('./ConnectionInfoPopover', () => ({ ConnectionInfoPopover: () => null }));
 vi.mock('../../utils/voiceActions', () => ({ handleCameraAction: vi.fn(), handleDisconnectAction: vi.fn(),
   handleScreenShareAction: vi.fn(), reconnectVoice: vi.fn() }));
-const target = { accountId: 'account', origin: '', selfId: 'account', channelId: 'voice' };
+const target = { userId: 'account', origin: window.location.origin, channelId: 'voice' };
 beforeEach(() => {
   useVoiceStore.setState({ currentVoiceChannelId: 'voice', activeDmCall: null, isLiveKitConnected: true,
     voiceConnectionStatus: 'connected', connectionError: null, rnnoiseEnabled: true, isMuted: true });
@@ -26,6 +26,9 @@ describe('voice sidebar game entry and audio processing control', () => {
     const games = screen.getByRole('button', { name: 'Games' });
     expect(processing.parentElement).toBe(disconnect.parentElement);
     expect(processing.nextElementSibling).toBe(disconnect);
+    expect(processing.parentElement).toHaveClass('gap-2');
+    expect(processing).toHaveClass('w-7', 'h-7', 'rounded-lg');
+    expect(disconnect).toHaveClass('rounded-lg');
     expect(games.parentElement).not.toContainElement(processing);
     expect(processing).toHaveAttribute('aria-pressed', 'true');
   });

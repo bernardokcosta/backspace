@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
-import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -10,15 +9,15 @@ import sharp from 'sharp';
 import { request as httpRequest } from 'node:http';
 import * as schema from '../db/schema.js';
 import { stickerUrl, MAX_STICKER_BYTES, MAX_PERSONAL_STICKERS, STICKER_UPLOADS_PER_MINUTE } from '@veyvox/shared/src/stickers.js';
+import { buildNativeDatabase } from '../testing/standaloneUpgrade.js';
 
-const settings = vi.hoisted(() => ({ uploadDir: '' }));
+const settings = vi.hoisted(() => ({ uploadDir: '', publicOrigin: 'https://chat.test' }));
 let db: ReturnType<typeof drizzle<typeof schema>>;
 let sqlite: Database.Database;
 let app: FastifyInstance;
 const parsedUpload = vi.fn();
 vi.mock('../db/index.js', () => ({ getDb: () => db, schema }));
 vi.mock('../config.js', () => ({ config: settings }));
-vi.mock('../utils/federationAuth.js', () => ({ getOurOrigin: () => 'https://chat.test' }));
 vi.mock('../utils/auth.js', () => ({
   authenticate: async (request: { userId: string; headers: Record<string, string> }, reply: { code: (code: number) => { send: () => void } }) => {
     if (!request.headers.authorization) return reply.code(401).send();
@@ -33,7 +32,7 @@ beforeEach(async () => {
   sqlite = new Database(':memory:');
   sqlite.pragma('foreign_keys = ON');
   db = drizzle(sqlite, { schema });
-  migrate(db, { migrationsFolder: path.resolve('drizzle') });
+  buildNativeDatabase(sqlite);
   for (const id of ['alice', 'bob']) {
     db.insert(schema.users).values({ id, username: id, passwordHash: 'test', createdAt: 1 }).run();
   }

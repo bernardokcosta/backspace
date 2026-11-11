@@ -15,24 +15,22 @@ import { useChannelPokeStore } from '../../stores/channelPokeStore';
 import { useComposerStore } from '../../stores/composerStore';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useAuthorMenu } from './useAuthorMenu';
-
-const HOST = 'https://host.test';
+import { useAuthStore } from '../../stores/authStore';
 
 function makeUser(id: string, username: string, displayName: string | null): User {
   return {
     id, username, displayName, avatar: null, banner: null, accentColor: null, avatarColor: null,
     bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
-    homeInstance: null, homeUserId: null, replicatedInstances: [],
   };
 }
 
-// Ids on the hosting instance: the ids its channels' messages carry.
+// Exact native IDs are the IDs carried by messages.
 const target = makeUser('target-host', 'target@home.example', 'Target');
 const stranger = makeUser('stranger-host', 'stranger', 'Stranger');
 const targetMember: MemberWithUser = { spaceId: 'space-1', userId: target.id, nickname: 'Tee', joinedAt: 1, user: target, roles: [] };
 const dm = { id: 'dm-1', ownerId: null, createdAt: 1, members: [target], lastMessage: null } as unknown as DmChannel;
 
-const space = { channelId: 'chat', authorId: target.id, origin: HOST, isDm: false, canSend: true, isAuthor: false };
+const space = { channelId: 'chat', authorId: target.id, isDm: false, canSend: true, isAuthor: false };
 const inDm = { ...space, channelId: dm.id, isDm: true };
 
 function rightClick(options: typeof space) {
@@ -55,23 +53,23 @@ function action(key: string) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  useAuthStore.setState({ user: makeUser('me', 'me', 'Me') });
   useChannelPokeStore.getState().reset();
   useComposerStore.setState({ states: new Map() });
   useSpaceStore.setState({
     dmChannels: [dm],
     members: [targetMember],
     channelToSpaceMap: new Map([['chat', 'space-1']]),
-    channelOriginMap: new Map([['chat', HOST], [dm.id, HOST]]),
   });
 });
 
 afterEach(() => {
-  useSpaceStore.setState({ dmChannels: [], members: [], channelToSpaceMap: new Map(), channelOriginMap: new Map() });
+  useSpaceStore.setState({ dmChannels: [], members: [], channelToSpaceMap: new Map() });
 });
 
 describe('the author menu', () => {
   it('offers Mention by the space nickname, and Poke after it where the host offers pokes', () => {
-    useChannelPokeStore.getState().setHost(HOST, true);
+    useChannelPokeStore.getState().setSupported(true);
     const event = rightClick(space);
     expect(event.preventDefault).toHaveBeenCalled();
     expect(event.stopPropagation).toHaveBeenCalled();
@@ -80,13 +78,13 @@ describe('the author menu', () => {
   });
 
   it('offers Mention alone in a DM, by account name', () => {
-    useChannelPokeStore.getState().setHost(HOST, true);
+    useChannelPokeStore.getState().setSupported(true);
     rightClick(inDm);
     expect(openedItems().map((i) => i.key)).toEqual(['mention-author']);
     expect(action('mention-author').label).toBe('@Target');
   });
 
-  it("adds the author's id on the channel's origin to that channel's draft", () => {
+  it('adds the native author ID to that channel draft', () => {
     useComposerStore.getState().setDraft('chat', 'hi');
     rightClick(space);
     action('mention-author').onClick();
@@ -95,7 +93,7 @@ describe('the author menu', () => {
   });
 
   it('leaves the right click to the message menu where the viewer cannot write', () => {
-    useChannelPokeStore.getState().setHost(HOST, true);
+    useChannelPokeStore.getState().setSupported(true);
     // No SEND_MESSAGES, a message still sending, or a DM whose partner is gone.
     for (const options of [{ ...space, canSend: false }, { ...inDm, canSend: false }]) {
       const event = rightClick(options);
@@ -106,7 +104,7 @@ describe('the author menu', () => {
   });
 
   it("offers neither Mention nor Poke on the viewer's own message and leaves it to the message menu", () => {
-    useChannelPokeStore.getState().setHost(HOST, true);
+    useChannelPokeStore.getState().setSupported(true);
     for (const options of [{ ...inDm, isAuthor: true }, { ...space, isAuthor: true }]) {
       const event = rightClick(options);
       expect(event.preventDefault).not.toHaveBeenCalled();
@@ -122,12 +120,12 @@ describe('the author menu', () => {
     expect(mocks.open).not.toHaveBeenCalled();
   });
 
-  it('sends a poke to the instance hosting the space and says so when the socket is closed', () => {
-    useChannelPokeStore.getState().setHost(HOST, true);
+  it('sends a native poke and warns when the sole socket is closed', () => {
+    useChannelPokeStore.getState().setSupported(true);
     rightClick(space);
     mocks.send.mockReturnValue(false);
     action('poke-author').onClick();
-    expect(mocks.send).toHaveBeenCalledWith({ type: 'channel_poke', channelId: 'chat', targetUserId: target.id }, HOST);
+    expect(mocks.send).toHaveBeenCalledWith({ type: 'channel_poke', channelId: 'chat', targetUserId: target.id });
     expect(mocks.toast).toHaveBeenCalledWith(expect.any(String), 'warning');
   });
 });

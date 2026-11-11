@@ -127,7 +127,6 @@
       "appearance": "Görünüm",
       "voice": "Ses ve video",
       "privacy": "Gizlilik",
-      "connections": "Bağlantılar",
       "keybinds": "Kısayollar",
       "desktop": "Masaüstü",
       "instance": "Örnek",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "Hesabım",
-    "detached": {
-      "notice": "Bu hesap ana örneğinden ayrıldı.",
-      "explanation": "{{homeInstance}} sıfırlandı veya artık kullanılamıyor, bu yüzden bu hesap şimdi bu örnekte yerel olarak çalışıyor. Profilin ve parolan burada yönetilir.",
-      "reattachHint": "{{homeInstance}} üzerinde {{username}} olarak bu hesabı yeniden bağlayabilirsin. Profil ve durum bilgisi yeniden oradan eşitlenecek.",
-      "reattachButton": "{{homeInstance}} ile yeniden bağla",
-      "reattachConfirm": "{{username}} olarak yeniden bağlamayı onayla",
-      "reattaching": "Yeniden bağlanılıyor…",
-      "reattachFailed": "Yeniden bağlama başarısız",
-      "reattached": "Hesap {{username}} ile yeniden bağlandı"
-    },
     "profile": {
       "sectionTitle": "Profil kişiselleştirme",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "Hesap",
       "status": {
-        "label": "Durum",
-        "homeUnavailable": "Durumun {{host}} üzerinde tutuluyor. Değiştirmek için {{host}} adresine bağlan."
+        "label": "Durum"
       },
       "customStatus": {
         "label": "Özel durum",
@@ -244,10 +232,6 @@
         "passwordPlaceholder": "Parolanı gir",
         "submit": "Hesabımı sil",
         "deleting": "Siliniyor…"
-      },
-      "federation": {
-        "removing": "Hesabın bağlı örneklerden kaldırılıyor…",
-        "deleteAnyway": "Hesabı şimdi sil"
       },
       "complete": {
         "title": "Hesap silindi",
@@ -310,14 +294,10 @@
       }
     }
   },
-  "connections": {
-    "title": "Bağlantılar"
-  },
   "instance": {
     "tabs": {
       "general": "Genel",
       "registration": "Kayıt",
-      "federation": "Federasyon",
       "streaming": "Yayın",
       "storage": "Depolama",
       "users": "Kullanıcılar",

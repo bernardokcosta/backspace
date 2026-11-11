@@ -3,34 +3,33 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MESSAGE_PAGING_HEADER } from '@veyvox/shared';
-import { bootTwoInstances, type TwoInstanceHarness } from './helpers/twoInstanceHarness.js';
+import { bootInstance, type SpawnedInstance } from './helpers/instanceHarness.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SERVER_SRC = path.resolve(__dirname, '../src');
+const BROWSER_ORIGIN = 'https://browser.invalid';
 
 describe('CORS posture', () => {
-  let h: TwoInstanceHarness;
+  let instance: SpawnedInstance, cleanup: (() => Promise<void>) | undefined;
 
   beforeAll(async () => {
-    h = await bootTwoInstances();
+    ({ instance, cleanup } = await bootInstance());
   }, 120_000);
 
   afterAll(async () => {
-    await h?.cleanup();
+    await cleanup?.();
   });
 
-  it('reflects an arbitrary browser origin, because client federation requires it', async () => {
-    // A browser on instance A calls register/login on instance B before any
-    // S2S peering exists. See instanceStore.connectToRemote.
-    const res = await fetch(`${h.remote.origin}/api/instance/info`, {
-      headers: { Origin: h.home.origin },
+  it('supports a separately hosted client selecting this instance on login', async () => {
+    const res = await fetch(`${instance.origin}/api/instance/info`, {
+      headers: { Origin: BROWSER_ORIGIN },
     });
     expect(res.status).toBe(200);
-    expect(res.headers.get('access-control-allow-origin')).toBe(h.home.origin);
+    expect(res.headers.get('access-control-allow-origin')).toBe(BROWSER_ORIGIN);
   });
 
   it('reflects Origin: null so the desktop picker can probe from file://', async () => {
-    const res = await fetch(`${h.remote.origin}/api/instance/info`, {
+    const res = await fetch(`${instance.origin}/api/instance/info`, {
       headers: { Origin: 'null' },
     });
     expect(res.status).toBe(200);
@@ -38,14 +37,14 @@ describe('CORS posture', () => {
   });
 
   it('never grants credentialed cross-origin access', async () => {
-    const res = await fetch(`${h.remote.origin}/api/instance/info`, {
+    const res = await fetch(`${instance.origin}/api/instance/info`, {
       headers: { Origin: 'https://evil.example' },
     });
     expect(res.headers.get('access-control-allow-credentials')).toBeNull();
   });
 
   it('never grants credentialed access on a preflight either', async () => {
-    const res = await fetch(`${h.remote.origin}/api/auth/login`, {
+    const res = await fetch(`${instance.origin}/api/auth/login`, {
       method: 'OPTIONS',
       headers: {
         Origin: 'https://evil.example',
@@ -75,11 +74,11 @@ describe('CORS posture', () => {
     expect(hits).toEqual([]);
   });
 
-  it('still declares the tus headers federated uploads need', async () => {
-    const res = await fetch(`${h.remote.origin}/api/files/probe`, {
+  it('declares the tus headers a separately hosted client needs', async () => {
+    const res = await fetch(`${instance.origin}/api/files/probe`, {
       method: 'OPTIONS',
       headers: {
-        Origin: h.home.origin,
+        Origin: BROWSER_ORIGIN,
         'Access-Control-Request-Method': 'PATCH',
         'Access-Control-Request-Headers': 'upload-offset,tus-resumable',
       },
@@ -89,11 +88,9 @@ describe('CORS posture', () => {
     expect(allowed).toContain('tus-resumable');
   });
 
-  it('exposes the message paging header to a browser on another instance', async () => {
-    // A client paging forward on a remote instance reads this header to tell
-    // whether `after` was honoured; unexposed, it would read as an old server.
-    const res = await fetch(`${h.remote.origin}/api/instance/info`, {
-      headers: { Origin: h.home.origin },
+  it('exposes the message paging header to a separately hosted browser', async () => {
+    const res = await fetch(`${instance.origin}/api/instance/info`, {
+      headers: { Origin: BROWSER_ORIGIN },
     });
     const exposed = (res.headers.get('access-control-expose-headers') ?? '').toLowerCase();
     expect(exposed).toContain(MESSAGE_PAGING_HEADER.toLowerCase());

@@ -10,6 +10,7 @@ import { spawn, execFileSync } from 'node:child_process';
 import { parseArgs } from 'node:util';
 import { pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
+import { getTypeScript } from './i18n/desktop.mjs';
 
 export function requireDisposableRunner(env, platform = process.platform) {
   const names = { win32: 'Windows', darwin: 'macOS', linux: 'Linux' };
@@ -36,13 +37,43 @@ export const APPIMAGES = {
   arm64: ['linux-arm64.AppImage', 'ce1879b4a4d252e021707737461c49f876867be392d638e89d2c47434a817340'],
 };
 
+export const INSTALLED_RETIRED_KEYS = Object.freeze([
+  'backspace_instances', 'backspace_instances_synthetic-owner', 'backspace_instances_synthetic-second',
+  'backspace_true_home_status:old:synthetic-owner', 'backspace_true_home_status:old:synthetic-second',
+]);
+// Opaque synthetic pre-upgrade bytes: preserve, never adopt or send this work.
+// Native store rehydration/ownership is exercised separately by the web suites.
+export const INSTALLED_NATIVE_WORK = Object.freeze({
+  'composerStore@v1': 'synthetic-native-composer',
+  'transferStore@v1': 'synthetic-native-transfers',
+  'pendingMessageStore@v1': 'synthetic-native-pending',
+  backspace_url: 'https://selected.invalid:8443',
+  backspace_voice: '{"microphone":"synthetic-device"}',
+});
+
+export async function compileInstalledRetirement() {
+  const T = getTypeScript();
+  const file = new URL('../packages/web/src/platform/retireFederationStorage.ts', import.meta.url);
+  const result = T.transpileModule(await fs.readFile(file, 'utf8'), {
+    fileName: 'retireFederationStorage.ts', reportDiagnostics: true,
+    compilerOptions: { target: T.ScriptTarget.ES2022, module: T.ModuleKind.ESNext },
+  });
+  if (result.diagnostics?.some(diagnostic => diagnostic.category === T.DiagnosticCategory.Error)) throw new Error('Cannot compile the production storage retirement');
+  return result.outputText;
+}
+
 export function assertInstalledReport(report, phase, version, startup) {
+  const baseline = phase === 'seed' || phase === 'appimage-seed';
+  const expectedKeys = baseline ? [...INSTALLED_RETIRED_KEYS].sort() : [];
   const checks = {
     ok: report?.ok === true, phase: report?.phase === phase, version: report?.version === version,
     token: report?.token === 'synthetic-session', language: report?.language === 'auto',
     pending: report?.pending === 'synthetic-pending', cookie: report?.cookie === 'synthetic-session',
-    instances: report?.instances === 'synthetic-peer', scale: report?.scale === 200, music: report?.music === 20,
-    legacy: report?.legacy === true, canonical: phase.endsWith('seed') || report?.canonical === true,
+    retiredKeys: Array.isArray(report?.retiredKeys) && report.retiredKeys.every(key => typeof key === 'string')
+      && JSON.stringify([...report.retiredKeys].sort()) === JSON.stringify(expectedKeys),
+    nativeStorage: Object.entries(INSTALLED_NATIVE_WORK).every(([key, value]) => report?.nativeStorage?.[key] === value),
+    scale: report?.scale === 200, music: report?.music === 20,
+    legacy: report?.legacy === true, canonical: baseline || report?.canonical === true,
     // Electron explicitly documents visible as the initial renderer state of a
     // show:false BrowserWindow. This is metadata, NOT an OS visibility assertion.
     documentVisibility: ['visible', 'hidden'].includes(report?.documentVisibility),
@@ -286,11 +317,13 @@ export async function verifyInstalledRebrand(args) {
   if (createHash('sha256').update(await fs.readFile(oldFile)).digest('hex') !== baseline[1]) throw new Error('Historical installer SHA-256 mismatch');
   const state = { phase: '', report: null, origin: '' };
   const html = await fs.readFile(new URL('./fixtures/installed-rebrand.html', import.meta.url));
+  const retirement = await compileInstalledRetirement();
   const server = http.createServer(async (request, response) => {
     response.setHeader('Cache-Control', 'no-store');
     if (request.headers.host !== new URL(state.origin).host) { response.writeHead(403).end(); return; }
     if (request.method === 'GET' && request.url === '/') { response.setHeader('Content-Type', 'text/html'); response.end(html); return; }
-    if (request.method === 'GET' && request.url === '/config') { response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify({ phase: state.phase, version: state.version, enableStartup: state.enableStartup, disableStartup: state.disableStartup })); return; }
+    if (request.method === 'GET' && request.url === '/config') { response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify({ phase: state.phase, version: state.version, enableStartup: state.enableStartup, disableStartup: state.disableStartup, nativeWork: INSTALLED_NATIVE_WORK, retiredKeys: INSTALLED_RETIRED_KEYS })); return; }
+    if (request.method === 'GET' && request.url === '/retire-state.js' && state.phase !== 'seed' && state.phase !== 'appimage-seed') { response.setHeader('Content-Type', 'text/javascript'); response.end(retirement); return; }
     if (request.method !== 'POST' || request.url !== '/report' || request.headers.origin !== state.origin || !state.report) { response.writeHead(404).end(); return; }
     try {
       let size = 0; const chunks = [];

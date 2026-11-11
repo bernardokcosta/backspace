@@ -27,10 +27,6 @@ type TestDb = ReturnType<typeof drizzle<typeof schema>>;
 let testDb: TestDb;
 
 vi.mock('../db/index.js', () => ({ getDb: () => testDb, schema }));
-const queuePresenceRelay = vi.fn();
-vi.mock('../utils/federationPresence.js', () => ({
-  queuePresenceRelay: (...args: unknown[]) => queuePresenceRelay(...args),
-}));
 
 function applyMigrations(db: Database.Database): void {
   const dir = path.resolve(__dirname, '../../drizzle');
@@ -56,7 +52,6 @@ const botRow = (overrides: Partial<{ isBot: number; showActivity: number; botAct
 beforeEach(() => {
   // connectionManager is a module singleton: a fresh copy per test.
   vi.resetModules();
-  queuePresenceRelay.mockReset();
   const sqlite = new Database(':memory:');
   testDb = drizzle(sqlite, { schema });
   applyMigrations(sqlite);
@@ -112,7 +107,7 @@ describe('seedStoredBotActivity', () => {
 });
 
 describe('applyStoredBotActivity', () => {
-  it('replaces the live activity of a connected bot, even one its code set, and relays it', async () => {
+  it('replaces and locally broadcasts a connected bot activity, even one its code set', async () => {
     const { connectionManager } = await import('./handler.js');
     const { applyStoredBotActivity } = await import('./presence.js');
     const ws = socket();
@@ -125,7 +120,6 @@ describe('applyStoredBotActivity', () => {
     expect(connectionManager.getUserActivities('bot-1')).toEqual([{ type: 'custom', name: 'Type /help' }]);
     const update = sentEvents(ws).find(e => e.type === 'presence_update');
     expect(update?.activities).toEqual([{ type: 'custom', name: 'Type /help' }]);
-    await vi.waitFor(() => expect(queuePresenceRelay).toHaveBeenCalledWith('bot-1', 'online', [{ type: 'custom', name: 'Type /help' }]));
   });
 
   it('clears it with null', async () => {
@@ -150,6 +144,5 @@ describe('applyStoredBotActivity', () => {
     connectionManager.setUserShowActivity('bot-1', false);
     applyStoredBotActivity('bot-1', { type: 'playing', name: 'chess' });
     expect(connectionManager.getUserActivities('bot-1')).toEqual([]);
-    expect(queuePresenceRelay).not.toHaveBeenCalled();
   });
 });

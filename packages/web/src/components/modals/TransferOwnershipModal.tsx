@@ -2,24 +2,21 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import type { MemberWithUser } from '@veyvox/shared';
-import { useSpaceStore, getApiForOrigin, type TaggedSpace } from '../../stores/spaceStore';
+import { useSpaceStore } from '../../stores/spaceStore';
+import { api } from '../../api/client';
 import { useAuthStore } from '../../stores/authStore';
 import { useUIStore } from '../../stores/uiStore';
-import { normalizeUserAssets } from '../../utils/assetUrls';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 import { Avatar } from '../ui/Avatar';
 
 function TransferMemberRow({
   member,
-  origin,
   onSelect,
 }: {
   member: MemberWithUser;
-  /** The space's instance, which issued the member rows. */
-  origin: string;
   onSelect: (userId: string) => void;
 }) {
-  const canonical = useCanonicalUserView(member.user, origin);
+  const canonical = useCanonicalUserView(member.user);
   const displayName = canonical.displayName || canonical.username;
   return (
     <button
@@ -48,6 +45,11 @@ function TransferMemberRow({
 }
 
 export function TransferOwnershipModal({ spaceId, onClose }: { spaceId: string; onClose: () => void }) {
+  const revision = useAuthStore(s => s.sessionRevision);
+  return <TransferOwnershipContent key={JSON.stringify([revision, spaceId])} spaceId={spaceId} onClose={onClose} revision={revision} />;
+}
+
+function TransferOwnershipContent({ spaceId, onClose, revision }: { spaceId: string; onClose: () => void; revision: number }) {
   const { t } = useTranslation(['spaces', 'common']);
   const modalRef = useRef<HTMLDivElement>(null);
   const space = useSpaceStore((s) => s.spaces.find(sp => sp.id === spaceId));
@@ -60,29 +62,29 @@ export function TransferOwnershipModal({ spaceId, onClose }: { spaceId: string; 
   const [transferring, setTransferring] = useState(false);
   const [members, setMembers] = useState<MemberWithUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const current = () => alive.current && revision === useAuthStore.getState().sessionRevision;
 
-  // Fetch members for the target space on mount (federation-aware)
+  // Read only the target space's native roster, owned by the current session.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const origin = (space as TaggedSpace)?._instanceOrigin ?? '';
-        const client = getApiForOrigin(origin);
-        const fetched = await client.spaces.members(spaceId);
-        if (cancelled) return;
+        const fetched = await api.spaces.members(spaceId);
+        if (cancelled || revision !== useAuthStore.getState().sessionRevision) return;
         for (const m of fetched) {
-          if (origin) normalizeUserAssets(m.user, origin);
-          useSpaceStore.getState().upsertUserView(m.user, origin);
+          useSpaceStore.getState().upsertUserView(m.user);
         }
         setMembers(fetched);
       } catch {
         // Space may have been deleted or we lost access
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled && revision === useAuthStore.getState().sessionRevision) setLoading(false);
       }
     })();
     return () => { cancelled = true; };
-  }, [spaceId, space]);
+  }, [spaceId, revision]);
 
   // Filter members: exclude self, filter by search
   const filteredMembers = useMemo(() => {
@@ -125,16 +127,17 @@ export function TransferOwnershipModal({ spaceId, onClose }: { spaceId: string; 
   if (!space) return null;
 
   const handleTransfer = async () => {
-    if (!selectedUserId) return;
+    if (!selectedUserId || !current() || transferring) return;
     setTransferring(true);
     try {
       await transferOwnership(spaceId, selectedUserId);
+      if (!current()) return;
       addToast(t('spaces:ownership.success', { name: selectedMember?.user.displayName || selectedMember?.user.username }), 'success', 3000);
       onClose();
     } catch (err) {
-      addToast(err instanceof Error ? err.message : t('spaces:ownership.failed'), 'warning', 3000);
+      if (current()) addToast(err instanceof Error ? err.message : t('spaces:ownership.failed'), 'warning', 3000);
     } finally {
-      setTransferring(false);
+      if (current()) setTransferring(false);
     }
   };
 
@@ -211,7 +214,6 @@ export function TransferOwnershipModal({ spaceId, onClose }: { spaceId: string; 
                   <TransferMemberRow
                     key={member.userId}
                     member={member}
-                    origin={(space as TaggedSpace)._instanceOrigin ?? ''}
                     onSelect={setSelectedUserId}
                   />
                 ))

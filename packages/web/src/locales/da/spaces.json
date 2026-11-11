@@ -158,21 +158,6 @@
     "invitePlaceholder": "f.eks. abc123 eller https://instance.com/join/abc123",
     "submit": "Deltag i rum",
     "submitting": "Deltager…",
-    "connect": {
-      "intro": "Forbind til <host>{{host}}</host> for at deltage i dette rum.",
-      "passwordLabel": "Angiv din adgangskode for at forbinde",
-      "passwordPlaceholder": "Adgangskoden til din konto",
-      "passwordNote": "Din adgangskode kontrolleres af din hjemmeinstans og sendes aldrig til {{host}}. Den instans får en unik reference, der kun er lavet til den.",
-      "submit": "Forbind & deltag",
-      "submitting": "Forbinder…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "Dit brugernavn på denne instans",
-      "passwordLabel": "Adgangskode til denne instans",
-      "passwordPlaceholder": "Adgangskode på den eksterne instans",
-      "submit": "Log ind & deltag",
-      "submitting": "Logger ind…"
-    },
     "request": {
       "messagePlaceholder": "Hvorfor vil du deltage? (valgfri)",
       "send": "Send anmodning",
@@ -450,8 +435,6 @@
       "transferOwnership": "Overfør ejerskab",
       "settings": "Rumindstillinger",
       "leave": "Forlad rum",
-      "reconnecting": "Forbinder igen til {{instance}}…",
-      "remoteInstance": "ekstern instans",
       "leaveConfirm": {
         "title": "Forlad rum",
         "titleNamed": "Forlad {{name}}",

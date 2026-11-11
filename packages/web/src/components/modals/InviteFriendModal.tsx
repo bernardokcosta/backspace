@@ -4,20 +4,14 @@ import { Modal } from '../ui/Modal';
 import { Avatar } from '../ui/Avatar';
 import { useUIStore } from '../../stores/uiStore';
 import { useAuthStore } from '../../stores/authStore';
-import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
-import { type TaggedFriend } from '../../stores/socialStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../../stores/spaceStore';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
-import { parseFederatedUsername } from '../../utils/identity';
+import { userDisplayName } from '../../utils/identity';
 import { describeError } from '../../i18n/errors';
 import { sendSpaceInvite, type SpaceInviteSendStatus } from '../../utils/spaceInvite';
-import type { User } from '@veyvox/shared';
+import type { Friend } from '@veyvox/shared';
 
-const FALLBACK_FRIEND = { id: '', username: '', createdAt: 0, isAdmin: false, replicatedInstances: [] } as unknown as TaggedFriend;
-
-/** One space can reach this client from several instances with coinciding ids. */
-function spaceKey(space: TaggedSpace): string {
-  return `${space.id}:${space._instanceOrigin}`;
-}
+const FALLBACK_FRIEND = { id: '', username: '', createdAt: 0 } as Friend;
 
 function SpaceRow({
   space,
@@ -25,10 +19,10 @@ function SpaceRow({
   disabled,
   onInvite,
 }: {
-  space: TaggedSpace;
+  space: SpaceWithMyRoles;
   status: SpaceInviteSendStatus | undefined;
   disabled: boolean;
-  onInvite: (space: TaggedSpace) => void;
+  onInvite: (space: SpaceWithMyRoles) => void;
 }) {
   const { t } = useTranslation(['spaces', 'common']);
   const sent = status?.kind === 'success';
@@ -73,9 +67,10 @@ export function InviteFriendModal() {
   const generateInvite = useSpaceStore((s) => s.generateInvite);
   const accountId = useAuthStore(s => s.user?.id);
   const token = useAuthStore(s => s.token);
+  const revision = useAuthStore(s => s.sessionRevision);
 
   const isOpen = activeModal === 'inviteFriend';
-  const friend = (modalData.friend as TaggedFriend | undefined) ?? FALLBACK_FRIEND;
+  const friend = (modalData.friend as Friend | undefined) ?? FALLBACK_FRIEND;
 
   const [results, setResults] = useState<Map<string, SpaceInviteSendStatus>>(new Map());
   const session = useRef({ active: false, busy: false, sent: new Set<string>() });
@@ -85,29 +80,29 @@ export function InviteFriendModal() {
     session.current = run;
     if (isOpen) setResults(new Map());
     return () => { run.active = false; };
-  }, [isOpen, modalData, accountId, token]);
+  }, [isOpen, modalData, accountId, token, revision]);
 
-  const canonical = useCanonicalUserView(friend as unknown as User, friend._instanceOrigin);
-  const friendName = canonical.displayName ?? parseFederatedUsername(canonical.username).baseName;
+  const canonical = useCanonicalUserView(friend);
+  const friendName = userDisplayName(canonical);
 
-  const invite = async (space: TaggedSpace) => {
-    const key = spaceKey(space);
+  const invite = async (space: SpaceWithMyRoles) => {
+    const key = space.id;
     const run = session.current;
     const isCurrent = () => {
       const ui = useUIStore.getState();
       const auth = useAuthStore.getState();
       return run.active && session.current === run && ui.activeModal === 'inviteFriend'
-        && ui.modalData === modalData && auth.user?.id === accountId && auth.token === token;
+        && ui.modalData === modalData && auth.user?.id === accountId && auth.token === token && auth.sessionRevision === revision;
     };
     if (!accountId || !friend.id || !isCurrent() || run.busy || run.sent.has(key)) return;
     run.busy = true;
     setResults((prev) => new Map(prev).set(key, { kind: 'pending' }));
     try {
-      const inviteCode = await generateInvite(space.id, space._instanceOrigin ?? '');
+      const inviteCode = await generateInvite(space.id);
       if (!isCurrent()) return;
       const status = await sendSpaceInvite(
         friend,
-        { spaceId: space.id, instanceOrigin: space._instanceOrigin ?? '', inviteCode },
+        { spaceId: space.id, inviteCode },
         t,
       );
       if (!isCurrent()) return;
@@ -143,9 +138,9 @@ export function InviteFriendModal() {
           ) : (
             spaces.map((space) => (
               <SpaceRow
-                key={spaceKey(space)}
+                key={space.id}
                 space={space}
-                status={results.get(spaceKey(space))}
+                status={results.get(space.id)}
                 disabled={sending}
                 onInvite={invite}
               />

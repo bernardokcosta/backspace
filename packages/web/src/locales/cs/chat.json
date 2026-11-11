@@ -63,14 +63,12 @@
       "group": {
         "intro": "To je začátek tvé skupinové konverzace.",
         "owner": "Vlastník: <owner>@{{name}}</owner>",
-        "federatedNotice": "Zprávy se ukládají na tvé domovské instanci a domovských instancích příjemců. Nemají koncové šifrování.",
         "openSettings": "Otevřít nastavení skupiny",
         "leave": "Opustit skupinu"
       },
       "dm": {
         "fallbackName": "Přímá zpráva",
         "intro": "To je začátek historie přímých zpráv s <strong>@{{name}}</strong>.",
-        "federatedNotice": "Zprávy se ukládají na tvé domovské instanci a domovské instanci příjemce. Nemají koncové šifrování.",
         "removeFriend": "Odebrat přítele"
       }
     }
@@ -139,14 +137,6 @@
     },
     "audio": {
       "unsupportedBrowser": "Tvůj prohlížeč přehrávání zvuku neumí."
-    },
-    "federation": {
-      "remoteNamed": "Hostováno na instanci {{sender}}. Stáhni si pro místní kopii.",
-      "remoteUnknown": "Hostováno na instanci odesílatele. Stáhni si pro místní kopii.",
-      "partialGeneric": "Někteří příjemci nemohou tento soubor uložit místně.",
-      "partialInstance": "Instance {{username}} (limit: {{limit}})",
-      "partialList": "Soubor se nepodařilo uložit na {{instances}}. Stále si jej mohou prohlédnout z tvé.",
-      "listPair": "{{first}} a {{second}}"
     }
   },
   "gif": {
@@ -285,7 +275,6 @@
     "stickersCount_many": "{{count}} nálepek",
     "stickersCount_other": "{{count}} nálepky",
     "noPacks": "Žádné balíčky nálepek",
-    "replicaBadge": "Federováno",
     "viewPack": "Zobrazit balíček",
     "saveDraft": "Uložit jako koncept",
     "packCreated": "Balíček vytvořen",
@@ -302,8 +291,6 @@
     "rejectedSuccess": "Balíček nálepek odmítnut",
     "reviewNotes": "Důvod odmítnutí",
     "creator": "Autor",
-    "sourceInstance": "Instance",
-    "localInstance": "Místní instance",
     "viewStickers": "Zobrazit nálepky",
     "pendingReviewHint": "U správce k posouzení; po schválení se objeví v procházení"
   },

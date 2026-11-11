@@ -18,7 +18,6 @@ function participant(userId: string, username: string, isLocal: boolean) {
     identity: `${userId}:${username}`,
     userId,
     username,
-    homeUserId: null,
     isMuted: false,
     isDeafened: false,
     isCameraOn: false,
@@ -35,14 +34,13 @@ function participant(userId: string, username: string, isLocal: boolean) {
 }
 
 beforeEach(() => {
-  useAuthStore.setState({ user: { id: '1', username: 'ada' }, myRowIds: new Map() } as any);
+  useAuthStore.setState({ user: { id: '1', username: 'ada' } } as any);
   useSpaceStore.setState({
     members: [
       { userId: '1', user: { id: '1', username: 'ada', displayName: 'Ada', avatar: null }, roles: [] },
       { userId: '2', user: { id: '2', username: 'bob', displayName: 'Bob', avatar: null }, roles: [] },
     ],
     channelToSpaceMap: new Map([['voice-1', 'space-1']]),
-    channelOriginMap: new Map(),
   } as any);
   useVoiceStore.setState({
     currentVoiceChannelId: 'voice-1',
@@ -198,7 +196,6 @@ describe('VoiceChannel own row', () => {
       expect(open).toHaveBeenCalledTimes(1);
     } finally { await act(async () => setLanguage('en')); }
   });
-  const ORBIT = 'https://orbit.example';
   const dragHandlers = () => ({ draggable: true, isBeingDragged: false, onDragStart: () => {}, onDragEnd: () => {} });
 
   function renderWithDrag() {
@@ -211,11 +208,9 @@ describe('VoiceChannel own row', () => {
     return screen.getByText(name).closest('[draggable]') as HTMLElement;
   }
 
-  it("is the user's row on a remote space's instance, not the row that has the session row's id", () => {
-    // orbit knows the user as o-7; orbit's Cleo has the id the session row has.
-    useAuthStore.setState({ myRowIds: new Map([[ORBIT, 'o-7']]) });
+  it('uses the current native account ID even for a retained handle containing @', () => {
+    useAuthStore.setState({ user: { id: 'o-7', username: 'ada@nova' } as never });
     useSpaceStore.setState({
-      channelOriginMap: new Map([['voice-1', ORBIT]]),
       members: [
         { spaceId: 'space-1', userId: 'o-7', user: { id: 'o-7', username: 'ada@nova', displayName: 'Ada', avatar: null }, roles: [] },
         { spaceId: 'space-1', userId: '1', user: { id: '1', username: 'cleo', displayName: 'Cleo', avatar: null }, roles: [] },

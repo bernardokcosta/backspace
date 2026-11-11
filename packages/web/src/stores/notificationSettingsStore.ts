@@ -5,25 +5,12 @@ import {
   type NotificationSetting,
   type UpdateNotificationSettingRequest,
 } from '@veyvox/shared';
-import { getApiForOrigin } from '../utils/crossStoreResolvers';
+import { api } from '../api/client';
 
 /**
- * The signed-in user's per-space and per-channel notification settings, from
- * every connected instance.
- *
- * Each instance stores the settings of the spaces it hosts, for the user's
- * row there (docs/systems/sounds.md, "Notification settings"). Entries are
- * therefore keyed by origin as well as by id: ids are issued per instance, so
- * two instances can use the same space or channel id.
- *
- * Sources, merged last-write-wins on the server's `updatedAt`:
- * - `load(origin)`, called when that instance's `ready` arrives;
- * - `notification_settings_updated` from that instance's socket (`apply`);
- * - the response to the user's own change (`update`).
- *
- * The store imports no other store (it reaches the instance through
- * `crossStoreResolvers`), so `utils/alerts.ts` and the components can read it
- * without import cycles.
+ * The native account's per-space/channel notification policy. Ready listings,
+ * live pushes and mutation responses reconcile by server `updatedAt`.
+ * Session reset invalidates old responses and clears timed mutes.
  */
 
 export interface NotificationTarget {
@@ -32,15 +19,11 @@ export interface NotificationTarget {
   channelId: string | null;
 }
 
-/** Map key of one setting: the instance, then the space or the channel id. */
-export function notificationSettingKey(origin: string, target: NotificationTarget): string {
+/** Native spaces and channels have separate key namespaces. */
+export function notificationSettingKey(target: NotificationTarget): string {
   return target.channelId === null
-    ? `${origin}\u0000space\u0000${target.spaceId}`
-    : `${origin}\u0000channel\u0000${target.channelId}`;
-}
-
-function originOfKey(key: string): string {
-  return key.slice(0, key.indexOf('\u0000'));
+    ? `space\u0000${target.spaceId}`
+    : `channel\u0000${target.channelId}`;
 }
 
 interface NotificationSettingsState {
@@ -53,13 +36,11 @@ interface NotificationSettingsState {
   clock: number;
 
   /** Replace this instance's settings with its listing. Errors are logged and leave the store as it was. */
-  load: (origin: string) => Promise<void>;
+  load: () => Promise<void>;
   /** A setting this instance pushed (`notification_settings_updated`). */
-  apply: (origin: string, setting: NotificationSetting) => void;
+  apply: (setting: NotificationSetting) => void;
   /** Change one setting on the instance that hosts it. Rejects with the API error. */
-  update: (origin: string, target: NotificationTarget, change: UpdateNotificationSettingRequest) => Promise<NotificationSetting>;
-  /** The instance is gone (removed or signed out of): drop what it said. */
-  forgetOrigin: (origin: string) => void;
+  update: (target: NotificationTarget, change: UpdateNotificationSettingRequest) => Promise<NotificationSetting>;
   reset: () => void;
 }
 
@@ -68,9 +49,8 @@ interface NotificationSettingsState {
  * listing may have been read before or after they were written, so they are
  * merged over it by `updatedAt` instead of being overwritten by it.
  */
-const pushedDuringLoad = new Map<string, Map<string, NotificationSetting>>();
-/** The latest `load` per origin; a response for an older one is dropped. */
-const loadSeq = new Map<string, number>();
+let pushedDuringLoad: Map<string, NotificationSetting> | null = null;
+let loadSeq = 0;
 /** Bumped by `reset`, so a response for the previous session is dropped. */
 let sessionGeneration = 0;
 let expiryTimer: ReturnType<typeof setTimeout> | null = null;
@@ -109,9 +89,9 @@ export const useNotificationSettingsStore = create<NotificationSettingsState>((s
     scheduleExpiry(settings);
   }
 
-  function applyOne(origin: string, setting: NotificationSetting): void {
-    const key = notificationSettingKey(origin, setting);
-    const pending = pushedDuringLoad.get(origin);
+  function applyOne(setting: NotificationSetting): void {
+    const key = notificationSettingKey(setting);
+    const pending = pushedDuringLoad;
     if (pending && newer(pending.get(key), setting)) pending.set(key, setting);
     const current = get().settings.get(key);
     if (!newer(current, setting)) return;
@@ -124,58 +104,44 @@ export const useNotificationSettingsStore = create<NotificationSettingsState>((s
     settings: new Map(),
     clock: 0,
 
-    load: async (origin) => {
-      const seq = (loadSeq.get(origin) ?? 0) + 1;
-      loadSeq.set(origin, seq);
+    load: async () => {
+      const seq = ++loadSeq;
       const generation = sessionGeneration;
-      pushedDuringLoad.set(origin, new Map());
+      pushedDuringLoad = new Map();
       try {
-        const { settings: listed } = await getApiForOrigin(origin).notificationSettings.list();
-        if (generation !== sessionGeneration || loadSeq.get(origin) !== seq) return;
+        const { settings: listed } = await api.notificationSettings.list();
+        if (generation !== sessionGeneration || loadSeq !== seq) return;
         const merged = new Map<string, NotificationSetting>();
-        for (const [key, value] of get().settings) {
-          if (originOfKey(key) !== origin) merged.set(key, value);
-        }
-        for (const setting of listed) merged.set(notificationSettingKey(origin, setting), setting);
-        for (const [key, pushed] of pushedDuringLoad.get(origin) ?? []) {
+        for (const setting of listed) merged.set(notificationSettingKey(setting), setting);
+        for (const [key, pushed] of pushedDuringLoad ?? []) {
           if (newer(merged.get(key), pushed)) merged.set(key, pushed);
         }
         commit(merged);
       } catch (err) {
-        console.warn(`[notificationSettings] could not load the settings of ${origin || 'home'}:`, err);
+        if (generation === sessionGeneration) console.warn('[notificationSettings] Could not load native settings:', err);
       } finally {
-        if (loadSeq.get(origin) === seq) pushedDuringLoad.delete(origin);
+        if (generation === sessionGeneration && loadSeq === seq) pushedDuringLoad = null;
       }
     },
 
-    apply: (origin, setting) => {
-      applyOne(origin, setting);
+    apply: setting => {
+      applyOne(setting);
     },
 
-    update: async (origin, target, change) => {
-      const client = getApiForOrigin(origin).notificationSettings;
+    update: async (target, change) => {
+      const client = api.notificationSettings;
       const generation = sessionGeneration;
       const setting = target.channelId === null
         ? await client.updateSpace(target.spaceId, change)
         : await client.updateChannel(target.channelId, change);
-      if (generation === sessionGeneration) applyOne(origin, setting);
+      if (generation === sessionGeneration) applyOne(setting);
       return setting;
-    },
-
-    forgetOrigin: (origin) => {
-      loadSeq.set(origin, (loadSeq.get(origin) ?? 0) + 1);
-      pushedDuringLoad.delete(origin);
-      const settings = new Map<string, NotificationSetting>();
-      for (const [key, value] of get().settings) {
-        if (originOfKey(key) !== origin) settings.set(key, value);
-      }
-      commit(settings);
     },
 
     reset: () => {
       sessionGeneration += 1;
-      loadSeq.clear();
-      pushedDuringLoad.clear();
+      loadSeq++;
+      pushedDuringLoad = null;
       if (expiryTimer !== null) {
         clearTimeout(expiryTimer);
         expiryTimer = null;
@@ -188,10 +154,9 @@ export const useNotificationSettingsStore = create<NotificationSettingsState>((s
 /** The stored setting for a space or channel on an instance, if any. */
 export function selectNotificationSetting(
   state: Pick<NotificationSettingsState, 'settings'>,
-  origin: string,
   target: NotificationTarget,
 ): NotificationSetting | undefined {
-  return state.settings.get(notificationSettingKey(origin, target));
+  return state.settings.get(notificationSettingKey(target));
 }
 
 /**
@@ -201,12 +166,11 @@ export function selectNotificationSetting(
  */
 export function selectChannelNotificationPolicy(
   state: Pick<NotificationSettingsState, 'settings'>,
-  origin: string,
   spaceId: string | undefined,
   channelId: string,
   now: number,
 ): ChannelNotificationPolicy {
-  const spaceSetting = spaceId ? selectNotificationSetting(state, origin, { spaceId, channelId: null }) : undefined;
-  const channelSetting = selectNotificationSetting(state, origin, { spaceId: spaceId ?? '', channelId });
+  const spaceSetting = spaceId ? selectNotificationSetting(state, { spaceId, channelId: null }) : undefined;
+  const channelSetting = selectNotificationSetting(state, { spaceId: spaceId ?? '', channelId });
   return resolveChannelNotificationPolicy(spaceSetting, channelSetting, now);
 }

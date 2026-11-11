@@ -9,7 +9,7 @@ import {
 } from '@veyvox/shared/src/gameIcons.js';
 import { getDb, schema } from '../db/index.js';
 import { authenticate } from '../utils/auth.js';
-import { getOurOrigin } from '../utils/federationAuth.js';
+import { getPublicOrigin } from '../utils/publicOrigin.js';
 import { gameIconAssetDir, gameIconAssetPath } from '../utils/gameIconAssets.js';
 import { sendError } from '../utils/httpErrors.js';
 import { createFixedWindowLimit } from '../utils/fixedWindowLimit.js';
@@ -24,7 +24,7 @@ import { sendRateLimit } from '../utils/rateLimits.js';
  * sticker routes.
  */
 
-const urlFor = (id: string) => `${getOurOrigin()}/api/game-icons/assets/${id}.webp`;
+const urlFor = (id: string) => `${getPublicOrigin()}/api/game-icons/assets/${id}.webp`;
 const MAX_GAME_ICON_MB = MAX_GAME_ICON_BYTES / (1024 * 1024);
 /** Bound decoded pixels; icons are small images, never panoramas. */
 const MAX_DECODED_PIXELS = 16_777_216;

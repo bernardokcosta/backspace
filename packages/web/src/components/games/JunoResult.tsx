@@ -15,7 +15,7 @@ export function JunoResult() {
   if (!game || game.phase !== 'finished') return null;
   const board = game.scoreboard; const saving = board?.status === 'pending';
   const winner = [...game.players, ...(board?.standings ?? [])].find(p => p.userId === game.winnerId);
-  const won = !!game.winnerId && game.winnerId === target?.selfId;
+  const won = !!game.winnerId && game.winnerId === target?.userId;
   return <div className="juno-result">
     {game.winnerId && <img className="juno-crown" src={JUNO_ASSETS.crown} alt="" aria-hidden="true" />}
     <h2>{won ? t('juno.victory') : t('juno.roundResults')}{saving && <span className="juno-saving" title={t('juno.creditPending')} aria-hidden="true">◌</span>}</h2>
@@ -28,14 +28,14 @@ export function JunoResult() {
           {row.place && row.place <= 3 && <img src={row.place === 1 ? JUNO_ASSETS.gold : row.place === 2 ? JUNO_ASSETS.silver : JUNO_ASSETS.bronze} alt="" aria-hidden="true" />}
           <b>{row.place ? formatNumber(row.place) : '—'}</b>
         </span>
-        <JunoPlayerBadge person={row} origin={target?.origin ?? ''} spaceId={spaceId} self={row.userId === target?.selfId}
+        <JunoPlayerBadge person={row} spaceId={spaceId} self={row.userId === target?.userId}
           detail={row.outcome === 'abandoned' ? t('juno.abandoned') : row.cardCount !== null ? t('juno.cardCount', { count: row.cardCount }) : undefined} />
         <span className="juno-earned">{game.practice ? t('juno.practice') : saving ? t('common:states.loading') : board.status === 'credited' && row.outcome === 'completed'
           ? t('juno.xpEarned', { xp: formatNumber(row.xp) }) : t('juno.unranked')}</span>
       </li>)}
     </ol>}
     <div className="juno-result-actions">
-      {target?.selfId === game.hostId ? <button type="button" className="juno-primary" disabled={!connected || pending || stale || saving}
+      {target?.userId === game.hostId ? <button type="button" className="juno-primary" disabled={!connected || pending || stale || saving}
         onClick={() => void command({ type: 'rematch' })}>{t('juno.rematch')}</button>
         : <p role="status">{t('juno.waitingHost')}</p>}
       <button type="button" className="juno-secondary" onClick={() => useJunoStore.getState().setOpen(false)}>{t('juno.mosaic')}</button>

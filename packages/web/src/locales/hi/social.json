@@ -19,7 +19,6 @@
     "activity": "अभी शांत है… जब मित्र गतिविधि शुरू करेंगे, हम यहां दिखाएंगे!"
   },
   "friend": {
-    "viaInstance": "{{host}} के माध्यम से",
     "message": "संदेश",
     "remove": "मित्र हटाएं"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "लोग खोजें",
-    "hint": "उपयोगकर्ता नाम से खोजें या किसी को सीधे जोड़ने के लिए <handle>user@instance</handle> उपयोग करें।",
     "placeholder": "नाम से खोजें या जोड़ें…",
     "direct": "<handle>{{handle}}</handle> को मित्र अनुरोध भेजें",
     "sendRequest": "अनुरोध भेजें",
@@ -99,6 +97,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "ट्रैक खोलें"
-  },
-  "instanceNotConnected": "{{host}} से कनेक्ट नहीं। पुनः कनेक्ट करें और पुनः प्रयास करें।"
+  }
 }

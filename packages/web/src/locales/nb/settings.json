@@ -127,7 +127,6 @@
       "appearance": "Utseende",
       "voice": "Stemme & video",
       "privacy": "Personvern",
-      "connections": "Tilkoblinger",
       "keybinds": "Tastebindinger",
       "desktop": "Datamaskin",
       "instance": "Instans",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "Min konto",
-    "detached": {
-      "notice": "Denne kontoen er frakoblet hjeminstansen sin.",
-      "explanation": "{{homeInstance}} ble nullstilt eller er ikke lenger tilgjengelig, så denne kontoen fungerer nå lokalt på denne instansen. Profilen din og passordet styres her.",
-      "reattachHint": "Som {{username}} på {{homeInstance}} kan du koble denne kontoen igjen. Profil og tilstedeværelse synkroniseres derfra igjen.",
-      "reattachButton": "Koble igjen til {{homeInstance}}",
-      "reattachConfirm": "Bekreft gjenkobling som {{username}}",
-      "reattaching": "Kobler igjen…",
-      "reattachFailed": "Gjenkobling mislyktes",
-      "reattached": "Konto koblet igjen med {{username}}"
-    },
     "profile": {
       "sectionTitle": "Profiltilpasning",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "Konto",
       "status": {
-        "label": "Status",
-        "homeUnavailable": "Statusen din holdes på {{host}}. Koble til {{host}} for å endre den."
+        "label": "Status"
       },
       "customStatus": {
         "label": "Egendefinert status",
@@ -244,10 +232,6 @@
         "passwordPlaceholder": "Oppgi passordet ditt",
         "submit": "Slett kontoen min",
         "deleting": "Sletter…"
-      },
-      "federation": {
-        "removing": "Fjerner kontoen din fra tilkoblede instanser…",
-        "deleteAnyway": "Slett konto nå"
       },
       "complete": {
         "title": "Konto slettet",
@@ -310,14 +294,10 @@
       }
     }
   },
-  "connections": {
-    "title": "Tilkoblinger"
-  },
   "instance": {
     "tabs": {
       "general": "Generelt",
       "registration": "Registrering",
-      "federation": "Føderasjon",
       "streaming": "Strømming",
       "storage": "Lagring",
       "users": "Brukere",

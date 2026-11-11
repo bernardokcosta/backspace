@@ -4,16 +4,8 @@ import common from '../locales/hi/common.json';
 import dm from '../locales/hi/dm.json';
 import spaces from '../locales/hi/spaces.json';
 import voice from '../locales/hi/voice.json';
-import federation from '../locales/hi/federation.json';
 
 describe('Hindi contextual content', () => {
-  it('accepts relative times without treating them as calendar dates', () => {
-    expect(federation.connections.row.connectedAgo).toBe('{{time}} कनेक्ट हुआ');
-    expect(federation.connections.row.disconnectedAgo).toBe('{{time}} डिस्कनेक्ट हुआ');
-    expect(federation.connections.row.lastConnectedAgo).toBe('अंतिम कनेक्ट {{time}}');
-    expect(federation.admin.approvals.requested).toBe('{{time}} अनुरोधित');
-  });
-
   it('describes per-listener mute without claiming a server mute', () => {
     expect(voice.participantMenu.muteUser).toBe('मेरे लिए म्यूट करें');
     expect(spaces.mobile.muteUser).toBe(voice.participantMenu.muteUser);

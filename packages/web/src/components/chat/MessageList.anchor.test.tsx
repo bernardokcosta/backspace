@@ -22,15 +22,15 @@ vi.mock('../../audio/AudioManager', () => ({
 const messagesAround = vi.fn();
 const latestMessages = vi.fn();
 const newerMessages = vi.fn();
-vi.mock('../../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../utils/crossStoreResolvers')>()),
-  getApiForOrigin: () => ({
+vi.mock('../../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../api/client')>()),
+  api: {
     channels: {
       messagesAround: (...args: unknown[]) => messagesAround(...args),
       messages: (...args: unknown[]) => latestMessages(...args),
       messagesAfter: (...args: unknown[]) => newerMessages(...args),
     },
-  }),
+  },
 }));
 
 import { MessageList } from './MessageList';
@@ -97,7 +97,7 @@ beforeEach(() => {
   installBoxResizeObserver();
   useAuthStore.setState({ user: me });
   useSpaceStore.setState({
-    channelOriginMap: new Map([[CHANNEL, '']]),
+    spaceChannelIndex: new Map([[CHANNEL, { spaceId: 'space', type: 'text' }]]),
     channelPermissions: new Map([[CHANNEL, permissionsToString(ALL_PERMISSIONS)]]),
     dmChannels: [],
   });
@@ -620,7 +620,7 @@ describe('a detached window pages forward', () => {
     unreadBeyondOnePage();
     useChatStore.setState({ messages: new Map([...useChatStore.getState().messages, [OTHER, page(300, 310).map((m) => ({ ...m, channelId: OTHER }))]]) });
     useSpaceStore.setState({
-      channelOriginMap: new Map([[CHANNEL, ''], [OTHER, '']]),
+      spaceChannelIndex: new Map([[CHANNEL, { spaceId: 'space', type: 'text' }], [OTHER, { spaceId: 'space', type: 'text' }]]),
       channelPermissions: new Map([[CHANNEL, permissionsToString(ALL_PERMISSIONS)], [OTHER, permissionsToString(ALL_PERMISSIONS)]]),
     });
     let resolvePage: (page: { messages: MessageWithUser[]; forward: boolean }) => void = () => {};

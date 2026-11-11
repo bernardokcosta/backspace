@@ -21,16 +21,12 @@ const mocks = vi.hoisted(() => {
     customStatus: null,
     isAdmin: false,
     createdAt: 0,
-    homeInstance: null,
-    homeUserId: null,
-    replicatedInstances: [],
   };
 
   const instanceInfo: InstanceInfoResponse = {
     name: 'Test Instance',
     version: '1.2.1',
     registrationOpen: true,
-    federatedRegistrationOpen: true,
     instanceId: 'instance-1',
     sourceCodeUrl: 'https://github.com/bernardokcosta/veyvox',
     commit: 'abc1234',

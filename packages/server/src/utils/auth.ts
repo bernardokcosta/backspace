@@ -25,12 +25,19 @@ export function signJwt(payload: JwtPayload, opts?: { expiresIn?: string }): str
   const options: jwt.SignOptions = {
     expiresIn: (opts?.expiresIn ?? config.jwtExpiresIn) as unknown as jwt.SignOptions['expiresIn'],
   };
-  return jwt.sign(payload, config.jwtSecret, options);
+  return jwt.sign({ ...payload, iat: payload.iat ?? Date.now() / 1000 }, config.jwtSecret, options);
 }
 
 export function verifyJwt(token: string): JwtPayload {
-  const decoded = jwt.verify(token, config.jwtSecret, { algorithms: ['HS256'] }) as JwtPayload;
-  return decoded;
+  const decoded: unknown = jwt.verify(token, config.jwtSecret, { algorithms: ['HS256'] });
+  if (!decoded || typeof decoded !== 'object'
+      || !('userId' in decoded) || typeof decoded.userId !== 'string' || !decoded.userId
+      || !('username' in decoded) || typeof decoded.username !== 'string' || !decoded.username
+      || !('iat' in decoded) || typeof decoded.iat !== 'number' || !Number.isFinite(decoded.iat) || decoded.iat <= 0
+      || !('exp' in decoded) || typeof decoded.exp !== 'number' || !Number.isFinite(decoded.exp) || decoded.exp <= decoded.iat) {
+    throw new Error('Invalid session claims');
+  }
+  return { userId: decoded.userId, username: decoded.username, iat: decoded.iat };
 }
 
 /**
@@ -51,8 +58,7 @@ export class AuthError extends Error {
 
 /**
  * Resolve an access token to its account: a bot token (`bsb_...`, checked
- * against its stored hash) or a JWT (user sessions, and the federated bot
- * accounts a host creates). Confirms the account still exists, isn't deleted,
+ * against its stored hash) or a native session JWT. Confirms the account still exists, isn't deleted,
  * and a JWT hasn't been revoked by a password change. Throws AuthError
  * (statusCode = 401) on any failure.
  *
@@ -62,7 +68,6 @@ export class AuthError extends Error {
 export async function verifyAccessToken(token: string): Promise<{
   userId: string;
   username: string;
-  homeInstance: string | null;
   isBot: boolean;
 }> {
   if (isBotTokenString(token)) {
@@ -83,7 +88,6 @@ export async function verifyAccessToken(token: string): Promise<{
     id: schema.users.id,
     isDeleted: schema.users.isDeleted,
     passwordChangedAt: schema.users.passwordChangedAt,
-    homeInstance: schema.users.homeInstance,
     isBot: schema.users.isBot,
   }).from(schema.users).where(eq(schema.users.id, payload.userId)).get();
 
@@ -92,21 +96,21 @@ export async function verifyAccessToken(token: string): Promise<{
   }
 
   // Reject tokens issued before the last password change (token revocation).
-  // JWT `iat` is in seconds; passwordChangedAt is in milliseconds.
+  // NumericDate permits fractional seconds. Do not reopen the same-second
+  // revocation window by flooring the existing millisecond cutoff.
   if (user.passwordChangedAt && payload.iat) {
-    if (payload.iat < Math.floor(user.passwordChangedAt / 1000)) {
+    if (payload.iat < user.passwordChangedAt / 1000) {
       throw new AuthError('Token has been revoked — please log in again', 401);
     }
   }
 
-  if (isRetiredLegacyBotJwt({ id: user.id, isBot: user.isBot, homeInstance: user.homeInstance })) {
+  if (isRetiredLegacyBotJwt(user)) {
     throw new AuthError('Token has been revoked', 401);
   }
 
   return {
     userId: payload.userId,
     username: payload.username,
-    homeInstance: user.homeInstance ?? null,
     isBot: user.isBot === 1,
   };
 }
@@ -133,7 +137,6 @@ export async function authenticate(
     const identity = await verifyAccessToken(token);
     (request as FastifyRequest & { userId: string; username: string }).userId = identity.userId;
     (request as FastifyRequest & { userId: string; username: string }).username = identity.username;
-    (request as FastifyRequest & { userId: string; username: string }).homeInstance = identity.homeInstance;
   } catch (err) {
     if (err instanceof AuthError) {
       return reply.code(err.statusCode).send({ error: err.message, code: err.code, statusCode: err.statusCode });
@@ -153,23 +156,9 @@ export async function requireAdmin(
   }
 }
 
-export async function requireLocalUser(
-  request: FastifyRequest,
-  reply: FastifyReply,
-): Promise<void> {
-  if (request.homeInstance) {
-    return reply.code(403).send({
-      error: 'Federated users must use their home instance for DM operations',
-      code: 'forbidden',
-      statusCode: 403,
-    });
-  }
-}
-
 declare module 'fastify' {
   interface FastifyRequest {
     userId: string;
     username: string;
-    homeInstance: string | null;
   }
 }

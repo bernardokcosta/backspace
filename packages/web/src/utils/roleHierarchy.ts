@@ -1,4 +1,4 @@
-import type { MemberWithUser, Role } from '@veyvox/shared';
+import type { MemberWithUser, Role, Space } from '@veyvox/shared';
 import {
   canActOnMember,
   canManageRoleAt,
@@ -11,7 +11,8 @@ import {
   type HierarchyStanding,
   type OverrideBits,
 } from '@veyvox/shared/src/permissions';
-import { useSpaceStore, getMyUserIdForOrigin, type TaggedSpace } from '../stores/spaceStore';
+import { useSpaceStore } from '../stores/spaceStore';
+import { useAuthStore } from '../stores/authStore';
 import { canReorderRoles, rolesInRankOrder } from './roleOrder';
 
 // Client gating for the role hierarchy and the held-bits rule
@@ -20,26 +21,19 @@ import { canReorderRoles, rolesInRankOrder } from './roleOrder';
 // the facts to compare in the loaded space. These names are a stable surface
 // for every role and permission editor; keep them when adding one.
 //
-// Ids are ids on the space's own instance: the member list is loaded from
-// there, and the viewer is found through getMyUserIdForOrigin, so a viewer
-// whose home is another instance is compared as their replicated user there.
+// Native account IDs are shared by the auth session and every local roster.
 //
 // When the facts are not loaded (the space is not the current one, or a
 // member row is missing) the helpers answer true: the control stays offered
 // and the server, which always has the facts, decides.
 
 /** Where `member` stands in `space`'s role hierarchy. */
-export function standingOf(space: Pick<TaggedSpace, 'id' | 'ownerId'>, member: MemberWithUser): HierarchyStanding {
+export function standingOf(space: Pick<Space, 'id' | 'ownerId'>, member: MemberWithUser): HierarchyStanding {
   return {
     isOwner: space.ownerId === member.userId,
     isInstanceAdmin: member.user.isAdmin === true,
     topPosition: topRolePosition(member.roles ?? [], space.id),
   };
-}
-
-/** The viewer's user id on the instance `space` lives on. */
-export function myUserIdInSpace(space: Pick<TaggedSpace, '_instanceOrigin'>): string | undefined {
-  return getMyUserIdForOrigin(space._instanceOrigin ?? '');
 }
 
 /**
@@ -68,11 +62,11 @@ export function spaceRanksRoles(spaceId: string, members: readonly MemberWithUse
  * space's roles do not rank anyone (`spaceRanksRoles`).
  */
 export function myStandingIn(
-  space: Pick<TaggedSpace, 'id' | 'ownerId' | '_instanceOrigin'>,
+  space: Pick<Space, 'id' | 'ownerId'>,
   members: readonly MemberWithUser[],
 ): HierarchyStanding | null {
   if (!spaceRanksRoles(space.id, members)) return null;
-  const myId = myUserIdInSpace(space);
+  const myId = useAuthStore.getState().user?.id;
   const me = myId ? members.find((m) => m.userId === myId) : undefined;
   return me ? standingOf(space, me) : null;
 }
@@ -82,11 +76,11 @@ export function myStandingIn(
  * whenever the viewer's standing is unknown (see the module comment).
  */
 export function viewerCanActOn(
-  space: Pick<TaggedSpace, 'id' | 'ownerId' | '_instanceOrigin'>,
+  space: Pick<Space, 'id' | 'ownerId'>,
   members: readonly MemberWithUser[],
   target: MemberWithUser,
 ): boolean {
-  if (target.userId === myUserIdInSpace(space)) return true;
+  if (target.userId === useAuthStore.getState().user?.id) return true;
   const me = myStandingIn(space, members);
   if (!me) return true;
   return canActOnMember(me, standingOf(space, target));
@@ -94,7 +88,7 @@ export function viewerCanActOn(
 
 /** Whether the viewer may manage a role at `rolePosition` in `space`: true when unknown. */
 export function viewerCanManageRoleAt(
-  space: Pick<TaggedSpace, 'id' | 'ownerId' | '_instanceOrigin'>,
+  space: Pick<Space, 'id' | 'ownerId'>,
   members: readonly MemberWithUser[],
   rolePosition: number,
 ): boolean {
@@ -126,14 +120,14 @@ export function viewerCanActOnUserInSpace(spaceId: string, targetUserId: string)
  * a role to give or take. `roles` is the space's loaded role list.
  */
 export function viewerCanEditMemberRoles(
-  space: Pick<TaggedSpace, 'id' | 'ownerId' | '_instanceOrigin'>,
+  space: Pick<Space, 'id' | 'ownerId'>,
   members: readonly MemberWithUser[],
   roles: readonly Role[],
   myPermissions: string | undefined,
   target: MemberWithUser,
 ): boolean {
   if (!hasPermissionBit(myPermissions, PermissionBits.MANAGE_ROLES)) return false;
-  if (target.userId === myUserIdInSpace(space) || target.userId === space.ownerId) return false;
+  if (target.userId === useAuthStore.getState().user?.id || target.userId === space.ownerId) return false;
   const hasRoleToManage = roles.some(
     (role) => role.spaceId === space.id && role.id !== space.id && viewerCanManageRoleAt(space, members, role.position),
   );

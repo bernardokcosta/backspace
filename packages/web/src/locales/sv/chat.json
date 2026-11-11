@@ -61,14 +61,12 @@
       "group": {
         "intro": "Detta är början på din gruppkonversation.",
         "owner": "Ägare: <owner>@{{name}}</owner>",
-        "federatedNotice": "Meddelanden lagras på din hemmainstans och mottagarnas hemmainstanser. De är inte end-to-end-krypterade.",
         "openSettings": "Öppna gruppinställningar",
         "leave": "Lämna gruppen"
       },
       "dm": {
         "fallbackName": "Direktmeddelande",
         "intro": "Detta är början på din direktmeddelandehistorik med <strong>@{{name}}</strong>.",
-        "federatedNotice": "Meddelanden lagras på din hemmainstans och mottagarens hemmainstans. De är inte end-to-end-krypterade.",
         "removeFriend": "Ta bort vän"
       }
     }
@@ -133,14 +131,6 @@
     },
     "audio": {
       "unsupportedBrowser": "Din webbläsare stöder inte ljuduppspelning."
-    },
-    "federation": {
-      "remoteNamed": "Hostad på instansen för {{sender}}. Ladda ner för en lokal kopia.",
-      "remoteUnknown": "Hostad på avsändarens instans. Ladda ner för en lokal kopia.",
-      "partialGeneric": "Vissa mottagare kan inte cacha denna fil lokalt.",
-      "partialInstance": "Instansen för {{username}} (gräns: {{limit}})",
-      "partialList": "Filen kunde inte cachas på {{instances}}. De kan fortfarande se den från din instans.",
-      "listPair": "{{first}} och {{second}}"
     }
   },
   "gif": {
@@ -267,7 +257,6 @@
     "stickersCount_one": "{{count}} dekal",
     "stickersCount_other": "{{count}} dekaler",
     "noPacks": "Inga dekalpaket hittades",
-    "replicaBadge": "Federerad",
     "viewPack": "Visa paket",
     "saveDraft": "Spara som utkast",
     "packCreated": "Paket skapat",
@@ -284,8 +273,6 @@
     "rejectedSuccess": "Dekalpaket avvisat",
     "reviewNotes": "Avvisningsorsak",
     "creator": "Skapare",
-    "sourceInstance": "Instans",
-    "localInstance": "Lokal instans",
     "viewStickers": "Visa dekaler",
     "pendingReviewHint": "Hos administratör för granskning; visas i Utforska efter godkännande"
   },

@@ -1,21 +1,21 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSoundboard } from '../../hooks/useSoundboard';
-import { useAuthStore, getMyUserIdForOrigin } from '../../stores/authStore';
+import { useAuthStore } from '../../stores/authStore';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { soundboardKey, useSoundboardPreferences, useSoundboardStore } from '../../stores/soundboardStore';
 import { hasPermissionBit, PermissionBits } from '../../utils/permissions';
 import { sameShortcut, shortcutFromEvent, conflictsWithVoiceShortcut } from '../../utils/soundboardShortcuts';
-import { getApiForOrigin } from '../../utils/crossStoreResolvers';
+import { api } from '../../api/client';
 import { describeError } from '../../i18n/errors';
 import { useFormatters } from '../../i18n/formatters';
 import { SoundboardUpload } from './SoundboardUpload';
 import { receiveSoundboardPlay, stopSoundboardPlayback } from '../../audio/soundboardPlayback';
 
-export function SoundboardLibrary({ origin, spaceId, channelId }: { origin: string; spaceId: string; channelId?: string }) {
+export function SoundboardLibrary({ spaceId, channelId }: { spaceId: string; channelId?: string }) {
   const { t } = useTranslation(['voice', 'common']);
   const { formatNumber } = useFormatters();
-  const { document, loading, error: loadError, reload, canPlay, playbackBusy } = useSoundboard(origin, spaceId, channelId);
+  const { document, loading, error: loadError, reload, canPlay, playbackBusy } = useSoundboard(spaceId, channelId);
   const [query, setQuery] = useState(''); const [adding, setAdding] = useState(false);
   const [pending, setPending] = useState<string | null>(null); const [error, setError] = useState('');
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -24,10 +24,11 @@ export function SoundboardLibrary({ origin, spaceId, channelId }: { origin: stri
   const volume = useSoundboardPreferences(s => s.volume);
   const setShortcut = useSoundboardPreferences(s => s.setShortcut);
   const spacePerms = useSpaceStore(s => s.spacePermissions.get(spaceId));
-  useAuthStore(s => s.user?.id);
-  const myId = getMyUserIdForOrigin(origin);
+  const myId = useAuthStore(s => s.user?.id);
+  const sessionRevision = useAuthStore(s => s.sessionRevision);
+  const current = () => sessionRevision === useAuthStore.getState().sessionRevision;
   const manager = hasPermissionBit(spacePerms, PermissionBits.MANAGE_SPACE);
-  const prefix = `${soundboardKey(origin, spaceId)}:`;
+  const prefix = `${soundboardKey(spaceId)}:`;
   if (!document) return <div className="py-6 space-y-3 text-txt-tertiary" role="status">
     {loadError ? <><p className="text-accent-rose">{describeError(loadError)}</p><button onClick={() => void reload()} className="text-accent-primary">{t('common:actions.retry')}</button></> : t('common:states.loading')}
   </div>;
@@ -37,16 +38,20 @@ export function SoundboardLibrary({ origin, spaceId, channelId }: { origin: stri
   const play = async (id: string) => {
     if (!channelId || pending) return;
     setPending(id); setError('');
-    try { await useSoundboardStore.getState().play(origin, spaceId, id, channelId); }
-    catch (cause) { setError(describeError(cause)); }
-    finally { setPending(null); }
+    try { await useSoundboardStore.getState().play(spaceId, id, channelId); }
+    catch (cause) { if (current()) setError(describeError(cause)); }
+    finally { if (current()) setPending(null); }
   };
   const remove = async (id: string) => {
     if (pending) return;
     setPending(id); setError('');
-    try { await getApiForOrigin(origin).soundboard.remove(spaceId, id); setShortcut(prefix + id, null); setDeleting(null); await reload(); }
-    catch (cause) { setError(describeError(cause)); }
-    finally { setPending(null); }
+    try {
+      await api.soundboard.remove(spaceId, id);
+      if (!current()) return;
+      setShortcut(prefix + id, null); setDeleting(null); await reload();
+    }
+    catch (cause) { if (current()) setError(describeError(cause)); }
+    finally { if (current()) setPending(null); }
   };
   return <div className="space-y-4">
     <p className="text-sm text-txt-tertiary">{channelId ? t('voice:soundboard.description') : t('voice:soundboard.manageDescription')}</p>
@@ -57,7 +62,7 @@ export function SoundboardLibrary({ origin, spaceId, channelId }: { origin: stri
       {canUpload && <button disabled={sounds.length >= settings.maxSounds || adding} onClick={() => setAdding(true)} className="bg-accent-primary/15 text-accent-primary px-3 py-2 rounded-lg text-sm disabled:opacity-40">{t('voice:soundboard.add')}</button>}
     </div>
     <div className="flex justify-between gap-3 text-xs text-txt-tertiary"><span>{formatNumber(sounds.length)} / {formatNumber(settings.maxSounds)}</span><span>{t('voice:soundboard.limit', { max: formatNumber(settings.maxDurationSeconds) })}</span></div>
-    {adding && <SoundboardUpload origin={origin} spaceId={spaceId} maxDuration={settings.maxDurationSeconds} onCancel={() => setAdding(false)} onDone={() => { setAdding(false); void reload(); }} />}
+    {adding && <SoundboardUpload spaceId={spaceId} maxDuration={settings.maxDurationSeconds} onCancel={() => setAdding(false)} onDone={() => { setAdding(false); void reload(); }} />}
     {error && <p role="alert" className="text-sm text-accent-rose">{error}</p>}
     <div className="grid grid-cols-2 desktop:grid-cols-3 gap-3" aria-busy={loading}>
       {filtered.map(sound => {
@@ -93,7 +98,7 @@ export function SoundboardLibrary({ origin, spaceId, channelId }: { origin: stri
             {binding && <button onClick={() => setShortcut(prefix + sound.id, null)} aria-label={t('voice:soundboard.clearShortcut')} className="px-2 text-txt-tertiary">×</button>}
           </div>}
           <div className="flex justify-between gap-2 text-xs">
-            {channelId && <button onClick={() => void receiveSoundboardPlay(origin, channelId, spaceId, sound)} className="text-accent-primary py-1">{t('voice:soundboard.preview')}</button>}
+            {channelId && <button onClick={() => void receiveSoundboardPlay(channelId, spaceId, sound)} className="text-accent-primary py-1">{t('voice:soundboard.preview')}</button>}
             {(manager || sound.uploaderId === myId) && <button disabled={!!pending} onClick={() => setDeleting(sound.id)} className="text-accent-rose py-1">{t('common:actions.delete')}</button>}
           </div>
           {deleting === sound.id && <div className="text-xs space-y-2"><p className="text-txt-secondary">{t('voice:soundboard.deleteConfirm')}</p><div className="flex flex-wrap gap-2"><button disabled={!!pending} onClick={() => void remove(sound.id)} className="text-accent-rose">{t('common:actions.delete')}</button><button onClick={() => setDeleting(null)} className="text-txt-tertiary">{t('common:actions.cancel')}</button></div></div>}

@@ -11,13 +11,12 @@ import { createHash } from 'node:crypto';
 import * as schema from '../db/schema.js';
 import { GAME_ICON_UPLOADS_PER_MINUTE, MAX_GAME_ICONS_PER_USER } from '@veyvox/shared/src/gameIcons.js';
 
-const settings = vi.hoisted(() => ({ uploadDir: '' }));
+const settings = vi.hoisted(() => ({ uploadDir: '', publicOrigin: 'https://chat.test' }));
 let db: ReturnType<typeof drizzle<typeof schema>>;
 let sqlite: Database.Database;
 let app: FastifyInstance;
 vi.mock('../db/index.js', () => ({ getDb: () => db, schema }));
 vi.mock('../config.js', () => ({ config: settings }));
-vi.mock('../utils/federationAuth.js', () => ({ getOurOrigin: () => 'https://chat.test' }));
 vi.mock('../utils/auth.js', () => ({
   authenticate: async (request: { userId: string; headers: Record<string, string> }, reply: { code: (code: number) => { send: () => void } }) => {
     if (!request.headers.authorization) return reply.code(401).send();

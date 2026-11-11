@@ -13,7 +13,6 @@ vi.mock('../audio/AudioManager', () => ({
 }));
 
 import { useVoiceStore } from '../stores/voiceStore';
-import { useSpaceStore } from '../stores/spaceStore';
 import { broadcastVoiceStatus, joinVoiceChannel } from './voice';
 
 describe('voice status resume', () => {
@@ -22,7 +21,7 @@ describe('voice status resume', () => {
     useVoiceStore.setState({
       ...useVoiceStore.getInitialState(),
       currentVoiceChannelId: null,
-      activeDmCall: { dmChannelId: 'dm-reconnect', federatedCallId: null, callOrigin: 'https://calls.example', livekit: null },
+      activeDmCall: { dmChannelId: 'dm-reconnect' },
       isMuted: true,
       isDeafened: false,
       isCameraOn: true,
@@ -39,7 +38,7 @@ describe('voice status resume', () => {
       isDeafened: false,
       isCameraOn: true,
       isScreenSharing: false,
-    }, 'https://calls.example');
+    });
   });
 });
 
@@ -82,39 +81,36 @@ describe('rejoining a dropped session', () => {
   });
 });
 
-describe('joining a voice channel while in a DM call through another instance', () => {
-  const CALL_ORIGIN = 'https://peer.example';
-
+describe('joining a native voice channel replaces a DM call', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useSpaceStore.setState({ channelOriginMap: new Map([['channel-1', '']]) });
     useVoiceStore.setState({ ...useVoiceStore.getInitialState(), currentVoiceChannelId: null });
   });
 
-  it('leaves the call there, which hears nothing else of the join', () => {
-    useVoiceStore.setState({ activeDmCall: { dmChannelId: null, federatedCallId: 'key-1', callOrigin: CALL_ORIGIN, livekit: null } });
+  it('clears the active native call and connects to the selected channel', () => {
+    useVoiceStore.setState({ activeDmCall: { dmChannelId: 'dm-1' } });
+    const connect = vi.fn().mockResolvedValue(undefined);
 
-    joinVoiceChannel('channel-1', vi.fn().mockResolvedValue(undefined));
+    joinVoiceChannel('channel-1', connect);
 
-    expect(wsSend).toHaveBeenCalledWith({ type: 'voice_leave' }, CALL_ORIGIN);
+    expect(connect).toHaveBeenCalledWith('channel-1');
     expect(useVoiceStore.getState().activeDmCall).toBeNull();
   });
 
-  it('cancels a call still ringing there', () => {
-    useSpaceStore.setState({ channelOriginMap: new Map([['channel-1', ''], ['dm-1', CALL_ORIGIN]]) });
+  it('clears an outgoing native ring while server voice_join performs replacement', () => {
     useVoiceStore.setState({ outgoingCall: { dmChannelId: 'dm-1', withCamera: false } });
 
     joinVoiceChannel('channel-1', vi.fn().mockResolvedValue(undefined));
 
-    expect(wsSend).toHaveBeenCalledWith({ type: 'dm_call_end', dmChannelId: 'dm-1', federatedCallId: null }, CALL_ORIGIN);
+    expect(wsSend).not.toHaveBeenCalled();
     expect(useVoiceStore.getState().outgoingCall).toBeNull();
   });
 
-  it('leaves a call through the channel\'s own instance to that instance\'s voice_join', () => {
-    useVoiceStore.setState({ activeDmCall: { dmChannelId: 'dm-1', federatedCallId: null, callOrigin: '', livekit: null } });
+  it('leaves replacement to the sole server voice_join without an extra leave', () => {
+    useVoiceStore.setState({ activeDmCall: { dmChannelId: 'dm-1' } });
 
     joinVoiceChannel('channel-1', vi.fn().mockResolvedValue(undefined));
 
-    expect(wsSend).not.toHaveBeenCalledWith({ type: 'voice_leave' }, expect.anything());
+    expect(wsSend).not.toHaveBeenCalled();
   });
 });

@@ -40,15 +40,6 @@ export function ownerGroupTitle(space: { ownerTitle?: string | null }): string |
 }
 
 /**
- * Whether the space's host keeps owner titles. A host on 1.10.0 or older does
- * not send `ownerTitle` and ignores it in a PATCH, so a title written there
- * would be dropped without an error.
- */
-export function hostKeepsOwnerTitle(space: { ownerTitle?: string | null }): boolean {
-  return space.ownerTitle !== undefined;
-}
-
-/**
  * Which heading a member is listed under: the owner first, then one group per
  * top role, highest first, then everyone online without a role.
  */

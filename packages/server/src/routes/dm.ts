@@ -23,17 +23,17 @@ import {
   type SpaceInviteResponse,
   type SpaceInviteSystemPayload,
 } from '@veyvox/shared';
-import { fetchSpaceInviteSnapshot, getLocalInviteSnapshot } from '../utils/spaceInviteSnapshot.js';
+import { getLocalInviteSnapshot } from '../utils/spaceInviteSnapshot.js';
+import { getPublicOrigin } from '../utils/publicOrigin.js';
 import { sanitizeUser } from '../utils/sanitize.js';
 import { loadDmChannelWire, loadOpenDmChannels } from '../utils/dmChannelWire.js';
-import { findOrCreateOneOnOne, mintGroupKey, type OneOnOneResult } from '../utils/dmConversation.js';
+import { findOrCreateOneOnOne, type OneOnOneResult } from '../utils/dmConversation.js';
 import { sendError } from '../utils/httpErrors.js';
 import { parseHistoryPage, selectHistoryPage, markHistoryPageHonoured } from '../utils/messagePaging.js';
 
 /** Members a group DM can hold, the owner included. */
 const GROUP_DM_MAX_MEMBERS = 10;
-import { deleteAttachmentFiles, deleteUploadFile, deleteAttachmentByFilename } from '../utils/fileCleanup.js';
-import { isValidAssetUrl } from './users.js';
+import { deleteAttachmentFiles, deleteUnreferencedUploadFiles, deleteAttachmentByFilename, isValidAssetUrl } from '../utils/fileCleanup.js';
 import {
   GROUP_DM_NAME_MIN_LENGTH,
   GROUP_DM_NAME_MAX_LENGTH,
@@ -41,26 +41,6 @@ import {
   GROUP_DM_ICON_MIME_PREFIX,
 } from '@veyvox/shared/src/constants.js';
 import { fetchDmEmbedsForMessages, resolveEmbeds, reResolveEmbeds, embedRowToEmbed } from '../utils/embedResolver.js';
-import {
-  appendMutationLog,
-  queueOutboxEvent,
-  queueDmRelay,
-  queueDmMessageDeleteRelay,
-  dmMessageMutationTarget,
-  queueDmCloseRelay,
-  queueGroupMetadataRelay,
-  getDmParticipants,
-  getGroupDmTargetOrigins,
-  isFederationRelayEnabled,
-  sendTypingRelay,
-  normalizeIconForWire,
-} from '../utils/federationOutbox.js';
-import { getOurOrigin, canonicalizeHomeInstance } from '../utils/federationAuth.js';
-import { recordLocalMemberChange } from '../utils/federationSubjectClock.js';
-import { resolveOriginFromHostname } from '../utils/federationOriginResolve.js';
-import type { FederationRelayEvent } from '@veyvox/shared';
-import { resolveLocalUser } from './federation.js';
-import { resolveRemoteIdentityForClient } from '../utils/federationClientIdentity.js';
 import { dmSystemContent, dmSystemName } from '../utils/dmSystemMessages.js';
 import { announceDmReconcile } from '../utils/dmConversationEvents.js';
 import { parseDmSystemEvent } from '@veyvox/shared/src/dmSystemEvents.js';
@@ -181,8 +161,6 @@ export function buildDmMessageWithUser(
     type: (message.type ?? 'user') as 'user' | 'system',
     editedAt: message.editedAt,
     createdAt: message.createdAt,
-    sourceMessageId: message.sourceMessageId ?? null,
-    sourceInstance: message.sourceInstance ?? null,
     user: sanitizeUser(user),
     attachments: attachmentRows.map(a => ({
       id: a.id,
@@ -196,8 +174,6 @@ export function buildDmMessageWithUser(
       height: a.height ?? null,
       duration: a.duration ?? null,
       playable: a.playable ?? null,
-      federationStatus: a.federationStatus ?? null,
-      federationMeta: a.federationMeta ?? null,
       createdAt: a.createdAt,
     })),
     embeds: embedRows.map(e => embedRowToEmbed(e)),
@@ -332,9 +308,6 @@ export function broadcastDmMessage(dmChannelId: string, message: DmMessageWithUs
     }
   }
 
-  // Relay typing stop to remote peers (fire-and-forget)
-  sendTypingRelay(dmChannelId, 'dm_typing_stop', message.userId);
-
   reopenForClosedMembers(dmChannelId, message);
 
   for (const member of dmMembers) {
@@ -348,13 +321,12 @@ export function broadcastDmMessage(dmChannelId: string, message: DmMessageWithUs
 /**
  * Open the 1-on-1 between the caller and `targetUser` for the caller: the
  * conversation `findOrCreateOneOnOne` finds or creates, reopened on the
- * caller's side (with a `dm_reopen` relay) when they had closed it.
+ * caller's side when they had closed it.
  *
  * Nothing reaches the target (#360). A new conversation gets the target's
  * membership closed, and an existing one the target closed stays closed: the
  * next message sent in it reopens it for them and delivers it with that
- * message (`broadcastDmMessage`), the way a conversation reaches a recipient
- * on another instance. `POST /api/dm` and `ensureOneOnOneDmChannel` both open
+ * message (`broadcastDmMessage`). `POST /api/dm` and `ensureOneOnOneDmChannel` both open
  * conversations through it.
  */
 function openOneOnOne(
@@ -362,20 +334,16 @@ function openOneOnOne(
   targetUser: typeof schema.users.$inferSelect,
   db: ReturnType<typeof getDb>,
 ): OneOnOneResult {
-  const callerRow = db.select().from(schema.users).where(eq(schema.users.id, callerId)).get();
   const opened = findOrCreateOneOnOne(
     db,
-    { id: callerId, homeUserId: callerRow?.homeUserId ?? null },
+    { id: callerId },
     targetUser,
     { open: 'first' },
   );
   announceDmReconcile(opened.reconciled);
   if (opened.created) return opened;
 
-  if (setDmMemberClosed(db.$client, opened.channelId, callerId, false)) {
-    // Relay reopen to federated peers
-    queueDmCloseRelay(opened.channelId, callerId, 'dm_reopen');
-  }
+  setDmMemberClosed(db.$client, opened.channelId, callerId, false);
   return opened;
 }
 
@@ -396,7 +364,7 @@ export function ensureOneOnOneDmChannel(
  * Shared core for the leave-DM and kick-DM paths.
  *
  * Performs the destructive half of removal (system message, member-row delete,
- * read_states cleanup, federation relay, dm_member_removed broadcast,
+ * read_states cleanup, dm_member_removed broadcast,
  * ownership transfer for self-leave, soft-delete on last-member-leave).
  *
  * Pre-validation (channel exists, not 1-on-1, target is a member, etc.) is the
@@ -450,11 +418,10 @@ function evictUserFromDmVoiceRoom(channelId: string, userId: string): void {
  * Shared by the leave-path's auto-transfer (when an owner leaves a non-empty group)
  * and the manual `POST /api/dm/:id/transfer` endpoint. Performs:
  *
- *   1. Channel UPDATE (ownerId + ownerHomeUserId + ownerHomeInstance)
+ *   1. Channel UPDATE (ownerId)
  *   2. owner_changed system-message INSERT (authored by `actorUserId`)
- *   3. appendMutationLog + queueOutboxEvent for the `ownership_transfer` federation event
  *
- * Steps 1–3 run inside a single `db.transaction(...)` for atomicity. Broadcasts
+ * Both writes run inside a single `db.transaction(...)` for atomicity. Broadcasts
  * (`dm_owner_updated` and `dm_message_created`) are side-effects and run AFTER
  * the transaction commits.
  *
@@ -485,35 +452,7 @@ function transferGroupDmOwnership(
     return;
   }
 
-  const previousOwnerRow = db.select().from(schema.users).where(eq(schema.users.id, previousOwnerId)).get();
   const newOwnerRow = db.select().from(schema.users).where(eq(schema.users.id, newOwnerId)).get();
-  const actorUserRow = actorUserId === previousOwnerId
-    ? previousOwnerRow
-    : db.select().from(schema.users).where(eq(schema.users.id, actorUserId)).get();
-
-
-  // Federation targets must be computed BEFORE the channel update so we use the
-  // current home-identity columns; membership doesn't change in a transfer, so a
-  // post-transaction snapshot would also be valid, but pre-computing here keeps
-  // the federation gate close to the data it depends on.
-  let fedTargetOrigins: string[] | undefined;
-  const federationActive = isFederationRelayEnabled() && !!dmChannel.federatedId;
-  if (federationActive) {
-    fedTargetOrigins = getGroupDmTargetOrigins(channelId);
-  }
-
-  const domainOrigin = isFederationRelayEnabled() ? getOurOrigin() : null;
-  const newOwnerHomeUserId = newOwnerRow?.homeUserId || newOwnerId;
-  // Canonicalize to a full origin URL. `users.homeInstance` is stored as a
-  // bare host (e.g. `orbit.ddns.net`) for federated users, but
-  // `dm_channels.ownerHomeInstance` is compared against `sourceInstance`
-  // (always a full URL) in S2S authority checks. Storing the bare form here
-  // caused legitimate `ownership_transfer` events to be rejected with
-  // `unauthorized_source` after back-and-forth transfers — see the historical
-  // bug entry in `docs/systems/dm-system.md`.
-  const newOwnerHomeInstance = canonicalizeHomeInstance(
-    newOwnerRow?.homeInstance || domainOrigin || '',
-  );
 
   const ownerSysMsgId = generateSnowflake();
   const ownerNow = Date.now();
@@ -523,40 +462,10 @@ function transferGroupDmOwnership(
     newOwnerDisplayName: dmSystemName(newOwnerRow),
   });
 
-  // Wire homeInstance values are canonicalized to full URLs so receivers store
-  // the canonical form too. Future authority checks then compare full-URL to
-  // full-URL without needing defensive normalization at every site.
-  const previousOwnerHomeInstanceWire =
-    canonicalizeHomeInstance(previousOwnerRow?.homeInstance || domainOrigin || '') ?? '';
-  const transferPayload: FederationRelayEvent | null = federationActive
-    ? {
-        eventType: 'ownership_transfer',
-        dmChannelId: channelId,
-        messageId: `ownership_transfer:${newOwnerId}:${ownerNow}`,
-        federatedId: dmChannel.federatedId!,
-        encryptionVersion: 0,
-        timestamp: ownerNow,
-        ownership: {
-          newOwner: {
-            homeUserId: newOwnerHomeUserId,
-            homeInstance: newOwnerHomeInstance ?? (domainOrigin ?? ''),
-          },
-          previousOwner: {
-            homeUserId: previousOwnerRow?.homeUserId || previousOwnerId,
-            homeInstance: previousOwnerHomeInstanceWire,
-          },
-        },
-      }
-    : null;
-
-  // Atomic: channel UPDATE + system message INSERT + mutation log + outbox queue.
+  // Atomic: channel UPDATE + system message INSERT.
   db.transaction((tx) => {
     tx.update(schema.dmChannels)
-      .set({
-        ownerId: newOwnerId,
-        ownerHomeUserId: newOwnerHomeUserId,
-        ownerHomeInstance: newOwnerHomeInstance || null,
-      })
+      .set({ ownerId: newOwnerId })
       .where(eq(schema.dmChannels.id, channelId))
       .run();
 
@@ -569,21 +478,6 @@ function transferGroupDmOwnership(
       createdAt: ownerNow,
     }).run();
 
-    if (transferPayload) {
-      appendMutationLog(
-        transferPayload.messageId,
-        channelId,
-        'ownership_transfer',
-        JSON.stringify(transferPayload),
-      );
-      queueOutboxEvent(
-        transferPayload.messageId,
-        channelId,
-        'ownership_transfer',
-        JSON.stringify(transferPayload),
-        fedTargetOrigins,
-      );
-    }
   });
 
   // Snapshot the post-update member list for broadcasts (membership unchanged by transfer).
@@ -592,38 +486,17 @@ function transferGroupDmOwnership(
     .where(eq(schema.dmMembers.dmChannelId, channelId))
     .all();
 
-  // Broadcast dm_owner_updated to local members. Include the new owner's
-  // home identity so receiving clients can update `dm.ownerHomeInstance`
-  // (and thus keep `getOwnerInstanceForDm` correct for the next owner-only
-  // request) without waiting for a fresh `ready` payload on reconnect.
+  // Authority is the authenticated owner's action, using native account ids.
   for (const member of members) {
     connectionManager.sendToUser(member.userId, {
       type: 'dm_owner_updated',
       dmChannelId: channelId,
       newOwnerId,
-      newOwnerHomeUserId,
-      newOwnerHomeInstance: newOwnerHomeInstance ?? null,
     });
   }
 
-  // Broadcast the owner_changed system message to local members.
-  for (const member of members) {
-    connectionManager.sendToUser(member.userId, {
-      type: 'dm_message_created',
-      message: {
-        id: ownerSysMsgId,
-        dmChannelId: channelId,
-        userId: actorUserId,
-        content: ownerSysContent,
-        type: 'system',
-        createdAt: ownerNow,
-        user: actorUserRow ? sanitizeUser(actorUserRow) : undefined,
-        attachments: [],
-        embeds: [],
-        reactions: [],
-      } as any,
-    });
-  }
+  const systemMessage = getDmMessageWithUser(ownerSysMsgId);
+  if (systemMessage) connectionManager.sendToDmMembers(channelId, { type: 'dm_message_created', message: systemMessage });
 }
 
 function removeDmMember(
@@ -641,16 +514,7 @@ function removeDmMember(
     return;
   }
 
-  // Compute federation targets BEFORE member deletion so the removed user's peer is still included
-  let fedTargetOrigins: string[] | undefined;
-  if (isFederationRelayEnabled() && dmChannel.federatedId) {
-    fedTargetOrigins = getGroupDmTargetOrigins(channelId);
-  }
-
   const targetUserRow = db.select().from(schema.users).where(eq(schema.users.id, targetUserId)).get();
-  const actorUserRow = isSelfLeave
-    ? targetUserRow
-    : db.select().from(schema.users).where(eq(schema.users.id, actorUserId)).get();
 
   // Insert + broadcast member_removed system message (still a member at this point)
   const sysMsgId = generateSnowflake();
@@ -671,21 +535,8 @@ function removeDmMember(
     createdAt: sysNow,
   }).run();
 
-  connectionManager.sendToDmMembers(channelId, {
-    type: 'dm_message_created',
-    message: {
-      id: sysMsgId,
-      dmChannelId: channelId,
-      userId: actorUserId,
-      content: sysContent,
-      type: 'system',
-      createdAt: sysNow,
-      user: actorUserRow ? sanitizeUser(actorUserRow) : undefined,
-      attachments: [],
-      embeds: [],
-      reactions: [],
-    } as any,
-  });
+  const systemMessage = getDmMessageWithUser(sysMsgId);
+  if (systemMessage) connectionManager.sendToDmMembers(channelId, { type: 'dm_message_created', message: systemMessage });
 
   // Delete dm_members row for the target
   db.delete(schema.dmMembers)
@@ -700,51 +551,6 @@ function removeDmMember(
     eq(schema.readStates.userId, targetUserId),
     eq(schema.readStates.channelId, channelId),
   )).run();
-
-  // The member's clock (federation.md "Subject clocks") moves to the removal,
-  // at the timestamp the relayed member_remove carries.
-  const removedAt = Date.now();
-  const removedIdentity = {
-    homeUserId: targetUserRow?.homeUserId || targetUserId,
-    homeInstance: targetUserRow?.homeInstance || getOurOrigin(),
-  };
-  recordLocalMemberChange(dmChannel.federatedId, removedIdentity, removedAt, db);
-
-  // Federation: relay member_remove event with the reason
-  if (isFederationRelayEnabled() && dmChannel.federatedId) {
-    const domainOrigin = getOurOrigin();
-
-    const memberRemovePayload: FederationRelayEvent = {
-      eventType: 'member_remove',
-      dmChannelId: channelId,
-      messageId: `member_remove:${targetUserId}:${removedAt}`,
-      federatedId: dmChannel.federatedId,
-      encryptionVersion: 0,
-      timestamp: removedAt,
-      membership: {
-        user: removedIdentity,
-        removedBy: {
-          homeUserId: actorUserRow?.homeUserId || actorUserId,
-          homeInstance: actorUserRow?.homeInstance || domainOrigin,
-        },
-        reason,
-      },
-    };
-
-    appendMutationLog(
-      memberRemovePayload.messageId,
-      channelId,
-      'member_remove',
-      JSON.stringify(memberRemovePayload),
-    );
-    queueOutboxEvent(
-      memberRemovePayload.messageId,
-      channelId,
-      'member_remove',
-      JSON.stringify(memberRemovePayload),
-      fedTargetOrigins,
-    );
-  }
 
   // Check remaining members
   const remainingMembers = db.select()
@@ -801,54 +607,12 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
 
   // POST /api/dm - Create or get existing DM channel
   app.post<{ Body: CreateDmRequest }>('/api/dm', async (request, reply) => {
-    const { userId, homeUserId, homeInstance } = request.body;
-
-    const db = getDb();
-    let targetUser: typeof schema.users.$inferSelect | undefined;
-
-    if (homeUserId && homeInstance) {
-      // Limbo-window guard (federation instance-epoch self-healing §5.3).
-      // If the target's home instance was reset-detected but the admin has not yet
-      // re-peered, an UNRESOLVED `federation_reset_events` row exists for its origin.
-      // Creating a DM now would bind to stale, dead-incarnation identity state, so
-      // surface a clear `peer_reset_pending` instead of silently forming a doomed
-      // channel. Checked BEFORE stub creation so no un-flagged stub is left behind.
-      //
-      // The journal is keyed by the peer's `federation_peers.origin` (the exact string
-      // `markPeerReset` stores). `resolveOriginFromHostname` returns that stored origin
-      // verbatim, giving an O(1) point lookup on the origin PRIMARY KEY; the common case
-      // (no reset) is a single indexed miss and the normal path proceeds unchanged.
-      const canon = canonicalizeHomeInstance(homeInstance);
-      let peerOrigin: string | null = null;
-      if (canon) {
-        try {
-          peerOrigin = resolveOriginFromHostname(new URL(canon).host);
-        } catch {
-          peerOrigin = null;
-        }
-      }
-      if (peerOrigin) {
-        const pendingReset = db
-          .select({ origin: schema.federationResetEvents.origin })
-          .from(schema.federationResetEvents)
-          .where(and(
-            eq(schema.federationResetEvents.origin, peerOrigin),
-            isNull(schema.federationResetEvents.resolvedAt),
-          ))
-          .get();
-        if (pendingReset) {
-          return sendError(reply, 409, 'peer_reset_pending');
-        }
-      }
-
-      // Federated identity: resolve it, named from its home on first contact
-      targetUser = (await resolveRemoteIdentityForClient(homeUserId, homeInstance, db)) ?? undefined;
-    } else if (userId && typeof userId === 'string') {
-      // Local ID: direct lookup (existing behavior)
-      targetUser = db.select().from(schema.users).where(eq(schema.users.id, userId)).get();
-    } else {
+    const { userId } = request.body ?? {};
+    if (typeof userId !== 'string' || !userId) {
       return sendError(reply, 400, 'dm_target_required');
     }
+    const db = getDb();
+    const targetUser = db.select().from(schema.users).where(eq(schema.users.id, userId)).get();
 
     if (!targetUser) {
       return sendError(reply, 404, 'user_not_found');
@@ -870,7 +634,7 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
 
   // POST /api/dm/group - Create a new group DM with multiple members
   app.post<{ Body: CreateGroupDmRequest }>('/api/dm/group', async (request, reply) => {
-    const { users: userIdentities, fromDmChannelId } = request.body;
+    const { users: userIdentities, fromDmChannelId } = request.body ?? {};
 
     // Validate input is a non-empty array of at least 2 identity objects
     if (!Array.isArray(userIdentities) || userIdentities.length < 2) {
@@ -888,34 +652,12 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
 
     const db = getDb();
 
-    // Federated users are resolved first, all at once: each may wait for its
-    // home to report the name (first contact), and those waits must not add up.
-    const federatedRows = await Promise.all(userIdentities.map((identity) =>
-      identity.homeUserId && identity.homeInstance
-        ? resolveRemoteIdentityForClient(identity.homeUserId, identity.homeInstance, db)
-        : Promise.resolve(null),
-    ));
-
-    // Resolve each identity to a local user row
+    // Only an existing local account can become a member.
     const targetUsers: Array<typeof schema.users.$inferSelect> = [];
-    for (const [index, identity] of userIdentities.entries()) {
-      let localUser: typeof schema.users.$inferSelect | undefined;
-
-      if (identity.homeUserId && identity.homeInstance) {
-        // Federated user — resolved above, named from its home on first contact
-        localUser = federatedRows[index] ?? undefined;
-      } else {
-        // Local user — direct ID lookup
-        localUser = db.select().from(schema.users).where(
-          and(eq(schema.users.id, identity.id), eq(schema.users.isDeleted, 0)),
-        ).get();
-
-        // Fallback: if direct ID lookup fails, try homeUserId resolution
-        // (handles case where identity.id is a remote snowflake but homeUserId wasn't provided)
-        if (!localUser) {
-          localUser = resolveLocalUser(identity.id, db);
-        }
-      }
+    for (const identity of userIdentities) {
+      const localUser = db.select().from(schema.users).where(
+        and(eq(schema.users.id, identity.id), eq(schema.users.isDeleted, 0)),
+      ).get();
 
       if (!localUser) {
         return sendError(reply, 404, 'users_not_found');
@@ -989,45 +731,15 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
         createdAt: now,
       }).run();
 
-      insertDmMember(db.$client, dmChannelId, request.userId, { at: now });
+      insertDmMember(db.$client, dmChannelId, request.userId);
 
       for (const targetUser of targetUsers) {
-        insertDmMember(db.$client, dmChannelId, targetUser.id, { at: now });
+        insertDmMember(db.$client, dmChannelId, targetUser.id);
       }
     });
 
-    // Fetch caller's user row once — used for response, federation, and relay
+    // Fetch caller's user row once for the response and system messages.
     const callerUser = db.select().from(schema.users).where(eq(schema.users.id, request.userId)).get();
-
-    // Federation: assign federatedId if any member is from a remote instance
-    let federatedId: string | null = null;
-    if (isFederationRelayEnabled()) {
-      const domainOrigin = getOurOrigin();
-      const allUsers = [callerUser, ...targetUsers].filter((u): u is NonNullable<typeof u> => u !== undefined);
-      const hasRemote = allUsers.some(u => u.homeInstance && u.homeInstance !== domainOrigin);
-
-      if (hasRemote) {
-        federatedId = mintGroupKey();
-        db.update(schema.dmChannels)
-          .set({
-            federatedId,
-            ownerHomeUserId: callerUser?.homeUserId || request.userId,
-            // Canonicalize for federation-authority parity (see
-            // `transferGroupDmOwnership` for the full rationale).
-            ownerHomeInstance: canonicalizeHomeInstance(callerUser?.homeInstance || domainOrigin),
-          })
-          .where(eq(schema.dmChannels.id, dmChannelId))
-          .run();
-        // Every member's clock (federation.md "Subject clocks") starts at the
-        // creation, the timestamp the relayed member_add events carry.
-        for (const member of allUsers) {
-          recordLocalMemberChange(federatedId, {
-            homeUserId: member.homeUserId || member.id,
-            homeInstance: member.homeInstance || domainOrigin,
-          }, now, db);
-        }
-      }
-    }
 
     // Build response
     const allMembers = [callerUser, ...targetUsers]
@@ -1039,25 +751,14 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
       return sendError(reply, 500, 'internal_error');
     }
 
-    // Broadcast dm_channel_created only to LOCAL members.
-    // Remote members will receive the channel via federation relay → bootstrap
-    // on their home instance, preventing duplicate channels in their sidebar.
-    const domainOriginForBroadcast = isFederationRelayEnabled() ? getOurOrigin() : null;
-    const isLocalMember = (u: { homeInstance?: string | null }) =>
-      !u.homeInstance || !domainOriginForBroadcast ||
-      u.homeInstance === domainOriginForBroadcast ||
-      `https://${u.homeInstance}` === domainOriginForBroadcast;
-
     for (const member of allMembers) {
-      if (!isLocalMember(member)) continue;
       connectionManager.sendToUser(member.id, {
         type: 'dm_channel_created',
         dmChannel: result,
       });
     }
 
-    // Insert system messages (DB) for all members, but only broadcast to local members.
-    // Remote instances create their own system messages via federation event handlers.
+    // Insert and broadcast the native membership system messages.
     for (const targetUser of targetUsers) {
       if (!targetUser) continue;
       const sysMsg = {
@@ -1086,83 +787,13 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
         createdAt: sysMsg.createdAt,
       }).run();
 
-      // Only broadcast to local members — remote instances handle their own
+      const systemMessage = getDmMessageWithUser(sysMsg.id);
+      if (!systemMessage) return sendError(reply, 500, 'message_lookup_failed');
       for (const member of allMembers) {
-        if (!isLocalMember(member)) continue;
         connectionManager.sendToUser(member.id, {
           type: 'dm_message_created',
-          message: sysMsg as any,
+          message: systemMessage,
         });
-      }
-    }
-
-    // Federation: relay member_add for each remote member
-    if (isFederationRelayEnabled() && federatedId) {
-      const domainOrigin = getOurOrigin();
-      const allParticipants = getDmParticipants(dmChannelId);
-
-      // Re-fetch the channel row so the bootstrap payload carries the
-      // current name/icon/metadataUpdatedAt. On a freshly-created group
-      // these are null/null/0, but we read them rather than hard-code
-      // so future producer paths (or test mutations between create and
-      // relay) stay correct without touching this site.
-      const channelRow = db.select().from(schema.dmChannels)
-        .where(eq(schema.dmChannels.id, dmChannelId)).get();
-      const wireIcon = normalizeIconForWire(channelRow?.icon ?? null, domainOrigin);
-
-      for (const targetUser of targetUsers) {
-        if (!targetUser.homeInstance || targetUser.homeInstance === domainOrigin) continue;
-
-        const memberAddPayload: FederationRelayEvent = {
-          eventType: 'member_add',
-          dmChannelId,
-          messageId: `member_add:${targetUser.id}:${now}`,
-          federatedId,
-          encryptionVersion: 0,
-          timestamp: now,
-          membership: {
-            user: {
-              homeUserId: targetUser.homeUserId || targetUser.id,
-              homeInstance: targetUser.homeInstance || domainOrigin,
-            },
-            addedBy: {
-              homeUserId: callerUser?.homeUserId || request.userId,
-              homeInstance: callerUser?.homeInstance || domainOrigin,
-            },
-          },
-          group: {
-            owner: {
-              homeUserId: callerUser?.homeUserId || request.userId,
-              homeInstance: callerUser?.homeInstance || domainOrigin,
-            },
-            members: allParticipants,
-            name: channelRow?.name ?? null,
-            icon: wireIcon,
-            metadataUpdatedAt: channelRow?.metadataUpdatedAt ?? 0,
-          },
-        };
-
-        const targetOrigins = getGroupDmTargetOrigins(dmChannelId);
-        let finalTargets = targetOrigins;
-        // Normalize homeInstance to full URL to match peer origin format
-        const targetHomeOrigin = targetUser.homeInstance?.startsWith('http') ? targetUser.homeInstance : `https://${targetUser.homeInstance}`;
-        if (finalTargets && targetHomeOrigin !== domainOrigin && !finalTargets.includes(targetHomeOrigin)) {
-          finalTargets = [...finalTargets, targetHomeOrigin];
-        }
-
-        appendMutationLog(
-          memberAddPayload.messageId,
-          dmChannelId,
-          'member_add',
-          JSON.stringify(memberAddPayload),
-        );
-        queueOutboxEvent(
-          memberAddPayload.messageId,
-          dmChannelId,
-          'member_add',
-          JSON.stringify(memberAddPayload),
-          finalTargets,
-        );
       }
     }
 
@@ -1175,7 +806,7 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
   //   [GROUP_DM_NAME_MIN_LENGTH, GROUP_DM_NAME_MAX_LENGTH].
   // - icon: null/empty → cleared; bare filename → must be an attachment
   //   uploaded by the caller, image/* mimetype, ≤ GROUP_DM_ICON_MAX_BYTES;
-  //   absolute http(s) URL → accepted as-is (federated rebroadcast path).
+  //   absolute http(s) URL → validated external icon URL.
   app.patch<{ Params: { id: string }; Body: { name?: string | null; icon?: string | null } }>('/api/dm/:id', async (request, reply) => {
     const { id } = request.params;
     const body = request.body ?? {};
@@ -1285,6 +916,9 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
           if (attachment.uploaderId !== request.userId) {
             return sendError(reply, 403, 'attachment_not_owned');
           }
+          if (attachment.messageId !== null || attachment.dmMessageId !== null) {
+            return sendError(reply, 400, 'icon_url_invalid');
+          }
           if (!attachment.mimetype.startsWith(GROUP_DM_ICON_MIME_PREFIX)) {
             return sendError(reply, 400, 'icon_not_image');
           }
@@ -1307,16 +941,7 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
       });
     }
 
-    // Caller user row — needed for federation actor identity
-    const callerUser = db.select().from(schema.users).where(eq(schema.users.id, request.userId)).get();
-
-    // Single eventMessageId so name/icon system messages share a federation correlation root.
-    const eventMessageId = generateSnowflake();
-    const sysMessageRows: Array<{
-      id: string;
-      sourceMessageId: string;
-      content: string;
-    }> = [];
+    const systemMessageIds: string[] = [];
 
     // ---- Transaction: persist channel update + system message rows ----
     let metadataUpdatedAt = 0;
@@ -1336,10 +961,9 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
           userId: request.userId,
           content,
           type: 'system',
-          sourceMessageId: `${eventMessageId}:name`,
           createdAt: metadataUpdatedAt,
         }).run();
-        sysMessageRows.push({ id: sysId, sourceMessageId: `${eventMessageId}:name`, content });
+        systemMessageIds.push(sysId);
       }
 
       if (iconChanged) {
@@ -1351,10 +975,9 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
           userId: request.userId,
           content,
           type: 'system',
-          sourceMessageId: `${eventMessageId}:icon`,
           createdAt: metadataUpdatedAt,
         }).run();
-        sysMessageRows.push({ id: sysId, sourceMessageId: `${eventMessageId}:icon`, content });
+        systemMessageIds.push(sysId);
       }
     });
 
@@ -1367,44 +990,14 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
     });
 
     // ---- Broadcast each new system message ----
-    const sanitizedActor = callerUser ? sanitizeUser(callerUser) : undefined;
-    for (const sys of sysMessageRows) {
-      connectionManager.sendToDmMembers(id, {
-        type: 'dm_message_created',
-        message: {
-          id: sys.id,
-          dmChannelId: id,
-          userId: request.userId,
-          content: sys.content,
-          type: 'system',
-          createdAt: metadataUpdatedAt,
-          user: sanitizedActor,
-          attachments: [],
-          embeds: [],
-          reactions: [],
-        } as DmMessageWithUser,
-      });
+    for (const messageId of systemMessageIds) {
+      const message = getDmMessageWithUser(messageId);
+      if (message) connectionManager.sendToDmMembers(id, { type: 'dm_message_created', message });
     }
 
-    // ---- Federation relay ----
-    if (isFederationRelayEnabled()) {
-      const domainOrigin = getOurOrigin();
-      queueGroupMetadataRelay(id, {
-        name: nextName,
-        icon: nextIcon,
-        metadataUpdatedAt,
-        actor: {
-          userId: request.userId,
-          homeUserId: callerUser?.homeUserId ?? request.userId,
-          homeInstance: callerUser?.homeInstance ?? domainOrigin,
-        },
-      });
-    }
-
-    // ---- Old icon cleanup (mirror users.ts:463-466 precedent) ----
+    // ---- Old icons retain any surviving native message/profile holder. ----
     if (iconChanged && oldIcon && !oldIcon.startsWith('http')) {
-      deleteUploadFile(oldIcon);
-      deleteAttachmentByFilename(oldIcon);
+      deleteUnreferencedUploadFiles([oldIcon]);
     }
     // Clean up the attachment record for the newly-set icon — the file is
     // now referenced via dm_channels.icon (protected by the storage janitor),
@@ -1448,29 +1041,18 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
       dmChannelId: id,
     });
 
-    // Relay close to federated peers
-    queueDmCloseRelay(id, request.userId, 'dm_close');
-
     return reply.code(200).send({ success: true });
   });
 
   // POST /api/dm/:id/members - Add a user to an existing DM channel (group DM upgrade)
   app.post<{ Params: { id: string }; Body: AddDmMemberRequest }>('/api/dm/:id/members', async (request, reply) => {
     const { id } = request.params;
-    const { userId: targetUserIdRaw, homeUserId, homeInstance } = request.body;
-
-    const db = getDb();
-    let targetUser: typeof schema.users.$inferSelect | undefined;
-
-    if (homeUserId && homeInstance) {
-      // Federated identity: resolve it, named from its home on first contact
-      targetUser = (await resolveRemoteIdentityForClient(homeUserId, homeInstance, db)) ?? undefined;
-    } else if (targetUserIdRaw && typeof targetUserIdRaw === 'string') {
-      // Local ID: direct lookup (existing behavior)
-      targetUser = db.select().from(schema.users).where(eq(schema.users.id, targetUserIdRaw)).get();
-    } else {
+    const { userId: targetUserIdRaw } = request.body ?? {};
+    if (typeof targetUserIdRaw !== 'string' || !targetUserIdRaw) {
       return sendError(reply, 400, 'dm_target_required');
     }
+    const db = getDb();
+    const targetUser = db.select().from(schema.users).where(and(eq(schema.users.id, targetUserIdRaw),eq(schema.users.isDeleted,0))).get();
 
     if (!targetUser) {
       return sendError(reply, 404, 'user_not_found');
@@ -1484,7 +1066,7 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
     }
 
     // Fetch channel and enforce type + ownership constraints
-    let dmChannel = db.select().from(schema.dmChannels).where(and(eq(schema.dmChannels.id, id), isNull(schema.dmChannels.deletedAt))).get();
+    const dmChannel = db.select().from(schema.dmChannels).where(and(eq(schema.dmChannels.id, id), isNull(schema.dmChannels.deletedAt))).get();
     if (!dmChannel) {
       return sendError(reply, 404, 'dm_not_found');
     }
@@ -1532,35 +1114,6 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
 
     // Insert dm_members row for new user
     insertDmMember(db.$client, id, targetUserId);
-
-    // If the channel doesn't have a federatedId and now has a remote member, assign one
-    if (!dmChannel.federatedId && isFederationRelayEnabled()) {
-      const domainOrigin = getOurOrigin();
-      const participants = getDmParticipants(id);
-      const hasRemote = participants.some(p => p.homeInstance !== domainOrigin);
-
-      if (hasRemote) {
-        const newFederatedId = mintGroupKey();
-        const ownerUser = db.select().from(schema.users).where(eq(schema.users.id, dmChannel.ownerId!)).get();
-        db.update(schema.dmChannels)
-          .set({
-            federatedId: newFederatedId,
-            ownerHomeUserId: ownerUser?.homeUserId || dmChannel.ownerId!,
-            // Canonicalize for federation-authority parity (see
-            // `transferGroupDmOwnership` for the full rationale).
-            ownerHomeInstance: canonicalizeHomeInstance(ownerUser?.homeInstance || domainOrigin),
-          })
-          .where(eq(schema.dmChannels.id, id))
-          .run();
-        // Refresh for subsequent federation code
-        dmChannel = {
-          ...dmChannel,
-          federatedId: newFederatedId,
-          ownerHomeUserId: ownerUser?.homeUserId || dmChannel.ownerId!,
-          ownerHomeInstance: canonicalizeHomeInstance(ownerUser?.homeInstance || domainOrigin),
-        };
-      }
-    }
 
     // The channel as the new member's sidebar gets it
     const result = loadDmChannelWire(db, id);
@@ -1612,86 +1165,8 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
       createdAt: addSysMsg.createdAt,
     }).run();
 
-    connectionManager.sendToDmMembers(id, {
-      type: 'dm_message_created',
-      message: { ...addSysMsg, user: addSysMsg.user ? sanitizeUser(addSysMsg.user) : undefined } as any,
-    });
-
-    // The added member's clock (federation.md "Subject clocks") moves to the
-    // add, at the timestamp the relayed member_add carries.
-    const addedAt = Date.now();
-    const addedUser = db.select().from(schema.users).where(eq(schema.users.id, targetUserId)).get();
-    const addedIdentity = {
-      homeUserId: addedUser?.homeUserId || targetUserId,
-      homeInstance: addedUser?.homeInstance || getOurOrigin(),
-    };
-    recordLocalMemberChange(dmChannel.federatedId, addedIdentity, addedAt, db);
-
-    // Federation: relay member_add to peers
-    if (isFederationRelayEnabled() && dmChannel.federatedId) {
-      const domainOrigin = getOurOrigin();
-      const allParticipants = getDmParticipants(id);
-
-      const adderUser = db.select().from(schema.users).where(eq(schema.users.id, request.userId)).get();
-
-      // Carry the current group metadata snapshot so a fresh peer can
-      // bootstrap the channel with the correct name + icon. Re-fetch to
-      // pick up any concurrent metadata mutation; the row may have been
-      // patched between the start of this handler and now.
-      const channelRow = db.select().from(schema.dmChannels)
-        .where(eq(schema.dmChannels.id, id)).get();
-      const wireIcon = normalizeIconForWire(channelRow?.icon ?? null, domainOrigin);
-
-      const memberAddPayload: FederationRelayEvent = {
-        eventType: 'member_add',
-        dmChannelId: id,
-        messageId: `member_add:${targetUserId}:${addedAt}`,
-        federatedId: dmChannel.federatedId,
-        encryptionVersion: 0,
-        timestamp: addedAt,
-        membership: {
-          user: addedIdentity,
-          addedBy: {
-            homeUserId: adderUser?.homeUserId || request.userId,
-            homeInstance: adderUser?.homeInstance || domainOrigin,
-          },
-        },
-        group: {
-          owner: {
-            homeUserId: dmChannel.ownerHomeUserId || request.userId,
-            homeInstance: dmChannel.ownerHomeInstance || domainOrigin,
-          },
-          members: allParticipants,
-          name: channelRow?.name ?? null,
-          icon: wireIcon,
-          metadataUpdatedAt: channelRow?.metadataUpdatedAt ?? 0,
-        },
-      };
-
-      // Include the new member's instance in targets even if not previously in the group
-      const targetOrigins = getGroupDmTargetOrigins(id);
-      // Normalize homeInstance to full URL to match peer origin format
-      const rawNewMemberInstance = addedUser?.homeInstance || domainOrigin;
-      const newMemberInstance = rawNewMemberInstance.startsWith('http') ? rawNewMemberInstance : `https://${rawNewMemberInstance}`;
-      let finalTargets = targetOrigins;
-      if (finalTargets && newMemberInstance !== domainOrigin && !finalTargets.includes(newMemberInstance)) {
-        finalTargets = [...finalTargets, newMemberInstance];
-      }
-
-      appendMutationLog(
-        memberAddPayload.messageId,
-        id,
-        'member_add',
-        JSON.stringify(memberAddPayload),
-      );
-      queueOutboxEvent(
-        memberAddPayload.messageId,
-        id,
-        'member_add',
-        JSON.stringify(memberAddPayload),
-        finalTargets,
-      );
-    }
+    const systemMessage = getDmMessageWithUser(addSysMsg.id);
+    if (systemMessage) connectionManager.sendToDmMembers(id, { type: 'dm_message_created', message: systemMessage });
 
     // Active call sync: if there's an active call in this DM, notify the new member
     const room = connectionManager.getRoom(id);
@@ -1747,35 +1222,12 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // DELETE /api/dm/:id/members/:targetUserId - Owner kicks a member from a group DM.
-  //
-  // The `:targetUserId` URL segment carries either a local user id OR a
-  // federated home user id. When the optional `homeInstance` query string is
-  // present, the segment is interpreted as a home id and resolved via
-  // `resolveRemoteIdentityForClient(targetUserId, homeInstance)` — same pattern
-  // as POST /api/dm/:id/transfer and POST /api/dm/:id/members. This is
-  // necessary when the client only knows the target's home identity (the
-  // common case for federated members rendered through `useCanonicalUserView`,
-  // whose `id` is the home id, not this instance's local replicated id).
-  // Without this path, the membership check `isDmMember(id, targetUserId)`
-  // fails because `dm_members.userId` on the owner instance is its local
-  // replicated id, not the federated home id.
   app.delete<{
     Params: { id: string; targetUserId: string };
-    Querystring: { homeInstance?: string };
   }>('/api/dm/:id/members/:targetUserId', async (request, reply) => {
     const { id, targetUserId: rawTargetSegment } = request.params;
-    const homeInstanceQuery = request.query?.homeInstance;
     const db = getDb();
-
-    // Resolve the target to a local user row. When `homeInstance` is supplied,
-    // treat the URL segment as a homeUserId. Otherwise, treat it as a local
-    // user id and look it up directly.
-    let targetUserRow: typeof schema.users.$inferSelect | undefined;
-    if (typeof homeInstanceQuery === 'string' && homeInstanceQuery.length > 0) {
-      targetUserRow = (await resolveRemoteIdentityForClient(rawTargetSegment, homeInstanceQuery, db)) ?? undefined;
-    } else {
-      targetUserRow = db.select().from(schema.users).where(eq(schema.users.id, rawTargetSegment)).get();
-    }
+    const targetUserRow = db.select().from(schema.users).where(eq(schema.users.id, rawTargetSegment)).get();
 
     if (!targetUserRow) {
       return sendError(reply, 404, 'user_not_found');
@@ -1824,61 +1276,20 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /api/dm/:id/transfer - Owner transfers ownership to another group member without leaving.
-  //
-  // Body accepts either a local id (`newOwnerId`) or a federated identity
-  // (`homeUserId` + `homeInstance`). Federated identification mirrors the
-  // `addDmMember` pattern (see `POST /api/dm/:id/members` above) and is
-  // required when the client only knows the target's home identity — for
-  // example when the channel-serving instance and the owner-serving instance
-  // disagree on the local replicated user id, or when `useCanonicalUserView`
-  // surfaces the user's home view (whose `id` is the home id, NOT this
-  // instance's local replicated id). Without this path, transferring ownership
-  // to a federated member always failed with "user is not part of the DM"
-  // because the owner instance's `dm_members.userId` is its OWN local id, not
-  // the federated home id.
   app.post<{
     Params: { id: string };
-    Body: {
-      newOwnerId?: unknown;
-      homeUserId?: unknown;
-      homeInstance?: unknown;
-    };
+    Body: { newOwnerId?: unknown };
   }>('/api/dm/:id/transfer', async (request, reply) => {
     const { id } = request.params;
-    const body = (request.body ?? {}) as {
-      newOwnerId?: unknown;
-      homeUserId?: unknown;
-      homeInstance?: unknown;
-    };
+    const body = request.body ?? {};
     const rawNewOwnerId = body.newOwnerId;
-    const rawHomeUserId = body.homeUserId;
-    const rawHomeInstance = body.homeInstance;
-
-    const hasFederatedArgs =
-      typeof rawHomeUserId === 'string' && rawHomeUserId.length > 0 &&
-      typeof rawHomeInstance === 'string' && rawHomeInstance.length > 0;
-    const hasLocalArg = typeof rawNewOwnerId === 'string' && rawNewOwnerId.length > 0;
-
-    if (!hasFederatedArgs && !hasLocalArg) {
+    if (typeof rawNewOwnerId !== 'string' || !rawNewOwnerId) {
       return sendError(reply, 400, 'new_owner_required');
     }
 
     const db = getDb();
 
-    // Resolve the new owner to a local user row. Federated identification
-    // takes precedence when both forms are supplied — it's strictly more
-    // specific (homeUserId + homeInstance disambiguates across instances),
-    // so the explicit federated args wins over a possibly-stale local id.
-    let newOwnerRow: typeof schema.users.$inferSelect | undefined;
-    if (hasFederatedArgs) {
-      newOwnerRow = (await resolveRemoteIdentityForClient(
-        rawHomeUserId as string,
-        rawHomeInstance as string,
-        db,
-      )) ?? undefined;
-    } else {
-      newOwnerRow = db.select().from(schema.users).where(eq(schema.users.id, rawNewOwnerId as string)).get();
-    }
+    const newOwnerRow = db.select().from(schema.users).where(and(eq(schema.users.id, rawNewOwnerId),eq(schema.users.isDeleted,0))).get();
 
     if (!newOwnerRow) {
       return sendError(reply, 404, 'user_not_found');
@@ -1948,8 +1359,7 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /api/dm/space-invite — Send a space invite card to a friend via DM.
-  // Trust model: the snapshot is fetched server-to-server from the space's home
-  // instance via fetchSpaceInviteSnapshot — never trust client-supplied snapshot data.
+  // Trust model: read the current instance's snapshot, never client-supplied data.
   app.post<{ Body: SpaceInviteRequest }>('/api/dm/space-invite', {
     config: {
       rateLimit: {
@@ -1967,20 +1377,12 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
     const db = getDb();
     const callerId = request.userId;
 
-    // 1. Resolve target user (local id OR federated homeUserId+homeInstance)
-    let targetUser: typeof schema.users.$inferSelect | null = null;
-    if ('userId' in body.target) {
-      targetUser = db.select().from(schema.users)
-        .where(eq(schema.users.id, body.target.userId)).get() ?? null;
-    } else if ('homeUserId' in body.target && 'homeInstance' in body.target) {
-      targetUser = await resolveRemoteIdentityForClient(
-        body.target.homeUserId,
-        body.target.homeInstance,
-        db,
-      );
-    } else {
+    // 1. Resolve an existing local friend, without creating identities.
+    if (typeof body.target.userId !== 'string' || !body.target.userId) {
       return sendError(reply, 400, 'invalid_target');
     }
+    const targetUser = db.select().from(schema.users)
+      .where(and(eq(schema.users.id, body.target.userId),eq(schema.users.isDeleted,0))).get();
 
     if (!targetUser) {
       return sendError(reply, 404, 'user_not_found');
@@ -2000,15 +1402,14 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
       return sendError(reply, 400, 'not_a_friend');
     }
 
-    // 3. Snapshot lookup. For local spaces, read the DB directly — fetching
-    // our own /preview endpoint over HTTPS fails inside Docker (NAT loopback).
-    // Cross-instance previews still go through the SSRF-validated HTTP path.
-    const ourOrigin = getOurOrigin();
-    const spaceOrigin = body.spaceInstanceOrigin || ourOrigin;
-    const isLocal = !body.spaceInstanceOrigin || body.spaceInstanceOrigin === ourOrigin;
-    const snapshot = isLocal
-      ? getLocalInviteSnapshot(body.inviteCode)
-      : await fetchSpaceInviteSnapshot(spaceOrigin, body.inviteCode);
+    // 3. Never discard a supplied foreign host and act on a colliding local code.
+    const spaceOrigin = new URL(getPublicOrigin()).origin;
+    if (body.spaceInstanceOrigin) {
+      try {
+        if (new URL(body.spaceInstanceOrigin).origin !== spaceOrigin) return sendError(reply, 400, 'invite_invalid');
+      } catch { return sendError(reply, 400, 'invite_invalid'); }
+    }
+    const snapshot = getLocalInviteSnapshot(body.inviteCode);
     if (!snapshot) {
       return sendError(reply, 400, 'invite_invalid');
     }
@@ -2017,9 +1418,7 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
       return sendError(reply, 400, 'invite_invalid');
     }
 
-    // The invite's content, in the form every receiving instance checks it
-    // against (parseDmSystemEvent). An invite a receiver would refuse is not
-    // sent, and nothing is written for it.
+    // Validate the persisted system content through its shared parser.
     const invite = parseDmSystemEvent(JSON.stringify({
       event: 'space_invite',
       spaceId: body.spaceId,
@@ -2059,14 +1458,6 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
       return sendError(reply, 500, 'message_lookup_failed');
     }
     broadcastDmMessage(dmChannelId, message);
-
-    // 7. Federation relay, as for every DM message: to each instance that
-    // hosts a participant (`queueDmRelay` derives the targets from the
-    // conversation's members, and relays nothing for a pair homed here). The
-    // sender's own home is one of them when the sender is a federated account
-    // acting on this instance, which is how the invite reaches the copy of
-    // the conversation the sender reads at home.
-    queueDmRelay(message, dmChannelId, 'create');
 
     const response: SpaceInviteResponse = { dmChannelId, messageId, message };
     return reply.code(200).send(response);
@@ -2116,9 +1507,6 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
     // Broadcast to all DM members (including those who closed the channel)
     broadcastDmMessage(id, message);
 
-    // Federation: queue for relay
-    queueDmRelay(message, id, 'create');
-
     // Resolve embeds asynchronously after responding
     setImmediate(() => {
       resolveEmbeds(messageId, content, id, true, null).catch(() => {});
@@ -2165,9 +1553,6 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
       });
     }
 
-    // Federation: queue for relay
-    queueDmRelay(updated, msg.dmChannelId, 'update');
-
     // Resolve new embeds asynchronously (old ones already deleted above)
     setImmediate(() => {
       resolveEmbeds(id, content, msg.dmChannelId, true, null).catch(() => {});
@@ -2186,10 +1571,6 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
     }
     const msg = check.value;
     const db = getDb();
-
-    // The relay names the message by its shared coordinates, read from the
-    // row before it is gone.
-    const relayTarget = dmMessageMutationTarget(msg, request.userId);
 
     // Collect attachment filenames before deleting
     const attachmentRows = db.select({ filename: schema.attachments.filename })
@@ -2228,9 +1609,6 @@ export async function dmRoutes(app: FastifyInstance): Promise<void> {
         dmChannelId: msg.dmChannelId,
       });
     }
-
-    // Federation: log mutation and queue for relay
-    queueDmMessageDeleteRelay(id, msg.dmChannelId, relayTarget);
 
     return reply.code(200).send({ success: true });
   });

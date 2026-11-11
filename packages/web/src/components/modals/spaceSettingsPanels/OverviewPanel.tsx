@@ -5,11 +5,10 @@ import { getSpaceGradient, SPACE_GRADIENT_MAP } from '../../../utils/gradients';
 import { AVATAR_COLORS } from '@veyvox/shared';
 import type { AvatarColor } from '@veyvox/shared';
 import { useSpaceStore } from '../../../stores/spaceStore';
-import { useSelfIdentity } from '../../../stores/authStore';
-import { useSpaceOrigin } from '../../../hooks/useSpaceOrigin';
+import { useAuthStore } from '../../../stores/authStore';
 import { useUIStore } from '../../../stores/uiStore';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../../../api/client';
+import { uploadUrl } from '../../../utils/assetUrls';
 import { useTransferStore } from '../../../stores/transferStore';
 import { waitForTransferAttachment } from '../../../utils/waitForTransfer';
 import { hasPermissionBit, PermissionBits } from '../../../utils/permissions';
@@ -22,6 +21,11 @@ interface OverviewPanelProps {
 }
 
 export function OverviewPanel({ spaceId, children }: OverviewPanelProps) {
+  const revision = useAuthStore(s => s.sessionRevision);
+  return <OverviewContent key={JSON.stringify([revision, spaceId])} spaceId={spaceId} revision={revision}>{children}</OverviewContent>;
+}
+
+function OverviewContent({ spaceId, children, revision }: OverviewPanelProps & { revision: number }) {
   const { t } = useTranslation(['spaces', 'common']);
   const colorNames = useAvatarColorNames();
   const spaces = useSpaceStore((s) => s.spaces);
@@ -32,11 +36,7 @@ export function OverviewPanel({ spaceId, children }: OverviewPanelProps) {
   const navigate = useNavigate();
 
   const space = spaces.find((s) => s.id === spaceId);
-  // The user's row id on the space's instance, which issued its owner id and
-  // member rows.
-  const self = useSelfIdentity();
-  const spaceOrigin = useSpaceOrigin(spaceId);
-  const myIdHere = self?.rowIds.get(spaceOrigin);
+  const myIdHere = useAuthStore(s => s.user?.id);
   const isOwner = !!space && myIdHere !== undefined && space.ownerId === myIdHere;
   const myPerms = spacePermissions.get(spaceId);
   const canManageSpace = hasPermissionBit(myPerms, PermissionBits.MANAGE_SPACE);
@@ -70,6 +70,12 @@ export function OverviewPanel({ spaceId, children }: OverviewPanelProps) {
   const [transferSearch, setTransferSearch] = useState('');
   const [transferTargetId, setTransferTargetId] = useState<string | null>(null);
   const [transferring, setTransferring] = useState(false);
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const current = () => alive.current && revision === useAuthStore.getState().sessionRevision
+    && useSpaceStore.getState().spaces.some(row => row.id === spaceId);
+  useEffect(() => () => { if (iconPreview) URL.revokeObjectURL(iconPreview); }, [iconPreview]);
+  useEffect(() => () => { if (bannerPreview) URL.revokeObjectURL(bannerPreview); }, [bannerPreview]);
 
   useEffect(() => {
     if (space) {
@@ -89,9 +95,8 @@ export function OverviewPanel({ spaceId, children }: OverviewPanelProps) {
   }, [space?.name, space?.icon, space?.banner, space?.avatarColor]);
 
   // Kept above the `!space` guard. The guard is reachable while this panel
-  // stays mounted: the WebSocket handler calls spaceStore.removeSpace on
-  // `member_banned`, and removeInstanceSpaces drops every space of an
-  // instance when its connection goes away. Neither closes the settings
+  // stays mounted: the WebSocket handler removes a banned space, and session
+  // reset drops all native spaces. Neither necessarily closes the settings
   // modal, so this component re-renders with `space` undefined, and a hook
   // below the guard would stop being called on that render.
   // Not reachable this way: handleDelete below, which awaits deleteSpace and
@@ -115,13 +120,8 @@ export function OverviewPanel({ spaceId, children }: OverviewPanelProps) {
   const hasAvatarColorChange = avatarColorState !== (space.avatarColor ?? null);
   const hasChanges = hasNameChange || hasIconChange || hasBannerChange || hasAvatarColorChange;
 
-  const currentIconUrl = space.icon
-    ? (space.icon.startsWith('http') ? space.icon : api.uploads.url(space.icon))
-    : null;
-
-  const currentBannerUrl = space.banner
-    ? (space.banner.startsWith('http') ? space.banner : api.uploads.url(space.banner))
-    : null;
+  const currentIconUrl = uploadUrl(space.icon);
+  const currentBannerUrl = uploadUrl(space.banner);
 
   // ─── Icon handlers ────────────────────────────────────────────────────────
 
@@ -129,12 +129,13 @@ export function OverviewPanel({ spaceId, children }: OverviewPanelProps) {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => setCropSrc(reader.result as string);
+    reader.onload = () => { if (current()) setCropSrc(reader.result as string); };
     reader.readAsDataURL(file);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleCropComplete = async (blob: Blob) => {
+    if (!current()) return;
     if (iconPreview) URL.revokeObjectURL(iconPreview);
     const previewUrl = URL.createObjectURL(blob);
     setIconPreview(previewUrl);
@@ -143,18 +144,17 @@ export function OverviewPanel({ spaceId, children }: OverviewPanelProps) {
     const file = new File([blob], 'icon.webp', { type: blob.type || 'image/webp' });
     setUploadingIcon(true);
     try {
-      const tid = await useTransferStore.getState().startUpload(file, {
-        tray: false,
-        origin: space._instanceOrigin || undefined,
-      });
+      const tid = await useTransferStore.getState().startUpload(file, { tray: false });
+      if (!current()) return;
       const { filename } = await waitForTransferAttachment(tid);
-      setIconFilename(filename);
+      if (current()) setIconFilename(filename);
     } catch {
+      if (!current()) return;
       setSaveError(t('spaces:settings.overview.iconUploadFailed'));
       setIconPreview(null);
       URL.revokeObjectURL(previewUrl);
     } finally {
-      setUploadingIcon(false);
+      if (current()) setUploadingIcon(false);
     }
   };
 
@@ -170,12 +170,13 @@ export function OverviewPanel({ spaceId, children }: OverviewPanelProps) {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => setBannerCropSrc(reader.result as string);
+    reader.onload = () => { if (current()) setBannerCropSrc(reader.result as string); };
     reader.readAsDataURL(file);
     if (bannerFileInputRef.current) bannerFileInputRef.current.value = '';
   };
 
   const handleBannerCropComplete = async (blob: Blob) => {
+    if (!current()) return;
     if (bannerPreview) URL.revokeObjectURL(bannerPreview);
     const previewUrl = URL.createObjectURL(blob);
     setBannerPreview(previewUrl);
@@ -184,18 +185,17 @@ export function OverviewPanel({ spaceId, children }: OverviewPanelProps) {
     const file = new File([blob], 'banner.webp', { type: blob.type || 'image/webp' });
     setUploadingBanner(true);
     try {
-      const tid = await useTransferStore.getState().startUpload(file, {
-        tray: false,
-        origin: space._instanceOrigin || undefined,
-      });
+      const tid = await useTransferStore.getState().startUpload(file, { tray: false });
+      if (!current()) return;
       const { filename } = await waitForTransferAttachment(tid);
-      setBannerFilename(filename);
+      if (current()) setBannerFilename(filename);
     } catch {
+      if (!current()) return;
       setSaveError(t('spaces:settings.overview.bannerUploadFailed'));
       setBannerPreview(null);
       URL.revokeObjectURL(previewUrl);
     } finally {
-      setUploadingBanner(false);
+      if (current()) setUploadingBanner(false);
     }
   };
 
@@ -208,6 +208,7 @@ export function OverviewPanel({ spaceId, children }: OverviewPanelProps) {
   // ─── Save / Discard / Delete ──────────────────────────────────────────────
 
   const handleSave = async () => {
+    if (!current() || saving) return;
     setSaving(true);
     setSaveError('');
     try {
@@ -223,6 +224,7 @@ export function OverviewPanel({ spaceId, children }: OverviewPanelProps) {
         updates.avatarColor = avatarColorState ?? '';
       }
       await updateSpace(spaceId, updates);
+      if (!current()) return;
       setIconFilename(null);
       if (iconPreview) {
         URL.revokeObjectURL(iconPreview);
@@ -235,9 +237,9 @@ export function OverviewPanel({ spaceId, children }: OverviewPanelProps) {
       }
       addToast(t('common:states.settingsSaved'), 'success', 2000);
     } catch (err) {
-      setSaveError(describeError(err));
+      if (current()) setSaveError(describeError(err));
     } finally {
-      setSaving(false);
+      if (current()) setSaving(false);
     }
   };
 
@@ -258,16 +260,18 @@ export function OverviewPanel({ spaceId, children }: OverviewPanelProps) {
   };
 
   const handleDelete = async () => {
+    if (!current()) return;
     if (!confirmDelete) {
       setConfirmDelete(true);
       return;
     }
     try {
       await deleteSpace(spaceId);
+      if (!alive.current || revision !== useAuthStore.getState().sessionRevision) return;
       closeModal();
       navigate('/channels/@me');
     } catch (err) {
-      setSaveError(describeError(err));
+      if (current()) setSaveError(describeError(err));
     }
   };
 
@@ -275,10 +279,11 @@ export function OverviewPanel({ spaceId, children }: OverviewPanelProps) {
   const transferTarget = transferTargetId ? members.find(m => m.userId === transferTargetId) : null;
 
   const handleTransfer = async () => {
-    if (!transferTargetId) return;
+    if (!transferTargetId || !current() || transferring) return;
     setTransferring(true);
     try {
       await transferOwnership(spaceId, transferTargetId);
+      if (!current()) return;
       addToast(
         t('spaces:settings.overview.transfer.success', { name: transferTarget?.user.displayName || transferTarget?.user.username }),
         'success',
@@ -288,9 +293,9 @@ export function OverviewPanel({ spaceId, children }: OverviewPanelProps) {
       setTransferTargetId(null);
       setTransferSearch('');
     } catch (err) {
-      addToast(describeError(err), 'warning', 3000);
+      if (current()) addToast(describeError(err), 'warning', 3000);
     } finally {
-      setTransferring(false);
+      if (current()) setTransferring(false);
     }
   };
 

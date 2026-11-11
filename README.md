@@ -7,7 +7,7 @@
 
 **Communication for your community, on infrastructure you control.**
 
-Chat · voice · video · screen sharing · federation · minigames
+Chat · voice · video · screen sharing · minigames
 
 [Downloads](https://github.com/bernardokcosta/veyvox/releases) · [Documentation](docs/systems/) · [Issues](https://github.com/bernardokcosta/veyvox/issues) · [Security](SECURITY.md)
 
@@ -15,8 +15,8 @@ Chat · voice · video · screen sharing · federation · minigames
 
 Veyvox is an independently maintained, self-hosted communication platform derived
 from [Backspace](https://github.com/TheZwiss/backspace). It combines spaces and
-channels, private conversations and optional voice/video with federation between
-independent instances. See [package.json](package.json) for the source version;
+channels, private conversations and optional voice/video on one selected server
+with native accounts. See [package.json](package.json) for the source version;
 download only builds
 listed in the published releases.
 
@@ -36,7 +36,6 @@ listed in the published releases.
 - **Chat and organization:** spaces, channels, roles and permission overrides; Markdown, replies, reactions, attachments, search and unread indicators.
 - **Private conversations:** friends, direct messages and group DMs; optional voice/video calls.
 - **Voice, video and screen sharing:** optional LiveKit integration, quality controls, per-person/per-stream volume, push-to-talk and noise suppression. Availability depends on your server, OS, browser and hardware.
-- **Federation:** connect independent instances for supported friends, messages, calls and presence; accounts and permissions remain instance-aware.
 - **Minigames and soundboard:** play minigames such as Juno in space voice channels and use personal sound shortcuts.
 - **25 interface languages:** automatic system-language selection or an explicit choice, including Brazilian Portuguese and Arabic RTL.
 - **Web, desktop and mobile:** responsive web client, Electron desktop app and installable mobile PWA.

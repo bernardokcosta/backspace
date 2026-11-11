@@ -1,28 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "máy chủ xa",
-    "hostInstance": "máy chủ chủ",
-    "acceptDropped": "Không thể xác nhận chấp nhận với {{instance}} — cuộc gọi rớt.",
-    "rejectFailed": "Không thể báo {{instances}} rằng bạn từ chối. Người gọi có thể vẫn thấy bạn đổ chuông trong chốc lát.",
-    "endFailed": "Không thể báo {{instances}} rằng bạn cúp máy. Người tham gia xa có thể thấy cuộc gọi tới 60 giây.",
-    "hostUnreachable": "Cuộc gọi kết thúc — máy chủ chủ không thể tới được.",
-    "peeringLost": "Cuộc gọi kết thúc — máy chủ này không còn ghép với {{instance}}.",
-    "instanceUnreachable": "Cuộc gọi kết thúc — {{instance}} không thể tới được.",
-    "someUnreachable": "Không thể tới một số người tham gia: {{instances}}.",
-    "multipleUnreachable_one": "Không thể tới {{count}} máy chủ: {{instances}}.",
-    "multipleUnreachable_other": "Không thể tới {{count}} máy chủ: {{instances}}.",
-    "callFailed": "Không thể thực hiện cuộc gọi.",
-    "manualApproval": "Không thể tới {{instance}} — máy chủ này yêu cầu duyệt ghép thủ công.",
-    "awaitingApproval": "Đang chờ quản trị {{instance}} duyệt máy chủ của bạn. Cuộc gọi hoạt động sau duyệt.",
-    "transientFailure": "Không thể tới {{instance}}. Thử lại chốc lát.",
-    "voiceUnavailable": "Voice chưa thiết lập trên máy chủ này.",
-    "noRecipient": "{{instance}} không gọi ai.",
-    "targetCallFailed": "Không thể gọi tới {{instance}}."
-  },
-  "feedback": {
-    "relayDenied": "Không thể chuyển tiếp tin nhắn — máy chủ họ từ chối ghép. Hãy liên hệ quản trị của họ.",
-    "awaitingPeering": "Tin nhắn sẽ được gửi khi quản trị của họ duyệt yêu cầu ghép."
-  },
   "names": {
     "group": "Nhóm",
     "directMessage": "Tin nhắn trực tiếp",
@@ -162,12 +138,7 @@
     "notFound": "Không tìm thấy cuộc trò chuyện.",
     "notGroup": "Cuộc trò chuyện này không có thông tin nhóm.",
     "cancelEdit": "Hủy sửa",
-    "federated": "Nhóm liên hợp",
     "memberCount_one": "{{count}} thành viên",
     "memberCount_other": "{{count}} thành viên"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "Nhóm này quản lý trên {{host}}. Hãy kết nối tới máy chủ đó để đổi.",
-    "ownerNotListed": "{{host}} chưa liệt kê nhóm này cho bạn. Thử lại chốc lát."
   }
 }

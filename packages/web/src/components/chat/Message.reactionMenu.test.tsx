@@ -10,7 +10,7 @@ import { ContextMenuRenderer } from '../ui/ContextMenuRenderer';
 import { Message } from './Message';
 
 // An open socket: every send is taken.
-vi.mock('../../hooks/useWebSocket', () => ({ wsSend: vi.fn(() => true), wsSendAll: vi.fn() }));
+vi.mock('../../hooks/useWebSocket', () => ({ wsSend: vi.fn(() => true) }));
 // The picker as a single choice: picking 👍. It says which layout it was
 // asked for: the full-width mobile one or the fixed desktop box.
 vi.mock('./EmojiPicker', () => ({
@@ -41,7 +41,6 @@ function makeUser(id: string, username: string): User {
   return {
     id, username, displayName: null, avatar: null, banner: null, accentColor: null, avatarColor: null,
     bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
-    homeInstance: null, homeUserId: null, replicatedInstances: [],
   };
 }
 
@@ -87,16 +86,16 @@ function renderMessage(): void {
 
 beforeEach(() => {
   vi.mocked(wsSend).mockClear();
-  useAuthStore.setState({ user: me, myRowIds: new Map() });
-  useSpaceStore.setState({ dmChannels: [dm], channelOriginMap: new Map([[dm.id, '']]) });
+  useAuthStore.setState({ user: me });
+  useSpaceStore.setState({ dmChannels: [dm] });
   useChatStore.setState({ messages: new Map([[dm.id, [message]]]), detachedChannels: new Map(), reactionAddsInFlight: new Map() });
 });
 
 afterEach(() => {
   act(() => useContextMenuStore.getState().close());
   useUIStore.setState({ isMobile: false });
-  useAuthStore.setState({ user: null, myRowIds: new Map() });
-  useSpaceStore.setState({ dmChannels: [], channelOriginMap: new Map() });
+  useAuthStore.setState({ user: null });
+  useSpaceStore.setState({ dmChannels: [] });
   useChatStore.setState({ messages: new Map(), reactionAddsInFlight: new Map() });
 });
 
@@ -113,7 +112,7 @@ describe.each([
     openMenu();
     fireEvent.click(screen.getByRole('button', { name: '👍' }));
 
-    expect(sent('reaction_add')).toEqual([[{ type: 'reaction_add', messageId: message.id, emoji: '👍' }, '']]);
+    expect(sent('reaction_add')).toEqual([[{ type: 'reaction_add', messageId: message.id, emoji: '👍' }]]);
     expect(useContextMenuStore.getState().menu).toBeNull();
   });
 

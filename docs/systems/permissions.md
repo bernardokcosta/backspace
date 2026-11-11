@@ -176,11 +176,10 @@ send `{ type: 'error', code: 'role_hierarchy' }`.
 
 The rule is `canActOnMember` / `canManageRoleAt` / `topRolePosition` in
 `packages/shared/src/permissions.ts`, used by both sides. The server reads the
-facts in `utils/roleHierarchy.ts` (`getHierarchyStanding`); ids are ids on the
-space's own instance, so a moderator whose home is another instance is ranked
-as their local replicated user there. The client reads them in
+facts in `utils/roleHierarchy.ts` (`getHierarchyStanding`); all IDs are native
+account IDs. The client reads them in
 `web/src/utils/roleHierarchy.ts` from the loaded member list, finding the
-viewer through `getMyUserIdForOrigin` of the space's origin. When the space is
+viewer through the verified current `authStore.user.id`. When the space is
 not the loaded one or a member row is missing, the client leaves the control
 offered and the server decides. The same holds when the space's roles do not
 have distinct positions from 1 up (`spaceRanksRoles`, the `canReorderRoles`
@@ -226,11 +225,10 @@ request also carries `position`, the anchor's position, for 1.7.x servers,
 which read only that; a server that reads the anchor ignores it. 1.7.x
 clients send `position` alone, which still moves the role to that position.
 It shows at once (`moveRoleInRankOrder`
-renumbers n..1 as `moveRoleToPosition` does), goes to the space's own
-instance through `getApiForOrigin(space._instanceOrigin)`, and is put back
+renumbers n..1 as `moveRoleToPosition` does), uses the primary `api.roles`, and is put back
 if refused, with the server's reason (`describeError`) right under the role
 that moved back, scrolled into view. The viewer is ranked
-by their id on the space's instance (`myStandingIn`). The server tells every
+by their native account ID (`myStandingIn`). The server tells every
 member with `space_access_changed` after the move (websocket.md), and their
 client refreshes the space quietly, so other open role lists show the new
 order. When the
@@ -433,8 +431,7 @@ connection, so nothing else can write in between.
 API callers that do not send one) is not compared and replaces the value as
 before. Refusing it would break every released client against a newer
 instance. Only clients that send a version are protected, which includes
-every client from this release on, and federated clients reach the space's
-own instance directly (client-federation.md), so the instance's version decides.
+every client from this release on. These are native current-server requests.
 
 **Client.** Each editor keeps the value its edit started from:
 
@@ -501,7 +498,7 @@ rule (above). Every gated surface:
 | Surface | File | Gating |
 |---|---|---|
 | Members list: kick and ban | `spaceSettingsPanels/MembersPanel.tsx` | hidden for members ranked at or above the viewer |
-| Member list owner heading: edit owner title | `layout/OwnerTitleHeading.tsx` | the signed-in user's row on the space's instance is the owner (no role or bit grants it, `MANAGE_SPACE` included), and that instance sends `ownerTitle` (`hostKeepsOwnerTitle`); desktop member list and phone members screen |
+| Member list owner heading: edit owner title | `layout/OwnerTitleHeading.tsx` | the signed-in native account ID is the owner (no role or bit grants it, `MANAGE_SPACE` included); desktop member list and phone members screen |
 | Member list right-click menu | `layout/memberMenu/useMemberContextMenu.tsx` | Change nickname: always for oneself; for another member with MANAGE_SPACE when they are not the owner and rank below the viewer. Roles submenu: `viewerCanEditMemberRoles`, listing the roles below the viewer's top role. Kick and Ban: KICK_MEMBERS / BAN_MEMBERS, not oneself or the owner, member ranked below the viewer |
 | Members list: role checkboxes | `spaceSettingsPanels/MembersPanel.tsx` | roles at or above the viewer's top role disabled (`settings.members.rolesAboveYou`); a role the member does not have yet and that carries a bit the viewer does not hold disabled (`settings.members.rolesUnheld`); each reason shown under the list with a lock, and as the row's title; the editor does not open for members ranked at or above the viewer |
 | Profile card: Edit Roles | `ui/UserProfilePopout.tsx` | desktop only; offered for a member of the loaded space when `viewerCanEditMemberRoles` holds: the viewer holds MANAGE_ROLES, the member is neither the viewer (by their id on the space's instance) nor the owner and ranks below the viewer, and some role other than @everyone ranks below the viewer; opens the member role editor |
@@ -600,10 +597,8 @@ member holds now. A member who gains `MANAGE_ROLES` gets the bits on that
 refetch; a member who loses it gets the list without them, which replaces the
 one in the store. A `ready` is shaped the same way at every connect.
 
-**Federation.** A user whose home is another instance connects to the space's
-instance directly and is a member there under their local replicated id, so
-the same rule applies to them with that id. No server-to-server route serves
-role or override data.
+**Native identity.** Role and override access uses the authenticated account ID
+on the selected server. There is no alternate identity or server-to-server route.
 
 **Mixed versions.** The web client has read the space's role list only from
 `GET /api/spaces/:id`, which already left the bits out for members without
@@ -693,13 +688,9 @@ messages alert"). Messages stored before this version are stamped from their
 text too; that matters only for the highlight, since only `message_created`
 alerts.
 
-**Federation.** A space lives on one instance, and a member from another
-instance reads its channels from that instance directly with their
-replicated id there (client-federation.md). The permission is resolved there
-for that id, and the stamp comes from there. Role mentions are matched
-against the reader's roles on that instance (`myRoleIds` on the client's
-space entry, keyed by origin), never against a home id. No server-to-server
-route carries channel messages, so a peer cannot add a stamp.
+**Native authority.** The current server resolves permission and stamps the
+message for the verified native author. Role mentions match the reader's native
+space `myRoleIds`. No external identity or client-supplied stamp grants authority.
 
 **Mixed versions.**
 

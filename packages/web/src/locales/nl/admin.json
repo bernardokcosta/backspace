@@ -4,7 +4,6 @@
     "description": "Configureer je Veyvox-instantie. Deze instellingen gelden voor alle gebruikers.",
     "instanceName": {
       "label": "Instantienaam",
-      "description": "De naam op de inlogpagina en voor gefedereerde instanties.",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "Registratie",
-    "description": "Bepaal wie accounts kan aanmaken op deze instantie. Openbare registratie dekt lokale aanmeldingen; gefedereerde registratie dekt gebruikers van gekoppelde instanties die hier een account aanmaken.",
     "public": {
       "label": "Openbare registratie",
       "toggleLabel": "Nieuwe lokale accounts toestaan",
       "toggleDescription": "Iedereen kan een lokaal account maken op de registratiepagina. Bij uit staan nieuwe lokale accounts alleen via een uitnodigingslink."
-    },
-    "federated": {
-      "label": "Gefedereerde registratie",
-      "toggleLabel": "Nieuwe gefedereerde accounts toestaan",
-      "toggleDescription": "Gebruikers van andere instanties kunnen hier een gefedereerd account maken via hun verbindingsinstellingen. Bestaande gefedereerde accounts kunnen altijd inloggen, ongeacht deze instelling."
     },
     "spaceCreation": {
       "label": "Ruimtes aanmaken",
@@ -355,8 +348,6 @@
     "loadFailed": "Gebruikers laden mislukt",
     "empty": "Geen gebruikers gevonden",
     "filters": {
-      "allInstances": "Alle instanties",
-      "localOnly": "Alleen lokaal",
       "allRoles": "Alle rollen",
       "admin": "Beheerder",
       "nonAdmin": "Geen beheerder",
@@ -376,9 +367,7 @@
     "actions": {
       "demote": "Beheerdersrechten afnemen",
       "promote": "Beheerdersrechten geven",
-      "federatedNoAdmin": "Gefedereerde gebruikers kunnen geen beheerders zijn",
       "resetPassword": "Wachtwoord resetten",
-      "federatedNoReset": "Gefedereerde gebruikers loggen in via hun thuisbasis",
       "delete": "Gebruiker verwijderen",
       "selfDelete": "Gebruik instellingen om je eigen account te verwijderen"
     },
@@ -405,15 +394,7 @@
     "deleteDialog": {
       "title": "Gebruiker verwijderen",
       "description": "<strong>{{username}}</strong> definitief verwijderen? De gebruiker wordt uit alle ruimtes, privéberichten en vriendenlijsten gehaald. Dit kan niet ongedaan worden gemaakt.",
-      "confirm": "Gebruiker verwijderen",
-      "blockBot": "Deze bot niet opnieuw laten registreren",
-      "blockBotHint": "Zodra zijn thuisbasis terug is, kan de bot hier geen account aanmaken. Deblokkeer hem onder de gebruikerslijst."
-    },
-    "blockedBots": {
-      "title": "Geblokkeerde bots",
-      "description": "Bots van andere instanties die zich hier niet mogen registreren. Deblokkeer een bot om weer toegang te geven.",
-      "blockedAt": "Geblokkeerd {{date}}",
-      "unblock": "Deblokkeren"
+      "confirm": "Gebruiker verwijderen"
     }
   },
   "mobile": {
@@ -421,7 +402,6 @@
     "sections": {
       "general": "Algemeen",
       "registration": "Registratie",
-      "federation": "Federatie",
       "streaming": "Streamen",
       "storage": "Opslag",
       "updates": "Updates",

@@ -24,7 +24,7 @@ export function JunoMatch() {
   const reportDescriptionId = useId();
   const game = snapshot?.game;
   if (!game || game.phase !== 'playing') return null;
-  const revision = snapshot.revision; const selfId = target?.selfId;
+  const revision = snapshot.revision; const selfId = target?.userId;
   const disabled = !connected || pending || stale; const myTurn = game.currentPlayerId === selfId;
   const isPlayer = game.players.some(p => p.userId === selfId);
   const blind = isPlayer && game.memoryCurse?.targetUserId === selfId;
@@ -60,7 +60,7 @@ export function JunoMatch() {
     return <div key={position} data-seat={position} className={`juno-seat juno-seat-${position}${person && game.memoryCurse?.targetUserId === person.userId ? ' juno-seat-memory' : ''}`}>
       {person ? <>
         {game.memoryCurse?.targetUserId === person.userId && <span className="sr-only">{t('juno.memory.affected', { name: playerName(person) })}</span>}
-        <div className="juno-player-controls"><JunoPlayerBadge person={person} origin={target?.origin ?? ''} spaceId={spaceId} self={person.userId === selfId}
+        <div className="juno-player-controls"><JunoPlayerBadge person={person} spaceId={spaceId} self={person.userId === selfId}
           active={person.userId === game.currentPlayerId} next={person.userId === next?.userId} detail={t('juno.cardCount', { count: person.cardCount })} reportControl={reportControl} />
         </div>
         {person.userId !== selfId && <div className={`juno-opponent-cards${side ? ' juno-side-hand' : ''}`} aria-hidden="true">

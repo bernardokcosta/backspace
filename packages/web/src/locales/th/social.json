@@ -19,7 +19,6 @@
     "activity": "เงียบตอนนี้… เมื่อเพื่อนเริ่มกิจกรรม เราจะแสดงที่นี่!"
   },
   "friend": {
-    "viaInstance": "ผ่าน {{host}}",
     "message": "ข้อความ",
     "remove": "ลบเพื่อน"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "ค้นหาผู้คน",
-    "hint": "ค้นหาด้วยชื่อผู้ใช้ หรือใช้ <handle>user@instance</handle> เพื่อเพิ่มโดยตรง",
     "placeholder": "ค้นหาหรือเพิ่มด้วยชื่อ…",
     "direct": "ส่งคำขอเป็นเพื่อนถึง <handle>{{handle}}</handle>",
     "sendRequest": "ส่งคำขอ",
@@ -97,6 +95,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "เปิดแทร็ก"
-  },
-  "instanceNotConnected": "ไม่ได้เชื่อม {{host}} เชื่อมใหม่แล้วลองอีกครั้ง"
+  }
 }

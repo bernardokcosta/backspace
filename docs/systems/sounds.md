@@ -195,15 +195,10 @@ are not open, read by `selectMyRoleIdsInChannel`). The message highlight in
 `Message.tsx` uses the same `messageMentions` and shows any of the three,
 whatever the switches say.
 
-**Whose message, whose mention.** Both are decided with the channel's origin
-(`getChannelOrigin`). The author is the user when `isMe(author, origin)` holds
-(the identity rule, client-federation.md §5). A mention is of the user when the
-content has `<@id>` for the id the channel's instance gave them
-(`getMyUserIdForOrigin(origin)`); until that instance's `ready` named it,
-nothing there mentions the user. On a remote instance's channel the user's
-own messages carry that instance's row and mentions are written with its id,
-so checking against the session row alone would alert on their own messages
-there and miss mentions.
+**Whose message, whose mention.** Compare the message author and `<@id>` token
+against the current native account ID. Exact retained usernames are display
+data, not an alternate identity or origin. Own messages never alert as another
+account, and unknown-session events cannot name the current user.
 
 **The every-message preference.** `messageSoundAllChannels` ("Play sound for
 every message") widens the sound only. `SoundController` passes it as
@@ -248,19 +243,15 @@ The space setting also has two switches, `suppressEveryone` and
 `suppressRoles` (off by default). They are space-wide only: a channel inherits
 them and cannot set them, so a channel's level never undoes them.
 
-**Where they live.** On the instance that hosts the space, in
-`notification_settings` (database.md), keyed by the user's row there: for a
-space on a remote instance that is the user's account on that instance,
-never their home id. The client reaches it through origin routing
-(`getApiForOrigin` of the space's origin). Routes: api.md, "Notification
-settings". Every change is pushed as `notification_settings_updated` to the
-user's sockets on that instance (websocket.md), so their other sessions there
-follow at once. Sessions on other devices that connect later read the list
-when that instance's `ready` arrives.
+**Where they live.** On the selected server in `notification_settings`
+(database.md), keyed by the native account ID. The primary API reads/writes
+them (api.md, "Notification settings"). Every change is pushed as
+`notification_settings_updated` to the user's sockets, so their other sessions
+follow at once. Later connections load the list on `ready`.
 
-**Client.** `stores/notificationSettingsStore.ts` keeps every connected
-instance's settings, keyed by origin and id (ids are per instance). Each
-instance's list is loaded on its `ready`; pushes and the response to the
+**Client.** `stores/notificationSettingsStore.ts` keeps the current account's
+settings, with distinct native space/channel key namespaces. The
+list is loaded on `ready`; pushes and the response to the
 user's own change are merged last-write-wins on the server's `updatedAt`, and
 a push that lands while a list is loading is merged over the list rather than
 lost. The entries of an instance go when it is removed
@@ -519,23 +510,12 @@ stale watcher entries from the previous run.
 **Why not `LocalTrackSubscribed`?** Insufficient: fires only for the first
 subscriber and has no unsubscribe counterpart in LiveKit JS 2.17.
 
-### Federation
+### Room-scoped watcher identity
 
-LiveKit data channels are room-scoped: a federated DM call or a remote
-space's voice channel is one LiveKit room hosted by one instance, with every
-participant attached directly. User ids are not shared across it. In a remote
-space's channel the token's identity carries the id the space's instance has
-for the user; in a federated DM call it carries the home id, and each client
-lists the member under its own local id. That is why the watcher set is keyed
-by LiveKit identity and the sharer finds itself through the local participant
-(see Keys and Receiver above).
-
-Mixed versions: a new viewer's ping still carries `target`, so an older sharer
-behaves as before. An older viewer's ping carries only `target` and reaches a
-new sharer's set when both clients list the sharer under the same id (a space
-channel, a same-instance DM call); a cross-instance DM viewer on an older
-client names the sharer by an id the sharer's client does not know, so its
-ping is dropped and the sharer hears no cue for it, as before.
+LiveKit data channels stay inside the connected room. Watcher sets use the
+room's participant identity, and the sharer identifies itself through the local
+participant (see Keys and Receiver above). Native account IDs determine people;
+the client performs no cross-server identity projection or signaling relay.
 
 ---
 

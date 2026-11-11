@@ -1,28 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "den externa instansen",
-    "hostInstance": "värdinstansen",
-    "acceptDropped": "Kunde inte bekräfta din acceptans hos {{instance}} — samtalet bröts.",
-    "rejectFailed": "Kunde inte meddela {{instances}} att du avböjde. Uppringaren kan se dig som ringande en stund.",
-    "endFailed": "Kunde inte meddela {{instances}} att du lade på. Externa deltagare kan se samtalet i upp till 60 sekunder.",
-    "hostUnreachable": "Samtalet avslutat — värdinstansen blev onåbar.",
-    "peeringLost": "Samtalet avslutat — denna instans är inte längre parkopplad med {{instance}}.",
-    "instanceUnreachable": "Samtalet avslutat — {{instance}} blev onåbar.",
-    "someUnreachable": "Vissa deltagare kunde inte nås: {{instances}}.",
-    "multipleUnreachable_one": "Kunde inte nå {{count}} instans: {{instances}}.",
-    "multipleUnreachable_other": "Kunde inte nå {{count}} instanser: {{instances}}.",
-    "callFailed": "Samtalet kunde inte genomföras.",
-    "manualApproval": "Kan inte nå {{instance}} — denna instans kräver manuellt godkännande för parkoppling.",
-    "awaitingApproval": "Väntar på att administratören för {{instance}} godkänner din instans. Samtal fungerar efter godkännandet.",
-    "transientFailure": "Kan inte nå {{instance}}. Försök om en stund.",
-    "voiceUnavailable": "Röst är inte inställd på denna instans.",
-    "noRecipient": "{{instance}} ringde ingen.",
-    "targetCallFailed": "Samtalet till {{instance}} kunde inte genomföras."
-  },
-  "feedback": {
-    "relayDenied": "Kan inte vidarebefordra meddelanden — deras server nekade parkoppling. Kontakta deras administratör.",
-    "awaitingPeering": "Meddelanden levereras när deras administratör godkänner parkopplingsförfrågan."
-  },
   "names": {
     "group": "Grupp",
     "directMessage": "Direktmeddelande",
@@ -162,12 +138,7 @@
     "notFound": "Konversationen hittades inte.",
     "notGroup": "Denna konversation har ingen gruppinfo.",
     "cancelEdit": "Avbryt redigering",
-    "federated": "Federerad grupp",
     "memberCount_one": "{{count}} medlem",
     "memberCount_other": "{{count}} medlemmar"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "Denna grupp hanteras på {{host}}. Anslut dit för att ändra den.",
-    "ownerNotListed": "{{host}} visar ännu inte denna grupp för dig. Försök om en stund."
   }
 }

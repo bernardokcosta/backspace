@@ -17,14 +17,14 @@ vi.mock('../audio/AudioManager', () => ({
 }));
 
 const channelsMessages = vi.fn();
-vi.mock('../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../utils/crossStoreResolvers')>()),
-  getApiForOrigin: () => ({
+vi.mock('../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../api/client')>()),
+  api: {
     channels: {
       messages: (...args: unknown[]) => channelsMessages(...args),
       messagesAround: vi.fn(),
     },
-  }),
+  },
 }));
 
 import { useChatStore } from './chatStore';
@@ -54,7 +54,7 @@ function msg(id: string, channelId = A): MessageWithUser {
 beforeEach(() => {
   wsSend.mockReset();
   channelsMessages.mockReset();
-  useSpaceStore.setState({ channelOriginMap: new Map([[A, ''], [B, '']]), dmChannels: [] });
+  useSpaceStore.setState({ spaceChannelIndex: new Map([[A, { spaceId: 's', type: 'text' }], [B, { spaceId: 's', type: 'text' }]]), dmChannels: [] });
   useChatStore.setState({
     messages: new Map(),
     hasMore: new Map(),
@@ -97,7 +97,7 @@ describe('per-channel load state', () => {
     expect(useChatStore.getState().loadStates.get(unknown)).toEqual({ status: 'waiting' });
     expect(channelsMessages).not.toHaveBeenCalled();
 
-    useSpaceStore.setState({ channelOriginMap: new Map([[A, ''], [B, ''], [unknown, '']]) });
+    useSpaceStore.setState({ spaceChannelIndex: new Map([[A, { spaceId: 's', type: 'text' }], [B, { spaceId: 's', type: 'text' }], [unknown, { spaceId: 's', type: 'text' }]]) });
     const load = useChatStore.getState().loadMessages(unknown);
     expect(useChatStore.getState().loadStates.get(unknown)).toEqual({ status: 'loading' });
     expect(await load).toBe(true);
@@ -153,7 +153,7 @@ describe('read states only move forward', () => {
 
     useChatStore.getState().ackChannel(A);
 
-    expect(wsSend).toHaveBeenCalledWith({ type: 'channel_ack', channelId: A, messageId: '101' }, '');
+    expect(wsSend).toHaveBeenCalledWith({ type: 'channel_ack', channelId: A, messageId: '101' });
     expect(useChatStore.getState().readStates.get(A)).toBe('101');
     expect(useChatStore.getState().unreadChannels.has(A)).toBe(false);
   });

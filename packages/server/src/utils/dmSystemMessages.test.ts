@@ -7,8 +7,9 @@ describe('dmSystemName', () => {
     expect(dmSystemName({ displayName: 'Kai', username: 'kai@home.test' })).toBe('Kai');
   });
 
-  it('falls back to the handle without the domain a replicated row carries', () => {
-    expect(dmSystemName({ displayName: null, username: 'kai@home.test' })).toBe('kai');
+  it('preserves the full native handle, including legacy @ characters', () => {
+    expect(dmSystemName({ displayName: null, username: 'kai@home.test' })).toBe('kai@home.test');
+    expect(dmSystemName({ displayName: null, username: '@legacy@name' })).toBe('@legacy@name');
     expect(dmSystemName({ displayName: '', username: 'kai' })).toBe('kai');
   });
 

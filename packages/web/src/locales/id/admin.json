@@ -4,7 +4,6 @@
     "description": "Konfigurasikan instans Veyvox Anda. Pengaturan ini berlaku untuk semua pengguna.",
     "instanceName": {
       "label": "Nama Instans",
-      "description": "Nama yang tampil di halaman masuk dan ke instans federasi.",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "Pendaftaran",
-    "description": "Kontrol siapa yang dapat membuat akun di instans ini. Pendaftaran publik mencakup pendaftaran lokal; pendaftaran federasi mencakup pengguna dari instans peering yang membuat akun di sini.",
     "public": {
       "label": "Pendaftaran Publik",
       "toggleLabel": "Izinkan akun lokal baru",
       "toggleDescription": "Siapa pun dapat membuat akun lokal di halaman pendaftaran. Jika mati, akun lokal baru hanya via tautan undangan."
-    },
-    "federated": {
-      "label": "Pendaftaran Federasi",
-      "toggleLabel": "Izinkan akun federasi baru",
-      "toggleDescription": "Pengguna dari instans lain dapat membuat akun federasi di sini via pengaturan Koneksi. Akun federasi yang ada selalu dapat masuk, apa pun pengaturan ini."
     },
     "spaceCreation": {
       "label": "Pembuatan Ruang",
@@ -355,8 +348,6 @@
     "loadFailed": "Gagal memuat pengguna",
     "empty": "Tidak ada pengguna ditemukan",
     "filters": {
-      "allInstances": "Semua instans",
-      "localOnly": "Hanya lokal",
       "allRoles": "Semua peran",
       "admin": "Administrator",
       "nonAdmin": "Bukan admin",
@@ -376,9 +367,7 @@
     "actions": {
       "demote": "Cabut hak admin",
       "promote": "Beri hak admin",
-      "federatedNoAdmin": "Pengguna federasi tak dapat jadi admin",
       "resetPassword": "Atur ulang kata sandi",
-      "federatedNoReset": "Pengguna federasi masuk via instans utama",
       "delete": "Hapus pengguna",
       "selfDelete": "Gunakan pengaturan untuk menghapus akun sendiri"
     },
@@ -405,15 +394,7 @@
     "deleteDialog": {
       "title": "Hapus pengguna",
       "description": "Hapus permanen <strong>{{username}}</strong>? Pengguna dikeluarkan dari semua ruang, DM, dan daftar teman. Ini tak dapat dibatalkan.",
-      "confirm": "Hapus pengguna",
-      "blockBot": "Jangan biarkan bot ini mendaftar lagi",
-      "blockBotHint": "Saat instans utamanya kembali, bot tak dapat membuat akun di sini. Buka blokir di bawah daftar pengguna."
-    },
-    "blockedBots": {
-      "title": "Bot Diblokir",
-      "description": "Bot instans lain yang tak dapat mendaftar di sini. Buka blokir bot untuk mengizinkan akses lagi.",
-      "blockedAt": "Diblokir {{date}}",
-      "unblock": "Buka blokir"
+      "confirm": "Hapus pengguna"
     }
   },
   "mobile": {
@@ -421,7 +402,6 @@
     "sections": {
       "general": "Umum",
       "registration": "Pendaftaran",
-      "federation": "Federasi",
       "streaming": "Streaming",
       "storage": "Penyimpanan",
       "users": "Pengguna",

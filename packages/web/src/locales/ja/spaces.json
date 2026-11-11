@@ -157,21 +157,6 @@
     "invitePlaceholder": "例 abc123 または https://instance.com/join/abc123",
     "submit": "スペースに参加",
     "submitting": "参加中…",
-    "connect": {
-      "intro": "このスペース参加のため <host>{{host}}</host> に接続。",
-      "passwordLabel": "接続用パスワードを入力",
-      "passwordPlaceholder": "アカウントのパスワード",
-      "passwordNote": "パスワードはホームインスタンスが検証し {{host}} には送られません。そのインスタンスはそのためだけに作られた一意の資格情報を受け取ります。",
-      "submit": "接続 & 参加",
-      "submitting": "接続中…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "このインスタンスのユーザー名",
-      "passwordLabel": "このインスタンスのパスワード",
-      "passwordPlaceholder": "リモートインスタンスのパスワード",
-      "submit": "ログイン & 参加",
-      "submitting": "ログイン中…"
-    },
     "request": {
       "messagePlaceholder": "参加したい理由は? (任意)",
       "send": "要求を送信",
@@ -445,8 +430,6 @@
       "transferOwnership": "所有権移譲",
       "settings": "スペース設定",
       "leave": "スペース退出",
-      "reconnecting": "{{instance}} に再接続中…",
-      "remoteInstance": "リモートインスタンス",
       "leaveConfirm": {
         "title": "スペース退出",
         "titleNamed": "{{name}} を退出",

@@ -157,21 +157,6 @@
     "invitePlaceholder": "เช่น abc123 หรือ https://instance.com/join/abc123",
     "submit": "เข้าร่วมสเปซ",
     "submitting": "กำลังเข้าร่วม…",
-    "connect": {
-      "intro": "เชื่อม <host>{{host}}</host> เพื่อเข้าร่วมสเปซนี้",
-      "passwordLabel": "กรอกรหัสผ่านเพื่อเชื่อม",
-      "passwordPlaceholder": "รหัสผ่านบัญชีของคุณ",
-      "passwordNote": "รหัสผ่านตรวจโดยอินสแตนซ์หลักและไม่ส่งไป {{host}} อินสแตนซ์นั้นได้ข้อมูลประจำตัวเฉพาะที่สร้างให้เท่านั้น",
-      "submit": "เชื่อม & เข้าร่วม",
-      "submitting": "กำลังเชื่อม…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "ชื่อผู้ใช้ของคุณบนอินสแตนซ์นี้",
-      "passwordLabel": "รหัสผ่านอินสแตนซ์นี้",
-      "passwordPlaceholder": "รหัสผ่านบนอินสแตนซ์ระยะไกล",
-      "submit": "เข้าสู่ระบบ & เข้าร่วม",
-      "submitting": "กำลังเข้าสู่ระบบ…"
-    },
     "request": {
       "messagePlaceholder": "ทำไมอยากเข้าร่วม? (ไม่บังคับ)",
       "send": "ส่งคำขอ",
@@ -445,8 +430,6 @@
       "transferOwnership": "โอนความเป็นเจ้าของ",
       "settings": "ตั้งค่าสเปซ",
       "leave": "ออกจากสเปซ",
-      "reconnecting": "กำลังเชื่อม {{instance}} ใหม่…",
-      "remoteInstance": "อินสแตนซ์ระยะไกล",
       "leaveConfirm": {
         "title": "ออกจากสเปซ",
         "titleNamed": "ออก {{name}}",

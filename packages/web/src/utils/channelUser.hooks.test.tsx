@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, cleanup, renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Channel, DmChannel, MemberWithUser, User } from '@veyvox/shared';
 // The store graph reaches the audio engine, which needs Web Audio at import.
@@ -10,13 +10,12 @@ vi.mock('../audio/AudioManager', () => ({
 
 import { useAuthStore } from '../stores/authStore';
 import { useSpaceStore } from '../stores/spaceStore';
-import { useChannelMentionCandidates, useChannelUser, useChannelUserResolver, useSelfIdInChannel } from './channelUser';
+import { useChannelMentionCandidates, useChannelUser, useChannelUserResolver } from './channelUser';
 
 function makeUser(id: string, username: string, displayName: string | null): User {
   return {
     id, username, displayName, avatar: null, banner: null, accentColor: null, avatarColor: null,
     bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
-    homeInstance: null, homeUserId: null, replicatedInstances: [],
   };
 }
 
@@ -28,26 +27,23 @@ function channel(id: string, spaceId: string): Channel {
   return { id, spaceId, name: id, type: 'text', topic: null, position: 0, categoryId: null, createdAt: 0 };
 }
 
-const ORBIT = 'https://orbit.example';
 const me = makeUser('me', 'alice', 'Alice');
-const meOnOrbit = makeUser('me-orbit', 'alice@home.example', 'Alice');
 const kai = makeUser('kai', 'kai', 'Kai');
 
 afterEach(() => {
+  cleanup();
   useAuthStore.setState({ user: null });
   useSpaceStore.getState().reset();
-  useAuthStore.setState({ myRowIds: new Map() });
 });
 
-// The channel lookup maps are updated in place by `upsertChannel` and several
-// WS handlers; a hook must still see the new entry on the next store update.
-describe('channelUser hooks and in-place lookup map updates', () => {
+// Native lookup maps replace references; hooks must observe the new entries.
+describe('channelUser hooks and native lookup map updates', () => {
   it('resolves a member once a new channel of the loaded space is upserted', () => {
     useSpaceStore.setState({ currentSpaceId: 'space-1', members: [member('space-1', kai)] });
     const { result } = renderHook(() => useChannelUser('chan-new', kai.id));
     expect(result.current).toBeNull();
 
-    act(() => useSpaceStore.getState().upsertChannel(channel('chan-new', 'space-1'), 'space-1', ''));
+    act(() => useSpaceStore.getState().upsertChannel(channel('chan-new', 'space-1'), 'space-1'));
 
     expect(result.current?.userId).toBe(kai.id);
   });
@@ -57,22 +53,11 @@ describe('channelUser hooks and in-place lookup map updates', () => {
     const { result } = renderHook(() => useChannelMentionCandidates('chan-new'));
     expect(result.current).toEqual([]);
 
-    act(() => useSpaceStore.getState().upsertChannel(channel('chan-new', 'space-1'), 'space-1', ''));
+    act(() => useSpaceStore.getState().upsertChannel(channel('chan-new', 'space-1'), 'space-1'));
 
     expect(result.current.map((c) => c.userId)).toEqual([kai.id]);
   });
 
-  it("follows a channel's origin set in place", () => {
-    useAuthStore.setState({ user: me });
-    useAuthStore.getState().recordMyRow(ORBIT, meOnOrbit.id);
-    useSpaceStore.setState({ currentSpaceId: 'space-9' });
-    const { result } = renderHook(() => useSelfIdInChannel('chan-orbit'));
-    expect(result.current).toBe(me.id);
-
-    act(() => useSpaceStore.getState().upsertChannel(channel('chan-orbit', 'space-9'), 'space-9', ORBIT));
-
-    expect(result.current).toBe(meOnOrbit.id);
-  });
 });
 
 describe('useChannelUserResolver', () => {
@@ -93,29 +78,26 @@ describe('useChannelUserResolver', () => {
     expect(result.current.other(kai.id)).toBeNull();
   });
 
-  it("reads a remote DM's ids in its origin's id space, the signed-in user included", () => {
-    const kaiOnOrbit = makeUser('kai-orbit', 'kai', 'Kai');
-    const orbitDm = { id: 'dm-orbit', ownerId: null, createdAt: 1, members: [meOnOrbit, kaiOnOrbit], lastMessage: null } as unknown as DmChannel;
+  it('resolves native DM IDs including the signed-in user, never a same-handle ID', () => {
+    const otherKai = makeUser('other-kai', 'kai', 'Kai');
+    const nativeDm = { id: 'dm', ownerId: null, name: null, icon: null, createdAt: 1, members: [me, otherKai], lastMessage: null } as DmChannel;
     useAuthStore.setState({ user: me });
-    useAuthStore.getState().recordMyRow(ORBIT, meOnOrbit.id);
-    useSpaceStore.setState({ dmChannels: [orbitDm], channelOriginMap: new Map([[orbitDm.id, ORBIT]]), members: [member('space-1', kai)] });
-    const { result } = renderHook(() => useChannelUserResolver(orbitDm.id));
-    expect(result.current(kaiOnOrbit.id)?.origin).toBe(ORBIT);
-    expect(result.current(meOnOrbit.id)?.user.displayName).toBe('Alice');
-    // A home id names nobody in a DM whose ids are orbit's.
-    expect(result.current(me.id)).toBeNull();
+    useSpaceStore.setState({ dmChannels: [nativeDm], members: [member('space-1', kai)] });
+    const { result } = renderHook(() => useChannelUserResolver(nativeDm.id));
+    expect(result.current(otherKai.id)).not.toHaveProperty('origin');
+    expect(result.current(me.id)?.user.displayName).toBe('Alice');
     expect(result.current(kai.id)).toBeNull();
   });
 
   it('gives a new lookup with the better view once the user-view cache learns one', () => {
-    const stub = { ...makeUser('stub', '1234567890123456789@friend.example', null), homeUserId: '999', homeInstance: 'friend.example' };
+    const stub = makeUser('native', '1234567890123456789@retained.test', null);
     const dm = { id: 'dm-1', ownerId: null, createdAt: 1, members: [me, stub], lastMessage: null } as unknown as DmChannel;
     useSpaceStore.setState({ dmChannels: [dm] });
     const { result } = renderHook(() => useChannelUserResolver(dm.id));
     expect(result.current(stub.id)?.user.displayName).toBeNull();
 
-    const home = { ...makeUser('999', 'quinn', 'Quinn'), homeUserId: '999', homeInstance: 'friend.example' };
-    act(() => useSpaceStore.getState().upsertUserView(home, 'https://friend.example'));
+    const fresh = { ...stub, displayName: 'Quinn' };
+    act(() => useSpaceStore.getState().upsertUserView(fresh));
 
     expect(result.current(stub.id)?.user.displayName).toBe('Quinn');
     expect(result.current(stub.id)?.userId).toBe(stub.id);

@@ -4,14 +4,14 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import type { Reaction } from '@veyvox/shared';
 import { useFormatters } from '../../i18n/formatters';
-import { useSelfIdentity } from '../../stores/authStore';
+import { useAuthStore } from '../../stores/authStore';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useUIStore } from '../../stores/uiStore';
 import { useFloatingPosition } from '../../hooks/useFloatingPosition';
 import { usePortalContainer } from '../../hooks/usePortalContainer';
 import { useDismissOnEscape } from '../../hooks/useDismissOnEscape';
-import { getCanonicalUserView } from '../../utils/userViewLookup';
-import { parseFederatedUsername } from '../../utils/identity';
+import { canonicalUserViewIn } from '../../utils/userViewLookup';
+import { userDisplayName } from '../../utils/identity';
 import { isOwnReaction, reactionSentence, summarizeReactors } from './reactionSummary';
 import { useContextMenuStore } from '../../stores/contextMenuStore';
 import { buildImageMenuItems } from './imageMenuItems';
@@ -20,8 +20,6 @@ interface ReactionPillProps {
   emoji: string;
   /** Every reaction on the message with this emoji. */
   reactions: readonly Reaction[];
-  /** The instance that issued the message and its reactions. */
-  origin: string;
   onToggle: () => void;
 }
 
@@ -44,14 +42,14 @@ function truncateName(name: string): string {
  *
  * Reactor names come from the reaction rows the message already carries
  * (every read path and the `reaction_added` event attach the reacting user),
- * routed through the cross-instance user views so a remote user shows their
- * home instance's name rather than a stub's.
+ * updated through the native profile cache.
  */
-export function ReactionPill({ emoji, reactions, origin, onToggle }: ReactionPillProps) {
+export function ReactionPill({ emoji, reactions, onToggle }: ReactionPillProps) {
   const { t } = useTranslation(['chat', 'common']);
   const imageUrl = stickerUrl(emoji);
   const fmt = useFormatters();
-  const self = useSelfIdentity();
+  const selfId = useAuthStore(s => s.user?.id);
+  const views = useSpaceStore(s => s.userViews);
   const isMobile = useUIStore((s) => s.isMobile);
   const descriptionId = useId();
   const [open, setOpen] = useState(false);
@@ -70,17 +68,16 @@ export function ReactionPill({ emoji, reactions, origin, onToggle }: ReactionPil
 
   useEffect(() => () => clearTimeout(showTimerRef.current), []);
 
-  const mine = reactions.some((r) => isOwnReaction(r, origin, self));
+  const mine = reactions.some((r) => isOwnReaction(r, selfId));
 
   const nameOf = (reaction: Reaction): string => {
     const user = reaction.user
       ?? useSpaceStore.getState().members.find((m) => m.userId === reaction.userId)?.user;
     if (!user) return t('common:states.unknown');
-    const view = getCanonicalUserView(user, origin);
-    return truncateName(view.displayName || parseFederatedUsername(view.username).baseName);
+    return truncateName(userDisplayName(canonicalUserViewIn(views, user)));
   };
 
-  const summary = summarizeReactors(reactions, (r) => isOwnReaction(r, origin, self), nameOf);
+  const summary = summarizeReactors(reactions, (r) => isOwnReaction(r, selfId), nameOf);
   const sentence = reactionSentence(summary, t, fmt);
   const before = sentence.text.slice(0, sentence.namesStart);
   const names = sentence.text.slice(sentence.namesStart, sentence.namesStart + sentence.namesLength);

@@ -4,7 +4,6 @@
     "description": "Veyvoxインスタンスを設定。これらの設定は全ユーザーに適用。",
     "instanceName": {
       "label": "インスタンス名",
-      "description": "ログイン画面と連合インスタンスに表示される名。",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "登録",
-    "description": "このインスタンスで誰がアカウント作成できるか制御。公開登録はローカル登録を対象; 連合登録はここでアカウントを作るピアードインスタンスのユーザーを対象。",
     "public": {
       "label": "公開登録",
       "toggleLabel": "新規ローカルアカウントを許可",
       "toggleDescription": "誰でも登録画面でローカルアカウントを作成可能。オフ時は新規ローカルは招待リンクのみ。"
-    },
-    "federated": {
-      "label": "連合登録",
-      "toggleLabel": "新規連合アカウントを許可",
-      "toggleDescription": "他インスタンスのユーザーは接続設定からここで連合アカウントを作成可能。既存連合アカウントは設定に関わらず常にサインイン可能。"
     },
     "spaceCreation": {
       "label": "スペース作成",
@@ -342,8 +335,6 @@
     "loadFailed": "ユーザーを読み込めません",
     "empty": "ユーザーなし",
     "filters": {
-      "allInstances": "全インスタンス",
-      "localOnly": "ローカルのみ",
       "allRoles": "全ロール",
       "admin": "管理者",
       "nonAdmin": "非管理者",
@@ -363,9 +354,7 @@
     "actions": {
       "demote": "管理者権限を剥奪",
       "promote": "管理者権限を付与",
-      "federatedNoAdmin": "連合ユーザーは管理者不可",
       "resetPassword": "パスワードリセット",
-      "federatedNoReset": "連合ユーザーはホームインスタンスでサインイン",
       "delete": "ユーザー削除",
       "selfDelete": "自分の削除は設定を使用"
     },
@@ -391,15 +380,7 @@
     "deleteDialog": {
       "title": "ユーザー削除",
       "description": "<strong>{{username}}</strong> を完全削除? 全スペース・DM・フレンドリストから除外。元に戻せません。",
-      "confirm": "ユーザー削除",
-      "blockBot": "このボットの再登録を禁止",
-      "blockBotHint": "ホームインスタンス復帰時、ボットはここでアカウント作成不可。ユーザーリスト下で解除。"
-    },
-    "blockedBots": {
-      "title": "ブロック済みボット",
-      "description": "ここに登録不可の他インスタンスのボット。解除で再びアクセス許可。",
-      "blockedAt": "ブロック {{date}}",
-      "unblock": "ブロック解除"
+      "confirm": "ユーザー削除"
     }
   },
   "mobile": {
@@ -407,7 +388,6 @@
     "sections": {
       "general": "一般",
       "registration": "登録",
-      "federation": "連合",
       "streaming": "配信",
       "storage": "ストレージ",
       "users": "ユーザー",

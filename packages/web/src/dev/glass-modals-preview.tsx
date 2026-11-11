@@ -25,7 +25,7 @@ import { CreateSpaceModal } from '../components/modals/CreateSpace';
 import { JoinSpaceModal } from '../components/modals/JoinSpace';
 import { TransferOwnershipModal } from '../components/modals/TransferOwnershipModal';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
-import { useSpaceStore, type TaggedSpace } from '../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../stores/spaceStore';
 import { useUIStore } from '../stores/uiStore';
 import { useAuthStore } from '../stores/authStore';
 import { ALL_PERMISSIONS, permissionsToString } from '../utils/permissions';
@@ -37,16 +37,16 @@ type Scene = 'space-settings' | 'create-space' | 'join-space' | 'transfer' | 'co
 const SCENES: readonly Scene[] = ['space-settings', 'create-space', 'join-space', 'transfer', 'confirm'];
 
 const SPACE_ID = 'space-1';
-const SPACE: TaggedSpace = {
+const SPACE: SpaceWithMyRoles = {
   id: SPACE_ID, name: 'Aether Drift', icon: null, banner: null, avatarColor: 'lavender', ownerTitle: null, ownerId: 'owner',
   inviteCode: 'aether', visibility: 'public',
-  description: 'A calm place for night owls, synth music and long conversations.', createdAt: 1, _instanceOrigin: '',
+  description: 'A calm place for night owls, synth music and long conversations.', createdAt: 1,
 };
 
 function user(id: string, displayName: string): User {
   return {
     id, username: id, displayName, avatar: null, banner: null, accentColor: null, avatarColor: null, bio: null,
-    status: 'online', customStatus: null, isAdmin: false, createdAt: 1, homeInstance: null, homeUserId: null, replicatedInstances: [],
+    status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
   };
 }
 const EVERYONE: Role = { id: SPACE_ID, spaceId: SPACE_ID, name: '@everyone', color: '#b9bbbe', position: 0, permissions: '0', createdAt: 1 };

@@ -11,11 +11,10 @@ vi.mock('../../audio/AudioManager', () => ({
 }));
 
 import { MemberRolesModal } from './MemberRolesModal';
-import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../../stores/spaceStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useUIStore } from '../../stores/uiStore';
-import { api, HttpError, type VeyvoxApiClient } from '../../api/client';
-import { setApiForOriginResolver } from '../../utils/crossStoreResolvers';
+import { api, HttpError } from '../../api/client';
 import { ALL_PERMISSIONS, PermissionBits, permissionsToString, stringToPermissions, rolePermissionsVersion } from '../../utils/permissions';
 
 // The member role editor, opened from the profile card's "Edit Roles". It
@@ -24,11 +23,10 @@ import { ALL_PERMISSIONS, PermissionBits, permissionsToString, stringToPermissio
 // whose permissions changed, and keeps up with the member as the store moves.
 
 const SPACE_ID = 'space-1';
-const ORBIT = 'https://orbit.example';
 
-const SPACE: TaggedSpace = {
+const SPACE: SpaceWithMyRoles = {
   id: SPACE_ID, name: 'Space', icon: null, banner: null, avatarColor: null, ownerId: 'owner',
-  inviteCode: null, visibility: 'public', description: null, createdAt: 1, _instanceOrigin: '',
+  inviteCode: null, visibility: 'public', description: null, createdAt: 1,
 };
 
 const EVERYONE_BITS = PermissionBits.VIEW_CHANNEL | PermissionBits.SEND_MESSAGES;
@@ -50,8 +48,7 @@ const ROLES = [EVERYONE, COUNCIL, LEADS, BANNERS, HELPERS];
 function user(id: string, extra: Partial<User> = {}): User {
   return {
     id, username: id, displayName: id, avatar: null, banner: null, accentColor: null, avatarColor: null, bio: null,
-    status: 'online', customStatus: null, isAdmin: false, createdAt: 1, homeInstance: null, homeUserId: null,
-    replicatedInstances: [], ...extra,
+    status: 'online', customStatus: null, isAdmin: false, createdAt: 1, ...extra,
   };
 }
 function member(id: string, roles: Role[], extra: Partial<User> = {}): MemberWithUser {
@@ -60,7 +57,7 @@ function member(id: string, roles: Role[], extra: Partial<User> = {}): MemberWit
 
 const loadSpaceDetail = vi.fn(async () => undefined);
 
-function seed(opts: { viewer?: string; held?: bigint; members?: MemberWithUser[]; space?: TaggedSpace } = {}): void {
+function seed(opts: { viewer?: string; held?: bigint; members?: MemberWithUser[]; space?: SpaceWithMyRoles } = {}): void {
   useAuthStore.setState({ user: user(opts.viewer ?? 'lead') });
   useSpaceStore.setState({
     spaces: [opts.space ?? SPACE],
@@ -106,7 +103,6 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks();
-  setApiForOriginResolver(() => api);
   useUIStore.setState({ activeModal: null, modalData: {} });
 });
 
@@ -115,7 +111,7 @@ describe('MemberRolesModal: who and what it opens on', () => {
     seed({ members: [member('lead', [LEADS]), member('mira', [], { displayName: '', username: 'mira@orbit.example' })] });
     open('mira');
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('mira');
-    expect(screen.getByRole('heading', { level: 2 })).not.toHaveTextContent('orbit.example');
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('mira@orbit.example');
   });
 
   it('is titled with the action, like the other member dialogs', () => {
@@ -242,12 +238,11 @@ describe('MemberRolesModal: hierarchy and held bits', () => {
     expect(toggle('Ban Members')).toHaveAttribute('aria-disabled', 'false');
   });
 
-  it('ranks the viewer by their id on a remote space', () => {
+  it('ranks the viewer by their native account ID', () => {
     seed({
-      space: { ...SPACE, _instanceOrigin: ORBIT },
+      viewer: 'lead-local',
       members: [member('owner', []), member('lead-local', [LEADS]), member('helper', [HELPERS])],
     });
-    useAuthStore.getState().recordMyRow(ORBIT, 'lead-local');
     open('helper');
     expect(checkbox('Council')).toBeDisabled();
     expect(checkbox('Helpers')).toBeEnabled();
@@ -353,22 +348,30 @@ describe('MemberRolesModal: saving', () => {
     expect(update.mock.calls[0]![1]).toBe('r-helper');
   });
 
-  it('writes to the space\'s own instance', async () => {
+  it('writes native IDs through the current API with retained @ handles', async () => {
     seed({
-      space: { ...SPACE, _instanceOrigin: ORBIT },
+      viewer: 'lead-local',
       members: [member('owner', []), member('lead-local', [LEADS]), member('helper', [HELPERS])],
     });
-    useAuthStore.getState().recordMyRow(ORBIT, 'lead-local');
-    const remote = { spaces: { updateMember: vi.fn(async () => member('helper', [])) }, roles: { update: vi.fn() } };
-    setApiForOriginResolver((origin) => (origin === ORBIT ? (remote as unknown as VeyvoxApiClient) : api));
-    const home = vi.spyOn(api.spaces, 'updateMember');
+    useAuthStore.setState({ user: user('lead-local', { username: 'lead@retained.test' }) });
+    const update = vi.spyOn(api.spaces, 'updateMember').mockResolvedValue(member('helper', []));
     open('helper');
 
     await userEvent.click(checkbox('Helpers'));
     await userEvent.click(saveButton()!);
 
-    expect(remote.spaces.updateMember).toHaveBeenCalledWith(SPACE_ID, 'helper', { roleIds: [] });
-    expect(home).not.toHaveBeenCalled();
+    expect(update).toHaveBeenCalledWith(SPACE_ID, 'helper', { roleIds: [] });
+  });
+  it('does not apply a pending membership response or start later role writes in a replacement session', async () => {
+    seed(); let finish!: (value: MemberWithUser) => void;
+    vi.spyOn(api.spaces, 'updateMember').mockReturnValueOnce(new Promise(resolve => { finish = resolve; }));
+    const update = vi.spyOn(api.roles, 'update').mockResolvedValue(HELPERS);
+    open('helper'); await userEvent.click(checkbox('Helpers')); await selectRole('Helpers');
+    await userEvent.click(toggle('Send Messages')); await userEvent.click(saveButton()!);
+    act(() => useAuthStore.setState(s => ({ sessionRevision: s.sessionRevision + 1 })));
+    await act(async () => finish(member('helper', [])));
+    expect(useSpaceStore.getState().members.find(row => row.userId === 'helper')?.roles).toEqual([HELPERS]);
+    expect(update).not.toHaveBeenCalled();
   });
 });
 

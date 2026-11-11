@@ -19,7 +19,6 @@
     "activity": "Sepi untuk saat ini… Saat teman memulai aktivitas, kami tampilkan di sini!"
   },
   "friend": {
-    "viaInstance": "via {{host}}",
     "message": "Pesan",
     "remove": "Hapus Teman"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "Temukan Orang",
-    "hint": "Cari berdasar nama pengguna atau gunakan <handle>user@instance</handle> untuk menambah langsung.",
     "placeholder": "Cari atau tambah berdasar nama…",
     "direct": "Kirim permintaan pertemanan ke <handle>{{handle}}</handle>",
     "sendRequest": "Kirim Permintaan",
@@ -99,6 +97,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "Buka Trek"
-  },
-  "instanceNotConnected": "Tidak terhubung ke {{host}}. Hubungkan lagi dan coba lagi."
+  }
 }

@@ -56,7 +56,7 @@ describe('MentionBadge', () => {
     render(<MentionBadge userId={MIRA.id} channelId="chan-1" />);
     fireEvent.click(screen.getByText('@mira'));
     expect(openUserProfile).toHaveBeenCalledTimes(1);
-    expect(openUserProfile.mock.calls[0]![4]).toEqual({ spaceId: 'space-1', userId: MIRA.id });
+    expect(openUserProfile.mock.calls[0]![3]).toEqual({ spaceId: 'space-1', userId: MIRA.id });
   });
 });
 
@@ -127,10 +127,10 @@ describe('MentionBadge in a space channel', () => {
     expect(screen.getByText('@Kai')).toBeInTheDocument();
   });
 
-  it("names a member without a display name by the base of the username, as the DM list and header do", () => {
+  it('keeps the complete retained username when there is no display name', () => {
     useSpaceStore.setState({ dmChannels: [DM] });
     render(<MentionBadge userId={ZED_STUB.id} channelId={DM.id} />);
-    expect(screen.getByText('@zed')).toBeInTheDocument();
+    expect(screen.getByText('@zed@orbit.example')).toBeInTheDocument();
   });
 });
 

@@ -16,7 +16,7 @@ function game(phase: JunoView['phase'] = 'lobby'): JunoView {
 }
 beforeEach(() => {
   command.mockClear(); useJunoStore.getState().reset();
-  useJunoStore.setState({ target: { accountId: 'a', selfId: 'a', origin: '', channelId: 'voice' },
+  useJunoStore.setState({ target: { userId: 'a', origin: window.location.origin, channelId: 'voice' },
     connected: true, snapshot: { revision: 1, game: game() }, observedAt: Date.now(), command, open: true });
 });
 describe('Juno native table', () => {
@@ -77,7 +77,7 @@ describe('Juno native table', () => {
     expect(screen.getByRole('button', { name: /play.*blue.*8/i })).toBeDisabled();
   });
   it('shows spectators no hand and no draw action', () => {
-    useJunoStore.setState({ target: { accountId: 'c', selfId: 'c', origin: '', channelId: 'voice' }, snapshot: { revision: 1, game: { ...game('playing'), hand: [] } } });
+    useJunoStore.setState({ target: { userId: 'c', origin: window.location.origin, channelId: 'voice' }, snapshot: { revision: 1, game: { ...game('playing'), hand: [] } } });
     render(<JunoTable />); expect(screen.getByText(/you’re watching/i)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^draw one/i })).not.toBeInTheDocument();
   });

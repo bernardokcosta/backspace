@@ -10,12 +10,9 @@ management APIs. See [juno.md](juno.md).
 Source files:
 - `packages/server/src/routes/bots.ts` -- owner endpoints (create, edit, token, delete, add to a space)
 - `packages/server/src/routes/reactions.ts` -- REST reactions, the twin of the WS events
-- `packages/server/src/utils/botFederation.ts` -- cutting a bot off from other instances
 - `packages/server/src/utils/spaceMembership.ts` -- `addUserToSpace`, `removeUserFromSpace`
 - `packages/server/src/utils/auth.ts` -- `tokenFromAuthHeader` (`Bearer` / `Bot`), `verifyAccessToken` (session JWT or `bsb_` bot token)
 - `packages/server/src/utils/botTokens.ts` -- issue, verify, list and revoke `bsb_` tokens
-- `packages/server/src/routes/auth.ts` -- `POST /api/auth/register` with `botProof`
-- `packages/server/src/routes/federation/handlers/attach.ts` -- `verify-attach-proof` answers `isBot`
 - `packages/web/src/components/modals/settingsPanels/BotsPanel.tsx` -- Settings > Bots, shown only while Settings > Developer > Developer Mode is on (`stores/developerModeStore.ts` mirrors `users.developer_mode`, stored with the account so every device agrees and written through `PATCH /api/users/@me { developerMode }`; it only shows or hides the tab and does not restrict the API)
 - `packages/server/src/routes/botCommands.ts`, `routes/interactions.ts`, `utils/botAuth.ts` -- slash commands
 - `packages/server/src/ws/handler.ts`, `ws/events.ts` -- bot voice seats (`botJoinRoom`, `bot_voice_join`)
@@ -26,11 +23,11 @@ Source files:
 
 ## 1. Model
 
-- A bot is a `users` row with `is_bot = 1`, `bot_owner_id = <owner id>` and `password_hash = '!bot'` (not a bcrypt hash, so password login is impossible). A bot is native to its instance (`home_instance = NULL`) and `discoverable`.
-- **Name.** The username is 3 to 32 characters of `[a-z0-9_]`, freely chosen — no required suffix. Bots are marked by the BOT badge everywhere, not by their name. The username never changes (it is the federation identity). The owner edits the display name (any non-empty name within the length limit) and the avatar.
+- A bot is a local `users` row with `is_bot = 1`, `bot_owner_id = <owner id>` and `password_hash = '!bot'` (not a bcrypt hash, so password login is impossible), and is `discoverable`.
+- **Name.** The username is 3 to 32 characters of `[a-z0-9_]`, freely chosen — no required suffix. Bots are marked by the BOT badge, not by their name. The login handle stays immutable; the owner edits the display name and avatar.
 - **Limit.** 10 bots per owner (`bot_limit_reached`).
-- **Token.** `bsb_<id>.<secret>`: `id` is 16 hex characters, `secret` is 32 random bytes in base64url (43 characters). The secret is shown once; only its SHA-256 is stored (`bot_tokens`), so a database leak does not leak working tokens, and a leaked token is recognisable by its `bsb_` prefix. A bot holds up to 5 tokens (`bot_token_limit_reached`), each with an optional label of 1 to 32 characters, and the owner revokes each on its own. `last_used_at` is written at most once a minute per token. `POST /api/bots/:id/token` is the full cut-off: it revokes every token, sets `users.password_changed_at` (which also kills any old JWT), cuts the bot off on other instances (see 7), closes the bot's sockets and issues one new token. See "Token migration" (8b).
-- **Owner.** Only a human with an account native to the instance manages bots. A bot, or a federated account, gets `403 bots_native_only`.
+- **Token.** `bsb_<id>.<secret>`: 16-hex id and 32 random bytes in base64url. Show the secret once; store only SHA-256 and compare in constant time. Up to 5 tokens per bot, each optionally labeled (1–32 chars), individually revocable; `last_used_at` writes at most once/minute. Full rotation revokes all tokens, sets `password_changed_at`, disconnects sockets and issues one new token, with no network fanout.
+- **Owner.** Only an authenticated local human manages their own bots. Bots get `403 bots_native_only`; ownership is checked separately on every management operation.
 - **Deletion.** `DELETE /api/bots/:id` tombstones the bot (DM threads stay readable). Deleting the owner's account tombstones every bot they own.
 - The owner's profile rules do not apply to the bot: a bot cannot edit its own durable profile fields through `PATCH /api/users/@me` (`403 bot_profile_owner_only`); the owner does it through `PATCH /api/bots/:id`.
 
@@ -49,41 +46,42 @@ Authorization: Bot <token>
 | GET | `/api/bots` | -- | `{ bots: BotSummary[] }` |
 | POST | `/api/bots` | `{ name }` | 201 `{ bot, token }` (5 per 15 min); the token is the bot's first `bsb_` token |
 | PATCH | `/api/bots/:id` | `{ displayName?, avatar?, bio?, activity?, requestedPermissions? }` | `{ bot }` (`avatar`: a bare filename of the owner's own upload that no message holds, or the current avatar, or `null`; anything else is `avatar_url_invalid`. `bio`, `activity`: see "About and status" below; `requestedPermissions`: 4, "Permissions on invite") |
-| POST | `/api/bots/:id/token` | -- | `{ token, federation }` (5 per 15 min): revokes all tokens, cuts the bot off on other instances, issues one new token |
+| POST | `/api/bots/:id/token` | -- | `{ token }` (5 per 15 min): revokes all tokens and issues one new token |
 | GET | `/api/bots/:id/tokens` | -- | `{ tokens: BotTokenSummary[], legacy }` (30 per 15 min; no secrets; `legacy` is true while the bot still runs on its old JWT and holds no token) |
 | POST | `/api/bots/:id/tokens` | `{ name? }` | 201 `{ id, name, createdAt, lastUsedAt, token }` (5 per 15 min; 400 `bot_token_name_invalid` / `bot_token_limit_reached`) |
 | DELETE | `/api/bots/:id/tokens/:tokenId` | -- | `{ success }` (30 per 15 min; 404 `bot_token_not_found`) |
-| DELETE | `/api/bots/:id` | -- | `{ success, federation }` |
-| GET | `/api/bots/search?q=` | -- | `{ bots: BotSearchResult[] }` (discoverable bots a manager here may add: native ones and accounts bots of other instances registered here; username substring of 2-32 characters, up to 25; any signed-in account; each result adds `ownerUsername`, `null` when the owner is deleted or not discoverable) |
+| DELETE | `/api/bots/:id` | -- | `{ success }` |
+| GET | `/api/bots/search?q=` | -- | `{ bots: BotSearchResult[] }` (live discoverable local bots; username substring of 2–32 characters, up to 25; any signed-in account; `ownerUsername` null when private/deleted) |
 | GET | `/api/bots/:id/spaces` | -- | `{ spaces: [{ id, name, icon, botIsMember }] }` (owner; the caller's MANAGE_SPACE spaces plus every space the bot already sits in) |
-| POST | `/api/bots/:id/spaces` | `{ spaceId, permissions? }` | `{ success }` (a native bot, or the account a bot of another instance registered here; MANAGE_SPACE in the space; `permissions` is the grant out of the bot's requested permissions, see 4) |
+| POST | `/api/bots/:id/spaces` | `{ spaceId, permissions? }` | `{ success }` (existing live local bot; MANAGE_SPACE; requested/held-bit grant, see 4) |
 | DELETE | `/api/bots/:id/spaces/:spaceId` | -- | `{ success }` (the bot's owner, or MANAGE_SPACE in the space; the bot gets `member_left` and no further events of that space; its role assignments, per-member channel overrides and managed role in that space are deleted too, whichever path removed it: this route, a kick or a ban) |
 
 `BotSummary` is `{ id, username, displayName, avatarColor, avatar, bio, activity, requestedPermissions, createdAt }`. `avatar` is a bare upload filename (upload through tus first) or `null`. Errors use the project format `{ error, code, statusCode, details? }`; the codes specific to bots are `bot_not_found`, `bot_limit_reached`, `bot_name_invalid`, `display_name_empty`, `bots_native_only`, `bot_profile_owner_only`, `bot_home_not_peered`, `bot_proof_invalid`, `bot_account_required`, `bots_no_friends`, `bot_token_limit_reached`, `bot_token_not_found`, `bot_token_name_invalid`, `bot_activity_invalid`, `bot_permissions_invalid`, `bot_permissions_not_requested`, `role_managed_by_bot`.
 
-`BotTokenSummary` is `{ id, name, createdAt, lastUsedAt }`; `lastUsedAt` is `null` while the token was never used. Revoking one token (or adding the first one to a legacy bot) closes the bot's sockets, so a connection that authenticated with the revoked token ends at once; the other tokens reconnect. A single revoke does not touch the bot's accounts on other instances: those hold their own credentials, and only `POST /api/bots/:id/token` and deleting the bot cut them off.
+`BotTokenSummary` is `{id,name,createdAt,lastUsedAt}` without secrets. A revoke (or first token issued to a legacy bot) closes its sockets; programs holding another valid token reconnect. Bot deletion removes all token hashes; owner deletion also tombstones/disconnects owned bots.
 
-A name change or an avatar change is broadcast (`user_updated`) and relayed to peers as a `profile_update`, so the bot's accounts on other instances follow.
+A name/avatar change broadcasts `user_updated` to the native profile audience.
+New avatar uploads must also be unused by another native profile before resize;
+unchanged current avatars are not resized. Replacement and bot tombstoning retain
+historically shared files and thumbnails through the common upload cleanup seam.
 
 ### About and status
 
 The owner edits both in the bot's card in Settings > Bots.
 
 - **About** is the bot's ordinary profile `bio`: up to `PROFILE_BIO_MAX_LENGTH` (190) characters after trim, blank or `null` clears it, longer is `400 bio_too_long`. It shows wherever a person's bio shows and travels with the profile.
-- **Status** is `activity: BotActivity | null`, where `BotActivity` is `{ type, name }`, `type` one of `BOT_ACTIVITY_TYPES` (`custom`, `playing`, `listening`, `watching`; `streaming` needs a live URL, so it is the bot code's to set) and `name` 1-128 characters after trim; anything else is `400 bot_activity_invalid`. `null` clears it. It is stored in `users.bot_activity` and is part of the profile: the `profile_update` and the `/users/by-home-id` answer about a bot carry it as `botActivity`, so the bot's federated accounts on other instances hold the same status.
+- **Status** is `activity: BotActivity | null`, `{type,name}` with custom/playing/listening/watching type and 1–128 trimmed characters. Invalid values give `bot_activity_invalid`, null clears. Stored in `users.bot_activity`, restored on the next native connection.
 
 The status is shown as the bot's live activity, so it reaches everyone through the ordinary `presence_update` (member list, profile, activity panel) and is not shown while the bot is offline:
 
-- When a bot socket authenticates (on the home or on a host) and the bot shows activities (`show_activity`) and has no live activity yet, the stored status becomes its live activity (`seedStoredBotActivity`, ws/handler.ts), and the connect presence carries it. A second session of the same bot keeps whatever the first one shows.
-- Saving a different status (or the home's copy of it reaching a host) while the bot is connected replaces its live activity at once, also one the bot code set (`applyStoredBotActivity`, ws/presence.ts). Saving the name, avatar or About leaves the live activity alone.
+- When a bot socket authenticates and shows activities without an existing live activity, its stored status seeds the live activity. A second session keeps the first one's live state.
+- Saving a changed status while connected replaces the live activity (`applyStoredBotActivity`), including one set by the bot code; other profile edits leave it alone.
 - The bot code may still send `activity_update` (for example "Listening to" the current track). That replaces the stored status until the bot's next connection, when the stored status applies again.
-
-`federation` (token regeneration and deletion) lists, per instance the bot registered on, whether the account there was cut off (see 7).
 
 ## 4. Getting a bot into conversations
 
-- **Space, by a manager:** `POST /api/bots/:id/spaces`. Any human with MANAGE_SPACE in the space may add a bot — their own or someone else's: a native bot of this instance, or the account a bot of another instance registered here with its proof (7). A replica row of a bot that never registered here cannot sign in and is not offered. The bot's owner takes no part and is not asked; they see every space of their bot in `GET /api/bots/:id/spaces` (their manageable spaces plus every space the bot already sits in) and can end the membership themselves. A human or such a replica as the target answers `404 bot_not_found`. The result is the same as joining (member row, `member_joined`). A banned bot is refused (`user_banned`), a member answers `409 already_member`. A federated human account with MANAGE_SPACE may also invite and remove bots, because both are actions on the space. Creating, editing, re-issuing the token of and deleting a bot stay with the native owner account on the bot's home instance, where the bot's row and signing key live. Managing a bot from another instance would need a separate server-to-server design, and while the home instance is down its tokens cannot be re-issued anywhere.
-- **Finding a bot to invite:** `GET /api/bots/search?q=<substring>` — the discoverable bots a manager here may add (native, and registered accounts of bots of other instances, named `name_bot@home`) by username substring (2-32 characters; `%` and `_` are literal; any other length answers an empty list), up to 25, ordered by username. The caller's own bots are listed too: a directory, not a policy. Each result names its owner (`ownerUsername`; null for a bot of another instance, whose owner lives there), so a manager sees whose code they are inviting. The web client offers the flow in Space settings → Members → "Add Bot".
+- **Space, by a manager:** `POST /api/bots/:id/spaces` admits any existing live local bot (their own or another person's) with MANAGE_SPACE. The owner sees every joined space and can remove their bot. Human/deleted targets give `bot_not_found`; bans and duplicate membership remain enforced. Management of the bot's profile/tokens/deletion remains owner-only.
+- **Finding a bot:** `GET /api/bots/search?q=` searches live discoverable local bots, 2–32 characters with literal `%`/`_`, limit 25, username order. Owner names are included only while discoverable/live. The UI offers Add Bot in Space settings → Members.
 - **Taking the bot out:** `DELETE /api/bots/:id/spaces/:spaceId` — by the bot's owner (any space of their bot) or by a space manager (MANAGE_SPACE); the ordinary member kick (KICK_MEMBERS) keeps working as before. Kick, ban and both removal routes end live delivery of that space to the bot's sockets at once and take the bot out of that space's voice channels.
 - **Space, by the bot:** `POST /api/spaces/join { inviteCode }`, like any user. Request-only spaces answer `403 join_request_required`.
 - **Group DM:** any member adds the bot with `POST /api/dm/:id/members { userId }`. The friendship requirement is waived for the **owner adding their own bot**, because bots take no friends.
@@ -93,11 +91,11 @@ A bot holds the permissions of its roles in a space (`@everyone`, plus its manag
 
 ### Permissions on invite
 
-- **What the bot asks for.** The owner ticks it in the bot's card (Settings > Bots): `PATCH /api/bots/:id { requestedPermissions }`, a canonical decimal permission mask of defined bits (`400 bot_permissions_invalid` otherwise), `'0'` for none; stored in `users.bot_requested_permissions` and listed as `BotSummary.requestedPermissions`. It travels with the profile (`botRequestedPermissions` in `profile_update` and the by-home-id answer, as the status), so the bot's account on another instance asks for the same. A change applies to later additions only; roles already created keep their bits.
+- **Requested bits.** Owner-managed `requestedPermissions` is a canonical decimal mask of defined bits (`bot_permissions_invalid` otherwise), stored in `users.bot_requested_permissions` and returned in `BotSummary`. Changes apply to future additions; existing roles keep their bits.
 - **What the manager grants.** Adding the bot (`POST /api/bots/:id/spaces { spaceId, permissions? }`), the manager picks any subset: the web client shows the requested permissions ticked, any can be unticked, and those the manager does not hold are locked. The server takes `permissions` as the grant: every bit must be requested (`400 bot_permissions_not_requested`) and held by the manager (held-bits rule, `403 cannot_grant_unowned_permissions`); malformed is `400 permissions_invalid`. Omitted: every requested bit the manager holds. MANAGE_SPACE is enough; MANAGE_ROLES is not needed for this role.
 - **The managed role.** A non-empty grant creates a role for this bot alone (`roles.managed_bot_id`), named after the bot (its display name, else its handle; `Name (2)` when the name is taken in the space), at the bottom of the hierarchy just above @everyone, carrying exactly the grant, and gives it to the bot; the space gets `space_access_changed`. Nothing granted: no role. The role is ordinary everywhere else: permission checks do not know it is managed, and managers edit its name, colour, bits and position in Roles like any other.
 - **What stays fixed.** The role is never given to anyone else (`400 role_managed_by_bot` from the single add route and from a member's role set), never taken from its bot (single remove: `400 role_managed_by_bot`; a role set saved for the bot keeps it whether it names it or not), and never deleted on its own (`DELETE /api/spaces/:id/roles/:roleId`: `400 role_managed_by_bot`). The web role editors do not offer another bot's role and show the bot's own one locked. `Role.managedBotId` names the bot.
-- **When the role changes or goes.** A new display name of the bot (on its home, or reaching a host with its profile) renames its managed roles everywhere, replacing a name a manager gave. The role goes, with the channel and category overrides that name it, when the bot leaves the space (this route, a kick, a ban) and when the bot's account is deleted.
+- **Role lifecycle.** A display-name edit renames its local managed roles, avoiding collisions. Roles and their overrides go when the bot leaves, is kicked/banned or deleted.
 
 ## 5. What a bot receives and can do
 
@@ -115,7 +113,7 @@ The socket has no resume. After a reconnect the `ready` payload carries the curr
 
 ### One process per token
 
-A bot runs as one process that serves all of its channels: one credential holds **one** open socket. A second `auth` with a credential whose socket is still open gets `{ "type": "error", "code": "bot_token_in_use" }` and is closed with code **4409** (`BOT_TOKEN_IN_USE_CLOSE_CODE` in `shared/constants.ts`); the first socket, its events and its voice seats are untouched. The credential is a `bsb_` token (each of the up to 5 tokens is its own credential), or for a JWT login of a bot account (a pre-`bsb_` JWT, or a bot's federated account on another instance) the account itself. A socket that is closing or closed does not hold its credential, so a restarted process connects at once; after a network drop the old socket can hold it until the heartbeat drops it (about 65 s), so a refused client retries (`examples/bots/client.mjs` waits 30 s). REST calls are not limited this way. The holder is kept in `ConnectionManager` (`claimBotSession` / `releaseBotSession`, released in `removeConnection`).
+A bot runs as one process serving its channels: one credential holds **one** open socket. A second auth using an occupied credential gets `bot_token_in_use` and close **4409** (`BOT_TOKEN_IN_USE_CLOSE_CODE`); the original socket/events/voice seats remain untouched. Each of up to five `bsb_` tokens is independent; a legacy native bot JWT uses the account as its credential. Closing/closed sockets do not hold credentials. After network loss, heartbeat expiry can take about 65s; the example client retries after 30s. REST is not limited this way. `ConnectionManager.claimBotSession` / `releaseBotSession` manage ownership, released by `removeConnection`.
 
 ### Actions (REST)
 
@@ -286,57 +284,34 @@ The bot leaves a seat with `bot_voice_leave`. All its seats end 5 seconds after 
 
 `https://<instance>` for REST (`/api/...`), `wss://<instance>/ws` for the socket, both behind Caddy. The examples take `BACKSPACE_URL` and `BOT_TOKEN`.
 
-## 7. Bots on other instances
-
-A space lives on one instance and is not relayed, so a bot reaches a space on instance B the way a person does: through a federated account `name@home` on B. The bot's home instance A issues the secret for that account; B asks A whether the account is a bot.
-
-1. On A, with the bot's token: `POST /api/users/@me/federation-credential { origin: "<B origin>" }` returns `secret` (per-remote, never the bot's token).
-2. On A: `POST /api/auth/attach-proof { targetDomain: "<bare host of B>" }` returns a one-time `token` (60 s, bound to B).
-3. On B: `POST /api/auth/register { username: "x_bot@<A host>", password: <secret>, homeInstance: "<A host>", homeUserId: <bot id on A>, botProof: <token> }`. When the account exists, `POST /api/auth/login` with the same secret.
-4. Open `wss://B/ws` with the JWT B returned, join by invite, answer.
-
-B verifies the proof with A over the signed server-to-server channel (`POST /api/federation/verify-attach-proof`, whose signed answer now carries `isBot`) and takes the identity and the bot flag **from that answer**. The body's `username`, `homeUserId` and any `isBot` are ignored, so a client cannot claim to be a bot. A must already be an active peer of B, otherwise `409 bot_home_not_peered` (no handshake is started from an unauthenticated route). A spent, foreign or non-bot proof answers `401 bot_proof_invalid`; a malformed one answers `400`.
-
-**Cutting a bot off.** Regenerating the token (mode `soft`), deleting the bot (`full`) and deleting the owner send a signed `DELETE /api/federation/identity` to every instance where the bot holds a credential; the account there is tombstoned and its JWT stops working. After a regeneration the bot registers again with the new token and joins its spaces again. The origins are read before the tombstone, which deletes the credentials.
-
-**Blocking a bot of another instance.** The admin of B removes the account `x_bot@A` in Instance settings > Users (filter "Bots", Delete). A does not have to be up: the account is tombstoned, its sockets close and it leaves its spaces. Ticking "Do not let this bot register again" in that dialog (`DELETE /api/admin/users/:id?blockBot=1`, only for a bot with a `homeInstance`, otherwise `400 bot_block_not_federated`) also writes `(home domain, home id)` to `blocked_bots`; from then on `register` with a valid proof of that bot answers `403 bot_blocked`. The check comes after the proof is verified, because only A's answer says which bot it is. The list and "Unblock" are below the user list (`GET /api/admin/blocked-bots`, `DELETE /api/admin/blocked-bots/:homeInstance/:homeUserId`, unknown pair: `404 blocked_bot_not_found`). A bot that was renamed on A stays blocked: the key is its id there.
-
 ## 8. Limitations
 
-- An instance without bot support ignores `botProof`: the account there is an ordinary user (no bot flag). A person can also automate a human account without declaring it; the server cannot tell.
+- A person can automate a human account without declaring it; the server cannot tell.
 - A token is a full user session: a bot can call any REST endpoint a user can. Scopes (a token limited to some endpoints or spaces) are not built.
-- On other instances a bot's row takes the bot flag from its home: the home's answer when the row is created (`/users/by-home-id`) and the participant snapshots of a DM the home relays (federation.md, "Bot flag"). A row created before an instance knew this gets it with the next DM message the bot's home relays.
-- Revocation on another instance depends on the peer. Per origin, `federation` answers `{ success: true }`, `{ success: false, error, pending: true }` (the instance is away, not peered at the moment or answered 5xx/401/408/429: the server keeps trying, see "Revocation retries" below) or `{ success: false, error, pending: false }` (the instance refused: a bot that owns a space there answers `owns_spaces` and stays; a 403 attribution mismatch). While a revoke is pending the old account is still alive on that instance, so a leaked host token still works there until it lands.
-- A regenerated token removes the bot from its spaces on other instances (the account is recreated).
-- The peer of the home instance is found by host without port; two instances on one host and different ports are not supported. `homeInstance` in `register` cannot carry a port.
 - When a person replies to a message and mentions a bot, the event carries the replied text in `replyTo`.
 - Slash commands run only in chats on the instance where the bot is connected; the other things not built are listed in section 5b. Voice has no per-seat status of the bot's own (mute, camera) (section 5c).
 - Not built: per-bot permissions beyond roles, resume after reconnect, private (visible to one person) answers to slash commands.
 
-## 8a. Revocation retries
-
-`POST /api/bots/:id/token`, `DELETE /api/bots/:id` and deleting the owner's account all go through `revokeBotWithRetry` (`utils/botRevocationQueue.ts`): one signed `DELETE /api/federation/identity` per origin (idempotent on the host: no live account answers 200), and every failure that a later attempt can fix is kept as a row of `bot_revocations`, one per `(bot, origin)`. The background worker (`startFederationWorkers`, every 5 minutes) retries the rows that are due with a growing pause (5 min, 10, 20, ... up to 6 h). A row is deleted when the revoke lands, when the instance refuses it in a way that cannot change (403, 409, other 4xx), or after 7 days (a warning is logged). `full` (the bot was deleted) is never downgraded to `soft`; the rows hold no reference to `users`, so the bot's tombstone does not take them away.
-
-While a row exists for a host, the home issues the bot no new credential or proof for it (`POST /api/users/@me/federation-credential` and `POST /api/auth/attach-proof` answer `409 bot_revocation_pending`): the old account there would block a new registration, and the late revoke would take a new account down. Other hosts are not affected. The bot's own credential rows are deleted at once, as before: they are not what the retry needs.
-
-Covered end to end by `test/federation-e2e-bot-revocation-retry.test.ts`: the host goes away for the home (its peer row points at a port nobody listens on, so every call is refused as for a stopped host), the owner resets the tokens (the answer says `pending`), credential and proof for that host answer 409, a retry while it is away keeps the row, the host comes back, and the next retry tombstones the account there by a real signed call and empties the queue; the bot can then register again.
-
 ## 8b. Token migration
 
-Before migration 0035 a bot's token was a JWT valid for 3650 days. Such a bot keeps working untouched until its owner creates its first `bsb_` token (Settings > Bots > Tokens, or `POST /api/bots/:id/tokens`). From that moment the old JWT is refused (REST, uploads and WebSocket answer `Token has been revoked`) and the sockets of the bot are closed, so create the token and give it to the program in one step. The rule applies to native bots only (`isBot`, no `homeInstance`, at least one row in `bot_tokens`); a bot's federated account on another instance logs in with its own session JWT and is not affected. Revoking the last token leaves the bot without any working token until a new one is created: that revoke also sets `users.password_changed_at`, so the old JWT does not come back.
+Before migration 0035 bots held a 3650-day JWT. It remains usable until the first
+hashed `bsb_` token is issued; then REST/uploads/WS refuse it and disconnect its
+sockets. This uses `isBot` and existing `bot_tokens`, never provenance. Revoke of
+the last token sets `password_changed_at` so an old JWT cannot become valid again.
+Human sessions are unaffected.
 
 ## 9. Database
 
-Migration `0032_bots.sql` adds to `users`: `is_bot` (INTEGER NOT NULL DEFAULT 0) and `bot_owner_id` (TEXT, the owner's user id) and an index `idx_users_bot_owner_id` on it. Nothing else is stored per bot; the avatar and display name are the ordinary `users` columns. The cascade and revocation rules are in 1 and 7.
+Migration `0032_bots.sql` adds `users.is_bot`, `bot_owner_id` and its index. Profile
+columns remain ordinary user fields. Owned bots are tombstoned/disconnected with
+their owner; native token hashes, slash commands and managed roles are cleaned.
 
-Migration `0039_bot_permissions.sql` adds `users.bot_requested_permissions` (TEXT, canonical decimal permission mask, nullable; a host account holds the home's copy) and `roles.managed_bot_id` (TEXT, the bot a managed role belongs to, no foreign key) with a unique index `idx_roles_managed_bot` on `(space_id, managed_bot_id)`: one managed role per bot per space (4, "Permissions on invite").
+Migration `0039_bot_permissions.sql` adds the nullable canonical requested mask and
+`roles.managed_bot_id`, with one unique managed role per `(space_id,managed_bot_id)`.
 
-Migration `0038_bot_activity.sql` adds `users.bot_activity` (TEXT, JSON `{ type, name }`, nullable): the stored status (3, "About and status"). On a bot's federated account on another instance it holds the home's copy; tombstoning clears it.
+Migration `0038_bot_activity.sql` adds the nullable stored activity JSON;
+tombstoning clears it.
 
 Migration `0035_bot_tokens.sql` adds `bot_tokens`: `id` (16 hex, PK, the public part of the token), `bot_id` (FK to `users`, cascade), `token_hash` (SHA-256 of the secret, hex), `name` (nullable), `created_at`, `last_used_at` (nullable); index `idx_bot_tokens_bot_id`. A bot's rows are deleted when the bot is tombstoned.
-
-Migration `0037_blocked_bots.sql` adds `blocked_bots`: `home_instance` (the home's domain, lower case) and `home_user_id` (primary key together), `username` (the account's name here when it was blocked), `blocked_by` (FK to `users`, nullable), `created_at`.
-
-Migration `0034_bot_revocations.sql` adds `bot_revocations`: `bot_id` and `origin` (primary key together, no foreign key), `mode` (`soft` | `full`), `attempts` (default 0), `last_error`, `created_at`, `next_attempt_at`; index on `next_attempt_at`.
 
 The migration `0032_bots.sql` also adds the two tables of the slash commands. `bot_commands`: `id` (PK), `bot_id` (FK to `users`, cascade), `name`, `description`, `options` (JSON array, default `'[]'`), `updated_at`; unique index on `(bot_id, name)`. `interactions`: `id` (random 32-hex string, PK), `bot_id` and `user_id` (FKs to `users`, cascade), `channel_id` / `dm_channel_id` (exactly one is set), `command`, `options` (JSON object of the parsed values), `created_at`, `expires_at`, `responses` (default 0); index on `expires_at`. A spent interaction is dropped by the first invocation that comes a day after it expired. A bot's `bot_commands` rows are deleted when the bot is tombstoned.

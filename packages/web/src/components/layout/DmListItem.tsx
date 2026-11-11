@@ -2,30 +2,15 @@ import { useTranslation } from 'react-i18next';
 import type { DmChannel, User } from '@veyvox/shared';
 import { Avatar } from '../ui/Avatar';
 import { AvatarStack } from '../ui/AvatarStack';
-import { Tooltip } from '../ui/Tooltip';
-import { isMine, isFederationGlobeApplicable, userDisplayName } from '../../utils/identity';
-import { useDmViewer } from '../../hooks/useDmViewer';
+import { userDisplayName } from '../../utils/identity';
+import { useAuthStore } from '../../stores/authStore';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 import { formatDmTimestamp, formatDmSidebarPreview, formatDmHeaderName } from '../../utils/dmFormatters';
-import { getRejectedPeerOrigins, getAwaitingApprovalPeerOrigins } from '../../hooks/useWebSocket';
 import { BotBadge } from '../ui/BotBadge';
 
-function isMemberUnreachable(homeInstance: string | null | undefined): boolean {
-  if (!homeInstance) return false;
-  const normalized = homeInstance.startsWith('http') ? homeInstance : `https://${homeInstance}`;
-  return getRejectedPeerOrigins().has(normalized);
-}
-
-function isMemberAwaitingApproval(homeInstance: string | null | undefined): boolean {
-  if (!homeInstance) return false;
-  const normalized = homeInstance.startsWith('http') ? homeInstance : `https://${homeInstance}`;
-  return getAwaitingApprovalPeerOrigins().has(normalized);
-}
-
-/** The other party of a 1-on-1 DM, as the DM's instance named them. */
+/** The native other party of a 1-on-1 DM. */
 export interface DmInviteCounterpart {
   user: User;
-  origin: string;
 }
 
 interface DmListItemProps {
@@ -41,31 +26,23 @@ interface DmListItemProps {
 
 export function DmListItem({ dm, isActive, isUnread, user, onSelect, onClose, onLeave, onContextMenu }: DmListItemProps) {
   const { t } = useTranslation('dm');
-  const viewer = useDmViewer(dm.id);
-  const otherMembers = dm.members.filter(m => !isMine(m, viewer.origin, viewer.self));
+  const selfId = useAuthStore(s => s.user?.id ?? null);
+  const otherMembers = dm.members.filter(m => m.id !== selfId);
   const isGroup = !!dm.ownerId;
-  if (otherMembers.length === 0 && !isGroup) return null;
 
   // Route the 1-on-1 partner through the canonical view cache. Group member
   // avatars are handled per-slot in DmGroupAvatarSlot (hook-in-loop safety).
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const rawFirstOther = isGroup ? null : (otherMembers[0] ?? null);
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const firstOtherCanonical = useCanonicalUserView(rawFirstOther ?? user, viewer.origin);
+  const firstOtherCanonical = useCanonicalUserView(rawFirstOther ?? user);
   const firstOther = rawFirstOther ? firstOtherCanonical : null;
+  if (otherMembers.length === 0 && !isGroup) return null;
 
   // Groups → `formatDmHeaderName` (honors `dm.name`, falls back to joined
   // names — same path used by the chat header, welcome hero, and mobile).
-  // 1-on-1 keeps the canonical-view name so replicated aliases stay correct.
+  // 1-on-1 uses the latest native profile name.
   const displayName = isGroup
-    ? formatDmHeaderName(dm, viewer)
+    ? formatDmHeaderName(dm, selfId)
     : firstOther ? userDisplayName(firstOther) : '';
-
-  // Group globe: at least one member is federated → render once with comma-joined tooltip.
-  const groupFederatedMembers = isGroup
-    ? dm.members.filter(m => isFederationGlobeApplicable(m))
-    : [];
-  const showGroupGlobe = isGroup && groupFederatedMembers.length > 0;
 
   const handleClick = () => onSelect(dm.id);
   const handleClose = (e: React.MouseEvent) => {
@@ -77,7 +54,7 @@ export function DmListItem({ dm, isActive, isUnread, user, onSelect, onClose, on
     }
   };
   const handleContextMenu = onContextMenu
-    ? (e: React.MouseEvent) => onContextMenu(e, dm, isGroup || !firstOther ? null : { user: firstOther, origin: viewer.origin })
+    ? (e: React.MouseEvent) => onContextMenu(e, dm, isGroup || !firstOther ? null : { user: firstOther })
     : undefined;
 
   // ── State-driven classes ──────────────────────────────────────────────
@@ -111,13 +88,6 @@ export function DmListItem({ dm, isActive, isUnread, user, onSelect, onClose, on
       : 'text-txt-tertiary group-hover:text-txt-secondary'
   }`;
 
-  // Federation badge: brightens with parent
-  const fedBadgeClass = `flex-shrink-0 ${
-    isActive || isUnread
-      ? 'text-txt-secondary/60'
-      : 'text-txt-tertiary/60 group-hover:text-txt-secondary/60'
-  }`;
-
   // Close button: always visible when selected, hover-reveal otherwise
   const closeClass = `${
     isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
@@ -127,7 +97,7 @@ export function DmListItem({ dm, isActive, isUnread, user, onSelect, onClose, on
   // formatDmSidebarPreview handles user/system messages and applies the
   // sender prefix for group user-messages. We only need to provide the
   // empty-group fallback ourselves.
-  const preview = formatDmSidebarPreview(dm, viewer);
+  const preview = formatDmSidebarPreview(dm, selfId);
   const previewText = preview ?? (isGroup ? `${dm.members.length} Members` : null);
 
   const itemJsx = (
@@ -150,9 +120,9 @@ export function DmListItem({ dm, isActive, isUnread, user, onSelect, onClose, on
 
       {/* Avatar */}
       {isGroup ? (
-        <AvatarStack members={otherMembers} origin={viewer.origin} size={32} border="channel" iconUrl={dm.icon} />
+        <AvatarStack members={otherMembers} size={32} border="channel" iconUrl={dm.icon} />
       ) : (
-        <Avatar src={firstOther?.avatar} name={displayName} size={32} status={firstOther?.status as any} userId={firstOther?.homeUserId ?? firstOther?.id} user={firstOther ?? undefined} />
+        <Avatar src={firstOther?.avatar} name={displayName} size={32} status={firstOther?.status} userId={firstOther?.id} user={firstOther ?? undefined} />
       )}
 
       {/* Content */}
@@ -164,34 +134,6 @@ export function DmListItem({ dm, isActive, isUnread, user, onSelect, onClose, on
             </span>
             {!isGroup && firstOther?.isBot && <BotBadge />}
           </div>
-          {showGroupGlobe && (
-            <Tooltip content={groupFederatedMembers.map(m => m.username).join(', ')} position="top">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className={fedBadgeClass}>
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-              </svg>
-            </Tooltip>
-          )}
-          {!isGroup && firstOther && isFederationGlobeApplicable(firstOther) && (
-            <Tooltip content={firstOther.username} position="top">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className={fedBadgeClass}>
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-              </svg>
-            </Tooltip>
-          )}
-          {firstOther && isMemberUnreachable(firstOther.homeInstance) && (
-            <Tooltip content={t('feedback.relayDenied')} position="top">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-accent-rose opacity-70 flex-shrink-0">
-                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
-              </svg>
-            </Tooltip>
-          )}
-          {firstOther && !isMemberUnreachable(firstOther.homeInstance) && isMemberAwaitingApproval(firstOther.homeInstance) && (
-            <Tooltip content={t('feedback.awaitingPeering')} position="top">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-accent-amber opacity-70 flex-shrink-0">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-              </svg>
-            </Tooltip>
-          )}
           {dm.lastMessage && (
             <span className={timestampClass}>
               {formatDmTimestamp(dm.lastMessage.createdAt)}

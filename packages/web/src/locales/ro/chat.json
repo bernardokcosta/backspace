@@ -62,14 +62,12 @@
       "group": {
         "intro": "Acesta este începutul conversației de grup.",
         "owner": "Proprietar: <owner>@{{name}}</owner>",
-        "federatedNotice": "Mesajele sunt stocate pe instanțele principale ale tale și ale destinatarilor. Nu sunt criptate end-to-end.",
         "openSettings": "Deschide setările grupului",
         "leave": "Părăsește grupul"
       },
       "dm": {
         "fallbackName": "Mesaj direct",
         "intro": "Acesta este începutul istoricului mesajelor directe cu <strong>@{{name}}</strong>.",
-        "federatedNotice": "Mesajele sunt stocate pe instanțele principale ale tale și ale destinatarului. Nu sunt criptate end-to-end.",
         "removeFriend": "Elimină prietenul"
       }
     }
@@ -136,14 +134,6 @@
     },
     "audio": {
       "unsupportedBrowser": "Browserul tău nu acceptă redarea audio."
-    },
-    "federation": {
-      "remoteNamed": "Găzduit pe instanța utilizatorului {{sender}}. Descarcă pentru a păstra o copie locală.",
-      "remoteUnknown": "Găzduit pe instanța expeditorului. Descarcă pentru a păstra o copie locală.",
-      "partialGeneric": "Unii destinatari nu pot stoca acest fișier local.",
-      "partialInstance": "Instanța utilizatorului {{username}} (limită: {{limit}})",
-      "partialList": "Fișierul nu a putut fi stocat pe {{instances}}. Îl pot vedea în continuare de pe instanța ta.",
-      "listPair": "{{first}} și {{second}}"
     }
   },
   "gif": {
@@ -276,7 +266,6 @@
     "stickersCount_few": "{{count}} stickere",
     "stickersCount_other": "{{count}} de stickere",
     "noPacks": "Niciun pachet de stickere găsit",
-    "replicaBadge": "Federat",
     "viewPack": "Vezi pachetul",
     "saveDraft": "Salvează ca ciornă",
     "packCreated": "Pachet creat cu succes",
@@ -293,8 +282,6 @@
     "rejectedSuccess": "Pachetul de stickere a fost respins",
     "reviewNotes": "Motivul respingerii",
     "creator": "Autor",
-    "sourceInstance": "Instanță",
-    "localInstance": "Instanța locală",
     "viewStickers": "Vezi stickerele",
     "pendingReviewHint": "În verificare la administrator; va apărea în Explorează după aprobare"
   },

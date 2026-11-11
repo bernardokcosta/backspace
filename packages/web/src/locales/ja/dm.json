@@ -1,27 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "リモートインスタンス",
-    "hostInstance": "ホストインスタンス",
-    "acceptDropped": "{{instance}} で承諾を確認できませんでした — 通話が切れました。",
-    "rejectFailed": "{{instances}} に拒否を通知できませんでした。発信者にはしばらく鳴っているように見える場合があります。",
-    "endFailed": "{{instances}} に終了を通知できませんでした。リモート参加者には最大60秒通話が見える場合があります。",
-    "hostUnreachable": "通話終了 — ホストインスタンスに到達不可。",
-    "peeringLost": "通話終了 — このインスタンスは {{instance}} とピアリングしていません。",
-    "instanceUnreachable": "通話終了 — {{instance}} に到達不可。",
-    "someUnreachable": "到達できない参加者: {{instances}}。",
-    "multipleUnreachable_other": "{{count}} インスタンスに到達不可: {{instances}}。",
-    "callFailed": "発信できませんでした。",
-    "manualApproval": "{{instance}} に到達不可 — このインスタンスは手動ペアリング承認が必要です。",
-    "awaitingApproval": "{{instance}} の管理者があなたのインスタンスを承認するのを待機中。承認後に通話可能。",
-    "transientFailure": "{{instance}} に到達不可。しばらくして再試行。",
-    "voiceUnavailable": "このインスタンスで音声未設定。",
-    "noRecipient": "{{instance}} は誰にも発信しませんでした。",
-    "targetCallFailed": "{{instance}} への発信不可。"
-  },
-  "feedback": {
-    "relayDenied": "メッセージ中継不可 — 相手サーバーがペアリング拒否。相手管理者に連絡。",
-    "awaitingPeering": "相手管理者がペアリング要求を承認するとメッセージ配信。"
-  },
   "names": {
     "group": "グループ",
     "directMessage": "ダイレクトメッセージ",
@@ -156,11 +133,6 @@
     "notFound": "会話が見つかりません。",
     "notGroup": "この会話にグループ情報なし。",
     "cancelEdit": "編集取消",
-    "federated": "連合グループ",
     "memberCount_other": "メンバー {{count}} 人"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "このグループは {{host}} で管理。変更はそのインスタンスに接続。",
-    "ownerNotListed": "{{host}} はまだこのグループをあなたに表示していません。しばらくして再試行。"
   }
 }

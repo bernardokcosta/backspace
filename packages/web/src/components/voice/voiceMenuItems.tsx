@@ -4,7 +4,7 @@ import i18n from '../../i18n';
 import { useFormatters } from '../../i18n/formatters';
 import type { ContextMenuItem } from '../../stores/contextMenuStore';
 import { useVoiceStore } from '../../stores/voiceStore';
-import { useSpaceStore, getChannelOrigin } from '../../stores/spaceStore';
+import { useSpaceStore } from '../../stores/spaceStore';
 import { wsSend } from '../../hooks/useWebSocket';
 import { hasPermissionBit, PermissionBits } from '../../utils/permissions';
 import { viewerCanActOnUserInSpace } from '../../utils/roleHierarchy';
@@ -39,7 +39,6 @@ export function buildVoiceModMenuItems(targetUserId: string, channelId: string):
   // member ranked at or above the viewer (permissions.md, "Role hierarchy").
   if (derivedSpaceId && !viewerCanActOnUserInSpace(derivedSpaceId, targetUserId)) return [];
 
-  const voiceOrigin = getChannelOrigin(channelId);
   const spaceId = derivedSpaceId;
   const isSpaceMuted = isVoiceFlagIn(spaceMutedUserIds, spaceId, targetUserId, channelId);
   const isSpaceDeafened = isVoiceFlagIn(spaceDeafenedUserIds, spaceId, targetUserId, channelId);
@@ -63,7 +62,7 @@ export function buildVoiceModMenuItems(targetUserId: string, channelId: string):
           ? [React.createElement('line', { key: 'slash', x1: 3, y1: 3, x2: 21, y2: 21, stroke: 'currentColor', strokeWidth: 2.5, strokeLinecap: 'round' })]
           : []),
       ),
-      onClick: () => wsSend({ type: 'voice_space_mute', userId: targetUserId, muted: !isSpaceMuted, ...seat }, voiceOrigin),
+      onClick: () => wsSend({ type: 'voice_space_mute', userId: targetUserId, muted: !isSpaceMuted, ...seat }),
     });
   }
 
@@ -78,7 +77,7 @@ export function buildVoiceModMenuItems(targetUserId: string, channelId: string):
           ? [React.createElement('line', { key: 'slash', x1: 3, y1: 3, x2: 21, y2: 21, stroke: 'currentColor', strokeWidth: 2.5, strokeLinecap: 'round' })]
           : []),
       ),
-      onClick: () => wsSend({ type: 'voice_space_deafen', userId: targetUserId, deafened: !isSpaceDeafened, ...seat }, voiceOrigin),
+      onClick: () => wsSend({ type: 'voice_space_deafen', userId: targetUserId, deafened: !isSpaceDeafened, ...seat }),
     });
   }
 
@@ -92,7 +91,7 @@ export function buildVoiceModMenuItems(targetUserId: string, channelId: string):
       icon: React.createElement('svg', { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'currentColor', className: 'flex-shrink-0' },
         React.createElement('path', { d: 'M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08a.956.956 0 010-1.36C3.36 8.68 7.42 7 12 7s8.64 1.68 11.71 4.72c.18.18.29.44.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28a11.27 11.27 0 00-2.67-1.85.996.996 0 01-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z' }),
       ),
-      onClick: () => wsSend({ type: 'voice_disconnect', userId: targetUserId, ...seat }, voiceOrigin),
+      onClick: () => wsSend({ type: 'voice_disconnect', userId: targetUserId, ...seat }),
     });
   }
 
@@ -112,7 +111,7 @@ export function buildVoiceModMenuItems(targetUserId: string, channelId: string):
         icon: React.createElement('svg', { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'currentColor', className: 'flex-shrink-0 text-txt-tertiary' },
           React.createElement('path', { d: 'M11 5L6 9H2V15H6L11 19V5ZM15.54 8.46C16.48 9.4 17 10.67 17 12S16.48 14.6 15.54 15.54L14.12 14.12C14.69 13.55 15 12.79 15 12S14.69 10.45 14.12 9.88L15.54 8.46Z' }),
         ),
-        onClick: () => wsSend({ type: 'voice_move', userId: targetUserId, targetChannelId: ch.id }, voiceOrigin),
+        onClick: () => wsSend({ type: 'voice_move', userId: targetUserId, targetChannelId: ch.id }),
       })),
     });
   }

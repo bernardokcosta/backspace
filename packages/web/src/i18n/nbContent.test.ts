@@ -6,7 +6,6 @@ import spaces from '../locales/nb/spaces.json';
 import voice from '../locales/nb/voice.json';
 import settings from '../locales/nb/settings.json';
 import desktop from '../locales/nb/desktop.json';
-import federation from '../locales/nb/federation.json';
 
 describe('Norwegian Bokmål contextual content', () => {
   it('names the native joker card without translating wild as the adjective vill', () => {
@@ -19,11 +18,7 @@ describe('Norwegian Bokmål contextual content', () => {
     }
   });
 
-  it('describes issued credentials and software builds accurately', () => {
-    for (const value of [federation.validation.connectHomeFirst, federation.connections.add.passwordHint, federation.connections.add.fallbackNotice.credentialRefused]) {
-      expect(value).toContain('legitimasjon');
-      expect(value).not.toContain('referanse');
-    }
+  it('describes software builds accurately', () => {
     expect(settings.desktop.updates.manualNote).toContain('Dette bygget');
     expect(desktop.update.available.body).toContain('Dette bygget');
     expect(desktop.update.available.bodyWithCurrent).toContain('Dette bygget');

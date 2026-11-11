@@ -6,7 +6,6 @@
   },
   "you": {
     "editProfile": "प्रोफ़ाइल संपादित करें",
-    "homeInstance": "होम इंस्टेंस: {{domain}}",
     "logOutConfirm": "क्या आप लॉग आउट करना चाहते हैं?"
   },
   "chat": {

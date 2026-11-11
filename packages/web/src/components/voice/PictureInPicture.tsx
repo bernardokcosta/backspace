@@ -10,11 +10,10 @@ import { Avatar } from '../ui/Avatar';
 import type { ParticipantInfo } from '../../hooks/useLiveKit';
 import { useVoiceParticipantMeta } from '../../hooks/useVoiceParticipantMeta';
 import { useActiveDmCall } from '../../hooks/useActiveDmCall';
-import { dmCallRoomKey } from '../../utils/dmCall';
 
 /** Stable fallback for useVoiceParticipantMeta when no participant exists */
 const EMPTY_PARTICIPANT: ParticipantInfo = {
-  identity: '', userId: '', username: '', homeUserId: null,
+  identity: '', userId: '', username: '',
   isMuted: false, isDeafened: false, isCameraOn: false, isScreenSharing: false,
   isLocal: false, audioTrack: null, videoTrack: null, screenTrack: null,
   screenAudioTrack: null, lkVideoTrack: null, lkScreenTrack: null,
@@ -130,7 +129,7 @@ export function PictureInPicture() {
   // The conversation of the DM call, as this client can open it: never the
   // call's key, which names no conversation here.
   const { dmChannelId: dmCallChannel } = useActiveDmCall();
-  const dmCallKey = activeDmCall ? dmCallRoomKey(activeDmCall) : null;
+  const dmCallKey = activeDmCall?.dmChannelId ?? null;
   const participants = useVoiceStore((s) => s.participants);
   const focusedParticipantId = useVoiceStore((s) => s.focusedParticipantId);
   const watchingStreams = useVoiceStore((s) => s.watchingStreams);
@@ -435,7 +434,7 @@ export function PictureInPicture() {
                 src={resolvedAvatar}
                 name={resolvedName}
                 size={64}
-                userId={displayParticipant.homeUserId ?? displayParticipant.userId}
+                userId={displayParticipant.userId}
                 user={resolvedUser ?? undefined}
               />
               {speakingParticipantIds.has(displayParticipant.identity) && (

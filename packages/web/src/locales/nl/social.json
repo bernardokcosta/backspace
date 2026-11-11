@@ -19,7 +19,6 @@
     "activity": "Het is stil voor nu… Zodra vrienden iets gaan doen, zie je het hier!"
   },
   "friend": {
-    "viaInstance": "via {{host}}",
     "message": "Bericht",
     "remove": "Vriend verwijderen"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "Mensen vinden",
-    "hint": "Zoek op gebruikersnaam of gebruik <handle>user@instance</handle> om iemand direct toe te voegen.",
     "placeholder": "Zoeken of toevoegen op naam…",
     "direct": "Stuur vriendschapsverzoek naar <handle>{{handle}}</handle>",
     "sendRequest": "Verzoek sturen",
@@ -99,6 +97,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "Track openen"
-  },
-  "instanceNotConnected": "Niet verbonden met {{host}}. Maak opnieuw verbinding en probeer het nog eens."
+  }
 }

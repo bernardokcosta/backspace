@@ -9,32 +9,27 @@ import { useContextMenuStore } from '../../stores/contextMenuStore';
 import { Avatar } from '../ui/Avatar';
 import { AvatarStack } from '../ui/AvatarStack';
 import { Mascot } from '../ui/Mascot';
-import { resolveAssetUrl } from '../../utils/assetUrls';
+import { uploadUrl } from '../../utils/assetUrls';
 import { useNavigate } from 'react-router-dom';
-import { parseFederatedUsername, isFederationGlobeApplicable, isMine, userDisplayName } from '../../utils/identity';
-import { useDmViewer } from '../../hooks/useDmViewer';
+import { userDisplayName } from '../../utils/identity';
+import { useAuthStore } from '../../stores/authStore';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 import { formatDmSidebarPreview, formatDmHeaderName } from '../../utils/dmFormatters';
-import type { DmChannel, User } from '@veyvox/shared';
-import type { TaggedFriend } from '../../stores/socialStore';
+import type { DmChannel, User, Friend } from '@veyvox/shared';
 
-const FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false, replicatedInstances: [] } as unknown as User;
+const FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false } as unknown as User;
 
 function MobileFriendBubble({
   friend,
   dmChannels,
   onTap,
 }: {
-  friend: TaggedFriend;
+  friend: Friend;
   dmChannels: DmChannel[];
   onTap: (dmId: string) => void;
 }) {
-  const canonical = useCanonicalUserView(friend as unknown as User, friend._instanceOrigin);
-  // _instanceOrigin lives on TaggedFriend, not on the canonical User. Use the
-  // canonical avatar value but source the origin from the original friend.
-  const avatarUrl = canonical.avatar
-    ? resolveAssetUrl(canonical.avatar, friend._instanceOrigin) ?? `/api/uploads/${canonical.avatar}`
-    : null;
+  const canonical = useCanonicalUserView(friend);
+  const avatarUrl = uploadUrl(canonical.avatar);
   const displayName = userDisplayName(canonical);
 
   return (
@@ -83,33 +78,28 @@ function MobileDmRow({
   formatTimestamp: (ts: number) => string;
 }) {
   const { t } = useTranslation(['dm', 'common']);
-  const viewer = useDmViewer(dm.id);
-  const otherMembers = dm.members.filter(m => !isMine(m, viewer.origin, viewer.self));
+  const selfId = useAuthStore(s => s.user?.id ?? null);
+  const otherMembers = dm.members.filter(m => m.id !== selfId);
   const isGroup = !!dm.ownerId;
   const rawMainUser = otherMembers[0] ?? null;
-  const canonicalMainUser = useCanonicalUserView(rawMainUser ?? FALLBACK_USER, viewer.origin);
+  const canonicalMainUser = useCanonicalUserView(rawMainUser ?? FALLBACK_USER);
   const mainUser = rawMainUser ? canonicalMainUser : null;
 
   // Group DMs → `formatDmHeaderName` (single source of truth shared with
   // `MobileChatScreen`, `MainContent`, `DmListItem`, welcome hero). 1:1 DMs
   // keep the canonical view of the single other member.
   const name = isGroup
-    ? formatDmHeaderName(dm, viewer)
+    ? formatDmHeaderName(dm, selfId)
     : (mainUser && userDisplayName(mainUser)) || t('common:states.unknown');
-
-  // Show a single federation globe next to the group name when any non-self
-  // member is federated. No tooltip on mobile — the new `group-dm-info` screen
-  // surfaces federation identity per-member.
-  const groupHasFederatedMember = isGroup && otherMembers.some((m) => isFederationGlobeApplicable(m));
 
   const lastMsgId = dm.lastMessage?.id;
   const readState = readStates.get(dm.id);
   const isUnread = lastMsgId && (!readState || readState < lastMsgId);
 
-  const preview = formatDmSidebarPreview(dm, viewer);
+  const preview = formatDmSidebarPreview(dm, selfId);
   const previewTime = dm.lastMessage?.createdAt;
 
-  const avatarUrl = mainUser?.avatar ? `/api/uploads/${mainUser.avatar}` : null;
+  const avatarUrl = uploadUrl(mainUser?.avatar);
 
   return (
     <button
@@ -127,7 +117,6 @@ function MobileDmRow({
           // surface-chat border color used elsewhere on the messages list.
           <AvatarStack
             members={otherMembers}
-            origin={viewer.origin}
             size={40}
             border="chat"
             iconUrl={dm.icon}
@@ -147,19 +136,6 @@ function MobileDmRow({
             <span className={`text-sm truncate ${isUnread ? 'font-semibold text-txt-primary' : 'text-txt-primary'}`}>
               {name}
             </span>
-            {groupHasFederatedMember && (
-              <svg
-                data-dm-row-globe
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="text-txt-tertiary/80 flex-shrink-0"
-                aria-hidden="true"
-              >
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-              </svg>
-            )}
           </span>
           {previewTime && (
             <span className="text-[11px] text-txt-tertiary shrink-0">
@@ -167,11 +143,6 @@ function MobileDmRow({
             </span>
           )}
         </div>
-        {!isGroup && mainUser && isFederationGlobeApplicable(mainUser) && (
-          <div className="text-[10px] leading-[1.3] text-txt-tertiary truncate opacity-60">
-            @{parseFederatedUsername(mainUser.username).domain}
-          </div>
-        )}
         {preview && (
           <p className={`text-xs truncate mt-0.5 ${isUnread ? 'text-txt-secondary font-medium' : 'text-txt-tertiary'}`}>
             {preview}

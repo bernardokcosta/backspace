@@ -136,7 +136,7 @@ export function VoiceControls() {
           </div>
         </div>
 
-        <div className="flex items-center gap-0.5 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0">
           {voiceConnectionStatus === 'disconnected' && connectionError && (
             <button
               onClick={handleRetry}
@@ -152,7 +152,7 @@ export function VoiceControls() {
             aria-label={rnnoiseEnabled ? t('voice:controls.noiseSuppressionOff') : t('voice:controls.noiseSuppressionOn')}
             aria-description={t('voice:controls.audioTreatmentHint')}
             title={`${rnnoiseEnabled ? t('voice:controls.noiseSuppressionOff') : t('voice:controls.noiseSuppressionOn')}\n${t('voice:controls.audioTreatmentHint')}`}
-            className={`w-7 h-7 flex items-center justify-center shrink-0 rounded transition-colors focus-visible:ring-2 focus-visible:ring-accent-primary ${
+            className={`w-7 h-7 flex items-center justify-center shrink-0 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-accent-primary ${
               rnnoiseEnabled ? 'text-accent-mint bg-accent-mint/10 hover:bg-accent-mint/20' : 'text-txt-tertiary hover:text-txt-primary hover:bg-interactive-hover'
             }`}
           >
@@ -164,7 +164,7 @@ export function VoiceControls() {
           </button>
           <button
             onClick={handleDisconnect}
-            className="w-7 h-7 flex items-center justify-center text-txt-tertiary hover:text-txt-primary transition-colors rounded"
+            className="w-7 h-7 flex items-center justify-center text-txt-tertiary hover:text-txt-primary transition-colors rounded-lg"
             title={t('voice:controls.disconnect')}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">

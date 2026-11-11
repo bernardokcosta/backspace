@@ -39,6 +39,18 @@ test('all tooling suites feed the required gate', () => {
   }
 });
 
+test('standalone artifact absence runs after the complete production and desktop builds', () => {
+  const steps = workflow('ci').jobs['build-and-test'].steps;
+  const gate = steps.findIndex(step => step.run === 'node scripts/check-standalone.mjs --artifacts');
+  assert.ok(gate >= 0, 'missing emitted-code retirement gate');
+  for (const command of ['pnpm build', 'pnpm --filter @veyvox/desktop build:ts']) {
+    const build = steps.findIndex(step => step.run === command);
+    assert.ok(build >= 0 && build < gate, command);
+  }
+  assert.equal(steps[gate].if, undefined);
+  assert.notEqual(steps[gate]['continue-on-error'], true);
+});
+
 test('native validation keeps callers without duplicate push runs', () => {
   const native = workflow('native-sdr-capture');
   assert.deepEqual(Object.keys(native.on).sort(), ['workflow_call', 'workflow_dispatch']);

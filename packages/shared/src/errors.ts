@@ -7,9 +7,9 @@
  * code; the code exists so a Russian or German client can say it properly.
  *
  * Codes are snake_case identifiers and never change meaning once shipped:
- * the desktop app, the web client and every federated peer version
- * independently, and an old client that meets a new code falls back to the
- * English text, so removing or repurposing one is a wire-protocol break.
+ * the desktop app and the web client version independently. An old client
+ * falls back to the English text for a new code. Retired feature codes are
+ * removed, never repurposed for an unrelated native error.
  *
  * Adding a code: append it here, give it English text in
  * `packages/server/src/utils/httpErrors.ts`, and give it a message in every
@@ -56,18 +56,12 @@ export const ERROR_CODES = [
   'bot_not_found',
   'bots_native_only',
   'bots_no_friends',
-  'bot_home_not_peered',
-  'bot_proof_invalid',
   'bot_profile_owner_only',
-  'bot_revocation_pending',
   'bot_token_limit_reached',
   'bot_token_not_found',
   'bot_token_name_invalid',
   'bot_token_in_use',
   'bots_cannot_invoke_commands',
-  'bot_blocked',
-  'bot_block_not_federated',
-  'blocked_bot_not_found',
   'bot_activity_invalid',
   'bot_permissions_invalid',
   'bot_permissions_not_requested',
@@ -91,7 +85,6 @@ export const ERROR_CODES = [
   'display_name_empty',
   'bio_too_long',
   'custom_status_too_long',
-  'profile_managed_by_home',
   'account_deletion_blocked_owned_spaces',
   'account_deletion_password_incorrect',
 
@@ -100,19 +93,6 @@ export const ERROR_CODES = [
   'user_not_found',
   'already_friends',
   'incoming_request_exists',
-  'invalid_target_domain',
-  'lookup_rate_limited',
-  'not_authoritative_for_sender',
-
-  // Federation and peering
-  'peer_rejected',
-  'peer_pending',
-  'peer_pending_approval',
-  'peer_pending_local_admin',
-  'peer_unreachable',
-  'PEER_EXISTS_RESET_REQUIRED',
-  'PEER_REVOKED',
-  'PEER_HANDSHAKE_IN_PROGRESS',
 
   // Direct messages
   'recipient_deleted',
@@ -120,16 +100,8 @@ export const ERROR_CODES = [
   // auth-users
   'username_length_invalid',
   'username_characters_invalid',
-  'home_instance_invalid',
-  'username_local_part_invalid',
-  'username_domain_part_invalid',
-  'replicated_username_format_required',
-  'federated_registration_closed',
   'user_create_failed',
   'account_deleted',
-  'target_domain_required',
-  'native_account_required',
-  'reattach_handle_taken',
   'username_confirmation_required',
   'username_confirmation_mismatch',
   'avatar_url_invalid',
@@ -138,18 +110,7 @@ export const ERROR_CODES = [
   'avatar_color_invalid',
   'status_invalid',
   'no_fields_to_update',
-  'registry_conflict',
-  'origin_required',
-  'origin_invalid',
-  'federation_credential_remote_only',
-  'federation_credential_home_only',
-  'federation_credential_failed',
-  // Minted by the client, not by a route: the remote account refused the
-  // credential this user's home instance issued for it, so the only way in
-  // is the password that account holds of its own.
-  'federation_different_password',
   // dm
-  'peer_reset_pending',
   'dm_target_required',
   'cannot_dm_self',
   'group_dm_too_few_members',
@@ -176,9 +137,6 @@ export const ERROR_CODES = [
   'invalid_body',
   'invalid_target',
   'cannot_invite_self',
-  // Sent up to 1.9.0 by POST /api/dm/space-invite for a local request space.
-  // A current server sends that invite; an older home still refuses it.
-  'space_requires_approval',
   'message_lookup_failed',
   // admin-settings
   'field_not_boolean',
@@ -187,8 +145,6 @@ export const ERROR_CODES = [
   'instance_name_length',
   'upload_limit_out_of_range',
   'sticker_limit_out_of_range',
-  'relay_ttl_out_of_range',
-  'rotation_interval_out_of_range',
   'streaming_max_bitrate_out_of_range',
   'streaming_min_bitrate_out_of_range',
   'streaming_bitrate_step_out_of_range',
@@ -211,8 +167,6 @@ export const ERROR_CODES = [
   'deleted_user_role_change',
   'deleted_user_password_reset',
   'user_already_deleted',
-  'federated_user_cannot_be_admin',
-  'federated_user_password_managed_by_home',
   'last_admin_cannot_be_demoted',
   'admin_cannot_delete_self',
   'user_owns_spaces',
@@ -223,7 +177,6 @@ export const ERROR_CODES = [
   'friend_request_not_sender',
   'friend_request_not_pending',
   'not_friends',
-  'lookup_failed',
   'space_not_found',
   'space_not_requestable',
   'space_load_failed',
@@ -245,9 +198,6 @@ export const ERROR_CODES = [
   'space_afk_invalid_timeout',
   'space_update_failed',
   'space_owner_only',
-  // Sent up to 1.9.0 by POST /api/spaces/:id/invite for a request space. A
-  // current server hands that space its link; an older peer still sends it.
-  'space_uses_join_requests',
   'invite_code_required',
   'invite_not_found',
   // An invite code used on a request space. `details.spaceId` names the space
@@ -327,10 +277,9 @@ export const ERROR_CODES = [
   'sticker_collection_full',
   'sticker_name_invalid',
 
-  // Federated Sticker Store
+  // Sticker Store
   'sticker_pack_not_found',
   'sticker_pack_invalid_state',
-  'sticker_peer_blocked',
   'sticker_pack_limit_exceeded',
   // Game icons
   'game_icon_invalid_image',
@@ -353,8 +302,7 @@ export type ErrorDetails = Record<string, string | number>;
  * The body of every non-2xx JSON response.
  *
  * `error` is always present. `code` and `details` are optional because
- * routes are converted to codes surface by surface, and because a federated
- * peer may run a version that has never heard of them.
+ * older client/server versions may not include them.
  */
 export interface ApiErrorBody {
   error: string;

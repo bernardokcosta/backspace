@@ -9,7 +9,8 @@ describe('separate bounded real-time control admission', () => {
       expect(wsEventRateLimitError(100, { type, dmChannelId: 'dm-1' })).not.toHaveProperty('dmChannelId');
     }
     expect(wsEventRateLimitError(100, { type: 'dm_call_start', dmChannelId: 'dm-1' })).toMatchObject({ dmChannelId: 'dm-1' });
-    expect(wsEventRateLimitError(100, { type: 'dm_call_accept', federatedCallId: 'call-key' })).toMatchObject({ dmChannelId: 'call-key' });
+    expect(wsEventRateLimitError(100, { type: 'dm_call_accept', dmChannelId: 'dm-2' })).toMatchObject({ dmChannelId: 'dm-2' });
+    expect(wsEventRateLimitError(100, { type: 'dm_call_accept', federatedCallId: 'call-key' })).not.toHaveProperty('dmChannelId');
   });
   it('does not let ephemeral saturation spend call/voice control capacity', () => {
     for (let i = 0; i < 60; i++) expect(consumeWsEvent('alice', 'channel_ack', 0)).toBe(0);

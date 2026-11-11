@@ -9,27 +9,24 @@ import { VoiceGrid } from '../voice/VoiceGrid';
 import { VoiceControlBar } from '../voice/VoiceControlBar';
 import { VoiceChatPanel } from '../voice/VoiceChatPanel';
 import { FriendsPage } from '../chat/FriendsPage';
-import { Avatar } from '../ui/Avatar';
 import { AvatarStack } from '../ui/AvatarStack';
 import { useVoiceStore } from '../../stores/voiceStore';
 import { canStartDmCall, startDmCall, cancelOutgoingDmCall, isDmCallRunning, joinDmCall } from '../../utils/voiceActions';
 import { useActiveDmCall } from '../../hooks/useActiveDmCall';
 import { MemberListToggleButton } from './MemberListToggleButton';
 import { TransferIndicator } from './TransferIndicator';
-import { isMine, isFederationGlobeApplicable, userDisplayName } from '../../utils/identity';
-import { useDmViewer } from '../../hooks/useDmViewer';
+import { userDisplayName } from '../../utils/identity';
+import { useAuthStore } from '../../stores/authStore';
 import { formatDmHeaderName, formatDmInputLabel, isDeletedPartnerDm } from '../../utils/dmFormatters';
 import { DmDeletedNotice } from '../chat/DmDeletedNotice';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 import type { User } from '@veyvox/shared';
-import { Tooltip } from '../ui/Tooltip';
 import { joinVoiceChannel } from '../../utils/voice';
 import { SearchPopover } from '../chat/SearchPopover';
 import { PinnedMessagesPopover } from '../chat/PinnedMessagesPopover';
 import { hasPermissionBit, PermissionBits } from '../../utils/permissions';
 import { ChannelNotificationButton } from '../notifications/ChannelNotificationButton';
 import { ChannelHeaderTopic } from './ChannelHeaderTopic';
-import { isDmChannel } from '../../stores/spaceStore';
 import { usePointerReveal, VOICE_CHROME_ATTR } from '../../hooks/usePointerReveal';
 import { BotBadge } from '../ui/BotBadge';
 
@@ -109,10 +106,10 @@ export function MainContent() {
   // cache. The hook must be called unconditionally at the component top, so we
   // pass a fallback when there is no current DM channel or 1-on-1 partner.
   const _dmChannel = dmChannels.find(dm => dm.id === currentChannelId);
-  const dmViewer = useDmViewer(_dmChannel?.id);
-  const _rawFirstOther = _dmChannel?.members.filter(m => !isMine(m, dmViewer.origin, dmViewer.self))[0] ?? null;
-  const _FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false, replicatedInstances: [] } as unknown as User;
-  const _canonicalFirstOther = useCanonicalUserView(_rawFirstOther ?? _FALLBACK_USER, dmViewer.origin);
+  const selfId = useAuthStore(s => s.user?.id ?? null);
+  const _rawFirstOther = _dmChannel?.members.find(m => m.id !== selfId) ?? null;
+  const _FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false } as unknown as User;
+  const _canonicalFirstOther = useCanonicalUserView(_rawFirstOther ?? _FALLBACK_USER);
 
   // Reset search when channel changes
   useEffect(() => {
@@ -209,29 +206,26 @@ export function MainContent() {
     }
 
     const dmChannel = dmChannels.find(dm => dm.id === currentChannelId);
-    const otherMembers = dmChannel?.members.filter(m => !isMine(m, dmViewer.origin, dmViewer.self)) ?? [];
+    const otherMembers = dmChannel?.members.filter(m => m.id !== selfId) ?? [];
     const isGroupDm = !!dmChannel?.ownerId;
     // Use the canonicalized view of the 1-on-1 partner (resolved above the
     // conditional so the hook is called unconditionally).
     const firstOther = _rawFirstOther ? _canonicalFirstOther : (otherMembers[0] ?? null);
     // Group DMs route through `formatDmHeaderName` (honors `dm.name`, falls
-    // back to joined member names); 1-on-1 DMs keep the canonical-view path
-    // so replicated aliases still surface the home-instance display name.
+    // back to joined member names); 1-on-1 DMs use the latest native profile.
     const dmName = isGroupDm && dmChannel
-      ? formatDmHeaderName(dmChannel, dmViewer)
+      ? formatDmHeaderName(dmChannel, selfId)
       : ((firstOther && userDisplayName(firstOther)) || t('spaces:main.dm.fallbackName'));
     // Message-input placeholder — groups use `formatDmInputLabel` which
     // collapses unnamed groups to "the group" so the textarea doesn't render
     // "Message #Alice, Bob, Charlie, Dave". 1-on-1 reuses the canonical
-    // `dmName` so the placeholder stays aligned with the header (the utility
-    // resolves the raw partner; on replicated aliases the canonical view
-    // can disagree).
+    // `dmName` so the placeholder stays aligned with the current-profile header.
     const dmInputPlaceholder = isGroupDm && dmChannel
-      ? t('spaces:main.dm.composerPlaceholder', { target: formatDmInputLabel(dmChannel, dmViewer) })
+      ? t('spaces:main.dm.composerPlaceholder', { target: formatDmInputLabel(dmChannel, selfId) })
       : dmChannel
         ? t('spaces:main.dm.composerPlaceholder', { target: `@${dmName}` })
         : undefined;
-    const dmPartnerDeleted = dmChannel ? isDeletedPartnerDm(dmChannel, dmViewer) : false;
+    const dmPartnerDeleted = dmChannel ? isDeletedPartnerDm(dmChannel, selfId) : false;
 
     const isInDmCall = !!currentChannelId && dmCallChannel === currentChannelId;
     const isCallingThisDm = outgoingCall?.dmChannelId === currentChannelId;
@@ -321,7 +315,7 @@ export function MainContent() {
                 className="flex-shrink-0 cursor-pointer"
                 aria-label={t('spaces:main.dm.openGroupSettings')}
               >
-                <AvatarStack members={otherMembers} origin={dmViewer.origin} size={32} border="chat" iconUrl={dmChannel?.icon} />
+                <AvatarStack members={otherMembers} size={32} border="chat" iconUrl={dmChannel?.icon} />
               </div>
             ) : (
               <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-txt-tertiary flex-shrink-0">
@@ -341,24 +335,6 @@ export function MainContent() {
                 {firstOther?.isBot && <BotBadge />}
               </div>
             )}
-            {!isGroupDm && firstOther && isFederationGlobeApplicable(firstOther) && (
-              <Tooltip content={firstOther.username} position="bottom">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-txt-tertiary/80 flex-shrink-0">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-                </svg>
-              </Tooltip>
-            )}
-            {isGroupDm && (() => {
-              const federatedMembers = (dmChannel?.members ?? []).filter(m => isFederationGlobeApplicable(m));
-              if (federatedMembers.length === 0) return null;
-              return (
-                <Tooltip content={federatedMembers.map(m => m.username).join(', ')} position="bottom">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-txt-tertiary/80 flex-shrink-0">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-                  </svg>
-                </Tooltip>
-              );
-            })()}
             {isGroupDm && (
               <span
                 onClick={() => openModal('groupDmSettings', { dmChannelId: currentChannelId, initialTab: 'members' })}

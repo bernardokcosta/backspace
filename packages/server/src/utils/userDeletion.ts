@@ -1,7 +1,6 @@
 import crypto from 'crypto';
 import { eq, or, and, inArray, isNotNull } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
-import { forgetReplicaProjection } from '../ws/replicaPresence.js';
 import { deleteAllManagedBotRoles } from './botRoles.js';
 
 export interface DeletionBroadcastTargets {
@@ -162,14 +161,6 @@ export function tombstoneUser(uid: string, options?: TombstoneOptions): string[]
     }
     tx.delete(schema.spaceFolders).where(eq(schema.spaceFolders.userId, uid)).run();
 
-    // The per-remote federation credentials are live secrets for accounts on
-    // OTHER instances. A tombstone keeps the users row, so the ON DELETE CASCADE
-    // never fires — scrub them explicitly rather than leaving usable credentials
-    // behind for a deleted account.
-    tx.delete(schema.userFederationCredentials)
-      .where(eq(schema.userFederationCredentials.userId, uid))
-      .run();
-
     // A bot's access tokens (hash only) go with the account too.
     tx.delete(schema.botTokens)
       .where(eq(schema.botTokens.botId, uid))
@@ -295,16 +286,11 @@ export function tombstoneUser(uid: string, options?: TombstoneOptions): string[]
       customStatus: null,
       accentColor: null,
       avatarColor: null,
-      replicatedInstances: '[]',
       isDeleted: 1,
       status: 'offline',
       isAdmin: 0,
-      federationHomeOrphaned: 0,
     }).where(eq(schema.users.id, uid)).run();
   });
-  // The tombstone shows 'offline' for good; a replicated row's projection goes with it.
-  forgetReplicaProjection(uid);
-
   // A bot's managed roles go with it (utils/botRoles.ts); the spaces reload their roles.
   if (user.isBot === 1) {
     const roleSpaces = deleteAllManagedBotRoles(uid);
@@ -318,20 +304,7 @@ export function tombstoneUser(uid: string, options?: TombstoneOptions): string[]
 
   // After the commit: tombstoneUser opens its own transaction, so it cannot be nested.
   for (const bot of ownedBots) {
-    // Origins first: the bot's tombstone deletes its federation credentials.
-    const botOrigins = db.select({ origin: schema.userFederationCredentials.origin })
-      .from(schema.userFederationCredentials)
-      .where(eq(schema.userFederationCredentials.userId, bot.id))
-      .all()
-      .map(r => r.origin);
     filesToDelete.push(...tombstoneUser(bot.id, options));
-    if (botOrigins.length > 0) {
-      // Dynamic import: the federation utils import this module (cycle).
-      const mode = options?.purgeContent === false ? 'soft' : 'full';
-      void import('./botRevocationQueue.js')
-        .then(({ revokeBotWithRetry }) => revokeBotWithRetry(bot.id, botOrigins, mode))
-        .catch(() => { /* a failed round is queued by revokeBotWithRetry; nobody to report to */ });
-    }
     // Lazy import: ws/handler imports the DB layer, a static import would be a cycle.
     void import('../ws/handler.js').then(({ connectionManager }) => {
       connectionManager.forceDisconnectUser(bot.id);

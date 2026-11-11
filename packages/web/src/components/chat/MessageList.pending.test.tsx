@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import type { MessageWithUser, User } from '@veyvox/shared';
 
 vi.mock('../../hooks/useWebSocket', () => ({
   wsSend: vi.fn(),
-  wsSendAll: vi.fn(),
 }));
 
 vi.mock('../../audio/AudioManager', () => ({
@@ -18,33 +17,30 @@ vi.mock('../../audio/AudioManager', () => ({
 }));
 
 const latestMessages = vi.fn();
-vi.mock('../../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../utils/crossStoreResolvers')>()),
-  getApiForOrigin: () => ({
+vi.mock('../../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../api/client')>()),
+  api: {
     channels: {
       messages: (...args: unknown[]) => latestMessages(...args),
       messagesAround: vi.fn(),
       messagesAfter: () => new Promise<never>(() => {}),
     },
-  }),
+  },
 }));
 
 import { MessageList } from './MessageList';
 import { useChatStore } from '../../stores/chatStore';
 import { useSpaceStore } from '../../stores/spaceStore';
-import { isMe, useAuthStore } from '../../stores/authStore';
+import { useAuthStore } from '../../stores/authStore';
 import { useUIStore } from '../../stores/uiStore';
 import { usePendingMessageStore, type PendingBubble } from '../../stores/pendingMessageStore';
 import { ALL_PERMISSIONS, permissionsToString } from '../../utils/permissions';
 
-// The account is native to the page's instance (nova); the channel is on
-// orbit, which knows the user as o-7. Orbit's own Mira has id n-1, the id the
-// session row has on nova.
-const ORBIT = 'https://orbit.example';
+// Pending uploads are authored by the current native account, never a copied row.
 const CHANNEL = 'orbit-chan';
 
-const me = { id: 'n-1', username: 'jannis', displayName: 'Jannis', avatar: null, homeInstance: null, homeUserId: null, createdAt: 1 } as unknown as User;
-const orbitMira = { id: 'n-1', username: 'mira', displayName: 'Mira', avatar: null, homeInstance: null, homeUserId: null, createdAt: 1 } as unknown as User;
+const me = { id: 'n-1', username: 'jannis', displayName: 'Jannis', avatar: null, createdAt: 1 } as User;
+const orbitMira = { id: 'mira', username: 'mira', displayName: 'Mira', avatar: null, createdAt: 1 } as User;
 
 const miraMessage: MessageWithUser = {
   id: 'm1', channelId: CHANNEL, userId: orbitMira.id, replyToId: null, content: 'hi from mira',
@@ -54,6 +50,7 @@ const miraMessage: MessageWithUser = {
 const bubble: PendingBubble = {
   clientId: 'c1', channelId: CHANNEL, content: 'my upload', replyToId: null, transferIds: [],
   createdAtLocal: 1_700_000_030_000, state: 'sending', tusExpiresAt: Number.MAX_SAFE_INTEGER, retryCount: 0,
+  origin: window.location.origin, uploaderUserId: me.id,
 };
 
 function renderList() {
@@ -68,10 +65,9 @@ beforeEach(() => {
   Element.prototype.scrollIntoView = vi.fn();
   latestMessages.mockReset();
   latestMessages.mockResolvedValue([miraMessage]);
-  useAuthStore.setState({ user: me, myRowIds: new Map([[ORBIT, 'o-7']]) });
+  useAuthStore.setState({ user: me });
   useSpaceStore.setState({
-    spaceChannelIndex: new Map([[CHANNEL, 'orbit-space']]),
-    channelOriginMap: new Map([[CHANNEL, ORBIT]]),
+    spaceChannelIndex: new Map([[CHANNEL, { spaceId: 'space', type: 'text' }]]),
     channelPermissions: new Map([[CHANNEL, permissionsToString(ALL_PERMISSIONS)]]),
     dmChannels: [],
     members: [],
@@ -84,28 +80,32 @@ afterEach(() => {
   vi.restoreAllMocks();
   usePendingMessageStore.setState({ bubbles: new Map() });
   useChatStore.setState({ messages: new Map(), hasMore: new Map(), scrollPositions: new Map() });
-  useSpaceStore.setState({ spaceChannelIndex: new Map(), channelOriginMap: new Map(), channelPermissions: new Map(), members: [] });
-  useAuthStore.setState({ user: null, myRowIds: new Map() });
+  useSpaceStore.setState({ spaceChannelIndex: new Map(), channelPermissions: new Map(), members: [] });
+  useAuthStore.setState({ user: null });
 });
 
-describe('pending bubbles on another instance', () => {
-  it("are the user's row as the channel's instance knows it", async () => {
+describe('native pending upload bubbles', () => {
+  it('does not present earlier account content as a replacement account message', () => {
+    useAuthStore.setState({ user: { ...me, id: 'replacement' } }); renderList();
+    expect(screen.queryByText('my upload')).toBeNull();
+    act(() => useAuthStore.setState({ user: me }));
+    expect(screen.getByText('my upload')).toBeInTheDocument();
+  });
+  it('uses the native authenticated profile, separate from another author', async () => {
     const openUserProfile = vi.fn();
     useUIStore.setState({ openUserProfile });
     renderList();
     await screen.findByText('my upload');
 
-    // Not folded into the group of orbit's user who has the session row's id.
+    // A pending upload is never folded into a different author's message group.
     fireEvent.click(await screen.findByText('Jannis'));
     expect(openUserProfile).toHaveBeenCalledTimes(1);
-    const [row, origin] = openUserProfile.mock.calls[0] as [User, string];
-    expect(origin).toBe(ORBIT);
-    expect(row.id).toBe('o-7');
-    expect(isMe(row, origin)).toBe(true);
+    const [row, anchor] = openUserProfile.mock.calls[0] as [User, DOMRect];
+    expect(anchor).toMatchObject({ top: 0, left: 0 });
+    expect(row).toBe(me);
   });
 
   it('carry the session row on the page instance', async () => {
-    useSpaceStore.setState({ channelOriginMap: new Map([[CHANNEL, '']]) });
     const openUserProfile = vi.fn();
     useUIStore.setState({ openUserProfile });
     const other = { ...orbitMira, id: 'n-2' } as User;
@@ -115,8 +115,8 @@ describe('pending bubbles on another instance', () => {
     renderList();
     await screen.findByText('my upload');
     fireEvent.click(await screen.findByText('Jannis'));
-    const [row, origin] = openUserProfile.mock.calls[0] as [User, string];
-    expect(origin).toBe('');
+    const [row, anchor] = openUserProfile.mock.calls[0] as [User, DOMRect];
+    expect(anchor).toMatchObject({ top: 0, left: 0 });
     expect(row).toBe(me);
   });
 });

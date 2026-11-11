@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { formatDmTimestamp, formatDmPreview, formatDmSidebarPreview, formatDmHeaderName, formatDmInputLabel, isDeletedPartnerDm, type DmViewer } from './dmFormatters';
-import { userKey, type SelfIdentity } from './identity';
+import { formatDmTimestamp, formatDmPreview, formatDmSidebarPreview, formatDmHeaderName, formatDmInputLabel, isDeletedPartnerDm } from './dmFormatters';
 import { setLanguage } from '../i18n';
 import type { DmChannel, DmLastMessagePreview, User } from '@veyvox/shared';
 
@@ -200,13 +199,7 @@ describe('formatDmPreview', () => {
   });
 });
 
-/** The DM seen by the user whose row on the page's instance is `id`. */
-function viewerAs(id: string): DmViewer {
-  const self: SelfIdentity = { key: userKey({ id }, ''), rowIds: new Map([['', id]]) };
-  return { self, origin: '' };
-}
-
-const OTHER_VIEWER = viewerAs('OTHER');
+const OTHER_VIEWER = 'OTHER';
 
 // ─── System message previews — exercised via formatDmSidebarPreview ──────────
 
@@ -219,13 +212,10 @@ const actor: User = {
   bio: null,
   banner: null,
   accentColor: null,
-  homeUserId: null,
-  homeInstance: null,
   status: 'online',
   customStatus: null,
   isAdmin: false,
   createdAt: 0,
-  replicatedInstances: [],
 };
 
 function makeGroupDm(lastMessage: DmLastMessagePreview): Pick<DmChannel, 'lastMessage' | 'ownerId' | 'members'> {
@@ -271,12 +261,12 @@ describe('formatDmSidebarPreview — name_changed system message', () => {
 describe('formatDmSidebarPreview: system content it does not know', () => {
   it('an unknown event → the generic label', () => {
     const dm = makeGroupDm({ type: 'system', userId: 'U1', content: JSON.stringify({ event: 'call_started' }), createdAt: 1 });
-    expect(formatDmSidebarPreview(dm, { id: 'OTHER', username: 'other' })).toBe('System message');
+    expect(formatDmSidebarPreview(dm, OTHER_VIEWER)).toBe('System message');
   });
 
   it('an event with missing fields → the generic label', () => {
     const dm = makeGroupDm({ type: 'system', userId: 'U1', content: JSON.stringify({ event: 'member_added', targetUserId: 'U2' }), createdAt: 1 });
-    expect(formatDmSidebarPreview(dm, { id: 'OTHER', username: 'other' })).toBe('System message');
+    expect(formatDmSidebarPreview(dm, OTHER_VIEWER)).toBe('System message');
   });
 });
 
@@ -292,12 +282,10 @@ function makeMember(id: string, fields: Partial<User> = {}): User {
     accentColor: null,
     avatarColor: null,
     bio: null,
-    homeInstance: null,
     status: 'offline',
     customStatus: null,
     isAdmin: false,
     createdAt: 0,
-    replicatedInstances: [],
     ...fields,
   };
 }
@@ -326,7 +314,7 @@ function make1on1Dm(other: User): DmChannel {
   } as DmChannel;
 }
 
-const SELF = viewerAs('SELF');
+const SELF = 'SELF';
 
 describe('formatDmHeaderName', () => {
   it('group with `dm.name` set → returns dm.name verbatim', () => {
@@ -357,12 +345,12 @@ describe('formatDmHeaderName', () => {
     expect(formatDmHeaderName(dm, SELF)).toBe('Alice, Bob, Charlie');
   });
 
-  it('group with members lacking displayName → falls back to parseFederatedUsername base', () => {
+  it('group with members lacking displayName → keeps their exact native username', () => {
     const dm = makeGroupDmFull({
       name: null,
       otherMembers: [makeMember('A', { username: 'alice@nova.ddns.net' })],
     });
-    expect(formatDmHeaderName(dm, SELF)).toBe('alice');
+    expect(formatDmHeaderName(dm, SELF)).toBe('alice@nova.ddns.net');
   });
 
   it('group with only self → returns "Group" placeholder', () => {
@@ -375,9 +363,9 @@ describe('formatDmHeaderName', () => {
     expect(formatDmHeaderName(dm, SELF)).toBe('Alice');
   });
 
-  it('1-on-1 without displayName → username base', () => {
+  it('1-on-1 without displayName → exact retained username', () => {
     const dm = make1on1Dm(makeMember('A', { username: 'alice@nova.ddns.net' }));
-    expect(formatDmHeaderName(dm, SELF)).toBe('alice');
+    expect(formatDmHeaderName(dm, SELF)).toBe('alice@nova.ddns.net');
   });
 
   it('1-on-1 with no resolvable partner → "Direct Message"', () => {
@@ -428,10 +416,10 @@ describe('deleted 1-on-1 partner', () => {
   const dm = { id: 'd', ownerId: null, members: [me, deleted], createdAt: 0 } as unknown as DmChannel;
 
   it('header shows Deleted User', () => {
-    expect(formatDmHeaderName(dm, viewerAs('me'))).toBe('Deleted User');
+    expect(formatDmHeaderName(dm, 'me')).toBe('Deleted User');
   });
   it('input label points at Deleted User', () => {
-    expect(formatDmInputLabel(dm, viewerAs('me'))).toBe('@Deleted User');
+    expect(formatDmInputLabel(dm, 'me')).toBe('@Deleted User');
   });
 });
 
@@ -461,21 +449,21 @@ describe('isDeletedPartnerDm', () => {
   const me = { id: 'me', username: 'me' } as User;
   it('true for a 1-on-1 whose only other member is deleted', () => {
     const dm = { ownerId: null, members: [me, { id: 'x', username: 'Deleted User', isDeleted: true } as User] };
-    expect(isDeletedPartnerDm(dm as any, viewerAs('me'))).toBe(true);
+    expect(isDeletedPartnerDm(dm, 'me')).toBe(true);
   });
   it('false for a live partner', () => {
     const dm = { ownerId: null, members: [me, { id: 'x', username: 'p', isDeleted: false } as User] };
-    expect(isDeletedPartnerDm(dm as any, viewerAs('me'))).toBe(false);
+    expect(isDeletedPartnerDm(dm, 'me')).toBe(false);
   });
   it('false for a group even with a deleted member', () => {
     const dm = { ownerId: 'me', members: [me, { id: 'x', isDeleted: true } as User] };
-    expect(isDeletedPartnerDm(dm as any, viewerAs('me'))).toBe(false);
+    expect(isDeletedPartnerDm(dm, 'me')).toBe(false);
   });
   it('false when there are zero other members', () => {
-    expect(isDeletedPartnerDm({ ownerId: null, members: [me] } as any, viewerAs('me'))).toBe(false);
+    expect(isDeletedPartnerDm({ ownerId: null, members: [me] }, 'me')).toBe(false);
   });
   it('false when others are mixed (one deleted, one live)', () => {
     const dm = { ownerId: null, members: [me, { id: 'x', isDeleted: true } as User, { id: 'y', isDeleted: false } as User] };
-    expect(isDeletedPartnerDm(dm as any, viewerAs('me'))).toBe(false);
+    expect(isDeletedPartnerDm(dm, 'me')).toBe(false);
   });
 });

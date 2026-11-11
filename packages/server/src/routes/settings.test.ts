@@ -39,23 +39,15 @@ function setSettings(values: Partial<typeof schema.instanceSettings.$inferInsert
 }
 function readSettings() { return testDb.select().from(schema.instanceSettings).where(eq(schema.instanceSettings.id, 1)).get(); }
 
-describe('retained federated registration settings', () => {
-  it('defaults to true and reads the stored false value', async () => {
-    expect((await app.inject('/api/settings/instance')).json().federatedRegistrationOpen).toBe(true);
-    setSettings({ federatedRegistrationOpen: 0 });
-    expect((await app.inject('/api/settings/instance')).json().federatedRegistrationOpen).toBe(false);
+describe('only native settings remain', () => {
+  it('omits every retired setting instead of advertising a disabled federation mode', async () => {
+    const result = await app.inject('/api/settings/instance'); expect(result.statusCode).toBe(200);
+    for (const field of ['federatedRegistrationOpen', 'federationRelayEnabled', 'federationRelayTtlDays', 'defaultAutoRotateIntervalDays', 'autoAcceptPeering']) expect(result.json()).not.toHaveProperty(field);
   });
-  it.each([false, true])('persists %s through PATCH', async value => {
-    setSettings({ federatedRegistrationOpen: value ? 0 : 1 });
-    const res = await app.inject({ method: 'PATCH', url: '/api/settings/instance', payload: { federatedRegistrationOpen: value } });
-    expect(res.statusCode).toBe(200); expect(res.json().federatedRegistrationOpen).toBe(value);
-    expect(readSettings()?.federatedRegistrationOpen).toBe(value ? 1 : 0);
-  });
-  it('keeps a stored false when a partial PATCH omits it', async () => {
-    setSettings({ federatedRegistrationOpen: 0 });
-    const res = await app.inject({ method: 'PATCH', url: '/api/settings/instance', payload: { instanceName: 'NewName' } });
-    expect(res.statusCode).toBe(200); expect(res.json()).toMatchObject({ instanceName: 'NewName', federatedRegistrationOpen: false });
-    expect(readSettings()?.federatedRegistrationOpen).toBe(0);
+  it('obsolete settings extras cannot write retired columns or change native gates', async () => {
+    const result = await app.inject({ method: 'PATCH', url: '/api/settings/instance', payload: { instanceName: 'Native title', federatedRegistrationOpen: 'yes', federationRelayEnabled: true, federationRelayTtlDays: 0, defaultAutoRotateIntervalDays: 0, autoAcceptPeering: true } });
+    expect(result.statusCode).toBe(200); expect(result.json()).toMatchObject({ instanceName: 'Native title', registrationOpen: true, spaceCreationOpen: true });
+    expect(readSettings()).not.toHaveProperty('federationRelayEnabled');
   });
 });
 
@@ -89,9 +81,7 @@ describe('retained settings error contracts', () => {
     ['streaming', { minBitrateKbps: 5000, maxBitrateKbps: 5000 }, 'streaming_min_bitrate_not_below_max', undefined],
     ['streaming', { bitrateMatrixOverrides: { bogus: 100 } }, 'streaming_bitrate_matrix_key_invalid', { key: 'bogus' }],
     ['instance', { instanceName: 'x'.repeat(33) }, 'instance_name_length', { min: 1, max: 32 }],
-    ['instance', { federatedRegistrationOpen: 'yes' }, 'field_not_boolean', { field: 'federatedRegistrationOpen' }],
     ['instance', { spaceCreationOpen: 'no' }, 'field_not_boolean', { field: 'spaceCreationOpen' }],
-    ['instance', { federationRelayTtlDays: 0 }, 'relay_ttl_out_of_range', { min: 1, max: 365 }],
   ] as const)('rejects %s input with %s', async (route, payload, code, details) => {
     const before = readSettings();
     const res = await app.inject({ method: 'PATCH', url: `/api/settings/${route}`, payload });
@@ -110,9 +100,7 @@ describe('retained settings error contracts', () => {
 
 const retiredFields = ['discoveryEnabled', 'directoryEnabled', 'directoryBrowseEnabled', 'directoryConfigured', 'directoryAvailable',
   'directoryDirty', 'directoryLastPingAt', 'directoryLastError', 'directoryListedSpaceCount', 'supportCardEnabled'];
-describe.each([0, 1])('legacy directory settings stored as %i', value => {
-  beforeEach(() => { setSettings({ discoveryEnabled: value, directoryEnabled: value, directoryBrowseEnabled: value,
-    directoryDirty: value, directoryLastPingAt: 42, directoryLastError: 'historical', supportCardEnabled: !!value }); });
+describe('retired settings have no persistence mappings', () => {
   it.each(['instance', 'streaming'])('omits retired fields from GET /settings/%s', async route => {
     const before = readSettings(); const res = await app.inject(`/api/settings/${route}`);
     expect(res.statusCode).toBe(200); for (const key of retiredFields) expect(res.json()).not.toHaveProperty(key);
@@ -128,9 +116,10 @@ describe.each([0, 1])('legacy directory settings stored as %i', value => {
   it('keeps ordinary instance and streaming edits independent of all retired flags', async () => {
     const before = readSettings();
     const res = await app.inject({ method: 'PATCH', url: '/api/settings/instance', payload: { instanceName: 'Renamed', federatedRegistrationOpen: false } });
-    expect(res.statusCode).toBe(200); expect(res.json()).toMatchObject({ instanceName: 'Renamed', federatedRegistrationOpen: false });
+    expect(res.statusCode).toBe(200); expect(res.json()).toMatchObject({ instanceName: 'Renamed' });
+    expect(res.json()).not.toHaveProperty('federatedRegistrationOpen');
     const stream = await app.inject({ method: 'PATCH', url: '/api/settings/streaming', payload: { maxFramerate: 30 } });
     expect(stream.statusCode).toBe(200); expect(stream.json().maxFramerate).toBe(30);
-    expect(readSettings()).toEqual({ ...before, instanceName: 'Renamed', federatedRegistrationOpen: 0, maxFramerate: 30, updatedAt: readSettings()?.updatedAt });
+    expect(readSettings()).toEqual({ ...before, instanceName: 'Renamed', maxFramerate: 30, updatedAt: readSettings()?.updatedAt });
   });
 });

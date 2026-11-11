@@ -127,7 +127,6 @@
       "appearance": "Vzhled",
       "voice": "Hlas a video",
       "privacy": "Soukromí",
-      "connections": "Připojení",
       "keybinds": "Klávesové zkratky",
       "desktop": "Počítač",
       "instance": "Instance",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "Můj účet",
-    "detached": {
-      "notice": "Tento účet je odpojen od domovské instance.",
-      "explanation": "{{homeInstance}} byla resetována či je nedostupná, takže tento účet teď funguje místně na této instanci. Tvůj profil a heslo se spravují zde.",
-      "reattachHint": "Jako {{username}} na {{homeInstance}} můžeš účet znovu připojit. Profil a přítomnost se zas budou synchronizovat odtamtud.",
-      "reattachButton": "Připojit znovu k {{homeInstance}}",
-      "reattachConfirm": "Potvrdit nové připojení jako {{username}}",
-      "reattaching": "Nové připojování…",
-      "reattachFailed": "Nové připojení selhalo",
-      "reattached": "Účet znovu propojen s {{username}}"
-    },
     "profile": {
       "sectionTitle": "Úprava profilu",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "Účet",
       "status": {
-        "label": "Stav",
-        "homeUnavailable": "Tvůj stav je držen na {{host}}. Připoj se k {{host}} pro změnu."
+        "label": "Stav"
       },
       "customStatus": {
         "label": "Vlastní stav",
@@ -247,10 +235,6 @@
         "submit": "Smazat můj účet",
         "deleting": "Mazání…"
       },
-      "federation": {
-        "removing": "Odebírání tvého účtu z připojených instancí…",
-        "deleteAnyway": "Smazat účet nyní"
-      },
       "complete": {
         "title": "Účet smazán",
         "redirecting": "Přesměrování k přihlášení…"
@@ -312,14 +296,10 @@
       }
     }
   },
-  "connections": {
-    "title": "Připojení"
-  },
   "instance": {
     "tabs": {
       "general": "Obecné",
       "registration": "Registrace",
-      "federation": "Federace",
       "streaming": "Streamování",
       "storage": "Úložiště",
       "users": "Uživatelé",

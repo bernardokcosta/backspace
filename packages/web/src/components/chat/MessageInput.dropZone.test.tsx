@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { User } from '@veyvox/shared';
 import { useAuthStore } from '../../stores/authStore';
@@ -23,7 +23,6 @@ const me = {
   displayName: 'Alice',
   avatar: null,
   createdAt: 1,
-  replicatedInstances: [],
 } as unknown as User;
 
 const startUpload = vi.fn();
@@ -49,7 +48,7 @@ beforeEach(() => {
   window.history.replaceState({}, '', '/channels/@me/dm-1');
   useAuthStore.setState({ user: me });
   useSpaceStore.getState().reset();
-  useSpaceStore.getState().populateFromReady('', [], [], [{ id: 'dm-1', federatedId: null, createdAt: 1, members: [me] }]);
+  useSpaceStore.getState().populateFromReady([], [], [{ id: 'dm-1', createdAt: 1, members: [me] }]);
   useComposerStore.setState({ states: new Map() });
 });
 
@@ -91,9 +90,19 @@ describe('MessageInput file drop zone', () => {
     expect(screen.queryByTestId('chat-drop-overlay')).toBeNull();
     expect(startUpload).toHaveBeenCalledTimes(1);
     expect(startUpload).toHaveBeenCalledWith(file, expect.objectContaining({ channelId: 'dm-1', tray: true }));
+    expect(startUpload.mock.calls[0]?.[1]).not.toHaveProperty('origin');
     await vi.waitFor(() => {
       expect(useComposerStore.getState().get('dm-1').stagedTransferIds).toEqual(['transfer-1']);
     });
+  });
+  it('does not stage or preview a late file from a prior session', async () => {
+    let finish!: (id: string) => void;
+    startUpload.mockReturnValueOnce(new Promise(resolve => { finish = resolve; }));
+    const { region } = renderInRegion();
+    fireEvent.drop(region, { dataTransfer: fileDrag([new File(['x'], 'old.png', { type: 'image/png' })]) });
+    act(() => useAuthStore.setState(s => ({ sessionRevision: s.sessionRevision + 1, user: { ...me, id: 'next' } })));
+    await act(async () => finish('old-transfer'));
+    expect(useComposerStore.getState().get('dm-1').stagedTransferIds).toEqual([]);
   });
 
   it('attaches each dropped file exactly once when dropped on the input itself', () => {

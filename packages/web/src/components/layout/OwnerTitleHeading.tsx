@@ -3,9 +3,10 @@ import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { describeError } from '../../i18n/errors';
 import { useFormatters } from '../../i18n/formatters';
-import { useSelfIdentity } from '../../stores/authStore';
-import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
-import { hostKeepsOwnerTitle, ownerGroupTitle } from '../../utils/memberGroups';
+import { useAuthStore } from '../../stores/authStore';
+import { useSpaceStore } from '../../stores/spaceStore';
+import type { Space } from '@veyvox/shared';
+import { ownerGroupTitle } from '../../utils/memberGroups';
 import { Modal } from '../ui/Modal';
 
 /**
@@ -14,7 +15,7 @@ import { Modal } from '../ui/Modal';
  * title is set), Cancel and Save. The heading changes only when the host
  * answers; a refusal stays in the dialog.
  */
-function OwnerTitleEditor({ space, onClose }: { space: TaggedSpace; onClose: () => void }) {
+function OwnerTitleEditor({ space, onClose }: { space: Space; onClose: () => void }) {
   const { t } = useTranslation(['spaces', 'common', 'errors']);
   const updateSpace = useSpaceStore((s) => s.updateSpace);
   const current = ownerGroupTitle(space);
@@ -22,6 +23,7 @@ function OwnerTitleEditor({ space, onClose }: { space: TaggedSpace; onClose: () 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const writing = useRef(false);
+  const revision = useAuthStore(s => s.sessionRevision);
   const close = () => { if (!writing.current) onClose(); };
 
   const save = async (ownerTitle: string | null) => {
@@ -36,12 +38,13 @@ function OwnerTitleEditor({ space, onClose }: { space: TaggedSpace; onClose: () 
     try {
       // The store publishes only the server response; failed writes never change the heading.
       await updateSpace(space.id, { ownerTitle });
+      if (revision !== useAuthStore.getState().sessionRevision) return;
       onClose();
     } catch (err) {
-      setError(describeError(err));
+      if (revision === useAuthStore.getState().sessionRevision) setError(describeError(err));
     } finally {
       writing.current = false;
-      setSaving(false);
+      if (revision === useAuthStore.getState().sessionRevision) setSaving(false);
     }
   };
 
@@ -130,15 +133,13 @@ function OwnerTitleEditor({ space, onClose }: { space: TaggedSpace; onClose: () 
  * tall as the other group headings; `touch` makes it a 44px tap target for
  * the phone screen.
  */
-export function OwnerTitleHeading({ space, count, touch = false }: { space: TaggedSpace; count: number; touch?: boolean }) {
+export function OwnerTitleHeading({ space, count, touch = false }: { space: Space; count: number; touch?: boolean }) {
   const { t } = useTranslation('spaces');
   const { formatNumber } = useFormatters();
-  // The owner id is the owner's row on the space's host, so compare it with
-  // the signed-in user's row there, not with the home account id.
-  const self = useSelfIdentity();
-  const myIdHere = self?.rowIds.get(space._instanceOrigin);
+  const myIdHere = useAuthStore(s => s.user?.id);
+  const revision = useAuthStore(s => s.sessionRevision);
   const [editing, setEditing] = useState(false);
-  const canEdit = myIdHere !== undefined && myIdHere === space.ownerId && hostKeepsOwnerTitle(space);
+  const canEdit = myIdHere !== undefined && myIdHere === space.ownerId;
   const ownerTitle = ownerGroupTitle(space);
   const title = ownerTitle ?? t('members.groups.owner');
 
@@ -156,7 +157,7 @@ export function OwnerTitleHeading({ space, count, touch = false }: { space: Tagg
           </button>
         )}
       </div>
-      {canEdit && editing && <OwnerTitleEditor space={space} onClose={() => setEditing(false)} />}
+      {canEdit && editing && <OwnerTitleEditor key={revision} space={space} onClose={() => setEditing(false)} />}
     </>
   );
 }

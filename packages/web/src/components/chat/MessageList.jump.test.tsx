@@ -23,15 +23,15 @@ const latestMessages = vi.fn();
 // A detached window pages forward near its end; these tests are about the
 // jump, so that page never arrives.
 const newerMessages = vi.fn(() => new Promise<never>(() => {}));
-vi.mock('../../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../utils/crossStoreResolvers')>()),
-  getApiForOrigin: () => ({
+vi.mock('../../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../api/client')>()),
+  api: {
     channels: {
       messagesAround: (...args: unknown[]) => messagesAround(...args),
       messages: (...args: unknown[]) => latestMessages(...args),
       messagesAfter: () => newerMessages(),
     },
-  }),
+  },
 }));
 
 import { MessageList } from './MessageList';
@@ -85,7 +85,7 @@ beforeEach(() => {
   Element.prototype.scrollIntoView = scrollIntoView;
   useAuthStore.setState({ user: me });
   useSpaceStore.setState({
-    channelOriginMap: new Map([[CHANNEL, '']]),
+    spaceChannelIndex: new Map([[CHANNEL, { spaceId: 'space', type: 'text' }]]),
     channelPermissions: new Map([[CHANNEL, permissionsToString(ALL_PERMISSIONS)]]),
     dmChannels: [],
   });

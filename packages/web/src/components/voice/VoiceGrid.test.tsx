@@ -23,7 +23,6 @@ function participant(identity: string, isLocal: boolean) {
     identity,
     userId: identity,
     username: identity,
-    homeUserId: null,
     isMuted: false,
     isDeafened: false,
     isCameraOn: false,

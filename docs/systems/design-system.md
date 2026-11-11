@@ -234,7 +234,7 @@ When introducing a new input or contenteditable surface, no extra work is needed
 | Colour | Meaning | Used by |
 |--------|---------|---------|
 | `accent-rose` / `bg-notification` | Someone is waiting on you: unread messages, mentions, pending friend requests | channel unread dots, mobile bottom-nav badges, the space and DM count badges in the space sidebar (`UnreadCountBadge`, dark text; a muted space's badge is `interactive-muted`) |
-| `accent-amber` | Informational, no one is blocked: an available instance update, pending federation approvals | settings tab and sidebar badges |
+| `accent-amber` | Informational, no one is blocked: an available instance update | settings tab and sidebar badges |
 
 A settings section carries a count (`SettingsSection.badgeCount`) when the number
 matters, or a dot (`SettingsSection.badgeDot`) when only the existence does. Both
@@ -376,7 +376,7 @@ Two components, one deliberate split:
 
 | Component | Role |
 |---|---|
-| `Avatar` (`ui/Avatar.tsx`) | Purely presentational. Takes `user` for the gradient, avatar colour, `homeUserId` and status dot. Clicking it does nothing unless the caller passes `onClick`. |
+| `Avatar` (`ui/Avatar.tsx`) | Purely presentational. Takes `user` for the native ID gradient, avatar colour and status dot. Clicking it does nothing unless the caller passes `onClick`. |
 | `ProfileAvatar` (`ui/ProfileAvatar.tsx`) | `Avatar` plus the profile card. Opens `UserProfilePopout` anchored to its own box, stops propagation so it wins over an enclosing row handler, and stays inert while `user` is undefined. |
 
 **Rule:** an avatar is only a profile trigger when it is a `ProfileAvatar`. Never re-add an implicit "open the profile if a `user` prop is present" branch to `Avatar` — passing `user` is how *every* avatar gets its colour, so that branch silently turns the picture inside the profile card, the settings preview, the avatar-upload button and every row in a modal into a trigger. It also made the card re-anchor to its own picture and walk across the screen on repeated clicks (issue #37).

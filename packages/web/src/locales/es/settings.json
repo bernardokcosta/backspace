@@ -22,8 +22,12 @@
         "currentlyUsing": "En uso: {{label}}",
         "none": "No se han detectado micrófonos."
       },
-      "volume": { "label": "Volumen de entrada" },
-      "meter": { "hint": "El indicador de nivel se activa cuando entras en un canal de voz." }
+      "volume": {
+        "label": "Volumen de entrada"
+      },
+      "meter": {
+        "hint": "El indicador de nivel se activa cuando entras en un canal de voz."
+      }
     },
     "output": {
       "title": "Dispositivo de salida",
@@ -36,7 +40,9 @@
         "description": "Concede permiso para usar el micrófono y poder listar los dispositivos de salida. Los navegadores exigen ese permiso para mostrar sus nombres.",
         "enable": "Permitir acceso al audio"
       },
-      "volume": { "label": "Volumen de salida" },
+      "volume": {
+        "label": "Volumen de salida"
+      },
       "testSound": "Reproducir sonido de prueba"
     },
     "video": {
@@ -81,7 +87,9 @@
     "title": "Voz y vídeo",
     "volume": {
       "sectionTitle": "Volumen",
-      "soundEffects": { "label": "Volumen de los efectos de sonido" },
+      "soundEffects": {
+        "label": "Volumen de los efectos de sonido"
+      },
       "messageSound": {
         "label": "Reproducir un sonido con cada mensaje",
         "description": "Desactivado (predeterminado): solo mensajes directos y menciones. Activado: todos los canales."
@@ -119,7 +127,6 @@
       "appearance": "Apariencia",
       "voice": "Voz y vídeo",
       "privacy": "Privacidad",
-      "connections": "Conexiones",
       "keybinds": "Atajos de teclado",
       "desktop": "Escritorio",
       "instance": "Instancia",
@@ -129,19 +136,11 @@
     "logOut": "Cerrar sesión",
     "backToMenu": "Volver al menú de ajustes"
   },
-  "appearance": { "title": "Apariencia" },
+  "appearance": {
+    "title": "Apariencia"
+  },
   "account": {
     "title": "Mi cuenta",
-    "detached": {
-      "notice": "Esta cuenta está desvinculada de su instancia de origen.",
-      "explanation": "{{homeInstance}} se ha restablecido o ya no está disponible, así que esta cuenta ahora funciona localmente en esta instancia. Tu perfil y contraseña se gestionan aquí.",
-      "reattachHint": "Con tu identidad {{username}} en {{homeInstance}}, puedes volver a vincular esta cuenta. Tu perfil y presencia volverán a sincronizarse desde allí.",
-      "reattachButton": "Volver a vincular con {{homeInstance}}",
-      "reattachConfirm": "Confirmar vinculación como {{username}}",
-      "reattaching": "Vinculando de nuevo…",
-      "reattachFailed": "No se pudo volver a vincular",
-      "reattached": "Cuenta vinculada de nuevo con {{username}}"
-    },
     "profile": {
       "sectionTitle": "Personalización del perfil",
       "avatar": {
@@ -157,8 +156,13 @@
         "uploadFailed": "No se pudo subir el banner",
         "cropTitle": "Recortar banner"
       },
-      "avatarColor": { "label": "Color del avatar" },
-      "bannerColor": { "label": "Color del banner", "hexPlaceholder": "#hex" },
+      "avatarColor": {
+        "label": "Color del avatar"
+      },
+      "bannerColor": {
+        "label": "Color del banner",
+        "hexPlaceholder": "#hex"
+      },
       "bio": {
         "label": "Sobre mí",
         "placeholder": "Cuéntale al mundo algo sobre ti…",
@@ -168,15 +172,26 @@
     "details": {
       "sectionTitle": "Cuenta",
       "status": {
-        "label": "Estado",
-        "homeUnavailable": "Tu estado se guarda en {{host}}. Conecta con {{host}} para cambiarlo."
+        "label": "Estado"
       },
-      "customStatus": { "label": "Estado personalizado", "placeholder": "¿Qué estás haciendo?" }
+      "customStatus": {
+        "label": "Estado personalizado",
+        "placeholder": "¿Qué estás haciendo?"
+      }
     },
     "password": {
-      "current": { "label": "Contraseña actual", "placeholder": "Introduce la contraseña actual" },
-      "new": { "label": "Contraseña nueva", "placeholder": "Mínimo {{min}} caracteres" },
-      "confirm": { "label": "Confirmar contraseña nueva", "placeholder": "Confirma la contraseña nueva" },
+      "current": {
+        "label": "Contraseña actual",
+        "placeholder": "Introduce la contraseña actual"
+      },
+      "new": {
+        "label": "Contraseña nueva",
+        "placeholder": "Mínimo {{min}} caracteres"
+      },
+      "confirm": {
+        "label": "Confirmar contraseña nueva",
+        "placeholder": "Confirma la contraseña nueva"
+      },
       "show": "Mostrar contraseña",
       "hide": "Ocultar contraseña",
       "tooShort": "La contraseña nueva debe tener al menos {{min}} caracteres",
@@ -190,7 +205,10 @@
       "description": "Eliminar tu cuenta no se puede deshacer. Tus mensajes se conservarán, pero aparecerán a nombre de «Usuario eliminado».",
       "deleteButton": "Eliminar cuenta"
     },
-    "save": { "updated": "Perfil actualizado", "failed": "No se pudo actualizar el perfil" },
+    "save": {
+      "updated": "Perfil actualizado",
+      "failed": "No se pudo actualizar el perfil"
+    },
     "deletion": {
       "title": "Eliminar cuenta",
       "warning": {
@@ -216,11 +234,10 @@
         "submit": "Eliminar mi cuenta",
         "deleting": "Eliminando…"
       },
-      "federation": {
-        "removing": "Eliminando tu cuenta de las instancias conectadas…",
-        "deleteAnyway": "Eliminar cuenta ahora"
+      "complete": {
+        "title": "Cuenta eliminada",
+        "redirecting": "Redirigiendo al inicio de sesión…"
       },
-      "complete": { "title": "Cuenta eliminada", "redirecting": "Redirigiendo al inicio de sesión…" },
       "errors": {
         "usernameMismatch": "El nombre de usuario no coincide",
         "spacesFailed": "No se pudieron gestionar los espacios",
@@ -278,12 +295,10 @@
       }
     }
   },
-  "connections": { "title": "Conexiones" },
   "instance": {
     "tabs": {
       "general": "General",
       "registration": "Registro",
-      "federation": "Federación",
       "streaming": "Transmisión",
       "storage": "Almacenamiento",
       "users": "Usuarios",
@@ -302,8 +317,12 @@
       "notAssigned": "No hay asignación activa en el sistema"
     },
     "title": "Atajos de teclado",
-    "note": { "webOnly": "Los atajos funcionan mientras esta pestaña tenga el foco. Para usar atajos globales que funcionen en otras aplicaciones, usa la aplicación de escritorio." },
-    "section": { "voice": "Atajos de voz" },
+    "note": {
+      "webOnly": "Los atajos funcionan mientras esta pestaña tenga el foco. Para usar atajos globales que funcionen en otras aplicaciones, usa la aplicación de escritorio."
+    },
+    "section": {
+      "voice": "Atajos de voz"
+    },
     "action": {
       "toggleMute": "Activar/desactivar micrófono",
       "toggleDeafen": "Activar/desactivar audio",
@@ -348,8 +367,14 @@
   "desktop": {
     "title": "Escritorio",
     "autoLaunch": {
-      "openAtLogin": { "label": "Iniciar con el sistema", "description": "Abrir Veyvox automáticamente al iniciar sesión" },
-      "startMinimized": { "label": "Iniciar minimizado", "description": "Iniciar oculto en la bandeja del sistema en lugar de mostrar la ventana" }
+      "openAtLogin": {
+        "label": "Iniciar con el sistema",
+        "description": "Abrir Veyvox automáticamente al iniciar sesión"
+      },
+      "startMinimized": {
+        "label": "Iniciar minimizado",
+        "description": "Iniciar oculto en la bandeja del sistema en lugar de mostrar la ventana"
+      }
     },
     "updates": {
       "appName": "Veyvox Desktop",
@@ -373,23 +398,49 @@
       "manualNote": "Esta compilación no puede instalar actualizaciones por sí sola. Descarga las versiones nuevas de GitHub y sustituye la aplicación manualmente. Consulta las notas de la versión para ver los pasos de tu plataforma.",
       "externalNote": "Flatpak instala las actualizaciones de forma atómica fuera de la aplicación. Usa tu gestor de software o el comando <code>flatpak update</code> para actualizar Veyvox."
     },
-    "instance": { "current": "Instancia conectada actualmente", "change": "Cambiar de instancia" }
+    "instance": {
+      "current": "Instancia conectada actualmente",
+      "change": "Cambiar de instancia"
+    }
   },
   "desktopDownload": {
     "title": "Escritorio",
     "intro": "Atajos globales, inicio con el sistema e icono en la bandeja del sistema.",
     "unsupported": "La aplicación de escritorio funciona en Windows, Linux y macOS.",
-    "name": { "windows": "Windows", "mac": "macOS", "linux": "Linux" },
-    "tag": { "windows": "Este PC", "mac": "Este Mac", "linux": "Este equipo" },
+    "name": {
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux"
+    },
+    "tag": {
+      "windows": "Este PC",
+      "mac": "Este Mac",
+      "linux": "Este equipo"
+    },
     "covers": {
       "windows": "x64 o arm64",
       "mac": "Funciona en Mac con Apple Silicon e Intel",
       "linux": "AppImage o paquete deb, x64 o arm64"
     },
-    "download": { "windows": "Descargar para Windows", "mac": "Descargar para macOS", "linux": "Descargar para Linux" },
-    "picker": { "architecture": "Arquitectura", "format": "Formato del paquete" },
-    "arch": { "appleSilicon": "Apple Silicon", "intel": "Intel", "x64": "x64", "arm64": "arm64" },
-    "kind": { "appimage": "AppImage", "deb": "deb" },
+    "download": {
+      "windows": "Descargar para Windows",
+      "mac": "Descargar para macOS",
+      "linux": "Descargar para Linux"
+    },
+    "picker": {
+      "architecture": "Arquitectura",
+      "format": "Formato del paquete"
+    },
+    "arch": {
+      "appleSilicon": "Apple Silicon",
+      "intel": "Intel",
+      "x64": "x64",
+      "arm64": "arm64"
+    },
+    "kind": {
+      "appimage": "AppImage",
+      "deb": "deb"
+    },
     "archGuessed": {
       "windows": "Tu navegador no ha indicado qué procesador tiene este PC, así que se ha preseleccionado x64.",
       "mac": "Tu navegador no ha indicado qué chip tiene este Mac, así que se ha preseleccionado Apple Silicon.",
@@ -407,7 +458,11 @@
       "submit": "Crear bot",
       "hint": "De {{min}} a {{max}} caracteres: letras latinas minúsculas (a–z), dígitos (0–9) y guiones bajos (_). Puedes crear hasta {{limit}} bots."
     },
-    "list": { "sectionTitle": "Tus bots", "empty": "Aún no tienes bots.", "createdOn": "Creado el {{date}}" },
+    "list": {
+      "sectionTitle": "Tus bots",
+      "empty": "Aún no tienes bots.",
+      "createdOn": "Creado el {{date}}"
+    },
     "token": {
       "title": "Token de {{name}}",
       "warning": "Copia el token ahora. Solo se muestra una vez y cualquiera que lo tenga podrá controlar el bot.",
@@ -454,8 +509,18 @@
       "textLabel": "Texto del estado",
       "placeholder": "Lo que el bot muestra junto a su nombre",
       "hint": "Se muestra mientras el bot está conectado. Su código puede sustituirlo hasta la próxima conexión.",
-      "types": { "custom": "Personalizado", "playing": "Jugando", "listening": "Escuchando", "watching": "Viendo" },
-      "display": { "custom": "{{name}}", "playing": "Jugando a {{name}}", "listening": "Escuchando {{name}}", "watching": "Viendo {{name}}" }
+      "types": {
+        "custom": "Personalizado",
+        "playing": "Jugando",
+        "listening": "Escuchando",
+        "watching": "Viendo"
+      },
+      "display": {
+        "custom": "{{name}}",
+        "playing": "Jugando a {{name}}",
+        "listening": "Escuchando {{name}}",
+        "watching": "Viendo {{name}}"
+      }
     },
     "permissions": {
       "label": "Permisos que solicita el bot",

@@ -1,9 +1,8 @@
 import { getElectronAPI } from '../platform/platform';
 import { create } from 'zustand';
 import type { Activity } from '@veyvox/shared';
-import { wsSendAll } from '../hooks/useWebSocket';
+import { wsSend } from '../hooks/useWebSocket';
 import { api } from '../api/client';
-import { userKey, type PresenceSubject } from '../utils/identity';
 import {
   addManualGame,
   boundGames,
@@ -28,6 +27,8 @@ import { syncManualBindings } from '../platform/manualGameBinding';
 let pushTimer: ReturnType<typeof setTimeout> | null = null;
 /** Monotonic push generation: a debounce that fired but is still enriching must not send after a newer push arrived. */
 let pushSeq = 0;
+/** Keep icon extraction/upload results owned by the session that started them. */
+let sessionGeneration = 0;
 /** Activities already converted from transport progress to this client's clock. */
 let locallyAnchoredActivities = new WeakSet<Activity>();
 const ACTIVITY_PUSH_DELAY_MS = 5_000;
@@ -198,12 +199,14 @@ function rememberIconUrl(name: string, url: string): void {
 
 /** Fetch the locally extracted icon, upload it to the instance, return the URL. Null on any failure. */
 async function resolveGameIconUrl(name: string): Promise<string | null> {
+  const generation = sessionGeneration;
   const getGameIcon = getElectronAPI()?.getGameIcon;
   if (!getGameIcon) return null;
   try {
     const icon = await getGameIcon(name);
-    if (!icon?.data) return null;
+    if (!icon?.data || generation !== sessionGeneration) return null;
     const { url } = await api.gameIcons.upload({ image: icon.data });
+    if (generation !== sessionGeneration) return null;
     rememberIconUrl(name, url);
     return url;
   } catch {
@@ -243,6 +246,7 @@ function attachCachedIcons(activities: Activity[]): Activity[] {
  * Never awaited: the activity goes out with the cached URL either way.
  */
 function renewStaleIcons(activities: Activity[]): void {
+  const generation = sessionGeneration;
   if (!getElectronAPI()?.getGameIcon) return;
   for (const activity of activities) {
     if (!GAME_ICON_TYPES.has(activity.type)) continue;
@@ -253,7 +257,7 @@ function renewStaleIcons(activities: Activity[]): void {
     if (missedAt !== undefined && Date.now() - missedAt <= GAME_ICON_RETRY_MS) continue;
     iconRenewing.add(name);
     void withTimeout(resolveGameIconUrl(name), GAME_ICON_ENRICH_TIMEOUT_MS)
-      .then((url) => { if (!url) iconMissAges.set(name, Date.now()); })
+      .then((url) => { if (!url && generation === sessionGeneration) iconMissAges.set(name, Date.now()); })
       .finally(() => { iconRenewing.delete(name); });
   }
 }
@@ -274,12 +278,13 @@ function pendingIconNames(activities: Activity[]): string[] {
 
 /** Upload the icons for `names` and attach the instance URLs they resolve to. */
 async function uploadAndAttachIcons(activities: Activity[], names: string[]): Promise<Activity[]> {
+  const generation = sessionGeneration;
   const urls = new Map<string, string>();
   await Promise.all(names.map(async (name) => {
     const url = await withTimeout(resolveGameIconUrl(name), GAME_ICON_ENRICH_TIMEOUT_MS);
     if (url) {
       urls.set(name, url);
-    } else {
+    } else if (generation === sessionGeneration) {
       iconMissAges.set(name, Date.now());
     }
   }));
@@ -292,44 +297,21 @@ async function uploadAndAttachIcons(activities: Activity[], names: string[]): Pr
   });
 }
 
-/** An activity list delivered for one user by one origin. */
-export interface ActivityEntry {
-  subject: PresenceSubject;
-  activities: Activity[];
-}
-
 export const EMPTY_ACTIVITIES: Activity[] = [];
 
 /**
- * The activities held for `subject` as delivered or listed by `origin`.
- * Every reader goes through this, so all views of one person agree.
+ * The activities held for a native account in the current session.
  */
 export function activitiesFor(
   userActivities: Map<string, Activity[]>,
-  subject: PresenceSubject,
-  origin: string,
+  userId: string,
 ): Activity[] {
-  return userActivities.get(userKey(subject, origin)) ?? EMPTY_ACTIVITIES;
+  return userActivities.get(userId) ?? EMPTY_ACTIVITIES;
 }
 
 interface ActivityState {
-  /** Keyed by `userKey` (the person's home identity), never by a raw row id. */
+  /** Keyed by the current server's native user ID. */
   userActivities: Map<string, Activity[]>;
-  /**
-   * `userKey` → the origin whose delivery set that entry last. A `ready`
-   * is an origin's full snapshot, so it replaces exactly the entries that
-   * origin set (`initActivities`); an entry another origin set last is that
-   * origin's to change.
-   */
-  activityWriters: Map<string, string>;
-  /**
-   * origin → (row id → subject), from the members an older server's `ready`
-   * listed. Such a server sends `presence_update` with its row id only; this
-   * is how `presenceSubjectOf` names a row of a space that is not open
-   * (`utils/presenceSubject.ts`). No entry for a server that sends the
-   * identity fields itself.
-   */
-  originRows: Map<string, Map<string, PresenceSubject>>;
   showActivity: boolean;
   myActivities: Activity[] | null;
   /** What the machine detected, before the player's own choices (`utils/gameOverrides.ts`). */
@@ -343,19 +325,10 @@ interface ActivityState {
   /** Detected name (lowercased) → the name the player wants shown for it. */
   gameRenames: Record<string, string>;
 
-  setUserActivities: (subject: PresenceSubject, origin: string, activities: Activity[]) => void;
-  clearUserActivities: (subject: PresenceSubject, origin: string) => void;
-  /**
-   * Replace what `origin` set with its `ready` snapshot `entries`.
-   * `coveredRows` is null for a current server, whose snapshot covers everyone
-   * it reports on: every entry it set is replaced. An older server's snapshot
-   * covered only the space and DM members its `ready` lists (`readyRowIndex`),
-   * so only the entries of those rows are replaced; a friend it reports on
-   * only live keeps what it last reported.
-   */
-  initActivities: (entries: ActivityEntry[], origin: string, coveredRows?: ReadonlyMap<string, PresenceSubject> | null) => void;
-  /** Record (or, with null, drop) the rows an older server's `ready` listed. */
-  setOriginRows: (origin: string, rows: Map<string, PresenceSubject> | null) => void;
+  setUserActivities: (userId: string, activities: Activity[]) => void;
+  clearUserActivities: (userId: string) => void;
+  /** Replace the complete current-server ready snapshot. */
+  initActivities: (entries: Record<string, Activity[]>) => void;
   setShowActivity: (show: boolean) => void;
   pushActivities: (activities: Activity[]) => void;
   /** Add a game by hand (replacing one of the same name). With a `process` the desktop shows it while that program runs. */
@@ -402,8 +375,6 @@ function persistChoices(choices: Choices): void {
 
 export const useActivityStore = create<ActivityState>((set, get) => ({
   userActivities: new Map(),
-  activityWriters: new Map(),
-  originRows: new Map(),
   showActivity: true,
   myActivities: null,
   detectedActivities: [],
@@ -412,75 +383,40 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   gameOrder: initialOverrides.order,
   gameRenames: initialOverrides.renames,
 
-  setUserActivities: (subject, origin, activities) => {
-    const key = userKey(subject, origin);
-    const existing = get().userActivities.get(key);
+  setUserActivities: (userId, activities) => {
+    const existing = get().userActivities.get(userId);
     const anchored = anchorActivitiesPlayback(activities, Date.now(), existing);
     set((state) => {
       const next = new Map(state.userActivities);
-      const writers = new Map(state.activityWriters);
       if (anchored.length === 0) {
-        next.delete(key);
-        writers.delete(key);
+        next.delete(userId);
       } else {
-        next.set(key, anchored);
-        writers.set(key, origin);
+        next.set(userId, anchored);
       }
-      return { userActivities: next, activityWriters: writers };
+      return { userActivities: next };
     });
   },
 
-  clearUserActivities: (subject, origin) => {
-    const key = userKey(subject, origin);
+  clearUserActivities: userId => {
     set((state) => {
       const next = new Map(state.userActivities);
-      const writers = new Map(state.activityWriters);
-      next.delete(key);
-      writers.delete(key);
-      return { userActivities: next, activityWriters: writers };
+      next.delete(userId);
+      return { userActivities: next };
     });
   },
 
-  initActivities: (entries, origin, coveredRows) => {
+  initActivities: entries => {
     const now = Date.now();
     set((state) => {
-      const next = new Map(state.userActivities);
-      const writers = new Map(state.activityWriters);
-      const covered = coveredRows
-        ? new Set([...coveredRows.values()].map((subject) => userKey(subject, origin)))
-        : null;
-      // What this origin reported before and its snapshot no longer lists has
-      // ended while the client was not hearing from it.
-      for (const [key, writer] of state.activityWriters) {
-        if (writer !== origin) continue;
-        if (covered && !covered.has(key)) continue;
-        next.delete(key);
-        writers.delete(key);
-      }
-      for (const entry of entries) {
-        const { subject } = entry;
-        const key = userKey(subject, origin);
-        const existing = state.userActivities.get(key);
-        const activities = anchorActivitiesPlayback(entry.activities, now, existing);
+      const next = new Map<string, Activity[]>();
+      for (const [userId, list] of Object.entries(entries)) {
+        const existing = state.userActivities.get(userId);
+        const activities = anchorActivitiesPlayback(list, now, existing);
         if (activities.length > 0) {
-          next.set(key, activities);
-          writers.set(key, origin);
-        } else {
-          next.delete(key);
-          writers.delete(key);
+          next.set(userId, activities);
         }
       }
-      return { userActivities: next, activityWriters: writers };
-    });
-  },
-
-  setOriginRows: (origin, rows) => {
-    set((state) => {
-      if (!rows && !state.originRows.has(origin)) return state;
-      const originRows = new Map(state.originRows);
-      if (rows) originRows.set(origin, rows);
-      else originRows.delete(origin);
-      return { originRows };
+      return { userActivities: next };
     });
   },
 
@@ -490,7 +426,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       if (pushTimer) { clearTimeout(pushTimer); pushTimer = null; }
       // A push still uploading its icon must not send after sharing was switched off
       pushSeq++;
-      wsSendAll({ type: 'activity_update', activities: [] });
+      wsSend({ type: 'activity_update', activities: [] });
       set({ myActivities: null });
     } else {
       get().republish();
@@ -512,7 +448,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     // When activities are cleared (e.g. music paused / stopped), broadcast immediately without 5s debounce
     if (eff.length === 0) {
       pushSeq++;
-      wsSendAll({ type: 'activity_update', activities: [] });
+      wsSend({ type: 'activity_update', activities: [] });
       return;
     }
     const seq = ++pushSeq;
@@ -534,7 +470,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       if (pending.length === 0) {
         const final = withRenames(withCached, get().gameRenames);
         set({ myActivities: final });
-        wsSendAll({ type: 'activity_update', activities: final });
+        wsSend({ type: 'activity_update', activities: final });
         return;
       }
       void uploadAndAttachIcons(withCached, pending).then((enriched) => {
@@ -543,7 +479,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         if (seq !== pushSeq) return;
         const final = withRenames(enriched, get().gameRenames);
         set({ myActivities: final });
-        wsSendAll({ type: 'activity_update', activities: final });
+        wsSend({ type: 'activity_update', activities: final });
       });
     }, pushDelay);
   },
@@ -623,12 +559,11 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   reset: () => {
     if (pushTimer) { clearTimeout(pushTimer); pushTimer = null; }
     pushSeq++;
+    sessionGeneration++;
     locallyAnchoredActivities = new WeakSet();
     iconMissAges.clear();
     set({
       userActivities: new Map(),
-      activityWriters: new Map(),
-      originRows: new Map(),
       showActivity: true,
       myActivities: null,
       detectedActivities: [],

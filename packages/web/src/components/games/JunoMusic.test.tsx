@@ -12,14 +12,14 @@ import { SoundboardController } from '../voice/SoundboardController';
 vi.mock('../../audio/AudioManager', () => ({ AudioManager: { getInstance: () => ({}) } }));
 const player = vi.hoisted(() => ({ update: vi.fn(), retry: vi.fn(), dispose: vi.fn() }));
 vi.mock('../../audio/junoMusic', async importOriginal => ({ ...await importOriginal<typeof import('../../audio/junoMusic')>(), createJunoMusicPlayer: () => player }));
-const target = { accountId: 'a', selfId: 'host-a', origin: 'https://remote.test', channelId: 'voice' };
+const target = { userId: 'a', origin: window.location.origin, channelId: 'voice' };
 beforeEach(() => {
   vi.clearAllMocks(); vi.spyOn(document, 'hasFocus').mockReturnValue(true);
   useJunoStore.getState().reset(); useJunoStore.getState().bind(target, true);
   useJunoStore.setState({ snapshot: { revision: 1, game: null }, open: true });
   useJunoPreferences.setState(DEFAULT_JUNO_PREFERENCES);
   useVoiceStore.setState({ currentVoiceChannelId: 'voice', isLiveKitConnected: true, voiceConnectionStatus: 'connected', isDeafened: false, isMuted: false, outputVolume: 100, spaceDeafenedUserIds: new Set(), incomingCall: null });
-  useSpaceStore.setState({ spaceChannelIndex: new Map([['voice', { spaceId: 'space', origin: target.origin, type: 'voice' }]]) });
+  useSpaceStore.setState({ spaceChannelIndex: new Map([['voice', { spaceId: 'space', type: 'voice' }]]) });
   useUIStore.setState({ isMobile: false, activeModal: null, mobileStack: [], voiceChatOpen: false });
   useSoundboardStore.setState({ open: false }); useScreenShareSetupStore.setState({ isOpen: false });
 });
@@ -36,14 +36,14 @@ describe('principal Juno view music eligibility', () => {
       if (mode === 'mosaic') useJunoStore.setState({ open: false });
       if (mode === 'covered-mobile') useUIStore.setState({ isMobile: true, mobileStack: [{ screen: 'voice-full' }, { screen: 'chat' }] });
       if (mode === 'popped-mobile') useUIStore.setState({ isMobile: true, mobileStack: [] });
-      if (mode === 'modal') useUIStore.setState({ activeModal: 'settings' });
+      if (mode === 'modal') useUIStore.setState({ activeModal: 'userSettings' });
       if (mode === 'deafen') useVoiceStore.setState({ isDeafened: true });
-      if (mode === 'space-deafen') useVoiceStore.setState({ spaceDeafenedUserIds: new Set(['space:host-a']) });
+      if (mode === 'space-deafen') useVoiceStore.setState({ spaceDeafenedUserIds: new Set(['space:a']) });
       if (mode === 'output-zero') useVoiceStore.setState({ outputVolume: 0 });
       if (mode === 'local-zero') useJunoPreferences.getState().setMusicVolume(0);
       if (mode === 'disconnect') useVoiceStore.setState({ voiceConnectionStatus: 'reconnecting' });
       if (mode === 'access-loss') useJunoStore.setState({ snapshot: null });
-      if (mode === 'wrong-origin') useSpaceStore.setState({ spaceChannelIndex: new Map([['voice', { spaceId: 'space', origin: '', type: 'voice' }]]) });
+      if (mode === 'wrong-origin') useJunoStore.getState().bind({ ...target, origin: 'https://previous.test' }, true);
     });
     expect(player.update.mock.calls.at(-1)?.[0]).toBe(false);
   });
@@ -65,7 +65,7 @@ describe('principal Juno view music eligibility', () => {
   });
   it('pauses under the real soundboard dialog even when activeModal remains empty', () => {
     vi.spyOn(useSoundboardStore.getState(), 'load').mockResolvedValue();
-    useSpaceStore.setState({ channelToSpaceMap: new Map([['voice', 'space']]), channelOriginMap: new Map([['voice', target.origin]]) });
+    useSpaceStore.setState({ channelToSpaceMap: new Map([['voice', 'space']]) });
     useJunoStore.getState().presentView(target); render(<><JunoMusic target={target} /><SoundboardController /></>);
     act(() => useSoundboardStore.getState().setOpen(true));
     expect(screen.getByRole('dialog')).toBeInTheDocument(); expect(useUIStore.getState().activeModal).toBeNull();
@@ -75,7 +75,7 @@ describe('principal Juno view music eligibility', () => {
   });
   it('pauses while an incoming-call modal covers the table without changing the current call', () => {
     useJunoStore.getState().presentView(target); render(<JunoMusic target={target} />);
-    act(() => useVoiceStore.setState({ incomingCall: { dmChannelId: 'dm', federatedCallId: null, callOrigin: null, callerId: 'caller', callerName: 'Caller', livekit: null } }));
+    act(() => useVoiceStore.setState({ incomingCall: { dmChannelId: 'dm', callerId: 'caller', callerName: 'Caller' } }));
     expect(player.update).toHaveBeenLastCalledWith(false, .2); expect(useVoiceStore.getState().currentVoiceChannelId).toBe('voice');
     act(() => useVoiceStore.setState({ incomingCall: null })); expect(player.update).toHaveBeenLastCalledWith(true, .2);
   });
@@ -93,6 +93,6 @@ describe('principal Juno view music eligibility', () => {
   it('does not let an old lease clear a new view and erases leases on a target change', () => {
     const a = useJunoStore.getState().presentView(target), b = useJunoStore.getState().presentView(target); a();
     expect(useJunoStore.getState().presentedViews.size).toBe(1);
-    useJunoStore.getState().bind({ ...target, selfId: 'other' }, true); b(); expect(useJunoStore.getState().presentedViews.size).toBe(0);
+    useJunoStore.getState().bind({ ...target, userId: 'other' }, true); b(); expect(useJunoStore.getState().presentedViews.size).toBe(0);
   });
 });

@@ -158,21 +158,6 @@
     "invitePlaceholder": "bijv. abc123 of https://instance.com/join/abc123",
     "submit": "Deelnemen aan ruimte",
     "submitting": "Deelnemen…",
-    "connect": {
-      "intro": "Maak verbinding met <host>{{host}}</host> om aan deze ruimte deel te nemen.",
-      "passwordLabel": "Voer je wachtwoord in om te verbinden",
-      "passwordPlaceholder": "Je accountwachtwoord",
-      "passwordNote": "Je wachtwoord wordt door je thuisbasis gecontroleerd en nooit naar {{host}} gestuurd. Die instantie krijgt een unieke referentie die alleen voor hem is gemaakt.",
-      "submit": "Verbinden & deelnemen",
-      "submitting": "Verbinden…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "Je gebruikersnaam op deze instantie",
-      "passwordLabel": "Wachtwoord voor deze instantie",
-      "passwordPlaceholder": "Wachtwoord op de externe instantie",
-      "submit": "Inloggen & deelnemen",
-      "submitting": "Inloggen…"
-    },
     "request": {
       "messagePlaceholder": "Waarom wil je deelnemen? (optioneel)",
       "send": "Verzoek sturen",
@@ -450,8 +435,6 @@
       "transferOwnership": "Eigendom overdragen",
       "settings": "Ruimte-instellingen",
       "leave": "Ruimte verlaten",
-      "reconnecting": "Opnieuw verbinden met {{instance}}…",
-      "remoteInstance": "externe instantie",
       "leaveConfirm": {
         "title": "Ruimte verlaten",
         "titleNamed": "{{name}} verlaten",

@@ -10,12 +10,13 @@ vi.mock('../../audio/AudioManager', () => ({
     getInstance: vi.fn().mockReturnValue({ setOutputDevice: vi.fn(), setVolume: vi.fn() }),
   },
 }));
-vi.mock('../../utils/mutuals', () => ({
-  loadFederatedMutuals: vi.fn().mockResolvedValue({ mutualFriends: [], mutualSpaces: [] }),
-}));
+vi.mock('../../api/client', async original => {
+  const actual = await original<typeof import('../../api/client')>();
+  return { ...actual, api: { ...actual.api, users: { ...actual.api.users, getMutuals: vi.fn().mockResolvedValue({ mutualFriends: [], mutualSpaces: [] }) } } };
+});
 
 import { UserProfilePopout } from './UserProfilePopout';
-import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../../stores/spaceStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useUIStore } from '../../stores/uiStore';
 import { ALL_PERMISSIONS, PermissionBits, permissionsToString } from '../../utils/permissions';
@@ -26,11 +27,10 @@ import { ALL_PERMISSIONS, PermissionBits, permissionsToString } from '../../util
 // editor itself follows (permissions.md, "Role hierarchy").
 
 const SPACE_ID = 'space-1';
-const ORBIT = 'https://orbit.example';
 
-const SPACE: TaggedSpace = {
+const SPACE: SpaceWithMyRoles = {
   id: SPACE_ID, name: 'Space', icon: null, banner: null, avatarColor: null, ownerId: 'owner',
-  inviteCode: null, visibility: 'public', description: null, createdAt: 1, _instanceOrigin: '',
+  inviteCode: null, visibility: 'public', description: null, createdAt: 1,
 };
 
 function role(id: string, name: string, position: number, permissions: bigint): Role {
@@ -43,8 +43,7 @@ const HELPERS = role('r-helper', 'Helpers', 1, PermissionBits.KICK_MEMBERS);
 function user(id: string): User {
   return {
     id, username: id, displayName: id, avatar: null, banner: null, accentColor: null, avatarColor: null, bio: null,
-    status: 'online', customStatus: null, isAdmin: false, createdAt: 1, homeInstance: null, homeUserId: null,
-    replicatedInstances: [],
+    status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
   };
 }
 function member(id: string, roles: Role[]): MemberWithUser {
@@ -55,7 +54,7 @@ const MEMBERS = [
   member('owner', []), member('lead', [LEADS]), member('peer', [LEADS]), member('helper', [HELPERS]), member('plain', []),
 ];
 
-function seed(opts: { viewer?: string; held?: bigint; roles?: Role[]; space?: TaggedSpace; members?: MemberWithUser[] } = {}): void {
+function seed(opts: { viewer?: string; held?: bigint; roles?: Role[]; space?: SpaceWithMyRoles; members?: MemberWithUser[] } = {}): void {
   const space = opts.space ?? SPACE;
   useAuthStore.setState({ user: user(opts.viewer ?? 'lead') });
   useSpaceStore.setState({
@@ -163,24 +162,22 @@ describe('UserProfilePopout: Edit Roles', () => {
     expect(editRoles()).toBeNull();
   });
 
-  it('knows the viewer by their id on a remote space, not their home id', () => {
-    // Home id "lead"; on orbit the viewer is their replicated user "lead-local".
+  it('knows the viewer by the exact native account ID', () => {
     seed({
-      space: { ...SPACE, _instanceOrigin: ORBIT },
+      viewer: 'lead-local',
       members: [member('owner', []), member('lead-local', [LEADS]), member('helper', [HELPERS])],
     });
-    useAuthStore.getState().recordMyRow(ORBIT, 'lead-local');
 
     renderCard('lead-local');
     expect(editRoles()).toBeNull();
   });
 
-  it('is offered on a remote space for a member ranked below the viewer there', () => {
+  it('keeps native moderator rank decisions for retained @ handles', () => {
     seed({
-      space: { ...SPACE, _instanceOrigin: ORBIT },
+      viewer: 'lead-local',
       members: [member('owner', []), member('lead-local', [LEADS]), member('helper', [HELPERS])],
     });
-    useAuthStore.getState().recordMyRow(ORBIT, 'lead-local');
+    useAuthStore.setState({ user: { ...user('lead-local'), username: 'lead@retained.test' } });
 
     renderCard('helper');
     expect(editRoles()).not.toBeNull();

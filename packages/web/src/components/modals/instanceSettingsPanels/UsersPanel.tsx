@@ -6,15 +6,15 @@ import { api } from '../../../api/client';
 import { Avatar } from '../../ui/Avatar';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
 import { useAuthStore } from '../../../stores/authStore';
-import type { AdminBlockedBot, AdminUser, AdminUserListResponse } from '@veyvox/shared';
+import type { AdminUser, AdminUserListResponse, AvatarColor } from '@veyvox/shared';
 import { BotBadge } from '../../ui/BotBadge';
 
-/** A bot whose home is another instance: only such an account can be blocked. */
-function isFederatedBot(user: AdminUser): boolean {
-  return user.isBot && !!user.homeInstance;
+export function UsersPanel() {
+  const revision = useAuthStore(s => s.sessionRevision);
+  return <UsersContent key={revision} revision={revision} />;
 }
 
-export function UsersPanel() {
+function UsersContent({ revision }: { revision: number }) {
   const { t } = useTranslation(['admin', 'common']);
   const currentUser = useAuthStore((s) => s.user);
   const f = useFormatters();
@@ -27,75 +27,60 @@ export function UsersPanel() {
   const [page, setPage] = useState(1);
   const pageSize = 50;
 
-  const [instanceFilter, setInstanceFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [joinedAfter, setJoinedAfter] = useState('');
   const [joinedBefore, setJoinedBefore] = useState('');
   const [sortBy, setSortBy] = useState('newest');
-  const [instances, setInstances] = useState<string[]>([]);
 
   // Confirm dialogs
   const [confirmAction, setConfirmAction] = useState<{ type: 'demote' | 'delete'; user: AdminUser } | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
-  // Delete dialog of a bot of another instance: also refuse its next registration.
-  const [blockBot, setBlockBot] = useState(false);
-
-  const [blockedBots, setBlockedBots] = useState<AdminBlockedBot[]>([]);
-  const fetchBlockedBots = useCallback(() => {
-    api.admin.listBlockedBots().then(({ bots }) => setBlockedBots(bots)).catch(() => {});
-  }, []);
-  useEffect(() => { fetchBlockedBots(); }, [fetchBlockedBots]);
-
-  const handleUnblock = async (bot: AdminBlockedBot) => {
-    setError('');
-    try {
-      await api.admin.unblockBot(bot.homeInstance, bot.homeUserId);
-      fetchBlockedBots();
-    } catch (err) {
-      setError(err instanceof Error ? describeError(err) : t('admin:users.actionFailed'));
-    }
-  };
 
   // Temp password display
   const [tempPassword, setTempPassword] = useState<{ userId: string; password: string } | null>(null);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
+  const alive = useRef(true);
+  const requestSeq = useRef(0);
   useEffect(() => {
-    api.admin.listInstances().then(({ instances: inst }) => setInstances(inst)).catch(() => {});
+    alive.current = true;
+    return () => { alive.current = false; clearTimeout(debounceRef.current); };
   }, []);
+  const current = useCallback(() => alive.current && revision === useAuthStore.getState().sessionRevision, [revision]);
 
-  const filtersRef = useRef({ homeInstance: '', role: '', joinedAfter: '', joinedBefore: '', sort: 'newest' });
-  filtersRef.current = { homeInstance: instanceFilter, role: roleFilter, joinedAfter, joinedBefore, sort: sortBy };
+  const filtersRef = useRef({ role: '', joinedAfter: '', joinedBefore: '', sort: 'newest' });
+  filtersRef.current = { role: roleFilter, joinedAfter, joinedBefore, sort: sortBy };
 
   const fetchUsers = useCallback(async (
     q: string, p: number, deleted: boolean,
-    opts?: { homeInstance?: string; role?: string; joinedAfter?: string; joinedBefore?: string; sort?: string }
+    opts?: { role?: string; joinedAfter?: string; joinedBefore?: string; sort?: string }
   ) => {
+    if (!current()) return;
+    const seq = ++requestSeq.current;
     setLoading(true);
     setError('');
     try {
       const result = await api.admin.listUsers({
         q: q || undefined, page: p, pageSize, showDeleted: deleted,
-        homeInstance: opts?.homeInstance || undefined,
         role: opts?.role || undefined,
         joinedAfter: opts?.joinedAfter || undefined,
         joinedBefore: opts?.joinedBefore || undefined,
         sort: opts?.sort || undefined,
       });
-      setData(result);
+      if (current() && seq === requestSeq.current) setData(result);
     } catch (err) {
-      setError(err instanceof Error ? describeError(err) : t('admin:users.loadFailed'));
+      if (current() && seq === requestSeq.current) setError(err instanceof Error ? describeError(err) : t('admin:users.loadFailed'));
     } finally {
-      setLoading(false);
+      if (current() && seq === requestSeq.current) setLoading(false);
     }
-  }, [t]);
+  }, [t, current]);
 
   useEffect(() => {
     fetchUsers(query, page, showDeleted, filtersRef.current);
-  }, [fetchUsers, page, showDeleted, instanceFilter, roleFilter, joinedAfter, joinedBefore, sortBy]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [fetchUsers, page, showDeleted, roleFilter, joinedAfter, joinedBefore, sortBy]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSearchChange = (value: string) => {
+    requestSeq.current++;
     setQuery(value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
@@ -105,6 +90,7 @@ export function UsersPanel() {
   };
 
   const handleToggleAdmin = async (user: AdminUser) => {
+    if (!current()) return;
     if (user.isAdmin) {
       // Demoting — confirm first
       setConfirmAction({ type: 'demote', user });
@@ -114,9 +100,10 @@ export function UsersPanel() {
     setError('');
     try {
       await api.admin.setUserRole(user.id, true);
+      if (!current()) return;
       fetchUsers(query, page, showDeleted, filtersRef.current);
     } catch (err) {
-      setError(err instanceof Error ? describeError(err) : t('admin:users.roleFailed'));
+      if (current()) setError(err instanceof Error ? describeError(err) : t('admin:users.roleFailed'));
     }
   };
 
@@ -128,46 +115,47 @@ export function UsersPanel() {
   };
 
   const handleResetConfirm = async () => {
-    if (!resetConfirmUser) return;
+    if (!resetConfirmUser || resetLoading || !current()) return;
     setResetLoading(true);
     setError('');
     setTempPassword(null);
     try {
       const result = await api.admin.resetUserPassword(resetConfirmUser.id);
+      if (!current()) return;
       setTempPassword({ userId: resetConfirmUser.id, password: result.temporaryPassword });
       setResetConfirmUser(null);
     } catch (err) {
+      if (!current()) return;
       setError(err instanceof Error ? describeError(err) : t('admin:users.resetFailed'));
       setResetConfirmUser(null);
     } finally {
-      setResetLoading(false);
+      if (current()) setResetLoading(false);
     }
   };
 
   const handleDeleteUser = (user: AdminUser) => {
-    setBlockBot(false);
     setConfirmAction({ type: 'delete', user });
   };
 
   const handleConfirm = async () => {
-    if (!confirmAction) return;
+    if (!confirmAction || actionLoading || !current()) return;
     setActionLoading(true);
     setError('');
     try {
       if (confirmAction.type === 'demote') {
         await api.admin.setUserRole(confirmAction.user.id, false);
       } else {
-        const blocks = blockBot && isFederatedBot(confirmAction.user);
-        await api.admin.deleteUser(confirmAction.user.id, blocks ? { blockBot: true } : undefined);
-        if (blocks) fetchBlockedBots();
+        await api.admin.deleteUser(confirmAction.user.id);
       }
+      if (!current()) return;
       setConfirmAction(null);
       fetchUsers(query, page, showDeleted, filtersRef.current);
     } catch (err) {
+      if (!current()) return;
       setError(err instanceof Error ? describeError(err) : t('admin:users.actionFailed'));
       setConfirmAction(null);
     } finally {
-      setActionLoading(false);
+      if (current()) setActionLoading(false);
     }
   };
 
@@ -176,9 +164,8 @@ export function UsersPanel() {
 
   const formatDate = (ts: number) => f.formatMediumDate(ts);
 
-  const adminButtonTitle = (user: AdminUser, isFederated: boolean): string => {
+  const adminButtonTitle = (user: AdminUser): string => {
     if (user.isAdmin) return t('admin:users.actions.demote');
-    if (isFederated) return t('admin:users.actions.federatedNoAdmin');
     return t('admin:users.actions.promote');
   };
 
@@ -202,18 +189,6 @@ export function UsersPanel() {
 
       {/* Filters */}
       <div className="flex items-center gap-2 flex-wrap">
-        <select
-          value={instanceFilter}
-          onChange={(e) => { setInstanceFilter(e.target.value); setPage(1); }}
-          className="input-search text-xs py-1"
-        >
-          <option value="">{t('admin:users.filters.allInstances')}</option>
-          <option value="local">{t('admin:users.filters.localOnly')}</option>
-          {instances.map((inst) => (
-            <option key={inst} value={inst}>{inst}</option>
-          ))}
-        </select>
-
         <select
           value={roleFilter}
           onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }}
@@ -261,10 +236,10 @@ export function UsersPanel() {
           {t('admin:users.filters.deleted')}
         </label>
 
-        {(instanceFilter || roleFilter || joinedAfter || joinedBefore || sortBy !== 'newest' || showDeleted || query) && (
+        {(roleFilter || joinedAfter || joinedBefore || sortBy !== 'newest' || showDeleted || query) && (
           <button
             onClick={() => {
-              setQuery(''); setInstanceFilter(''); setRoleFilter('');
+              setQuery(''); setRoleFilter('');
               setJoinedAfter(''); setJoinedBefore('');
               setSortBy('newest'); setShowDeleted(false); setPage(1);
               fetchUsers('', 1, false, { sort: 'newest' });
@@ -294,7 +269,6 @@ export function UsersPanel() {
           )}
           {data.users.map((user) => {
             const isSelf = user.id === currentUser?.id;
-            const isFederated = !!user.homeInstance;
             const isDeleted = user.isDeleted;
 
             const hasTempPassword = tempPassword?.userId === user.id;
@@ -308,7 +282,7 @@ export function UsersPanel() {
                       src={user.avatar ? api.uploads.url(user.avatar) : null}
                       name={user.displayName || user.username}
                       size={32}
-                      avatarColor={user.avatarColor as any}
+                      avatarColor={user.avatarColor as AvatarColor | null}
                     />
                   </div>
 
@@ -329,11 +303,6 @@ export function UsersPanel() {
                         </span>
                       )}
                       {user.isBot && <BotBadge />}
-                      {isFederated && (
-                        <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-accent-sky/20 text-accent-sky truncate max-w-[120px]">
-                          {user.homeInstance}
-                        </span>
-                      )}
                       {isDeleted && (
                         <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-accent-rose/20 text-accent-rose">
                           {t('admin:users.badge.deleted')}
@@ -351,14 +320,11 @@ export function UsersPanel() {
                       {/* Toggle admin */}
                       <button
                         onClick={() => handleToggleAdmin(user)}
-                        disabled={isFederated && !user.isAdmin}
-                        title={adminButtonTitle(user, isFederated)}
+                        title={adminButtonTitle(user)}
                         className={`p-1.5 rounded transition-colors ${
                           user.isAdmin
                             ? 'text-accent-amber hover:bg-accent-amber/10'
-                            : isFederated
-                              ? 'text-txt-tertiary/30 cursor-not-allowed'
-                              : 'text-txt-tertiary hover:text-txt-secondary hover:bg-white/[0.06]'
+                            : 'text-txt-tertiary hover:text-txt-secondary hover:bg-white/[0.06]'
                         }`}
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -369,13 +335,8 @@ export function UsersPanel() {
                       {/* Reset password */}
                       <button
                         onClick={() => handleResetPassword(user)}
-                        disabled={isFederated}
-                        title={isFederated ? t('admin:users.actions.federatedNoReset') : t('admin:users.actions.resetPassword')}
-                        className={`p-1.5 rounded transition-colors ${
-                          isFederated
-                            ? 'text-txt-tertiary/30 cursor-not-allowed'
-                            : 'text-txt-tertiary hover:text-txt-secondary hover:bg-white/[0.06]'
-                        }`}
+                        title={t('admin:users.actions.resetPassword')}
+                        className="p-1.5 rounded transition-colors text-txt-tertiary hover:text-txt-secondary hover:bg-white/[0.06]"
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
@@ -458,33 +419,6 @@ export function UsersPanel() {
         </div>
       )}
 
-      {/* Bots of other instances refused at registration */}
-      {blockedBots.length > 0 && (
-        <div className="space-y-1.5 pt-2">
-          <h3 className="text-sm font-semibold text-txt-primary">{t('admin:users.blockedBots.title')}</h3>
-          <div className="text-xs text-txt-tertiary">{t('admin:users.blockedBots.description')}</div>
-          {blockedBots.map((bot) => (
-            <div key={`${bot.homeInstance}/${bot.homeUserId}`} className="flex items-center gap-3 rounded-lg bg-white/[0.02] p-3.5">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-txt-primary truncate">{bot.username}</span>
-                  <BotBadge />
-                </div>
-                <div className="text-[10px] text-txt-tertiary mt-0.5">
-                  {t('admin:users.blockedBots.blockedAt', { date: formatDate(bot.createdAt) })}
-                </div>
-              </div>
-              <button
-                onClick={() => handleUnblock(bot)}
-                className="px-2.5 py-1 text-xs text-txt-secondary hover:text-txt-primary bg-white/[0.04] hover:bg-white/[0.08] rounded transition-colors shrink-0"
-              >
-                {t('admin:users.blockedBots.unblock')}
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
       {/* Confirm dialogs */}
       <ConfirmDialog
         isOpen={!!resetConfirmUser}
@@ -533,20 +467,6 @@ export function UsersPanel() {
               values={{ username: confirmAction?.user.username ?? '' }}
               components={{ strong: <strong /> }}
             />
-            {confirmAction && isFederatedBot(confirmAction.user) && (
-              <label className="mt-3 flex items-start gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={blockBot}
-                  onChange={(e) => setBlockBot(e.target.checked)}
-                  className="mt-0.5 w-3.5 h-3.5 rounded border-border-soft accent-accent-primary"
-                />
-                <span>
-                  <span className="block text-txt-primary">{t('admin:users.deleteDialog.blockBot')}</span>
-                  <span className="block text-xs text-txt-tertiary">{t('admin:users.deleteDialog.blockBotHint')}</span>
-                </span>
-              </label>
-            )}
           </>
         }
         confirmLabel={t('admin:users.deleteDialog.confirm')}

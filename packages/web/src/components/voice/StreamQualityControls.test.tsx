@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { InstanceStreamingLimits } from '@veyvox/shared';
-import { StreamQualityControls, StreamHostSubtitle } from './StreamQualityControls';
+import { StreamQualityControls } from './StreamQualityControls';
+import * as controls from './StreamQualityControls';
 import { useVoiceStore } from '../../stores/voiceStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { resetSystemAudioCapabilityForTests } from '../../utils/systemAudioNote';
@@ -9,8 +10,6 @@ import { resetSystemAudioCapabilityForTests } from '../../utils/systemAudioNote'
 vi.mock('../../audio/AudioManager', () => ({
   AudioManager: { getInstance: () => ({}) },
 }));
-
-const REMOTE = 'https://remote.example';
 
 const HOME_LIMITS: InstanceStreamingLimits = {
   maxBitrateKbps: 20000,
@@ -35,16 +34,15 @@ const REMOTE_LIMITS: InstanceStreamingLimits = {
 };
 
 beforeEach(() => {
-  useSettingsStore.setState({ streamingLimits: HOME_LIMITS, streamingLimitsByOrigin: { [REMOTE]: REMOTE_LIMITS } });
+  useSettingsStore.setState({ streamingLimits: REMOTE_LIMITS });
   useVoiceStore.setState({
-    livekitHostOrigin: REMOTE,
     isScreenSharing: false,
     screenShareConfig: { height: 720, fps: 30, mode: 'gaming', customBitrateKbps: null, shareAudio: false, codec: 'vp9' },
   });
 });
 
-describe('StreamQualityControls in a federated voice channel', () => {
-  it('offers only what the host instance allows', () => {
+describe('StreamQualityControls for the current instance', () => {
+  it('offers only what the current instance allows', () => {
     render(<StreamQualityControls />);
     expect(screen.getByRole('button', { name: '720p' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: '1080p' })).not.toBeInTheDocument();
@@ -53,9 +51,10 @@ describe('StreamQualityControls in a federated voice channel', () => {
     expect(screen.queryByRole('button', { name: 'Custom' })).not.toBeInTheDocument();
   });
 
-  it('names the host in the custom-bitrate line', () => {
+  it('uses the native custom-bitrate policy message with no alternate-host subtitle', () => {
     render(<StreamQualityControls />);
-    expect(screen.getByText('Custom bitrate turned off by remote.example')).toBeInTheDocument();
+    expect(screen.getByText('Custom bitrate disabled by administrator')).toBeInTheDocument();
+    expect(controls).not.toHaveProperty('StreamHostSubtitle');
   });
 
   it('highlights the effective values and leaves the saved settings alone', () => {
@@ -76,23 +75,10 @@ describe('StreamQualityControls in a federated voice channel', () => {
     expect(useVoiceStore.getState().screenShareConfig).toMatchObject({ height: 540, fps: 60 });
   });
 
-  it('uses home limits in a home channel', () => {
-    useVoiceStore.setState({ livekitHostOrigin: '' });
+  it('reacts to an updated local streaming policy', () => {
+    useSettingsStore.setState({ streamingLimits: HOME_LIMITS });
     render(<StreamQualityControls />);
     expect(screen.getByRole('button', { name: '1440p' })).toBeInTheDocument();
-  });
-});
-
-describe('StreamHostSubtitle', () => {
-  it('names the host whose limits apply', () => {
-    render(<StreamHostSubtitle />);
-    expect(screen.getByText('Limits set by remote.example')).toBeInTheDocument();
-  });
-
-  it('is absent at home', () => {
-    useVoiceStore.setState({ livekitHostOrigin: '' });
-    const { container } = render(<StreamHostSubtitle />);
-    expect(container).toBeEmptyDOMElement();
   });
 });
 
@@ -198,10 +184,6 @@ describe('StreamQualityControls System Audio while live', () => {
   function audioSwitch() {
     return screen.getByRole('switch', { name: 'System Audio' });
   }
-
-  beforeEach(() => {
-    useVoiceStore.setState({ livekitHostOrigin: '' });
-  });
 
   it('shows what the share sends, not the preference', () => {
     // Chrome's picker let the user untick audio: the preference is on, the share has none.

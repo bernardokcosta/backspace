@@ -18,15 +18,10 @@ import { RegistrationPanel } from './RegistrationPanel';
 const BASE_SETTINGS = {
   instanceName: 'Backspace',
   registrationOpen: true,
-  federatedRegistrationOpen: true,
   spaceCreationOpen: true,
   gifEnabled: false,
   maxUploadSizeMb: 50,
   maxStickerSizeMb: 2,
-  federationRelayEnabled: true,
-  federationRelayTtlDays: 7,
-  defaultAutoRotateIntervalDays: 30,
-  autoAcceptPeering: false,
 };
 
 describe('RegistrationPanel: Space Creation toggle', () => {
@@ -49,11 +44,11 @@ describe('RegistrationPanel: Space Creation toggle', () => {
     expect(screen.getByText('Allow creating new spaces')).toBeInTheDocument();
 
     const switches = screen.getAllByRole('switch');
-    expect(switches).toHaveLength(3);
-    expect(switches[2]).toHaveAttribute('aria-checked', 'true');
+    expect(switches).toHaveLength(2);
+    expect(switches[1]).toHaveAttribute('aria-checked', 'true');
 
-    fireEvent.click(switches[2]!);
-    expect(switches[2]).toHaveAttribute('aria-checked', 'false');
+    fireEvent.click(switches[1]!);
+    expect(switches[1]).toHaveAttribute('aria-checked', 'false');
 
     const saveBtn = screen.getByRole('button', { name: 'Save' });
     fireEvent.click(saveBtn);
@@ -61,7 +56,6 @@ describe('RegistrationPanel: Space Creation toggle', () => {
     await waitFor(() => {
       expect(updateInstanceSettings).toHaveBeenCalledWith({
         registrationOpen: true,
-        federatedRegistrationOpen: true,
         spaceCreationOpen: false,
       });
     });

@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSpaceStore, getApiForOrigin } from '../../../stores/spaceStore';
+import { useSpaceStore } from '../../../stores/spaceStore';
+import { useAuthStore } from '../../../stores/authStore';
 import { useUIStore } from '../../../stores/uiStore';
-import { HttpError, type RoleUpdateBody } from '../../../api/client';
+import { api, HttpError, type RoleUpdateBody } from '../../../api/client';
 import { PermissionBits, stringToPermissions, permissionsToString, rolePermissionsVersion } from '../../../utils/permissions';
 import { PERMISSION_GROUPS, type PermDef, type PermissionGroupId } from '../../../utils/permissionGroups';
 import { usePermissionNames } from '../../ui/OverrideEntry';
@@ -46,6 +47,11 @@ interface RolesPanelProps {
 }
 
 export function RolesPanel({ spaceId }: RolesPanelProps) {
+  const revision = useAuthStore(s => s.sessionRevision);
+  return <RolesContent key={`${revision}:${spaceId}`} spaceId={spaceId} revision={revision} />;
+}
+
+function RolesContent({ spaceId, revision }: RolesPanelProps & { revision: number }) {
   const { t } = useTranslation(['spaces', 'common']);
   const roles = useSpaceStore((s) => s.roles);
   const loadSpaceDetail = useSpaceStore((s) => s.loadSpaceDetail);
@@ -59,23 +65,25 @@ export function RolesPanel({ spaceId }: RolesPanelProps) {
   const [isNewRole, setIsNewRole] = useState(false);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
+  const current = () => revision === useAuthStore.getState().sessionRevision;
 
   const handleCreateRole = async () => {
     setCreating(true);
     setError('');
     try {
       const uniqueName = getUniqueRoleName(t('spaces:roles.defaultName'), roles);
-      // Roles live on the space's own instance (client-federation.md).
-      const newRole = await getApiForOrigin(space?._instanceOrigin ?? '').roles.create(spaceId, { name: uniqueName });
+      const newRole = await api.roles.create(spaceId, { name: uniqueName });
+      if (!current()) return;
       // The editor opens on the new role, so it has to be in the list now;
       // the space_access_changed refresh would arrive a moment later.
       await loadSpaceDetail(spaceId, { quiet: true });
+      if (!current()) return;
       setIsNewRole(true);
       setEditingRoleId(newRole.id);
     } catch (err) {
-      setError(describeError(err));
+      if (current()) setError(describeError(err));
     } finally {
-      setCreating(false);
+      if (current()) setCreating(false);
     }
   };
 
@@ -168,8 +176,10 @@ function RoleEditView({ role, spaceId, isNew, onBack, onDeleted, onCopied }: Rol
   const offersDelete = !isEveryone && !isManaged && canEdit;
   const deleteCarriesUnheld = offersDelete && !viewerHoldsEveryBit(held, stringToPermissions(role.permissions));
   const hasUnheldToggle = canEdit && ALL_PERMISSION_DEFS.some((perm) => !viewerCanSwitchBit(held, perm.bit));
-  // Every role write goes to the space's own instance (client-federation.md).
-  const roleApi = () => getApiForOrigin(space?._instanceOrigin ?? '').roles;
+  const revision = useAuthStore(s => s.sessionRevision);
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const current = () => alive.current && revision === useAuthStore.getState().sessionRevision;
 
   const [draftName, setDraftName] = useState(role.name);
   const [nameError, setNameError] = useState('');
@@ -238,7 +248,8 @@ function RoleEditView({ role, spaceId, isNew, onBack, onDeleted, onCopied }: Rol
         data.permissions = permissionsToString(draftPermissions);
         data.permissionsVersion = rolePermissionsVersion(basePermissions);
       }
-      const saved = await roleApi().update(spaceId, role.id, data);
+      const saved = await api.roles.update(spaceId, role.id, data);
+      if (!current()) return;
       // What the server now holds is the base of the next edit.
       const savedPermissions = saved.permissions ?? data.permissions ?? basePermissions;
       setBasePermissions(savedPermissions);
@@ -247,6 +258,7 @@ function RoleEditView({ role, spaceId, isNew, onBack, onDeleted, onCopied }: Rol
       setRoles(withSavedRole(useSpaceStore.getState().roles, saved));
       addToast(t('spaces:roles.saved'), 'success', 2000);
     } catch (err) {
+      if (!current()) return;
       // A duplicate name belongs on the name field, not in the save banner.
       if (err instanceof HttpError && err.code === 'role_name_taken') {
         setNameError(t('spaces:roles.nameDuplicate'));
@@ -254,6 +266,7 @@ function RoleEditView({ role, spaceId, isNew, onBack, onDeleted, onCopied }: Rol
         // Someone else saved this role's permissions meanwhile: show theirs,
         // so the viewer reviews them and saves again.
         await loadSpaceDetail(spaceId, { quiet: true });
+        if (!current()) return;
         const fresh = useSpaceStore.getState().roles.find((r) => r.id === role.id);
         const freshPermissions = fresh?.permissions ?? basePermissions;
         setBasePermissions(freshPermissions);
@@ -263,7 +276,7 @@ function RoleEditView({ role, spaceId, isNew, onBack, onDeleted, onCopied }: Rol
         setSaveError(describeError(err));
       }
     } finally {
-      setSaving(false);
+      if (current()) setSaving(false);
     }
   };
 
@@ -286,16 +299,18 @@ function RoleEditView({ role, spaceId, isNew, onBack, onDeleted, onCopied }: Rol
     setDeleting(true);
     setSaveError('');
     try {
-      await roleApi().delete(spaceId, role.id);
+      await api.roles.delete(spaceId, role.id);
+      if (!current()) return;
       // Gone from the list at once; space_access_changed brings the
       // renumbered positions.
       setRoles(useSpaceStore.getState().roles.filter((r) => r.id !== role.id));
       onDeleted();
     } catch (err) {
+      if (!current()) return;
       setSaveError(describeError(err));
       setConfirmDelete(false);
     } finally {
-      setDeleting(false);
+      if (current()) setDeleting(false);
     }
   };
 
@@ -306,18 +321,20 @@ function RoleEditView({ role, spaceId, isNew, onBack, onDeleted, onCopied }: Rol
     setSaveError('');
     try {
       const uniqueName = getUniqueRoleName(t('spaces:roles.copyName', { name: role.name }), roles);
-      const newRole = await roleApi().create(spaceId, {
+      const newRole = await api.roles.create(spaceId, {
         name: uniqueName,
         color: role.color,
         permissions: role.permissions ?? undefined,
       });
+      if (!current()) return;
       // The editor moves to the copy, so it has to be in the list now.
       await loadSpaceDetail(spaceId, { quiet: true });
+      if (!current()) return;
       onCopied(newRole.id);
     } catch (err) {
-      setSaveError(describeError(err));
+      if (current()) setSaveError(describeError(err));
     } finally {
-      setCopying(false);
+      if (current()) setCopying(false);
     }
   };
 

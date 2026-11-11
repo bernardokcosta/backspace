@@ -1,11 +1,8 @@
-import { and, asc, desc, eq, gt, inArray, notExists, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, inArray, notExists, sql } from 'drizzle-orm';
 import type { JunoPerson, JunoRankingPage, JunoScoreboard, JunoSnapshot, JunoStanding, JunoView } from '@veyvox/shared/src/juno.js';
 import { getDb, schema, type DB, type DBHandle } from '../db/index.js';
 import { buildJunoStandings } from './junoStandings.js';
 import { sanitizeUser } from '../utils/sanitize.js';
-
-/** Application-local only: emitted after the proof-authorized DB merge commits. */
-export const JUNO_ACCOUNT_MERGED_EVENT = 'juno:account-merged';
 
 export interface JunoSettlement {
   roundId: string;
@@ -15,8 +12,6 @@ export interface JunoSettlement {
   scoringVersion: 1;
   result: NonNullable<JunoView['result']>;
   standings: JunoStanding[];
-  /** Private per-round redirects; never accepted from a game command or serialized. */
-  recipientIds?: ReadonlyMap<string, string>;
 }
 
 function unranked(input: JunoSettlement): JunoScoreboard {
@@ -64,15 +59,7 @@ export function settleJunoRound(input: JunoSettlement, database?: DB): JunoScore
     if (channel && channel.spaceId !== input.spaceId) throw new Error('Juno channel belongs to another space');
     tx.insert(schema.junoRoundResults).values({ roundId: input.roundId, spaceId: input.spaceId,
       channelId: channel?.id ?? null, finishedAt: input.finishedAt, scoringVersion: input.scoringVersion }).run();
-    const awards = new Map<string, JunoStanding>();
     for (const row of computed) {
-      const userId = input.recipientIds?.get(row.userId) ?? row.userId;
-      const existingAward = awards.get(userId);
-      // Reattachment can consolidate two frozen starters. Keep their best award,
-      // not two increments, without recalculating anyone else's frozen place.
-      if (!existingAward || row.xp > existingAward.xp) awards.set(userId, { ...row, userId });
-    }
-    for (const row of awards.values()) {
       const user = tx.select().from(schema.users).where(eq(schema.users.id, row.userId)).get();
       // A delayed settlement may outlive account erasure. Never recreate its data.
       if (!user || user.isDeleted || user.isBot) continue;
@@ -143,28 +130,4 @@ export function hydrateJunoSnapshot(snapshot: JunoSnapshot, spaceId: string, dat
   };
   return { ...snapshot, game: { ...game, players: game.players.map(hydrate),
     ...(game.scoreboard ? { scoreboard: { ...game.scoreboard, standings: game.scoreboard.standings.map(hydrate) } } : {}) } };
-}
-
-/** Called only inside the existing proof-authorized reattach transaction. */
-export function mergeJunoProgression(db: DBHandle, sourceId: string, targetId: string): void {
-  if (sourceId === targetId) return;
-  const source = db.select().from(schema.junoRoundParticipants).where(eq(schema.junoRoundParticipants.userId, sourceId)).all();
-  for (const award of source) {
-    const target = db.select().from(schema.junoRoundParticipants)
-      .where(and(eq(schema.junoRoundParticipants.roundId, award.roundId), eq(schema.junoRoundParticipants.userId, targetId))).get();
-    if (target && target.xp >= award.xp) continue;
-    if (target) db.delete(schema.junoRoundParticipants)
-      .where(and(eq(schema.junoRoundParticipants.roundId, award.roundId), eq(schema.junoRoundParticipants.userId, targetId))).run();
-    db.insert(schema.junoRoundParticipants).values({ ...award, userId: targetId }).run();
-  }
-  db.delete(schema.junoRoundParticipants).where(eq(schema.junoRoundParticipants.userId, sourceId)).run();
-  db.delete(schema.junoPlayerStats).where(or(eq(schema.junoPlayerStats.userId, sourceId), eq(schema.junoPlayerStats.userId, targetId))).run();
-  const totals = db.select({ spaceId: schema.junoRoundResults.spaceId,
-    totalXp: sql<number>`sum(${schema.junoRoundParticipants.xp})`,
-    wins: sql<number>`sum(case when ${schema.junoRoundParticipants.place} = 1 then 1 else 0 end)`,
-    completedRounds: sql<number>`count(*)`,
-  }).from(schema.junoRoundParticipants).innerJoin(schema.junoRoundResults, eq(schema.junoRoundResults.roundId, schema.junoRoundParticipants.roundId))
-    .where(and(eq(schema.junoRoundParticipants.userId, targetId), eq(schema.junoRoundParticipants.outcome, 'completed')))
-    .groupBy(schema.junoRoundResults.spaceId).all();
-  for (const total of totals) db.insert(schema.junoPlayerStats).values({ ...total, userId: targetId }).run();
 }

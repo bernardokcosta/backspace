@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '../ui/Modal';
 import { Avatar } from '../ui/Avatar';
-import { getApiForOrigin } from '../../stores/spaceStore';
+import { api } from '../../api/client';
+import { useAuthStore } from '../../stores/authStore';
 import { describeError } from '../../i18n/errors';
 import { BotPermissionChecklist } from '../ui/BotPermissionChecklist';
 import { permissionsToString, stringToPermissions } from '../../utils/permissions';
@@ -10,9 +11,8 @@ import { useViewerHeldPermissions, viewerCanSwitchBit } from '../../utils/roleHi
 import type { BotSearchResult } from '@veyvox/shared';
 
 /**
- * A space manager adds a bot to a space: a native bot of the instance the
- * space lives on, or a bot of another instance that registered an account
- * there. The server checks MANAGE_SPACE; this modal lists what /bots/search
+ * A space manager adds a native bot. The server checks MANAGE_SPACE;
+ * this modal lists what /bots/search
  * returns and posts the add. A bot that asks for permissions gets a second
  * step: the manager picks which of them its managed role carries, all ticked
  * at first; the ones the manager does not hold cannot be given (bots.md,
@@ -21,15 +21,17 @@ import type { BotSearchResult } from '@veyvox/shared';
 interface AddBotModalProps {
   isOpen: boolean;
   onClose: () => void;
-  /** The space's instance origin: bots are searched and added there. */
-  origin: string;
   spaceId: string;
   onAdded: () => void;
 }
 
-export function AddBotModal({ isOpen, onClose, origin, spaceId, onAdded }: AddBotModalProps) {
+export function AddBotModal(props: AddBotModalProps) {
+  const revision = useAuthStore(s => s.sessionRevision);
+  return <AddBotContent key={`${revision}:${props.spaceId}:${props.isOpen}`} {...props} revision={revision} />;
+}
+
+function AddBotContent({ isOpen, onClose, spaceId, onAdded, revision }: AddBotModalProps & { revision: number }) {
   const { t } = useTranslation('spaces');
-  const api = getApiForOrigin(origin);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<BotSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -43,8 +45,12 @@ export function AddBotModal({ isOpen, onClose, origin, spaceId, onAdded }: AddBo
   const inputRef = useRef<HTMLInputElement | null>(null);
   /** Bumped on every keystroke and on close: a slower, older answer must not overwrite a newer one. */
   const searchSeq = useRef(0);
+  const alive = useRef(true);
+  const current = () => alive.current && revision === useAuthStore.getState().sessionRevision;
 
   useEffect(() => {
+    alive.current = true;
+    let focusTimer: ReturnType<typeof setTimeout> | undefined;
     if (isOpen) {
       setQuery('');
       setResults([]);
@@ -55,8 +61,12 @@ export function AddBotModal({ isOpen, onClose, origin, spaceId, onAdded }: AddBo
       setGrant('0');
       searchSeq.current += 1;
       if (searchTimer.current) clearTimeout(searchTimer.current);
-      setTimeout(() => inputRef.current?.focus(), 100);
+      focusTimer = setTimeout(() => inputRef.current?.focus(), 100);
     }
+    return () => {
+      alive.current = false; searchSeq.current++; clearTimeout(focusTimer);
+      if (searchTimer.current) clearTimeout(searchTimer.current);
+    };
   }, [isOpen]);
 
   const handleSearch = (value: string) => {
@@ -70,17 +80,18 @@ export function AddBotModal({ isOpen, onClose, origin, spaceId, onAdded }: AddBo
       return;
     }
     searchTimer.current = setTimeout(async () => {
+      if (seq !== searchSeq.current || !current()) return;
       setIsSearching(true);
       try {
         const res = await api.bots.search(value.trim());
-        if (seq === searchSeq.current) setResults(res.bots);
+        if (seq === searchSeq.current && current()) setResults(res.bots);
       } catch (err) {
-        if (seq === searchSeq.current) {
+        if (seq === searchSeq.current && current()) {
           setResults([]);
           setError(describeError(err));
         }
       } finally {
-        if (seq === searchSeq.current) setIsSearching(false);
+        if (seq === searchSeq.current && current()) setIsSearching(false);
       }
     }, 300);
   };
@@ -97,16 +108,18 @@ export function AddBotModal({ isOpen, onClose, origin, spaceId, onAdded }: AddBo
   };
 
   const add = async (bot: BotSearchResult, permissions: string | undefined) => {
+    if (!current()) return;
     setError('');
     setAddingId(bot.id);
     try {
       await api.bots.addToSpace(bot.id, spaceId, permissions);
+      if (!current()) return;
       onAdded();
       onClose();
     } catch (err) {
-      setError(describeError(err));
+      if (current()) setError(describeError(err));
     } finally {
-      setAddingId(null);
+      if (current()) setAddingId(null);
     }
   };
 

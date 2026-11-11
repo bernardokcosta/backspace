@@ -6,20 +6,20 @@ Source files:
 - `packages/server/src/routes/joinRequests.ts` — Retained invitation-request/manager workflow
 - `packages/server/src/utils/spaceJoinPayload.ts` — Permission-filtered `buildJoinedSpace` payload for approval acceptance
 - `packages/server/src/routes/users.ts` — Space layout (sidebar folders/ordering) persistence via `PUT /api/users/@me/space-layout`
-- `packages/web/src/stores/spaceStore.ts` — Client-side space state, multi-instance merge, LWW layout sync
+- `packages/web/src/stores/spaceStore.ts` — Native space state, channel indexes and session-owned LWW layout sync
 - `packages/web/src/components/modals/CreateSpace.tsx` — Space creation modal (icon crop, color, visibility)
-- `packages/web/src/components/modals/JoinSpace.tsx` — Join-by-code modal with federation connect phases
+- `packages/web/src/components/modals/JoinSpace.tsx` — Native join-by-code/request modal
 - `packages/web/src/components/modals/InviteModal.tsx` — Invite link generation and copy
 - `packages/web/src/components/modals/InviteFriendModal.tsx` — Pick a space for a friend or one-on-one DM counterpart
-- `packages/web/src/utils/spaceInvite.ts` — Shared true-home DM invitation sender
+- `packages/web/src/utils/spaceInvite.ts` — Shared native DM invitation sender
 - `packages/web/src/components/modals/TransferOwnershipModal.tsx` — Ownership transfer member picker
 - `packages/web/src/components/modals/SpaceSettings.tsx` — Space settings: overview (including access/description and approval requests), members, roles, bans and soundboard
-- `packages/web/src/components/JoinPage.tsx` — Public invite landing page with federation redirect
+- `packages/web/src/components/JoinPage.tsx` — Public current-server invitation page
 - `packages/web/src/hooks/useDragManager.ts` — Channel/category/voice-user drag-and-drop
 - `packages/web/src/utils/inviteParser.ts` — Invite code/URL/qualified-code parser
 - `packages/web/src/utils/joinErrors.ts`, `utils/inviteJoinRequest.ts` - `JoinRequestRequiredError` and the join refusal checks; `sendInviteJoinRequest`, the join request an invite to a request space leads to
 
-Cross-references: [database.md](database.md) (table schemas), [permissions.md](permissions.md) (resolution algorithm, override tiers), [websocket.md](websocket.md) (event types), [federation.md](federation.md) (peer relay), [voice.md](voice.md) (voice channel join)
+Cross-references: [database.md](database.md) (table schemas), [permissions.md](permissions.md) (resolution algorithm, override tiers), [websocket.md](websocket.md) (event types), [voice.md](voice.md) (voice channel join)
 
 ---
 
@@ -40,8 +40,8 @@ Each space hosts its own shared catalog and settings.
 | Field | Type | Required | Validation |
 |-------|------|----------|------------|
 | name | string | yes | trimmed, 1-100 chars |
-| icon | string | no | Upload filename |
-| banner | string | no | Upload filename |
+| icon | string | no | Own loose upload, normalized bare filename; valid HTTP(S) reference also accepted |
+| banner | string | no | Same ownership/path rule as icon |
 | avatarColor | AvatarColor | no | Must be in `AVATAR_COLORS`; random if omitted |
 | visibility | SpaceVisibility | no | `'public'` / `'request'` / `'private'`; defaults to `'private'` |
 | description | string | no | trimmed, max 200 chars |
@@ -66,6 +66,12 @@ Each space hosts its own shared catalog and settings.
 1. `connectionManager.addUserSpace(userId, spaceId)` — registers creator for WS broadcasts
 2. Icon/banner attachment records cleaned up (reference now in `spaces` table)
 3. Icon/banner resized via `resizeProfileImage(filePath, 'icon'|'banner')`
+
+New local images must belong to the creator and have no message/profile holder.
+The server claims all image attachments before any asynchronous resize. Reusing
+one newly mutable image for both fields is refused; unchanged current-file repeats
+neither delete nor resize it. Malformed paths/types use `icon_url_invalid` or
+`banner_url_invalid`, without a database/file mutation.
 
 **Response:** 201, `Space` object
 
@@ -92,12 +98,12 @@ Every field is checked before anything is written. A body with `ownerTitle` from
 Every field is checked before anything is written. A body with `ownerTitle` from anyone but the owner is refused with `403 space_owner_only` as a whole, so a member with `MANAGE_SPACE` cannot rename the space in the same request either.
 
 **Directory retired in 1.15.2:** legacy listing input is ignored. No response
-exposes the flag, no retained edit clears its historical value and no write
+exposes the flag, the inert column is removed by generated 0050, and no write
 schedules directory work. See [directory.md](directory.md).
 
 **Side effects:**
-- Old icon/banner files deleted from disk when replaced
-- New icon/banner resized via `resizeProfileImage`
+- Old icon/banner files deleted only without surviving native references
+- Only newly claimed icon/banner files resized via `resizeProfileImage`
 - Attachment records cleaned up for newly-set images
 - `space_updated` WS event broadcast to all space members
 
@@ -132,9 +138,11 @@ schedules directory work. See [directory.md](directory.md).
 
 ### Invite URL Format
 
-Built by `spaceInviteUrl(instanceOrigin, inviteCode)` in `inviteParser.ts`, the one builder for every surface that hands out a link (`InviteModal`, and the Invite People item of the space context menu in `SpaceSidebar` and `MobileSpacesScreen`):
-- **Web:** `{instanceOrigin}/join/{inviteCode}` (e.g., `https://nova.ddns.net/join/a3f1b2c4`). `instanceOrigin` is the space's `_instanceOrigin`, the instance that issued the code; `''` (a space on the page's own instance) becomes `window.location.origin`.
-- **Deep link (Electron):** `backspace://join/{inviteCode}` or `backspace://join/{inviteCode}@{host}` for remote instances
+Built by `spaceInviteUrl(inviteCode)` in `inviteParser.ts`, the builder used by
+both invitation pickers and desktop/mobile space menus. It encodes one route
+segment under `window.location.origin`, never a connected-peer origin.
+Desktop deep links retain their parser and protocol identity; a foreign-host
+invitation cannot create a second authenticated session.
 
 ### Invite Code Parser (`inviteParser.ts`)
 
@@ -147,16 +155,22 @@ Parses three input formats into `{ code: string; origin?: string }`:
 | Qualified code | `a3f1b2c4@remote.com` | `{ code: 'a3f1b2c4', origin: 'https://remote.com' }` |
 
 If the parsed origin matches `window.location.origin`, it is treated as a bare code (origin stripped).
+Foreign origins are retained by the parser so the join page/modal can refuse them
+before any preview, join, request, login or provisioning call. They are never
+stripped to attempt a colliding local code. There is no remote-password fallback.
 
 ### Direct Friend Invitation (in-app)
 
 `POST /api/dm/space-invite` (see [dm-system.md](dm-system.md)) sends a structured invite card to a friend via DM. The card carries a snapshot of the space (name, icon, member count, description) plus the canonical identifiers (`spaceId`, `spaceInstanceOrigin`, `inviteCode`).
 
-The endpoint lives on the **caller's home instance**, not the space's home. The caller's instance fetches the snapshot server-to-server from the space's `GET /api/spaces/invite/:code/preview` endpoint, then inserts a `type='system'` DM message with `event: 'space_invite'` content. Three-way federation (sender on X, recipient on Y, space on Z) is supported without new federation event kinds. A space of any visibility can be invited to; for a `request` space the card leads the recipient to a join request (see "Invite links to a space joined by request").
-
-`InviteModal` sends the request to `getFriendsHomeOrigin()` (`instanceStore.ts`, see [client-federation.md](client-federation.md) §5): the page's instance for a native account, and the connected true home for a federated account signed in to another instance, whose friends are checked there (#391). Each friend is named as that instance knows them (`personRequest(friend, origin, home)`), and the space's origin is translated for it: `''` only when the space is on the receiving instance, else the space's absolute origin (the page's own `window.location.origin` for a space on the page's instance). With no live session on the true home it falls back to the page's instance.
-
-The invite is relayed like every DM message (`queueDmRelay`), to each instance that hosts a participant: the recipient's home when they are homed elsewhere, and the sender's home when the sender is a federated account acting on this instance, which is where the sender reads the conversation. Up to 1.8.0 the route relayed only when the recipient was homed elsewhere, so an invite sent through a federated account reached the recipient but never the sender's own copy of the conversation.
+The current server checks the native friendship and native space, builds its
+snapshot locally and inserts the system message into the native pair. Both
+pickers call `sendSpaceInvite(friend, {spaceId,inviteCode}, t)`, which sends
+`target: {userId: friend.id}` through the primary API with an empty
+`spaceInstanceOrigin`. No server-to-server fetch or relay occurs. A space of any
+visibility can be invited to; a `request` card leads to manager approval.
+Historical card origin metadata is not routing authority: a foreign origin is
+displayed as revoked without even reading a colliding native preview.
 
 The friend-picker surface in `InviteModal` uses the same per-space invite code as the link-share footer — there is exactly one invite code per space at any time, and revocation (when implemented) invalidates all outstanding cards atomically.
 
@@ -185,17 +199,14 @@ Built by `getLocalInvitePreview` (`utils/spaceInviteSnapshot.ts`). `getLocalInvi
 
 Friends and one-on-one DM rows offer **Invite to Space**. `InviteFriendModal`
 lists the user's joined spaces; selecting one lazily calls
-`generateInvite(spaceId, origin)` on that exact instance, then sends the existing
-DM invitation card. Space keys include both origin and id, so equal ids on
-different instances cannot mix codes. Permission failures stay on the selected
+`generateInvite(spaceId)` on the current API, then sends the existing native
+DM invitation card. Space keys are native IDs. Permission failures stay on the selected
 row and can be retried; the existing server authorization is unchanged.
 Groups retain Leave Group rather than choosing an arbitrary recipient.
 
-Both invitation dialogs use `utils/spaceInvite.ts`: resolve the recipient by
-home identity, route through `getFriendsHomeOrigin`, and translate the source
-origin relative to the receiving instance. Unresolvable legacy stubs fail
-without sending. The new picker is mounted in both application shells and all
-five locales supply its labels.
+Both invitation dialogs use `utils/spaceInvite.ts`, matching recipients and
+already-joined members by exact native IDs, not usernames. Retained `@` handles
+are shown verbatim. The picker remains mounted in both application shells.
 
 Closing/replacing the picker, changing its recipient or changing the auth
 session invalidates pending lookups before they send. Synchronous in-flight
@@ -233,34 +244,34 @@ Both run the same check after the code matches (`inviteJoinRefusal` in `spaces.t
 
 ### Join Page (`JoinPage.tsx`)
 
-Public route at `/join/:inviteCode`. Handles six phases:
+Public route at `/join/:inviteCode`. Handles three native phases:
 
 | Phase | Trigger | UI |
 |-------|---------|-----|
 | `preview` | Initial load | Space preview card + join button (auth) or login/register links (unauth); for a request space, the request notice, an optional note and "Ask to join as {name}" |
-| `connect` | `NotConnectedError` on join or request attempt | Password prompt for federation connect ("Connect & Ask to Join" for a request) |
-| `fallback` | `RemoteLoginRequiredError` on connect | Username + password for an account on the remote, under the `FallbackNotice` its `reason` selects |
-| `other-instance` | User clicks "I use another instance" | Domain input for federation redirect |
 | `already-member` | Join or request returns `already_member` | Green checkmark + auto-redirect (2s timer) |
 | `request-sent` | Request sent, or one was already pending | "Request sent to {space}" or "Your request to join {space} is waiting", and Back to Veyvox |
 
-**The page's action** is `join` or `request`, read from the preview's `visibility` on load. `request` sends `sendInviteJoinRequest(preview.spaceId, origin, note)` to the space's instance, after the connect step when that instance is remote. It changes when the server says otherwise: a join answered with `join_request_required` (an instance without `visibility` in its preview, or a space switched to `request` after the page loaded) switches to `request` for the user to send; a join answered with `join_request_pending` shows the waiting request; a request answered with `space_not_requestable` (the space left `request`) joins by the code instead. Banned is shown as the refusal text, as on every join path. While the action is `request` the heading above the space name is `auth:join.invitedToRequest` ("You've been invited to ask to join") in every phase, signed out included, so the page never promises entry.
-
-**Federation redirect flow (other-instance):**
-1. User enters their home domain (e.g., `my-instance.com`)
-2. Constructs qualified invite: `{code}@{currentHost}`
-3. Redirects to `https://{domain}/join/{qualifiedCode}`
-4. Their home instance's JoinPage receives the qualified code, parses origin, and handles federation connect
-
-**Preview fetching:** For remote invites, creates a temporary API client via `createApiClient(origin, () => null)` to fetch the preview without authentication.
+**The page's action** is `join` or `request`, read from native preview visibility.
+`request` sends `sendInviteJoinRequest(preview.spaceId, note)` to the current API.
+A join answered with `join_request_required` switches to the request action for a
+second explicit click; `join_request_pending` displays the waiting request.
+`space_not_requestable` retries the native invite code after a visibility change.
+Banned is shown as a refusal. The request heading never promises immediate entry,
+including for signed-out visitors. Preview/results/navigation and timers belong
+to the native invitation plus session revision; late work cannot affect another
+page/session. Transient auth bootstrap failure retains the existing explicit retry.
 
 ### Invite links to a space joined by request
 
 Every surface that takes a code reaches the join request flow the same way, so none of them ends at the refusal:
 
-- `spaceStore.joinByCode` turns a `join_request_required` refusal into `JoinRequestRequiredError` (`utils/joinErrors.ts`), an `HttpError` with that code plus `spaceId` and `origin` (`''` for the page's instance). The id comes from `details.spaceId`, else from the invite preview; when neither names it the original refusal is thrown. `connectedJoinOrigin(origin)` is the shared origin check: `''` for the page's own instance, the origin when it holds a connected session, else `NotConnectedError`.
-- `sendInviteJoinRequest(spaceId, origin, message?)` (`utils/inviteJoinRequest.ts`) sends `POST /api/spaces/:id/request-join` through `client.joinRequests.request` on the exact connected origin, without discovery or a shared request store. It reports `join_request_pending` as `'pending'`; all other errors propagate. A disconnected/missing remote is `NotConnectedError`, never a home-client fallback. Account changes and the desktop session lifecycle reject obsolete replies. The route's rate limit (5 per minute) and manager approval are unchanged.
-- The space on another instance is reached as for a join: the request goes to the space's instance through the user's connected session there, so the request, the ban check and the membership check all use the user's row on that instance.
+- `spaceStore.joinByCode(code)` turns `join_request_required` into the native
+  `JoinRequestRequiredError` carrying `spaceId`, resolved from details or preview.
+- `sendInviteJoinRequest(spaceId, message?)` uses `api.joinRequests.request` and
+  reports existing pending requests as `'pending'`; other failures propagate.
+  Session revisions reject obsolete results even when IDs/JWTs are equal. The
+  existing 5/minute quota and manager approval remain unchanged.
 - Surfaces: the Join Page (above); the Join Space dialog, which moves to a `request` step (note, Send Request) and then to `request-sent`; and a DM invite card (`SpaceInviteCard`), which shows "Ask to join" when the live preview says `request` or the join was refused with `join_request_required`, then "Request sent" or "Request pending".
 - Inviters: Invite Friends (`InviteModal`) shows the friend list and the link for a request space, with an intro that says people who open it ask to join; the space menu's Invite People (`SpaceSidebar`, `MobileSpacesScreen`) copies the link and confirms with "Invite link copied. People who open it can ask to join."
 
@@ -268,19 +279,17 @@ Every surface that takes a code reaches the join request flow the same way, so n
 
 Opened from the space sidebar "Join a Space" action. The `input` phase is
 **invitation-only**: it neither fetches nor previews discovery. A supplied
-code/URL runs `parseInviteInput` → `joinByCode(code, origin?)`, with the retained
-federation phases:
-- `connect` — password prompt for federation
-- `fallback` — different-password login for remote instance
+code/URL runs `parseInviteInput`, rejects any foreign host, then calls native
+`joinByCode(code)`.
 
 The `request` and `request-sent` phases use the independent invitation request
 utility. Desktop/mobile Explore launchers, previews, stores and workbenches
 were removed in 1.15.2; old `/explore` bookmarks redirect to Friends with history
-replacement. Existing remote memberships and explicit Connections remain.
+replacement. No peer connection or alternate-session flow remains here.
 
 Space managers edit visibility and invitation description in Overview's
 `AccessPanel`, without directory flags or requests for instance discovery
-settings. Pending requests retain per-origin listing/approval there.
+settings. Pending requests use native listing/approval there.
 
 ---
 
@@ -335,8 +344,8 @@ Decline flow:
 - `BackspaceApiClient.joinRequests.mine` retains this API independently; no
   discovery store or background request fan-out is recreated.
 
-The manager UI uses `getJoinRequestClient(origin)` for listing and decisions,
-not a home-only client; changing origin/account or unmounting retires its
+The manager UI uses `api.joinRequests` for native listing and decisions;
+changing space/session or unmounting retires its
 in-flight view updates. The accepted-user payload is built by
 `buildJoinedSpace`, with effective channel permissions and role-data filtering.
 
@@ -441,9 +450,9 @@ Both single-role routes apply the same checks as the replace route (not own role
 
 **Where a nickname shows.** `spaceMemberName` in `web/src/utils/identity.ts` names a member inside a space: the nickname from the space's roster row, else the display name. The member lists (desktop and phone), a space message's author and reply line, mentions, the mention picker (which also matches on it), the typing line and the poke row (both people; websocket.md, "Channel pokes") use it. DMs, friends and the profile's name and username show the account; the profile card adds a "Nickname in this space" line above the name.
 
-**Owner title.** The owner may replace the owner group's heading in the member list ("Owner") with a title of their own (`spaces.ownerTitle`), visible to every member. It is a heading, not a name: the owner's row under it, their messages, mentions, the typing line and the profile card name them by `spaceMemberName` like anyone else, and the settings Members panel keeps its "Owner" marker. `ownerGroupTitle` in `web/src/utils/memberGroups.ts` reads it for every surface that shows the heading, and `OwnerTitleHeading` renders it on the desktop member list and the phone members screen; a custom title keeps its own capitalization, the default stays uppercase like the other group headings. The heading shows only while the owner is online, because offline members are listed together under Offline. The owner gets a pencil beside it (a 44px tap target on the phone) that opens a dialog laid out like the nickname dialog: Save, Cancel, and Reset while a title is set. The dialog checks the value with `normalizeOwnerTitle` before sending, writes through `spaceStore.updateSpace` to the space's own instance, and changes the heading only from that instance's answer; other members get it through `space_updated`. Server rules: `PATCH /api/spaces/:id` above and api.md. Version mix: a client up to 1.10.0 ignores the field and shows "Owner"; on a space hosted by an instance up to 1.10.0 the field is absent, the heading stays "Owner" and the pencil is not offered (`hostKeepsOwnerTitle`), because that instance would answer 200 and drop the title. No federation event carries the title; each instance serves it for the spaces it hosts.
+**Owner title.** Native owners can replace the member-list "Owner" heading via `spaces.ownerTitle`; member names still use `spaceMemberName`, and settings retains its Owner marker. `ownerGroupTitle` / `OwnerTitleHeading` render it on desktop/mobile, preserving custom capitalization and the uppercase default. Offline owners remain in Offline. The owner's pencil has a 44px mobile target and opens Save/Cancel/Reset controls. Shared `normalizeOwnerTitle` validates before the primary `spaceStore.updateSpace` call; UI changes follow the server response and other members receive `space_updated`. See api.md for owner-only validation and ownership-transfer reset. No alternate-origin lookup or legacy-host capability probe participates.
 
-**Member list right-click menu** (`layout/memberMenu/`, desktop member list). A right click, the menu key or Shift+F10 on a member row opens it; a left click, Enter or Space opens the profile. Items: View profile; Send message and the friend action that fits (add, cancel, accept or decline, remove), both through the origin-aware helpers (`openDirectMessage`, `friendRequestTarget`); Change space nickname; a Roles submenu of checkboxes; Kick and Ban, each after a confirmation. Which items show follows permissions.md, "Client gating". Writes go to the space's own instance (`getApiForOrigin(space._instanceOrigin)`) with the member's id there. A role checkbox changes only after the server accepts the write, and is disabled while one is in flight. The menu closes when the space changes. On a space hosted by a 1.9.x instance the nickname item is offered but the instance refuses the request, and the dialog shows its reason.
+**Member list right-click menu** (`layout/memberMenu/`, desktop member list). A right click, the menu key or Shift+F10 on a member row opens it; a left click, Enter or Space opens the profile. Items: View profile; Send message and the appropriate native friend action (add, cancel, accept or decline, remove); Change space nickname; a Roles submenu of checkboxes; Kick and Ban, each after confirmation. Visibility follows permissions.md, "Client gating". Writes use the primary API and member's native ID. A role checkbox changes only after server acceptance and is disabled while a write is in flight. The menu closes when the space changes; request failures surface the server's reason.
 
 ---
 
@@ -516,7 +525,7 @@ Position: `max(existing positions) + 1`.
 
 **Broadcast:** `channel_created` sent per-user (only to users with VIEW_CHANNEL on the new channel). Each user's event includes their computed `myPermissions`.
 
-**Client reconciliation:** both the create response and the `channel_created` event are applied through the `upsertChannel` store action (see client-federation.md, "Channel index and lookup maps").
+**Client reconciliation:** both the create response and `channel_created` use the native `upsertChannel` store action and current-server lookup maps.
 
 ### Update Channel
 
@@ -682,7 +691,7 @@ interface SpaceFolder {
 **Client-side algorithm** (`spaceStore.ts:populateFromReady`):
 
 ```
-On receiving ready payload from any instance:
+On receiving the current socket's ready payload:
   incomingTs = payload.layoutUpdatedAt ?? 0
   currentTs = store._layoutUpdatedAt
 
@@ -691,19 +700,15 @@ On receiving ready payload from any instance:
     _layoutUpdatedAt = incomingTs
   else:
     Keep local layout
-    Push local layout to the stale instance via pushLayoutToOrigin()
 ```
 
-**`pushLayoutToOrigin(origin, layout, folders, updatedAt)`:** Calls `targetApi.spaceLayout.update()` on the specific instance that had the stale layout. This ensures all instances converge to the newest layout.
-
-### Multi-Instance Layout Push
+### Native Layout Write
 
 **`updateSpaceLayout(items, folders)`** in spaceStore:
 1. Optimistically applies the layout with `Date.now()` timestamp
-2. Collects all targets: home API + all connected remote instance APIs
-3. `Promise.allSettled` pushes to all targets in parallel
-4. Uses the first successful response to resolve `new:*` folder IDs
-5. Updates store with resolved layout
+2. Writes through the primary `api.spaceLayout.update`
+3. Uses the server response to resolve `new:*` folder IDs
+4. Applies the result only to the same session generation and when its timestamp is not older than the current layout
 
 ---
 
@@ -722,10 +727,9 @@ The space layout and folder data are delivered in the WS `ready` event (`handler
 }
 ```
 
-`populateFromReady` merges incoming data by origin:
-- Replaces all spaces from the incoming origin, keeps spaces from other origins
-- Replaces this origin's entries in the space-channel index and `channelPermissions` (client-federation.md, "Channel index and lookup maps"), and adds this origin's categories to `categoryOriginMap` (entries of categories it no longer lists stay)
-- DM channels: removes existing DMs from this origin, appends incoming, deduplicates 1-on-1 DMs by canonical member pair (prefers home-origin copy)
+`populateFromReady` replaces native listings for the current socket/session:
+- Rebuilds the space-channel index, permission and last-message maps from the authorized listing
+- Replaces native space/DM summaries and upserts sanitized member views by native ID
 - Applies LWW layout merge as described above
 
 ---
@@ -753,40 +757,15 @@ The space layout and folder data are delivered in the WS `ready` event (`handler
 
 ---
 
-## Federation Considerations
+## Native server/session boundary
 
-### Instance Origin Tagging
+All operations use the selected server's primary API and native account IDs.
+Current-server metadata may scope cached data but never chooses another bearer
+credential. A retained username containing `@` is not a routing address.
 
-Every space in the client store has `_instanceOrigin: string`:
-- `''` (empty) = home instance
-- `'https://remote.com'` = remote federated instance
-
-All store actions resolve the correct API client via `getApiForOrigin(origin)` before making HTTP requests. The resolver is registered by `instanceStore` on import (breaks circular dependency).
-
-### User ID Resolution
-
-`getMyUserIdForOrigin(origin)`, the user's row id on the instance at `origin`, is defined in client-federation.md section 5. Used for self-leave (`leaveSpace` calls `removeMember` with the correct user ID for the instance).
-
-### Remote Invite Join Flow
-
-```
-1. User enters invite URL pointing to remote instance
-2. parseInviteInput extracts code + origin
-3. joinByCode(code, origin) called
-4. If not connected → NotConnectedError thrown
-5. JoinSpaceModal/JoinPage enters 'connect' phase
-6. User provides password → connectToRemote(origin, password)
-7. If only the account's own credentials can get in → RemoteLoginRequiredError → 'fallback' phase (reasons: client-federation.md, connect flow step 7)
-8. On success: joinByCode retried, space added to store with _instanceOrigin
-```
-
-### Asset URL Normalization
-
-Remote space icons, banners, and member avatars are resolved via `resolveAssetUrl(path, origin)` when:
-- `populateFromReady` processes spaces from a remote origin
-- `loadSpaceDetail` loads a remote space
-- `joinByCode` returns a remote space
-- Manager request avatars use the request's owning origin
+Invitation parsing preserves the host: a foreign-host invitation is refused
+before preview, join or join-request operations, never reduced to a local code.
+Native membership, bans, visibility, invitation and approval gates remain.
 
 ### Client Load State (`useSpaceStore`)
 
@@ -799,6 +778,6 @@ Only the newest `loadSpaceDetail` of a space applies its response; an older one 
 
 `loadedSpaceIds` lifecycle:
 - Added when a `loadSpaceDetail` response lands in the open space (the same `set()` that replaces `channels`/`categories`/`members`).
-- Pruned per-space on `deleteSpace`, `leaveSpace`, `removeSpace`, `removeInstanceSpaces`.
+- Pruned per-space on `deleteSpace`, `leaveSpace`, `removeSpace`.
 - Wiped entirely on `reset` (logout).
 - Ephemeral — not persisted.

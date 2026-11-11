@@ -17,9 +17,9 @@ vi.mock('../audio/AudioManager', () => ({
 
 const pinsApi = vi.hoisted(() => ({ pins: vi.fn() }));
 const deleteApi = vi.hoisted(() => ({ delete: vi.fn() }));
-vi.mock('../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../utils/crossStoreResolvers')>()),
-  getApiForOrigin: () => ({ channels: { pins: pinsApi.pins }, messages: { delete: deleteApi.delete } }),
+vi.mock('../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../api/client')>()),
+  api: { channels: { pins: pinsApi.pins }, messages: { delete: deleteApi.delete } },
 }));
 
 import { useChatStore } from './chatStore';
@@ -28,7 +28,7 @@ import { useAuthStore } from './authStore';
 import { HttpError } from '../api/client';
 
 const CH = 'chat-1';
-const me = { id: 'u-1', username: 'jannis', displayName: 'Jannis', avatar: null, homeInstance: null, homeUserId: null, createdAt: 1 } as unknown as User;
+const me = { id: 'u-1', username: 'jannis', displayName: 'Jannis', avatar: null, createdAt: 1 } as User;
 
 const message = (content: string): MessageWithUser => ({
   id: 'm-1', channelId: CH, userId: me.id, replyToId: null, content,
@@ -46,8 +46,7 @@ function board(): PinWithMessage[] {
 beforeEach(() => {
   vi.clearAllMocks();
   useAuthStore.setState({ user: me } as never);
-  useSpaceStore.setState({ channelOriginMap: new Map([[CH, '']]),
-    spaceChannelIndex: new Map([[CH, { spaceId: 'space', origin: '', type: 'text' }]]) } as never);
+  useSpaceStore.setState({ spaceChannelIndex: new Map([[CH, { spaceId: 'space', type: 'text' }]]) });
   useChatStore.setState({
     messages: new Map([[CH, [message('before')]]]),
     pinnedByChannel: new Map([[CH, [pin(message('before'))]]]),
@@ -60,7 +59,7 @@ afterEach(() => {
 
 describe('pin board session hygiene', () => {
   it('waits for metadata instead of guessing a home text endpoint for an unknown channel', async () => {
-    useSpaceStore.setState({ spaceChannelIndex: new Map(), channelOriginMap: new Map() });
+    useSpaceStore.setState({ spaceChannelIndex: new Map() });
     await useChatStore.getState().loadPins(CH);
     expect(pinsApi.pins).not.toHaveBeenCalled();
   });
@@ -89,18 +88,17 @@ describe('pin board session hygiene', () => {
     finish({ pins: [pin(message('stale'))] }); await loading;
     expect(board()).toEqual([]);
   });
-  it('rejects pins if the channel changed origin or kind while loading', async () => {
+  it('rejects pins if the channel changed space or kind while loading', async () => {
     let finish!: (v: { pins: PinWithMessage[] }) => void;
     pinsApi.pins.mockReturnValueOnce(new Promise(r => { finish = r; }));
     const loading = useChatStore.getState().loadPins(CH);
     useChatStore.setState({ pinnedByChannel: new Map() });
-    useSpaceStore.setState({ spaceChannelIndex: new Map([[CH, { spaceId: 'space', origin: 'https://other.test', type: 'text' }]]) });
+    useSpaceStore.setState({ spaceChannelIndex: new Map([[CH, { spaceId: 'other-space', type: 'text' }]]) });
     finish({ pins: [pin(message('stale'))] }); await loading;
     expect(board()).toEqual([]);
   });
-  it.each(['', 'https://remote.example'])('never queries text-only pins for a voice channel on %s', async (origin) => {
-    useSpaceStore.setState({ spaceChannelIndex: new Map([[CH, { spaceId: 'space', origin, type: 'voice' }]]),
-      channelOriginMap: new Map([[CH, origin]]) });
+  it('never queries text-only pins for a voice channel', async () => {
+    useSpaceStore.setState({ spaceChannelIndex: new Map([[CH, { spaceId: 'space', type: 'voice' }]]) });
     await useChatStore.getState().loadPins(CH);
     expect(pinsApi.pins).not.toHaveBeenCalled();
   });

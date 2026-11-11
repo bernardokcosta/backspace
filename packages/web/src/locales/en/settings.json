@@ -127,7 +127,6 @@
       "appearance": "Appearance",
       "voice": "Voice & Video",
       "privacy": "Privacy",
-      "connections": "Connections",
       "keybinds": "Keybinds",
       "desktop": "Desktop",
       "instance": "Instance",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "My Account",
-    "detached": {
-      "notice": "This account is detached from its home instance.",
-      "explanation": "{{homeInstance}} was reset or is no longer available, so this account now operates locally on this instance. Your profile and password are managed here.",
-      "reattachHint": "As {{username}} on {{homeInstance}}, you can re-link this account. Profile and presence will sync from there again.",
-      "reattachButton": "Re-attach to {{homeInstance}}",
-      "reattachConfirm": "Confirm re-attach as {{username}}",
-      "reattaching": "Re-attaching…",
-      "reattachFailed": "Re-attach failed",
-      "reattached": "Account re-linked with {{username}}"
-    },
     "profile": {
       "sectionTitle": "Profile Customization",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "Account",
       "status": {
-        "label": "Status",
-        "homeUnavailable": "Your status is kept on {{host}}. Connect to {{host}} to change it."
+        "label": "Status"
       },
       "customStatus": {
         "label": "Custom Status",
@@ -244,10 +232,6 @@
         "passwordPlaceholder": "Enter your password",
         "submit": "Delete My Account",
         "deleting": "Deleting…"
-      },
-      "federation": {
-        "removing": "Removing your account from connected instances…",
-        "deleteAnyway": "Delete Account Now"
       },
       "complete": {
         "title": "Account deleted",
@@ -310,14 +294,10 @@
       }
     }
   },
-  "connections": {
-    "title": "Connections"
-  },
   "instance": {
     "tabs": {
       "general": "General",
       "registration": "Registration",
-      "federation": "Federation",
       "streaming": "Streaming",
       "storage": "Storage",
       "users": "Users",

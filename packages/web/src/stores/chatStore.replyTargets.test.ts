@@ -27,12 +27,12 @@ interface SendBody {
 const { send } = vi.hoisted(() => ({
   send: vi.fn<(channelId: string, body: SendBody) => Promise<void>>(),
 }));
-vi.mock('../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../utils/crossStoreResolvers')>()),
-  getApiForOrigin: () => ({
+vi.mock('../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../api/client')>()),
+  api: {
     channels: { sendMessage: send },
     dm: { sendMessage: send },
-  }),
+  },
 }));
 
 import { useChatStore } from './chatStore';
@@ -43,8 +43,8 @@ import { HttpError } from '../api/client';
 const GENERAL = 'chan-general';
 const RANDOM = 'chan-random';
 
-const me = { id: 'u-1', username: 'jannis', displayName: 'Jannis', avatar: null, homeInstance: null, homeUserId: null, createdAt: 1 } as unknown as User;
-const mira = { id: 'u-2', username: 'mira', displayName: 'Mira', avatar: null, homeInstance: null, homeUserId: null, createdAt: 1 } as unknown as User;
+const me = { id: 'u-1', username: 'jannis', displayName: 'Jannis', avatar: null, createdAt: 1 } as User;
+const mira = { id: 'u-2', username: 'mira', displayName: 'Mira', avatar: null, createdAt: 1 } as User;
 
 function message(id: string, channelId: string, user: User = mira): MessageWithUser {
   return {
@@ -77,10 +77,9 @@ const inGeneral = message('100', GENERAL);
 const inRandom = message('200', RANDOM);
 
 beforeEach(() => {
-  useAuthStore.setState({ user: me, myRowIds: new Map() });
+  useAuthStore.setState({ user: me });
   useSpaceStore.setState({
-    spaceChannelIndex: new Map([[GENERAL, 'space-1'], [RANDOM, 'space-1']]),
-    channelOriginMap: new Map([[GENERAL, ''], [RANDOM, '']]),
+    spaceChannelIndex: new Map([[GENERAL, { spaceId: 'space-1', type: 'text' }], [RANDOM, { spaceId: 'space-1', type: 'text' }]]),
     dmChannels: [],
   });
   useChatStore.setState({
@@ -94,8 +93,8 @@ beforeEach(() => {
 afterEach(() => {
   send.mockReset();
   useChatStore.getState().clearAllMessages();
-  useSpaceStore.setState({ spaceChannelIndex: new Map(), channelOriginMap: new Map(), dmChannels: [] });
-  useAuthStore.setState({ user: null, myRowIds: new Map() });
+  useSpaceStore.setState({ spaceChannelIndex: new Map(), dmChannels: [] });
+  useAuthStore.setState({ user: null });
 });
 
 describe('reply state is scoped to its channel (#390)', () => {

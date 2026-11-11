@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { MessageWithUser, User } from '@veyvox/shared';
 import { findLastOwnEditableMessage } from './messageEditing';
-import { userKey, type SelfIdentity } from '../../utils/identity';
 
 const me: User = {
   id: 'me',
@@ -16,12 +15,8 @@ const me: User = {
   customStatus: null,
   isAdmin: false,
   createdAt: 1,
-  homeInstance: null,
-  homeUserId: null,
-  replicatedInstances: [],
 };
 
-const self: SelfIdentity = { key: userKey(me, ''), rowIds: new Map([['', me.id]]) };
 
 const other: User = { ...me, id: 'other', username: 'bob', displayName: 'Bob' };
 
@@ -50,7 +45,7 @@ describe('findLastOwnEditableMessage', () => {
       message('3', me, 'newest'),
     ];
 
-    expect(findLastOwnEditableMessage(messages, '', self)?.id).toBe('3');
+    expect(findLastOwnEditableMessage(messages, me.id)?.id).toBe('3');
   });
 
   it('skips system and attachment-only messages', () => {
@@ -60,7 +55,7 @@ describe('findLastOwnEditableMessage', () => {
       message('3', me, '{"event":"member_added"}', 'system'),
     ];
 
-    expect(findLastOwnEditableMessage(messages, '', self)?.id).toBe('1');
+    expect(findLastOwnEditableMessage(messages, me.id)?.id).toBe('1');
   });
 
   it('does not fall back to an older message while the newest own message is pending', () => {
@@ -69,7 +64,7 @@ describe('findLastOwnEditableMessage', () => {
       message('temp_2', me, 'sending'),
     ];
 
-    expect(findLastOwnEditableMessage(messages, '', self)).toBeNull();
+    expect(findLastOwnEditableMessage(messages, me.id)).toBeNull();
   });
 
   it('skips a sticker, whose content is a token and not text', () => {
@@ -78,6 +73,6 @@ describe('findLastOwnEditableMessage', () => {
       message('2', me, `sticker:https://chat.test/api/stickers/assets/${'a'.repeat(64)}.webp`),
     ];
 
-    expect(findLastOwnEditableMessage(messages, '', self)?.id).toBe('1');
+    expect(findLastOwnEditableMessage(messages, me.id)?.id).toBe('1');
   });
 });

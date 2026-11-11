@@ -19,7 +19,6 @@
     "activity": "Na razie cicho… Gdy znajomi zaczną aktywność, pokażemy ją tutaj!"
   },
   "friend": {
-    "viaInstance": "przez {{host}}",
     "message": "Wiadomość",
     "remove": "Usuń znajomego"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "Znajdź ludzi",
-    "hint": "Szukaj po nazwie użytkownika lub użyj <handle>user@instance</handle>, aby dodać kogoś bezpośrednio.",
     "placeholder": "Szukaj lub dodaj po nazwie…",
     "direct": "Wyślij zaproszenie do <handle>{{handle}}</handle>",
     "sendRequest": "Wyślij prośbę",
@@ -103,6 +101,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "Otwórz utwór"
-  },
-  "instanceNotConnected": "Brak połączenia z {{host}}. Połącz się ponownie i spróbuj jeszcze raz."
+  }
 }

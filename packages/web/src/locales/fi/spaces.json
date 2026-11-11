@@ -158,21 +158,6 @@
     "invitePlaceholder": "esim. abc123 tai https://instance.com/join/abc123",
     "submit": "Liity tilaan",
     "submitting": "Liitytään…",
-    "connect": {
-      "intro": "Yhdistä kohteeseen <host>{{host}}</host> liittyäksesi tähän tilaan.",
-      "passwordLabel": "Anna salasanasi yhdistääksesi",
-      "passwordPlaceholder": "Tilisi salasana",
-      "passwordNote": "Koti-instanssisi tarkistaa salasanasi eikä sitä koskaan lähetetä kohteeseen {{host}}. Se instanssi saa yksilöllisen tunnisteen, joka on luotu vain sitä varten.",
-      "submit": "Yhdistä & liity",
-      "submitting": "Yhdistetään…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "Käyttäjänimesi tällä instanssilla",
-      "passwordLabel": "Tämän instanssin salasana",
-      "passwordPlaceholder": "Etäinstanssin salasana",
-      "submit": "Kirjaudu & liity",
-      "submitting": "Kirjaudutaan…"
-    },
     "request": {
       "messagePlaceholder": "Miksi haluat liittyä? (valinnainen)",
       "send": "Lähetä pyyntö",
@@ -450,8 +435,6 @@
       "transferOwnership": "Siirrä omistajuus",
       "settings": "Tilan asetukset",
       "leave": "Poistu tilasta",
-      "reconnecting": "Yhdistetään uudelleen kohteeseen {{instance}}…",
-      "remoteInstance": "etäinstanssi",
       "leaveConfirm": {
         "title": "Poistu tilasta",
         "titleNamed": "Poistu kohteesta {{name}}",

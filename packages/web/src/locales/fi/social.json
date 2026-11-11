@@ -19,7 +19,6 @@
     "activity": "Nyt on hiljaista… Kun kaverit aloittavat toiminnan, näytämme sen tässä!"
   },
   "friend": {
-    "viaInstance": "kautta {{host}}",
     "message": "Viesti",
     "remove": "Poista kaveri"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "Etsi ihmisiä",
-    "hint": "Hae käyttäjänimellä tai käytä <handle>user@instance</handle> lisätäksesi jonkun suoraan.",
     "placeholder": "Hae tai lisää nimellä…",
     "direct": "Lähetä kaveripyyntö käyttäjälle <handle>{{handle}}</handle>",
     "sendRequest": "Lähetä pyyntö",
@@ -99,6 +97,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "Avaa kappale"
-  },
-  "instanceNotConnected": "Ei yhteyttä kohteeseen {{host}}. Yhdistä uudelleen ja yritä uudelleen."
+  }
 }

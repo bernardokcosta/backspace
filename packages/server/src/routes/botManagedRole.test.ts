@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
@@ -48,7 +48,6 @@ vi.mock('../ws/handler.js', () => ({
 }));
 vi.mock('../ws/events.js', () => ({ checkVoicePermissions: vi.fn() }));
 vi.mock('../ws/presence.js', () => ({ applyStoredBotActivity: vi.fn() }));
-vi.mock('../utils/profileRelay.js', () => ({ queueProfileUpdateRelay: vi.fn() }));
 
 function applyMigrations(db: Database.Database): void {
   const dir = path.resolve(__dirname, '../../drizzle');
@@ -93,16 +92,16 @@ beforeEach(async () => {
       id: 'radio-bot', username: 'radio_bot', displayName: 'Radio_bot', passwordHash: '!bot', isBot: 1,
       botOwnerId: 'owner', botRequestedPermissions: permissionsToString(REQUESTED), createdAt: now,
     },
-    // A bot of another instance that registered an account here with its proof.
+    // A different person's live local bot can also be invited by a manager.
     {
-      id: 'far-bot', username: 'far_bot@orbit.example', displayName: 'Far_bot', passwordHash: 'hash', isBot: 1,
-      homeInstance: 'orbit.example', homeUserId: 'orbit-far', botRequestedPermissions: permissionsToString(SEND_MESSAGES),
+      id: 'other-bot', username: 'other_bot', displayName: 'Other_bot', passwordHash: '!bot', isBot: 1,
+      botOwnerId: 'plain', botRequestedPermissions: permissionsToString(SEND_MESSAGES),
       createdAt: now,
     },
-    // A replica of a bot that never registered here: it cannot sign in.
+    // A deleted bot never appears in search or admission.
     {
-      id: 'stub-bot', username: 'stub_bot@orbit.example', passwordHash: '!federation-replicated', isBot: 1,
-      homeInstance: 'orbit.example', homeUserId: 'orbit-stub', createdAt: now,
+      id: 'deleted-bot', username: '!deleted:bot', passwordHash: 'synthetic-deleted', isBot: 1,
+      isDeleted: 1, createdAt: now,
     },
   ]).run();
   testDb.insert(schema.spaces).values({
@@ -125,6 +124,7 @@ beforeEach(async () => {
   await app.register(spaceRoutes);
   await app.ready();
 });
+afterEach(async () => { await app.close(); sqlite.close(); });
 
 describe('what a bot asks for', () => {
   it('is set by the owner as a permission mask and listed', async () => {
@@ -180,17 +180,17 @@ describe('adding a bot to a space', () => {
     expect(rolesOf('radio-bot')).toEqual([]);
   });
 
-  it('a bot of another instance with an account here is found and added; a replica is not', async () => {
+  it('another local owner\'s live bot is found and added, but a deleted bot is not', async () => {
     as('manager');
     const search = await app.inject({ method: 'GET', url: '/api/bots/search?q=bot' });
     const names = (search.json() as { bots: BotSearchResult[] }).bots.map(b => b.username);
-    expect(names).toContain('far_bot@orbit.example');
+    expect(names).toContain('other_bot');
     expect(names).toContain('radio_bot');
-    expect(names).not.toContain('stub_bot@orbit.example');
+    expect(names).not.toContain('!deleted:bot');
 
-    expect((await addBot('far-bot')).statusCode).toBe(200);
-    expect(managedRole('far-bot')?.permissions).toBe(permissionsToString(SEND_MESSAGES));
-    expect(codeOf(await addBot('stub-bot'))).toBe('bot_not_found');
+    expect((await addBot('other-bot')).statusCode).toBe(200);
+    expect(managedRole('other-bot')?.permissions).toBe(permissionsToString(SEND_MESSAGES));
+    expect(codeOf(await addBot('deleted-bot'))).toBe('bot_not_found');
   });
 });
 

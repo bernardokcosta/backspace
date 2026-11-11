@@ -27,7 +27,10 @@ profile or changing the legacy runtime encryption identity.
 | `nodeIntegration` | `false` | The renderer has no direct access to Node.js globals (`require`, `process`, `fs`, ...). |
 | `sandbox` | `true` | The renderer process runs inside Electron's OS-level sandbox (Chromium's sandbox), matching Chrome's own security model for untrusted web content. |
 
-This matters because the renderer loads a remote, federated, user-facing web app (arbitrary chat content, embeds, and — for federation — content served by third-party Veyvox instances the user has connected to). The renderer is treated as untrusted; all privileged operations (notifications, tray, window controls, keybinds, auto-update) go through the `contextBridge`-exposed `window.backspace` API in `preload.ts`, never through direct Node/Electron access.
+The renderer loads the selected server's web app, including arbitrary chat
+content and embeds. It is untrusted; privileged operations use the narrow
+contextBridge API, never direct Node/Electron access. Removing peer navigation
+trust does not weaken isolation or grant another server credentials.
 
 ## Read-only system language bridge
 
@@ -47,6 +50,21 @@ events, machine identifiers or a general-purpose IPC function. The optional
 preload operation permits older shells to degrade to browser language detection.
 No sandbox/contextIsolation/nodeIntegration, navigation policy or permission gate
 was weakened. Native HTML's language query is checked against own catalog entries.
+
+## Instance-selection IPC boundary
+
+The existing instance getter/setter/clear channels use the live main-window and
+main-frame sender guard before profile I/O. Only the bundled picker HTML can
+persist a replacement server; a remote page must use the existing Change Instance
+action to open that picker. Child frames, foreign windows and destroyed owners
+cannot read, replace or clear the preference. Selection accepts only parsed
+HTTP(S) URLs without embedded credentials or control characters, preserving local
+development servers and explicit ports. Saved unsafe values are ignored without
+deleting their bytes. Persistence failure prevents replacement navigation.
+
+`instanceUrl.test.ts` covers these refusals and first-run/cancel/change behavior
+with mocked Electron/profile I/O. It does not prove installed native navigation;
+that remains part of the platform installed-upgrade acceptance gate.
 
 ## Electron fuses
 
@@ -117,12 +135,16 @@ Why:
 **Mechanism:** Electron's `will-navigate` event fires only for page/user-initiated top-level navigation — a clicked link, a `window.location` assignment from renderer JS, a meta-refresh. It does **not** fire for main-process-initiated `webContents.loadURL()` / `loadFile()` / `back()` / `forward()` calls. This app's three legitimate top-level navigation paths are all main-process calls:
 - The initial instance load (`BACKSPACE_URL` env var or a saved instance URL) — `loadURL()`.
 - The `file://` instance picker (no saved/env instance) — `loadFile()`.
-- Cross-instance switching (`set-instance-url` IPC handler) and disconnecting back to the picker (`clear-instance-url` IPC handler) — both `loadURL()`/`loadFile()`.
+- Selected-server replacement from the bundled picker (`set-instance-url`) and returning to it (`clear-instance-url`) — guarded main-frame IPC followed by `loadURL()`/`loadFile()`.
 
-None of these ever reach the `will-navigate` handler, so the deny handler adds no risk to any of them. It exists as defense-in-depth: if a compromised or malicious renderer (e.g. via a federated instance serving hostile content, or a supply-chain-compromised dependency in the web bundle) tries to hijack the top-level frame with `window.location = 'https://attacker.example/'`, the handler blocks it. The allowlist is:
+None of these reaches `will-navigate`, so privileged IPC has its own sender/URL checks. The handler separately blocks renderer-initiated navigation to an untrusted top-level origin, including from a compromised selected server or bundle dependency. The allowlist is:
 1. Same-origin as the window's current URL (normal in-app navigation).
 2. The bundled instance-picker `file://` URL exactly (not `file://` generally — an attacker-controlled `file://` navigation to an arbitrary local path is still blocked).
-3. A known federation-peer/own-instance origin (the same `knownInstanceOrigins` set `setWindowOpenHandler` already uses, kept in sync by the renderer via the `set-connected-origins` IPC message).
+
+Credential-bearing HTTP(S) URLs are refused even on the current origin. The
+renderer cannot expand this policy: its connected-origin IPC/state/preload method
+has been removed. The same current-URL policy controls internal invitation
+interception in `setWindowOpenHandler`.
 
 Anything else is denied (`event.preventDefault()`) and logged as a warning in the main process's console.
 
@@ -274,4 +296,6 @@ the fixture is not proof of the whole application flow.
 What follows is what has and has not actually been checked, so the sections above are not read as broader assurance than they are.
 
 - **Fuse flipping is verified on macOS arm64 only.** The states were read back out of a packaged macOS arm64 `.app` with the `electron-fuses read` command above. Windows, Linux, and macOS x64 packaged builds have not been checked. This is not a symmetry argument that can be waved through: `flipElectronFuses()` resolves the binary path differently per platform (`.app` / `.exe` / no extension, and `packager.executableName` on Linux versus `appInfo.productFilename` elsewhere), so a wrong path on an unverified platform would surface as a build error or a silently unflipped binary, and nobody has looked.
-- **The `will-navigate` deny handler has not been exercised in a packaged build.** Its decision logic is unit-tested directly, at the `isNavigationAllowed()` level, in `packages/desktop/src/navigationPolicy.test.ts`. Nobody has driven a real packaged app into a foreign top-level navigation and watched the handler deny it, so the wiring around that logic — the event registration in `createWindow()`, the `event.preventDefault()`, and `knownInstanceOrigins` actually being populated by the `set-connected-origins` IPC at the moment a navigation is judged — is untested end to end.
+- **The current-URL-only navigation deny handler still needs packaged acceptance.**
+  Its policy and preload retirement are unit-tested; packaged foreign-navigation
+  wiring remains a hosted installed-acceptance gate, not a claimed local result.

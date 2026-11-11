@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSocialStore, type TaggedFriend } from '../../stores/socialStore';
+import { useSocialStore } from '../../stores/socialStore';
 import { useUIStore } from '../../stores/uiStore';
 import { RightPanelResizeHandle } from './RightPanelResizeHandle';
 import { useActivityStore, activitiesFor } from '../../stores/activityStore';
 import { Avatar } from '../ui/Avatar';
 import { ActivityCard, hasRichActivity, getActivityAccentClass } from '../ui/ActivityCard';
-import type { Activity, User } from '@veyvox/shared';
+import type { Activity, Friend } from '@veyvox/shared';
 import { getPrimaryActivity } from '@veyvox/shared/src/activities.js';
-import { parseFederatedUsername, isFederationGlobeApplicable } from '../../utils/identity';
+import { userDisplayName } from '../../utils/identity';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 
 function ActivityFriendRow({
@@ -19,16 +19,15 @@ function ActivityFriendRow({
   accentClass,
   onClickFriend,
 }: {
-  friend: TaggedFriend;
+  friend: Friend;
   isOffline: boolean;
   activities: Activity[];
   isRichActivity: boolean;
   accentClass: string;
-  onClickFriend: (e: React.MouseEvent, friend: TaggedFriend) => void;
+  onClickFriend: (e: React.MouseEvent, friend: Friend) => void;
 }) {
-  const canonical = useCanonicalUserView(friend as unknown as User, friend._instanceOrigin);
-  const { baseName } = parseFederatedUsername(canonical.username);
-  const friendDisplayName = canonical.displayName ?? baseName;
+  const canonical = useCanonicalUserView(friend);
+  const friendDisplayName = userDisplayName(canonical);
 
   const rowClass = isRichActivity
     ? `flex items-center gap-2.5 px-2.5 py-2 rounded-[10px] mb-1 cursor-pointer transition-all duration-200 ease-out glass-pill border-l-2 ${accentClass}`
@@ -45,14 +44,11 @@ function ActivityFriendRow({
         size={32}
         status={isOffline ? 'offline' : canonical.status}
         className={isOffline ? 'opacity-60' : undefined}
-        userId={canonical.homeUserId ?? canonical.id}
+        userId={canonical.id}
         avatarColor={canonical.avatarColor}
       />
       <div className="flex-1 min-w-0">
         <span className={`text-[13.5px] leading-[1.2] font-medium truncate ${isOffline ? 'text-txt-tertiary' : 'text-txt-primary'}`}>{friendDisplayName}</span>
-        {!isOffline && isFederationGlobeApplicable(canonical) && (
-          <div className="text-[10px] leading-[1.3] text-txt-tertiary truncate opacity-60">@{parseFederatedUsername(canonical.username).domain}</div>
-        )}
         {!isOffline && (
           <ActivityCard
             activities={activities}
@@ -78,16 +74,16 @@ export function ActivityPanel() {
   }, [loadFriends]);
 
   const { activeFriends, onlineFriends, offlineFriends } = useMemo(() => {
-    const active: TaggedFriend[] = [];
-    const online: TaggedFriend[] = [];
-    const offline: TaggedFriend[] = [];
+    const active: Friend[] = [];
+    const online: Friend[] = [];
+    const offline: Friend[] = [];
 
     for (const f of friends) {
       if (f.status === 'offline') {
         offline.push(f);
         continue;
       }
-      const activities = activitiesFor(userActivities, f, f._instanceOrigin);
+      const activities = activitiesFor(userActivities, f.id);
       const primary = getPrimaryActivity(activities);
       // Active = has a non-custom activity (playing, listening, watching, streaming)
       if (primary && primary.type !== 'custom') {
@@ -102,34 +98,17 @@ export function ActivityPanel() {
 
   if (!memberListOpen) return null;
 
-  const handleFriendClick = (e: React.MouseEvent, friend: TaggedFriend) => {
+  const handleFriendClick = (e: React.MouseEvent, friend: Friend) => {
     e.stopPropagation();
     openUserProfile(
-      {
-        id: friend.id,
-        username: friend.username,
-        displayName: friend.displayName,
-        avatar: friend.avatar,
-        banner: friend.banner,
-        accentColor: friend.accentColor,
-        avatarColor: friend.avatarColor,
-        bio: friend.bio,
-        status: friend.status,
-        customStatus: friend.customStatus,
-        createdAt: friend.createdAt,
-        homeUserId: friend.homeUserId,
-        homeInstance: friend.homeInstance,
-        isAdmin: false,
-        replicatedInstances: [],
-      },
-      friend._instanceOrigin,
+      { ...friend, isAdmin: false },
       e.currentTarget.getBoundingClientRect(),
       'left',
     );
   };
 
-  const renderFriend = (friend: TaggedFriend, isOffline = false) => {
-    const activities = activitiesFor(userActivities, friend, friend._instanceOrigin);
+  const renderFriend = (friend: Friend, isOffline = false) => {
+    const activities = activitiesFor(userActivities, friend.id);
     const isRichActivity = !isOffline && hasRichActivity(activities);
     const primary = getPrimaryActivity(activities);
     const accentClass = primary ? getActivityAccentClass(primary.type) : '';

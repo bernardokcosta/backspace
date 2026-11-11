@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import type { MemberWithUser, User } from '@veyvox/shared';
 
@@ -15,8 +15,10 @@ vi.mock('../../../audio/AudioManager', () => ({
 }));
 
 import { OverviewPanel } from './OverviewPanel';
-import { useSpaceStore, type TaggedSpace } from '../../../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../../../stores/spaceStore';
 import { useAuthStore } from '../../../stores/authStore';
+import { useUIStore } from '../../../stores/uiStore';
+import { api } from '../../../api/client';
 
 const owner: User = {
   id: 'user-1',
@@ -31,9 +33,6 @@ const owner: User = {
   customStatus: null,
   isAdmin: false,
   createdAt: 1,
-  homeInstance: null,
-  homeUserId: null,
-  replicatedInstances: [],
 };
 
 const other: User = { ...owner, id: 'user-2', username: 'member', displayName: 'Member' };
@@ -42,7 +41,7 @@ function member(user: User): MemberWithUser {
   return { spaceId: 'space-1', userId: user.id, nickname: null, joinedAt: 1, user, roles: [] };
 }
 
-const space: TaggedSpace = {
+const space: SpaceWithMyRoles = {
   id: 'space-1',
   name: 'Aether Drift',
   icon: null,
@@ -53,16 +52,16 @@ const space: TaggedSpace = {
   visibility: 'public',
   description: '',
   createdAt: 1,
-  _instanceOrigin: '',
 };
 
 beforeEach(() => {
+  vi.restoreAllMocks();
   useSpaceStore.setState({
     spaces: [space],
     members: [member(owner), member(other)],
     spacePermissions: new Map([['space-1', '-1']]),
   });
-  useAuthStore.setState({ user: owner, myRowIds: new Map() });
+  useAuthStore.setState({ user: owner });
 });
 
 function renderPanel(): void {
@@ -76,8 +75,7 @@ function renderPanel(): void {
 /**
  * The panel guards on `if (!space) return null`, and that guard is reachable
  * while the panel stays mounted: the WebSocket handler calls removeSpace on
- * `member_banned`, and removeInstanceSpaces drops an instance's spaces when its
- * connection goes away. Neither closes the settings modal. While a hook sat
+ * `member_banned`, and session reset drops its spaces. Neither closes the settings modal. While a hook sat
  * below the guard, that re-render called fewer hooks than the previous one and
  * React threw "Rendered fewer hooks than expected".
  */
@@ -95,13 +93,13 @@ describe('OverviewPanel when the space leaves the store', () => {
     expect(screen.queryByDisplayValue('Aether Drift')).not.toBeInTheDocument();
   });
 
-  it('survives removeInstanceSpaces while it is mounted', () => {
+  it('survives a native session reset while it is mounted', () => {
     renderPanel();
     expect(screen.getByDisplayValue('Aether Drift')).toBeInTheDocument();
 
     expect(() => {
       act(() => {
-        useSpaceStore.getState().removeInstanceSpaces('');
+        useSpaceStore.getState().reset();
       });
     }).not.toThrow();
 
@@ -115,20 +113,17 @@ describe('OverviewPanel ownership transfer candidates', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Transfer Ownership' }));
   }
 
-  it("leave out the user's row on a remote space's instance, not the row that has the session row's id", () => {
-    const ORBIT = 'https://orbit.example';
-    // orbit knows the user as o-7; orbit's Cleo has the id the session row has.
-    const meOnOrbit: User = { ...owner, id: 'o-7', username: 'owner@nova', displayName: 'Owner On Orbit', homeInstance: 'nova.example', homeUserId: 'user-1' };
-    const cleo: User = { ...owner, id: 'user-1', username: 'cleo', displayName: 'Cleo' };
+  it('excludes the native owner even with a retained @ handle, but not a namesake', () => {
+    const retained: User = { ...owner, username: 'owner@retained.test', displayName: 'Native Owner' };
+    const cleo: User = { ...owner, id: 'different', username: 'owner@retained.test', displayName: 'Cleo' };
     useSpaceStore.setState({
-      spaces: [{ ...space, ownerId: 'o-7', _instanceOrigin: ORBIT }],
-      members: [member(meOnOrbit), member(cleo)],
+      spaces: [space], members: [member(retained), member(cleo)],
     });
-    useAuthStore.setState({ myRowIds: new Map([[ORBIT, 'o-7']]) });
+    useAuthStore.setState({ user: retained });
     openTransfer();
 
     expect(screen.getByText('Cleo')).toBeInTheDocument();
-    expect(screen.queryByText('Owner On Orbit')).not.toBeInTheDocument();
+    expect(screen.queryByText('Native Owner')).not.toBeInTheDocument();
   });
 
   it('renders child sections before the Danger Zone', () => {
@@ -150,5 +145,15 @@ describe('OverviewPanel ownership transfer candidates', () => {
 
     expect(screen.getByText('Member')).toBeInTheDocument();
     expect(screen.queryByText('Owner')).not.toBeInTheDocument();
+  });
+  it('does not show a settings-save toast from a previous session', async () => {
+    let finish!: (value: typeof space) => void;
+    const toast = vi.spyOn(useUIStore.getState(), 'addToast').mockImplementation(() => {});
+    vi.spyOn(api.spaces, 'update').mockReturnValueOnce(new Promise(resolve => { finish = resolve; }));
+    renderPanel(); fireEvent.change(screen.getByDisplayValue(space.name), { target: { value: 'New name' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' })); await waitFor(() => expect(api.spaces.update).toHaveBeenCalledOnce());
+    act(() => { useAuthStore.setState(s => ({ sessionRevision: s.sessionRevision + 1 })); useSpaceStore.getState().reset(); useSpaceStore.setState({ spaces: [space] }); });
+    await act(async () => finish({ ...space, name: 'New name' })); expect(toast).not.toHaveBeenCalled();
+    expect(screen.getByDisplayValue(space.name)).toBeInTheDocument();
   });
 });

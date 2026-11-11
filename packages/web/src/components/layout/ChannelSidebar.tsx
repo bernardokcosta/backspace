@@ -2,12 +2,11 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { Channel, DmChannel } from '@veyvox/shared';
-import { useSpaceStore, getChannelOrigin, getMyUserIdForOrigin } from '../../stores/spaceStore';
+import { useSpaceStore } from '../../stores/spaceStore';
 import { useChatStore } from '../../stores/chatStore';
 import { useUIStore } from '../../stores/uiStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useShownStatus } from '../../hooks/useShownStatus';
-import { useInstanceStore } from '../../stores/instanceStore';
 import { VoiceChannel } from '../voice/VoiceChannel';
 import { VoiceControls } from '../voice/VoiceControls';
 import { useVoiceStore } from '../../stores/voiceStore';
@@ -51,14 +50,14 @@ export function ChannelSidebar() {
   const toggleMic = useVoiceStore((s) => s.toggleMic);
   const toggleDeafen = useVoiceStore((s) => s.toggleDeafen);
   const spaceId = useSpaceStore((s) => currentVoiceChannelId ? s.channelToSpaceMap.get(currentVoiceChannelId) : null);
-  const myOriginId = useSpaceStore((s) => currentVoiceChannelId ? getMyUserIdForOrigin(getChannelOrigin(currentVoiceChannelId)) : s.members.find(m => m.userId === user?.id)?.userId ?? user?.id);
+  const selfId = user?.id;
   const spaceMutedUserIds = useVoiceStore((s) => s.spaceMutedUserIds);
   const spaceDeafenedUserIds = useVoiceStore((s) => s.spaceDeafenedUserIds);
   const permissionMutedUserIds = useVoiceStore((s) => s.permissionMutedUserIds);
 
-  const isSpaceMuted = !!(myOriginId && spaceId && spaceMutedUserIds.has(`${spaceId}:${myOriginId}`));
-  const isSpaceDeafened = !!(myOriginId && spaceId && spaceDeafenedUserIds.has(`${spaceId}:${myOriginId}`));
-  const isPermissionMuted = !!(myOriginId && spaceId && permissionMutedUserIds.has(`${spaceId}:${myOriginId}`));
+  const isSpaceMuted = !!(selfId && spaceId && spaceMutedUserIds.has(`${spaceId}:${selfId}`));
+  const isSpaceDeafened = !!(selfId && spaceId && spaceDeafenedUserIds.has(`${spaceId}:${selfId}`));
+  const isPermissionMuted = !!(selfId && spaceId && permissionMutedUserIds.has(`${spaceId}:${selfId}`));
   const navigate = useNavigate();
 
   const [floatingPanelEl, setFloatingPanelEl] = useState<HTMLDivElement | null>(null);
@@ -101,14 +100,6 @@ export function ChannelSidebar() {
   const isLoadingSpace = !!loadingSpaceId && loadingSpaceId === currentSpaceId;
   const showChannelSkeleton = useDelayedLoading(isLoadingSpace);
 
-  const federationInstances = useInstanceStore((s) => s.instances);
-  const instanceLabel = useMemo(() => {
-    const origin = (space as any)?._instanceOrigin;
-    if (!origin) return null;
-    const inst = federationInstances.find(i => i.origin === origin);
-    if (inst) return inst.label;
-    try { return new URL(origin).host; } catch { return origin; }
-  }, [space, federationInstances]);
   const channelPermissions = useSpaceStore((s) => s.channelPermissions);
   const canManageChannels = hasPermissionBit(mySpacePerms, PermissionBits.MANAGE_CHANNELS);
   const canCreateInvite = hasPermissionBit(mySpacePerms, PermissionBits.CREATE_INVITE);
@@ -306,9 +297,8 @@ export function ChannelSidebar() {
     useSpaceStore.getState().updateChannelLayout(currentSpaceId, { channels: channelUpdates, categories: catsCopy });
   }, [sortedCategories, categories, channels, currentSpaceId]);
 
-  const handleVoiceUserDrop = useCallback((userId: string, fromChannelId: string, toChannelId: string) => {
-    const voiceOrigin = getChannelOrigin(fromChannelId);
-    wsSend({ type: 'voice_move', userId, targetChannelId: toChannelId }, voiceOrigin);
+  const handleVoiceUserDrop = useCallback((userId: string, _fromChannelId: string, toChannelId: string) => {
+    wsSend({ type: 'voice_move', userId, targetChannelId: toChannelId });
   }, []);
 
   const {
@@ -387,7 +377,7 @@ export function ChannelSidebar() {
     e.stopPropagation();
     const items: ContextMenuItem[] = [];
     if (counterpart) {
-      const friend = { ...counterpart.user, _instanceOrigin: counterpart.origin };
+      const friend = counterpart.user;
       items.push({
         key: 'invite-to-server',
         type: 'action',
@@ -563,11 +553,6 @@ export function ChannelSidebar() {
         >
           <div className="min-w-0">
             <span className="font-bold text-[15px] tracking-[-0.02em] text-txt-primary truncate leading-tight block">{space.name}</span>
-            {instanceLabel && (
-              <span className="text-[10px] text-txt-tertiary font-medium truncate block leading-tight">
-                {instanceLabel}
-              </span>
-            )}
           </div>
           <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" className="text-txt-tertiary flex-shrink-0">
             <path d="M5.293 7.293a1 1 0 011.414 0L9 9.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" />
@@ -855,7 +840,7 @@ function UserAreaPanel({
   const setInputDevice = useVoiceStore((s) => s.setInputDevice);
   const setOutputDevice = useVoiceStore((s) => s.setOutputDevice);
   const updateBadge = useInstanceUpdateBadge();
-  const shownStatus = useShownStatus(user, '', user.status);
+  const shownStatus = useShownStatus(user, user.status);
 
   // Shared hook drives lists, permission state, and live devicechange refresh.
   const { permState, inputs: inputDevices, outputs: outputDevices, inputLabels, outputLabels, requestPermission } = useAudioDevices();
@@ -1143,7 +1128,7 @@ function UserAreaPanel({
       <div className="h-[52px] px-2 flex items-center select-none">
         {/* Avatar + name */}
         <div className="p-1 hover:bg-interactive-hover rounded-[4px] flex items-center gap-2 flex-1 min-w-0 cursor-pointer transition-colors group">
-          <ProfileAvatar src={user.avatar} name={user.displayName ?? user.username} size={34} status={shownStatus} user={user} origin="" />
+          <ProfileAvatar src={user.avatar} name={user.displayName ?? user.username} size={34} status={shownStatus} user={user} />
           <div className="flex-1 min-w-0">
             <div className="text-[13.5px] font-semibold text-txt-primary truncate leading-tight">{user.displayName ?? user.username}</div>
             <div className="text-[11px] text-txt-tertiary truncate leading-tight group-hover:text-txt-secondary">@{user.username}</div>

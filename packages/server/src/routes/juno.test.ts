@@ -18,7 +18,7 @@ vi.mock('../ws/handler.js', () => ({ connectionManager: {
   getUserRoom: () => ({ roomId: state.room }), getVoiceWs: () => ({ readyState: state.socket }), sendToChannel: state.changed,
 } }));
 import { schema } from '../db/index.js';
-vi.mock('../games/junoProgression.js', () => ({ JUNO_ACCOUNT_MERGED_EVENT: 'juno:account-merged', settleJunoRound: vi.fn(), readJunoRanking: vi.fn(), hydrateJunoSnapshot: (snapshot: JunoSnapshot) => snapshot }));
+vi.mock('../games/junoProgression.js', () => ({ settleJunoRound: vi.fn(), readJunoRanking: vi.fn(), hydrateJunoSnapshot: (snapshot: JunoSnapshot) => snapshot }));
 import { junoRoutes } from './juno.js';
 import { JunoRooms } from '../games/juno.js';
 let app: FastifyInstance;
@@ -74,15 +74,12 @@ describe('Juno authorized transport', () => {
     expect((await create()).statusCode).toBe(200);
     expect((await app.inject({ method: 'GET', url, headers: { authorization: 'different-address' }, remoteAddress: '192.0.2.45' })).statusCode).toBe(200);
   });
-  it('routes committed application-local identity merges to its rooms and removes the listener on close', async () => {
-    const remap = vi.spyOn(JunoRooms.prototype, 'remapPendingRecipient');
-    try {
-      app.server.emit('juno:account-merged', 'old-stub', 'retained-account');
-      expect(remap).toHaveBeenCalledWith('old-stub', 'retained-account');
-      expect(app.server.listenerCount('juno:account-merged')).toBe(1);
-      await app.close();
-      expect(app.server.listenerCount('juno:account-merged')).toBe(0);
-    } finally { remap.mockRestore(); }
+  it('does not register the retired account-merge event', async () => {
+    expect(app.server.listenerCount('juno:account-merged')).toBe(0);
+    expect(app.server.emit('juno:account-merged', 'old-stub', 'retained-account')).toBe(false);
+    expect((await create()).statusCode).toBe(200);
+    await app.close();
+    expect(app.server.listenerCount('juno:account-merged')).toBe(0);
   });
   it('requires auth, membership, channel permissions, voice ownership and a human', async () => {
     expect((await app.inject({ method: 'GET', url })).statusCode).toBe(401);

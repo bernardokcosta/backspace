@@ -4,44 +4,34 @@ import { Modal } from '../ui/Modal';
 import { Avatar } from '../ui/Avatar';
 import { useUIStore } from '../../stores/uiStore';
 import { useSpaceStore } from '../../stores/spaceStore';
-import { useAuthStore, useSelfIdentity } from '../../stores/authStore';
-import { useSocialStore, type TaggedFriend } from '../../stores/socialStore';
-import { isMine, parseFederatedUsername, userKey } from '../../utils/identity';
+import { useAuthStore } from '../../stores/authStore';
+import { useSocialStore } from '../../stores/socialStore';
+import { userDisplayName } from '../../utils/identity';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 import { describeError } from '../../i18n/errors';
 import { spaceInviteUrl } from '../../utils/inviteParser';
 import { sendSpaceInvite, type SpaceInviteSendStatus } from '../../utils/spaceInvite';
-import type { MemberWithUser, User } from '@veyvox/shared';
+import type { Friend } from '@veyvox/shared';
 
 type SendStatus = SpaceInviteSendStatus;
-
-/**
- * The person a friend row names (`userKey`). Friends come from every
- * connected instance, whose row ids can coincide, so selection and results
- * are keyed by person.
- */
-function friendKey(friend: TaggedFriend): string {
-  return userKey(friend, friend._instanceOrigin);
-}
 
 function InviteResultFriendRow({
   friend,
   status,
 }: {
-  friend: TaggedFriend;
+  friend: Friend;
   status: SendStatus | undefined;
 }) {
   const { t } = useTranslation(['spaces', 'common']);
-  const canonical = useCanonicalUserView(friend as unknown as User, friend._instanceOrigin);
-  const { baseName } = parseFederatedUsername(canonical.username);
-  const dn = canonical.displayName ?? baseName;
+  const canonical = useCanonicalUserView(friend);
+  const dn = userDisplayName(canonical);
   return (
     <div className="flex items-center gap-3 px-3 py-2 rounded-[4px]">
       <Avatar
         src={canonical.avatar}
         name={dn}
         size={30}
-        userId={canonical.homeUserId ?? canonical.id}
+        userId={canonical.id}
         avatarColor={canonical.avatarColor}
       />
       <div className="flex-1 min-w-0">
@@ -68,19 +58,18 @@ function InviteSelectFriendRow({
   sending,
   onToggle,
 }: {
-  friend: TaggedFriend;
+  friend: Friend;
   isSelected: boolean;
   alreadyMember: boolean;
   sending: boolean;
-  onToggle: (key: string, friend: TaggedFriend) => void;
+  onToggle: (key: string, friend: Friend) => void;
 }) {
   const { t } = useTranslation(['spaces', 'common']);
-  const canonical = useCanonicalUserView(friend as unknown as User, friend._instanceOrigin);
-  const { baseName } = parseFederatedUsername(canonical.username);
-  const dn = canonical.displayName ?? baseName;
+  const canonical = useCanonicalUserView(friend);
+  const dn = userDisplayName(canonical);
   return (
     <button
-      onClick={() => onToggle(friendKey(friend), friend)}
+      onClick={() => onToggle(friend.id, friend)}
       disabled={alreadyMember || sending}
       className={`w-full flex items-center gap-3 px-3 py-2 rounded-[4px] transition-colors text-left ${
         alreadyMember
@@ -94,8 +83,8 @@ function InviteSelectFriendRow({
         src={canonical.avatar}
         name={dn}
         size={30}
-        status={canonical.status as any}
-        userId={canonical.homeUserId ?? canonical.id}
+        status={canonical.status}
+        userId={canonical.id}
         avatarColor={canonical.avatarColor}
       />
       <div className="flex-1 min-w-0">
@@ -131,13 +120,12 @@ export function InviteModal() {
   const spaces = useSpaceStore((s) => s.spaces);
   const spaceMembers = useSpaceStore((s) => s.members);
   const friends = useSocialStore((s) => s.friends);
-  const self = useSelfIdentity();
+  const revision = useAuthStore(s => s.sessionRevision);
   const accountId = useAuthStore(s => s.user?.id);
   const token = useAuthStore(s => s.token);
 
   const isOpen = activeModal === 'invite';
   const currentSpace = spaces.find((s) => s.id === currentSpaceId);
-  const instanceOrigin = currentSpace?._instanceOrigin ?? '';
   // A space joined by request is invited to like any other. Its link and its
   // cards lead to a join request that a manager approves, which the intro
   // says.
@@ -159,14 +147,13 @@ export function InviteModal() {
     const auth = useAuthStore.getState();
     const state = useSpaceStore.getState();
     return isOpen && ui.activeModal === 'invite' && ui.modalData === modalData
-      && state.currentSpaceId === currentSpaceId && auth.user?.id === accountId && auth.token === token
-      && (state.spaces.find(space => space.id === currentSpaceId)?._instanceOrigin ?? '') === instanceOrigin;
-  }, [isOpen, modalData, currentSpaceId, instanceOrigin, accountId, token]);
+      && state.currentSpaceId === currentSpaceId && auth.user?.id === accountId && auth.token === token && auth.sessionRevision === revision;
+  }, [isOpen, modalData, currentSpaceId, revision, accountId, token]);
 
   useEffect(() => () => { sendRun.current = null; }, [isCurrentView]);
 
   const inviteUrl = inviteCode
-    ? spaceInviteUrl(instanceOrigin, inviteCode)
+    ? spaceInviteUrl(inviteCode)
     : '';
 
   // Fetch / generate the per-space invite code on open.
@@ -176,7 +163,7 @@ export function InviteModal() {
     setInviteCode('');
     setCodeLoading(true);
     setCodeError('');
-    generateInvite(currentSpaceId, instanceOrigin).then(
+    generateInvite(currentSpaceId).then(
       (code) => {
         if (!active || !isCurrentView()) return;
         setInviteCode(code);
@@ -189,7 +176,7 @@ export function InviteModal() {
       },
     );
     return () => { active = false; };
-  }, [isOpen, currentSpaceId, instanceOrigin, generateInvite, isCurrentView]);
+  }, [isOpen, currentSpaceId, generateInvite, isCurrentView]);
 
   // A replaced source or auth session starts a fresh invitation view.
   useEffect(() => {
@@ -204,30 +191,23 @@ export function InviteModal() {
     }
   }, [isOpen, isCurrentView]);
 
-  // Federated-identity match per CLAUDE.md rule. The currently-loaded space's
-  // member list lives on the store as `members: MemberWithUser[]`. Read the
-  // federated identity tuple (user.homeUserId / user.homeInstance) on each side,
-  // falling back to the local id for non-federated users.
-  const isFriendAlreadyMember = (friend: TaggedFriend): boolean => {
+  const isFriendAlreadyMember = (friend: Friend): boolean => {
     if (!currentSpace || spaceMembers.length === 0) return false;
-    // The same person (`userKey`), whichever instance's row each list holds.
-    const key = userKey(friend, friend._instanceOrigin);
-    const spaceOrigin = currentSpace._instanceOrigin ?? '';
-    return spaceMembers.some((m: MemberWithUser) => userKey(m.user, spaceOrigin) === key);
+    return spaceMembers.some(member => member.userId === friend.id);
   };
 
   const filteredFriends = useMemo(() => {
     const q = query.trim().toLowerCase();
     return friends.filter((f) => {
-      if (isMine(f, f._instanceOrigin, self)) return false;
+      if (f.id === accountId) return false;
       if (!q) return true;
       const dn = (f.displayName ?? '').toLowerCase();
       const un = f.username.toLowerCase();
       return dn.includes(q) || un.includes(q);
     });
-  }, [friends, query, self]);
+  }, [friends, query, accountId]);
 
-  const toggleFriend = (key: string, friend: TaggedFriend) => {
+  const toggleFriend = (key: string, friend: Friend) => {
     if (isFriendAlreadyMember(friend)) return;
     setSelected((prev) => {
       const next = new Set(prev);
@@ -246,11 +226,11 @@ export function InviteModal() {
   };
 
   const selectedFriends = useMemo(
-    () => friends.filter((f) => selected.has(friendKey(f))),
+    () => friends.filter((f) => selected.has(f.id)),
     [friends, selected],
   );
 
-  const sendInvitesTo = async (targets: TaggedFriend[]) => {
+  const sendInvitesTo = async (targets: Friend[]) => {
     if (!currentSpace || !inviteCode || targets.length === 0 || !isCurrentView() || sendRun.current) return;
     const run = {};
     sendRun.current = run;
@@ -259,7 +239,7 @@ export function InviteModal() {
     // Mark all targets as pending in the results map (preserving prior successes).
     setResults((prev) => {
       const next = new Map(prev);
-      for (const f of targets) next.set(friendKey(f), { kind: 'pending' });
+      for (const f of targets) next.set(f.id, { kind: 'pending' });
       return next;
     });
 
@@ -267,7 +247,7 @@ export function InviteModal() {
       friend,
       status: await sendSpaceInvite(
         friend,
-        { spaceId: currentSpace.id, instanceOrigin, inviteCode },
+        { spaceId: currentSpace.id, inviteCode },
         t,
       ),
     }));
@@ -277,12 +257,11 @@ export function InviteModal() {
     setResults((prev) => {
       const next = new Map(prev);
       for (const s of settled) {
-        if (s.status === 'fulfilled') next.set(friendKey(s.value.friend), s.value.status);
+        if (s.status === 'fulfilled') next.set(s.value.friend.id, s.value.status);
       }
-      // If all targets succeeded, close the modal silently. Toast infra does
-      // not exist in this codebase yet — see plan Task 12 / Step 2.
+      // A successful batch closes silently; partial failures remain retryable.
       const allSucceeded = targets.every(
-        (f) => next.get(friendKey(f))?.kind === 'success',
+        (f) => next.get(f.id)?.kind === 'success',
       );
       if (allSucceeded) {
         // Defer close until after this state batch settles.
@@ -298,7 +277,7 @@ export function InviteModal() {
 
   const onRetryFailed = () => {
     const failed = selectedFriends.filter(
-      (f) => results.get(friendKey(f))?.kind === 'failure',
+      (f) => results.get(f.id)?.kind === 'failure',
     );
     sendInvitesTo(failed);
   };
@@ -321,7 +300,7 @@ export function InviteModal() {
       : t('spaces:invite.send', { count: selectedFriends.length });
   const hasFailures =
     inResultsView &&
-    selectedFriends.some((f) => results.get(friendKey(f))?.kind === 'failure');
+    selectedFriends.some((f) => results.get(f.id)?.kind === 'failure');
 
   return (
     <Modal
@@ -340,12 +319,12 @@ export function InviteModal() {
           <div className="flex gap-1.5 flex-wrap">
             {selectedFriends.map((f) => (
               <span
-                key={friendKey(f)}
+                key={f.id}
                 className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] bg-accent-mint/15 text-accent-mint"
               >
-                {f.displayName ?? parseFederatedUsername(f.username).baseName}
+                {userDisplayName(f)}
                 <button
-                  onClick={() => removeFriend(friendKey(f))}
+                  onClick={() => removeFriend(f.id)}
                   className="opacity-60 hover:opacity-100 transition-opacity text-[14px] leading-none"
                   aria-label={t('spaces:invite.removeSelected', { name: f.displayName ?? f.username })}
                 >
@@ -373,9 +352,9 @@ export function InviteModal() {
           {inResultsView ? (
             selectedFriends.map((f) => (
               <InviteResultFriendRow
-                key={friendKey(f)}
+                key={f.id}
                 friend={f}
-                status={results.get(friendKey(f))}
+                status={results.get(f.id)}
               />
             ))
           ) : (
@@ -389,9 +368,9 @@ export function InviteModal() {
               )}
               {filteredFriends.map((friend) => (
                 <InviteSelectFriendRow
-                  key={friendKey(friend)}
+                  key={friend.id}
                   friend={friend}
-                  isSelected={selected.has(friendKey(friend))}
+                  isSelected={selected.has(friend.id)}
                   alreadyMember={isFriendAlreadyMember(friend)}
                   sending={sending}
                   onToggle={toggleFriend}

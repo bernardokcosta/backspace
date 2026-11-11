@@ -1,5 +1,17 @@
 # Admin & Instance Configuration System
 
+## Standalone administration conversion
+
+The native API and UI no longer expose peer registration, instance filters,
+blocked remote bots, relay/reset/approval configuration or Connections/Federation
+panels. Registration retains the local signup gate, space-creation gate and the
+existing invite-link manager. Users retains native search/role/date/sort/deleted
+filters, pagination, promote/demote, password reset and deletion. IDs and retained
+`@` handles are not interpreted as remote identities. User listing/mutations and
+temporary-password display are session-owned; stale results cannot enter a
+replacement session. Administration uses the existing native permission and
+session boundaries, without peer configuration or remote filters.
+
 Source files:
 - `packages/server/src/routes/admin.ts` -- User management, storage management endpoints
 - `packages/server/src/routes/adminUpdates.ts` -- Instance version and update-status endpoint
@@ -12,7 +24,6 @@ Source files:
 - `packages/web/src/stores/settingsStore.ts` -- Zustand store for instance/streaming settings
 - `packages/web/src/components/modals/instanceSettingsPanels/GeneralPanel.tsx` -- General settings UI
 - `packages/web/src/components/modals/instanceSettingsPanels/RegistrationPanel.tsx` -- Registration toggles + invite-link CRUD UI
-- `packages/web/src/components/modals/instanceSettingsPanels/FederationPanel.tsx` -- Federation peers panel (peering, approval queue, peer status, rotation, reset)
 - `packages/web/src/components/modals/instanceSettingsPanels/StoragePanel.tsx` -- Storage management UI
 - `packages/web/src/components/modals/instanceSettingsPanels/StreamingPanel.tsx` -- Streaming config UI
 - `packages/web/src/components/modals/instanceSettingsPanels/UsersPanel.tsx` -- User management UI
@@ -61,14 +72,10 @@ Settings are split into two API surfaces:
 |-------|------|-----------|------------|-------|
 | instanceName | string | instanceName | 1-32 chars, trimmed | Default: `'Backspace'` |
 | registrationOpen | boolean | registrationOpen | boolean | Local-account registration. DB null = use env `REGISTRATION_OPEN` (default true) |
-| federatedRegistrationOpen | boolean | federatedRegistrationOpen | boolean | Federated-account creation against this instance. NOT NULL DEFAULT 1. Controls whether remote users can create `username@thisInstance` accounts via Connections (see auth.md + client-federation.md) |
 | spaceCreationOpen | boolean | spaceCreationOpen | boolean | Whether non-admin users can create new spaces on this instance. NOT NULL DEFAULT 1. Instance admins (`isAdmin = 1`) are exempt |
 | gifApiKey | string? | gifApiKey | string or empty to clear | Returned masked as `****{last4}` for security |
 | gifEnabled | boolean? | (derived) | -- | Read-only; true when gifApiKey is non-null |
 | maxUploadSizeMb | number | maxUploadSizeBytes | positive integer (>=1 MB), upper bound is JS safe-integer ceiling (~8 EB) — effectively unlimited | Operator-set; no application cap. Stored as bytes; converted on read/write. DB null = use env `MAX_UPLOAD_SIZE` (default 100MB) |
-| federationRelayEnabled | boolean | federationRelayEnabled | boolean | Default: 1 (enabled) |
-| federationRelayTtlDays | number | federationRelayTtlDays | integer 1-365 | Default: 30 days |
-| autoAcceptPeering | boolean | autoAcceptPeering | boolean | Default: true. When false, `peer/accept` rejects unsolicited requests (403 PEERING_REQUIRES_APPROVAL); only requests where a local `pending` record already exists are accepted |
 
 ### Streaming Settings Schema (InstanceStreamingLimits)
 
@@ -102,7 +109,7 @@ HIGH_END_FRAMERATE_THRESHOLD  = 75
 2160  20000 24000 28000 32000 38000 45000
 ```
 
-See [voice.md](voice.md) for how clients enforce these limits at the WebRTC encoding boundary. A screen share obeys the limits of the instance that issued the LiveKit token: in a federated space the client reads this document from the space's instance, not from the user's home, and applies it at use time without changing the user's saved settings (voice.md, "Whose limits apply").
+See [voice.md](voice.md) for enforcement at the WebRTC encoding boundary. A screen share obeys the selected server's limits without changing the user's saved preferences.
 
 ---
 
@@ -168,23 +175,19 @@ No authentication. Returns:
 
 ```typescript
 {
-  name: string;        // instanceSettings.instanceName ?? 'Backspace'
+  name: string;        // instanceSettings.instanceName ?? 'Veyvox'
   version: string;     // config.version, read from packages/server/package.json
   registrationOpen: boolean;  // DB setting overrides env if non-null
-  federatedRegistrationOpen: boolean;  // NOT NULL DEFAULT 1; gates federated-account creation
+  spaceCreationOpen: boolean;
+  maxStickerSizeMb: number;
   sourceCodeUrl: string;      // AGPL § 13; config.sourceCodeUrl (env BACKSPACE_SOURCE_URL)
   commit: string | null;      // AGPL § 13; config.commit (env BACKSPACE_COMMIT, build-injected)
-  instanceId: string;         // Persistent per-instance epoch (incarnation UUID); getInstanceId()
 }
 ```
 
-`instanceId` is the persistent per-instance epoch — a UUID minted once by `ensureDefaults` on first boot and stable across restarts (stored in `instance_settings.instance_id`, guaranteed non-null after boot). It changes only when the instance is wiped/re-provisioned. Peers read it to detect that a remote has been re-provisioned (federation epoch self-healing). The server reads it via the cached `getInstanceId()` in `utils/federationEpoch.ts`, which throws if the epoch is unset (invariant: `ensureDefaults` runs before any read).
-
 Registration resolution order: `instance_settings.registrationOpen` (if not null) > `config.registrationOpen` (from `REGISTRATION_OPEN` env, default true).
 
-`federatedRegistrationOpen` is consumed by the Connections UI (client-federation.md) to decide whether to surface the "create federated account on this instance" affordance.
-
-`sourceCodeUrl` / `commit` implement the **AGPL-3.0 § 13 network-use source offer**. `sourceCodeUrl` defaults to this fork (`https://github.com/bernardokcosta/veyvox`) and is overridable via `BACKSPACE_SOURCE_URL` — operators with their own further fork MUST point it at their fork so network users get the source of the version actually running. `commit` is injected at Docker build time (`deploy.sh` passes `--build-arg BACKSPACE_COMMIT=$(git rev-parse --short HEAD)` → Dockerfile `ARG`/`ENV` → `config.commit`); it is `null` in local dev. These are not admin-editable settings — they are deployment/config values, deliberately exposed on this unauthenticated endpoint for transparency to anonymous users and federated peers.
+`sourceCodeUrl` / `commit` implement the **AGPL-3.0 § 13 network-use source offer**. The source defaults to `https://github.com/bernardokcosta/veyvox`; further forks MUST override `BACKSPACE_SOURCE_URL` so network users can obtain the running source. `deploy.sh` injects `BACKSPACE_COMMIT` from the checked-out Git SHA via the Docker build argument/environment; it is null in local dev. These deployment facts are public on the unauthenticated endpoint, not admin-editable settings.
 
 ### General Instance Settings
 
@@ -335,8 +338,8 @@ the same value.
 
 Applying a container update from inside the container requires mounting
 `/var/run/docker.sock`, which grants the container root on the host. Veyvox
-parses user-uploaded media, scrapes URLs for embeds, and accepts federation
-payloads from remote instances, so any remote-code-execution bug in it would
+parses user-uploaded media and scrapes user-supplied URLs for embeds, so any
+remote-code-execution bug in it would
 become host root the moment that socket exists. Trading that for a button is not
 a trade worth making. The panel hands the operator an exact, copyable command
 instead, and `./update.sh` (see [deployment.md](deployment.md)) is where the
@@ -350,7 +353,6 @@ All admin-only.
 
 ```
 GET    /api/admin/users              → AdminUserListResponse
-GET    /api/admin/users/instances    → { instances: string[] }
 PATCH  /api/admin/users/:id/role     { isAdmin: boolean } → AdminUser
 POST   /api/admin/users/:id/reset-password → AdminResetPasswordResponse
 DELETE /api/admin/users/:id          → { success: boolean }
@@ -368,7 +370,6 @@ DELETE /api/admin/users/:id          → { success: boolean }
 | page | number | 1 | Page number, min 1 |
 | pageSize | number | 50 | Results per page, clamped to 1-100 |
 | showDeleted | 'true' | false | Include tombstoned users |
-| homeInstance | string | -- | `'local'` for null homeInstance; otherwise exact domain match |
 | role | string | -- | `'admin'` or `'non-admin'` |
 | joinedAfter | date string | -- | Parsed as `new Date(value).getTime()` |
 | joinedBefore | date string | -- | Parsed as `new Date(value + 'T23:59:59.999Z').getTime()` (inclusive end-of-day) |
@@ -387,10 +388,6 @@ DELETE /api/admin/users/:id          → { success: boolean }
 
 Filters are combined with AND. When `showDeleted` is false (default), `isDeleted = 0` is always added. Search `q` creates an OR condition across `username LIKE` and `displayName LIKE`.
 
-### Instances Endpoint
-
-`GET /api/admin/users/instances` returns all distinct non-null `homeInstance` values from the users table. Used by the frontend to populate the instance filter dropdown.
-
 ### AdminUser Shape
 
 ```typescript
@@ -403,7 +400,6 @@ Filters are combined with AND. When `showDeleted` is false (default), `isDeleted
   status: string;         // 'online'|'idle'|'dnd'|'offline', defaults to 'offline' if null
   isAdmin: boolean;
   isDeleted: boolean;
-  homeInstance: string | null;
   createdAt: number;      // epoch ms
 }
 ```
@@ -424,8 +420,7 @@ Request: { isAdmin: boolean }
 1. `isAdmin` must be a boolean (400)
 2. Target user must exist (404)
 3. Target must not be deleted (400)
-4. **Promote**: target must NOT have a `homeInstance` (403 "Federated users cannot be promoted to admin")
-5. **Demote**: if target is currently admin, count all non-deleted admins. If count <= 1, reject (400 "Cannot demote the last admin")
+4. **Demote**: if target is currently admin, count all non-deleted admins. If count <= 1, reject (400 "Cannot demote the last admin")
 
 **Side effects on success:**
 - Updates `users.isAdmin` to 1 or 0
@@ -437,7 +432,6 @@ Request: { isAdmin: boolean }
 **Safety checks:**
 1. Target must exist (404)
 2. Target must not be deleted (400)
-3. Target must NOT have a `homeInstance` (400 "Federated users authenticate via their home instance")
 
 **Process:**
 1. Generate 12 random bytes, encode as `base64url` -- this is the temporary password
@@ -465,34 +459,6 @@ The temporary password is shown exactly once in the admin UI -- the UsersPanel d
 2. Delete returned files from disk via `deleteUploadFile()`
 3. Force-disconnect all WebSocket sessions
 4. Return `{ success: true }`
-
-### Peering Approval Requests
-
-All admin-only. Present when `autoAcceptPeering` is `false`. The queue holds **both directions**:
-- **Inbound** rows — remote instances asking to peer with us.
-- **Outbound** rows — local users who initiated peering (friend-add, etc.) that the local [Outbound Peering Gate](federation.md#outbound-peering-gate) intercepted because no `federation_peers` row exists yet for the target.
-
-```
-GET  /api/federation/approval-requests              → { requests: ApprovalRequestSummary[] }
-POST /api/federation/approval-requests/:id/approve  → { success, peerStatus?, peer? }
-POST /api/federation/approval-requests/:id/deny     → { success }
-```
-
-`ApprovalRequestSummary` (see [api.md → Federation Peering Approval Queue](api.md#federation-peering-approval-queue) for the complete TypeScript shape):
-```typescript
-{
-  id: string;
-  direction: 'inbound' | 'outbound';
-  origin: string;
-  instanceName: string | null;
-  requestedAt: number;
-  expiresAt: number;
-  // Outbound rows ONLY — inbound rows omit this field entirely (absent, not null and not []).
-  subscribers?: Array<{ id, userId, username, triggerReason, triggerTarget, createdAt }>;
-}
-```
-
-See [federation.md](federation.md) — Peer Approval Queue and Outbound Peering Gate sections for the full approval/denial/expiry flow (including the direction-branched approve/deny semantics, `onPeerActivated` cleanup invariant, and the inbound-expiry `/peer/denied` notification preserved unchanged).
 
 ---
 
@@ -582,19 +548,18 @@ Manages: instance name and GIF API key.
 - GIF key: password input, separate dirty tracking (`gifKeyDirty`). Only sent on save if modified. "Clear key" button sets empty string.
 - The former Support-card switch was retired with the project hub in 1.15.2.
   Its wire field is omitted and legacy PATCH input ignored; the historical DB
-  column remains inert for rollback. Successful saves still invalidate the
+  column is removed by generated 0050. Successful saves still invalidate the
   shared public-info cache used by sticker limits.
 
-The registration toggles (`registrationOpen` / `federatedRegistrationOpen`) and the invite-link manager live in [RegistrationPanel](#registrationpanel).
+The registration/space-creation toggles and invite-link manager live in [RegistrationPanel](#registrationpanel).
 
 #### RegistrationPanel
 
-Owns the two independent registration gates and the admin invite-link CRUD surface. Mounted in the instance settings sidebar between **General** and **Users**.
+Owns the native signup gate, independent space-creation gate and admin invite-link CRUD surface. Mounted in the instance settings sidebar between **General** and **Users**.
 
-**Toggles** (top of panel) — bound to `settingsStore.instanceSettings.registrationOpen` and `.federatedRegistrationOpen`. Save bar appears at the bottom of the panel when either toggle differs from the synced value (existing pattern from `GeneralPanel`):
+**Toggles** (top of panel) — bound to `settingsStore.instanceSettings.registrationOpen` and `.spaceCreationOpen`. Save bar appears when either differs from the synced value:
 
 - **Public registration** (`registrationOpen`) — "Allow anyone to create a local account from `/register`. When off, only invite links work for new local accounts."
-- **Federated registration** (`federatedRegistrationOpen`) — "Allow users from other instances to create a federated account here via their Connections settings. Existing federated accounts log in normally."
 - **Space creation** (`spaceCreationOpen`) — "Allow non-admin users to create new spaces on this instance. When off, only instance administrators can create spaces."
 
 **Invite Links** (below the toggles) — segmented `[Active] [Archived]` tabs (local component state, default `active`). Tab switch refetches via `GET /api/admin/invites?status=...`. A `tabRef` discards stale in-flight fetches when the admin switches tabs mid-load. `[+ Create link]` button opens the Create modal.
@@ -650,28 +615,6 @@ type InviteRedemption = {
 
 See [api.md → Admin: Invite Management](api.md#admin-invite-management-routesinvitests) for full endpoint signatures and the [auth.md → Invite Tokens](auth.md#invite-tokens) section for the redemption transaction + audit trail.
 
-#### FederationPanel
-
-Manages: the relay settings (`federationRelayEnabled`, `autoAcceptPeering`, `federationRelayTtlDays`, `defaultAutoRotateIntervalDays`), federation peers list, pending approval requests (inbound + outbound), manual peering initiation, secret rotation, peer reset.
-
-- Relay group (`federation:admin.relay.*`): two toggles, relay enabled and auto-accept peering, and two number inputs clamped to 1-365 days, the relay TTL and the default auto-rotation interval. All four are draft fields saved together through `updateInstanceSettings`.
-
-- **Pending Approvals section:** Visible only when `pendingApprovalCount > 0` (from ready payload — the count sums inbound + outbound rows). Positioned above the peer list. Both directions render as rows in the same unified queue, branched on `direction`:
-  - **Inbound rows** — "{instanceName} ({origin}) — wants to peer with us." Approve / Deny buttons.
-  - **Outbound rows** — "{instanceName} ({origin}) — N user(s) want us to peer with them. Triggered by: friend-add (etc.)." Inline expansion reveals the subscriber list (`username — friend_add → alice@orbit`, ...). Approve / Deny buttons same as inbound; backend branches on direction.
-  - Approve calls `api.federation.approveApprovalRequest(id)` and Deny calls `api.federation.denyApprovalRequest(id)`. Both remove the row from the local list on success and refresh on `federation_approval_request_received` (which now also fires for outbound queue creation) and `federation_peers_changed`.
-  - **ConfirmDialog copy variants:** the dialog branches on direction. Outbound approve confirms "send `/peer/accept` to {origin} on behalf of N user(s)"; outbound deny confirms "fan out denied notifications to N user(s) and discard the queued request" (no remote network call).
-- Federation peers: fetched via `api.federation.peers()`, displayed as a list with status badges (active/pending/unreachable/awaiting_approval/rejected/needs_attention), last-seen/synced times, and per-peer actions.
-- Peers with status `'revoked'` are filtered out of the visible list.
-- Peers in `unreachable` status render a "Check now" button that calls `api.federation.recheckPeer(peerId)` (`POST /api/federation/peers/:id/recheck`) to run an immediate reachability probe. On `recovered: true` the row flips to `active` locally and a success toast fires; otherwise a "still unreachable" toast shows. This is the manual counterpart to the demand-driven `processRecoveryTick` worker (see [federation.md → PEER_UNREACHABLE_THRESHOLD](federation.md#peer_unreachable_threshold)).
-- Revoke calls `api.federation.revokePeer(peerId)` and removes from local list.
-- **Why a peer is rejected or needs attention.** A `rejected` or `needs_attention` row shows its `statusReason` in place of the last-seen line (`federation:admin.peer.reason.*`, rose), and the opened row explains it with the peer's host and what the admin can do (`federation:admin.peer.reasonDetail.*`). The badge is the short status name. A `rejected` row keeps the Re-initiate and Delete actions (`DELETE /peers/:id/permanent` accepts `rejected` as well as `revoked`) but is not struck through: only the Revoked view reads as gone. A legacy `rejected` row without a reason shows the last-seen line. The reasons and their meaning: [federation.md → Peer state](federation.md#peer-state). Workbench: `packages/web/dev-peer-states.html` (`?scene=list|expanded|toasts`, `&peer=<id>`, `&lang=`).
-- Peers in `needs_attention` status render with a rose "Needs Attention" pill and a single "Reset Peering" action. The action opens a danger-variant ConfirmDialog explaining that reset deletes the local peer record (cascade-removes outbox entries) and requires out-of-band re-peering with the remote admin.
-
-- **Reset cleanup section** (`ResetCleanup`, instance-epoch self-healing §6.4) — the highest-priority attention surface, rendered above the peer list; returns `null` when there is nothing to clean up. Fetches `api.federation.peers()` + `api.federation.resetEvents()` and subscribes to `onFederationPeerResetDetected` (the `federation_peer_reset_detected` WS event) to refetch live. Two stacked surfaces:
-  - **Reset-detected banner** — one persistent accent-rose banner per peer with `status === 'needs_attention' && statusReason === 'peer_reset_detected'`, distinguishing a wiped-and-reinstalled peer from a generic auth-failure peer. Its **Re-peer** button runs the existing one-click flow in order: `api.federation.resetPeer(id)` **then** `api.federation.initiatePeering({ remoteOrigin })` — resetting the stale local record *before* the fresh handshake so activation heals stale friendships/DMs against the new incarnation (warning-variant ConfirmDialog). **The outcome is now surfaced honestly, not always as success:** if `initiatePeering` resolves with `verified === false` (or the returned peer is `needs_attention`), the toast is a **warning** — "Re-peer incomplete — {peer} still holds stale peering for you. Its admin must reset their side, then Re-peer again." — because the handshake could not be cryptographically verified (the remote still holds a conflicting row; see `federation.md` "Trust re-establishment contract"). If it rejects with `409 PEER_EXISTS_RESET_REQUIRED`, the same "ask the remote admin to reset their side" warning is shown. Only a verified activation shows the green "Re-peering initiated" success toast. This means the common one-side reset recovers in one click, while a bidirectional-stale peering tells the admin exactly that the **other** side must reset once.
-  - **Detached-accounts card** (from `GET /reset-events`, per origin with `orphanedAccounts.length > 0 && acknowledgedAt === null` — acknowledged events are filtered client-side, the endpoint keeps returning them for audit) — neutral-tier (`bg-white/[0.02]`, no rose/urgency styling; the rose banner is reserved for the actionable reset-detected surface). Copy is informational, not urgent-cleanup: "{origin} was reset — N replicated identities auto-cleaned, N accounts with local content detached. Detached accounts keep working locally — owners keep access with their existing password." Each detached real account is shown with its owned-spaces / membership / message counts. Actions: a per-account **Remove** (danger ConfirmDialog → `api.admin.deleteUser(id)`, i.e. the existing `DELETE /api/admin/users/:id` full purge, for accounts that truly are abandoned; a Remove on a space-owning account returns the existing `409 { ownedSpaces }` → "transfer ownership first" toast rather than deleting) and a per-event **Dismiss — keep all detached accounts** footer button that calls `api.federation.acknowledgeResetEvent(origin)` (`POST /api/federation/reset-events/acknowledge`) then re-fetches — a real, server-side acknowledgement (not the old client-only "Keep") that hides the card and drops the event from the badge count without touching any account. The badge counts unacknowledged events-with-orphans plus reset-detected peers.
-
 #### StoragePanel
 
 Manages: storage overview, file type breakdown, upload limit, orphan cleanup, media retention cleanup.
@@ -702,14 +645,14 @@ Manages: bitrate range (min/max/step), custom bitrate toggle, resolution/framera
 Manages: user list with search/filter/sort/pagination, admin promotion/demotion, password reset, account deletion.
 
 - **Search:** Debounced (300ms) text input, resets to page 1 on change
-- **Filters:** Instance dropdown (local/specific domain), role (admin/non-admin), joined-after/joined-before date pickers, sort dropdown
+- **Filters:** Role (admin/non-admin), joined-after/joined-before date pickers, sort dropdown
 - **"Clear filters" link:** Visible when any filter/sort/search is active. Resets all to defaults.
 - **Page size:** Fixed at 50 (not user-configurable)
 - **Pagination:** Previous/Next buttons, "Page X of Y (N users)" label
-- **User rows:** Avatar, username, display name, badges (Admin amber, federated instance sky, Deleted rose), join date
+- **User rows:** Avatar, exact username, display name, badges (Admin amber, Deleted rose), join date
 - **Action buttons** (per user, hidden if deleted):
-  - Shield icon: promote/demote admin. Disabled for federated users. Demotion requires ConfirmDialog.
-  - Key icon: reset password. Disabled for federated users. Requires ConfirmDialog. Shows temporary password inline.
+  - Shield icon: promote/demote native admin. Demotion requires ConfirmDialog and cannot remove the last admin.
+  - Key icon: reset native password. Requires ConfirmDialog. Shows temporary password inline only to the owning session.
   - Trash icon: delete user. Disabled for self. Requires ConfirmDialog (danger variant).
 - **Temp password display:** Appears inline below the user row after successful reset. Includes copy-to-clipboard button and "Shown once" notice.
 
@@ -738,8 +681,7 @@ Manages: user list with search/filter/sort/pagination, admin promotion/demotion,
 
 - **Database schema:** [database.md](database.md) -- `instance_settings`, `users`, `spaces` tables
 - **API endpoints:** [api.md](api.md) -- Full endpoint listing for admin, settings, instance routes
-- **Federation relay:** [federation.md](federation.md) -- Relay toggle/TTL mechanics, peer management, outbox delivery
 - **Voice/streaming:** [voice.md](voice.md) -- Client-side enforcement of streaming limits
 - **Permissions:** [permissions.md](permissions.md) -- Admin flag is separate from RBAC; `isAdmin` is a user-level column, not a permission bit
-- **Telemetry retirement:** [telemetry.md](telemetry.md) -- Removed; historical DB columns preserved inertly.
-- **Space directory retirement:** [directory.md](directory.md) -- Removed in 1.15.2; historical data preserved inertly.
+- **Telemetry retirement:** [telemetry.md](telemetry.md) -- Removed; inert persistence retired by 0050.
+- **Space directory retirement:** [directory.md](directory.md) -- Removed; inert persistence retired by 0050.

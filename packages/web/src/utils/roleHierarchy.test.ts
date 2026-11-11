@@ -9,7 +9,7 @@ vi.mock('../audio/AudioManager', () => ({
 }));
 
 import { myStandingIn, viewerCanActOn, viewerCanManageRoleAt, viewerCanEditMemberRoles } from './roleHierarchy';
-import { useSpaceStore, type TaggedSpace } from '../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../stores/spaceStore';
 import { PermissionBits, permissionsToString, ALL_PERMISSIONS } from './permissions';
 import { useAuthStore } from '../stores/authStore';
 
@@ -19,9 +19,9 @@ import { useAuthStore } from '../stores/authStore';
 // comparing positions there would lock out every moderator.
 
 const SPACE_ID = 'space-1';
-const SPACE: TaggedSpace = {
+const SPACE: SpaceWithMyRoles = {
   id: SPACE_ID, name: 'Space', icon: null, banner: null, avatarColor: null, ownerId: 'owner',
-  inviteCode: null, visibility: 'public', description: null, createdAt: 1, _instanceOrigin: '',
+  inviteCode: null, visibility: 'public', description: null, createdAt: 1,
 };
 
 function role(id: string, position: number): Role {
@@ -30,8 +30,7 @@ function role(id: string, position: number): Role {
 function user(id: string): User {
   return {
     id, username: id, displayName: id, avatar: null, banner: null, accentColor: null, avatarColor: null, bio: null,
-    status: 'online', customStatus: null, isAdmin: false, createdAt: 1, homeInstance: null, homeUserId: null,
-    replicatedInstances: [],
+    status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
   };
 }
 function member(id: string, roles: Role[]): MemberWithUser {
@@ -121,17 +120,14 @@ describe('viewerCanEditMemberRoles', () => {
     expect(viewerCanEditMemberRoles(SPACE, members, onlyEveryone, permissionsToString(ALL_PERMISSIONS), byId(members, 'plain'))).toBe(false);
   });
 
-  it('knows the viewer by their id on the space\'s instance, not their home id', () => {
-    const orbit = 'https://orbit.example';
-    const remote: TaggedSpace = { ...SPACE, _instanceOrigin: orbit };
+  it('uses the native account ID without interpreting a retained @ username', () => {
     const lead = role('r-lead', 2);
     const helper = role('r-helper', 1);
     const members = [member('owner', []), member('me-local', [lead]), member('helper', [helper])];
     const roles = [role(SPACE_ID, 0), lead, helper];
-    useAuthStore.setState({ user: user('me') });
-    useSpaceStore.setState({ spaces: [remote], currentSpaceId: SPACE_ID, roles, members });
-    useAuthStore.getState().recordMyRow(orbit, 'me-local');
-    expect(viewerCanEditMemberRoles(remote, members, roles, MANAGE, members[1]!)).toBe(false);
-    expect(viewerCanEditMemberRoles(remote, members, roles, MANAGE, members[2]!)).toBe(true);
+    useAuthStore.setState({ user: { ...user('me-local'), username: 'me@retained.invalid' } });
+    useSpaceStore.setState({ spaces: [SPACE], currentSpaceId: SPACE_ID, roles, members });
+    expect(viewerCanEditMemberRoles(SPACE, members, roles, MANAGE, members[1]!)).toBe(false);
+    expect(viewerCanEditMemberRoles(SPACE, members, roles, MANAGE, members[2]!)).toBe(true);
   });
 });

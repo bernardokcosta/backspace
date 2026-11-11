@@ -60,7 +60,7 @@ beforeEach(() => {
   sent.length = 0;
   seedUser('alice');
   seedUser('bob');
-  sqlite.prepare(`INSERT INTO dm_channels (id, owner_id, federated_id, created_at) VALUES ('target', NULL, 'k', 1)`).run();
+  sqlite.prepare(`INSERT INTO dm_channels (id, owner_id, pair_key, created_at) VALUES ('target', NULL, 'private-key', 1)`).run();
 });
 
 function members(open: Record<string, 0 | 1>): void {
@@ -96,5 +96,15 @@ describe('announceDmReconcile', () => {
     const { announceDmReconcile } = await import('./dmConversationEvents.js');
     announceDmReconcile([{ action: 'noop', channelId: 'target', targetChannelId: 'target', affectedUserIds: [] }]);
     expect(sent).toEqual([]);
+  });
+
+  it('does not serialize private pair keys or obsolete user/channel identities', async () => {
+    members({ alice:0, bob:0 });
+    const {loadDmChannelWire}=await import('./dmChannelWire.js');
+    const wire=loadDmChannelWire(db,'target')!;
+    for (const field of ['pairKey','pair_key','federatedId','ownerHomeUserId','ownerHomeInstance']) expect(wire).not.toHaveProperty(field);
+    for (const member of wire.members) {
+      for (const field of ['passwordHash','homeInstance','homeUserId','replicatedInstances','federationHomeOrphaned','detachedHomeInstance']) expect(member).not.toHaveProperty(field);
+    }
   });
 });

@@ -5,12 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../../api/client';
 import { Message } from './Message';
 import { useChatStore, type LoadAroundResult, type LoadNewerResult } from '../../stores/chatStore';
-import { useSpaceStore, useIsDmChannel, getChannelOrigin } from '../../stores/spaceStore';
-import { isMe, useMyRowForOrigin } from '../../stores/authStore';
+import { useSpaceStore, useIsDmChannel } from '../../stores/spaceStore';
+import { useAuthStore } from '../../stores/authStore';
 import { useSocialStore } from '../../stores/socialStore';
 import {
   usePendingMessageStore,
   isPendingMessage,
+  isCurrentPendingBubble,
   type PendingMessageView,
   type PendingAttachmentView,
   type PendingBubble,
@@ -20,8 +21,7 @@ import { ProfileAvatar } from '../ui/ProfileAvatar';
 import { AvatarStack } from '../ui/AvatarStack';
 import { useUIStore } from '../../stores/uiStore';
 import { hasPermissionBit, PermissionBits } from '../../utils/permissions';
-import { isMine, parseFederatedUsername, userKey } from '../../utils/identity';
-import { useDmViewer } from '../../hooks/useDmViewer';
+import { userDisplayName } from '../../utils/identity';
 import { formatDmHeaderName } from '../../utils/dmFormatters';
 import { useDelayedLoading } from '../../hooks/useDelayedLoading';
 import { describeError } from '../../i18n/errors';
@@ -521,8 +521,7 @@ export function MessageList({ channelId, jumpToMessageId, onJumpHandled }: Messa
   const pendingBubbles = usePendingMessageStore((s) => s.bubbles.get(channelId)) ?? EMPTY_PENDING_BUBBLES;
   // Pending bubbles are the user's rows as the channel's instance issues them,
   // so they are checked against that origin like the rows it sends.
-  const channelOrigin = useSpaceStore((s) => s.channelOriginMap.get(channelId) ?? '');
-  const myRow = useMyRowForOrigin(channelOrigin);
+  const myRow = useAuthStore(s => s.user);
 
   // Map for O(1) replyTo lookup when synthesizing pending bubbles. Built once
   // per `messages` change; per-bubble lookup is then constant-time.
@@ -537,7 +536,7 @@ export function MessageList({ channelId, jumpToMessageId, onJumpHandled }: Messa
     // Synthesized DM messages keep the chatStore convention of channelId === ''
     // (real DM messages have empty channelId — DM identity lives on dmChannelId).
     const synthChannelId = isDm ? '' : channelId;
-    const synthesized: PendingMessageView[] = pendingBubbles.map((b) => {
+    const synthesized: PendingMessageView[] = pendingBubbles.filter(isCurrentPendingBubble).map((b) => {
       const synth: PendingMessageView = {
         id: `pending-${b.clientId}`,
         channelId: synthChannelId,
@@ -657,10 +656,10 @@ export function MessageList({ channelId, jumpToMessageId, onJumpHandled }: Messa
     };
   }, [channelId, saveScrollPosition]);
 
-  // The channel's origin issued its message rows, so it says which author row is the user.
+  // Messages and the verified current account use the same native ID domain.
   const isOwnMessage = useCallback(
-    (message: MessageWithUser) => isMe(message.user, getChannelOrigin(channelId)),
-    [channelId],
+    (message: MessageWithUser) => message.userId === useAuthStore.getState().user?.id,
+    [],
   );
 
   /**
@@ -1324,19 +1323,18 @@ function WelcomeHeader({ channelId }: { channelId: string }) {
   const openModal = useUIStore((s) => s.openModal);
   const isDm = useIsDmChannel(channelId);
   const navigate = useNavigate();
-  const viewer = useDmViewer(isDm ? channelId : null);
+  const selfId = useAuthStore(s => s.user?.id ?? null);
 
   if (isDm) {
     const dm = dmChannels.find(d => d.id === channelId);
     if (!dm) return null; // DM data not yet loaded (WebSocket ready pending)
-    const otherMembers = dm.members.filter(m => !isMine(m, viewer.origin, viewer.self));
+    const otherMembers = dm.members.filter(m => m.id !== selfId);
     const isGroupDm = !!dm.ownerId;
 
     if (isGroupDm) {
-      const groupName = formatDmHeaderName(dm, viewer);
+      const groupName = formatDmHeaderName(dm, selfId);
       const ownerMember = dm.members.find(m => m.id === dm.ownerId);
       const ownerName = ownerMember?.displayName ?? ownerMember?.username ?? t('common:states.unknown');
-      const hasFederated = dm.members.some(m => m.homeInstance);
 
       const handleLeaveGroup = async () => {
         try {
@@ -1353,13 +1351,13 @@ function WelcomeHeader({ channelId }: { channelId: string }) {
 
       const handleOwnerClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (!ownerMember) return;
-        openUserProfile(ownerMember, viewer.origin, e.currentTarget.getBoundingClientRect(), 'bottom');
+        openUserProfile(ownerMember, e.currentTarget.getBoundingClientRect(), 'bottom');
       };
 
       return (
         <div className="px-4 pt-8 pb-4">
           <div className="mb-2">
-            <AvatarStack members={otherMembers} origin={viewer.origin} size={80} border="chat" iconUrl={dm.icon} />
+            <AvatarStack members={otherMembers} size={80} border="chat" iconUrl={dm.icon} />
           </div>
           <h3 className="text-[32px] leading-10 font-bold text-txt-primary mt-2">{groupName}</h3>
           <p className="text-txt-secondary text-[14px] mt-1">
@@ -1383,11 +1381,6 @@ function WelcomeHeader({ channelId }: { channelId: string }) {
               }}
             />
           </p>
-          {hasFederated && (
-            <p className="text-xs text-txt-tertiary mt-1">
-              {t('chat:list.welcome.group.federatedNotice')}
-            </p>
-          )}
           <div className="mt-4 flex items-center gap-2">
             <button
               onClick={handleOpenSettings}
@@ -1409,19 +1402,17 @@ function WelcomeHeader({ channelId }: { channelId: string }) {
 
     // 1-on-1 DM welcome header
     const otherUser = otherMembers[0];
-    const { baseName } = parseFederatedUsername(otherUser?.username ?? '');
-    const displayName = otherUser?.displayName ?? (baseName || t('chat:list.welcome.dm.fallbackName'));
-    const mentionName = otherUser?.displayName ?? baseName;
-    // The same person (`userKey`), whichever instance's row each list holds.
+    const displayName = otherUser ? userDisplayName(otherUser) : t('chat:list.welcome.dm.fallbackName');
+    const mentionName = otherUser ? userDisplayName(otherUser) : '';
     const friend = otherUser
-      ? friends.find(f => userKey(f, f._instanceOrigin) === userKey(otherUser, viewer.origin))
+      ? friends.find(f => f.id === otherUser.id)
       : undefined;
     const isFriend = !!friend;
 
     return (
       <div className="px-4 pt-8 pb-4">
         <div className="mb-2">
-          <ProfileAvatar src={otherUser?.avatar} name={displayName} size={80} user={otherUser ?? undefined} origin={viewer.origin} />
+          <ProfileAvatar src={otherUser?.avatar} name={displayName} size={80} user={otherUser ?? undefined} />
         </div>
         <h3 className="text-[32px] leading-10 font-bold text-txt-primary">{displayName}</h3>
         <p className="text-txt-secondary text-[14px] mt-1">
@@ -1432,15 +1423,10 @@ function WelcomeHeader({ channelId }: { channelId: string }) {
             components={{ strong: <strong /> }}
           />
         </p>
-        {otherUser?.homeInstance && (
-          <p className="text-xs text-txt-tertiary mt-1">
-            {t('chat:list.welcome.dm.federatedNotice')}
-          </p>
-        )}
         {isFriend && otherUser && (
           <div className="mt-4">
             <button
-              onClick={() => friend && removeFriend(friend, friend._instanceOrigin)}
+              onClick={() => friend && removeFriend(friend.id)}
               className="px-4 py-1.5 bg-surface-elevated hover:bg-surface-elevated text-[14px] font-medium text-txt-primary rounded-[3px] transition-colors"
             >
               {t('chat:list.welcome.dm.removeFriend')}

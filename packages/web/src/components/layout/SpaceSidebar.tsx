@@ -4,13 +4,11 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useSpaceStore, getMyUserIdForOrigin } from '../../stores/spaceStore';
-import type { TaggedSpace } from '../../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../../stores/spaceStore';
 import { resolveSpaceLayout, type ResolvedSpaceLayoutItem } from '../../utils/spaceLayout';
 import { spaceInviteUrl } from '../../utils/inviteParser';
 import { useChatStore } from '../../stores/chatStore';
 import { useUIStore } from '../../stores/uiStore';
-import { useInstanceStore } from '../../stores/instanceStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { useHomeInstanceInfo } from '../../hooks/useHomeInstanceInfo';
@@ -54,9 +52,6 @@ interface SidebarItemProps {
   type?: 'space' | 'dm' | 'action';
   actionType?: 'add' | 'join';
   hasUnread?: boolean;
-  dimmed?: boolean;
-  federationBadge?: boolean;
-  federationDisconnected?: boolean;
   tooltipText?: string;
   draggable?: boolean;
   onDragStart?: (e: React.DragEvent) => void;
@@ -67,7 +62,7 @@ interface SidebarItemProps {
   dropIndicator?: 'before' | 'after' | 'merge' | null;
 }
 
-function SidebarItem({ id, name, icon, avatarColor, active, onClick, onContextMenu, type = 'space', actionType, hasUnread, dimmed, federationBadge, federationDisconnected, tooltipText, draggable, onDragStart, onDragOver, onDragEnd, onDrop, isDragging, dropIndicator }: SidebarItemProps) {
+function SidebarItem({ id, name, icon, avatarColor, active, onClick, onContextMenu, type = 'space', actionType, hasUnread, tooltipText, draggable, onDragStart, onDragOver, onDragEnd, onDrop, isDragging, dropIndicator }: SidebarItemProps) {
   const { t } = useTranslation(['spaces', 'common']);
   const [isHovered, setIsHovered] = useState(false);
   const firstLetter = name.charAt(0).toUpperCase();
@@ -117,7 +112,7 @@ function SidebarItem({ id, name, icon, avatarColor, active, onClick, onContextMe
   };
 
   const buttonContent = (
-    <button onClick={onClick} className={`${getButtonClasses()} ${dimmed ? 'opacity-40 saturate-50' : ''}`} style={backgroundStyle} title={tooltipText ? undefined : name} aria-current={active ? 'page' : undefined}>
+    <button onClick={onClick} className={getButtonClasses()} style={backgroundStyle} title={tooltipText ? undefined : name} aria-current={active ? 'page' : undefined}>
       {type === 'dm' ? (
         <img src="/icons/logo-mark.png" alt={t('common:appName')} className="w-5 h-auto" />
       ) : type === 'action' ? (
@@ -147,17 +142,6 @@ function SidebarItem({ id, name, icon, avatarColor, active, onClick, onContextMe
       {buttonContent}
       {type === 'space' && <SpaceUnreadBadge spaceId={id} />}
       {type === 'dm' && <DmUnreadBadge />}
-      {federationBadge && (
-        <div className="absolute -bottom-0.5 -right-0.5 w-[14px] h-[14px] rounded-full bg-surface-base flex items-center justify-center">
-          {federationDisconnected ? (
-            <div className="w-[8px] h-[8px] rounded-full bg-accent-amber" />
-          ) : (
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className="text-txt-tertiary/80">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-            </svg>
-          )}
-        </div>
-      )}
     </div>
   );
 
@@ -203,7 +187,7 @@ function SidebarItem({ id, name, icon, avatarColor, active, onClick, onContextMe
 
 // ─── Mini space icon for collapsed folder ──────────────────────────────────
 
-function MiniSpaceIcon({ space }: { space: TaggedSpace }) {
+function MiniSpaceIcon({ space }: { space: SpaceWithMyRoles }) {
   const icon = space.icon;
   if (icon) {
     return (
@@ -227,7 +211,7 @@ function MiniSpaceIcon({ space }: { space: TaggedSpace }) {
 
 // ─── Folder icon (2×2 grid with glass-pill) ───────────────────────────────
 
-function FolderIcon({ spaces, color, isActive, isHovered }: { spaces: TaggedSpace[]; color: string | null; isActive: boolean; isHovered: boolean }) {
+function FolderIcon({ spaces, color, isActive, isHovered }: { spaces: SpaceWithMyRoles[]; color: string | null; isActive: boolean; isHovered: boolean }) {
   const display = spaces.slice(0, 4);
   const remaining = spaces.length - 4;
   const borderColor = color ? `rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, 0.3)` : undefined;
@@ -265,7 +249,6 @@ function FolderFlyout({
   anchorEl,
   currentSpaceId,
   unreadSpaceIds,
-  disconnectedOrigins,
   renamingFolderId,
   onClose,
   onSpaceClick,
@@ -276,11 +259,10 @@ function FolderFlyout({
   onParentDragEnd,
 }: {
   folder: SpaceFolder;
-  spaces: TaggedSpace[];
+  spaces: SpaceWithMyRoles[];
   anchorEl: HTMLDivElement;
   currentSpaceId: string | null;
   unreadSpaceIds: Set<string>;
-  disconnectedOrigins: Set<string>;
   renamingFolderId: string | null;
   onClose: () => void;
   onSpaceClick: (spaceId: string) => void;
@@ -428,9 +410,6 @@ function FolderFlyout({
       {spaces.map((space, idx) => {
         const isActive = currentSpaceId === space.id;
         const hasUnread = unreadSpaceIds.has(space.id) && !isActive;
-        const origin = space._instanceOrigin;
-        const isFederated = !!origin;
-        const isDimmed = isFederated && disconnectedOrigins.has(origin);
         const icon = space.icon;
         const grad = !icon ? getSpaceGradient(space.id, space.name, space.avatarColor) : null;
 
@@ -442,9 +421,7 @@ function FolderFlyout({
             )}
 
             <button
-              className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 mx-1 rounded-md transition-colors ${
-                isDimmed ? 'opacity-40 saturate-50' : ''
-              } ${isActive ? 'bg-white/[0.10]' : 'hover:bg-white/[0.06]'}`}
+              className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 mx-1 rounded-md transition-colors ${isActive ? 'bg-white/[0.10]' : 'hover:bg-white/[0.06]'}`}
               style={{ width: 'calc(100% - 8px)' }}
               draggable
               onDragStart={(e) => onDragStart(e, space.id)}
@@ -477,13 +454,6 @@ function FolderFlyout({
 
               {/* Name */}
               <span className="text-sm text-txt-primary truncate flex-1 text-left">{space.name}</span>
-
-              {/* Federation badge */}
-              {isFederated && !isDimmed && (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-txt-tertiary/80 flex-shrink-0">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-                </svg>
-              )}
 
               {/* Unread dot */}
               {hasUnread && (
@@ -522,7 +492,7 @@ function FolderSlot({
   anchorRef,
 }: {
   folder: SpaceFolder;
-  folderSpaces: TaggedSpace[];
+  folderSpaces: SpaceWithMyRoles[];
   isActive: boolean;
   hasUnread: boolean;
   isFlyoutOpen: boolean;
@@ -611,11 +581,9 @@ export function SpaceSidebar() {
   const showDms = useUIStore((s) => s.showDms);
   const setShowDms = useUIStore((s) => s.setShowDms);
   const openModal = useUIStore((s) => s.openModal);
-  const addToast = useUIStore((s) => s.addToast);
   const floatingPanelHeight = useUIStore((s) => s.floatingPanelHeight);
   const setCurrentChannel = useChatStore((s) => s.setCurrentChannel);
   const unreadChannels = useChatStore((s) => s.unreadChannels);
-  const instances = useInstanceStore((s) => s.instances);
   const homeInfo = useHomeInstanceInfo();
   const authIsAdmin = useAuthStore((s) => s.user?.isAdmin);
   const settingsIsAdmin = useSettingsStore((s) => s.isAdmin);
@@ -644,7 +612,9 @@ export function SpaceSidebar() {
     e.preventDefault();
     const space = useSpaceStore.getState().spaces.find(sp => sp.id === spaceId);
     if (!space) return;
-    const isOwner = space.ownerId === getMyUserIdForOrigin((space as TaggedSpace)._instanceOrigin ?? '');
+    const isOwner = space.ownerId === useAuthStore.getState().user?.id;
+    const revision = useAuthStore.getState().sessionRevision;
+    const current = () => revision === useAuthStore.getState().sessionRevision;
 
     const items: ContextMenuItem[] = [
       {
@@ -657,15 +627,19 @@ export function SpaceSidebar() {
           </svg>
         ),
         onClick: async () => {
+          if (!current()) return;
           try {
             const code = await useSpaceStore.getState().generateInvite(spaceId);
-            await navigator.clipboard.writeText(spaceInviteUrl((space as TaggedSpace)._instanceOrigin, code));
+            if (!current()) return;
+            await navigator.clipboard.writeText(spaceInviteUrl(code));
+            if (!current()) return;
             useUIStore.getState().addToast(
               t(space.visibility === 'request' ? 'spaces:sidebar.space.inviteCopiedRequest' : 'spaces:sidebar.space.inviteCopied'),
               'success',
               3000,
             );
           } catch (err) {
+            if (!current()) return;
             useUIStore.getState().addToast(describeCodedError(err, t('spaces:sidebar.space.inviteFailed')), 'warning', 3000);
           }
         },
@@ -682,7 +656,6 @@ export function SpaceSidebar() {
         // The settings live on the instance that hosts the space.
         onClick: () => setNotificationTarget({
           kind: 'space',
-          origin: (space as TaggedSpace)._instanceOrigin ?? '',
           spaceId,
           spaceName: space.name,
         }),
@@ -717,20 +690,9 @@ export function SpaceSidebar() {
     openContextMenu({ x: e.clientX, y: e.clientY }, items);
   }, [openContextMenu, t]);
 
-  // Set of disconnected origins
-  const disconnectedOrigins = useMemo(() => {
-    const set = new Set<string>();
-    for (const inst of instances) {
-      if (inst.status === 'disconnected' || inst.status === 'error') {
-        set.add(inst.origin);
-      }
-    }
-    return set;
-  }, [instances]);
-
   // Build space lookup map
   const spaceMap = useMemo(() => {
-    const map = new Map<string, TaggedSpace>();
+    const map = new Map<string, SpaceWithMyRoles>();
     for (const s of spaces) map.set(s.id, s);
     return map;
   }, [spaces]);
@@ -760,17 +722,11 @@ export function SpaceSidebar() {
   }, [unreadChannels, dmChannels]);
 
   const handleSpaceClick = useCallback((spaceId: string) => {
-    const space = spaceMap.get(spaceId);
-    const origin = space?._instanceOrigin;
-    if (origin && disconnectedOrigins.has(origin)) {
-      const inst = instances.find(i => i.origin === origin);
-      addToast(t('spaces:sidebar.space.reconnecting', { instance: inst?.label || t('spaces:sidebar.space.remoteInstance') }), 'warning', 4000);
-      return;
-    }
+    if (!spaceMap.has(spaceId)) return;
     setCurrentSpace(spaceId);
     setShowDms(false);
     navigate(`/channels/${spaceId}`);
-  }, [spaceMap, disconnectedOrigins, instances, addToast, setCurrentSpace, setShowDms, navigate, t]);
+  }, [spaceMap, setCurrentSpace, setShowDms, navigate]);
 
   const handleDmClick = () => {
     setShowDms(true);
@@ -873,7 +829,7 @@ export function SpaceSidebar() {
       if (item.type === 'folder' && item.folder.id === folderId) {
         const reorderedSpaces = reorderedSpaceIds
           .map(id => item.spaces.find(s => s.id === id))
-          .filter((s): s is TaggedSpace => !!s);
+          .filter((s): s is SpaceWithMyRoles => !!s);
         return {
           ...item,
           spaces: reorderedSpaces,
@@ -1044,27 +1000,13 @@ export function SpaceSidebar() {
 
   // ─── Helpers for rendering ──────────────────────────────────────────
 
-  const getFederationInfo = useCallback((space: TaggedSpace) => {
-    const origin = space._instanceOrigin;
-    const isFederated = !!origin;
-    const isDimmed = isFederated && disconnectedOrigins.has(origin);
-    let tooltipText = space.name;
-    if (isFederated) {
-      try {
-        const hostLabel = new URL(origin).host;
-        tooltipText = `${space.name} \u00b7 ${hostLabel}`;
-      } catch { /* ignore */ }
-    }
-    return { isFederated, isDimmed, tooltipText };
-  }, [disconnectedOrigins]);
-
   // Check if a folder has any unread spaces
-  const folderHasUnread = useCallback((folderSpaces: TaggedSpace[]) => {
+  const folderHasUnread = useCallback((folderSpaces: SpaceWithMyRoles[]) => {
     return folderSpaces.some(s => unreadSpaceIds.has(s.id));
   }, [unreadSpaceIds]);
 
   // Check if folder has any active space
-  const folderHasActive = useCallback((folderSpaces: TaggedSpace[]) => {
+  const folderHasActive = useCallback((folderSpaces: SpaceWithMyRoles[]) => {
     return currentSpaceId ? folderSpaces.some(s => s.id === currentSpaceId) : false;
   }, [currentSpaceId]);
 
@@ -1093,7 +1035,6 @@ export function SpaceSidebar() {
       {/* Unified space list (ordered by user layout) */}
       {resolvedLayout.map((item) => {
         if (item.type === 'space') {
-          const { isFederated, isDimmed, tooltipText } = getFederationInfo(item.space);
           return (
             <SidebarItem
               key={item.space.id}
@@ -1105,10 +1046,7 @@ export function SpaceSidebar() {
               onClick={() => handleSpaceClick(item.space.id)}
               onContextMenu={(e) => handleSpaceContextMenu(item.space.id, e)}
               hasUnread={unreadSpaceIds.has(item.space.id)}
-              dimmed={isDimmed}
-              federationBadge={isFederated}
-              federationDisconnected={isDimmed}
-              tooltipText={tooltipText}
+              tooltipText={item.space.name}
               draggable
               onDragStart={(e) => handleDragStart(e, item.space.id, 'space')}
               onDragOver={(e) => handleDragOver(e, item.space.id, 'space')}
@@ -1282,7 +1220,6 @@ export function SpaceSidebar() {
             anchorEl={anchor}
             currentSpaceId={currentSpaceId}
             unreadSpaceIds={unreadSpaceIds}
-            disconnectedOrigins={disconnectedOrigins}
             renamingFolderId={renamingFolderId}
             onClose={() => setOpenFolderId(null)}
             onSpaceClick={handleSpaceClick}

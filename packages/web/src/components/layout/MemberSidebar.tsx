@@ -12,8 +12,7 @@ import { useActivityStore, activitiesFor } from '../../stores/activityStore';
 import { Avatar } from '../ui/Avatar';
 import { ActivityCard, hasRichActivity, getActivityAccentClass } from '../ui/ActivityCard';
 import { getPrimaryActivity } from '@veyvox/shared/src/activities.js';
-import { parseFederatedUsername, isFederationGlobeApplicable, spaceMemberName } from '../../utils/identity';
-import { useSpaceOrigin } from '../../hooks/useSpaceOrigin';
+import { spaceMemberName } from '../../utils/identity';
 import { BotBadge } from '../ui/BotBadge';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 import { useDelayedLoading } from '../../hooks/useDelayedLoading';
@@ -41,8 +40,7 @@ function MemberSidebarRow({
   onClickMember: (e: React.MouseEvent | React.KeyboardEvent, member: MemberWithUser, user: MemberWithUser['user']) => void;
   onContextMenuMember: (e: React.MouseEvent | React.KeyboardEvent, member: MemberWithUser, user: MemberWithUser['user']) => void;
 }) {
-  const origin = useSpaceOrigin(member.spaceId);
-  const canonical = useCanonicalUserView(member.user, origin);
+  const canonical = useCanonicalUserView(member.user);
   const displayName = spaceMemberName(member, canonical);
 
   const rowClass = isRichActivity
@@ -90,9 +88,6 @@ function MemberSidebarRow({
           {displayName}
           {member.user.isBot && <BotBadge className="ml-1.5" />}
         </span>
-        {!isOffline && isFederationGlobeApplicable(canonical) && (
-          <div className="text-[10px] leading-[1.3] text-txt-tertiary truncate opacity-60">@{parseFederatedUsername(canonical.username).domain}</div>
-        )}
         {!isOffline && (
           <ActivityCard
             activities={activities}
@@ -119,7 +114,6 @@ export function MemberSidebar() {
   const space = spaces.find(s => s.id === currentSpaceId);
   const ownerId = space?.ownerId;
   const memberMenu = useMemberContextMenu(space);
-  const spaceOrigin = space?._instanceOrigin ?? '';
 
   const { groups: roleGroups, offline: offlineMembers } = useMemo(() => groupMembers(members, ownerId), [members, ownerId]);
 
@@ -137,8 +131,7 @@ export function MemberSidebar() {
     e.stopPropagation();
     // Left-click remains profile-only, even for moderators.
     useContextMenuStore.getState().close();
-    const origin = useSpaceStore.getState().spaces.find(s => s.id === member.spaceId)?._instanceOrigin ?? '';
-    openUserProfile(user, origin, e.currentTarget.getBoundingClientRect(), 'left', { spaceId: member.spaceId, userId: member.userId });
+    openUserProfile(user, e.currentTarget.getBoundingClientRect(), 'left', { spaceId: member.spaceId, userId: member.userId });
   };
 
   const groupHeading = (kind: MemberGroupKind, label: string | null): string => {
@@ -151,7 +144,7 @@ export function MemberSidebar() {
     // Roles do not depend on presence: an offline member keeps their colour,
     // dimmed with the rest of the row.
     const colorStyle = getMemberColor(member);
-    const activities = activitiesFor(userActivities, member.user, spaceOrigin);
+    const activities = activitiesFor(userActivities, member.userId);
     const isRichActivity = !isOffline && hasRichActivity(activities);
     const primary = getPrimaryActivity(activities);
     const accentClass = primary ? getActivityAccentClass(primary.type) : '';

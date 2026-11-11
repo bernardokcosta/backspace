@@ -127,7 +127,6 @@
       "appearance": "दिखावट",
       "voice": "वॉयस और वीडियो",
       "privacy": "गोपनीयता",
-      "connections": "कनेक्शन",
       "keybinds": "कीबाइंड",
       "desktop": "डेस्कटॉप",
       "instance": "इंस्टेंस",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "मेरा खाता",
-    "detached": {
-      "notice": "यह खाता होम इंस्टेंस से अलग है।",
-      "explanation": "{{homeInstance}} रीसेट हुआ या अब उपलब्ध नहीं, इसलिए यह खाता अब इस इंस्टेंस पर स्थानीय चलता है। आपकी प्रोफ़ाइल और पासवर्ड यहां प्रबंधित होते हैं।",
-      "reattachHint": "{{homeInstance}} पर {{username}} के रूप में आप यह खाता पुनः जोड़ सकते हैं। प्रोफ़ाइल और उपस्थिति वहां से पुनः समक्रमित होंगे।",
-      "reattachButton": "{{homeInstance}} से पुनः जोड़ें",
-      "reattachConfirm": "{{username}} के रूप में पुनः जुड़ना पुष्टि करें",
-      "reattaching": "पुनः जुड़ रहा…",
-      "reattachFailed": "पुनः जुड़ना विफल",
-      "reattached": "{{username}} से खाता पुनः लिंक हुआ"
-    },
     "profile": {
       "sectionTitle": "प्रोफ़ाइल निजीकरण",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "खाता",
       "status": {
-        "label": "स्थिति",
-        "homeUnavailable": "आपकी स्थिति {{host}} पर रखी है। बदलने हेतु {{host}} से कनेक्ट करें।"
+        "label": "स्थिति"
       },
       "customStatus": {
         "label": "कस्टम स्थिति",
@@ -244,10 +232,6 @@
         "passwordPlaceholder": "अपना पासवर्ड डालें",
         "submit": "मेरा खाता हटाएं",
         "deleting": "हट रहा…"
-      },
-      "federation": {
-        "removing": "कनेक्टेड इंस्टेंस से आपका खाता हटाया जा रहा…",
-        "deleteAnyway": "अभी खाता हटाएं"
       },
       "complete": {
         "title": "खाता हटाया गया",
@@ -310,14 +294,10 @@
       }
     }
   },
-  "connections": {
-    "title": "कनेक्शन"
-  },
   "instance": {
     "tabs": {
       "general": "सामान्य",
       "registration": "पंजीकरण",
-      "federation": "फेडरेशन",
       "streaming": "स्ट्रीमिंग",
       "storage": "संग्रहण",
       "users": "उपयोगकर्ता",

@@ -158,21 +158,6 @@
     "invitePlaceholder": "जैसे abc123 या https://instance.com/join/abc123",
     "submit": "स्पेस से जुड़ें",
     "submitting": "जुड़ रहे…",
-    "connect": {
-      "intro": "इस स्पेस से जुड़ने हेतु <host>{{host}}</host> से कनेक्ट करें।",
-      "passwordLabel": "कनेक्ट हेतु पासवर्ड डालें",
-      "passwordPlaceholder": "आपके खाते का पासवर्ड",
-      "passwordNote": "आपका पासवर्ड होम इंस्टेंस जांचता है और कभी {{host}} को नहीं भेजा जाता। उस इंस्टेंस को केवल उसके लिए बना अद्वितीय प्रमाणपत्र मिलता है।",
-      "submit": "कनेक्ट करें और जुड़ें",
-      "submitting": "कनेक्ट हो रहा…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "इस इंस्टेंस पर आपका उपयोगकर्ता नाम",
-      "passwordLabel": "इस इंस्टेंस का पासवर्ड",
-      "passwordPlaceholder": "रिमोट इंस्टेंस का पासवर्ड",
-      "submit": "लॉगिन करें और जुड़ें",
-      "submitting": "लॉग इन हो रहा…"
-    },
     "request": {
       "messagePlaceholder": "आप क्यों जुड़ना चाहते हैं? (वैकल्पिक)",
       "send": "अनुरोध भेजें",
@@ -450,8 +435,6 @@
       "transferOwnership": "स्वामित्व स्थानांतरित करें",
       "settings": "स्पेस सेटिंग्स",
       "leave": "स्पेस छोड़ें",
-      "reconnecting": "{{instance}} से पुनः कनेक्ट हो रहा…",
-      "remoteInstance": "रिमोट इंस्टेंस",
       "leaveConfirm": {
         "title": "स्पेस छोड़ें",
         "titleNamed": "{{name}} छोड़ें",

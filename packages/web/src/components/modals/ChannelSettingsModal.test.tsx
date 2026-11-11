@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { Channel } from '@veyvox/shared';
 
@@ -16,25 +16,28 @@ vi.mock('../../audio/AudioManager', () => ({
 
 const mockGetOverrides = vi.fn();
 const mockUpdateChannel = vi.fn();
+const mockDeleteChannel = vi.fn();
 // Mocked where it is defined, so the modal and the store's own actions both
 // reach the stub.
-vi.mock('../../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../utils/crossStoreResolvers')>()),
-  getApiForOrigin: () => ({
+vi.mock('../../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../api/client')>()),
+  api: {
     channels: {
       getOverrides: (...args: unknown[]) => mockGetOverrides(...args),
       update: (...args: unknown[]) => mockUpdateChannel(...args),
+      delete: (...args: unknown[]) => mockDeleteChannel(...args),
     },
-  }),
+  },
 }));
 
 import { ChannelSettingsModal } from './ChannelSettingsModal';
-import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../../stores/spaceStore';
+import { useAuthStore } from '../../stores/authStore';
 import { useUIStore } from '../../stores/uiStore';
 import { PermissionBits, permissionsToString } from '../../utils/permissions';
 import { HttpError } from '../../api/client';
 
-const space: TaggedSpace = {
+const space: SpaceWithMyRoles = {
   id: 'space-1',
   name: 'Aether Drift',
   icon: null,
@@ -45,7 +48,6 @@ const space: TaggedSpace = {
   visibility: 'public',
   description: '',
   createdAt: 1,
-  _instanceOrigin: '',
 };
 
 const channel: Channel = {
@@ -76,6 +78,7 @@ beforeEach(() => {
   mockGetOverrides.mockReset();
   mockGetOverrides.mockResolvedValue([]);
   mockUpdateChannel.mockReset();
+  mockDeleteChannel.mockReset().mockResolvedValue({ success: true });
 });
 
 // Each control reads the permissions at the scope its server route checks:
@@ -110,6 +113,22 @@ describe('ChannelSettingsModal permission scope', () => {
     expect(screen.getByText('Private Channel')).toBeTruthy();
     await waitFor(() => expect(mockGetOverrides).toHaveBeenCalledWith('channel-1'));
   });
+  it('deletes the confirmed native channel through the existing store action', async () => {
+    seed(bits(PermissionBits.MANAGE_CHANNELS), bits(PermissionBits.MANAGE_CHANNELS)); render(<ChannelSettingsModal />);
+    fireEvent.click(screen.getByRole('button', { name: 'Delete Channel' }));
+    expect(mockDeleteChannel).not.toHaveBeenCalled(); fireEvent.click(screen.getAllByRole('button', { name: 'Delete Channel' }).at(-1)!);
+    await waitFor(() => expect(mockDeleteChannel).toHaveBeenCalledExactlyOnceWith(channel.id));
+    await waitFor(() => expect(useSpaceStore.getState().channels).toEqual([]));
+  });
+  it('cannot close a replacement-session modal after an old channel deletion completes', async () => {
+    let finish!: (value: { success: boolean }) => void;
+    mockDeleteChannel.mockReturnValueOnce(new Promise(resolve => { finish = resolve; }));
+    seed(bits(PermissionBits.MANAGE_CHANNELS), bits(PermissionBits.MANAGE_CHANNELS)); render(<ChannelSettingsModal />);
+    fireEvent.click(screen.getByRole('button', { name: 'Delete Channel' })); fireEvent.click(screen.getAllByRole('button', { name: 'Delete Channel' }).at(-1)!);
+    await waitFor(() => expect(mockDeleteChannel).toHaveBeenCalledOnce());
+    act(() => { useAuthStore.setState(s => ({ sessionRevision: s.sessionRevision + 1 })); useSpaceStore.getState().reset(); useUIStore.getState().openModal('newDm'); });
+    await act(async () => finish({ success: true })); expect(useUIStore.getState().activeModal).toBe('newDm');
+  });
 });
 
 describe('ChannelSettingsModal rename', () => {
@@ -117,7 +136,6 @@ describe('ChannelSettingsModal rename', () => {
 
   it('saves through the store and shows the name the server stored', async () => {
     seed(manage, manage);
-    useSpaceStore.getState().channelOriginMap.set('channel-1', '');
     mockUpdateChannel.mockImplementation((_id: string, data: { name: string }) =>
       Promise.resolve({ ...channel, name: data.name.toLowerCase().replace(/\s+/g, '-') }));
     const user = userEvent.setup();
@@ -150,7 +168,6 @@ describe('ChannelSettingsModal topic', () => {
 
   it('edits the topic of an existing channel through the store', async () => {
     seed(manage, manage);
-    useSpaceStore.getState().channelOriginMap.set('channel-1', '');
     mockUpdateChannel.mockImplementation((_id: string, data: { topic: string | null }) =>
       Promise.resolve({ ...channel, topic: data.topic }));
     const user = userEvent.setup();

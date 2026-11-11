@@ -220,8 +220,6 @@ export function buildMessageWithUser(
       height: a.height ?? null,
       duration: a.duration ?? null,
       playable: a.playable ?? null,
-      federationStatus: a.federationStatus ?? null,
-      federationMeta: a.federationMeta ?? null,
       createdAt: a.createdAt,
     })),
     embeds: embedRows.map(e => embedRowToEmbed(e)),

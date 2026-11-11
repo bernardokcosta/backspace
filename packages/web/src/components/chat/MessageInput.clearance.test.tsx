@@ -23,7 +23,6 @@ const me = {
   displayName: 'Alice',
   avatar: null,
   createdAt: 1,
-  replicatedInstances: [],
 } as unknown as User;
 
 const other: MessageWithUser = {
@@ -94,7 +93,7 @@ beforeEach(() => {
   useAuthStore.setState({ user: me });
   // dm-1 is a DM because the listing says so; an unknown channel's composer stays locked.
   useSpaceStore.getState().reset();
-  useSpaceStore.getState().populateFromReady('', [], [], [{ id: 'dm-1', federatedId: null, createdAt: 1, members: [me] }]);
+  useSpaceStore.getState().populateFromReady([], [], [{ id: 'dm-1', createdAt: 1, members: [me] }]);
   useComposerStore.setState({ states: new Map() });
   useChatStore.setState({ messages: new Map([['dm-1', [other]]]), replyTargets: new Map(), editingMessageId: null });
 });

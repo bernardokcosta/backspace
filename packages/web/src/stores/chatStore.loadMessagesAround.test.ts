@@ -17,17 +17,13 @@ vi.mock('../audio/AudioManager', () => ({
 
 const channelsMessagesAround = vi.fn();
 const channelsMessages = vi.fn();
-const requestedOrigins: string[] = [];
-vi.mock('../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../utils/crossStoreResolvers')>()),
-  getApiForOrigin: (origin: string) => {
-    requestedOrigins.push(origin);
-    return {
+vi.mock('../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../api/client')>()),
+  api: {
       channels: {
         messagesAround: (...args: unknown[]) => channelsMessagesAround(...args),
         messages: (...args: unknown[]) => channelsMessages(...args),
       },
-    };
   },
 }));
 
@@ -36,7 +32,6 @@ import { useSpaceStore } from './spaceStore';
 import { HttpError } from '../api/client';
 
 const CHANNEL = 'chan-1';
-const ORIGIN = 'https://orbit.example';
 
 const author = {
   id: 'u1',
@@ -72,8 +67,7 @@ function range(from: number, to: number): MessageWithUser[] {
 beforeEach(() => {
   channelsMessagesAround.mockReset();
   channelsMessages.mockReset();
-  requestedOrigins.length = 0;
-  useSpaceStore.setState({ channelOriginMap: new Map([[CHANNEL, ORIGIN]]), dmChannels: [] });
+  useSpaceStore.setState({ spaceChannelIndex: new Map([[CHANNEL, { spaceId: 's', type: 'text' }]]), dmChannels: [] });
   useChatStore.setState({
     messages: new Map([[CHANNEL, range(900, 949)]]),
     hasMore: new Map([[CHANNEL, true]]),
@@ -84,7 +78,7 @@ beforeEach(() => {
 });
 
 describe('chatStore.loadMessagesAround', () => {
-  it("asks the channel's origin and replaces the cache with the window", async () => {
+  it('asks the current API and replaces the cache with the window', async () => {
     // 25 older + target + 25 newer: the server's full window, so newer
     // messages exist beyond it.
     channelsMessagesAround.mockResolvedValue(range(75, 125));
@@ -92,7 +86,6 @@ describe('chatStore.loadMessagesAround', () => {
     const result = await useChatStore.getState().loadMessagesAround(CHANNEL, '0100');
 
     expect(result).toBe('loaded');
-    expect(requestedOrigins).toContain(ORIGIN);
     expect(channelsMessagesAround).toHaveBeenCalledWith(CHANNEL, '0100', 50);
     expect(useChatStore.getState().messages.get(CHANNEL)?.map((m) => m.id)).toEqual(range(75, 125).map((m) => m.id));
   });

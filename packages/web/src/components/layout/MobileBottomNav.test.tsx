@@ -70,7 +70,7 @@ describe('MobileBottomNav: You tab dot', () => {
 
 describe('MobileBottomNav: You tab dot for friend requests', () => {
   const ORBIT = 'https://orbit.example';
-  const me = { id: 'n-1', username: 'jannis', displayName: null, homeInstance: null, homeUserId: null } as unknown as User;
+  const me = { id: 'n-1', username: 'jannis', displayName: null } as unknown as User;
 
   function request(fromId: string, toId: string, other: User, origin: string): TaggedFriendRequest {
     return { id: `r-${fromId}-${toId}`, fromId, toId, status: 'pending', createdAt: 1, user: other, _instanceOrigin: origin };

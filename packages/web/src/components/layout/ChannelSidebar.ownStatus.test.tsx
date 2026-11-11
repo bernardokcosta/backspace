@@ -23,8 +23,7 @@ import { ChannelSidebar } from './ChannelSidebar';
 function user(fields: Partial<User> & Pick<User, 'id' | 'username'>): User {
   return {
     displayName: null, avatar: null, banner: null, accentColor: null, avatarColor: null,
-    bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1, homeInstance: null,
-    homeUserId: null, replicatedInstances: [], ...fields,
+    bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1, ...fields,
   } as User;
 }
 
@@ -52,18 +51,15 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  useAuthStore.setState({ user: null, trueHomeStatus: null });
+  useAuthStore.setState({ user: null });
 });
 
 describe('ChannelSidebar own status dot', () => {
-  it("shows a replicated session's chosen status, not the page instance's projection", () => {
-    // erin@nova signed in directly on this instance. The page instance's view
-    // of her says online; her true home says Do Not Disturb.
+  it('shows the chosen native status for a retained @ account handle', () => {
     const erin = user({
-      id: 'erin-here', username: 'erin@nova.example', status: 'online',
-      homeInstance: 'nova.example', homeUserId: 'erin-nova',
+      id: 'erin-here', username: 'erin@nova.example', status: 'dnd',
     });
-    useAuthStore.setState({ user: erin, trueHomeStatus: 'dnd' });
+    useAuthStore.setState({ user: erin });
 
     renderSidebar();
 
@@ -72,7 +68,7 @@ describe('ChannelSidebar own status dot', () => {
 
   it("shows a native session's own status", () => {
     const jannis = user({ id: 'jannis', username: 'jannis', status: 'idle' });
-    useAuthStore.setState({ user: jannis, trueHomeStatus: null });
+    useAuthStore.setState({ user: jannis });
 
     renderSidebar();
 

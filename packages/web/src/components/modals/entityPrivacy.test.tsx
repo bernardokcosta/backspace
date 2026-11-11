@@ -32,16 +32,16 @@ const remove = vi.fn(async (_id: string, targetType: string, targetId: string, v
   return { success: true };
 });
 const get = vi.fn(async () => rows.map((r) => ({ ...r })));
-const routes = { getOverrides: get, putOverride: put, deleteOverride: remove };
+const routes = vi.hoisted(() => ({ getOverrides: vi.fn(), putOverride: vi.fn(), deleteOverride: vi.fn() }));
 
-vi.mock('../../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../utils/crossStoreResolvers')>()),
-  getApiForOrigin: () => ({ channels: routes, categories: routes }),
+vi.mock('../../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../api/client')>()),
+  api: { channels: routes, categories: routes },
 }));
 
 import { ChannelSettingsModal } from './ChannelSettingsModal';
 import { CategorySettingsModal } from './CategorySettingsModal';
-import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../../stores/spaceStore';
 import { useUIStore } from '../../stores/uiStore';
 import { HttpError } from '../../api/client';
 import { ALL_PERMISSIONS, PermissionBits, permissionsToString, stringToPermissions, overrideVersion } from '../../utils/permissions';
@@ -54,9 +54,9 @@ const SPACE_ID = 'space-1';
 const VIEW = PermissionBits.VIEW_CHANNEL;
 const SEND = PermissionBits.SEND_MESSAGES;
 
-const space: TaggedSpace = {
+const space: SpaceWithMyRoles = {
   id: SPACE_ID, name: 'Aether Drift', icon: null, banner: null, avatarColor: 'lavender', ownerId: 'owner',
-  inviteCode: null, visibility: 'public', description: '', createdAt: 1, _instanceOrigin: '',
+  inviteCode: null, visibility: 'public', description: '', createdAt: 1,
 };
 const channel: Channel = { id: 'channel-1', spaceId: SPACE_ID, name: 'events', type: 'text', topic: null, position: 0, categoryId: null, createdAt: 1 };
 const category: ChannelCategory = { id: 'category-1', spaceId: SPACE_ID, name: 'Staff', position: 0, createdAt: 1 };
@@ -97,6 +97,9 @@ const lockNote = (kind: Kind) => screen.queryByText(kind === 'channel'
   : /This category is hidden from members without explicit access/);
 
 beforeEach(() => {
+  routes.getOverrides.mockImplementation(get);
+  routes.putOverride.mockImplementation(put);
+  routes.deleteOverride.mockImplementation(remove);
   rows = [];
   put.mockClear();
   remove.mockClear();

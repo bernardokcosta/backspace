@@ -3,9 +3,10 @@ import { useVoiceStore, type ActiveDmCall } from '../stores/voiceStore';
 import { useUIStore } from '../stores/uiStore';
 import { getActiveRoom } from '../hooks/useLiveKit';
 import { wsSend } from '../hooks/useWebSocket';
-import { getChannelOrigin, getMyUserIdForOrigin, useSpaceStore } from '../stores/spaceStore';
+import { useSpaceStore } from '../stores/spaceStore';
+import { useAuthStore } from '../stores/authStore';
 import { broadcastVoiceStatus, broadcastDeafenViaLiveKit, preArmMicrophone } from './voice';
-import { dmCallOrigin, dmCallRoomKey, sendDmCallEnd } from './dmCall';
+import { sendDmCallEnd } from './dmCall';
 import { CAMERA_PRESET, stopScreenShare } from './screenShare';
 import { openScreenShareSetup } from '../stores/screenShareSetupStore';
 
@@ -59,7 +60,7 @@ export function handleDeafenAction(isSpaceDeafened: boolean): void {
 export function getSpaceEnforcementState(): { isSpaceMuted: boolean; isSpaceDeafened: boolean } {
   const { currentVoiceChannelId, spaceMutedUserIds, spaceDeafenedUserIds } = useVoiceStore.getState();
   if (!currentVoiceChannelId) return { isSpaceMuted: false, isSpaceDeafened: false };
-  const myId = getMyUserIdForOrigin(getChannelOrigin(currentVoiceChannelId));
+  const myId = useAuthStore.getState().user?.id;
   const spaceId = useSpaceStore.getState().channelToSpaceMap.get(currentVoiceChannelId);
   const spaceKey = spaceId && myId ? `${spaceId}:${myId}` : '';
   return {
@@ -174,17 +175,16 @@ export interface DmCallOptions {
 }
 
 /**
- * Ring the other members of `dmChannelId`. Routed to the instance that serves
- * the DM channel (`getChannelOrigin`). Returns false, sending nothing, when
+ * Ring the other members of the native `dmChannelId`. Returns false when
  * `canStartDmCall` refuses. The microphone is armed here, inside the tap, as
  * `joinVoiceChannel` does (`preArmMicrophone`).
  */
 export function startDmCall(dmChannelId: string, options: DmCallOptions = {}): boolean {
   const voice = useVoiceStore.getState();
   if (!canStartDmCall(voice)) return false;
+  if (!wsSend({ type: 'dm_call_start', dmChannelId })) return false;
   preArmMicrophone();
   voice.setOutgoingCall({ dmChannelId, withCamera: options.withCamera === true });
-  wsSend({ type: 'dm_call_start', dmChannelId }, getChannelOrigin(dmChannelId));
   return true;
 }
 
@@ -207,10 +207,10 @@ export function isDmCallRunning(state: Pick<ReturnType<typeof useVoiceStore.getS
 function connectToDmCall(call: ActiveDmCall, withCamera: boolean): void {
   const { connectFn } = useVoiceStore.getState();
   if (!connectFn) return;
-  const roomKey = dmCallRoomKey(call);
-  connectFn(roomKey, true)
+  const revision = useAuthStore.getState().sessionRevision;
+  connectFn(call.dmChannelId, true)
     .then(() => {
-      if (withCamera) return turnCameraOnInDmCall(roomKey);
+      if (withCamera && revision === useAuthStore.getState().sessionRevision && useVoiceStore.getState().activeDmCall === call) return turnCameraOnInDmCall(call.dmChannelId);
       return undefined;
     })
     .catch((err: unknown) => {
@@ -226,12 +226,10 @@ function connectToDmCall(call: ActiveDmCall, withCamera: boolean): void {
 export function joinDmCall(dmChannelId: string, options: DmCallOptions = {}): boolean {
   const voice = useVoiceStore.getState();
   if (!canStartDmCall(voice)) return false;
+  if (!wsSend({ type: 'dm_call_accept', dmChannelId })) return false;
   preArmMicrophone();
-  // Joined through the DM's own instance: the call is named by the DM's id
-  // and its hang-up goes there.
-  const call: ActiveDmCall = { dmChannelId, federatedCallId: null, callOrigin: null, livekit: null };
+  const call: ActiveDmCall = { dmChannelId };
   voice.setActiveDmCall(call);
-  wsSend({ type: 'dm_call_accept', dmChannelId }, getChannelOrigin(dmChannelId));
   connectToDmCall(call, options.withCamera === true);
   return true;
 }
@@ -239,21 +237,18 @@ export function joinDmCall(dmChannelId: string, options: DmCallOptions = {}): bo
 /**
  * Answer the call ringing in. The call becomes active at once, without
  * waiting for `dm_call_accepted` (that event races with the connect's async
- * AudioContext resume), and keeps the ids and the origin the ring came with,
- * so the hang-up goes where the ring came from. The microphone is armed and
+ * AudioContext resume). The microphone is armed and
  * LiveKit connects within the tap. Returns false when nothing rings.
  */
 export function acceptIncomingDmCall(): boolean {
   const voice = useVoiceStore.getState();
   const incoming = voice.incomingCall;
   if (!incoming) return false;
+  if (!wsSend({ type: 'dm_call_accept', dmChannelId: incoming.dmChannelId })) return false;
   preArmMicrophone();
-  const call: ActiveDmCall = incoming.dmChannelId !== null
-    ? { dmChannelId: incoming.dmChannelId, federatedCallId: incoming.federatedCallId, callOrigin: incoming.callOrigin, livekit: incoming.livekit }
-    : { dmChannelId: null, federatedCallId: incoming.federatedCallId, callOrigin: incoming.callOrigin, livekit: incoming.livekit };
+  const call: ActiveDmCall = { dmChannelId: incoming.dmChannelId };
   voice.setIncomingCall(null);
   voice.setActiveDmCall(call);
-  wsSend({ type: 'dm_call_accept', dmChannelId: call.dmChannelId, federatedCallId: call.federatedCallId }, dmCallOrigin(call));
   connectToDmCall(call, false);
   return true;
 }
@@ -265,7 +260,7 @@ export function acceptIncomingDmCall(): boolean {
  */
 export async function turnCameraOnInDmCall(roomKey: string): Promise<void> {
   const { activeDmCall, isCameraOn } = useVoiceStore.getState();
-  if (!activeDmCall || dmCallRoomKey(activeDmCall) !== roomKey || isCameraOn) return;
+  if (!activeDmCall || activeDmCall.dmChannelId !== roomKey || isCameraOn) return;
   if (!getActiveRoom()) return;
   await handleCameraAction();
 }
@@ -280,7 +275,7 @@ export function cancelOutgoingDmCall(dmChannelId: string): boolean {
   const voice = useVoiceStore.getState();
   if (voice.outgoingCall?.dmChannelId !== dmChannelId) return false;
   voice.setOutgoingCall(null);
-  sendDmCallEnd({ dmChannelId, federatedCallId: null, callOrigin: null });
+  sendDmCallEnd({ dmChannelId });
   return true;
 }
 
@@ -292,7 +287,7 @@ export function cancelOutgoingDmCall(dmChannelId: string): boolean {
 export function reconnectVoice(): void {
   const { connectFn, activeDmCall, currentVoiceChannelId } = useVoiceStore.getState();
   if (!connectFn) return;
-  if (activeDmCall) void connectFn(dmCallRoomKey(activeDmCall), true);
+  if (activeDmCall) void connectFn(activeDmCall.dmChannelId, true);
   else if (currentVoiceChannelId) void connectFn(currentVoiceChannelId, false);
 }
 
@@ -307,8 +302,7 @@ export function handleDisconnectAction(): void {
     sendDmCallEnd(activeDmCall);
     voice.setActiveDmCall(null);
   } else if (currentVoiceChannelId) {
-    const origin = getChannelOrigin(currentVoiceChannelId);
-    wsSend({ type: 'voice_leave' }, origin);
+    wsSend({ type: 'voice_leave' });
     voice.leaveVoice();
   }
 

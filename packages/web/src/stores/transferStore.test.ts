@@ -4,7 +4,7 @@ import 'fake-indexeddb/auto';
 // Stub authStore so transferStore's import chain doesn't pull in AudioManager (which needs AudioWorkletNode).
 vi.mock('./authStore', () => ({
   useAuthStore: {
-    getState: () => ({ token: null, user: null }),
+     getState: () => ({ token: null, user: { id: 'native' } }),
   },
 }));
 

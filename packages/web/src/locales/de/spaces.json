@@ -158,21 +158,6 @@
     "invitePlaceholder": "z. B. abc123 oder https://instance.com/join/abc123",
     "submit": "Space beitreten",
     "submitting": "Beitritt läuft…",
-    "connect": {
-      "intro": "Verbinde dich mit <host>{{host}}</host>, um diesem Space beizutreten.",
-      "passwordLabel": "Gib dein Passwort ein, um dich zu verbinden",
-      "passwordPlaceholder": "Passwort deines Kontos",
-      "passwordNote": "Dein Passwort wird von deiner Heimatinstanz geprüft und nie an {{host}} gesendet. Diese Instanz erhält eigene Zugangsdaten, die nur für sie erzeugt werden.",
-      "submit": "Verbinden und beitreten",
-      "submitting": "Verbindung wird hergestellt…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "Dein Benutzername auf dieser Instanz",
-      "passwordLabel": "Passwort für diese Instanz",
-      "passwordPlaceholder": "Passwort auf der anderen Instanz",
-      "submit": "Anmelden und beitreten",
-      "submitting": "Anmeldung läuft…"
-    },
     "request": {
       "messagePlaceholder": "Warum möchtest du beitreten? (optional)",
       "send": "Anfrage senden",
@@ -450,12 +435,10 @@
       "transferOwnership": "Besitz übertragen",
       "settings": "Space-Einstellungen",
       "leave": "Space verlassen",
-      "reconnecting": "Verbindung zu {{instance}} wird wiederhergestellt…",
-      "remoteInstance": "der Remote-Instanz",
       "leaveConfirm": {
         "title": "Space verlassen",
         "titleNamed": "{{name}} verlassen",
-          "description": "Willst du diesen Space wirklich verlassen? Zum erneuten Beitreten brauchst du eine Einladung."
+        "description": "Willst du diesen Space wirklich verlassen? Zum erneuten Beitreten brauchst du eine Einladung."
       },
       "left": "Du hast den Space verlassen",
       "leaveFailed": "Space konnte nicht verlassen werden",

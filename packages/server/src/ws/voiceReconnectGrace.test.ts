@@ -72,7 +72,7 @@ describe('voice reconnect grace', () => {
 
   it('does not end an active DM while its last participant is inside grace', () => {
     const ws = socket();
-    connectionManager.createRoom('grace-dm-room', 'dm', { type: 'dm', callerId: 'grace-dm-user', state: 'active', group: false, declinedUserIds: new Set(), remoteParticipants: new Map() });
+    connectionManager.createRoom('grace-dm-room', 'dm', { type: 'dm', callerId: 'grace-dm-user', state: 'active', group: false, declinedUserIds: new Set() });
     connectionManager.joinRoom('grace-dm-room', 'grace-dm-user');
     connectionManager.addConnection('grace-dm-user', ws);
     connectionManager.addConnection('grace-dm-user', socket());
@@ -88,7 +88,7 @@ describe('voice reconnect grace', () => {
 
   it('removes the last DM participant and ends the call after grace', () => {
     const ws = socket();
-    connectionManager.createRoom('grace-dm-expire-room', 'dm', { type: 'dm', callerId: 'grace-dm-expire-user', state: 'active', group: false, declinedUserIds: new Set(), remoteParticipants: new Map() });
+    connectionManager.createRoom('grace-dm-expire-room', 'dm', { type: 'dm', callerId: 'grace-dm-expire-user', state: 'active', group: false, declinedUserIds: new Set() });
     connectionManager.joinRoom('grace-dm-expire-room', 'grace-dm-expire-user');
     connectionManager.addConnection('grace-dm-expire-user', ws);
     connectionManager.addConnection('grace-dm-expire-user', socket());
@@ -140,7 +140,6 @@ describe('voice reconnect grace', () => {
       'grace-status-tab-user',
       'grace-status-tab-user',
       ordinaryWs,
-      false,
     );
     vi.advanceTimersByTime(VOICE_RECONNECT_GRACE_MS);
 
@@ -164,7 +163,6 @@ describe('voice reconnect grace', () => {
       'grace-reject-user',
       'grace-reject-user',
       newWs,
-      false,
     );
 
     expect(connectionManager.getUserRoom('grace-reject-user')).toBeNull();
@@ -183,7 +181,6 @@ describe('voice reconnect grace', () => {
       'grace-other-user',
       'grace-other-user',
       voiceWs,
-      false,
     );
 
     expect(connectionManager.getUserRoom('grace-other-user')?.roomId).toBe('grace-other-room');
@@ -196,7 +193,7 @@ describe('voice reconnect grace', () => {
     const oldWs = socket();
     const newWs = socket();
     connectionManager.createRoom('grace-dm-rebind-room', 'dm', {
-      type: 'dm', callerId: 'grace-dm-rebind-user', state: 'active', group: false, declinedUserIds: new Set(), remoteParticipants: new Map(),
+      type: 'dm', callerId: 'grace-dm-rebind-user', state: 'active', group: false, declinedUserIds: new Set(),
     });
     connectionManager.joinRoom('grace-dm-rebind-room', 'grace-dm-rebind-user');
     connectionManager.addConnection('grace-dm-rebind-user', oldWs);
@@ -209,7 +206,6 @@ describe('voice reconnect grace', () => {
       'grace-dm-rebind-user',
       'grace-dm-rebind-user',
       newWs,
-      false,
     );
     vi.advanceTimersByTime(VOICE_RECONNECT_GRACE_MS);
 

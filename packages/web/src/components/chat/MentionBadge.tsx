@@ -13,7 +13,7 @@ interface MentionBadgeProps {
   userId: string;
   /**
    * The channel the mention was written in. A `<@id>` token carries an id on
-   * that channel's origin and names one of that channel's people, so it is
+     * the native account and names one of that channel's people, so it is
    * resolved there (`utils/channelUser`). Null outside a channel: the badge
    * cannot resolve and shows the unknown-user label.
    */
@@ -41,7 +41,7 @@ export const MentionBadge = React.memo(function MentionBadge({ userId, channelId
     const memberContext = resolved.member
       ? { spaceId: resolved.member.spaceId, userId: resolved.member.userId }
       : undefined;
-    openUserProfile(resolved.user, resolved.origin, e.currentTarget.getBoundingClientRect(), undefined, memberContext);
+    openUserProfile(resolved.user, e.currentTarget.getBoundingClientRect(), undefined, memberContext);
   };
 
   // Build inline styles: role-colored text with tinted background

@@ -48,7 +48,6 @@ function member(userId: string, username: string, displayName: string | null): M
     user: {
       id: userId, username, displayName, avatar: null, banner: null, accentColor: null, avatarColor: null,
       bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
-      homeInstance: null, homeUserId: null, replicatedInstances: [],
     },
   };
 }

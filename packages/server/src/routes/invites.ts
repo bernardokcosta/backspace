@@ -21,7 +21,7 @@ import type {
 /**
  * Admin CRUD routes for invite links. All endpoints sit behind the
  * `[authenticate, requireAdmin]` preHandler chain — invites are an
- * instance-local moderation surface and never reach federation.
+ * instance-local moderation surface and never leave the native server.
  *
  * The handlers are thin wrappers: they parse the request shape, delegate
  * to `inviteService` (which owns validation, transactions, and status

@@ -17,7 +17,7 @@ import { ACTIVITY_LIMITS } from '@veyvox/shared/src/activities';
  *   shown instead (detected name, lowercased → chosen name), remembered.
  *
  * All of it lives in this browser's storage only: it is a presentation choice
- * of this client, and the server and federation see ordinary activities.
+ * of this client, and the native server sees ordinary activities.
  */
 export interface ManualGame {
   name: string;

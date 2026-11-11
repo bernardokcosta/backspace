@@ -6,12 +6,10 @@ import { NotificationSettingsControls } from './NotificationSettingsControls';
  * The notification settings dialog (`.glass-modal` through `Modal`), for a
  * whole space or for one channel. Opened from the space context menu, and on
  * mobile from the channel menu, where there is no header bell.
- *
- * `origin` is the instance that hosts the space.
  */
 export type NotificationSettingsModalTarget =
-  | { kind: 'space'; origin: string; spaceId: string; spaceName: string }
-  | { kind: 'channel'; origin: string; spaceId: string; channelId: string; channelName: string };
+  | { kind: 'space'; spaceId: string; spaceName: string }
+  | { kind: 'channel'; spaceId: string; channelId: string; channelName: string };
 
 interface NotificationSettingsModalProps {
   target: NotificationSettingsModalTarget;
@@ -27,7 +25,6 @@ export function NotificationSettingsModal({ target, onClose }: NotificationSetti
   return (
     <Modal isOpen onClose={onClose} title={title} maxWidth="max-w-sm" mobileStyle="sheet">
       <NotificationSettingsControls
-        origin={target.origin}
         spaceId={target.spaceId}
         channelId={target.kind === 'channel' ? target.channelId : null}
       />

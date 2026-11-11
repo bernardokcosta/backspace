@@ -13,7 +13,7 @@ vi.mock('../../audio/AudioManager', () => ({ AudioManager: { getInstance: () => 
 const command = vi.fn(async () => {});
 beforeEach(async () => {
   await setLanguage('en'); localStorage.clear(); useJunoPreferences.setState(DEFAULT_JUNO_PREFERENCES);
-  useJunoStore.getState().reset(); useJunoStore.getState().bind({ accountId: 'a', selfId: 'a', origin: '', channelId: 'voice' }, true);
+  useJunoStore.getState().reset(); useJunoStore.getState().bind({ userId: 'a', origin: window.location.origin, channelId: 'voice' }, true);
   useJunoStore.setState({ open: true, snapshot: { revision: 1, game: junoGame('playing') }, command }); command.mockClear();
   useUIStore.setState({ isMobile: false, voiceFullscreen: true }); useVoiceStore.setState({ soundEffectVolume: 75, outputVolume: 80 });
   useJunoMusicState.setState({ status: 'idle', retry: null });
@@ -52,7 +52,7 @@ describe('personal Juno settings modal', () => {
   it('exposes a gesture retry when autoplay is blocked and closes on target change', async () => {
     const retry = vi.fn(); useJunoMusicState.setState({ status: 'blocked', retry }); render(<JunoTable />); await userEvent.click(screen.getByRole('button', { name: 'Juno settings' }));
     await userEvent.click(screen.getByRole('button', { name: 'Play music' })); expect(retry).toHaveBeenCalledOnce();
-    act(() => useJunoStore.getState().bind({ accountId: 'other', selfId: 'other', channelId: 'voice', origin: '' }, true));
+    act(() => useJunoStore.getState().bind({ userId: 'other', channelId: 'voice', origin: window.location.origin }, true));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 });

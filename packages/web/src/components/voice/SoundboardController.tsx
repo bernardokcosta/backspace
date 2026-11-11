@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Modal } from '../ui/Modal';
 import { SoundboardLibrary } from './SoundboardLibrary';
 import { useVoiceStore } from '../../stores/voiceStore';
-import { useSpaceStore, getChannelOrigin, getMyUserIdForOrigin } from '../../stores/spaceStore';
+import { useSpaceStore } from '../../stores/spaceStore';
 import { useAuthStore } from '../../stores/authStore';
 import { canPlaySoundboard, useSoundboardStore, useSoundboardPreferences, soundboardKey } from '../../stores/soundboardStore';
 import { stopSoundboardPlayback, updateSoundboardVolume } from '../../audio/soundboardPlayback';
@@ -14,6 +14,7 @@ import { describeError } from '../../i18n/errors';
 export function SoundboardController() {
   const { t } = useTranslation('voice');
   const userId = useAuthStore(s => s.user?.id);
+  const sessionRevision = useAuthStore(s => s.sessionRevision);
   const channelId = useVoiceStore(s => s.currentVoiceChannelId);
   const connected = useVoiceStore(s => s.isLiveKitConnected);
   const deafened = useVoiceStore(s => s.isDeafened);
@@ -21,8 +22,6 @@ export function SoundboardController() {
   const outputVolume = useVoiceStore(s => s.outputVolume);
   const volume = useSoundboardPreferences(s => s.volume);
   const spaceId = useSpaceStore(s => channelId ? s.channelToSpaceMap.get(channelId) : undefined);
-  const origins = useSpaceStore(s => s.channelOriginMap);
-  const origin = channelId ? origins.get(channelId) ?? '' : '';
   const open = useSoundboardStore(s => s.open);
   const load = useSoundboardStore(s => s.load);
   const previousUser = useRef(userId);
@@ -31,15 +30,14 @@ export function SoundboardController() {
     previousUser.current = userId;
   }, [userId]);
   useEffect(() => {
-    if (userId && spaceId && connected) void load(origin, spaceId);
+    if (userId && spaceId && connected) void load(spaceId);
     useSoundboardStore.getState().setOpen(false);
     stopSoundboardPlayback();
     return stopSoundboardPlayback;
-  }, [userId, channelId, spaceId, origin, connected, load]);
+  }, [userId, sessionRevision, channelId, spaceId, connected, load]);
   useEffect(() => {
-    const uid = getMyUserIdForOrigin(origin);
-    if (deafened || spaceDeafened.has(`${spaceId}:${uid}`)) stopSoundboardPlayback();
-  }, [deafened, spaceDeafened, spaceId, origin]);
+    if (deafened || spaceDeafened.has(`${spaceId}:${userId}`)) stopSoundboardPlayback();
+  }, [deafened, spaceDeafened, spaceId, userId]);
   useEffect(updateSoundboardVolume, [volume, outputVolume]);
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
@@ -49,11 +47,10 @@ export function SoundboardController() {
       const channel = voice.currentVoiceChannelId;
       const space = channel ? useSpaceStore.getState().channelToSpaceMap.get(channel) : undefined;
       if (!userId || !channel || !space || !voice.isLiveKitConnected || voice.isDeafened) return;
-      const targetOrigin = getChannelOrigin(channel);
-      if (!canPlaySoundboard(targetOrigin, space, channel, voice)) return;
+      if (sessionRevision !== useAuthStore.getState().sessionRevision || !canPlaySoundboard(space, channel, voice)) return;
       const shortcut = shortcutFromEvent(event);
       if (!shortcut || conflictsWithVoiceShortcut(shortcut)) return;
-      const key = soundboardKey(targetOrigin, space);
+      const key = soundboardKey(space);
       const document = useSoundboardStore.getState().entries[key]?.document;
       if (!document?.settings.enabled) return;
       const prefs = useSoundboardPreferences.getState();
@@ -63,17 +60,19 @@ export function SoundboardController() {
       });
       if (!sound || sound.durationSeconds > document.settings.maxDurationSeconds) return;
       event.preventDefault();
-      void useSoundboardStore.getState().play(targetOrigin, space, sound.id, channel).catch(cause => useUIStore.getState().addToast(describeError(cause), 'warning'));
+      void useSoundboardStore.getState().play(space, sound.id, channel).catch(cause => {
+        if (sessionRevision === useAuthStore.getState().sessionRevision) useUIStore.getState().addToast(describeError(cause), 'warning');
+      });
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [userId]);
+  }, [userId, sessionRevision]);
   return <Modal isOpen={open && !!spaceId && !!channelId && connected} onClose={() => useSoundboardStore.getState().setOpen(false)} maxWidth="max-w-2xl" mobileStyle="sheet">
-    {spaceId && channelId && <SoundboardDialog key={`${origin}:${spaceId}:${channelId}`} title={t('soundboard.title')} origin={origin} spaceId={spaceId} channelId={channelId} />}
+    {spaceId && channelId && <SoundboardDialog key={`${sessionRevision}:${spaceId}:${channelId}`} title={t('soundboard.title')} spaceId={spaceId} channelId={channelId} />}
   </Modal>;
 }
 
-function SoundboardDialog({ title, origin, spaceId, channelId }: { title: string; origin: string; spaceId: string; channelId: string }) {
+function SoundboardDialog({ title, spaceId, channelId }: { title: string; spaceId: string; channelId: string }) {
   const { t } = useTranslation('common');
   const ref = useRef<HTMLDivElement>(null);
   const titleId = useId();
@@ -101,6 +100,6 @@ function SoundboardDialog({ title, origin, spaceId, channelId }: { title: string
       <h2 id={titleId} className="text-xl font-semibold text-txt-primary">{title}</h2>
       <button type="button" onClick={() => useSoundboardStore.getState().setOpen(false)} aria-label={t('actions.close')} className="w-10 h-10 rounded-full text-txt-tertiary hover:text-txt-primary hover:bg-interactive-hover">×</button>
     </div>
-    <SoundboardLibrary origin={origin} spaceId={spaceId} channelId={channelId} />
+    <SoundboardLibrary spaceId={spaceId} channelId={channelId} />
   </div>;
 }

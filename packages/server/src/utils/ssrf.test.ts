@@ -1,9 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const lookup = vi.fn<(host: string) => Promise<{ address: string; family: number }>>();
-vi.mock('dns', () => ({ default: { promises: { lookup: (h: string) => lookup(h) } } }));
+vi.mock('dns', () => ({ default: { promises: { lookup: async (h: string, options?: { all: boolean }) => {
+  const answer = await lookup(h); return options?.all ? [answer] : answer;
+} } } }));
 
-const { validateExternalUrl, isPrivateIp, safeFetch } = await import('./ssrf.js');
+const { validateExternalUrl, isPrivateIp } = await import('./ssrf.js');
 
 describe('isPrivateIp', () => {
   it('still answers the addresses it always answered', () => {
@@ -47,25 +49,14 @@ describe('validateExternalUrl', () => {
     await expect(validateExternalUrl('https://example.com/x')).resolves.toBeUndefined();
   });
 
-  it('strips brackets before resolving, so an IPv6 literal is understood rather than accidentally ENOTFOUND', async () => {
-    lookup.mockImplementation(async (host: string) => {
-      // The old code passed '[::1]' straight to dns.lookup, which threw
-      // ENOTFOUND and produced the right answer for the wrong reason.
-      if (host.startsWith('[')) throw Object.assign(new Error('nope'), { code: 'ENOTFOUND' });
-      return { address: host, family: 6 };
-    });
+  it('classifies an IPv6 loopback literal directly instead of relying on a resolver error', async () => {
     await expect(validateExternalUrl('http://[::1]/x')).rejects.toThrow('Private IP not allowed');
-    expect(lookup).toHaveBeenCalledWith('::1');
+    expect(lookup).not.toHaveBeenCalled();
   });
 
   it('lets a public IPv6 literal through, which it could not before', async () => {
-    lookup.mockImplementation(async (host: string) => ({ address: host, family: 6 }));
     await expect(validateExternalUrl('https://[2606:4700::1111]/x')).resolves.toBeUndefined();
-    // The resolve alone is not evidence: with a doubled resolver the old code
-    // also resolved, because the bracketed string matched none of its prefixes.
-    // What the old code could not do is hand the resolver an address it could
-    // actually look up, so assert on the argument.
-    expect(lookup).toHaveBeenCalledWith('2606:4700::1111');
+    expect(lookup).not.toHaveBeenCalled();
   });
 
   it('refuses non-http schemes before touching DNS', async () => {
@@ -73,45 +64,6 @@ describe('validateExternalUrl', () => {
     expect(lookup).not.toHaveBeenCalled();
   });
 
-  describe('safeFetch', () => {
-    const originalFetch = global.fetch;
-    const fetchMock = vi.fn<typeof fetch>();
-
-    beforeEach(() => {
-      lookup.mockReset();
-      fetchMock.mockReset();
-      global.fetch = fetchMock;
-    });
-
-    afterEach(() => {
-      global.fetch = originalFetch;
-    });
-
-    it('validates the URL and calls fetch with redirect set to manual', async () => {
-      lookup.mockResolvedValue({ address: '93.184.216.34', family: 4 });
-      const okResponse = new Response('ok', { status: 200 });
-      fetchMock.mockResolvedValueOnce(okResponse);
-
-      const res = await safeFetch('https://example.com/resource?foo=bar');
-      expect(res).toBe(okResponse);
-      expect(fetchMock).toHaveBeenCalledWith('https://example.com/resource?foo=bar', {
-        redirect: 'manual',
-      });
-    });
-
-    it('re-validates every redirect hop and blocks redirects to private IPs', async () => {
-      lookup
-        .mockResolvedValueOnce({ address: '93.184.216.34', family: 4 })
-        .mockResolvedValueOnce({ address: '127.0.0.1', family: 4 });
-      fetchMock.mockResolvedValueOnce(
-        new Response(null, {
-          status: 302,
-          headers: { location: 'http://internal.example/admin' },
-        }),
-      );
-
-      await expect(safeFetch('https://example.com/start')).rejects.toThrow('Private IP not allowed');
-      expect(fetchMock).toHaveBeenCalledTimes(1);
-    });
-  });
+  // Transport, redirect refusal/resource release and connection-time authority
+  // are exercised at the stronger native seam in ssrf.pinned/Transport suites.
 });

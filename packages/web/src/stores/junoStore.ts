@@ -1,16 +1,16 @@
 import { create } from 'zustand';
 import type { JunoAction, JunoCommand, JunoSnapshot, JunoRankingPage } from '@veyvox/shared/src/juno';
-import { getApiForOrigin } from '../utils/crossStoreResolvers';
-import { HttpError, RateLimitError } from '../api/client';
+import { api, HttpError, RateLimitError } from '../api/client';
 
-export interface JunoTarget { accountId: string; origin: string; channelId: string; selfId: string }
-export interface JunoRankingTarget { accountId: string; origin: string; spaceId: string; selfId: string }
+/** Origin scopes the current-server cache, never an alternate API route. */
+export interface JunoTarget { origin: string; channelId: string; userId: string }
+export interface JunoRankingTarget { origin: string; spaceId: string; userId: string }
 interface RankingState { target: JunoRankingTarget | null; page: JunoRankingPage | null; loading: boolean; error: unknown; unsupported: boolean }
 const emptyRanking = (): RankingState => ({ target: null, page: null, loading: false, error: null, unsupported: false });
 interface JunoState {
   target: JunoTarget | null;
   connected: boolean;
-  hosts: Record<string, boolean>;
+  supported: boolean;
   snapshot: JunoSnapshot | null;
   observedAt: number;
   loading: boolean;
@@ -27,11 +27,11 @@ interface JunoState {
   loadRanking: (target: JunoRankingTarget, query?: { limit?: number; offset?: number }) => Promise<void>;
   clearRanking: () => void;
   setOpen: (open: boolean) => void;
-  setHost: (origin: string, supported: boolean) => void;
+  setSupported: (supported: boolean) => void;
   bind: (target: JunoTarget | null, connected: boolean) => void;
   load: () => Promise<void>;
   command: (action: JunoAction | { type: 'create' }) => Promise<void>;
-  invalidate: (origin: string, channelId: string) => void;
+  invalidate: (channelId: string) => void;
   reset: () => void;
 }
 let epoch = 0;
@@ -68,12 +68,12 @@ function pauseForRateLimit(error: unknown, currentEpoch: number): boolean {
   }, retryAt - Date.now());
   return true;
 }
-const sameRankingTarget = (a: JunoRankingTarget | null, b: JunoRankingTarget) => !!a && a.accountId === b.accountId
-  && a.origin === b.origin && a.spaceId === b.spaceId && a.selfId === b.selfId;
+const sameRankingTarget = (a: JunoRankingTarget | null, b: JunoRankingTarget) => !!a && a.userId === b.userId
+  && a.origin === b.origin && a.spaceId === b.spaceId;
 const sameTarget = (a: JunoTarget | null, b: JunoTarget | null) => a === b || !!a && !!b
-  && a.accountId === b.accountId && a.origin === b.origin && a.channelId === b.channelId && a.selfId === b.selfId;
+  && a.userId === b.userId && a.origin === b.origin && a.channelId === b.channelId;
 export const useJunoStore = create<JunoState>((set, get) => ({
-  target: null, connected: false, hosts: {}, snapshot: null, observedAt: 0, loading: false, pending: false, stale: false, error: null, open: false,
+  target: null, connected: false, supported: false, snapshot: null, observedAt: 0, loading: false, pending: false, stale: false, error: null, open: false,
   ranking: emptyRanking(), presentedViews: new Set(), playFeedback: null,
   presentView: target => {
     if (!sameTarget(target, get().target)) return () => {};
@@ -83,7 +83,7 @@ export const useJunoStore = create<JunoState>((set, get) => ({
   clearRanking: () => { rankingRun++; set({ ranking: emptyRanking() }); },
   loadRanking: async (target, query = {}) => {
     const session = get().target;
-    if (!session || session.accountId !== target.accountId || session.origin !== target.origin || session.selfId !== target.selfId) return;
+    if (!session || session.userId !== target.userId || session.origin !== target.origin || target.origin !== window.location.origin) return;
     const run = ++rankingRun;
     if (Date.now() < retryAt) {
       set(s => ({ ranking: { ...emptyRanking(), target,
@@ -95,7 +95,7 @@ export const useJunoStore = create<JunoState>((set, get) => ({
     set(s => ({ ranking: { ...emptyRanking(), target, loading: true,
       page: sameRankingTarget(s.ranking.target, target) ? s.ranking.page : null } }));
     try {
-      const page = await getApiForOrigin(target.origin).juno.ranking(target.spaceId, query);
+      const page = await api.juno.ranking(target.spaceId, query);
       if (run !== rankingRun || !sameRankingTarget(get().ranking.target, target)) return;
       set({ ranking: { target, page, loading: false, error: null, unsupported: false } });
     } catch (error) {
@@ -107,15 +107,16 @@ export const useJunoStore = create<JunoState>((set, get) => ({
     }
   },
   setOpen: open => set({ open }),
-  setHost: (origin, supported) => {
-    set(s => ({ hosts: { ...s.hosts, [origin]: supported } }));
-    if (get().target?.origin === origin) {
+  setSupported: supported => {
+    set({ supported });
+    if (get().target) {
       get().clearRanking();
       epoch++; readRun++; cancelRecovery(); set({ snapshot: null, pending: false, stale: false, error: null, loading: false });
       if (supported) void get().load();
     }
   },
   bind: (target, connected) => {
+    if (target && target.origin !== window.location.origin) target = null;
     if (!sameTarget(target, get().target)) {
       get().clearRanking();
       epoch++; readRun++; cancelRecovery();
@@ -136,7 +137,7 @@ export const useJunoStore = create<JunoState>((set, get) => ({
     set({ loading: true });
     flight.promise = (async () => {
       try {
-        const snapshot = await getApiForOrigin(target.origin).juno.get(target.channelId);
+        const snapshot = await api.juno.get(target.channelId);
         if (epoch !== currentEpoch || run !== readRun) return;
         if (snapshot.revision >= (get().snapshot?.revision ?? -1)) set({ snapshot, observedAt: Date.now() });
         const coolingDown = Date.now() < retryAt;
@@ -169,7 +170,7 @@ export const useJunoStore = create<JunoState>((set, get) => ({
     const currentEpoch = epoch;
     set({ pending: true, error: null });
     try {
-      const next = await getApiForOrigin(target.origin).juno.command(target.channelId, command);
+      const next = await api.juno.command(target.channelId, command);
       if (epoch !== currentEpoch) return;
       if (next.revision >= (get().snapshot?.revision ?? -1)) set({ snapshot: next, observedAt: Date.now() });
     } catch (error) {
@@ -184,15 +185,15 @@ export const useJunoStore = create<JunoState>((set, get) => ({
       if (epoch === currentEpoch) set({ pending: false });
     }
   },
-  invalidate: (origin, channelId) => {
+  invalidate: channelId => {
     const target = get().target;
-    if (target?.origin !== origin || target.channelId !== channelId) return;
+    if (!target || target.channelId !== channelId) return;
     if (readFlight?.epoch === epoch) readFlight.dirty = true;
     else void get().load();
   },
   reset: () => {
     get().clearRanking();
     epoch++; readRun++; cancelRecovery();
-    set({ target: null, connected: false, hosts: {}, snapshot: null, loading: false, pending: false, stale: false, error: null, open: false, presentedViews: new Set(), playFeedback: null });
+    set({ target: null, connected: false, supported: false, snapshot: null, loading: false, pending: false, stale: false, error: null, open: false, presentedViews: new Set(), playFeedback: null });
   },
 }));

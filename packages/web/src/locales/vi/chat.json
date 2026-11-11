@@ -61,14 +61,12 @@
       "group": {
         "intro": "Đây là khởi đầu cuộc trò chuyện nhóm của bạn.",
         "owner": "Chủ: <owner>@{{name}}</owner>",
-        "federatedNotice": "Tin nhắn lưu trên máy chủ chính của bạn và máy chủ chính của người nhận. Chúng không được mã hóa đầu-cuối.",
         "openSettings": "Mở cài đặt nhóm",
         "leave": "Rời nhóm"
       },
       "dm": {
         "fallbackName": "Tin nhắn trực tiếp",
         "intro": "Đây là khởi đầu lịch sử tin nhắn trực tiếp của bạn với <strong>@{{name}}</strong>.",
-        "federatedNotice": "Tin nhắn lưu trên máy chủ chính của bạn và máy chủ chính của người nhận. Chúng không được mã hóa đầu-cuối.",
         "removeFriend": "Xóa bạn"
       }
     }
@@ -133,14 +131,6 @@
     },
     "audio": {
       "unsupportedBrowser": "Trình duyệt của bạn không hỗ trợ phát âm thanh."
-    },
-    "federation": {
-      "remoteNamed": "Lưu trên máy chủ của {{sender}}. Tải xuống để giữ bản cục bộ.",
-      "remoteUnknown": "Lưu trên máy chủ của người gửi. Tải xuống để giữ bản cục bộ.",
-      "partialGeneric": "Một số người nhận không thể cache tệp này cục bộ.",
-      "partialInstance": "Máy chủ của {{username}} (giới hạn: {{limit}})",
-      "partialList": "Không thể cache tệp trên {{instances}}. Họ vẫn xem được từ máy của bạn.",
-      "listPair": "{{first}} và {{second}}"
     }
   },
   "gif": {
@@ -267,7 +257,6 @@
     "stickersCount_one": "{{count}} nhãn dán",
     "stickersCount_other": "{{count}} nhãn dán",
     "noPacks": "Không tìm thấy gói nhãn dán",
-    "replicaBadge": "Liên hợp",
     "viewPack": "Xem gói",
     "saveDraft": "Lưu thành nháp",
     "packCreated": "Đã tạo gói",
@@ -284,8 +273,6 @@
     "rejectedSuccess": "Đã từ chối gói nhãn dán",
     "reviewNotes": "Lý do từ chối",
     "creator": "Tác giả",
-    "sourceInstance": "Máy chủ",
-    "localInstance": "Máy chủ cục bộ",
     "viewStickers": "Xem nhãn dán",
     "pendingReviewHint": "Đang chờ quản trị duyệt; hiện ở Khám phá sau duyệt"
   },

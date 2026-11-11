@@ -137,8 +137,7 @@ interface VeyvoxElectronAPI {
   // Deep linking (Task 2.3)
   onDeepLink: (callback: (url: string) => void) => (() => void) | void;
 
-  // Instance-origin-aware URL routing
-  setConnectedOrigins: (origins: string[]) => void;
+  // Current-server internal URL routing
   onOpenInternalRoute: (callback: (path: string) => void) => (() => void);
 
   // Screen share picker coordination

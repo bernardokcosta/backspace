@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { Friend, MemberWithUser, User } from '@veyvox/shared';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -29,13 +30,13 @@ vi.mock('../../api/client', async (importOriginal) => ({
 import { InviteModal } from './InviteModal';
 import { HttpError } from '../../api/client';
 import { useUIStore } from '../../stores/uiStore';
-import { useSpaceStore } from '../../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../../stores/spaceStore';
 import { useSocialStore } from '../../stores/socialStore';
 import { useAuthStore } from '../../stores/authStore';
-import { useInstanceStore, type ConnectedInstance } from '../../stores/instanceStore';
+import { junoUser } from '../games/junoTestFixtures';
 
 // Helpers — minimal fixtures for store state.
-function makeFriend(overrides: Partial<any> = {}) {
+function makeFriend(overrides: Partial<Friend> = {}): Friend {
   return {
     id: 'friend-1',
     username: 'alex',
@@ -49,20 +50,18 @@ function makeFriend(overrides: Partial<any> = {}) {
     customStatus: null,
     createdAt: 0,
     addedAt: 0,
-    homeUserId: null,
-    homeInstance: null,
-    _instanceOrigin: '',
     ...overrides,
   };
 }
 
-function makeMember(overrides: Partial<any> = {}) {
+function makeMember(overrides: Omit<Partial<MemberWithUser>, 'user'> & { user?: Partial<User> } = {}): MemberWithUser {
   return {
     spaceId: 'space-1',
     userId: 'member-1',
     nickname: null,
     joinedAt: 0,
     roles: [],
+    ...overrides,
     user: {
       id: 'member-1',
       username: 'memberA',
@@ -76,16 +75,12 @@ function makeMember(overrides: Partial<any> = {}) {
       customStatus: null,
       isAdmin: false,
       createdAt: 0,
-      homeInstance: null,
-      homeUserId: null,
-      replicatedInstances: [],
       ...(overrides.user ?? {}),
     },
-    ...overrides,
   };
 }
 
-function makeSpace(overrides: Partial<any> = {}) {
+function makeSpace(overrides: Partial<SpaceWithMyRoles> = {}): SpaceWithMyRoles {
   return {
     id: 'space-1',
     name: 'Test Space',
@@ -93,11 +88,10 @@ function makeSpace(overrides: Partial<any> = {}) {
     avatarColor: null,
     description: null,
     ownerId: 'owner-1',
-    public: false,
-    discoverable: false,
-    joinPolicy: 'invite',
+    visibility: 'private',
+    banner: null,
+    inviteCode: null,
     createdAt: 0,
-    _instanceOrigin: '',
     ...overrides,
   };
 }
@@ -105,23 +99,23 @@ function makeSpace(overrides: Partial<any> = {}) {
 function setUpStore({
   friends = [],
   members = [],
-  myUser = { id: 'me', username: 'me' } as any,
+  myUser = { id: 'me', username: 'me' },
   generateInvite = vi.fn().mockResolvedValue('test-code'),
 }: {
-  friends?: any[];
-  members?: any[];
-  myUser?: any;
+  friends?: Friend[];
+  members?: MemberWithUser[];
+  myUser?: Pick<User, 'id' | 'username'> & Partial<User>;
   generateInvite?: ReturnType<typeof vi.fn>;
 } = {}) {
   useUIStore.setState({ activeModal: 'invite', modalData: {} });
   useSpaceStore.setState({
     currentSpaceId: 'space-1',
-    spaces: [makeSpace()] as any,
+    spaces: [makeSpace()],
     members,
     generateInvite,
-  } as any);
-  useSocialStore.setState({ friends } as any);
-  useAuthStore.setState({ user: myUser } as any);
+  });
+  useSocialStore.setState({ friends });
+  useAuthStore.setState({ user: { ...junoUser(myUser.id), ...myUser } });
   return { generateInvite };
 }
 
@@ -133,9 +127,9 @@ beforeEach(() => {
     currentSpaceId: null,
     spaces: [],
     members: [],
-  } as any);
-  useSocialStore.setState({ friends: [] } as any);
-  useAuthStore.setState({ user: null } as any);
+  });
+  useSocialStore.setState({ friends: [] });
+  useAuthStore.setState({ user: null });
 
   // Mock clipboard.
   Object.defineProperty(navigator, 'clipboard', {
@@ -172,27 +166,21 @@ describe('InviteModal', () => {
     expect(screen.queryByText('Me')).not.toBeInTheDocument();
   });
 
-  it('grays out friends already in the space using federated identity', async () => {
-    // Friend on remote instance orbit.ddns.net, member entry replicated
-    // locally with user.homeUserId+homeInstance matching that identity.
+  it('grays out friends already in the native space by exact account ID', async () => {
     setUpStore({
       friends: [
         makeFriend({
-          id: 'local-shadow-id',
+          id: 'native-friend',
           username: 'remoteFriend',
           displayName: 'Remote Friend',
-          homeUserId: 'remote-uid-7',
-          homeInstance: 'https://orbit.ddns.net',
         }),
       ],
       members: [
         makeMember({
-          userId: 'local-replicated-id',
+          userId: 'native-friend',
           user: {
-            id: 'local-replicated-id',
+            id: 'native-friend',
             username: 'remoteFriend',
-            homeUserId: 'remote-uid-7',
-            homeInstance: 'https://orbit.ddns.net',
           },
         }),
       ],
@@ -437,21 +425,21 @@ describe('InviteModal', () => {
     useUIStore.setState({ activeModal: 'invite', modalData: {} });
     useSpaceStore.setState({
       currentSpaceId: 'space-1',
-      spaces: [makeSpace({ visibility: 'request' })] as any,
+      spaces: [makeSpace({ visibility: 'request' })],
       members: [],
       generateInvite,
-    } as any);
+    });
     useSocialStore.setState({
       friends: [makeFriend({ id: 'f1', username: 'alex', displayName: 'Alex' })],
-    } as any);
-    useAuthStore.setState({ user: { id: 'me', username: 'me' } } as any);
+    });
+    useAuthStore.setState({ user: junoUser('me') });
 
     render(<InviteModal />);
 
     expect(
       screen.getByText('Send to friends, or share a link. People who open it ask to join, and a manager approves each request.'),
     ).toBeInTheDocument();
-    expect(generateInvite).toHaveBeenCalledWith('space-1', '');
+    expect(generateInvite).toHaveBeenCalledWith('space-1');
     await waitFor(() => {
       expect(screen.getByDisplayValue(`${window.location.origin}/join/req-code`)).toBeInTheDocument();
     });
@@ -515,18 +503,16 @@ describe('InviteModal', () => {
     expect(screen.queryByText('✓ Sent')).not.toBeInTheDocument();
   });
 
-  it('passes federated target shape for remote friends', async () => {
+  it('names a retained @ handle by its native target ID', async () => {
     const user = userEvent.setup();
     mockSpaceInvite.mockResolvedValue({});
 
     setUpStore({
       friends: [
         makeFriend({
-          id: 'local-shadow',
-          username: 'remoteAlex',
+          id: 'native-alex',
+          username: 'alex@retained.test',
           displayName: 'Remote Alex',
-          homeUserId: 'home-uid-9',
-          homeInstance: 'https://orbit.ddns.net',
         }),
       ],
     });
@@ -542,41 +528,18 @@ describe('InviteModal', () => {
     await waitFor(() => {
       expect(mockSpaceInvite).toHaveBeenCalledWith(
         expect.objectContaining({
-          // The home identity as every request names it (`personRequest`):
-          // the host, whatever form the row stored it in.
-          target: {
-            homeUserId: 'home-uid-9',
-            homeInstance: 'orbit.ddns.net',
-          },
+          target: { userId: 'native-alex' },
         }),
       );
     });
   });
 
-  it('names a friend native to another connected instance by home identity, not by that instance\'s id', async () => {
-    const user = userEvent.setup();
-    mockSpaceInvite.mockResolvedValue({});
-    setUpStore({
-      friends: [makeFriend({ id: 'orbit-native-id', displayName: 'Orbit Native', _instanceOrigin: 'https://orbit.ddns.net' })],
-    });
-
-    render(<InviteModal />);
-    await user.click(await screen.findByRole('button', { name: /Orbit Native/ }));
-    await user.click(screen.getByRole('button', { name: /Send 1 Invite/ }));
-
-    await waitFor(() => expect(mockSpaceInvite).toHaveBeenCalledTimes(1));
-    expect(mockSpaceInvite.mock.calls[0][0].target).toEqual({
-      homeUserId: 'orbit-native-id',
-      homeInstance: 'orbit.ddns.net',
-    });
-  });
-
-  it('selects two friends from different instances that share a row id separately', async () => {
+  it('selects different native IDs independently even when their usernames match', async () => {
     const user = userEvent.setup();
     setUpStore({
       friends: [
-        makeFriend({ id: 'same-id', displayName: 'Dave', _instanceOrigin: '' }),
-        makeFriend({ id: 'same-id', displayName: 'Erin', _instanceOrigin: 'https://orbit.ddns.net' }),
+        makeFriend({ id: 'dave', displayName: 'Dave' }),
+        makeFriend({ id: 'erin', displayName: 'Erin' }),
       ],
     });
 
@@ -586,99 +549,4 @@ describe('InviteModal', () => {
     expect(screen.getByRole('button', { name: /Send 1 Invite/ })).toBeInTheDocument();
   });
 
-  describe('a session signed in to another instance with a federated account (#391)', () => {
-    // erin is homed on home.test and signed in to the page's instance; her
-    // friendships with home.test's own users exist only there.
-    const HOME = 'https://home.test';
-    const mockHomeSpaceInvite = vi.fn();
-    const erinOnPage = { id: 'erin-page', username: 'erin@home.test', homeInstance: 'home.test', homeUserId: 'erin-true' };
-
-    function connectHome(): void {
-      useInstanceStore.setState({
-        instances: [{
-          origin: HOME,
-          label: 'home',
-          token: 't',
-          username: 'erin',
-          status: 'connected',
-          user: { id: 'erin-true', username: 'erin' } as ConnectedInstance['user'],
-          api: { dm: { spaceInvite: (...args: unknown[]) => mockHomeSpaceInvite(...args) } } as unknown as ConnectedInstance['api'],
-        }],
-      });
-    }
-
-    beforeEach(() => {
-      mockHomeSpaceInvite.mockReset();
-      mockHomeSpaceInvite.mockResolvedValue({});
-      mockSpaceInvite.mockResolvedValue({});
-    });
-
-    afterEach(() => {
-      useInstanceStore.setState({ instances: [] });
-    });
-
-    it('sends the invite to the connected home, naming each friend as the home knows them', async () => {
-      const user = userEvent.setup();
-      connectHome();
-      setUpStore({
-        myUser: erinOnPage,
-        friends: [
-          makeFriend({ id: 'bob-home', displayName: 'Bob', _instanceOrigin: HOME }),
-          makeFriend({ id: 'tess-page', displayName: 'Tess', _instanceOrigin: '' }),
-        ],
-      });
-
-      render(<InviteModal />);
-      await user.click(await screen.findByRole('button', { name: /Bob/ }));
-      await user.click(screen.getByRole('button', { name: /Tess/ }));
-      await user.click(screen.getByRole('button', { name: /Send 2 Invites/ }));
-
-      await waitFor(() => expect(mockHomeSpaceInvite).toHaveBeenCalledTimes(2));
-      expect(mockSpaceInvite).not.toHaveBeenCalled();
-      const bodies = mockHomeSpaceInvite.mock.calls.map((call) => call[0]);
-      // The home's own user by the home's id; the page's user by home identity.
-      expect(bodies.map((b) => b.target)).toEqual(expect.arrayContaining([
-        { userId: 'bob-home' },
-        { homeUserId: 'tess-page', homeInstance: window.location.host },
-      ]));
-      // The space is on the page's instance, which the home names by origin.
-      for (const body of bodies) expect(body.spaceInstanceOrigin).toBe(window.location.origin);
-    });
-
-    it('names a space on the home as the home\'s own', async () => {
-      const user = userEvent.setup();
-      connectHome();
-      setUpStore({
-        myUser: erinOnPage,
-        friends: [makeFriend({ id: 'bob-home', displayName: 'Bob', _instanceOrigin: HOME })],
-      });
-      useSpaceStore.setState({ spaces: [makeSpace({ _instanceOrigin: HOME })] });
-
-      render(<InviteModal />);
-      await user.click(await screen.findByRole('button', { name: /Bob/ }));
-      await user.click(screen.getByRole('button', { name: /Send 1 Invite/ }));
-
-      await waitFor(() => expect(mockHomeSpaceInvite).toHaveBeenCalledTimes(1));
-      expect(mockHomeSpaceInvite.mock.calls[0][0].spaceInstanceOrigin).toBe('');
-    });
-
-    it('falls back to the page\'s instance while the home has no live session', async () => {
-      const user = userEvent.setup();
-      setUpStore({
-        myUser: erinOnPage,
-        friends: [makeFriend({ id: 'tess-page', displayName: 'Tess', _instanceOrigin: '' })],
-      });
-
-      render(<InviteModal />);
-      await user.click(await screen.findByRole('button', { name: /Tess/ }));
-      await user.click(screen.getByRole('button', { name: /Send 1 Invite/ }));
-
-      await waitFor(() => expect(mockSpaceInvite).toHaveBeenCalledTimes(1));
-      expect(mockHomeSpaceInvite).not.toHaveBeenCalled();
-      expect(mockSpaceInvite.mock.calls[0][0]).toEqual(expect.objectContaining({
-        target: { userId: 'tess-page' },
-        spaceInstanceOrigin: '',
-      }));
-    });
-  });
 });

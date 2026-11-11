@@ -101,7 +101,7 @@ Source files:
 - `packages/server/src/scripts/snapshot.ts` -- manual snapshot CLI entrypoint
 - `packages/server/src/scripts/remediate-seed-admin.ts` -- legacy seed-admin password rotation
 
-**Out of scope:** voice/LiveKit operational tuning (see `docs/systems/voice.md`), upload/storage janitor (see `docs/systems/uploads.md`), and federation peering/replication (see `docs/systems/federation.md`).
+**Out of scope:** voice/LiveKit operational tuning (see `docs/systems/voice.md`) and upload/storage janitor (see `docs/systems/uploads.md`). Federation is retired, not a deployment mode.
 
 ---
 
@@ -133,9 +133,9 @@ One installer, three modes, recorded as `DEPLOY_MODE` in `.env`. `install.sh` au
 
 **`COMPOSE_FILE` wiring.** In proxy/tunnel mode install.sh writes `COMPOSE_FILE=docker-compose.yml:docker-compose.proxy.yml` into `.env`. Docker Compose reads `COMPOSE_FILE` from `.env`, so **every** later `docker compose …` command in the directory transparently uses both files — the operator (and the update commands) never need `-f` flags. All-in-One leaves `COMPOSE_FILE` unset (defaults to `docker-compose.yml`).
 
-**Server proxy-awareness.** The server sets Fastify `trustProxy` to a count of trusted hops (`TRUSTED_PROXY_HOPS`, default 1, see below), so it trusts `X-Forwarded-*` from the fronting proxy/tunnel but not from anything beyond it. `getOurOrigin()` returns `https://${DOMAIN}` (federation/public identity) whenever `DOMAIN` is set and `PUBLIC_ORIGIN` is unset — correct in all three modes, since the public URL is `https://DOMAIN` regardless of which layer terminates TLS. No `PUBLIC_ORIGIN` is needed for a normal proxy/tunnel deployment.
+**Server proxy-awareness.** The server sets Fastify `trustProxy` to a count of trusted hops (`TRUSTED_PROXY_HOPS`, default 1, see below), so it trusts `X-Forwarded-*` from the fronting proxy/tunnel but not from anything beyond it. `getPublicOrigin()` uses `https://${DOMAIN}` whenever `DOMAIN` is set and `PUBLIC_ORIGIN` is unset — correct in all three modes, since the public URL is `https://DOMAIN` regardless of which layer terminates TLS. No `PUBLIC_ORIGIN` is needed for a normal proxy/tunnel deployment.
 
-**The trusted hop count (`TRUSTED_PROXY_HOPS`).** `trustProxy` is not `true`; it is a count of the proxies in front of the app that are trusted to have written `X-Forwarded-For`. It is set in `.env` like every other deployment fact, defaults to **1**, and is read and validated in `packages/server/src/config.ts`; `install.sh` writes the line into a generated `.env`, commented out at the default, and preserves an explicit value across re-runs. A set value that is not a non-negative integer stops the server at boot rather than quietly becoming 1, and so does anything above 4 (a CDN in front of your own proxy in front of a tunnel is 3, so a larger number is a typo, and a typo like 11 would trust the whole forwarded chain again). A blank line reads as unset and gives you the default. What the refusal actually says, and why the ceiling is 4, is in [web-security.md](web-security.md) section 9. `docker-compose.yml` passes `.env` to the container wholesale (`env_file`), so setting it there is all it takes. `request.ip` is therefore the address the nearest proxy appended, not the left-most thing in the header, so a client cannot choose the address its rate limits are counted under. Every rate limit in the app keys on that address (see [api.md](api.md), "Rate limiting"), as does the unauthenticated federation peer-accept limiter, and it is what the request log records.
+**Trusted hop count (`TRUSTED_PROXY_HOPS`).** Configure the actual trusted reverse-proxy count in `.env`, default **1**, rather than trusting every forwarded address. `config.ts` refuses non-integers, negatives and values above 4 at boot; blank uses the default (web-security.md §9). `install.sh` preserves an explicit value and comments the generated default. Compose passes `.env` via `env_file`. The count controls `request.ip`, request logging and IP-keyed rate limits; set it accurately for the deployment rather than accepting a client's leftmost forwarded address. Native account-keyed budgets remain separate (api.md).
 
 One is correct for all three modes as shipped: the bundled Caddy, an operator's reverse proxy and a tunnel daemon are each one hop. Two deployments need a different number, and the app cannot detect either of them for itself:
 
@@ -170,7 +170,7 @@ remaining budgets while changing a visitor-supplied XFF does not change one.
 Keep a private configuration backup for rollback. This incident correction does
 not disable rate limits or change credentials, user data or the application image.
 
-**Custom public port.** When the public port is not 443, it goes into `DOMAIN` itself (`DOMAIN=chat.example.com:1443`). `DOMAIN` is the host clients type, and everything the instance advertises (`getOurOrigin()`, invite links, the generated `LIVEKIT_URL`) is built from it, so the port propagates with no second variable. Only `proxy` mode supports it: install.sh rejects a port in `allinone` (Caddy needs 80/443 for issuance; `docker-compose.yml` publishes only those) and in `tunnel` (the provider's edge answers on 443). The installer splits `DOMAIN_HOST` / `DOMAIN_PORT` for the DNS check and the printed snippets (`listen <port> ssl`, `server_name <host>`). The proxy must pass the `Host` header through unchanged: the nginx snippets use `$http_host`, because `$host` strips the port. The server itself never builds a URL from the request host (the tus `Location` is relative for exactly this reason, see uploads.md), so a proxy that mangles `Host` can only break what it terminates. Federation with a port in `DOMAIN` is not supported (see Known Limitations).
+**Custom public port.** Put a non-443 public port in `DOMAIN` (`chat.example.com:1443`). Native durable URLs use `getPublicOrigin()` (`PUBLIC_ORIGIN` override, else `https://DOMAIN`); generated LiveKit URLs also retain the configured port. Only installer `proxy` mode supports a custom port: `allinone` needs 80/443 for issuance and `tunnel` uses the provider's 443 edge. The installer splits `DOMAIN_HOST`/`DOMAIN_PORT` for DNS checks/snippets. Pass `Host` unchanged (`$http_host`, not nginx's port-stripping `$host`). The server never derives durable URLs from request Host; tus Location is relative (uploads.md).
 
 **Voice per mode.** LiveKit media is WebRTC over UDP and never flows through the HTTP proxy/tunnel — the media ports (`3478/udp` TURN, `7881/tcp` fallback, `50000-60000/udp` media) must be reachable from clients directly. All-in-One proxies LiveKit *signaling* through Caddy (`/livekit` → `host.docker.internal:7880`); a reverse-proxy operator must replicate that route (`/livekit` → `127.0.0.1:7880`, prefix stripped) **and** open the media ports. Over a tunnel, voice is unavailable and install.sh force-disables it. See `docs/systems/voice.md` for LiveKit tuning.
 
@@ -355,12 +355,12 @@ In `packages/server/src/routes/auth.ts`, registration computes:
 
 ```ts
 const userCount = db.select().from(schema.users).all().length;
-const isFirstUser = userCount === 0 && !homeInstance;
+const isFirstUser = userCount === 0;
 // ...
 isAdmin: isFirstUser ? 1 : 0,
 ```
 
-The very first **locally-registered** user (`userCount === 0` **and** `!homeInstance`) is created with `isAdmin = 1`. The `!homeInstance` guard is a federation invariant: a replicated user (one whose identity is homed on another instance) is never an admin of *this* instance, even if they happen to be the first row written. This means the operator simply registers the first account after install to obtain admin rights — no credentials are printed, shipped, or stored anywhere.
+The first native registration on an empty instance is created with `isAdmin = 1`. Request metadata cannot choose another identity/admission path or grant later registrants admin privileges. The operator registers the first account after install to obtain admin rights — no credentials are printed, shipped, or stored anywhere.
 
 ### Recovery net: `ensureDefaults` re-promotes the earliest user
 
@@ -387,7 +387,7 @@ docker exec -w /app/packages/server backspace \
 
 Behavior (`packages/server/src/scripts/remediate-seed-admin.ts`):
 
-- **Targets only the local seed admin** — `username = 'admin'` with `home_instance IS NULL` and `is_admin = 1`. Replicated/federated users are never touched.
+- **Targets only the native seed admin** — `username = 'admin'` and `is_admin = 1`. Ordinary non-admin accounts are never touched.
 - **Rotates only `admin123`.** It verifies the current hash against `admin123`; if the password has already been changed, it is a **no-op** ("nothing to do"). It is fully idempotent — safe to run repeatedly.
 - **Never deletes** the account (the default-space ownership constraint above).
 - On rotation it generates a 24-character random password, updates the hash, prints the new password to stdout, **and** writes it to `data/seed-admin-rotated.txt` (mode `0600`, **root-owned** — the script runs via `docker exec`, which bypasses the entrypoint's gosu drop and runs as root, so this file is uid 0 until the next container restart re-chowns it). **Store the password somewhere safe, then delete `data/seed-admin-rotated.txt`** (a non-root host user may need `sudo`).
@@ -507,12 +507,12 @@ The pre-restore copy means a mistaken restore is itself undoable: the previous D
 
 A snapshot only carries the schema of the build that wrote it. On boot `initDatabase()` re-runs `migrate()`, so a snapshot taken before a migration is brought forward automatically and the restore itself works. What a restore always costs is the **data** written between the snapshot and now.
 
-One case is worth calling out because the loss is silent rather than visible. `user_federation_credentials` (migration `0011`) holds the per-remote secret each user's client presents on other instances (`auth.md` §5b). Restoring a snapshot from before those rows were written leaves the remote accounts holding secrets this instance no longer knows:
-
-- The client self-heals **while a remote token is still valid** — the credential comes back with `provisioned_at` NULL, so `ensureRemoteCredential` rotates that remote account onto a freshly issued secret with no user interaction.
-- Where the token has already expired, the user re-authenticates once through the per-instance login form on that connection. Nothing is permanently lost; nobody is locked out.
-
-No action is required after a restore. Watch `docker compose logs -f backspace` for `[federation] Credential migration deferred` lines, which name any connection that could not be reconciled yet.
+The standalone upgrade uses the same generated-history runner and snapshot
+boundary for old backups. It preserves native accounts/content and refuses
+ambiguous dependencies before mutation; do not reset the database, delete uploads
+or hand-edit migration history to bypass a refusal. Preserve the snapshot and
+review the reported category using [database.md](database.md). No remote
+credential repair or peer reconnection is available after restoration.
 
 ---
 
@@ -546,7 +546,7 @@ These are accepted constraints of the current deploy model, documented so operat
 - **`deploy.sh` still builds on each target host.** The public `install.sh` path now defaults to the prebuilt GHCR image (multi-arch, so a Pi pulls a native image), but `deploy.sh` — Heidi's rsync-then-`up -d --build` helper for `nova`/`orbit` — deliberately builds from the rsynced working tree on the box (it caps the build cache and prunes old images to compensate). A native-module or toolchain regression can still surface on ARM but not x86, or vice-versa, on that path; the CI multi-arch build catches most such regressions before release.
 - **A deploy causes brief downtime + WebSocket reconnect.** `docker compose up -d --build` rebuilds and recreates the `backspace` container; while it restarts, the server is briefly unavailable and every connected client's WebSocket drops and must reconnect. There is no rolling/zero-downtime deploy. Clients reconnect automatically, but in-flight requests during the swap can fail.
 - **Open clients switch to a new web build within about a minute of the deploy, by reloading.** A client in a voice channel or DM call (including one still ringing) keeps running the old build until the call ends, then reloads onto the new one. While any tab in a browser has a call, the other tabs of that browser wait with it. The web and desktop clients behave the same way.
-- **Federation does not carry a port in `DOMAIN`.** The identity helpers (`extractDomain`, the `homeInstance` validation on registration, the hostname comparisons in the federation routes) work on the bare hostname, so two instances that differ only by port would collide and a ported instance cannot register replicated users on a peer. Single-instance use on a custom port is supported; federating such an instance needs the identity audit that `normalizeOriginForCompare` already notes as tracked.
+- **A custom public port belongs in `DOMAIN`.** Native operation supports it in proxy mode; URLs preserve the scheme, host and explicit port. There is no cross-server identity/peering configuration.
 - **`deploy.sh all` can mask one host failing.** The `all` target runs both deploys in parallel (`deploy … & deploy … & wait`). The visible "Deployment complete." is printed regardless of whether one host's build failed mid-stream; the failure scrolls by in the interleaved output. After an `all` deploy, **confirm `/api/health` on both boxes** rather than trusting the final line. For a high-stakes change, deploy to one box at a time.
 
 ---

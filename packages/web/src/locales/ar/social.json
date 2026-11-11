@@ -19,7 +19,6 @@
     "activity": "هدوء الآن… عندما يبدأ الأصدقاء نشاطًا سنعرضه هنا!"
   },
   "friend": {
-    "viaInstance": "عبر {{host}}",
     "message": "رسالة",
     "remove": "إزالة الصديق"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "العثور على الأشخاص",
-    "hint": "ابحث باسم المستخدم أو استخدم <handle>user@instance</handle> لإضافة شخص مباشرة.",
     "placeholder": "ابحث أو أضف بالاسم…",
     "direct": "إرسال طلب صداقة إلى <handle>{{handle}}</handle>",
     "sendRequest": "إرسال الطلب",
@@ -107,6 +105,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "فتح المقطع"
-  },
-  "instanceNotConnected": "غير متصل بـ {{host}}. اتصل مجددًا وحاول مرة أخرى."
+  }
 }

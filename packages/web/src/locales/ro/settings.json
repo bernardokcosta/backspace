@@ -127,7 +127,6 @@
       "appearance": "Aspect",
       "voice": "Voce și video",
       "privacy": "Confidențialitate",
-      "connections": "Conexiuni",
       "keybinds": "Scurtături",
       "desktop": "Desktop",
       "instance": "Instanță",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "Contul meu",
-    "detached": {
-      "notice": "Acest cont este detașat de instanța sa principală.",
-      "explanation": "{{homeInstance}} a fost resetată sau nu mai este disponibilă, așa că acest cont funcționează acum local pe această instanță. Profilul și parola ta sunt gestionate aici.",
-      "reattachHint": "Ca {{username}} pe {{homeInstance}}, poți reconecta acest cont. Profilul și prezența se vor sincroniza din nou de acolo.",
-      "reattachButton": "Reconectează la {{homeInstance}}",
-      "reattachConfirm": "Confirmă reconectarea ca {{username}}",
-      "reattaching": "Se reconectează…",
-      "reattachFailed": "Reconectarea a eșuat",
-      "reattached": "Cont reconectat cu {{username}}"
-    },
     "profile": {
       "sectionTitle": "Personalizarea profilului",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "Cont",
       "status": {
-        "label": "Stare",
-        "homeUnavailable": "Starea ta este păstrată pe {{host}}. Conectează-te la {{host}} pentru a o schimba."
+        "label": "Stare"
       },
       "customStatus": {
         "label": "Stare personalizată",
@@ -245,10 +233,6 @@
         "passwordPlaceholder": "Introdu parola",
         "submit": "Șterge contul meu",
         "deleting": "Se șterge…"
-      },
-      "federation": {
-        "removing": "Se elimină contul tău din instanțele conectate…",
-        "deleteAnyway": "Șterge contul acum"
       },
       "complete": {
         "title": "Cont șters",
@@ -311,14 +295,10 @@
       }
     }
   },
-  "connections": {
-    "title": "Conexiuni"
-  },
   "instance": {
     "tabs": {
       "general": "General",
       "registration": "Înregistrare",
-      "federation": "Federare",
       "streaming": "Transmisie",
       "storage": "Stocare",
       "users": "Utilizatori",

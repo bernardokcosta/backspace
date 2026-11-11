@@ -1,27 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "อินสแตนซ์ระยะไกล",
-    "hostInstance": "อินสแตนซ์โฮสต์",
-    "acceptDropped": "ยืนยันการรับกับ {{instance}} ไม่ได้ — สายหลุด",
-    "rejectFailed": "แจ้ง {{instances}} ว่าปฏิเสธไม่ได้ ผู้โทรอาจยังเห็นคุณดังครู่หนึ่ง",
-    "endFailed": "แจ้ง {{instances}} ว่าวางสายไม่ได้ ผู้ร่วมระยะไกลอาจเห็นสายถึง 60 วินาที",
-    "hostUnreachable": "จบการโทร — อินสแตนซ์โฮสต์ติดต่อไม่ได้",
-    "peeringLost": "จบการโทร — อินสแตนซ์นี้ไม่เพียร์กับ {{instance}} แล้ว",
-    "instanceUnreachable": "จบการโทร — {{instance}} ติดต่อไม่ได้",
-    "someUnreachable": "ติดต่อผู้ร่วมบางคนไม่ได้: {{instances}}",
-    "multipleUnreachable_other": "ติดต่อ {{count}} อินสแตนซ์ไม่ได้: {{instances}}",
-    "callFailed": "โทรไม่ได้",
-    "manualApproval": "ติดต่อ {{instance}} ไม่ได้ — อินสแตนซ์นี้ต้องอนุมัติเพียร์ด้วยตนเอง",
-    "awaitingApproval": "รอผู้ดูแล {{instance}} อนุมัติอินสแตนซ์คุณ โทรได้หลังอนุมัติ",
-    "transientFailure": "ติดต่อ {{instance}} ไม่ได้ ลองอีกครู่",
-    "voiceUnavailable": "ไม่ได้ตั้งค่าเสียงบนอินสแตนซ์นี้",
-    "noRecipient": "{{instance}} ไม่โทรหาใคร",
-    "targetCallFailed": "โทรไป {{instance}} ไม่ได้"
-  },
-  "feedback": {
-    "relayDenied": "ส่งต่อข้อความไม่ได้ — เซิร์ฟเวอร์เขาปฏิเสธเพียร์ ติดต่อผู้ดูแลเขา",
-    "awaitingPeering": "ข้อความจะส่งเมื่อผู้ดูแลเขาอนุมัติคำขอเพียร์"
-  },
   "names": {
     "group": "กลุ่ม",
     "directMessage": "ข้อความตรง",
@@ -156,11 +133,6 @@
     "notFound": "ไม่พบบทสนทนา",
     "notGroup": "บทสนทนานี้ไม่มีข้อมูลกลุ่ม",
     "cancelEdit": "ยกเลิกแก้ไข",
-    "federated": "กลุ่มสหพันธ์",
     "memberCount_other": "สมาชิก {{count}} คน"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "กลุ่มนี้จัดการบน {{host}} เชื่อมไปอินสแตนซ์นั้นเพื่อเปลี่ยน",
-    "ownerNotListed": "{{host}} ยังไม่แสดงกลุ่มนี้ให้คุณ ลองอีกครู่"
   }
 }

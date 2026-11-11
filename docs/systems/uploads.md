@@ -1,5 +1,33 @@
 # File & Upload System
 
+## Native transfer and pending-work ownership
+
+The primary client uploads only to its selected current server. New transfers
+capture `window.location.origin` and the verified native account ID; their
+persisted origin is ownership metadata, never a peer-routing destination. Every
+tus request validates its endpoint or exact `/api/files/<id>` URL before adding
+Authorization. Locations/resume URLs with foreign scheme/host/port, credentials,
+query/hash or another path are refused. Explicit cancel uses one validated native
+DELETE with redirects disabled; it never sends the replacement server's bearer
+to an old URL.
+
+Upload attempts, including handle lookup/permission/file reads, are individually
+owned. Pause, cancel, replacement, removal and session reset invalidate their
+callbacks before aborting the transport. Logout/login/password rotation pause
+active transfers without deleting files, URLs or IndexedDB handles. Rehydration
+does not probe or resume another account/server's work. Native downloads use the
+same session/attempt checks before picker, writable, fetch, stream writes and blob
+delivery. Range resume must acknowledge the requested offset before appending.
+
+Pending messages and the transfer tray display only current native ownership.
+Deferred sends cannot be retried under a replacement session; an old acknowledged
+request settles only its exact original bubble, not a new equal-ID draft.
+Composer drafts/replies use the existing persisted map, now keyed by current
+origin/account/channel. Old unscoped entries remain stored: attachment-backed work
+can be recovered only when all retained transfer owners prove the current scope.
+Unowned text-only legacy work is not silently adopted by a new login. Storage
+denial leaves in-memory work usable and never enables alternate credential routing.
+
 ## Temporary backpressure and media-probe recovery
 
 Upload creation stays 30/min/account, PATCH 1,000/min/account, separate from
@@ -9,6 +37,17 @@ finite schedule, respecting a bounded server wait for 429; exhausted 429/408
 remain temporary, preserving file/attachment references and resumable URL.
 Ownership/validation failures remain permanent. A refused deferred message
 stays available for explicit retry and is not replayed by an `online` event.
+
+The staged retirement helper (`db/retirementFiles.ts`, called by database boot)
+never unlinks files inside the schema-migration transaction. It records only
+explicitly attributed safe paths in an atomic sidecar, bound to the database,
+upload-root/file identities and the actual committed migration hash. Retry checks
+all surviving references and identities under the SQLite write lock, refuses
+symlinks/junctions and never sweeps unrelated files. Incomplete I/O remains pending
+and must abort the eventual boot integration rather than report complete cleanup.
+Existing `deleteUploadFile` callers retain their behavior; the retirement helper
+opts into strict errors, an explicit trusted directory and **no implicit thumbnail
+deletion**, so a separately referenced thumbnail cannot be removed accidentally.
 
 Optional `checkFfmpeg()` probes `ffprobe -version` with a 5s timeout and 64KiB
 output bound. Success stays cached; a failed probe is single-flight and retries
@@ -22,28 +61,27 @@ Source files:
 - `packages/server/src/utils/thumbnail.ts` -- Image thumbnail generation (sharp), video thumbnail extraction (ffmpeg), image dimension probing, profile image resizing, media metadata extraction (incl. video codec)
 - `packages/server/src/utils/mediaPlayable.ts` -- `classifyVideoPlayable(mimetype, codec)` web-playability classifier (drives `attachments.playable`)
 - `packages/server/src/utils/fileCleanup.ts` -- File deletion helpers (disk + thumbnail + attachment record cleanup)
-- `packages/server/src/utils/storageJanitor.ts` -- Storage stats, orphan detection, cleanup routines (orphaned files, unlinked attachments, dangling references, old media), federation GC, soft-deleted DM channel purge
+- `packages/server/src/utils/storageJanitor.ts` -- Native storage stats, orphan detection, cleanup of unlinked attachments/dangling references/old media and soft-deleted DM channels
 - `packages/web/src/stores/transferStore.ts` -- Client transfer manager (uploads via tus-js-client, downloads via fetch + FS Access)
 - `packages/web/src/stores/composerStore.ts` -- Per-channel staged transfer IDs, draft text, replyTo
 - `packages/web/src/stores/pendingMessageStore.ts` -- Optimistic attachment-bearing message bubbles awaiting transfer completion
 - `packages/web/src/stores/pendingMessageRehydrate.ts` -- Orchestrator that fires the deferred `POST /messages` once all transfers in a bubble complete
 - `packages/web/src/utils/imageActions.ts` -- Client-side image save-to-disk and copy-to-clipboard actions
 - `packages/web/src/utils/cropImage.ts` -- Client-side image cropping pipeline (canvas-based, WebP output)
-- `packages/web/src/components/chat/AttachmentRenderer.tsx` -- Attachment display component (images, video, audio, generic files, federation badges)
+- `packages/web/src/components/chat/AttachmentRenderer.tsx` -- Native attachment display (images, video, audio, generic files)
 - `packages/web/src/components/chat/AttachmentProgress.tsx` -- Radial-progress overlay for in-flight transfers in optimistic bubbles
 - `packages/web/src/components/layout/TransferIndicator.tsx` -- Channel-header transfer indicator + global tray panel
 - `packages/web/src/components/chat/ImagePreview.tsx` -- Full-screen image preview modal with save/copy toolbar
 - `packages/server/src/routes/stickers.ts` -- Personal sticker collection, upload (base64 JSON, not tus) and asset serving
 - `packages/server/src/routes/stickerStore.ts` -- Sticker packs: storefront, user installs, pack creation/versioning/review flow (admin moderation in `stickerStoreAdmin.ts`)
-- `packages/server/src/utils/stickerSync.ts` -- Federated pack sync: policy/active-peer checks, metadata fetch, content-hash-verified asset downloads with a stream byte budget, local-bounds validation before storing the replica
 - `packages/server/src/utils/stickerAssets.ts` -- Sticker asset paths, the reference scan and the unused-asset cleanup
 - `packages/shared/src/stickers.ts` -- Sticker token grammar (`stickerUrl`, `stickerIdOf`) and limits
 - `packages/web/src/components/chat/StickerPicker.tsx`, `StickerUploadForm.tsx`, `StickerUploadPreview.tsx`, `StickerMessage.tsx` -- Picker, batch upload form, sticker message row
 - `packages/web/src/utils/stickerMessages.ts` -- What a sticker message is and what a one-line surface shows for it
 
-DB tables: `attachments`, `instance_settings` (maxUploadSizeBytes, maxStickerSizeBytes), `sticker_assets`, `personal_stickers`, `sticker_packs`, `sticker_pack_versions`, `sticker_pack_items`, `user_installed_packs`, `sticker_peer_policies`. See `docs/systems/database.md` for full schemas.
+DB tables: `attachments`, `instance_settings` (upload/sticker limits), `sticker_assets`, `personal_stickers`, `sticker_packs`, `sticker_pack_versions`, `sticker_pack_items`, `user_installed_packs`. Pack provenance/policy and remote synchronization are retired; native review/install/assets stay. See [database.md](database.md).
 
-**Out of scope:** Federation file replication/download queue (see `docs/systems/federation.md`), admin storage stats UI, admin user management.
+**Out of scope:** Admin storage UI and user management. Peer replication/download queues are retired, not supported upload modes.
 
 **Personal stickers** have their own small upload path, storage directory and cleanup phase; see [section 14](#14-personal-stickers). The tus pipeline and the attachment lifecycle do not handle them.
 
@@ -54,6 +92,9 @@ decoded pixels are checked again before encoding. Collection names retain
 `normalizeStickerName` validation (visible single line, no bidi/control chars).
 Pack uploads recheck owner, draft state and the 100-item capacity after all async
 encoding/writes and insert atomically; moderation cannot race a late upload.
+Native sticker tokens/covers use `utils/publicOrigin.ts`'s current configured
+public base (PUBLIC_ORIGIN, HTTPS DOMAIN or localhost fallback), never a peer
+registry or caller-supplied remote destination.
 
 ### Capability Matrix
 
@@ -119,9 +160,9 @@ Stats: `getStorageStats()` exposes `staleTusSessions` + `staleTusSize` for the a
 ### Security
 
 - JWT verified on every tus request (PRE_CREATE, PRE_PATCH, finalize, HEAD, DELETE).
-- **Federated uploads use a per-origin JWT.** When the target space is hosted on a remote instance, the client must send that instance's scoped token (resolved via `getTokenForOrigin(origin)` in `crossStoreResolvers.ts`), not the home-instance token — otherwise the remote rejects the request as it can't verify the home signature or resolve the userId.
-- **CORS for federated tus uploads.** The server's `@fastify/cors` registration in `index.ts` permits the tus protocol's request headers (`Tus-Resumable`, `Upload-Length`, `Upload-Offset`, `Upload-Metadata`, `Upload-Defer-Length`, `Upload-Concat`, `Upload-Checksum`, `X-HTTP-Method-Override`) and exposes the response headers tus-js-client needs to read across origins (`Location`, `Tus-Resumable`, `Tus-Version`, `Tus-Extension`, `Tus-Max-Size`, `Tus-Checksum-Algorithm`, `Upload-Offset`, `Upload-Length`, `Upload-Metadata`, `Upload-Expires`). Without these, browser preflight blocks cross-origin POST/HEAD/PATCH/DELETE on `/api/files/*`.
-- **`Location` is relative (`relativeLocation: true`).** An absolute Location would have to be assembled from `Host` / `X-Forwarded-Host`, which is whatever the fronting proxy chose to send; nginx's `$host` drops the port, so an instance on a custom public port handed out a Location pointing at a port the client never used (#44). tus-js-client resolves a relative Location against the endpoint it uploaded to, and `transferStore` stores the resolved absolute URL (`utils/tusUrl.ts`: `tusEndpoint(origin)` gives the absolute endpoint, `resolveTusUrl(location, origin)` resolves the Location; home origin when `origin` is empty) so resume and cancel work for federated uploads too.
+- **Native upload ownership.** Transfers capture the selected server/account and session/attempt generation. Validate the exact current-origin tus URL before attaching the current bearer. A stale transfer cannot resume or cancel using another account's credentials.
+- **CORS for the supported web/desktop transport.** The server's `@fastify/cors` registration in `index.ts` permits the tus request headers (`Tus-Resumable`, `Upload-Length`, `Upload-Offset`, `Upload-Metadata`, `Upload-Defer-Length`, `Upload-Concat`, `Upload-Checksum`, `X-HTTP-Method-Override`) and exposes the response headers (`Location`, `Tus-Resumable`, `Tus-Version`, `Tus-Extension`, `Tus-Max-Size`, `Tus-Checksum-Algorithm`, `Upload-Offset`, `Upload-Length`, `Upload-Metadata`, `Upload-Expires`). This does not authorize a foreign upload URL or credential source.
+- **`Location` is relative (`relativeLocation: true`).** The server never reconstructs a credentialed upload target from forwarded Host headers. `tusEndpoint` and `resolveTusUrl` preserve the selected scheme/host/port and require the native `/api/files/` shape; resume/cancel refuses foreign or malformed locations before bearer attachment.
 - PRE_PATCH ownership check: `metadata.userId === req.user.id`. Required to prevent in-flight upload hijack between session creation and finalize.
 - Size validated against `instance_settings.maxUploadSizeBytes` at PRE_CREATE; tus's own `maxSize` is set as defense-in-depth.
 - Original filename round-trips through tus metadata (base64-encoded per spec); the on-disk filename uses snowflake + sanitized extension only.
@@ -372,7 +413,11 @@ fs.unlinkSync(thumbPath) -- always attempted, silently ignored if missing
 
 ### `fileCleanup.ts:deleteAttachmentFiles(rows)`
 
-Batch deletion: calls `deleteUploadFile` for each `{ filename }` in the array.
+Batch post-commit deletion checks the shared native reference inventory before
+calling `deleteUploadFile`. A retained profile, message attachment, soundboard file
+or thumbnail prevents deletion; an auto-thumbnail still held separately survives
+deletion of an otherwise unreferenced main file. Migration-owned strict deletion
+keeps its separately verified targeted plan, not a general orphan scan.
 
 ### `fileCleanup.ts:deleteAttachmentByFilename(filename)`
 
@@ -380,11 +425,25 @@ Deletes the attachment DB record and its thumbnail from disk. Used when profile 
 
 ```
 1. Look up attachment record by filename
-2. Delete thumbnail file from disk (if thumbnailFilename is set)
-3. Delete attachment DB record
+2. Delete attachment DB record (only a newly authorized loose image is claimed)
+3. Delete its thumbnail only if no native holder remains
 ```
 
 Idempotent: no-op if no record exists.
+
+Native profile and space updates reuse `isOwnLooseUpload`, the same ownership check as bot
+avatars: a new local image must be the actor's upload with neither message holder.
+The shared file cleanup module owns the janitor's existing reference inventory,
+URL normalization and post-commit deletion check, not a second image store.
+Mutators normalize both accepted local forms before comparison, claim the attachment
+once before resizing and never resize a same-file repeat. The janitor's existing
+profile/reference inventory is also used to avoid deleting a replaced image that
+another profile, space, DM or message still holds. Group icons also refuse an
+attachment already claimed by a message. Bot/user tombstones and native message/
+channel/space deletion use the same surviving-reference protection. Janitor orphan,
+dangling and old-media cleanup cannot erase separately referenced thumbnails.
+This does not change public
+uploaded-file read access or authorize arbitrary local filesystem paths.
 
 ---
 
@@ -457,7 +516,15 @@ Returns `StorageStats` object:
 
 #### `cleanupStorage(dryRun: boolean) -> CleanupResult`
 
-Three-phase cleanup:
+Native cleanup phases:
+
+Orphan, unlinked and dangling candidates are collected in batches. Each file
+deletion batch reads one fresh surviving-reference inventory **after** that phase's
+successful DB mutations; it does not rebuild a full attachment/profile inventory
+for every file. Old-media cleanup uses the same batch path. Empty batches perform
+no reference scan. Shared original/thumbnail holders remain protected; dry-run
+does not mutate rows or files. Query-count regressions enforce constant inventory
+scans per phase rather than timing-sensitive performance thresholds.
 
 **Phase 1: Orphaned disk files** -- Files on disk not referenced by any DB record (attachment, profile).
 - Deletes file + thumbnail via `deleteUploadFile`
@@ -495,18 +562,7 @@ Age-based media cleanup:
 
 When `dryRun = true`: counts are computed but no files/records are deleted.
 
-### Federation GC (`runFederationJanitor()`)
-
-Periodic cleanup of federation data (called by background worker):
-
-| Task | Function | Criteria |
-|------|----------|---------|
-| Expired outbox entries | `cleanupFederationOutbox()` | `expiresAt < now` |
-| Old mutation log | `cleanupFederationMutationLog(90)` | `mutatedAt < (now - 90 days)` |
-| Stale file queue | `cleanupFederationFileQueue()` | Completed entries > 7 days old, OR `expiresAt < now` |
-| Soft-deleted DM channels | `cleanupSoftDeletedDmChannels()` | `deletedAt < (now - 24 hours)` |
-
-#### Soft-Deleted DM Channel Purge
+### Native Soft-Deleted DM Channel Purge
 
 `cleanupSoftDeletedDmChannels()` hard-deletes DM channels that were soft-deleted more than 24 hours ago. Cascades in transaction:
 
@@ -516,14 +572,11 @@ Periodic cleanup of federation data (called by background worker):
    - Delete dm_reactions (by message IDs)
    - Delete embeds (by message IDs)
    - Delete attachments DB records (by message IDs)
-   - Delete federation_file_queue entries (by message IDs)
    - Delete dm_messages
    - Delete dm_members
    - Delete read_states
-   - Delete federation_outbox entries (by channel ID as contextId)
-   - Delete federation_mutation_log entries (by channel ID as contextId)
    - Delete dm_channels record
-3. Delete attachment files from disk (outside transaction)
+3. Delete only now-unreferenced attachment files from disk (outside transaction)
 ```
 
 ### Admin Endpoints
@@ -548,7 +601,7 @@ Three stores with strict separation of concerns:
 
 | Store | Source file | Ownership |
 |-------|-------------|-----------|
-| `transferStore` | `packages/web/src/stores/transferStore.ts` | Every byte transfer (uploads + downloads). Source of truth for the global tray. Persists transfer metadata via `transferStore@v1`. Tus uploads route the bearer token through `getTokenForOrigin(origin)` so federated uploads use the per-instance JWT, not the home-instance one. |
+| `transferStore` | `packages/web/src/stores/transferStore.ts` | Every byte transfer (uploads + downloads). Source of truth for the global tray. Persists metadata via `transferStore@v1`; selected-server/account/session/attempt ownership is checked before bearer attachment or async result application. |
 | `composerStore` | `packages/web/src/stores/composerStore.ts` | Per-channel staged transfer IDs + draft text + replyTo. Replaces `MessageInput` component-local state. Persists via `composerStore@v1`. |
 | `pendingMessageStore` | `packages/web/src/stores/pendingMessageStore.ts` | Composed-but-not-yet-sent attachment-bearing bubbles, keyed by `clientId`. Persists via `pendingMessageStore@v1`. Text-only messages are out of scope -- they keep the existing `chatStore.sendMessage` `temp_*` optimistic path. |
 
@@ -565,7 +618,7 @@ The zone is enabled only when the user may send and attach (`SEND_MESSAGES` and 
 1. User attaches a file -> `transferStore.startUpload` (eager, fires before Send) -> the new transferId joins `composerStore[channelId].stagedTransferIds`.
 2. User clicks Send -> `pendingMessageStore.append({ ... transferIds })` -> `composerStore.clear`. The bubble renders in `MessageList` at its `createdAtLocal` position.
 3. The orchestrator (`packages/web/src/stores/pendingMessageRehydrate.ts`) polls `listReadyForDeferredSend()`; once every transfer in the bubble is `completed` with an `attachmentId`, it fires `POST /messages` with the collected `attachmentIds` and removes the bubble on success.
-4. WS echo dedup: when a real message arrives in the channel (`chatStore.addMessage` or `addRealtimeMessage`) whose content + sorted attachmentIds match a pending bubble (`pendingMessageStore.matchAndRemove`), the oldest matching bubble is removed (FIFO tiebreaker). The author is not compared: the attachment ids were issued to this client's uploads, so a match is the echo. Until then the bubble renders as the user's row on the channel's instance (`myRowForOrigin`, client-federation.md §5); no bubble renders while that instance has not named the row.
+4. WS echo dedup: a real message whose channel/content/sorted attachmentIds match a currently owned pending bubble settles the oldest matching bubble (`pendingMessageStore.matchAndRemove`, FIFO tiebreaker). Native upload ownership proves attachment provenance; an equal ID on a different account/server cannot settle or display older pending work. Until acknowledgement, the bubble uses the current native account only when its ownership is proven.
 5. Failure: bubble flips to `state: 'failed'`. Retry re-runs failed transfers only; discard aborts everything and clears the bubble.
 
 ### Reload Survival
@@ -578,7 +631,13 @@ The zone is enabled only when the user may send and attach (`SEND_MESSAGES` and 
 
 #### Boot-time normalization
 
-On store rehydrate (`onRehydrateStorage` in `transferStore.ts` -> `normalizeRehydratedTransfers`):
+On store rehydrate, `transferStore.restoreSession` retains a pending boot pass.
+It demotes leaked active work but does not probe handles while native identity is
+unknown or the token is missing. Confirmed `loadUser`, WS `setUser` and `initSession`
+retry that same pass; only matching native account/current-server work may proceed.
+The pass is consumed before asynchronous probes so simultaneous confirmations do
+not double-resume; later profile/password updates never resume manually paused work.
+The existing `normalizeRehydratedTransfers` then applies:
 
 1. Any transfer left in `'active'` state (defensive — `partialize` already filters most) is demoted to `'paused'`. No live worker exists post-reload.
 2. For each `'paused'` transfer, if the bytes are unrecoverable (upload with no `fileHandleId`; download with no `destFileHandleId`), the transfer is marked `'failed'` with an actionable message ("File no longer available — discard and re-upload" / "Download cannot resume — bytes lost. Restart the download."). The UI then surfaces the discard control instead of a misleading paused state.
@@ -591,7 +650,7 @@ The paused state is visually distinct in `AttachmentProgress.tsx`: desaturated g
 ### Attachment Rendering (`AttachmentRenderer.tsx`)
 
 URL resolution for attachment/thumbnail:
-- If filename starts with `http` or `/`: used as-is (federated or absolute path)
+- If filename starts with `http` or `/`: used as a public absolute URL/path, never an alternate credential route
 - Otherwise: prefixed with `/api/uploads/`
 
 | MIME category | Rendering |
@@ -600,17 +659,6 @@ URL resolution for attachment/thumbnail:
 | `video/*` | `VideoAttachment` sub-component. Playable (`playable !== false`): `<video src>` with native controls, poster from thumbnail, preload `none` (with dimensions) or `metadata` (without), max 400px wide / 300px tall, with an `onError` handler that falls back to the download card. Unplayable (`playable === false`, e.g. HEVC .mov): renders the download card directly — poster (if any) under a "Can't play here — download" overlay, plus filename, duration, size and a one-tap download. **Browser-aware:** the `playable === false` verdict is computed Chromium-first, so the client only pre-fails when *this* browser also can't decode the format. WebKit (Safari/iOS) decodes HEVC via the OS, so a Safari user still gets inline playback (gated on `BROWSER_SUPPORTS_HEVC`, a one-time `canPlayType` probe for `hvc1`/`hev1`); the `onError` handler remains the safety net. Never a silently broken player. |
 | `audio/*` | Audio card with icon, filename, size, `<audio>` with native controls, preload `metadata`, max 420px wide |
 | Other | Download link card with file icon, filename (link-styled), size |
-
-#### Federation Status Badges
-
-Inline badges shown for federated attachments:
-
-| `federationStatus` | Badge | Tooltip |
-|--------------------|-------|---------|
-| `remote` | Cloud icon (muted) | "Hosted on {username}'s instance. Download to keep a local copy." |
-| `remote_partial` | Warning triangle (amber) | "File couldn't be cached on {username}'s instance (limit: {N} MB). They can still view it from yours." |
-
-The `federationMeta` JSON is parsed for display details (source username, rejection limits).
 
 ### Image Preview (`ImagePreview.tsx`)
 
@@ -701,20 +749,19 @@ interface PixelCrop {
 
 ---
 
-## 12. Asset URL Resolution (Federation)
+## 12. Native Public Asset URLs
 
 ### `assetUrls.ts`
 
-Handles URL rewriting for federated content:
+Resolves public uploads without identity projection or peer clients:
 
 | Function | Purpose |
 |----------|---------|
 | `stripUploadPrefix(filename)` | Strips `/api/uploads/` prefix from filename; no-op for bare filenames and absolute URLs |
-| `resolveAssetUrl(filename, origin)` | Converts relative filename to absolute URL for remote origins; pass-through for `http`-prefixed URLs |
-| `normalizeUserAssets(user, origin)` | Rewrites `user.avatar` and `user.banner` for remote origins; also sets `homeInstance`/`homeUserId` for users local to the remote instance |
-| `normalizeMessageAssets(message, origin)` | Rewrites user assets + attachment filenames/thumbnails for remote origins; recurses into `replyTo` |
+| `uploadUrl(filename)` | Uses the primary API upload path; public HTTP(S) URLs pass through without a bearer |
 
-These functions are called client-side when displaying content from federated instances, ensuring relative upload paths are resolved to the correct remote server.
+Server-side mutators separately require safe local filenames, current upload
+ownership and no conflicting native references before resizing/claiming an asset.
 
 ---
 
@@ -747,7 +794,7 @@ These functions are called client-side when displaying content from federated in
 
 ## 14. Personal Stickers
 
-Each account keeps a collection of stickers: small images it can send as a message or use as a reaction. A sticker travels as text, never as an attachment, so it needs no new message, reaction, WebSocket or federation field.
+Each native account keeps stickers it can send or use as reactions. Stickers travel as text, not attachments; no new message, reaction or WebSocket field is needed.
 
 ### Token
 
@@ -757,7 +804,7 @@ A sticker is the whole content of a message, or the whole `emoji` of a reaction,
 sticker:<origin>/api/stickers/assets/<sha256>.webp
 ```
 
-`<origin>` is `getOurOrigin()` of the instance that stores the asset (`PUBLIC_ORIGIN`, else `https://DOMAIN`). `stickerUrl` in `packages/shared/src/stickers.ts` accepts a value only when it is exactly one canonical http(s) URL with that path, no userinfo, query or fragment, and returns the URL to draw; `stickerIdOf` returns the hash. Anything else, including text that merely contains a token, is ordinary text. The origin is written into every token, so changing `PUBLIC_ORIGIN` or `DOMAIN` later leaves earlier stickers pointing at the old address.
+`<origin>` is the asset server's `getPublicOrigin()` (`PUBLIC_ORIGIN`, else `https://DOMAIN`). Shared `stickerUrl` accepts exactly one canonical HTTP(S) URL with that path and no credentials/query/fragment; `stickerIdOf` returns its hash. Other content, including embedded tokens, stays ordinary text. Tokens retain their written origin when the configured public address changes.
 
 The client reads `isStickerMessage` and `messageTextForPreview` from `utils/stickerMessages.ts`. The timeline row draws the image (`StickerMessage`) and draws no embeds for it. Every one-line surface (DM sidebar preview, desktop notification body, reply quote, search result) shows the localized word "Sticker". A sticker message has no Edit action, is skipped by the Up key, and hides Copy Text. A reaction pill draws the image at 28 px and its hover card at full width above the reactor names.
 
@@ -765,7 +812,7 @@ The client reads `isStickerMessage` and `messageTextForPreview` from `utils/stic
 
 `POST /api/stickers` takes `{ name, image }`, the image as canonical base64 inside the JSON body of the authenticated API client (not tus: stickers are small and are stored once per content hash). The route:
 
-1. refuses a name `normalizeStickerName` refuses (`sticker_name_invalid` with `details.max`: blank, over 100 characters after trimming, a line break, a control or bidirectional character, or nothing visible; the name is stored trimmed), more than 30 uploads per account per minute (`429 rate_limited`, a fixed window keyed on the row id, so each federated account counts on its own) and a full collection (`409 sticker_collection_full`, 200 entries, `MAX_PERSONAL_STICKERS`);
+1. validates/trim names with `normalizeStickerName`: blank/invisible, over 100 characters, line/control/bidi characters give `sticker_name_invalid` / `details.max`; enforces 30 uploads per native account per minute (`429 rate_limited`) and the 200-item collection cap (`409 sticker_collection_full`, `MAX_PERSONAL_STICKERS`);
 2. decodes the bytes with sharp: at most 5 MiB in, at most 16,777,216 decoded pixels across all frames, PNG, JPEG, WebP or GIF only (SVG and anything else is `400 sticker_invalid_image` with `details.max`, the limit in MB);
 3. re-encodes to WebP, keeping animation and frame delays, fitting every frame into 512 x 512 without enlarging, and refuses a result larger than 5 MiB. Metadata and any bytes outside the image are dropped;
 4. names the asset by the SHA-256 of the encoded bytes, writes (or makes fresh again) its `sticker_assets` row, writes the file to a temporary name and renames it into place, then adds the collection entry.
@@ -788,14 +835,13 @@ Files live in `UPLOAD_DIR/stickers/<sha256>.webp`. The attachment phases of the 
 
 Phase 4 of `cleanupStorage` (`cleanupUnusedStickerAssets`) removes an asset when no collection entry, channel message, DM message, channel reaction or DM reaction on this instance names it and its `created_at` is more than 24 hours old. The upload sets `created_at` to the upload time before it writes the file, also for bytes that already have a row, so a file being uploaded is never inside the cleanup's reach; the cleanup runs synchronously from its reference scan to its last delete. Temporary files older than an hour are removed too.
 
-### Across instances
+### Public sticker URLs
 
-A sticker message or reaction crosses instances as its token, through the existing DM message and reaction relay and the existing channel routes. Viewers' browsers load the image from the origin in the token, the way they load an image embed from its host; no instance downloads or replicates the asset, and the file size checks of [federation file replication](federation.md#7-file-replication) do not apply.
-
-- A user sends stickers from their home collection (`api.stickers` is the home client). In a space hosted on another instance, the message is stored there and the image still comes from the home instance.
-- The cleanup above counts only rows on its own instance. A sticker used only in a space on another instance stops rendering there once its owner removes it from their collection and no local message or reaction uses it.
-- "Add to my stickers" on another instance's sticker makes a copy in the home collection (see Upload and collection). The copy no longer depends on the other instance: it keeps rendering after the original owner removes theirs.
-- What an older version shows: a 1.10.0 or older client shows the token as a line of text with a link, and a sticker reaction as a pill holding that text. A current instance resolves no embed for a token (embeds.md, `extractUrls`). A space hosted on a 1.10.0 or older instance does: a sticker sent there gets an image embed of its asset URL, so that instance's own clients see the text and the image, and a current client hides the embed and draws the sticker once. A relayed DM gets no embed on any version, because the receiving side of the relay resolves none.
+Native messages/reactions keep the sticker token. Browsers load its public asset
+URL without another authenticated server session. The janitor counts native
+collection/message/reaction references on this server. Adding an external sticker
+to the native collection uses the existing bounded upload/validation flow; it
+does not enable message relay, remote identities or asset replication workers.
 
 ---
 
@@ -810,21 +856,13 @@ The activity a game reports can carry an icon, and that icon comes from the play
 3. the asset is stored content-addressed (`game-icons/<sha256>.webp` under the upload directory, written atomically), the row upserted in `game_icon_assets`, and the account's entry recorded in `game_icons`. The same bytes from another machine or account deduplicate to the same file;
 4. the response is `{ id, url }` with the absolute instance URL (`/api/game-icons/assets/<sha256>.webp`), which the renderer attaches to the activity's `assets.largeImage` and caches by game name (`localStorage`), so one upload serves every later activity for that game.
 
-`GET /api/game-icons/assets/<id>.webp` is public with the same sandbox headers as a sticker asset (immutable cache, `default-src 'none'`), so a federated peer's browser loads it the way it loads any image embed. **Retention.** `game_icons.created_at` means "last uploaded": an upload of bytes the account already holds renews it. Phase 5 of the storage janitor (`cleanupGameIconAssets`, `utils/gameIconAssets.ts`) drops claims not renewed for a year (`GAME_ICON_RETENTION_MS`), then deletes assets no remaining claim names once they are older than 24 hours (`GAME_ICON_ASSET_GRACE_MS`; an upload writes its asset row before its file and claim), files no asset row names, and stale `.tmp` files, honouring dry run. The desktop client uploads a played game's icon again once its last upload is 30 days old (`backspace_game_icons_seen` in `localStorage`; a cache from before that key counts as due), so only an icon nobody used for a year goes; an icon that expires while still shown on a profile is a missing image until its owner next plays the game. There is no removal route, and account deletion removes only the claims (the janitor then removes the assets). The per-account quota stays the bound on what one account can store (25,600 icons of normally a few dozen KiB each; the 10 uploads per minute make filling it a matter of days); a byte budget is open work.
+`GET /api/game-icons/assets/<id>.webp` is public with sticker-style sandbox headers, immutable caching and `default-src 'none'`. **Retention:** `game_icons.created_at` is last upload time; identical bytes renew the account's claim. Janitor phase 5 (`cleanupGameIconAssets`) expires claims after a year, then unclaimed assets older than the 24h grace (asset rows precede file/claim writes), files without asset rows and stale `.tmp` files; dry-run is honored. Desktop refreshes played icons after 30 days via `backspace_game_icons_seen`; missing old caches count as due. An expired displayed icon remains missing until its owner plays again. Account deletion removes claims, with assets retired by the janitor; there is no removal route. Per-account limits remain 25,600 icons and 10 uploads/minute; an aggregate byte budget is open work.
 
 ---
 
-## Boundary with Federation
+## Retirement boundary
 
-This spec covers **local** file storage and serving. The boundary:
-
-| This spec (uploads.md) | Federation spec (federation.md) |
-|------------------------|---------------------------------|
-| Multipart upload reception | File download queue (`federation_file_queue`) |
-| Thumbnail/metadata generation | Size validation against remote peer limits |
-| Disk storage and serving | `file_rejected` relay event |
-| Orphan detection and cleanup | File queue worker (background download) |
-| Storage stats and admin cleanup | `remoteMaxUploadSize` on peer records |
-| `attachments` record creation | `sourceUrl`, `federationStatus`, `federationMeta` fields |
-
-The `attachments` table contains federation-specific columns (`sourceUrl`, `federationStatus`, `federationMeta`) that are populated by the federation file download worker, not by the upload pipeline.
+There is no remote file-download queue, replication worker or peer-only attachment
+metadata. The isolated generated upgrade performs only commit-witnessed targeted
+retirement; ordinary uploads, native reference-aware janitor cleanup, public media,
+downloads and local diagnostics retain their existing responsibilities.

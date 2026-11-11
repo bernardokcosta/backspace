@@ -16,8 +16,7 @@ setWorkerId(1);
  * #360: opening a 1-on-1 puts it in the opener's list only. The recipient's
  * membership is created closed and nothing is pushed to them; the first
  * message reopens it for them through the resurface path every message send
- * runs, so the conversation reaches them with something in it, as it does for
- * a recipient on another instance.
+ * runs, so the conversation reaches them with something in it.
  */
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -42,25 +41,6 @@ vi.mock('../utils/auth.js', async () => {
       req.username = currentUserId;
     },
   };
-});
-
-vi.mock('../utils/federationOutbox.js', async () => {
-  const actual = await vi.importActual<typeof import('../utils/federationOutbox.js')>('../utils/federationOutbox.js');
-  return {
-    ...actual,
-    isFederationRelayEnabled: () => false,
-    queueDmCloseRelay: vi.fn(),
-    queueDmRelay: vi.fn(),
-    queueOutboxEvent: vi.fn(),
-    queueReadStateRelay: vi.fn(),
-    sendTypingRelay: vi.fn(),
-    appendMutationLog: vi.fn(),
-  };
-});
-
-vi.mock('../utils/federationAuth.js', async (importActual) => {
-  const actual = await importActual<typeof import('../utils/federationAuth.js')>();
-  return { ...actual, getOurOrigin: () => 'https://local.test' };
 });
 
 vi.mock('../utils/embedResolver.js', async (importActual) => {
@@ -221,7 +201,7 @@ describe('#360: a 1-on-1 reaches the recipient with its first message', () => {
     const { handleClientEvent } = await import('../ws/events.js');
     const { connectionManager } = await import('../ws/handler.js');
     try {
-      handleClientEvent({ type: 'dm_call_start', dmChannelId: opened.dm.id }, 'alice', 'alice', sockets.get('alice') as never, false);
+      handleClientEvent({ type: 'dm_call_start', dmChannelId: opened.dm.id }, 'alice', 'alice', sockets.get('alice') as never);
       const types = eventsOf('carol').map(e => e.type);
       expect(types.filter(t => t === 'dm_call_incoming')).toHaveLength(1);
       // The conversation reaches carol's list first, so the call has a place to open in.
@@ -255,12 +235,12 @@ describe('opening a 1-on-1 that re-keys another row tells that row\'s members', 
       { id: 'dave', username: 'dave', passwordHash: 'x', createdAt: now },
     ]).run();
     const { oneOnOneKey } = await import('../utils/dmConversation.js');
-    const key = (a: string, b: string) => oneOnOneKey({ id: a, homeUserId: null }, { id: b, homeUserId: null });
+    const key = (a: string, b: string) => oneOnOneKey({ id: a }, { id: b });
     // 'drifted' carries the alice-dave key but holds alice and carol; 'aliceCarol'
     // holds the alice-carol key, so opening alice-dave merges 'drifted' into it.
     testDb.insert(schema.dmChannels).values([
-      { id: 'drifted', federatedId: key('alice', 'dave'), createdAt: 1 },
-      { id: 'aliceCarol', federatedId: key('alice', 'carol'), createdAt: 2 },
+      { id: 'drifted', pairKey: key('alice', 'dave'), createdAt: 1 },
+      { id: 'aliceCarol', pairKey: key('alice', 'carol'), createdAt: 2 },
     ]).run();
     testDb.insert(schema.dmMembers).values([
       { dmChannelId: 'drifted', userId: 'alice', closed: 1 },

@@ -4,50 +4,32 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import type { User } from '@veyvox/shared';
 
-// The popout reaches into the space store (origin routing), the API client and
-// the federated-mutuals loader. None of that is under test here — stub it so the
-// test exercises the card's own click and placement behaviour.
+// Native profile lookups are stubbed to isolate click and placement behavior.
 vi.mock('../../stores/spaceStore', () => ({
   useSpaceStore: Object.assign(
     (selector: (s: Record<string, unknown>) => unknown) =>
-      selector({ upsertDmCopy: vi.fn(), findExistingDmForUser: vi.fn() }),
-    { getState: () => ({ upsertDmCopy: vi.fn(), findExistingDmForUser: vi.fn() }) },
+      selector({ upsertDmChannel: vi.fn(), findExistingDmForUser: vi.fn() }),
+    { getState: () => ({ upsertDmChannel: vi.fn(), findExistingDmForUser: vi.fn() }) },
   ),
-  getApiForOrigin: () => ({ uploads: { url: (k: string) => `/uploads/${k}` } }),
 }));
 // authStore imports voiceStore, which imports AudioManager and with it an
 // AudioWorklet module jsdom cannot evaluate.
 vi.mock('../../audio/AudioManager', () => ({
   AudioManager: { getInstance: vi.fn().mockReturnValue({ setOutputDevice: vi.fn(), setVolume: vi.fn() }) },
 }));
-// `api/client` and `crossStoreResolvers` import each other, so the resolver
-// module can hold the unmocked client; route the page's own origin to the
-// mocked one, as `getApiForOrigin('')` does in the app.
-const pageApi = vi.hoisted(() => ({ client: null as unknown }));
-vi.mock('../../utils/crossStoreResolvers', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../utils/crossStoreResolvers')>();
-  return {
-    ...actual,
-    getApiForOrigin: (origin: string) => (origin ? actual.getApiForOrigin(origin) : pageApi.client),
-  };
-});
 // Keep the real HttpError class: describeError narrows on it when a request fails.
 vi.mock('../../api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../api/client')>()),
-  api: { dm: { create: vi.fn() } },
-}));
-vi.mock('../../utils/mutuals', () => ({
-  loadFederatedMutuals: vi.fn().mockResolvedValue({ mutualFriends: [], mutualSpaces: [] }),
+  api: { dm: { create: vi.fn() }, users: { getMutuals: vi.fn().mockResolvedValue({ mutualFriends: [], mutualSpaces: [] }) } },
 }));
 vi.mock('../../utils/userViewLookup', () => ({ useCanonicalUserView: (u: User) => u }));
 // Which status the dot shows for the signed-in user has its own tests (useShownStatus).
-vi.mock('../../hooks/useShownStatus', () => ({ useShownStatus: (_u: User, _origin: string, status: User['status']) => status }));
+vi.mock('../../hooks/useShownStatus', () => ({ useShownStatus: (_u: User, status: User['status']) => status }));
 
 import { UserProfilePopout } from './UserProfilePopout';
 import { useUIStore } from '../../stores/uiStore';
 import { useAuthStore } from '../../stores/authStore';
 import { api, HttpError } from '../../api/client';
-pageApi.client = api;
 
 const CARD_W = 340;
 const CARD_H = 420;
@@ -56,8 +38,7 @@ function makeUser(): User {
   return {
     id: 'u-1', username: 'ada', displayName: 'Ada', avatar: null, banner: null,
     accentColor: null, avatarColor: null, bio: null, status: 'online',
-    customStatus: null, isAdmin: false, createdAt: 0, homeInstance: null,
-    homeUserId: null, replicatedInstances: [],
+    customStatus: null, isAdmin: false, createdAt: 0,
   };
 }
 
@@ -73,7 +54,7 @@ function setViewport(width: number, height: number) {
 function renderCard(anchor: ReturnType<typeof anchorAt>, placement?: 'left' | 'right') {
   return render(
     <MemoryRouter>
-      <UserProfilePopout user={makeUser()} origin="" onClose={() => {}} anchor={anchor} placement={placement} />
+      <UserProfilePopout user={makeUser()} onClose={() => {}} anchor={anchor} placement={placement} />
     </MemoryRouter>,
   );
 }
@@ -112,7 +93,7 @@ describe('UserProfilePopout', () => {
     let closed = false;
     const { container } = render(
       <MemoryRouter>
-        <UserProfilePopout user={makeUser()} origin="" onClose={() => { closed = true; }} anchor={anchorAt(300, 200)} />
+        <UserProfilePopout user={makeUser()} onClose={() => { closed = true; }} anchor={anchorAt(300, 200)} />
       </MemoryRouter>,
     );
 
@@ -123,11 +104,11 @@ describe('UserProfilePopout', () => {
     expect(closed).toBe(true);
   });
 
-  it('shows a display name that contains "@" in full, and splits only the username', () => {
+  it('shows a display name containing @ verbatim', () => {
     const user: User = { ...makeUser(), displayName: 'ada@work', username: 'ada' };
     const { container } = render(
       <MemoryRouter>
-        <UserProfilePopout user={user} origin="" onClose={() => {}} anchor={anchorAt(300, 200)} />
+        <UserProfilePopout user={user} onClose={() => {}} anchor={anchorAt(300, 200)} />
       </MemoryRouter>,
     );
     expect(container.textContent).toContain('ada@work');
@@ -141,7 +122,7 @@ describe('UserProfilePopout', () => {
     const onClose = vi.fn();
     render(
       <MemoryRouter>
-        <UserProfilePopout user={makeUser()} origin="" onClose={onClose} anchor={anchorAt(300, 200)} />
+        <UserProfilePopout user={makeUser()} onClose={onClose} anchor={anchorAt(300, 200)} />
       </MemoryRouter>,
     );
 
@@ -152,11 +133,11 @@ describe('UserProfilePopout', () => {
   });
 
   it("offers no Send Message on the user's own card (#325)", () => {
-    useAuthStore.setState({ user: makeUser(), myRowIds: new Map() });
+    useAuthStore.setState({ user: makeUser() });
     try {
       render(
         <MemoryRouter>
-          <UserProfilePopout user={makeUser()} origin="" onClose={() => {}} anchor={anchorAt(300, 200)} />
+          <UserProfilePopout user={makeUser()} onClose={() => {}} anchor={anchorAt(300, 200)} />
         </MemoryRouter>,
       );
       expect(screen.queryByText('Send Message')).toBeNull();
@@ -165,12 +146,12 @@ describe('UserProfilePopout', () => {
     }
   });
 
-  it("offers Send Message on the card of another instance's user whose id equals the user's", () => {
-    useAuthStore.setState({ user: makeUser(), myRowIds: new Map() });
+  it('offers Send Message for a different native account with the same display name', () => {
+    useAuthStore.setState({ user: makeUser() });
     try {
       render(
         <MemoryRouter>
-          <UserProfilePopout user={makeUser()} origin="https://orbit.example" onClose={() => {}} anchor={anchorAt(300, 200)} />
+          <UserProfilePopout user={{ ...makeUser(), id: 'other' }} onClose={() => {}} anchor={anchorAt(300, 200)} />
         </MemoryRouter>,
       );
       expect(screen.getByText('Send Message')).toBeInTheDocument();
@@ -215,7 +196,7 @@ describe('UserProfilePopout', () => {
     };
     const { getByText } = render(
       <MemoryRouter>
-        <UserProfilePopout user={user} origin="" onClose={() => {}} anchor={anchorAt(300, 200)} />
+        <UserProfilePopout user={user} onClose={() => {}} anchor={anchorAt(300, 200)} />
       </MemoryRouter>,
     );
 

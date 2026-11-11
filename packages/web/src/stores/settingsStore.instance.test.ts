@@ -6,9 +6,8 @@ const { invalidateHomeInstanceInfo } = vi.hoisted(() => ({ invalidateHomeInstanc
 vi.mock('../hooks/useHomeInstanceInfo', () => ({ invalidateHomeInstanceInfo }));
 
 const settings: InstanceAdminSettings = {
-  instanceName: 'Workbench', registrationOpen: true, federatedRegistrationOpen: true,
-  maxUploadSizeMb: 100, maxStickerSizeMb: 8, federationRelayEnabled: true,
-  federationRelayTtlDays: 30, defaultAutoRotateIntervalDays: 90, autoAcceptPeering: true,
+  instanceName: 'Workbench', registrationOpen: true,
+  maxUploadSizeMb: 100, maxStickerSizeMb: 8,
 };
 beforeEach(() => {
   invalidateHomeInstanceInfo.mockClear();

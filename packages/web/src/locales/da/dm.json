@@ -1,28 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "den eksterne instans",
-    "hostInstance": "værtsinstansen",
-    "acceptDropped": "Kunne ikke bekræfte din accept hos {{instance}} — opkaldet røg.",
-    "rejectFailed": "Kunne ikke fortælle {{instances}}, at du afviste. Uppringeren ser dig måske som ringende et øjeblik.",
-    "endFailed": "Kunne ikke fortælle {{instances}}, at du lagde på. Eksterne deltagere ser måske opkaldet i op til 60 sekunder.",
-    "hostUnreachable": "Opkald afsluttet — værtsinstansen blev utilgængelig.",
-    "peeringLost": "Opkald afsluttet — denne instans er ikke længere forbundet med {{instance}}.",
-    "instanceUnreachable": "Opkald afsluttet — {{instance}} blev utilgængelig.",
-    "someUnreachable": "Nogle deltagere kunne ikke nås: {{instances}}.",
-    "multipleUnreachable_one": "Kunne ikke nå {{count}} instans: {{instances}}.",
-    "multipleUnreachable_other": "Kunne ikke nå {{count}} instanser: {{instances}}.",
-    "callFailed": "Opkaldet kunne ikke gennemføres.",
-    "manualApproval": "Kan ikke nå {{instance}} — denne instans kræver manuel godkendelse af forbindelse.",
-    "awaitingApproval": "Venter på, at administratoren for {{instance}} godkender din instans. Opkald virker efter godkendelsen.",
-    "transientFailure": "Kan ikke nå {{instance}}. Prøv om et øjeblik.",
-    "voiceUnavailable": "Voice er ikke sat op på denne instans.",
-    "noRecipient": "{{instance}} ringede ingen op.",
-    "targetCallFailed": "Opkaldet til {{instance}} kunne ikke gennemføres."
-  },
-  "feedback": {
-    "relayDenied": "Kan ikke videresende beskeder — deres server nægtede forbindelse. Kontakt deres administrator.",
-    "awaitingPeering": "Beskeder leveres, når deres administrator godkender forbindelsesanmodningen."
-  },
   "names": {
     "group": "Gruppe",
     "directMessage": "Direkte besked",
@@ -162,12 +138,7 @@
     "notFound": "Samtalen blev ikke fundet.",
     "notGroup": "Denne samtale har ingen gruppeinfo.",
     "cancelEdit": "Annuller redigering",
-    "federated": "Fødereret gruppe",
     "memberCount_one": "{{count}} medlem",
     "memberCount_other": "{{count}} medlemmer"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "Denne gruppe styres på {{host}}. Forbind til den for at ændre den.",
-    "ownerNotListed": "{{host}} viser endnu ikke denne gruppe til dig. Prøv om et øjeblik."
   }
 }

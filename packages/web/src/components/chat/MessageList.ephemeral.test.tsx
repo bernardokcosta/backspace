@@ -18,15 +18,15 @@ vi.mock('../../audio/AudioManager', () => ({
 }));
 
 const latestMessages = vi.fn();
-vi.mock('../../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../utils/crossStoreResolvers')>()),
-  getApiForOrigin: () => ({
+vi.mock('../../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../api/client')>()),
+  api: {
     channels: {
       messages: (...args: unknown[]) => latestMessages(...args),
       messagesAround: vi.fn(),
       messagesAfter: () => new Promise<never>(() => {}),
     },
-  }),
+  },
 }));
 
 import { MessageList } from './MessageList';
@@ -39,9 +39,9 @@ import { ALL_PERMISSIONS, permissionsToString } from '../../utils/permissions';
 /** A bot's answer only the signed-in person sees, drawn in the timeline of its chat. */
 
 const CHANNEL = 'chan-1';
-const me = { id: 'u-1', username: 'jannis', displayName: 'Jannis', avatar: null, homeInstance: null, homeUserId: null, createdAt: 1 } as unknown as User;
-const mira = { id: 'u-2', username: 'mira', displayName: 'Mira', avatar: null, homeInstance: null, homeUserId: null, createdAt: 1 } as unknown as User;
-const bot = { id: 'b-1', username: 'mod_bot', displayName: 'Mod Bot', avatar: null, isBot: true, homeInstance: null, homeUserId: null, createdAt: 1 } as unknown as User;
+const me = { id: 'u-1', username: 'jannis', displayName: 'Jannis', avatar: null, createdAt: 1 } as unknown as User;
+const mira = { id: 'u-2', username: 'mira', displayName: 'Mira', avatar: null, createdAt: 1 } as unknown as User;
+const bot = { id: 'b-1', username: 'mod_bot', displayName: 'Mod Bot', avatar: null, isBot: true, createdAt: 1 } as unknown as User;
 
 const message = (id: string, content: string, createdAt: number): MessageWithUser => ({
   id, channelId: CHANNEL, userId: mira.id, replyToId: null, content,
@@ -66,10 +66,9 @@ beforeEach(() => {
   Element.prototype.scrollIntoView = vi.fn();
   latestMessages.mockReset();
   latestMessages.mockResolvedValue([first, later]);
-  useAuthStore.setState({ user: me, myRowIds: new Map() });
+  useAuthStore.setState({ user: me });
   useSpaceStore.setState({
-    spaceChannelIndex: new Map([[CHANNEL, 'space-1']]),
-    channelOriginMap: new Map([[CHANNEL, '']]),
+    spaceChannelIndex: new Map([[CHANNEL, { spaceId: 'space-1', type: 'text' }]]),
     channelPermissions: new Map([[CHANNEL, permissionsToString(ALL_PERMISSIONS)]]),
     dmChannels: [],
     members: [],
@@ -82,8 +81,8 @@ afterEach(() => {
   vi.restoreAllMocks();
   useEphemeralReplyStore.getState().reset();
   useChatStore.setState({ messages: new Map(), hasMore: new Map(), scrollPositions: new Map() });
-  useSpaceStore.setState({ spaceChannelIndex: new Map(), channelOriginMap: new Map(), channelPermissions: new Map(), members: [] });
-  useAuthStore.setState({ user: null, myRowIds: new Map() });
+  useSpaceStore.setState({ spaceChannelIndex: new Map(), channelPermissions: new Map(), members: [] });
+  useAuthStore.setState({ user: null });
 });
 
 describe('an answer only you can see', () => {

@@ -1,187 +1,71 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { SpaceInviteSystemPayload } from '@veyvox/shared';
+vi.mock('../../audio/AudioManager', () => ({ AudioManager: { getInstance: () => ({}) } }));
+const mocks = vi.hoisted(() => ({ preview: vi.fn(), join: vi.fn(), request: vi.fn(), navigate: vi.fn() }));
+vi.mock('../../api/client', async original => ({ ...await original<typeof import('../../api/client')>(), api: { spaces: { invitePreview: mocks.preview } } }));
+vi.mock('../../utils/inviteJoinRequest', () => ({ sendInviteJoinRequest: mocks.request }));
+vi.mock('react-router-dom', async original => ({ ...await original<typeof import('react-router-dom')>(), useNavigate: () => mocks.navigate }));
 import { SpaceInviteCard } from './SpaceInviteCard';
 import { HttpError } from '../../api/client';
 import { JoinRequestRequiredError } from '../../utils/joinErrors';
-
-const { mockJoinByCode, mockGetApiForOrigin, mockNavigate, mockSendRequest } = vi.hoisted(() => ({
-  mockJoinByCode: vi.fn(),
-  mockGetApiForOrigin: vi.fn(() => ({
-    spaces: { invitePreview: vi.fn() },
-  })),
-  mockNavigate: vi.fn(),
-  mockSendRequest: vi.fn(),
-}));
-vi.mock('../../stores/spaceStore', () => ({
-  useSpaceStore: (selector: any) => selector({ joinByCode: mockJoinByCode }),
-  getApiForOrigin: mockGetApiForOrigin,
-}));
-vi.mock('../../utils/inviteJoinRequest', () => ({
-  sendInviteJoinRequest: mockSendRequest,
-}));
-// Keep the real exports: HttpError is what the join-error helper inspects.
-vi.mock('../../api/client', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../api/client')>()),
-  createApiClient: vi.fn(),
-}));
-vi.mock('react-router-dom', async () => ({
-  ...(await vi.importActual<typeof import('react-router-dom')>('react-router-dom')),
-  useNavigate: () => mockNavigate,
-}));
-
-const basePayload = {
-  event: 'space_invite' as const,
-  spaceId: 'S1',
-  spaceInstanceOrigin: 'https://z.example',
-  inviteCode: 'abc',
-  snapshot: {
-    spaceName: 'Aether',
-    icon: null,
-    avatarColor: 'mint' as const,
-    memberCount: 12,
-    description: 'A place',
-    instanceName: 'Backspace',
-  },
-};
-
-describe('SpaceInviteCard', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockJoinByCode.mockReset();
-    mockNavigate.mockReset();
-    mockJoinByCode.mockResolvedValue({ id: 'S1', name: 'Aether' });
-    mockSendRequest.mockReset();
-    mockSendRequest.mockResolvedValue('sent');
+import { useSpaceStore } from '../../stores/spaceStore';
+import { useAuthStore } from '../../stores/authStore';
+const payload: SpaceInviteSystemPayload = { event: 'space_invite', spaceId: 'space', spaceInstanceOrigin: '', inviteCode: 'code',
+  snapshot: { spaceName: 'Native Space', icon: null, avatarColor: 'mint', memberCount: 12, description: 'A place', instanceName: 'Veyvox' } };
+const preview = { ...payload.snapshot, spaceId: payload.spaceId, memberCount: 99 };
+const mount = (value = payload) => render(<MemoryRouter><SpaceInviteCard payload={value} senderName="Alice" /></MemoryRouter>);
+beforeEach(() => {
+  vi.clearAllMocks(); useSpaceStore.getState().reset(); useSpaceStore.setState({ joinByCode: mocks.join });
+  mocks.preview.mockReset().mockResolvedValue(preview); mocks.join.mockReset().mockResolvedValue({ id: payload.spaceId }); mocks.request.mockReset().mockResolvedValue('sent');
+});
+afterEach(cleanup);
+describe('native space invitation cards', () => {
+  it('shows the original snapshot while its native preview is pending', () => {
+    mocks.preview.mockReturnValueOnce(new Promise(() => {})); mount();
+    expect(screen.getByText('Native Space')).toBeInTheDocument(); expect(screen.getByText(/12 members/)).toBeInTheDocument();
   });
-
-  it('renders snapshot fields immediately on mount (snapshot-only state)', () => {
-    mockGetApiForOrigin.mockReturnValue({
-      spaces: { invitePreview:() => new Promise(() => {}) }, // never resolves
-    });
-    render(<MemoryRouter><SpaceInviteCard payload={basePayload} senderName="Alice" /></MemoryRouter>);
-    expect(screen.getByText('Aether')).toBeInTheDocument();
-    expect(screen.getByText(/12 members/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /join/i })).toBeEnabled();
+  it('updates member count only after the live native preview confirms the space', async () => {
+    mount(); expect(await screen.findByText(/99 members/)).toBeInTheDocument(); expect(mocks.preview).toHaveBeenCalledExactlyOnceWith(payload.inviteCode);
   });
-
-  it('refreshes member count when live preview resolves (live-confirmed state)', async () => {
-    mockGetApiForOrigin.mockReturnValue({
-      spaces: { invitePreview:vi.fn().mockResolvedValue({ ...basePayload.snapshot, spaceId: 'S1', memberCount: 99 }) },
-    });
-    render(<MemoryRouter><SpaceInviteCard payload={basePayload} senderName="Alice" /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText(/99 members/i)).toBeInTheDocument());
+  it.each(['missing', 'mismatched'] as const)('revokes a %s native invite', async reason => {
+    if (reason === 'missing') mocks.preview.mockRejectedValueOnce(new Error('Missing'));
+    else mocks.preview.mockResolvedValueOnce({ ...preview, spaceId: 'different' });
+    mount(); await screen.findByText('Invite no longer valid'); expect(screen.queryByRole('button', { name: 'Join' })).toBeNull();
   });
-
-  it('shows revoked state when preview rejects (revoked state)', async () => {
-    mockGetApiForOrigin.mockReturnValue({
-      spaces: { invitePreview:vi.fn().mockRejectedValue(new Error('not found')) },
-    });
-    render(<MemoryRouter><SpaceInviteCard payload={basePayload} senderName="Alice" /></MemoryRouter>);
-    await waitFor(() =>
-      expect(screen.getByText(/invite no longer valid/i)).toBeInTheDocument(),
-    );
-    // Join button replaced with disabled pill
-    expect(screen.queryByRole('button', { name: /^join$/i })).not.toBeInTheDocument();
+  it('joins by native code and navigates to the confirmed space', async () => {
+    mount(); fireEvent.click(await screen.findByRole('button', { name: 'Join' }));
+    await waitFor(() => expect(mocks.navigate).toHaveBeenCalledWith('/channels/space')); expect(mocks.join).toHaveBeenCalledExactlyOnceWith('code');
   });
-
-  it('Join click passes payload.spaceInstanceOrigin to joinByCode (three-way federation invariant)', async () => {
-    // The space's home instance is what Join must target — NOT the DM transport
-    // origin, NOT window.location.origin, NOT the recipient's home. Unit-level
-    // proof of the three-way federation correctness rule. Runtime cross-instance
-    // verification (Task 19) is bonus.
-    const userEvent = (await import('@testing-library/user-event')).default;
-    const user = userEvent.setup();
-
-    mockGetApiForOrigin.mockReturnValue({
-      spaces: { invitePreview:vi.fn().mockResolvedValue({ ...basePayload.snapshot, spaceId: 'S1' }) },
-    });
-
-    render(<MemoryRouter><SpaceInviteCard payload={basePayload} senderName="Alice" /></MemoryRouter>);
-    const btn = await screen.findByRole('button', { name: /^join$/i });
-    await user.click(btn);
-
-    expect(mockJoinByCode).toHaveBeenCalledTimes(1);
-    expect(mockJoinByCode).toHaveBeenCalledWith('abc', 'https://z.example');
-    // Specifically NOT called with empty string or undefined
-    expect(mockJoinByCode).not.toHaveBeenCalledWith('abc', '');
-    expect(mockJoinByCode).not.toHaveBeenCalledWith('abc', undefined);
-    // After a successful join, the app must navigate to the space via the real
-    // route (/channels/:spaceId), not the non-existent /spaces/:id route.
-    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/channels/S1'));
+  it('treats already-member as successful native navigation', async () => {
+    mocks.join.mockRejectedValueOnce(new HttpError(409, 'Member', undefined, 'already_member')); mount();
+    fireEvent.click(await screen.findByRole('button', { name: 'Join' })); await waitFor(() => expect(mocks.navigate).toHaveBeenCalledWith('/channels/space'));
   });
-
-  it('navigates to space when join returns "already a member" (no error shown)', async () => {
-    const userEvent = (await import('@testing-library/user-event')).default;
-    const user = userEvent.setup();
-
-    mockJoinByCode.mockRejectedValueOnce(
-      new HttpError(409, 'You are already a member', { error: 'You are already a member', code: 'already_member', statusCode: 409 }, 'already_member'),
-    );
-    mockGetApiForOrigin.mockReturnValue({
-      spaces: { invitePreview: vi.fn().mockResolvedValue({ ...basePayload.snapshot, spaceId: 'S1' }) },
-    });
-
-    render(<MemoryRouter><SpaceInviteCard payload={basePayload} senderName="Alice" /></MemoryRouter>);
-    const btn = await screen.findByRole('button', { name: /^join$/i });
-    await user.click(btn);
-
-    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/channels/S1'));
-    expect(screen.queryByText(/already a member of this space/i)).not.toBeInTheDocument();
+  it.each(['sent', 'pending'] as const)('sends the native request and displays its %s outcome', async outcome => {
+    mocks.preview.mockResolvedValueOnce({ ...preview, visibility: 'request' }); mocks.request.mockResolvedValueOnce(outcome); mount();
+    fireEvent.click(await screen.findByRole('button', { name: 'Ask to join' })); await screen.findByText(outcome === 'sent' ? 'Request sent' : 'Request pending');
+    expect(mocks.request).toHaveBeenCalledExactlyOnceWith(payload.spaceId); expect(mocks.join).not.toHaveBeenCalled(); expect(mocks.navigate).not.toHaveBeenCalled();
   });
-
-  it('offers "Ask to join" for a space joined by request and sends the request to its instance', async () => {
-    const userEvent = (await import('@testing-library/user-event')).default;
-    const user = userEvent.setup();
-    mockGetApiForOrigin.mockReturnValue({
-      spaces: { invitePreview: vi.fn().mockResolvedValue({ ...basePayload.snapshot, spaceId: 'S1', visibility: 'request' }) },
-    });
-
-    render(<MemoryRouter><SpaceInviteCard payload={basePayload} senderName="Alice" /></MemoryRouter>);
-    const btn = await screen.findByRole('button', { name: 'Ask to join' });
-    expect(screen.getByText('This space takes join requests. A manager approves each one.')).toBeInTheDocument();
-    await user.click(btn);
-
-    expect(mockSendRequest).toHaveBeenCalledWith('S1', 'https://z.example');
-    expect(mockJoinByCode).not.toHaveBeenCalled();
-    expect(await screen.findByText('Request sent')).toBeInTheDocument();
-    expect(screen.getByText('A manager will review your request.')).toBeInTheDocument();
-    expect(mockNavigate).not.toHaveBeenCalled();
+  it('offers the native request only after the join is refused as request-required', async () => {
+    mocks.join.mockRejectedValueOnce(new JoinRequestRequiredError(new HttpError(403, 'Request', undefined, 'join_request_required'), payload.spaceId));
+    mount(); fireEvent.click(await screen.findByRole('button', { name: 'Join' }));
+    const ask = await screen.findByRole('button', { name: 'Ask to join' }); expect(mocks.request).not.toHaveBeenCalled(); fireEvent.click(ask);
+    await waitFor(() => expect(mocks.request).toHaveBeenCalledExactlyOnceWith(payload.spaceId));
   });
-
-  it('shows a request that is already waiting as pending', async () => {
-    const userEvent = (await import('@testing-library/user-event')).default;
-    const user = userEvent.setup();
-    mockSendRequest.mockResolvedValue('pending');
-    mockGetApiForOrigin.mockReturnValue({
-      spaces: { invitePreview: vi.fn().mockResolvedValue({ ...basePayload.snapshot, spaceId: 'S1', visibility: 'request' }) },
-    });
-
-    render(<MemoryRouter><SpaceInviteCard payload={basePayload} senderName="Alice" /></MemoryRouter>);
-    await user.click(await screen.findByRole('button', { name: 'Ask to join' }));
-
-    expect(await screen.findByText('Request pending')).toBeInTheDocument();
+  it('retries the native invite code if the space stops taking requests', async () => {
+    mocks.preview.mockResolvedValueOnce({ ...preview, visibility: 'request' });
+    mocks.request.mockRejectedValueOnce(new HttpError(403, 'Changed', undefined, 'space_not_requestable')); mount();
+    fireEvent.click(await screen.findByRole('button', { name: 'Ask to join' })); await waitFor(() => expect(mocks.join).toHaveBeenCalledWith(payload.inviteCode));
   });
-
-  it('switches to "Ask to join" when the join is answered with join_request_required', async () => {
-    const userEvent = (await import('@testing-library/user-event')).default;
-    const user = userEvent.setup();
-    mockJoinByCode.mockRejectedValueOnce(new JoinRequestRequiredError(
-      new HttpError(403, 'requests', undefined, 'join_request_required', { spaceId: 'S1' }),
-      'S1',
-      'https://z.example',
-    ));
-    mockGetApiForOrigin.mockReturnValue({
-      spaces: { invitePreview: vi.fn().mockResolvedValue({ ...basePayload.snapshot, spaceId: 'S1' }) },
-    });
-
-    render(<MemoryRouter><SpaceInviteCard payload={basePayload} senderName="Alice" /></MemoryRouter>);
-    await user.click(await screen.findByRole('button', { name: /^join$/i }));
-
-    const ask = await screen.findByRole('button', { name: 'Ask to join' });
-    expect(mockSendRequest).not.toHaveBeenCalled();
-    expect(screen.queryByText(/takes join requests\. Send one/)).not.toBeInTheDocument();
-    await user.click(ask);
-    expect(mockSendRequest).toHaveBeenCalledWith('S1', 'https://z.example');
+  it('never fetches, requests or joins a foreign snapshot even when local IDs/codes collide', async () => {
+    mount({ ...payload, spaceInstanceOrigin: 'https://other.example' }); await screen.findByText('Invite no longer valid');
+    expect(mocks.preview).not.toHaveBeenCalled(); expect(mocks.join).not.toHaveBeenCalled(); expect(mocks.request).not.toHaveBeenCalled();
+  });
+  it('does not navigate after a previous-session join completes', async () => {
+    let finish!: (value: { id: string }) => void; mocks.join.mockReturnValueOnce(new Promise(resolve => { finish = resolve; }));
+    mount(); fireEvent.click(await screen.findByRole('button', { name: 'Join' }));
+    act(() => useAuthStore.setState(s => ({ sessionRevision: s.sessionRevision + 1 })));
+    await act(async () => finish({ id: payload.spaceId })); expect(mocks.navigate).not.toHaveBeenCalled();
   });
 });

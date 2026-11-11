@@ -8,10 +8,9 @@ vi.mock('./useWebSocket', () => ({ connectInstance: vi.fn(), disconnectInstance:
 
 import { useAuth } from './useAuth';
 import { useAuthStore } from '../stores/authStore';
-import { useInstanceStore } from '../stores/instanceStore';
 import { JoinPage } from '../components/JoinPage';
 
-const user = { id: 'bootstrap-user', username: 'bootstrap', homeInstance: null, homeUserId: null, status: 'online' } as User;
+const user = { id: 'bootstrap-user', username: 'bootstrap', status: 'online' } as User;
 
 function ProtectedPage() {
   useAuth();
@@ -22,7 +21,6 @@ function ProtectedPage() {
 beforeEach(() => {
   localStorage.setItem('backspace_token', 'bootstrap-token');
   useAuthStore.setState({ token: 'bootstrap-token', user: null, isLoading: false, error: null, userLoadError: null });
-  vi.spyOn(useInstanceStore.getState(), 'autoConnectAll').mockResolvedValue(undefined);
 });
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 

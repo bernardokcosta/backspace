@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
@@ -41,29 +41,6 @@ vi.mock('../ws/handler.js', () => ({
   },
 }));
 
-// Federation: keep the real queueGroupMetadataRelay AND its underlying outbox
-// writes (queueOutboxEvent / appendMutationLog) so we can assert the wire
-// payload by reading the federation_outbox table directly. Same-module callers
-// inside the helper bypass vi.mock, so spy-on-the-helper is the wrong axis —
-// inspect the persisted outbox row instead. The unrelated queue helpers
-// (queueDmRelay, queueDmCloseRelay, sendTypingRelay) are still stubbed because
-// they are not under test here.
-vi.mock('../utils/federationOutbox.js', async () => {
-  const actual = await vi.importActual<typeof import('../utils/federationOutbox.js')>('../utils/federationOutbox.js');
-  return {
-    ...actual,
-    isFederationRelayEnabled: () => true,
-    queueDmCloseRelay: vi.fn(),
-    sendTypingRelay: vi.fn(),
-    queueDmRelay: vi.fn(),
-  };
-});
-
-vi.mock('../utils/federationAuth.js', async (importActual) => {
-  const actual = await importActual<typeof import('../utils/federationAuth.js')>();
-  return { ...actual, getOurOrigin: () => 'https://local.test' };
-});
-
 // Mock fileCleanup so we can observe icon-deletion calls without touching disk.
 vi.mock('../utils/fileCleanup.js', async () => {
   const actual = await vi.importActual<typeof import('../utils/fileCleanup.js')>('../utils/fileCleanup.js');
@@ -72,9 +49,10 @@ vi.mock('../utils/fileCleanup.js', async () => {
     deleteUploadFile: vi.fn(),
     deleteAttachmentByFilename: vi.fn(),
     deleteAttachmentFiles: vi.fn(),
+    deleteUnreferencedUploadFiles: vi.fn(),
   };
 });
-import { deleteUploadFile, deleteAttachmentByFilename } from '../utils/fileCleanup.js';
+import { deleteUploadFile, deleteAttachmentByFilename, deleteUnreferencedUploadFiles } from '../utils/fileCleanup.js';
 
 // Connection manager mock retrieval for spy assertions
 import { connectionManager } from '../ws/handler.js';
@@ -98,8 +76,6 @@ function seedUsers(): void {
     username: 'alice',
     displayName: 'Alice',
     passwordHash: 'x',
-    homeUserId: 'owner-A',
-    homeInstance: 'https://local.test',
     createdAt: Date.now(),
   }).run();
 
@@ -108,18 +84,14 @@ function seedUsers(): void {
     username: 'bob',
     displayName: 'Bob',
     passwordHash: 'x',
-    homeUserId: 'member-B',
-    homeInstance: 'https://local.test',
     createdAt: Date.now(),
   }).run();
 
   testDb.insert(schema.users).values({
-    id: 'remote-C',
-    username: 'carol@remote.test',
+    id: 'member-C',
+    username: 'carol',
     displayName: 'Carol',
     passwordHash: 'x',
-    homeUserId: 'remote-carol',
-    homeInstance: 'https://remote.test',
     createdAt: Date.now(),
   }).run();
 
@@ -128,8 +100,6 @@ function seedUsers(): void {
     username: 'dan',
     displayName: 'Dan',
     passwordHash: 'x',
-    homeUserId: 'stranger-D',
-    homeInstance: 'https://local.test',
     createdAt: Date.now(),
   }).run();
 }
@@ -137,18 +107,7 @@ function seedUsers(): void {
 function seedInstanceSettings(): void {
   testDb.insert(schema.instanceSettings).values({
     id: 1,
-    federationRelayEnabled: 1,
     updatedAt: Date.now(),
-  }).run();
-}
-
-function seedFederationPeer(origin: string): void {
-  testDb.insert(schema.federationPeers).values({
-    id: `peer-${origin}`,
-    origin,
-    status: 'active',
-    hmacSecret: 'x',
-    createdAt: Date.now(),
   }).run();
 }
 
@@ -156,7 +115,6 @@ interface GroupSeed {
   id: string;
   ownerId: string;
   members: string[];
-  federatedId?: string | null;
   name?: string | null;
   icon?: string | null;
   metadataUpdatedAt?: number;
@@ -166,7 +124,6 @@ function seedGroupDm(opts: GroupSeed): void {
   testDb.insert(schema.dmChannels).values({
     id: opts.id,
     ownerId: opts.ownerId,
-    federatedId: opts.federatedId ?? null,
     name: opts.name ?? null,
     icon: opts.icon ?? null,
     metadataUpdatedAt: opts.metadataUpdatedAt ?? 0,
@@ -225,18 +182,17 @@ describe('PATCH /api/dm/:id — group metadata update', () => {
     applyMigrations(sqlite);
     seedInstanceSettings();
     seedUsers();
-    seedFederationPeer('https://remote.test');
     currentUserId = 'owner-A';
     vi.clearAllMocks();
     app = await buildApp();
   });
+  afterEach(async () => { await app.close(); sqlite.close(); });
 
-  it('owner rename succeeds → 200, channel updated, broadcast, system msg, outbox payload', async () => {
+  it('owner rename succeeds with the native channel, broadcast and system message', async () => {
     seedGroupDm({
       id: 'dm-1',
       ownerId: 'owner-A',
-      members: ['owner-A', 'member-B', 'remote-C'],
-      federatedId: 'fed-abc-1',
+      members: ['owner-A', 'member-B', 'member-C'],
     });
 
     const res = await app.inject({
@@ -264,27 +220,15 @@ describe('PATCH /api/dm/:id — group metadata update', () => {
     expect(sysRows[0]!.type).toBe('system');
     const parsed = JSON.parse(sysRows[0]!.content!);
     expect(parsed).toEqual({ event: 'name_changed', oldName: null, newName: 'My Group' });
-    expect(sysRows[0]!.sourceMessageId).toMatch(/:name$/);
-
-    // Federation outbox row queued — full payload
-    const outboxRows = testDb.select().from(schema.federationOutbox).all();
-    const metaRows = outboxRows.filter((r) => r.eventType === 'group_metadata_update');
-    expect(metaRows.length).toBe(1);
-    const wire = JSON.parse(metaRows[0]!.payload);
-    expect(wire.federatedId).toBe('fed-abc-1');
-    expect(wire.metadata.name).toBe('My Group');
-    expect(wire.metadata.icon).toBeNull();
-    expect(wire.metadata.metadataUpdatedAt).toBeGreaterThan(0);
-    expect(wire.metadata.actor.homeUserId).toBe('owner-A');
-    expect(wire.metadata.actor.homeInstance).toBe('https://local.test');
+    expect(sysRows[0]).not.toHaveProperty('sourceMessageId');
+    expect(sendCalls.find(call => call[1]?.type === 'dm_message_created')?.[1].message.content).toBe(sysRows[0]!.content);
   });
 
-  it('owner sets icon (filename) → outbox icon is absolute URL ${ourOrigin}/api/uploads/<filename>', async () => {
+  it('owner sets an uploaded icon and the native broadcast keeps its local filename', async () => {
     seedGroupDm({
       id: 'dm-2',
       ownerId: 'owner-A',
-      members: ['owner-A', 'member-B', 'remote-C'],
-      federatedId: 'fed-abc-2',
+      members: ['owner-A', 'member-B', 'member-C'],
     });
     seedAttachment({
       id: 'att-1',
@@ -301,11 +245,7 @@ describe('PATCH /api/dm/:id — group metadata update', () => {
     });
     expect(res.statusCode).toBe(200);
 
-    const outboxRows = testDb.select().from(schema.federationOutbox).all();
-    const metaRows = outboxRows.filter((r) => r.eventType === 'group_metadata_update');
-    expect(metaRows.length).toBe(1);
-    const wire = JSON.parse(metaRows[0]!.payload);
-    expect(wire.metadata.icon).toBe('https://local.test/api/uploads/icon123.png');
+    expect(connectionManager.sendToDmMembers).toHaveBeenCalledWith('dm-2',expect.objectContaining({type:'dm_channel_updated',icon:'icon123.png'}));
 
     // Bare filename stored in DB (not absolute URL)
     const updated = testDb.select().from(schema.dmChannels).where(eq(schema.dmChannels.id, 'dm-2')).get();
@@ -402,10 +342,10 @@ describe('PATCH /api/dm/:id — group metadata update', () => {
     const sys = testDb.select().from(schema.dmMessages).where(eq(schema.dmMessages.dmChannelId, 'dm-6')).all();
     expect(sys.length).toBe(1);
     expect(JSON.parse(sys[0]!.content!)).toEqual({ event: 'icon_changed' });
-    expect(sys[0]!.sourceMessageId).toMatch(/:icon$/);
+    expect(sys[0]).not.toHaveProperty('sourceMessageId');
 
-    expect(deleteUploadFile).toHaveBeenCalledWith('oldicon.png');
-    expect(deleteAttachmentByFilename).toHaveBeenCalledWith('oldicon.png');
+    expect(deleteUnreferencedUploadFiles).toHaveBeenCalledWith(['oldicon.png']);
+    expect(deleteAttachmentByFilename).not.toHaveBeenCalledWith('oldicon.png');
   });
 
   it('icon filename uploaded by another user → 403', async () => {
@@ -482,7 +422,6 @@ describe('PATCH /api/dm/:id — group metadata update', () => {
       id: 'dm-10',
       ownerId: 'owner-A',
       members: ['owner-A', 'member-B'],
-      federatedId: 'fed-abc-10',
     });
     // Note: NO attachment seeded — proves no lookup happens for absolute URLs.
 
@@ -497,12 +436,11 @@ describe('PATCH /api/dm/:id — group metadata update', () => {
     expect(updated?.icon).toBe('https://remote.test/api/uploads/icon999.png');
   });
 
-  it('no-op (same name + same icon) → 200, no system messages, no broadcast, no outbox row', async () => {
+  it('no-op (same name + same icon) produces no messages, broadcast or cleanup', async () => {
     seedGroupDm({
       id: 'dm-11',
       ownerId: 'owner-A',
-      members: ['owner-A', 'member-B', 'remote-C'],
-      federatedId: 'fed-abc-11',
+      members: ['owner-A', 'member-B', 'member-C'],
       name: 'Stable',
       icon: 'stable.png',
     });
@@ -522,20 +460,15 @@ describe('PATCH /api/dm/:id — group metadata update', () => {
     const sendCalls = (connectionManager.sendToDmMembers as ReturnType<typeof vi.fn>).mock.calls;
     expect(sendCalls.length).toBe(0);
 
-    // No outbox row
-    const outboxRows = testDb.select().from(schema.federationOutbox).all();
-    expect(outboxRows.length).toBe(0);
-
     // No icon deletion
     expect(deleteUploadFile).not.toHaveBeenCalled();
   });
 
-  it('concurrent change of both fields → two system messages with deterministic dedup-suffixed sourceMessageId', async () => {
+  it('changing both fields writes two distinct native system messages atomically', async () => {
     seedGroupDm({
       id: 'dm-12',
       ownerId: 'owner-A',
-      members: ['owner-A', 'member-B', 'remote-C'],
-      federatedId: 'fed-abc-12',
+      members: ['owner-A', 'member-B', 'member-C'],
       name: 'Old',
       icon: 'old.png',
     });
@@ -562,15 +495,11 @@ describe('PATCH /api/dm/:id — group metadata update', () => {
     expect(nameRow).toBeDefined();
     expect(iconRow).toBeDefined();
 
-    // Both rows share the same eventMessageId root, suffixed by :name / :icon.
-    expect(nameRow!.sourceMessageId).toMatch(/:name$/);
-    expect(iconRow!.sourceMessageId).toMatch(/:icon$/);
-    const nameRoot = nameRow!.sourceMessageId!.replace(/:name$/, '');
-    const iconRoot = iconRow!.sourceMessageId!.replace(/:icon$/, '');
-    expect(nameRoot).toBe(iconRoot);
+    expect(nameRow!.id).not.toBe(iconRow!.id);
+    expect(nameRow!.createdAt).toBe(iconRow!.createdAt);
 
     // Old icon was a local filename — cleanup should fire
-    expect(deleteUploadFile).toHaveBeenCalledWith('old.png');
-    expect(deleteAttachmentByFilename).toHaveBeenCalledWith('old.png');
+    expect(deleteUnreferencedUploadFiles).toHaveBeenCalledWith(['old.png']);
+    expect(deleteAttachmentByFilename).not.toHaveBeenCalledWith('old.png');
   });
 });

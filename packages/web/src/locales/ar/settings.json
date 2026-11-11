@@ -127,7 +127,6 @@
       "appearance": "المظهر",
       "voice": "الصوت والفيديو",
       "privacy": "الخصوصية",
-      "connections": "الاتصالات",
       "keybinds": "اختصارات المفاتيح",
       "desktop": "سطح المكتب",
       "instance": "النسخة",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "حسابي",
-    "detached": {
-      "notice": "هذا الحساب منفصل عن نسخته الرئيسية.",
-      "explanation": "أُعيد ضبط {{homeInstance}} أو لم تعد متاحة، فيعمل هذا الحساب محليًا الآن على هذه النسخة. يُدار ملفك وكلمتك هنا.",
-      "reattachHint": "بصفتك {{username}} على {{homeInstance}}، يمكنك إعادة ربط هذا الحساب. سيُزامَن الملف والحضور من هناك مجددًا.",
-      "reattachButton": "إعادة الربط إلى {{homeInstance}}",
-      "reattachConfirm": "تأكيد إعادة الربط باسم {{username}}",
-      "reattaching": "جارٍ إعادة الربط…",
-      "reattachFailed": "فشلت إعادة الربط",
-      "reattached": "أُعيد ربط الحساب مع {{username}}"
-    },
     "profile": {
       "sectionTitle": "تخصيص الملف",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "الحساب",
       "status": {
-        "label": "الحالة",
-        "homeUnavailable": "تُحفظ حالتك على {{host}}. اتصل بـ {{host}} لتغييرها."
+        "label": "الحالة"
       },
       "customStatus": {
         "label": "حالة مخصصة",
@@ -249,10 +237,6 @@
         "submit": "حذف حسابي",
         "deleting": "جارٍ الحذف…"
       },
-      "federation": {
-        "removing": "جارٍ إزالة حسابك من النسخ المتصلة…",
-        "deleteAnyway": "حذف الحساب الآن"
-      },
       "complete": {
         "title": "حُذف الحساب",
         "redirecting": "جارٍ إعادة التوجيه إلى تسجيل الدخول…"
@@ -314,14 +298,10 @@
       }
     }
   },
-  "connections": {
-    "title": "الاتصالات"
-  },
   "instance": {
     "tabs": {
       "general": "عام",
       "registration": "التسجيل",
-      "federation": "الفيدرالية",
       "streaming": "البث",
       "storage": "التخزين",
       "users": "المستخدمون",

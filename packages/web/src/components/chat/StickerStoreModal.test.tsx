@@ -53,9 +53,6 @@ const mockSummary: StickerPackSummary = {
   creatorName: 'Alice',
   coverAssetId: 'a'.repeat(64),
   coverUrl: `http://localhost:3000/api/stickers/assets/${'a'.repeat(64)}.webp`,
-  originType: 'source',
-  sourceInstance: null,
-  sourcePackId: null,
   currentVersion: 1,
   status: 'approved',
   itemCount: 2,
@@ -186,7 +183,6 @@ describe('StickerStoreModal', () => {
       name: 'Cat Memes',
       status: 'pending_review',
       creatorName: 'Charlie',
-      sourceInstance: 'cat.example.org',
     };
     vi.mocked(api.admin.stickerPacks.listReviews).mockResolvedValue([pendingPack]);
 
@@ -200,7 +196,7 @@ describe('StickerStoreModal', () => {
       expect(api.admin.stickerPacks.listReviews).toHaveBeenCalled();
       expect(screen.getByText('Cat Memes')).toBeInTheDocument();
       expect(screen.getByText('Charlie')).toBeInTheDocument();
-      expect(screen.getByText('cat.example.org')).toBeInTheDocument();
+      expect(screen.queryByText('Instance:')).toBeNull();
     });
 
     const approveButton = screen.getByRole('button', { name: /Approve/i });
@@ -264,14 +260,13 @@ describe('StickerStoreModal', () => {
     expect(screen.getByText(/Low resolution and duplicate stickers found/)).toBeInTheDocument();
   });
 
-  it('displays creator name and source instance in the pack preview modal', async () => {
-    const federatedDetail: StickerPackDetail = {
+  it('displays the native creator in the pack preview without replica provenance', async () => {
+    const nativeDetail: StickerPackDetail = {
       ...mockDetail,
-      name: 'Federated Animals',
+      name: 'Native Animals',
       creatorName: 'Eve Artist',
-      sourceInstance: 'art.matrix.social',
     };
-    vi.mocked(api.stickerStore.getPack).mockResolvedValue(federatedDetail);
+    vi.mocked(api.stickerStore.getPack).mockResolvedValue(nativeDetail);
 
     render(<StickerStoreModal onClose={vi.fn()} />);
 
@@ -279,9 +274,9 @@ describe('StickerStoreModal', () => {
     fireEvent.click(packCard);
 
     await waitFor(() => {
-      expect(screen.getByText('Federated Animals')).toBeInTheDocument();
+      expect(screen.getByText('Native Animals')).toBeInTheDocument();
       expect(screen.getByText('Eve Artist')).toBeInTheDocument();
-      expect(screen.getByText('art.matrix.social')).toBeInTheDocument();
+      expect(screen.queryByText('Instance:')).toBeNull();
     });
   });
 

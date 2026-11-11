@@ -10,7 +10,7 @@ import { HttpError } from '../../api/client';
 import { JUNO_SOUNDS } from './junoSoundCues';
 const audio = vi.hoisted(() => ({ loadSound: vi.fn(), resumeContext: vi.fn(), createBufferSource: vi.fn(), createGain: vi.fn(), ensureContext: vi.fn(), getMasterOutput: vi.fn() }));
 vi.mock('../../audio/AudioManager', () => ({ AudioManager: { getInstance: () => audio } }));
-const target = { accountId: 'a', selfId: 'a', channelId: 'voice', origin: '' };
+const target = { userId: 'a', channelId: 'voice', origin: window.location.origin };
 const node = { stop: vi.fn(), disconnect: vi.fn(), connect: vi.fn(), start: vi.fn(), buffer: null, onended: null };
 const gain = { gain: { value: 0, setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() }, connect: vi.fn(), disconnect: vi.fn() };
 afterEach(() => vi.useRealTimers());
@@ -28,7 +28,7 @@ beforeEach(() => {
   useJunoPreferences.setState(DEFAULT_JUNO_PREFERENCES);
   useVoiceStore.setState({ isDeafened: false, soundEffectVolume: 100, spaceDeafenedUserIds: new Set(),
     isLiveKitConnected: true, voiceConnectionStatus: 'connected', currentVoiceChannelId: 'voice' });
-  useSpaceStore.setState({ spaceChannelIndex: new Map([['voice', { spaceId: 'space', origin: '', type: 'voice' }]]) });
+  useSpaceStore.setState({ spaceChannelIndex: new Map([['voice', { spaceId: 'space', type: 'voice' }]]) });
 });
 
 describe('Juno neon session playback', () => {
@@ -109,7 +109,7 @@ describe('Juno neon session playback', () => {
     const view = render(<JunoMemorySound target={target} connected />);
     await act(async () => useJunoStore.setState({ snapshot: { revision: 3, game: finish } }));
     expect(audio.loadSound).not.toHaveBeenCalled(); view.unmount();
-    const spectator = { ...target, selfId: 'spectator' };
+    const spectator = { ...target, userId: 'spectator' };
     useJunoStore.getState().bind(spectator, true);
     useJunoStore.setState({ snapshot: { revision: 1, game: junoGame('playing') } });
     render(<JunoMemorySound target={spectator} connected />);

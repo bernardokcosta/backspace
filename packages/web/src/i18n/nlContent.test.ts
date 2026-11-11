@@ -5,12 +5,10 @@ import dm from '../locales/nl/dm.json';
 import spaces from '../locales/nl/spaces.json';
 import voice from '../locales/nl/voice.json';
 import settings from '../locales/nl/settings.json';
-import federation from '../locales/nl/federation.json';
 
 describe('Dutch contextual content', () => {
-  it('uses Dutch action words for muting and probing', () => {
+  it('uses Dutch action words for muting', () => {
     expect(settings.keybinds.action.toggleMute).toBe('Dempen wisselen');
-    expect(federation.connections.add.probing).toBe('Sonderen…');
   });
 
   it('keeps the ranking rule scoped to players who finish the round', () => {

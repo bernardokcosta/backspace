@@ -26,16 +26,12 @@ function makeUser(id: string, username: string, displayName: string | null): Use
   return {
     id, username, displayName, avatar: null, banner: null, accentColor: null, avatarColor: null,
     bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
-    homeInstance: null, homeUserId: null, replicatedInstances: [],
   };
 }
 
-const HOST = 'https://host.test';
 const me = makeUser('me', 'alice', 'Alice');
-// The space and the DM are on HOST: the ids in them are HOST's ids.
-const meOnHost = makeUser('me-host', 'alice@home.example', 'Alice');
 const bob = makeUser('bob-host', 'bob', 'Bob');
-const dm = { id: 'dm-1', ownerId: null, createdAt: 1, members: [meOnHost, bob], lastMessage: null } as unknown as DmChannel;
+const dm = { id: 'dm-1', ownerId: null, createdAt: 1, members: [me, bob], lastMessage: null } as unknown as DmChannel;
 const bobMember: MemberWithUser = { spaceId: 'space-1', userId: bob.id, nickname: 'Bobby', joinedAt: 1, user: bob, roles: [] };
 
 function makeMessage(channelId: string, isDm: boolean, author: User = bob): MessageWithUser {
@@ -80,15 +76,13 @@ async function nextFrame() {
 beforeEach(() => {
   Element.prototype.scrollIntoView = vi.fn();
   useAuthStore.setState({ user: me });
-  useAuthStore.getState().recordMyRow(HOST, meOnHost.id);
   useUIStore.setState({ isMobile: false });
   useSpaceStore.setState({
     currentSpaceId: 'space-1',
     dmChannels: [dm],
     members: [bobMember],
     channelToSpaceMap: new Map([['space-ch-1', 'space-1']]),
-    channelOriginMap: new Map([['space-ch-1', HOST], [dm.id, HOST]]),
-    channelPermissions: new Map([['space-ch-1', PermissionBits.SEND_MESSAGES]]),
+    channelPermissions: new Map([['space-ch-1', PermissionBits.SEND_MESSAGES.toString()]]),
   });
   useComposerStore.setState({ states: new Map() });
   useChannelPokeStore.getState().reset();
@@ -98,9 +92,9 @@ afterEach(() => {
   act(() => useContextMenuStore.getState().close());
   useSpaceStore.setState({
     currentSpaceId: null, dmChannels: [], members: [],
-    channelToSpaceMap: new Map(), channelOriginMap: new Map(), channelPermissions: new Map(),
+    channelToSpaceMap: new Map(), channelPermissions: new Map(),
   });
-  useAuthStore.setState({ user: null, myRowIds: new Map() });
+  useAuthStore.setState({ user: null });
 });
 
 describe('Message author context menu', () => {
@@ -123,7 +117,7 @@ describe('Message author context menu', () => {
   });
 
   it('offers Mention by nickname and Poke in a space channel whose host offers pokes, from the name too', async () => {
-    useChannelPokeStore.getState().setHost(HOST, true);
+    useChannelPokeStore.getState().setSupported(true);
     renderChannel('space-ch-1', makeMessage('space-ch-1', false));
 
     fireEvent.contextMenu(screen.getAllByText('Bobby')[0]!, { clientX: 20, clientY: 30 });
@@ -136,8 +130,8 @@ describe('Message author context menu', () => {
   });
 
   it('opens the message menu instead where the viewer cannot send', () => {
-    useSpaceStore.setState({ channelPermissions: new Map([['space-ch-1', 0n]]) });
-    useChannelPokeStore.getState().setHost(HOST, true);
+    useSpaceStore.setState({ channelPermissions: new Map([['space-ch-1', '0']]) });
+    useChannelPokeStore.getState().setSupported(true);
     const { container } = renderChannel('space-ch-1', makeMessage('space-ch-1', false));
 
     rightClickAvatar(container, bob.id);
@@ -148,16 +142,16 @@ describe('Message author context menu', () => {
   });
 
   it("opens the message menu on the viewer's own DM message", () => {
-    const { container } = renderChannel(dm.id, makeMessage(dm.id, true, meOnHost));
+    const { container } = renderChannel(dm.id, makeMessage(dm.id, true, me));
 
-    rightClickAvatar(container, meOnHost.id);
+    rightClickAvatar(container, me.id);
     const labels = menuLabels();
     expect(labels.length).toBeGreaterThan(0);
     expect(labels).not.toContain('@Alice');
   });
 
   it('opens the author menu from the keyboard on the focused name, under the name', () => {
-    useChannelPokeStore.getState().setHost(HOST, true);
+    useChannelPokeStore.getState().setSupported(true);
     renderChannel('space-ch-1', makeMessage('space-ch-1', false));
     const name = screen.getByRole('button', { name: 'Bobby' });
     name.getBoundingClientRect = () => ({ left: 100, right: 150, top: 40, bottom: 60, width: 50, height: 20, x: 100, y: 40, toJSON: () => ({}) });
@@ -190,10 +184,10 @@ describe('Message author context menu', () => {
   });
 
   it("opens the message menu on the viewer's own space message, even where the host offers pokes", () => {
-    useChannelPokeStore.getState().setHost(HOST, true);
-    const { container } = renderChannel('space-ch-1', makeMessage('space-ch-1', false, meOnHost));
+    useChannelPokeStore.getState().setSupported(true);
+    const { container } = renderChannel('space-ch-1', makeMessage('space-ch-1', false, me));
 
-    rightClickAvatar(container, meOnHost.id);
+    rightClickAvatar(container, me.id);
     const labels = menuLabels();
     expect(labels.length).toBeGreaterThan(0);
     expect(labels).not.toContain('Poke');

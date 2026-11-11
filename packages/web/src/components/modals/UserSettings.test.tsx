@@ -23,16 +23,12 @@ const mocks = vi.hoisted(() => {
     customStatus: null,
     isAdmin: false,
     createdAt: 0,
-    homeInstance: null,
-    homeUserId: null,
-    replicatedInstances: [],
   };
 
   const instanceInfo: InstanceInfoResponse = {
     name: 'Test Instance',
     version: '1.2.1',
     registrationOpen: true,
-    federatedRegistrationOpen: true,
     instanceId: 'instance-1',
     sourceCodeUrl: 'https://github.com/bernardokcosta/veyvox',
     commit: 'abc1234',
@@ -110,7 +106,6 @@ vi.mock('./settingsPanels/AccountPanel', () => ({ AccountPanel: () => <p>Account
 vi.mock('./settingsPanels/AppearancePanel', () => ({ AppearancePanel: () => <p>AppearancePanel stub</p> }));
 vi.mock('./settingsPanels/VoicePanel', () => ({ VoicePanel: () => <p>VoicePanel stub</p> }));
 vi.mock('./settingsPanels/PrivacyPanel', () => ({ PrivacyPanel: () => <p>PrivacyPanel stub</p> }));
-vi.mock('./settingsPanels/ConnectionsPanel', () => ({ ConnectionsPanel: () => <p>ConnectionsPanel stub</p> }));
 vi.mock('./settingsPanels/KeybindsPanel', () => ({ KeybindsPanel: () => <p>KeybindsPanel stub</p> }));
 vi.mock('./settingsPanels/InstancePanel', () => ({ InstancePanel: () => <p>InstancePanel stub</p> }));
 vi.mock('./settingsPanels/BotsPanel', () => ({ BotsPanel: () => <p>BotsPanel stub</p> }));
@@ -216,6 +211,11 @@ describe('UserSettingsModal Desktop tab', () => {
 });
 
 describe('UserSettingsModal deep links (#330)', () => {
+  it('never exposes the retired Connections tab, even from an old modal selection', async () => {
+    mocks.ui.modalData = { tab: 'connections' }; await openSettings();
+    expect(screen.queryByRole('button', { name: 'Connections' })).toBeNull();
+    expect(await screen.findByText('AccountPanel stub')).toBeInTheDocument();
+  });
   afterEach(() => {
     mocks.ui.modalData = {};
     mocks.auth.user = { ...mocks.auth.user, isAdmin: false };

@@ -1,4 +1,4 @@
-import type { User, ReplicatedInstance } from '@veyvox/shared';
+import type { User } from '@veyvox/shared';
 import { schema } from '../db/index.js';
 
 export function sanitizeUser(row: typeof schema.users.$inferSelect, isSelf = false): User {
@@ -21,20 +21,8 @@ export function sanitizeUser(row: typeof schema.users.$inferSelect, isSelf = fal
       discoverable: false,
       profileUpdatedAt: 0,
       createdAt: row.createdAt,
-      homeInstance: null,
-      homeUserId: null,
-      replicatedInstances: [],
       ...(isSelf ? { showActivity: false, developerMode: false } : {}),
     };
-  }
-
-  let replicatedInstances: ReplicatedInstance[] = [];
-  if (row.replicatedInstances) {
-    try {
-      replicatedInstances = JSON.parse(row.replicatedInstances);
-    } catch {
-      replicatedInstances = [];
-    }
   }
 
   return {
@@ -53,15 +41,10 @@ export function sanitizeUser(row: typeof schema.users.$inferSelect, isSelf = fal
     discoverable: row.discoverable !== 0,
     profileUpdatedAt: row.profileUpdatedAt ?? 0,
     createdAt: row.createdAt,
-    homeInstance: row.homeInstance ?? null,
-    homeUserId: row.homeUserId ?? null,
-    replicatedInstances,
     ...(isSelf
       ? {
           showActivity: row.showActivity !== 0,
           developerMode: row.developerMode === 1,
-          federationHomeOrphaned: row.federationHomeOrphaned === 1,
-          detachedHomeInstance: row.detachedHomeInstance ?? null,
         }
       : {}),
   };

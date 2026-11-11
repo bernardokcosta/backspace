@@ -16,14 +16,14 @@ export function GamesPicker() {
   const closeModal = useUIStore(s => s.closeModal);
   const target = useJunoStore(s => s.target);
   const connected = useJunoStore(s => s.connected);
-  const accountId = useAuthStore(s => s.user?.id);
+  const userId = useAuthStore(s => s.user?.id);
   const voiceChannelId = useVoiceStore(s => s.currentVoiceChannelId);
   const voiceConnected = useVoiceStore(s => s.isLiveKitConnected && s.voiceConnectionStatus === 'connected');
   const channel = useSpaceStore(s => target ? s.spaceChannelIndex.get(target.channelId) : undefined);
   const navigate = useNavigate();
-  const valid = !!target && connected && voiceConnected && target.accountId === accountId
-    && target.channelId === voiceChannelId && channel?.type === 'voice' && channel.origin === target.origin
-    && modalData.accountId === target.accountId && modalData.selfId === target.selfId
+  const valid = !!target && connected && voiceConnected && target.userId === userId
+    && target.channelId === voiceChannelId && channel?.type === 'voice' && target.origin === window.location.origin
+    && modalData.userId === target.userId
     && modalData.channelId === target.channelId && modalData.origin === target.origin;
 
   useEffect(() => {
@@ -41,8 +41,8 @@ export function GamesPicker() {
     // A stale click must not open a table belonging to another call/account.
     if (ui.activeModal !== 'games' || ui.modalData !== modalData || game.target !== target
         || !game.connected || !voice.isLiveKitConnected || voice.voiceConnectionStatus !== 'connected'
-        || voice.currentVoiceChannelId !== target.channelId || useAuthStore.getState().user?.id !== target.accountId
-        || currentChannel?.type !== 'voice' || currentChannel.origin !== target.origin) return;
+        || voice.currentVoiceChannelId !== target.channelId || useAuthStore.getState().user?.id !== target.userId
+        || currentChannel?.type !== 'voice' || target.origin !== window.location.origin) return;
     ui.closeModal();
     voice.setFocusedParticipant(null);
     game.setOpen(true);

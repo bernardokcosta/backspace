@@ -127,7 +127,6 @@
       "appearance": "Aparência",
       "voice": "Voz e vídeo",
       "privacy": "Privacidade",
-      "connections": "Conexões",
       "keybinds": "Atalhos",
       "desktop": "Desktop",
       "instance": "Instância",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "Minha conta",
-    "detached": {
-      "notice": "Esta conta está desvinculada da instância de origem.",
-      "explanation": "{{homeInstance}} foi redefinida ou não está mais disponível, então esta conta agora funciona localmente nesta instância. Seu perfil e sua senha são gerenciados aqui.",
-      "reattachHint": "Como {{username}} em {{homeInstance}}, você pode vincular esta conta novamente. O perfil e a presença voltarão a ser sincronizados a partir de lá.",
-      "reattachButton": "Revincular a {{homeInstance}}",
-      "reattachConfirm": "Confirmar revinculação como {{username}}",
-      "reattaching": "Revinculando…",
-      "reattachFailed": "Falha ao revincular",
-      "reattached": "Conta revinculada com {{username}}"
-    },
     "profile": {
       "sectionTitle": "Personalização do perfil",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "Conta",
       "status": {
-        "label": "Status",
-        "homeUnavailable": "Seu status fica guardado em {{host}}. Conecte-se a {{host}} para alterá-lo."
+        "label": "Status"
       },
       "customStatus": {
         "label": "Status personalizado",
@@ -245,10 +233,6 @@
         "passwordPlaceholder": "Digite sua senha",
         "submit": "Excluir minha conta",
         "deleting": "Excluindo…"
-      },
-      "federation": {
-        "removing": "Removendo sua conta das instâncias conectadas…",
-        "deleteAnyway": "Excluir conta agora"
       },
       "complete": {
         "title": "Conta excluída",
@@ -311,14 +295,10 @@
       }
     }
   },
-  "connections": {
-    "title": "Conexões"
-  },
   "instance": {
     "tabs": {
       "general": "Geral",
       "registration": "Cadastro",
-      "federation": "Federação",
       "streaming": "Transmissão",
       "storage": "Armazenamento",
       "users": "Usuários",

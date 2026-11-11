@@ -3,8 +3,7 @@ import type { JunoRankingPage, JunoView } from '@veyvox/shared/src/juno';
 
 export function junoUser(id = 'a', name = id === 'a' ? 'Ada' : id === 'b' ? 'Bo' : id): User {
   return { id, username: id, displayName: name, avatar: null, banner: null, accentColor: null, avatarColor: null,
-    bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
-    homeInstance: null, homeUserId: null, replicatedInstances: [] };
+    bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1 };
 }
 export function junoGame(phase: JunoView['phase'] = 'lobby'): JunoView {
   return { id: 'game', phase, hostId: 'a', players: ['a', 'b'].map((id, i) => ({ userId: id, name: junoUser(id).displayName!, user: junoUser(id), cardCount: i === 0 ? 2 : 7, announced: false })),

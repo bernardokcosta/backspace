@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getApiForOrigin, type TaggedSpace } from '../stores/spaceStore';
+import { api } from '../api/client';
+import { useAuthStore } from '../stores/authStore';
 import { describeError } from '../i18n/errors';
 import { permissionsToString, overrideVersion } from '../utils/permissions';
 import {
@@ -41,8 +42,7 @@ export interface EntityOverrides {
 }
 
 /**
- * The overrides of one channel or category, from the space's own instance
- * (client-federation.md). One list per open settings dialog: every tab and
+ * Native overrides of one channel or category. One list per open settings dialog: every tab and
  * control of it reads and edits this list, so none of them holds a copy that
  * can go stale. `enabled` false (the viewer cannot read overrides) fetches
  * nothing.
@@ -50,7 +50,6 @@ export interface EntityOverrides {
 export function useEntityOverrides(
   kind: OverrideEntityKind,
   entityId: string | undefined,
-  space: Pick<TaggedSpace, '_instanceOrigin'> | undefined,
   enabled: boolean,
 ): EntityOverrides {
   const [overrides, setOverrides] = useState<StoredOverride[]>([]);
@@ -59,30 +58,34 @@ export function useEntityOverrides(
   // Only the newest listing may land; an older one answering late would put
   // back what a write just changed.
   const requestSeq = useRef(0);
-
-  const origin = space?._instanceOrigin ?? '';
-  const routes = useCallback(() => {
-    const client = getApiForOrigin(origin);
-    return kind === 'channel' ? client.channels : client.categories;
-  }, [kind, origin]);
+  const revision = useAuthStore(s => s.sessionRevision);
+  const owner = useRef({ kind, entityId, enabled, revision });
+  owner.current = { kind, entityId, enabled, revision };
+  const mounted = useRef(true);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const owned = useCallback(() => mounted.current && revision === useAuthStore.getState().sessionRevision
+    && owner.current.revision === revision && owner.current.kind === kind && owner.current.entityId === entityId
+    && owner.current.enabled === enabled, [kind, entityId, enabled, revision]);
+  const routes = kind === 'channel' ? api.channels : api.categories;
 
   const reload = useCallback(async (): Promise<void> => {
-    if (!entityId || !enabled) return;
+    if (!entityId || !enabled || !owned()) return;
     const seq = ++requestSeq.current;
     try {
-      const rows = await routes().getOverrides(entityId);
-      if (seq !== requestSeq.current) return;
+      const rows = await routes.getOverrides(entityId);
+      if (seq !== requestSeq.current || !owned()) return;
       setOverrides(rows.map(({ targetType, targetId, allow, deny }) => ({ targetType, targetId, allow, deny })));
       setError('');
     } catch (err) {
-      if (seq !== requestSeq.current) return;
+      if (seq !== requestSeq.current || !owned()) return;
       setError(describeError(err));
     } finally {
-      if (seq === requestSeq.current) setLoaded(true);
+      if (seq === requestSeq.current && owned()) setLoaded(true);
     }
-  }, [entityId, enabled, routes]);
+  }, [entityId, enabled, routes, owned]);
 
   useEffect(() => {
+    requestSeq.current++;
     setOverrides([]);
     setError('');
     // Nothing to wait for when there is nothing to fetch.
@@ -90,15 +93,19 @@ export function useEntityOverrides(
     void reload();
   }, [reload, entityId, enabled]);
 
-  const put = useCallback((row: OverrideWrite) => {
-    if (!entityId) return Promise.reject(new Error('no entity'));
-    return routes().putOverride(entityId, row);
-  }, [entityId, routes]);
+  const put = useCallback(async (row: OverrideWrite) => {
+    if (!entityId || !enabled || !owned()) throw new DOMException('Settings target changed', 'AbortError');
+    const saved = await routes.putOverride(entityId, row);
+    if (!owned()) throw new DOMException('Settings target changed', 'AbortError');
+    return saved;
+  }, [entityId, enabled, routes, owned]);
 
-  const remove = useCallback((targetType: string, targetId: string, version: string) => {
-    if (!entityId) return Promise.reject(new Error('no entity'));
-    return routes().deleteOverride(entityId, targetType, targetId, version);
-  }, [entityId, routes]);
+  const remove = useCallback(async (targetType: string, targetId: string, version: string) => {
+    if (!entityId || !enabled || !owned()) throw new DOMException('Settings target changed', 'AbortError');
+    const saved = await routes.deleteOverride(entityId, targetType, targetId, version);
+    if (!owned()) throw new DOMException('Settings target changed', 'AbortError');
+    return saved;
+  }, [entityId, enabled, routes, owned]);
 
   const setBits = useCallback(async (targetType: string, targetId: string, bits: bigint, state: OverrideBitState) => {
     const loaded = findOverride(overrides, targetType, targetId);

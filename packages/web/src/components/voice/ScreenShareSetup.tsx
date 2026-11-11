@@ -16,7 +16,7 @@ import {
   isCaptureCancellation,
   canAddScreenShareAudioLater,
 } from '../../utils/screenShare';
-import { StreamQualityControls, StreamSummary, StreamHostSubtitle } from './StreamQualityControls';
+import { StreamQualityControls, StreamSummary } from './StreamQualityControls';
 import { pickAutoStageSource, type ScreenSourceTab } from '../../utils/screenShareSources';
 import { getSdrCaptureCapability, isSdrScreenCapture, SdrCaptureError } from '../../utils/sdrScreenCapture';
 
@@ -761,7 +761,6 @@ export function ScreenShareSetup() {
             <div className="flex items-start justify-between gap-3 px-5 pt-4 pb-3 border-b border-border-hard flex-shrink-0">
               <div className="min-w-0">
                 <div className="text-[15px] font-bold text-txt-primary">{t('voice:streamSettings.title')}</div>
-                <StreamHostSubtitle className="mt-0.5" />
               </div>
               <button
                 onClick={() => setSettingsOpen(false)}

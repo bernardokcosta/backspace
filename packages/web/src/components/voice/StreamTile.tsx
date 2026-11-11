@@ -6,7 +6,7 @@ import { useVoiceStore } from '../../stores/voiceStore';
 import { useContextMenuStore, type ContextMenuItem } from '../../stores/contextMenuStore';
 import { getActiveRoom, setStreamSubscription } from '../../hooks/useLiveKit';
 import { stopScreenShare, changeScreenShare, effectiveScreenShareConfig } from '../../utils/screenShare';
-import { useStreamHostLimits } from '../../utils/streamHostLimits';
+import { useSettingsStore } from '../../stores/settingsStore';
 import { DEFAULT_STREAMING_LIMITS } from '../../stores/settingsStore';
 import { encodeStreamWatch, streamWatchFor, type StreamWatchTarget } from '../../utils/streamWatchProtocol';
 import { AudioManager } from '../../audio/AudioManager';
@@ -46,7 +46,7 @@ function StreamQualityItem() {
   const btnRef = useRef<HTMLButtonElement>(null);
   const setCloseGuard = useContextMenuStore((s) => s.setCloseGuard);
   const savedConfig = useVoiceStore((s) => s.screenShareConfig);
-  const { limits } = useStreamHostLimits();
+  const limits = useSettingsStore(state => state.streamingLimits);
   // The label names what the stream uses, not the saved choice a host may cap.
   const screenShareConfig = effectiveScreenShareConfig(savedConfig, limits ?? DEFAULT_STREAMING_LIMITS);
 
@@ -210,7 +210,7 @@ export function StreamTile({ tile, large, stats }: StreamTileProps) {
   const { participant } = tile;
   const isLocal = participant.isLocal;
   const userId = participant.userId;
-  const avatarUserId = participant.homeUserId ?? userId;
+  const avatarUserId = userId;
   const { displayName, avatar, user } = useVoiceParticipantMeta(participant);
 
   const isWatching = watchingStreams.has(userId);
@@ -230,9 +230,8 @@ export function StreamTile({ tile, large, stats }: StreamTileProps) {
     track.source === 'screen_share'
     && (isLocal
       ? track.direction === 'send'
-      // Matched on LiveKit identity, never on username: a replicated federated
-      // user can share a username with a local one, and matching by name would
-      // attribute one participant's degradation to the other.
+      // Match stable LiveKit identity, never a display name that another
+      // participant can share.
       : track.direction === 'recv' && track.participantIdentity === participant.identity),
   );
   const healthCandidate = classifyStreamHealth({

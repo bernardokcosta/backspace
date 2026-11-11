@@ -7,19 +7,19 @@ import { Avatar } from '../ui/Avatar';
 import { Username } from '../ui/Username';
 import { BotBadge } from './BotBadge';
 import { ProfileBio } from './ProfileBio';
-import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
+import { useSpaceStore } from '../../stores/spaceStore';
 import { useVoiceStore } from '../../stores/voiceStore';
 import { hasPermissionBit, PermissionBits } from '../../utils/permissions';
 import { watchUserScreen, stopWatchingUserScreen } from '../../utils/watchStream';
 import { api } from '../../api/client';
-import { useSelfIdentity } from '../../stores/authStore';
+import { useAuthStore } from '../../stores/authStore';
 import { openDirectMessage } from '../../utils/openDirectMessage';
 import { describeError } from '../../i18n/errors';
 import { useUIStore, type ProfileMemberContext } from '../../stores/uiStore';
 import { getAvatarGradient, adjustColor, mutedGradient } from '../../utils/gradients';
-import { isMine, parseFederatedUsername } from '../../utils/identity';
+import { userDisplayName } from '../../utils/identity';
+import { uploadUrl } from '../../utils/assetUrls';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
-import { loadFederatedMutuals } from '../../utils/mutuals';
 import { replaceEmojiShortcodes, useEmojiShortcodeNames } from '../../utils/emojiShortcodes';
 import { computeFloatingPosition, type AnchorRect, type Placement } from '../../hooks/useFloatingPosition';
 import { useProfileMemberRoles } from '../../hooks/useProfileMember';
@@ -35,13 +35,9 @@ const ANCHOR_OFFSET = 8;
 
 /** Fallback when the space store is stubbed (tests): no locked channel. */
 const EMPTY_CHANNEL_PERMS: ReadonlyMap<string, string> = new Map();
-/** Fallback when the space store is stubbed (tests): no spaces to match. */
-const EMPTY_SPACES: readonly TaggedSpace[] = [];
 
 interface UserProfilePopoutProps {
   user: User;
-  /** The instance that issued `user` ('' = the page's own). */
-  origin: string;
   onClose: () => void;
   /** Rect of the element the card was opened from. */
   anchor: AnchorRect;
@@ -50,24 +46,21 @@ interface UserProfilePopoutProps {
   member?: ProfileMemberContext | null;
 }
 
-export function UserProfilePopout({ user: propUser, origin, onClose, anchor, placement = 'right', member = null }: UserProfilePopoutProps) {
+export function UserProfilePopout({ user: propUser, onClose, anchor, placement = 'right', member = null }: UserProfilePopoutProps) {
   useEmojiShortcodeNames();
   const { t } = useTranslation(['social', 'common', 'voice']);
   const navigate = useNavigate();
   const f = useFormatters();
   const openModal = useUIStore((s) => s.openModal);
   const addToast = useUIStore((s) => s.addToast);
-  // How this person looks at best (the userViews cache). The prop can be a
-  // copy from another instance; the cache surfaces their home's view. The
-  // row's identity fields and `origin` stay what every request below uses.
-  const user = useCanonicalUserView(propUser, origin);
-  const { baseName, domain } = parseFederatedUsername(user.username);
-  const displayName = user.displayName ?? baseName;
-  const shownStatus = useShownStatus(user, origin, user.status);
-  const self = useSelfIdentity();
-  const isYou = isMine(user, origin, self);
+  const user = useCanonicalUserView(propUser);
+  const displayName = userDisplayName(user);
+  const shownStatus = useShownStatus(user, user.status);
+  const selfId = useAuthStore(s => s.user?.id);
+  const revision = useAuthStore(s => s.sessionRevision);
+  const isYou = user.id === selfId;
   const activities = useActivityStore((s) =>
-    isYou && s.myActivities ? s.myActivities : activitiesFor(s.userActivities, user, origin),
+    isYou && s.myActivities ? s.myActivities : activitiesFor(s.userActivities, user.id),
   );
   const roles = useProfileMemberRoles(member);
   const isMobile = useUIStore((s) => s.isMobile);
@@ -84,13 +77,8 @@ export function UserProfilePopout({ user: propUser, origin, onClose, anchor, pla
 
   const [mutualCounts, setMutualCounts] = useState<{ friends: number; spaces: number } | null>(null);
 
-  // Screen share this member is publishing, if any: the voice channel whose
-  // occupant list holds their instance-local id with a live screen flag
-  // (LiveKit participants when we share the room, WS presence otherwise).
-  // Candidates are restricted to the member's own origin: the same user id
-  // is valid on every instance, so matching ids on another origin must never
-  // arm this card's controls. While watching, the Watch button is replaced
-  // by Stop watching.
+  // Native account IDs identify the sharer. LiveKit is authoritative in our
+  // connected room; visible WS presence decides elsewhere.
   const voiceUsers = useVoiceStore((s) => s.voiceUsers);
   const screenParticipants = useVoiceStore((s) => s.participants);
   const currentVoiceChannelId = useVoiceStore((s) => s.currentVoiceChannelId);
@@ -98,23 +86,11 @@ export function UserProfilePopout({ user: propUser, origin, onClose, anchor, pla
   const watchingStreams = useVoiceStore((s) => s.watchingStreams);
   const watchingChannels = useVoiceStore((s) => s.watchingChannels);
   const channelPermissions = useSpaceStore((s) => s.channelPermissions) ?? EMPTY_CHANNEL_PERMS;
-  const channelOriginMap = useSpaceStore((s) => s.channelOriginMap) ?? EMPTY_CHANNEL_PERMS;
-  const spaces = useSpaceStore((s) => s.spaces) ?? EMPTY_SPACES;
-  const memberOrigin = member
-    ? (spaces.find((sp) => sp.id === member.spaceId)?._instanceOrigin ?? '')
-    : '';
   const screenShareChannelId = useMemo(() => {
-    if (!member || isYou) return null;
-    // Same id, several origins: the shared WS presence cannot tell whose
-    // screen is live, and the watch binding cannot tell whose watch it is.
-    // Hide the controls instead of driving the wrong room.
-    const origins = new Set<string>();
+    if (!member || member.userId !== user.id || isYou) return null;
+    // An inconsistent snapshot with several seats must not select a room.
+    if ([...voiceUsers.values()].filter(ids => ids.includes(member.userId)).length !== 1) return null;
     for (const [cid, ids] of voiceUsers) {
-      if (ids.includes(member.userId)) origins.add(channelOriginMap.get(cid) ?? '');
-    }
-    if (origins.size !== 1 || !origins.has(memberOrigin)) return null;
-    for (const [cid, ids] of voiceUsers) {
-      if ((channelOriginMap.get(cid) ?? '') !== memberOrigin) continue;
       if (!ids.includes(member.userId)) continue;
       // Participants are this room's only: WS presence decides elsewhere.
       const live = cid === currentVoiceChannelId
@@ -126,17 +102,20 @@ export function UserProfilePopout({ user: propUser, origin, onClose, anchor, pla
       if (sharing) return cid;
     }
     return null;
-  }, [member, isYou, voiceUsers, screenParticipants, currentVoiceChannelId, voiceUserStates, channelOriginMap, memberOrigin]);
+  }, [member, user.id, isYou, voiceUsers, screenParticipants, currentVoiceChannelId, voiceUserStates]);
   const isWatchingShare = screenShareChannelId !== null && !!member
     && watchingStreams.has(member.userId)
     && watchingChannels.get(member.userId) === screenShareChannelId;  const canWatchChannel = screenShareChannelId !== null
     && hasPermissionBit(channelPermissions.get(screenShareChannelId), PermissionBits.CONNECT);
 
   useEffect(() => {
-    loadFederatedMutuals(user.id, user.homeUserId)
-      .then((data) => setMutualCounts({ friends: data.mutualFriends.length, spaces: data.mutualSpaces.length }))
+    let alive = true;
+    setMutualCounts(null);
+    void api.users.getMutuals(user.id)
+      .then((data) => { if (alive && revision === useAuthStore.getState().sessionRevision) setMutualCounts({ friends: data.mutualFriends.length, spaces: data.mutualSpaces.length }); })
       .catch(() => {});
-  }, [user.id, user.homeUserId]);
+    return () => { alive = false; };
+  }, [user.id, revision]);
 
   // Placed off the card's *measured* size rather than a guessed height: the card
   // grows with the bio, the custom status and the mutuals row, so any constant
@@ -173,18 +152,19 @@ export function UserProfilePopout({ user: propUser, origin, onClose, anchor, pla
 
   const handleSendMessage = async () => {
     try {
-      const rowId = await openDirectMessage(user, origin);
+      const rowId = await openDirectMessage(user.id);
+      if (revision !== useAuthStore.getState().sessionRevision) return;
       useUIStore.getState().setShowDms(true);
       onClose();
       navigate(`/channels/@me/${rowId}`);
     } catch (err) {
-      addToast(t('social:sendMessage.failed', { reason: describeError(err) }), 'warning');
+      if (revision === useAuthStore.getState().sessionRevision) addToast(t('social:sendMessage.failed', { reason: describeError(err) }), 'warning');
     }
   };
 
   const handleViewFullProfile = () => {
     onClose();
-    openModal('userProfile', { userId: user.id, user, origin, member });
+    openModal('userProfile', { userId: user.id, user, member });
   };
 
   const handleEditRoles = () => {
@@ -209,15 +189,11 @@ export function UserProfilePopout({ user: propUser, origin, onClose, anchor, pla
     handleViewFullProfile();
   };
 
-  // Banner display. Another instance's assets arrive as absolute URLs
-  // (`normalizeUserAssets`); a bare filename is the page's own instance's.
-  const bannerSrc = user.banner
-    ? (user.banner.startsWith('http') || user.banner.startsWith('/') ? user.banner : api.uploads.url(user.banner))
-    : null;
+  const bannerSrc = uploadUrl(user.banner);
   const bannerFallback = user.accentColor
     ? mutedGradient(user.accentColor, adjustColor(user.accentColor, -40))
     : (() => {
-        const g = getAvatarGradient(user.homeUserId ?? user.id, displayName, user.avatarColor);
+        const g = getAvatarGradient(user.id, displayName, user.avatarColor);
         return mutedGradient(g.from, g.to);
       })();
 
@@ -253,7 +229,7 @@ export function UserProfilePopout({ user: propUser, origin, onClose, anchor, pla
           name={displayName}
           size={80}
           status={shownStatus}
-          userId={user.homeUserId ?? user.id}
+          userId={user.id}
           user={user}
           onClick={handleAvatarClick}
           ring={{ width: 4, color: 'rgba(20,20,26,0.85)' }}

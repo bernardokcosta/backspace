@@ -2,7 +2,7 @@ import React from 'react';
 import type { User } from '@veyvox/shared';
 import { Avatar } from './Avatar';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
-import { parseFederatedUsername } from '../../utils/identity';
+import { userDisplayName } from '../../utils/identity';
 
 /**
  * Reusable avatar-stack widget for group-DM identity slots.
@@ -35,8 +35,6 @@ import { parseFederatedUsername } from '../../utils/identity';
 export interface AvatarStackProps {
   /** "Other" members already filtered to exclude self when applicable. */
   members: User[];
-  /** The instance that issued the `members` rows ('' = the page's own). */
-  origin: string;
   /** Outer box edge length in px. Common: 24, 32, 40, 56, 80. */
   size: number;
   /** Which surface tier this stack sits on; controls border color. */
@@ -93,21 +91,19 @@ function GroupBadgeIcon({ size }: { size: number }) {
  */
 function AvatarTile({
   member,
-  origin,
   size,
   borderClass,
   className = '',
   style,
 }: {
   member: User;
-  origin: string;
   size: number;
   borderClass: string;
   className?: string;
   style?: React.CSSProperties;
 }) {
-  const canonical = useCanonicalUserView(member, origin);
-  const displayName = canonical.displayName ?? parseFederatedUsername(canonical.username).baseName;
+  const canonical = useCanonicalUserView(member);
+  const displayName = userDisplayName(canonical);
   // Two corrections on top of the previous "drop the Avatar straight in" form:
   //
   //   1. Box-sizing. The wrapper renders at `size × size` with a 2px border
@@ -134,14 +130,14 @@ function AvatarTile({
         src={canonical.avatar}
         name={displayName}
         size={innerSize}
-        userId={canonical.homeUserId ?? canonical.id}
+        userId={canonical.id}
         user={canonical}
       />
     </div>
   );
 }
 
-export function AvatarStack({ members, origin, size, border, iconUrl }: AvatarStackProps) {
+export function AvatarStack({ members, size, border, iconUrl }: AvatarStackProps) {
   const borderClass = BORDER_CLASS[border];
 
   // Icon override — bypass the stack entirely.
@@ -203,7 +199,6 @@ export function AvatarStack({ members, origin, size, border, iconUrl }: AvatarSt
       >
         <AvatarTile
           member={members[0]!}
-          origin={origin}
           size={size}
           borderClass="border-transparent"
           style={{ left: 0, top: 0 }}
@@ -238,7 +233,6 @@ export function AvatarStack({ members, origin, size, border, iconUrl }: AvatarSt
           <AvatarTile
             key={m.id}
             member={m}
-            origin={origin}
             size={tileSize}
             borderClass={borderClass}
             style={{
@@ -326,7 +320,6 @@ export function AvatarStack({ members, origin, size, border, iconUrl }: AvatarSt
           <AvatarTile
             key={m.id}
             member={m}
-            origin={origin}
             size={tileSize}
             borderClass={borderClass}
             style={{

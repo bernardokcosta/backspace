@@ -134,9 +134,7 @@ async function main(): Promise<void> {
   for (const a of nullDimAttachments) {
     const filepath = path.join(config.uploadDir, a.filename);
     if (!fs.existsSync(filepath)) {
-      // Federated remote attachments live on the source instance, not here.
-      // Their dims need to be backfilled from the source side, or via the
-      // federation file-replication path. Skip silently.
+      // Missing local bytes cannot be probed; do not fetch a replacement.
       attachmentSkipped++;
       continue;
     }
@@ -152,8 +150,7 @@ async function main(): Promise<void> {
   // SSRF correctly blocks the remote probe from hitting our own host. For
   // these specific embeds we have the file locally — extract the upload
   // filename from the URL path (`/api/uploads/<filename>`) and probe it
-  // directly, sidestepping HTTP entirely. Federated `/api/uploads/...` URLs
-  // on a different host won't have a local file and are skipped.
+  // directly, sidestepping HTTP entirely. Missing files are skipped.
   const localUploadEmbeds = db.prepare(
     `SELECT id, url FROM embeds WHERE embed_type = 'image' AND (width IS NULL OR height IS NULL) AND url LIKE '%/api/uploads/%'`,
   ).all() as Array<{ id: string; url: string }>;

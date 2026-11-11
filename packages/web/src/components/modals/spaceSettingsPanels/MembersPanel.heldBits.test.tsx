@@ -11,7 +11,7 @@ vi.mock('../../../audio/AudioManager', () => ({
 }));
 
 import { MembersPanel } from './MembersPanel';
-import { useSpaceStore, type TaggedSpace } from '../../../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../../../stores/spaceStore';
 import { useAuthStore } from '../../../stores/authStore';
 import { ALL_PERMISSIONS, PermissionBits, permissionsToString } from '../../../utils/permissions';
 
@@ -21,9 +21,9 @@ import { ALL_PERMISSIONS, PermissionBits, permissionsToString } from '../../../u
 // locked checkbox says why.
 
 const SPACE_ID = 'space-1';
-const SPACE: TaggedSpace = {
+const SPACE: SpaceWithMyRoles = {
   id: SPACE_ID, name: 'Space', icon: null, banner: null, avatarColor: null, ownerId: 'owner',
-  inviteCode: null, visibility: 'public', description: null, createdAt: 1, _instanceOrigin: '',
+  inviteCode: null, visibility: 'public', description: null, createdAt: 1,
 };
 
 const LEAD_BITS = PermissionBits.MANAGE_ROLES | PermissionBits.KICK_MEMBERS;
@@ -41,7 +41,7 @@ function user(id: string): User {
   return {
     id, username: id, displayName: id.charAt(0).toUpperCase() + id.slice(1), avatar: null, banner: null,
     accentColor: null, avatarColor: null, bio: null, status: 'online', customStatus: null, isAdmin: false,
-    createdAt: 1, homeInstance: null, homeUserId: null, replicatedInstances: [],
+    createdAt: 1,
   };
 }
 function member(id: string, roles: Role[]): MemberWithUser {

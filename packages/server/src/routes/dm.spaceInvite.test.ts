@@ -1,561 +1,98 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
-import { eq } from 'drizzle-orm';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
+import { buildNativeDatabase, seedNativeUser } from '../testing/standaloneUpgrade.js';
 import { setWorkerId } from '../utils/snowflake.js';
+import { parseDmSystemEvent } from '@veyvox/shared/src/dmSystemEvents.js';
 
-setWorkerId(1);
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-// Module-level mutable state. The vi.mock factories below close over these
-// bindings via getter functions, so reassignment in beforeEach is observed.
-type TestDb = ReturnType<typeof drizzle<typeof schema>>;
 let sqlite: Database.Database;
-let testDb: TestDb;
-let currentUserId = 'alice';
-
-vi.mock('../db/index.js', () => ({
-  getDb: () => testDb,
-  getRawDb: () => sqlite,
-  schema,
-}));
-
-vi.mock('../utils/auth.js', () => ({
-  authenticate: async (req: { userId?: string }) => {
-    req.userId = currentUserId;
-  },
-}));
-
-vi.mock('../ws/handler.js', () => ({
-  connectionManager: {
-    sendToUser: vi.fn(),
-    sendToDmMembers: vi.fn(),
-    sendToAdmins: vi.fn(),
-    getAllOnlineUserIds: () => [],
-  },
-}));
-
-// The route runs the real relay writers: the relay is asserted on the
-// persisted `federation_outbox` rows (as dm.kick does), not on a stub.
-// `federationOutbox`'s own imports load routes/dm.ts while this factory runs,
-// so a stub of a relay function here never reaches the route.
-vi.mock('../utils/federationOutbox.js', async () => {
-  const actual = await vi.importActual<typeof import('../utils/federationOutbox.js')>('../utils/federationOutbox.js');
-  return {
-    ...actual,
-    queueDmCloseRelay: vi.fn(),
-    sendTypingRelay: vi.fn(),
-  };
+let db: ReturnType<typeof drizzle<typeof schema>>;
+let app: FastifyInstance;
+vi.mock('../db/index.js',()=>({getDb:()=>db,getRawDb:()=>sqlite,schema}));
+vi.mock('../utils/auth.js',()=>({authenticate:async(request:{userId:string})=>{request.userId='alice';}}));
+vi.mock('../ws/handler.js',()=>({connectionManager:{sendToUser:vi.fn(),sendToDmMembers:vi.fn()}}));
+vi.mock('../config.js',async importOriginal=>{
+  const actual=await importOriginal<typeof import('../config.js')>();
+  return {...actual,config:{...actual.config,publicOrigin:'https://local.test'}};
 });
 
-vi.mock('../utils/federationAuth.js', async (importActual) => {
-  const actual = await importActual<typeof import('../utils/federationAuth.js')>();
-  return { ...actual, getOurOrigin: () => 'https://local.test' };
+beforeEach(async()=>{
+  setWorkerId(1); sqlite=new Database(':memory:'); buildNativeDatabase(sqlite); db=drizzle(sqlite,{schema});
+  for (const id of ['alice','bob','outsider']) seedNativeUser(sqlite,id);
+  sqlite.exec(`INSERT INTO instance_settings (id,instance_name,updated_at) VALUES (1,'Local host',1);
+    INSERT INTO friends VALUES ('alice','bob',1);
+    INSERT INTO spaces (id,name,owner_id,invite_code,avatar_color,description,visibility,created_at) VALUES ('space','Aether','alice','code','mint','native description','private',1);
+    INSERT INTO space_members (space_id,user_id,joined_at) VALUES ('space','alice',1);`);
+  app=Fastify(); const {dmRoutes}=await import('./dm.js'); await app.register(dmRoutes); await app.ready();
 });
-
-// Mock the snapshot helpers so tests don't make real HTTP calls and we can
-// observe which lookup path the route takes (local DB vs. cross-instance HTTP).
-vi.mock('../utils/spaceInviteSnapshot.js', () => ({
-  fetchSpaceInviteSnapshot: vi.fn(),
-  getLocalInviteSnapshot: vi.fn(),
-}));
-import { fetchSpaceInviteSnapshot, getLocalInviteSnapshot } from '../utils/spaceInviteSnapshot.js';
-
-function applyMigrations(db: Database.Database): void {
-  const migrationsDir = path.resolve(__dirname, '../../drizzle');
-  const files = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
-  for (const f of files) {
-    const sqlText = fs.readFileSync(path.join(migrationsDir, f), 'utf8');
-    const statements = sqlText.split(/-->\s*statement-breakpoint/);
-    for (const stmt of statements) {
-      const clean = stmt.trim();
-      if (clean) db.exec(clean);
-    }
-  }
+afterEach(async()=>{await app.close(); sqlite.close(); vi.restoreAllMocks();});
+function invite(overrides: Record<string,unknown>={}) {
+  return app.inject({method:'POST',url:'/api/dm/space-invite',payload:{target:{userId:'bob'},spaceId:'space',inviteCode:'code',spaceInstanceOrigin:'',...overrides}});
 }
+function messages(): unknown[] { return sqlite.prepare('SELECT * FROM dm_messages').all(); }
 
-interface UserSeed {
-  id: string;
-  username: string;
-  displayName?: string | null;
-  homeInstance?: string | null;
-  homeUserId?: string | null;
-}
-
-function seedUser(u: UserSeed): void {
-  testDb.insert(schema.users).values({
-    id: u.id,
-    username: u.username,
-    displayName: u.displayName ?? null,
-    passwordHash: 'x',
-    status: 'offline',
-    isAdmin: 0,
-    isDeleted: 0,
-    discoverable: 1,
-    homeInstance: u.homeInstance ?? null,
-    homeUserId: u.homeUserId ?? null,
-    createdAt: Date.now(),
-  }).run();
-}
-
-function seedFriendship(a: string, b: string): void {
-  // The endpoint's friendship check looks at either ordering of (userId, friendId),
-  // so a single row is sufficient.
-  testDb.insert(schema.friends).values({
-    userId: a,
-    friendId: b,
-    createdAt: Date.now(),
-  }).run();
-}
-
-async function buildApp(): Promise<FastifyInstance> {
-  const app = Fastify({ logger: false });
-  const { dmRoutes } = await import('./dm.js');
-  await app.register(dmRoutes);
-  await app.ready();
-  return app;
-}
-
-describe('POST /api/dm/space-invite', () => {
-  let app: FastifyInstance;
-
-  beforeEach(async () => {
-    sqlite = new Database(':memory:');
-    testDb = drizzle(sqlite, { schema });
-    applyMigrations(sqlite);
-    // Relay on, as on a federating instance. The outbox caches this setting
-    // per module, so every test seeds the same value.
-    testDb.insert(schema.instanceSettings).values({
-      id: 1,
-      federationRelayEnabled: 1,
-      updatedAt: Date.now(),
-    }).run();
-    seedUser({ id: 'alice', username: 'alice' });
-    seedUser({ id: 'bob', username: 'bob' });
-    seedFriendship('alice', 'bob');
-    currentUserId = 'alice';
-    (fetchSpaceInviteSnapshot as unknown as ReturnType<typeof vi.fn>).mockReset();
-    (getLocalInviteSnapshot as unknown as ReturnType<typeof vi.fn>).mockReset();
-    app = await buildApp();
+describe('POST /api/dm/space-invite — current instance only',()=>{
+  it.each([
+    {payload:{target:{userId:'outsider'}},code:'not_a_friend'},
+    {payload:{inviteCode:'absent'},code:'invite_invalid'},
+    {payload:{spaceId:'wrong'},code:'invite_invalid'},
+    {payload:{target:{userId:'alice'}},code:'cannot_invite_self'},
+  ])('refuses $code without creating a conversation or message',async scenario=>{
+    const result=await invite(scenario.payload);
+    expect(result.statusCode).toBe(400); expect(result.json<{code:string}>().code).toBe(scenario.code);
+    expect(messages()).toEqual([]); expect(sqlite.prepare('SELECT * FROM dm_channels').all()).toEqual([]);
   });
 
-  it('rejects 400 not_a_friend if target is not a friend', async () => {
-    seedUser({ id: 'charlie', username: 'charlie' });
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/space-invite',
-      payload: {
-        target: { userId: 'charlie' },
-        spaceId: 'S1',
-        spaceInstanceOrigin: '',
-        inviteCode: 'abc123',
-      },
-    });
-    expect(res.statusCode).toBe(400);
-    expect(JSON.parse(res.body).code).toBe('not_a_friend');
-    // Snapshot should not be looked up if friendship gate fails first.
-    expect(fetchSpaceInviteSnapshot).not.toHaveBeenCalled();
-    expect(getLocalInviteSnapshot).not.toHaveBeenCalled();
+  it('rejects a local snapshot that would not form valid system content',async()=>{
+    sqlite.exec("UPDATE spaces SET name='' WHERE id='space'");
+    const result=await invite(); expect(result.statusCode).toBe(400); expect(messages()).toEqual([]);
   });
 
-  it('rejects 400 invite_invalid when local snapshot lookup returns null', async () => {
-    (getLocalInviteSnapshot as unknown as ReturnType<typeof vi.fn>).mockReturnValueOnce(null);
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/space-invite',
-      payload: {
-        target: { userId: 'bob' },
-        spaceId: 'S1',
-        spaceInstanceOrigin: '',
-        inviteCode: 'badcode',
-      },
-    });
-    expect(res.statusCode).toBe(400);
-    expect(JSON.parse(res.body).code).toBe('invite_invalid');
-    // No DM message should be inserted on failure.
-    const messageCount = testDb.select().from(schema.dmMessages).all().length;
-    expect(messageCount).toBe(0);
-  });
-
-  it('rejects 400 invite_invalid when snapshot.spaceId mismatches the requested spaceId', async () => {
-    (getLocalInviteSnapshot as unknown as ReturnType<typeof vi.fn>).mockReturnValueOnce({
-      spaceId: 'WRONG',
-      spaceName: 'X',
-      description: null,
-      icon: null,
-      avatarColor: null,
-      memberCount: 1,
-      instanceName: 'Backspace',
-    });
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/space-invite',
-      payload: {
-        target: { userId: 'bob' },
-        spaceId: 'S1',
-        spaceInstanceOrigin: '',
-        inviteCode: 'abc',
-      },
-    });
-    expect(res.statusCode).toBe(400);
-    expect(JSON.parse(res.body).code).toBe('invite_invalid');
-    const messageCount = testDb.select().from(schema.dmMessages).all().length;
-    expect(messageCount).toBe(0);
-  });
-
-  it('rejects 400 invite_invalid when the snapshot would not make a well-formed invite', async () => {
-    // The receiving instances validate the same shape (parseDmSystemEvent),
-    // so an invite they would refuse is never sent.
-    (fetchSpaceInviteSnapshot as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      spaceId: 'S1',
-      spaceName: '',
-      description: null,
-      icon: null,
-      avatarColor: null,
-      memberCount: 3,
-      instanceName: 'Remote',
-    });
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/space-invite',
-      payload: {
-        target: { userId: 'bob' },
-        spaceId: 'S1',
-        spaceInstanceOrigin: 'https://remote.test',
-        inviteCode: 'abc',
-      },
-    });
-    expect(res.statusCode).toBe(400);
-    expect(JSON.parse(res.body).code).toBe('invite_invalid');
-    expect(testDb.select().from(schema.dmMessages).all()).toHaveLength(0);
-  });
-
-  it('sends a space invite for a local space joined by request', async () => {
-    // The card carries the link like any other; the join routes turn a use of
-    // it into a join request, so the invite route has nothing to refuse.
-    testDb.insert(schema.spaces).values({
-      id: 'S-REQ', name: 'Req', ownerId: 'alice', inviteCode: 'reqcode',
-      visibility: 'request', createdAt: 1,
-    }).run();
-    (getLocalInviteSnapshot as unknown as ReturnType<typeof vi.fn>).mockReturnValueOnce({
-      spaceId: 'S-REQ', spaceName: 'Req', description: null, icon: null,
-      avatarColor: null, memberCount: 1, instanceName: 'Backspace',
-    });
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/space-invite',
-      payload: {
-        target: { userId: 'bob' },
-        spaceId: 'S-REQ',
-        spaceInstanceOrigin: '',
-        inviteCode: 'reqcode',
-      },
-    });
-    expect(res.statusCode).toBe(200);
-    const rows = testDb.select().from(schema.dmMessages).all();
-    expect(rows).toHaveLength(1);
-    expect(JSON.parse(rows[0]?.content ?? '{}').spaceId).toBe('S-REQ');
-  });
-
-  it('inserts a type=system message with parseable space_invite content on success', async () => {
-    (getLocalInviteSnapshot as unknown as ReturnType<typeof vi.fn>).mockReturnValueOnce({
-      spaceId: 'S1',
-      spaceName: 'Aether',
-      description: 'desc',
-      icon: null,
-      avatarColor: 'mint',
-      memberCount: 12,
-      instanceName: 'Backspace',
-    });
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/space-invite',
-      payload: {
-        target: { userId: 'bob' },
-        spaceId: 'S1',
-        spaceInstanceOrigin: '',
-        inviteCode: 'abc',
-      },
-    });
-    expect(res.statusCode).toBe(200);
-    const body = JSON.parse(res.body) as {
-      dmChannelId: string;
-      messageId: string;
-      message: { type: string };
-    };
-    expect(body.dmChannelId).toBeTruthy();
-    expect(body.messageId).toBeTruthy();
+  it('persists a parseable, correctly authored native system message with server-owned snapshot values',async()=>{
+    const result=await invite({snapshot:{spaceName:'untrusted client data'}});
+    expect(result.statusCode).toBe(200);
+    const body=result.json<{dmChannelId:string;messageId:string;message:{type:string}}>();
     expect(body.message.type).toBe('system');
-
-    const stored = testDb.select()
-      .from(schema.dmMessages)
-      .where(eq(schema.dmMessages.id, body.messageId))
-      .get();
-    expect(stored).toBeTruthy();
-    expect(stored?.type).toBe('system');
-    expect(stored?.userId).toBe('alice');
-    expect(stored?.dmChannelId).toBe(body.dmChannelId);
-
-    const parsed = JSON.parse(stored!.content!);
-    expect(parsed.event).toBe('space_invite');
-    expect(parsed.spaceId).toBe('S1');
-    expect(parsed.inviteCode).toBe('abc');
-    expect(parsed.snapshot.spaceName).toBe('Aether');
-    expect(parsed.snapshot.memberCount).toBe(12);
-    expect(parsed.snapshot.avatarColor).toBe('mint');
-    expect(parsed.snapshot.description).toBe('desc');
-    expect(parsed.snapshot.instanceName).toBe('Backspace');
-
-    // Canonicalization: empty origin (local) must be stored as the absolute home
-    // origin so relayed messages carry the correct value to remote recipients.
-    expect(parsed.spaceInstanceOrigin).toBe('https://local.test');
-    expect(parsed.spaceInstanceOrigin).not.toBe('');
+    const stored=sqlite.prepare('SELECT dm_channel_id,user_id,type,content FROM dm_messages WHERE id=?').get(body.messageId) as {dm_channel_id:string;user_id:string;type:string;content:string};
+    expect(stored).toMatchObject({dm_channel_id:body.dmChannelId,user_id:'alice',type:'system'});
+    expect(parseDmSystemEvent(stored.content)).toEqual({
+      event:'space_invite',spaceId:'space',spaceInstanceOrigin:'https://local.test',inviteCode:'code',
+      snapshot:{spaceName:'Aether',icon:null,avatarColor:'mint',memberCount:1,description:'native description',instanceName:'Local host'},
+    });
   });
 
-  it('reuses an existing 1-on-1 DM rather than creating a new one', async () => {
-    (getLocalInviteSnapshot as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      spaceId: 'S1',
-      spaceName: 'Aether',
-      description: null,
-      icon: null,
-      avatarColor: null,
-      memberCount: 1,
-      instanceName: 'Backspace',
-    });
-
-    const r1 = await app.inject({
-      method: 'POST',
-      url: '/api/dm/space-invite',
-      payload: {
-        target: { userId: 'bob' },
-        spaceId: 'S1',
-        spaceInstanceOrigin: '',
-        inviteCode: 'abc',
-      },
-    });
-    expect(r1.statusCode).toBe(200);
-
-    const r2 = await app.inject({
-      method: 'POST',
-      url: '/api/dm/space-invite',
-      payload: {
-        target: { userId: 'bob' },
-        spaceId: 'S1',
-        spaceInstanceOrigin: '',
-        inviteCode: 'abc',
-      },
-    });
-    expect(r2.statusCode).toBe(200);
-
-    const body1 = JSON.parse(r1.body) as { dmChannelId: string; messageId: string };
-    const body2 = JSON.parse(r2.body) as { dmChannelId: string; messageId: string };
-    expect(body2.dmChannelId).toBe(body1.dmChannelId);
-    expect(body2.messageId).not.toBe(body1.messageId);
-
-    // Exactly one DM channel exists between alice and bob.
-    const channels = testDb.select().from(schema.dmChannels).all();
-    expect(channels.length).toBe(1);
-    // Two system messages were inserted into that single channel.
-    const messages = testDb.select()
-      .from(schema.dmMessages)
-      .where(eq(schema.dmMessages.dmChannelId, body1.dmChannelId))
-      .all();
-    expect(messages.length).toBe(2);
-    expect(messages.every(m => m.type === 'system')).toBe(true);
+  it('allows an invitation card for request-to-join spaces without bypassing their separate join gate',async()=>{
+    sqlite.exec("UPDATE spaces SET visibility='request' WHERE id='space'");
+    expect((await invite()).statusCode).toBe(200);
+    expect(sqlite.prepare("SELECT user_id FROM space_members WHERE space_id='space'").all()).toEqual([{user_id:'alice'}]);
   });
 
-  it('uses local DB lookup (skips HTTP) when spaceInstanceOrigin is empty/local', async () => {
-    // Regression guard for the production hang: when the space is local, the
-    // route MUST NOT call fetchSpaceInviteSnapshot — that path tries to reach
-    // our own public domain over HTTPS, which fails inside Docker (NAT loopback).
-    (getLocalInviteSnapshot as unknown as ReturnType<typeof vi.fn>).mockReturnValueOnce({
-      spaceId: 'S1',
-      spaceName: 'Aether',
-      description: null,
-      icon: null,
-      avatarColor: null,
-      memberCount: 1,
-      instanceName: 'Backspace',
-    });
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/space-invite',
-      payload: {
-        target: { userId: 'bob' },
-        spaceId: 'S1',
-        spaceInstanceOrigin: '',
-        inviteCode: 'abc',
-      },
-    });
-    expect(res.statusCode).toBe(200);
-    expect(getLocalInviteSnapshot).toHaveBeenCalledWith('abc');
-    // CRITICAL: the HTTP fetch path must NOT run for local invites.
-    expect(fetchSpaceInviteSnapshot).not.toHaveBeenCalled();
+  it('reuses the same native pair while keeping distinct message ids',async()=>{
+    const first=await invite(),second=await invite();
+    expect(first.statusCode).toBe(200); expect(second.statusCode).toBe(200);
+    const a=first.json<{dmChannelId:string;messageId:string}>(),b=second.json<{dmChannelId:string;messageId:string}>();
+    expect(a.dmChannelId).toBe(b.dmChannelId); expect(a.messageId).not.toBe(b.messageId); expect(messages()).toHaveLength(2);
+    expect(sqlite.prepare('SELECT COUNT(*) AS count FROM dm_channels').get()).toEqual({count:1});
   });
 
-  it('uses local DB lookup when spaceInstanceOrigin equals our own origin', async () => {
-    // Same fast-path applies if the client sends our origin explicitly.
-    (getLocalInviteSnapshot as unknown as ReturnType<typeof vi.fn>).mockReturnValueOnce({
-      spaceId: 'S1',
-      spaceName: 'Aether',
-      description: null,
-      icon: null,
-      avatarColor: null,
-      memberCount: 1,
-      instanceName: 'Backspace',
-    });
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/space-invite',
-      payload: {
-        target: { userId: 'bob' },
-        spaceId: 'S1',
-        spaceInstanceOrigin: 'https://local.test',
-        inviteCode: 'abc',
-      },
-    });
-    expect(res.statusCode).toBe(200);
-    expect(getLocalInviteSnapshot).toHaveBeenCalledWith('abc');
-    expect(fetchSpaceInviteSnapshot).not.toHaveBeenCalled();
+  it.each(['','https://local.test','https://LOCAL.test/'])('reads the local DB without HTTP for current origin %s',async origin=>{
+    const fetch=vi.spyOn(globalThis,'fetch');
+    expect((await invite({spaceInstanceOrigin:origin})).statusCode).toBe(200); expect(fetch).not.toHaveBeenCalled();
   });
 
-  it('uses HTTP fetch path for cross-instance invites', async () => {
-    // Regression guard: when the space is on a different instance, we must
-    // hit the SSRF-validated HTTP path, not the local DB.
-    (fetchSpaceInviteSnapshot as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      spaceId: 'S1',
-      spaceName: 'Remote',
-      description: null,
-      icon: null,
-      avatarColor: null,
-      memberCount: 5,
-      instanceName: 'OtherHost',
-    });
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/space-invite',
-      payload: {
-        target: { userId: 'bob' },
-        spaceId: 'S1',
-        spaceInstanceOrigin: 'https://remote.example',
-        inviteCode: 'abc',
-      },
-    });
-    expect(res.statusCode).toBe(200);
-    expect(fetchSpaceInviteSnapshot).toHaveBeenCalledWith('https://remote.example', 'abc');
-    expect(getLocalInviteSnapshot).not.toHaveBeenCalled();
+  it.each(['https://foreign.invalid','not a URL'])('refuses origin %s without stripping its host to use a colliding local code',async origin=>{
+    const fetch=vi.spyOn(globalThis,'fetch');
+    const result=await invite({spaceInstanceOrigin:origin});
+    expect(result.statusCode).toBe(400); expect(messages()).toEqual([]); expect(fetch).not.toHaveBeenCalled();
+    expect(sqlite.prepare('SELECT * FROM dm_channels').all()).toEqual([]);
   });
 
-  it('preserves explicit remote spaceInstanceOrigin in stored payload', async () => {
-    (fetchSpaceInviteSnapshot as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      spaceId: 'S1',
-      spaceName: 'Remote',
-      description: null,
-      icon: null,
-      avatarColor: null,
-      memberCount: 5,
-      instanceName: 'OtherHost',
-    });
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/space-invite',
-      payload: {
-        target: { userId: 'bob' },
-        spaceId: 'S1',
-        spaceInstanceOrigin: 'https://other.example',
-        inviteCode: 'abc',
-      },
-    });
-    expect(res.statusCode).toBe(200);
-    const body = JSON.parse(res.body) as { messageId: string };
-    const stored = testDb.select()
-      .from(schema.dmMessages)
-      .where(eq(schema.dmMessages.id, body.messageId))
-      .get();
-    const parsed = JSON.parse(stored!.content!);
-    expect(parsed.spaceInstanceOrigin).toBe('https://other.example');
-  });
-
-  describe('federation relay (#391)', () => {
-    const snapshot = {
-      spaceId: 'S1',
-      spaceName: 'Aether',
-      description: null,
-      icon: null,
-      avatarColor: null,
-      memberCount: 3,
-      instanceName: 'Backspace',
-    };
-
-    function seedActivePeer(origin: string): void {
-      testDb.insert(schema.federationPeers).values({
-        id: `peer-${origin}`,
-        origin,
-        hmacSecret: 'secret',
-        status: 'active',
-        createdAt: Date.now(),
-      }).run();
-    }
-
-    /** The peer origins a message's `create` relay was queued to. */
-    function relayedTo(messageId: string): string[] {
-      const peers = new Map(testDb.select().from(schema.federationPeers).all().map((p) => [p.id, p.origin]));
-      return testDb.select().from(schema.federationOutbox).all()
-        .filter((row) => row.entityId === messageId && row.eventType === 'create')
-        .map((row) => peers.get(row.peerId) ?? '')
-        .sort();
-    }
-
-    async function invite(targetUserId: string): Promise<{ statusCode: number; messageId: string }> {
-      (getLocalInviteSnapshot as unknown as ReturnType<typeof vi.fn>).mockReturnValueOnce(snapshot);
-      const res = await app.inject({
-        method: 'POST',
-        url: '/api/dm/space-invite',
-        payload: { target: { userId: targetUserId }, spaceId: 'S1', spaceInstanceOrigin: '', inviteCode: 'abc' },
-      });
-      const body = JSON.parse(res.body) as { messageId?: string };
-      return { statusCode: res.statusCode, messageId: body.messageId ?? '' };
-    }
-
-    it("relays to the sender's home when the sender is a federated account and the recipient is native here", async () => {
-      // erin@home.test acting on this instance through her federated account.
-      // The conversation's other copy is at her home, the one she reads there,
-      // and the invite must reach it like any other message she sends here.
-      seedActivePeer('https://home.test');
-      seedUser({ id: 'erin', username: 'erin@home.test', homeInstance: 'home.test', homeUserId: 'erin-home' });
-      seedFriendship('erin', 'bob');
-      currentUserId = 'erin';
-
-      const res = await invite('bob');
-      expect(res.statusCode).toBe(200);
-      expect(relayedTo(res.messageId)).toEqual(['https://home.test']);
-    });
-
-    it("relays to the recipient's home when the recipient is homed on another instance", async () => {
-      seedActivePeer('https://remote.test');
-      seedUser({ id: 'tess', username: 'tester@remote.test', homeInstance: 'remote.test', homeUserId: 'tess-home' });
-      seedFriendship('alice', 'tess');
-
-      const res = await invite('tess');
-      expect(res.statusCode).toBe(200);
-      expect(relayedTo(res.messageId)).toEqual(['https://remote.test']);
-    });
-
-    it('relays nothing for a pair homed here', async () => {
-      seedActivePeer('https://remote.test');
-      const res = await invite('bob');
-      expect(res.statusCode).toBe(200);
-      expect(relayedTo(res.messageId)).toEqual([]);
-    });
+  it('cannot provision a foreign target identity from the invitation endpoint',async()=>{
+    const fetch=vi.spyOn(globalThis,'fetch');
+    const result=await invite({target:{homeUserId:'foreign',homeInstance:'https://foreign.invalid'}});
+    expect(result.statusCode).toBe(400); expect(messages()).toEqual([]); expect(fetch).not.toHaveBeenCalled();
+    expect(sqlite.prepare('SELECT COUNT(*) AS count FROM users').get()).toEqual({count:3});
   });
 });

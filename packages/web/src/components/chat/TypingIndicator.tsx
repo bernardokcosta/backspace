@@ -2,7 +2,8 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useChatStore } from '../../stores/chatStore';
 import { useFormatters } from '../../i18n/formatters';
-import { useChannelUser, useSelfIdInChannel, type ChannelUser } from '../../utils/channelUser';
+import { useChannelUser, type ChannelUser } from '../../utils/channelUser';
+import { useAuthStore } from '../../stores/authStore';
 import { spaceMemberName, userDisplayName } from '../../utils/identity';
 
 interface TypingIndicatorProps {
@@ -64,7 +65,7 @@ export function TypingIndicator({ channelId }: TypingIndicatorProps) {
   const typingUsersRaw = useChatStore((s) => s.typingUsers.get(channelId));
   // Typing entries carry ids issued by the channel's instance, so the viewer
   // is left out by their id there, not by the home id.
-  const selfId = useSelfIdInChannel(channelId);
+  const selfId = useAuthStore(state => state.user?.id);
 
   // Filter out the viewer and expired entries
   const others = useMemo(() => {

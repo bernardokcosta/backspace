@@ -3,7 +3,6 @@ import chat from '../locales/it/chat.json';
 import common from '../locales/it/common.json';
 import desktop from '../locales/it/desktop.json';
 import errors from '../locales/it/errors.json';
-import federation from '../locales/it/federation.json';
 import voice from '../locales/it/voice.json';
 
 describe('Italian contextual content', () => {
@@ -37,15 +36,7 @@ describe('Italian contextual content', () => {
     expect(voice.juno.guide.effects.draw2).not.toContain('carta pesca');
   });
 
-  it('keeps cleanup summaries count-neutral for interpolated singular or plural noun phrases', () => {
-    const summary = federation.admin.resetCleanup.eventSummary;
-    expect(summary).toContain('Pulizia automatica: {{identities}}');
-    expect(summary).toContain('scollegamento degli account con contenuti locali: {{accounts}}');
-    expect(summary).not.toContain('{{identities}} ripulite automaticamente');
-    expect(summary).toContain('mantengono l’accesso con la password esistente');
-  });
-
-  it('refers to a federated instance rather than a generic server', () => {
+  it('describes non-local sticker refusal using the configured instance terminology', () => {
     expect(errors.sticker_not_local).toContain('un’altra istanza');
     expect(errors.sticker_not_local).not.toContain('server');
   });

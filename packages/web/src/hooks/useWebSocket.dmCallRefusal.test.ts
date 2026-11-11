@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { DmChannel } from '@veyvox/shared';
+import { act, cleanup, renderHook } from '@testing-library/react';
+import { installSocketHarness, TestWebSocket } from '../test/socketHarness';
+import { junoUser } from '../components/games/junoTestFixtures';
 
 // jsdom has no AudioWorkletNode; the handler's imports reach the voice stack.
 vi.mock('../audio/AudioManager', () => ({
@@ -16,38 +19,7 @@ vi.mock('../audio/AudioManager', () => ({
 }));
 vi.mock('../hooks/useMascotAnimation', () => ({ useMascotAnimation: vi.fn() }));
 
-/** A socket the real handler talks to; the test plays the server through `deliver`. */
-class FakeWebSocket {
-  static readonly CONNECTING = 0;
-  static readonly OPEN = 1;
-  static readonly CLOSING = 2;
-  static readonly CLOSED = 3;
-  static all: FakeWebSocket[] = [];
-  readyState = FakeWebSocket.CONNECTING;
-  onopen: (() => void) | null = null;
-  onmessage: ((e: { data: string }) => void) | null = null;
-  onclose: (() => void) | null = null;
-  onerror: (() => void) | null = null;
-  constructor(public url: string) { FakeWebSocket.all.push(this); }
-  send(): void {}
-  close(): void { this.readyState = FakeWebSocket.CLOSED; }
-  open(): void { this.readyState = FakeWebSocket.OPEN; this.onopen?.(); }
-  deliver(event: Record<string, unknown>): void {
-    this.onmessage?.({ data: JSON.stringify(event) });
-  }
-}
-
-class InertWorker {
-  onmessage: (() => void) | null = null;
-  postMessage(): void {}
-  terminate(): void {}
-}
-
-vi.stubGlobal('WebSocket', FakeWebSocket);
-vi.stubGlobal('Worker', InertWorker);
-vi.stubGlobal('URL', Object.assign(URL, { createObjectURL: () => 'blob:heartbeat', revokeObjectURL: () => {} }));
-
-const { connectInstance, disconnectInstance, dmCallEventIsOurs } = await import('./useWebSocket');
+const { useWebSocket, dmCallEventIsOurs } = await import('./useWebSocket');
 const { useSpaceStore } = await import('../stores/spaceStore');
 const { useUIStore } = await import('../stores/uiStore');
 const { useVoiceStore } = await import('../stores/voiceStore');
@@ -63,9 +35,9 @@ const i18n = (await import('../i18n')).default;
 const GROUP = 'dm-group';
 const OTHER = 'dm-other';
 
-/** A call the client is in, held by its DM id through the DM's own instance. */
+/** A native call is held by its DM ID only. */
 function active(dmChannelId: string) {
-  return { dmChannelId, federatedCallId: null, callOrigin: null, livekit: null };
+  return { dmChannelId };
 }
 
 /** A call this client is placing. */
@@ -73,29 +45,26 @@ function outgoing(dmChannelId: string) {
   return { dmChannelId, withCamera: false };
 }
 
-function dm(id: string, federatedId: string | null): DmChannel {
-  return { id, federatedId, members: [], ownerId: 'owner' } as unknown as DmChannel;
+function dm(id: string): DmChannel {
+  return { id, members: [], ownerId: 'owner', name: null, icon: null, createdAt: 1 };
 }
 
-const opened: string[] = [];
-function homeSocket(): FakeWebSocket {
-  connectInstance('', 'token-home');
-  opened.push('');
-  const ws = FakeWebSocket.all.at(-1)!;
+function homeSocket(): TestWebSocket {
+  renderHook(() => useWebSocket());
+  const ws = TestWebSocket.all.at(-1)!;
   ws.open();
   return ws;
 }
 
 beforeEach(async () => {
   await initI18n();
-  FakeWebSocket.all = [];
+  installSocketHarness(); useAuthStore.setState({ token: 'native-token', user: junoUser('me') });
   vi.spyOn(console, 'error').mockImplementation(() => {});
   vi.spyOn(console, 'warn').mockImplementation(() => {});
   vi.spyOn(console, 'log').mockImplementation(() => {});
   useUIStore.setState({ toasts: [] });
   useSpaceStore.setState({
-    dmChannels: [dm(GROUP, 'key-group'), dm(OTHER, null)],
-    channelOriginMap: new Map(),
+    dmChannels: [dm(GROUP), dm(OTHER)],
   });
   useVoiceStore.setState({
     outgoingCall: null,
@@ -110,7 +79,7 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
-  for (const origin of opened.splice(0)) disconnectInstance(origin);
+  cleanup(); useAuthStore.setState({ token: null }); vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
@@ -148,9 +117,9 @@ describe('a refused dm_call_start', () => {
     expect(useVoiceStore.getState().outgoingCall).toEqual(outgoing(GROUP));
   });
 
-  it('ignores a refusal from an instance that does not serve the DM', () => {
+  it('ignores a previous-session refusal even with an equal DM ID', () => {
     const ws = homeSocket();
-    useSpaceStore.setState({ channelOriginMap: new Map([[GROUP, 'https://remote.example']]) });
+    act(() => useAuthStore.setState(state => ({ sessionRevision: state.sessionRevision + 1 })));
     useVoiceStore.setState({ outgoingCall: outgoing(GROUP) });
 
     ws.deliver({ type: 'error', message: 'refused', code: 'dm_call_in_progress', dmChannelId: GROUP });
@@ -194,19 +163,20 @@ describe('the end of a DM call', () => {
 });
 
 describe('dmCallEventIsOurs', () => {
-  it('matches a call held by its conversation key', () => {
-    useVoiceStore.setState({ incomingCall: { dmChannelId: null, federatedCallId: 'key-group', callOrigin: '', callerId: 'c', callerName: 'C', livekit: null } });
+  it('matches the native DM ID of an incoming call', () => {
+    useVoiceStore.setState({ incomingCall: { dmChannelId: GROUP, callerId: 'c', callerName: 'C' } });
     expect(dmCallEventIsOurs({ dmChannelId: GROUP })).toBe(true);
-    expect(dmCallEventIsOurs({ dmChannelId: null, federatedCallId: 'key-group' })).toBe(true);
+    expect(dmCallEventIsOurs({ dmChannelId: OTHER })).toBe(false);
   });
 
-  it('matches an event naming the key of the DM the client is calling', () => {
+  it('matches the exact native DM being called, not another ID', () => {
     useVoiceStore.setState({ outgoingCall: outgoing(GROUP) });
-    expect(dmCallEventIsOurs({ dmChannelId: 'copy-on-peer', federatedCallId: 'key-group' })).toBe(true);
+    expect(dmCallEventIsOurs({ dmChannelId: GROUP })).toBe(true);
+    expect(dmCallEventIsOurs({ dmChannelId: OTHER })).toBe(false);
   });
 
   it('matches nothing when the client holds no call', () => {
-    expect(dmCallEventIsOurs({ dmChannelId: GROUP, federatedCallId: 'key-group' })).toBe(false);
+    expect(dmCallEventIsOurs({ dmChannelId: GROUP })).toBe(false);
   });
 });
 
@@ -216,7 +186,7 @@ describe('an accept in a DM call', () => {
     const connectFn = vi.fn().mockResolvedValue(undefined);
     useVoiceStore.setState({ outgoingCall: outgoing(GROUP), connectFn });
 
-    ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP });
+    ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP, answeredByUserId: 'bob' });
 
     expect(useVoiceStore.getState().outgoingCall).toBeNull();
     expect(useVoiceStore.getState().activeDmCall).toEqual(active(GROUP));
@@ -228,7 +198,7 @@ describe('an accept in a DM call', () => {
     const connectFn = vi.fn().mockResolvedValue(undefined);
     useVoiceStore.setState({ outgoingCall: outgoing(OTHER), connectFn });
 
-    ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP });
+    ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP, answeredByUserId: 'bob' });
 
     expect(useVoiceStore.getState().outgoingCall).toEqual(outgoing(OTHER));
     expect(useVoiceStore.getState().activeDmCall).toBeNull();
@@ -239,7 +209,7 @@ describe('an accept in a DM call', () => {
     const ws = homeSocket();
     useVoiceStore.setState({ isLiveKitConnected: true, currentVoiceChannelId: 'voice-1' });
 
-    ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP });
+    ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP, answeredByUserId: 'bob' });
 
     expect(useVoiceStore.getState().activeDmCall).toBeNull();
   });
@@ -251,35 +221,34 @@ describe('what a ring leaves behind', () => {
     const disconnectFn = vi.fn().mockResolvedValue(undefined);
     useVoiceStore.setState({ disconnectFn, isLiveKitConnected: false });
 
-    // Rung for federated call F; another member answers it.
-    ws.deliver({ type: 'dm_call_incoming', dmChannelId: null, federatedCallId: 'fed-f', callerId: 'c', callerName: 'C' });
-    ws.deliver({ type: 'dm_call_accepted', dmChannelId: null, federatedCallId: 'fed-f' });
+    // The native ring was answered by this account on another device.
+    ws.deliver({ type: 'dm_call_incoming', dmChannelId: GROUP, callerId: 'c', callerName: 'C' });
+    ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP, answeredByUserId: 'me' });
     expect(useVoiceStore.getState().incomingCall).toBeNull();
 
-    // Later in a call in another DM, F ends.
+    // A delayed end for that earlier call cannot disconnect the later one.
     useVoiceStore.setState({ activeDmCall: active(OTHER) });
-    ws.deliver({ type: 'dm_call_ended', dmChannelId: null, federatedCallId: 'fed-f' });
+    ws.deliver({ type: 'dm_call_ended', dmChannelId: GROUP });
 
     expect(useVoiceStore.getState().activeDmCall).toEqual(active(OTHER));
     expect(disconnectFn).not.toHaveBeenCalled();
   });
 
-  it('does not change the ids or the origin of the call the client is in', () => {
+  it('does not change the active native call or retain media secrets from an incoming event', () => {
     const ws = homeSocket();
-    const held = { dmChannelId: null, federatedCallId: 'fed-held', callOrigin: 'https://peer.example', livekit: null };
+    const held = active(OTHER);
     useVoiceStore.setState({ activeDmCall: held });
 
     ws.deliver({
-      type: 'dm_call_incoming', dmChannelId: null, federatedCallId: 'fed-new', callerId: 'c', callerName: 'C',
+      type: 'dm_call_incoming', dmChannelId: GROUP, callerId: 'c', callerName: 'C',
       livekitUrl: 'wss://host/lk', livekitToken: 'tok-new',
     });
 
     expect(useVoiceStore.getState().activeDmCall).toEqual(held);
     expect(useVoiceStore.getState().incomingCall).toEqual({
-      dmChannelId: null, federatedCallId: 'fed-new', callOrigin: '', callerId: 'c', callerName: 'C',
-      livekit: { url: 'wss://host/lk', token: 'tok-new' },
+      dmChannelId: GROUP, callerId: 'c', callerName: 'C',
     });
-    expect(dmCallEventIsOurs({ dmChannelId: null, federatedCallId: 'fed-held' })).toBe(true);
+    expect(dmCallEventIsOurs({ dmChannelId: OTHER })).toBe(true);
   });
 });
 
@@ -290,7 +259,7 @@ describe('a ring answered on another device', () => {
     useVoiceStore.setState({ isLiveKitConnected: true, currentVoiceChannelId: 'voice-1', connectFn });
     ws.deliver({ type: 'dm_call_incoming', dmChannelId: GROUP, callerId: 'c', callerName: 'C' });
 
-    ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP });
+    ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP, answeredByUserId: 'me' });
 
     expect(useVoiceStore.getState().incomingCall).toBeNull();
     expect(useVoiceStore.getState().activeDmCall).toBeNull();
@@ -302,54 +271,39 @@ describe('a ring answered on another device', () => {
 describe('who answered a group call', () => {
   // The ring plays while incomingCall is set. Another member's answer must
   // leave it on, so this member can still answer; an answer by the same
-  // person on another session stops it. Compared by federated identity.
-  const PEER = 'https://peer.example';
+   // person on another session stops it. Compared by authenticated native ID.
 
-  function ringing(ws: FakeWebSocket): void {
+  function ringing(ws: TestWebSocket): void {
     ws.deliver({ type: 'dm_call_incoming', dmChannelId: GROUP, callerId: 'c', callerName: 'C' });
     expect(useVoiceStore.getState().incomingCall).not.toBeNull();
   }
-
-  beforeEach(() => {
-    // Signed in to this page's instance with an account whose home is PEER.
-    useAuthStore.setState({ user: { id: 'me-here', username: 'me@peer.example', homeUserId: 'me-home', homeInstance: 'peer.example' } as never });
-  });
 
   it('keeps ringing when another member answered', () => {
     const ws = homeSocket();
     ringing(ws);
 
-    ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP, answeredBy: { homeUserId: 'someone-else', homeInstance: PEER } });
+    ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP, answeredByUserId: 'someone-else' });
 
     expect(useVoiceStore.getState().incomingCall).not.toBeNull();
   });
 
-  it('keeps ringing when a member of another instance answered under the same id', () => {
-    const ws = homeSocket();
-    ringing(ws);
-
-    ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP, answeredBy: { homeUserId: 'me-home', homeInstance: 'https://other.example' } });
-
-    expect(useVoiceStore.getState().incomingCall).not.toBeNull();
-  });
-
-  it('stops ringing when this user answered on another session, whichever form names the home', () => {
-    const ws = homeSocket();
-    ringing(ws);
-
-    ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP, answeredBy: { homeUserId: 'me-home', homeInstance: PEER } });
-
-    expect(useVoiceStore.getState().incomingCall).toBeNull();
-    expect(useVoiceStore.getState().activeDmCall).toBeNull();
-  });
-
-  it('stops ringing on an accept from a server that does not say who answered', () => {
+  it('keeps ringing when a malformed event does not name its authenticated answerer', () => {
     const ws = homeSocket();
     ringing(ws);
 
     ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP });
 
+    expect(useVoiceStore.getState().incomingCall).not.toBeNull();
+  });
+
+  it('stops ringing when this native user answered on another session', () => {
+    const ws = homeSocket();
+    ringing(ws);
+
+    ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP, answeredByUserId: 'me' });
+
     expect(useVoiceStore.getState().incomingCall).toBeNull();
+    expect(useVoiceStore.getState().activeDmCall).toBeNull();
   });
 
   it('still connects the caller, whoever answered', () => {
@@ -357,7 +311,7 @@ describe('who answered a group call', () => {
     const connectFn = vi.fn().mockResolvedValue(undefined);
     useVoiceStore.setState({ outgoingCall: outgoing(GROUP), connectFn });
 
-    ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP, answeredBy: { homeUserId: 'someone-else', homeInstance: PEER } });
+    ws.deliver({ type: 'dm_call_accepted', dmChannelId: GROUP, answeredByUserId: 'someone-else' });
 
     expect(useVoiceStore.getState().outgoingCall).toBeNull();
     expect(connectFn).toHaveBeenCalledWith(GROUP, true);
@@ -368,31 +322,31 @@ describe('who answered a group call', () => {
     useVoiceStore.setState({ activeDmCall: active(OTHER) });
     ringing(ws);
 
-    ws.deliver({ type: 'dm_call_accepted', dmChannelId: OTHER });
+    ws.deliver({ type: 'dm_call_accepted', dmChannelId: OTHER, answeredByUserId: 'me' });
 
     expect(useVoiceStore.getState().incomingCall).not.toBeNull();
   });
 });
 
-describe('an accept naming the held call by another id', () => {
+describe('an accept naming a different native DM', () => {
   it('keeps the id a joined client holds the call by', () => {
     const ws = homeSocket();
     useVoiceStore.setState({ activeDmCall: active(GROUP), isLiveKitConnected: true });
 
-    ws.deliver({ type: 'dm_call_accepted', dmChannelId: 'copy-on-peer', federatedCallId: 'key-group' });
+    ws.deliver({ type: 'dm_call_accepted', dmChannelId: OTHER, answeredByUserId: 'me' });
 
     expect(useVoiceStore.getState().activeDmCall).toEqual(active(GROUP));
   });
 
-  it('connects the caller under the id it called', () => {
+  it('cannot connect the caller under a different DM ID', () => {
     const ws = homeSocket();
     const connectFn = vi.fn().mockResolvedValue(undefined);
     useVoiceStore.setState({ outgoingCall: outgoing(GROUP), connectFn });
 
-    ws.deliver({ type: 'dm_call_accepted', dmChannelId: 'copy-on-peer', federatedCallId: 'key-group' });
+    ws.deliver({ type: 'dm_call_accepted', dmChannelId: OTHER, answeredByUserId: 'bob' });
 
-    expect(useVoiceStore.getState().activeDmCall).toEqual(active(GROUP));
-    expect(connectFn).toHaveBeenCalledWith(GROUP, true);
+    expect(useVoiceStore.getState().activeDmCall).toBeNull();
+    expect(connectFn).not.toHaveBeenCalled();
   });
 });
 

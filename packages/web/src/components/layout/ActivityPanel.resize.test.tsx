@@ -11,7 +11,9 @@ vi.mock('../../audio/AudioManager', () => ({
 
 import { ActivityPanel } from './ActivityPanel';
 import { useUIStore } from '../../stores/uiStore';
-import { useSocialStore, type TaggedFriend } from '../../stores/socialStore';
+import { useSocialStore } from '../../stores/socialStore';
+import type { Friend } from '@veyvox/shared';
+import { useActivityStore } from '../../stores/activityStore';
 import { RIGHT_PANEL_DEFAULT_WIDTH, RIGHT_PANEL_MIN_WIDTH } from '../../utils/rightPanelResize';
 import { dragBorder } from '../../test/pointerDrag';
 
@@ -19,11 +21,11 @@ import { dragBorder } from '../../test/pointerDrag';
 // list and the group-DM roster, so the same drag handle resizes it from the
 // same persisted uiStore width.
 
-function friend(id: string, name: string): TaggedFriend {
+function friend(id: string, name: string): Friend {
   return {
     id, username: name.toLowerCase(), displayName: name, avatar: null, banner: null,
     accentColor: null, avatarColor: null, bio: null, status: 'online', customStatus: null,
-    createdAt: 1, addedAt: 1, homeUserId: null, homeInstance: null, _instanceOrigin: '',
+    createdAt: 1, addedAt: 1,
   };
 }
 
@@ -40,7 +42,7 @@ beforeEach(() => {
     rightPanelWidth: RIGHT_PANEL_DEFAULT_WIDTH,
     activeModal: null,
     modalData: {},
-    userProfilePopout: { user: null, origin: '', anchor: null, placement: 'right', member: null },
+    userProfilePopout: { user: null, anchor: null, placement: 'right', member: null },
   });
 });
 
@@ -75,5 +77,14 @@ describe('ActivityPanel: drag-to-resize', () => {
     useUIStore.setState({ memberListOpen: false });
     render(<MemoryRouter><ActivityPanel /></MemoryRouter>);
     expect(screen.queryByRole('separator')).toBeNull();
+  });
+  it('opens the native friend and keeps activity plus full retained handles', () => {
+    const native = { ...friend('exact', 'Exact'), username: 'exact@retained.test', displayName: null };
+    useSocialStore.setState({ friends: [native] });
+    useActivityStore.getState().setUserActivities(native.id, [{ type: 'playing', name: 'Native Game' }]);
+    render(<MemoryRouter><ActivityPanel /></MemoryRouter>);
+    expect(screen.getByText('Native Game')).toBeInTheDocument(); fireEvent.click(screen.getByText(native.username));
+    expect(useUIStore.getState().userProfilePopout).toMatchObject({ user: { id: native.id }, placement: 'left' });
+    expect(useUIStore.getState().userProfilePopout).not.toHaveProperty('origin');
   });
 });

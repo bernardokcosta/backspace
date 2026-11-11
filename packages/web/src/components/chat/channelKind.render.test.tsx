@@ -12,12 +12,12 @@ vi.mock('../../audio/AudioManager', () => ({
 
 const dmMessages = vi.fn();
 const channelMessages = vi.fn();
-vi.mock('../../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../utils/crossStoreResolvers')>()),
-  getApiForOrigin: () => ({
+vi.mock('../../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../api/client')>()),
+  api: {
     dm: { messages: (...args: unknown[]) => dmMessages(...args) },
     channels: { messages: (...args: unknown[]) => channelMessages(...args) },
-  }),
+  },
 }));
 
 import { MessageList } from './MessageList';
@@ -36,7 +36,7 @@ import i18n from '../../i18n';
 
 const me = { id: 'me', username: 'alice', displayName: 'Alice', avatar: null, createdAt: 1 } as unknown as User;
 const kai = { id: 'kai', username: 'kai', displayName: 'Kai', avatar: null, createdAt: 1 } as unknown as User;
-const DM: DmChannel = { id: 'dm-1', federatedId: null, createdAt: 1, members: [me, kai] } as DmChannel;
+const DM: DmChannel = { id: 'dm-1', createdAt: 1, members: [me, kai] } as DmChannel;
 
 function textChannel(id: string, myPermissions: string): Channel {
   return { id, spaceId: 's1', name: id, type: 'text', topic: null, position: 0, categoryId: null, createdAt: 1, myPermissions };
@@ -80,7 +80,7 @@ describe('MessageList while the channel is unknown', () => {
     expect(channelMessages).not.toHaveBeenCalled();
 
     // The list asks itself once the kind is known; no ready reload is needed.
-    await act(async () => { useSpaceStore.getState().populateFromReady('', [], [], [DM]); });
+    await act(async () => { useSpaceStore.getState().populateFromReady([], [], [DM]); });
 
     await waitFor(() => expect(dmMessages).toHaveBeenCalledWith(DM.id, undefined, expect.any(Number)));
     expect(channelMessages).not.toHaveBeenCalled();
@@ -88,7 +88,7 @@ describe('MessageList while the channel is unknown', () => {
   });
 
   it('refuses a known space channel without READ_MESSAGE_HISTORY on the DM route', () => {
-    useSpaceStore.getState().populateFromReady('', [space([textChannel('c1', '0')])], [], []);
+    useSpaceStore.getState().populateFromReady([space([textChannel('c1', '0')])], [], []);
     window.history.replaceState(null, '', '/channels/@me/c1');
 
     render(<MemoryRouter><MessageList channelId="c1" /></MemoryRouter>);
@@ -104,13 +104,13 @@ describe('MessageInput while the channel is unknown', () => {
     // Locked, but not for a missing permission: nothing is known yet.
     expect(screen.queryByText(i18n.t('chat:composer.noPermission'))).not.toBeInTheDocument();
 
-    act(() => { useSpaceStore.getState().populateFromReady('', [], [], [DM]); });
+    act(() => { useSpaceStore.getState().populateFromReady([], [], [DM]); });
 
     expect(screen.getByRole('textbox')).toBeInTheDocument();
   });
 
   it('a known space channel without SEND_MESSAGES stays locked on the DM route', () => {
-    useSpaceStore.getState().populateFromReady('', [space([textChannel('c1', '0')])], [], []);
+    useSpaceStore.getState().populateFromReady([space([textChannel('c1', '0')])], [], []);
     render(<MessageInput channelId="c1" channelName="#c1" />);
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     expect(screen.getByText(i18n.t('chat:composer.noPermission'))).toBeInTheDocument();

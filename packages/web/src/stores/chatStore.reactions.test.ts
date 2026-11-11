@@ -18,7 +18,6 @@ vi.mock('../audio/AudioManager', () => ({
 
 import { wsSend } from '../hooks/useWebSocket';
 import { REACTION_ADD_IN_FLIGHT_MS, useChatStore } from './chatStore';
-import { useSpaceStore } from './spaceStore';
 import { useAuthStore } from './authStore';
 
 /**
@@ -28,22 +27,19 @@ import { useAuthStore } from './authStore';
  * user holds a reaction (`hasOwnReaction`, what the toggle reads) counts only
  * stored reactions, the ones the pills show.
  *
- * The user is native to the page's instance (origin ''), where they are row
- * n-1; orbit knows them as row o-7.
+ * Ownership is the signed-in account's native ID.
  */
 
-const ORBIT = 'https://orbit.example';
-const CHANNEL = 'orbit-chan';
+const CHANNEL = 'native-channel';
 const MESSAGE = 'msg-1';
 
-const me = { id: 'n-1', username: 'jannis', displayName: 'Jannis', avatar: null, homeInstance: null, homeUserId: null, createdAt: 1 } as unknown as User;
-const orbitMe = { ...me, id: 'o-7', username: 'jannis@localhost:3000', homeInstance: 'localhost:3000', homeUserId: 'n-1' } as User;
-const orbitMira = { id: 'o-2', username: 'mira', displayName: 'Mira', avatar: null, homeInstance: null, homeUserId: null, createdAt: 1 } as unknown as User;
+const me = { id: 'me', username: 'jannis', displayName: 'Jannis', avatar: null, createdAt: 1 } as User;
+const mira = { id: 'mira', username: 'mira', displayName: 'Mira', avatar: null, createdAt: 1 } as User;
 
 function message(reactions: Reaction[] = []): MessageWithUser {
   return {
-    id: MESSAGE, channelId: CHANNEL, userId: 'o-2', replyToId: null, content: 'hello',
-    editedAt: null, createdAt: 1, user: orbitMira, attachments: [], embeds: [], reactions,
+    id: MESSAGE, channelId: CHANNEL, userId: 'mira', replyToId: null, content: 'hello',
+    editedAt: null, createdAt: 1, user: mira, attachments: [], embeds: [], reactions,
   };
 }
 
@@ -61,8 +57,7 @@ function reactionsHeld(): Reaction[] {
 
 beforeEach(() => {
   vi.mocked(wsSend).mockClear();
-  useAuthStore.setState({ user: me, myRowIds: new Map([[ORBIT, 'o-7']]) });
-  useSpaceStore.setState({ channelOriginMap: new Map([[CHANNEL, ORBIT]]) });
+  useAuthStore.setState({ user: me });
   useChatStore.setState({
     messages: new Map([[CHANNEL, [message()]]]),
     detachedChannels: new Map(),
@@ -73,27 +68,26 @@ beforeEach(() => {
 afterEach(() => {
   vi.useRealTimers();
   useChatStore.setState({ messages: new Map(), reactionAddsInFlight: new Map() });
-  useSpaceStore.setState({ channelOriginMap: new Map() });
-  useAuthStore.setState({ user: null, myRowIds: new Map() });
+  useAuthStore.setState({ user: null });
 });
 
 describe('addReaction', () => {
-  it('sends one add, to the message\'s instance, however often it is called before the answer', () => {
+  it('sends one add on the current socket however often it is called before the answer', () => {
     const { addReaction } = useChatStore.getState();
     addReaction(MESSAGE, '👍');
     addReaction(MESSAGE, '👍');
     addReaction(MESSAGE, '👍');
-    expect(sent('reaction_add')).toEqual([[{ type: 'reaction_add', messageId: MESSAGE, emoji: '👍' }, ORBIT]]);
+    expect(sent('reaction_add')).toEqual([[{ type: 'reaction_add', messageId: MESSAGE, emoji: '👍' }]]);
   });
 
   it('sends nothing for a reaction the user already has stored', () => {
-    useChatStore.setState({ messages: new Map([[CHANNEL, [message([reaction('r1', orbitMe, '👍')])]]]) });
+    useChatStore.setState({ messages: new Map([[CHANNEL, [message([reaction('r1', me, '👍')])]]]) });
     useChatStore.getState().addReaction(MESSAGE, '👍');
     expect(sent('reaction_add')).toEqual([]);
   });
 
   it('sends the add when only someone else has the emoji, or the user has another', () => {
-    useChatStore.setState({ messages: new Map([[CHANNEL, [message([reaction('r1', orbitMira, '👍'), reaction('r2', orbitMe, '🎉')])]]]) });
+    useChatStore.setState({ messages: new Map([[CHANNEL, [message([reaction('r1', mira, '👍'), reaction('r2', me, '🎉')])]]]) });
     useChatStore.getState().addReaction(MESSAGE, '👍');
     expect(sent('reaction_add')).toHaveLength(1);
   });
@@ -150,14 +144,14 @@ describe('hasOwnReaction', () => {
     // Nothing on screen shows the add yet, so the user does not hold it.
     expect(useChatStore.getState().hasOwnReaction(MESSAGE, '👍')).toBe(false);
 
-    useChatStore.getState().onReactionAdded(MESSAGE, reaction('r1', orbitMe, '👍'));
+    useChatStore.getState().onReactionAdded(MESSAGE, reaction('r1', me, '👍'));
     expect(useChatStore.getState().reactionAddsInFlight.size).toBe(0);
     expect(useChatStore.getState().hasOwnReaction(MESSAGE, '👍')).toBe(true);
   });
 
   it('does not end the in-flight add when someone else\'s reaction with the emoji arrives', () => {
     useChatStore.getState().addReaction(MESSAGE, '👍');
-    useChatStore.getState().onReactionAdded(MESSAGE, reaction('r1', orbitMira, '👍'));
+    useChatStore.getState().onReactionAdded(MESSAGE, reaction('r1', mira, '👍'));
     expect(useChatStore.getState().reactionAddsInFlight.size).toBe(1);
     useChatStore.getState().addReaction(MESSAGE, '👍');
     expect(sent('reaction_add')).toHaveLength(1);
@@ -170,13 +164,13 @@ describe('hasOwnReaction', () => {
     expect(useChatStore.getState().hasOwnReaction(MESSAGE, '👍')).toBe(false);
     useChatStore.getState().addReaction(MESSAGE, '👍');
     expect(sent('reaction_add')).toHaveLength(2);
-    expect(sent('reaction_remove')).toEqual([[{ type: 'reaction_remove', messageId: MESSAGE, emoji: '👍' }, ORBIT]]);
+    expect(sent('reaction_remove')).toEqual([[{ type: 'reaction_remove', messageId: MESSAGE, emoji: '👍' }]]);
   });
 
   it('reads a message held by a detached window', () => {
     useChatStore.setState({
       messages: new Map(),
-      detachedChannels: new Map([[CHANNEL, [message([reaction('r1', orbitMe, '👍')])]]]),
+      detachedChannels: new Map([[CHANNEL, [message([reaction('r1', me, '👍')])]]]),
     });
     expect(useChatStore.getState().hasOwnReaction(MESSAGE, '👍')).toBe(true);
   });
@@ -185,18 +179,18 @@ describe('hasOwnReaction', () => {
 describe('onReactionAdded', () => {
   it('keeps one reaction when the same reaction_added arrives twice', () => {
     const { onReactionAdded } = useChatStore.getState();
-    onReactionAdded(MESSAGE, reaction('r1', orbitMe, '👍'));
-    onReactionAdded(MESSAGE, reaction('r1', orbitMe, '👍'));
+    onReactionAdded(MESSAGE, reaction('r1', me, '👍'));
+    onReactionAdded(MESSAGE, reaction('r1', me, '👍'));
     expect(reactionsHeld().map(r => r.id)).toEqual(['r1']);
   });
 
   it('leaves the message and the store as they are for a reaction it already holds', () => {
-    useChatStore.getState().onReactionAdded(MESSAGE, reaction('r1', orbitMe, '👍'));
+    useChatStore.getState().onReactionAdded(MESSAGE, reaction('r1', me, '👍'));
     const before = useChatStore.getState();
     const heldMessage = before.messages.get(CHANNEL)![0];
 
-    useChatStore.getState().onReactionAdded(MESSAGE, reaction('r1', orbitMe, '👍'));
-    useChatStore.getState().onReactionAdded(MESSAGE, reaction('r2', orbitMe, '👍'));
+    useChatStore.getState().onReactionAdded(MESSAGE, reaction('r1', me, '👍'));
+    useChatStore.getState().onReactionAdded(MESSAGE, reaction('r2', me, '👍'));
 
     const after = useChatStore.getState();
     expect(after.messages).toBe(before.messages);
@@ -207,22 +201,22 @@ describe('onReactionAdded', () => {
   it('leaves a detached window as it is for a reaction it already holds', () => {
     useChatStore.setState({
       messages: new Map(),
-      detachedChannels: new Map([[CHANNEL, [message([reaction('r1', orbitMe, '👍')])]]]),
+      detachedChannels: new Map([[CHANNEL, [message([reaction('r1', me, '👍')])]]]),
     });
     const before = useChatStore.getState().detachedChannels;
-    useChatStore.getState().onReactionAdded(MESSAGE, reaction('r1', orbitMe, '👍'));
+    useChatStore.getState().onReactionAdded(MESSAGE, reaction('r1', me, '👍'));
     expect(useChatStore.getState().detachedChannels).toBe(before);
 
-    useChatStore.getState().onReactionAdded(MESSAGE, reaction('r2', orbitMira, '👍'));
+    useChatStore.getState().onReactionAdded(MESSAGE, reaction('r2', mira, '👍'));
     expect(useChatStore.getState().detachedChannels.get(CHANNEL)![0]!.reactions!.map(r => r.id)).toEqual(['r1', 'r2']);
   });
 
   it('keeps one reaction per user and emoji, as the server stores them', () => {
     const { onReactionAdded } = useChatStore.getState();
-    onReactionAdded(MESSAGE, reaction('r1', orbitMe, '👍'));
-    onReactionAdded(MESSAGE, reaction('r2', orbitMe, '👍'));
-    onReactionAdded(MESSAGE, reaction('r3', orbitMira, '👍'));
-    onReactionAdded(MESSAGE, reaction('r4', orbitMe, '🎉'));
+    onReactionAdded(MESSAGE, reaction('r1', me, '👍'));
+    onReactionAdded(MESSAGE, reaction('r2', me, '👍'));
+    onReactionAdded(MESSAGE, reaction('r3', mira, '👍'));
+    onReactionAdded(MESSAGE, reaction('r4', me, '🎉'));
     expect(reactionsHeld().map(r => r.id)).toEqual(['r1', 'r3', 'r4']);
   });
 });

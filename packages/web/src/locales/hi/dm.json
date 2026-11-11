@@ -1,28 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "रिमोट इंस्टेंस",
-    "hostInstance": "होस्ट इंस्टेंस",
-    "acceptDropped": "आपकी स्वीकृति {{instance}} पर पुष्ट नहीं हो सकी — कॉल कट गया।",
-    "rejectFailed": "{{instances}} को सूचित नहीं हो सका कि आपने अस्वीकार किया। कॉलर आपको कुछ देर रिंग करता देख सकता है।",
-    "endFailed": "{{instances}} को सूचित नहीं हो सका कि आपने काट दिया। रिमोट प्रतिभागी कॉल 60 सेकंड तक देख सकते हैं।",
-    "hostUnreachable": "कॉल समाप्त — होस्ट इंस्टेंस पहुंच से बाहर।",
-    "peeringLost": "कॉल समाप्त — यह इंस्टेंस {{instance}} से अब जुड़ा नहीं।",
-    "instanceUnreachable": "कॉल समाप्त — {{instance}} पहुंच से बाहर हो गया।",
-    "someUnreachable": "कुछ प्रतिभागियों तक नहीं पहुंचा जा सका: {{instances}}।",
-    "multipleUnreachable_one": "{{count}} इंस्टेंस तक नहीं पहुंचा जा सका: {{instances}}।",
-    "multipleUnreachable_other": "{{count}} इंस्टेंस तक नहीं पहुंचा जा सका: {{instances}}।",
-    "callFailed": "कॉल नहीं हो सका।",
-    "manualApproval": "{{instance}} तक नहीं पहुंचा जा सका — यह इंस्टेंस मैन्युअल पेयरिंग अनुमोदन मांगता है।",
-    "awaitingApproval": "{{instance}} व्यवस्थापक द्वारा आपके इंस्टेंस के अनुमोदन की प्रतीक्षा। अनुमोदन पर कॉल काम करेंगे।",
-    "transientFailure": "{{instance}} तक नहीं पहुंचा जा सका। क्षण भर में पुनः प्रयास करें।",
-    "voiceUnavailable": "इस इंस्टेंस पर वॉयस कॉन्फ़िगर नहीं।",
-    "noRecipient": "{{instance}} ने किसी को रिंग नहीं किया।",
-    "targetCallFailed": "{{instance}} पर कॉल नहीं हो सका।"
-  },
-  "feedback": {
-    "relayDenied": "संदेश रिले नहीं हो सकते — उनके सर्वर ने पेयरिंग अस्वीकार की। उनके व्यवस्थापक से संपर्क करें।",
-    "awaitingPeering": "उनके व्यवस्थापक के पेयरिंग अनुरोध अनुमोदन पर संदेश वितरित होंगे।"
-  },
   "names": {
     "group": "समूह",
     "directMessage": "प्रत्यक्ष संदेश",
@@ -162,12 +138,7 @@
     "notFound": "वार्तालाप नहीं मिला।",
     "notGroup": "इस वार्तालाप की कोई समूह जानकारी नहीं।",
     "cancelEdit": "संपादन रद्द करें",
-    "federated": "फेडरेटेड समूह",
     "memberCount_one": "{{count}} सदस्य",
     "memberCount_other": "{{count}} सदस्य"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "यह समूह {{host}} पर प्रबंधित है। बदलने हेतु उस इंस्टेंस से कनेक्ट करें।",
-    "ownerNotListed": "{{host}} अभी आपके लिए यह समूह सूचीबद्ध नहीं करता। क्षण भर में पुनः प्रयास करें।"
   }
 }

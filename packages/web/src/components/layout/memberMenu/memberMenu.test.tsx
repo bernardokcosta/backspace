@@ -20,7 +20,7 @@ import { applySpaceMemberUpdate } from '../../../stores/spaceMemberUpdates';
 const role: Role = { id: 'mod', spaceId: 'space', name: 'Moderator', color: '#ff0000', position: 1, createdAt: 1 };
 const user = (id: string): User => ({
   id, username: id, displayName: id, avatar: null, banner: null, accentColor: null,
-  avatarColor: null, bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1, homeInstance: null, homeUserId: null, replicatedInstances: []
+  avatarColor: null, bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
 });
 const member = (id: string): MemberWithUser => ({ user: user(id), userId: id, spaceId: 'space', joinedAt: 1, nickname: null, roles: id === 'viewer' ? [{ ...role, id: 'senior', name: 'Senior', position: 2 }] : [] });
 const allPermissions = (PermissionBits.MANAGE_SPACE | PermissionBits.MANAGE_ROLES | PermissionBits.KICK_MEMBERS | PermissionBits.BAN_MEMBERS).toString();
@@ -32,18 +32,20 @@ const toast = vi.fn();
 beforeEach(() => {
   vi.restoreAllMocks();
   update.mockReset(); remove.mockReset(); ban.mockReset(); toast.mockReset();
-  vi.spyOn(spaces, 'getApiForOrigin').mockReturnValue({ ...api, spaces: { ...api.spaces, updateMember: update, removeMember: remove, ban } });
+  vi.spyOn(api.spaces, 'updateMember').mockImplementation(update);
+  vi.spyOn(api.spaces, 'removeMember').mockImplementation(remove);
+  vi.spyOn(api.spaces, 'ban').mockImplementation(ban);
   useAuthStore.setState({ user: user('viewer') });
   spaces.useSpaceStore.setState({
     currentSpaceId: 'space', loadingSpaceId: null, members: [member('owner'), member('viewer'), member('target')],
     roles: [{ ...role, id: 'space', name: '@everyone' }, role], userViews: new Map(),
-    spaces: [{ id: 'space', name: 'Space', ownerId: 'owner', _instanceOrigin: '' } as spaces.TaggedSpace],
+    spaces: [{ id: 'space', name: 'Space', ownerId: 'owner' } as spaces.SpaceWithMyRoles],
     spacePermissions: new Map([['space', allPermissions]])
   });
   useSocialStore.setState({ friends: [], requests: [] });
   useUIStore.setState({
     isMobile: false, memberListOpen: true, activeModal: null,
-    userProfilePopout: { user: null, origin: '', anchor: null, member: null, placement: 'left' }
+    userProfilePopout: { user: null, anchor: null, member: null, placement: 'left' }
   });
   vi.spyOn(useUIStore.getState(), 'addToast').mockImplementation(toast);
   useContextMenuStore.getState().close();
@@ -223,23 +225,18 @@ describe('member context menu', () => {
     await waitFor(() => expect(screen.queryByText('target')).not.toBeInTheDocument());
   });
 
-  it('uses instance-local IDs for remote member mutations', async () => {
-    const space = spaces.useSpaceStore.getState().spaces[0]!;
-    spaces.useSpaceStore.setState({ spaces: [{ ...space, _instanceOrigin: 'https://remote.test' }] });
-    useAuthStore.getState().recordMyRow('https://remote.test', 'viewer');
+  it('uses the exact native account ID for a retained @ handle', async () => {
+    useAuthStore.setState({ user: { ...user('viewer'), username: 'viewer@retained.test' } });
     update.mockResolvedValue({ ...member('target'), roles: [role] });
     mount(); rightClick(); fireEvent.click(openRoles());
     await waitFor(() => expect(update).toHaveBeenCalledWith('space', 'target', { roleIds: ['mod'] }));
-    expect(spaces.getApiForOrigin).toHaveBeenCalledWith('https://remote.test');
   });
 
-  it('applies socket nickname/roles only for the current space and origin without overwriting presence', () => {
+  it('applies native nickname/roles only for the current space without overwriting presence', () => {
     const updated = { ...member('target'), nickname: 'Pilot', roles: [role], user: { ...user('target'), status: 'offline' as const } };
-    applySpaceMemberUpdate('https://other.test', updated);
+    applySpaceMemberUpdate({ ...updated, spaceId: 'other' });
     expect(spaces.useSpaceStore.getState().members[2]?.nickname).toBeNull();
-    applySpaceMemberUpdate('', { ...updated, spaceId: 'other' });
-    expect(spaces.useSpaceStore.getState().members[2]?.nickname).toBeNull();
-    applySpaceMemberUpdate('', updated);
+    applySpaceMemberUpdate(updated);
     expect(spaces.useSpaceStore.getState().members[2]).toMatchObject({ nickname: 'Pilot', roles: [role], user: { status: 'online' } });
   });
   it.each(['Enter', ' '])('activates role checkboxes with %s', async key => {
@@ -279,7 +276,7 @@ describe('member context menu', () => {
   it('shows the space nickname without replacing the original account identity', () => {
     vi.spyOn(api.users, 'getMutuals').mockResolvedValue({ mutualFriends: [], mutualSpaces: [] });
     spaces.useSpaceStore.setState({ members: [{ ...member('target'), nickname: 'Pilot' }] });
-    render(<MemoryRouter><UserProfilePopout origin="" user={{ ...user('target'), displayName: 'Original name' }}
+    render(<MemoryRouter><UserProfilePopout user={{ ...user('target'), displayName: 'Original name' }}
       member={{ spaceId: 'space', userId: 'target' }} onClose={vi.fn()}
       anchor={{ left: 200, top: 100, right: 250, bottom: 150, width: 50, height: 50 }} /></MemoryRouter>);
     expect(screen.getByText('Original name')).toBeInTheDocument();
@@ -293,6 +290,22 @@ describe('member context menu', () => {
     fireEvent.click(screen.getByRole('button', { name: label }));
     await waitFor(() => expect(toast).toHaveBeenCalled());
     expect(spaces.useSpaceStore.getState().members.some(m => m.userId === 'target')).toBe(true);
+  });
+  it.each(['role', 'nickname', 'Kick', 'Ban'] as const)('cannot apply an old %s response to equal IDs in a new session', async action => {
+    let finish!: (value: MemberWithUser) => void;
+    (action === 'Kick' ? remove : action === 'Ban' ? ban : update).mockReturnValueOnce(new Promise<MemberWithUser>(resolve => { finish = resolve; }));
+    mount(); rightClick();
+    if (action === 'role') fireEvent.click(openRoles());
+    else if (action === 'nickname') {
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Change space nickname…' }));
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Old nickname' } }); fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    } else {
+      fireEvent.click(screen.getByRole('menuitem', { name: action })); fireEvent.click(screen.getByRole('button', { name: action }));
+    }
+    act(() => { useAuthStore.setState(s => ({ sessionRevision: s.sessionRevision + 1 })); spaces.useSpaceStore.setState({ members: [member('viewer'), member('target')] }); });
+    await act(async () => finish({ ...member('target'), nickname: 'Old nickname', roles: [role] }));
+    expect(spaces.useSpaceStore.getState().members.find(m => m.userId === 'target')).toMatchObject({ nickname: null, roles: [] });
+    expect(useContextMenuStore.getState().menu).toBeNull(); expect(toast).not.toHaveBeenCalled();
   });
 
 });

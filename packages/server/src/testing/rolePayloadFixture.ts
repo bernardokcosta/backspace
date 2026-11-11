@@ -66,7 +66,7 @@ export function openFixtureDatabase(): { sqlite: Database.Database; db: FixtureD
 
 function addUser(db: FixtureDb, id: string, isAdmin = 0): void {
   db.insert(schema.users).values({
-    id, username: id, passwordHash: 'x', homeUserId: id, homeInstance: null, isAdmin, createdAt: NOW,
+    id, username: id, passwordHash: 'x', isAdmin, createdAt: NOW,
   }).run();
 }
 
@@ -126,30 +126,21 @@ export function seedRolePayloadSpaces(db: FixtureDb): void {
   ]).run();
 }
 
-/**
- * Users whose home is another instance, as `addReplicatedMember` takes them.
- * The manager's id at home is the same string as a local plain member's id,
- * so a check that compared bare ids across instances would mix the two up.
- */
-export const REPLICATED = {
-  manager: { id: 'u-replica-manager', homeUserId: USERS.member, homeInstance: 'peer.example' },
-  member: { id: 'u-replica-member', homeUserId: 'u-home-member', homeInstance: 'peer.example' },
+/** Additional native accounts must not inherit another member's authority. */
+export const EXTRA_MEMBERS = {
+  manager: { id: 'u-extra-manager' },
+  member: { id: 'u-extra-member' },
 } as const;
 
-/**
- * A user whose home is another instance, replicated here under a local id
- * that differs from their id at home, and made a member of `spaceId` (with
- * `roleId` when given). This is how a remote user connected to this instance
- * is a member of its spaces.
- */
-export function addReplicatedMember(
+/** Add another real local account with only its own assigned role. */
+export function addFixtureMember(
   db: FixtureDb,
   spaceId: string,
-  user: { id: string; homeUserId: string; homeInstance: string },
+  user: { id: string },
   roleId?: string,
 ): void {
   db.insert(schema.users).values({
-    id: user.id, username: user.id, passwordHash: 'x', homeUserId: user.homeUserId, homeInstance: user.homeInstance, createdAt: NOW,
+    id: user.id, username: user.id, passwordHash: 'x', createdAt: NOW,
   }).run();
   addMember(db, spaceId, user.id, roleId);
 }

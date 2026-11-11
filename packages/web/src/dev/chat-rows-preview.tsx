@@ -40,7 +40,6 @@ import { useSpaceStore } from '../stores/spaceStore';
 import { initI18n } from '../i18n';
 import { initializeInterfaceScale } from '../platform/interfaceScale';
 import { ALL_PERMISSIONS, permissionsToString } from '../utils/permissions';
-import { userKey } from '../utils/identity';
 import '../styles/globals.css';
 
 const STATES = {
@@ -85,7 +84,7 @@ function readState(search: string): RowState {
 
 // ─── People ─────────────────────────────────────────────────────────────────
 
-function person(id: string, username: string, displayName: string | null, avatarColor: string, homeInstance: string | null = null): User {
+function person(id: string, username: string, displayName: string | null, avatarColor: string): User {
   return {
     id,
     username,
@@ -99,19 +98,15 @@ function person(id: string, username: string, displayName: string | null, avatar
     customStatus: null,
     isAdmin: false,
     createdAt: 1,
-    homeInstance,
-    homeUserId: homeInstance ? `${id}-home` : null,
-    replicatedInstances: [],
   } as User;
 }
 
 const ME = person('me', 'jannis', 'Jannis', 'lavender');
 const MIRA = person('mira', 'mira', 'Mira', 'mint');
 const OSKAR = person('oskar', 'oskar', 'Oskar', 'peach');
-const TOVE = person('tove', 'tove@orbit.example', 'Tove', 'sky', 'orbit.example');
-// A remote user as the channel's origin knows them: a stub with no display
-// name. Their home instance's view (seeded into userViews) has one.
-const ALEKSANDR_STUB = person('aleksandr-local', 'aleksandr@nova.example', null, 'amber', 'nova.example');
+const TOVE = person('tove', 'tove@retained.test', 'Tove', 'sky');
+// A native roster row whose current cached profile supplies its display name.
+const ALEKSANDR_STUB = person('aleksandr-local', 'aleksandr@retained.test', null, 'amber');
 const ALEKSANDR_HOME = { ...ALEKSANDR_STUB, displayName: 'Aleksandr Kuznetsov' };
 const LONG_A = person('long-a', 'maximiliane', 'Maximiliane von Hohenzollern-Sigmaringen', 'rose');
 const LONG_B = person('long-b', 'bartholomew', 'Bartholomew Featherstonehaugh-Whittingstall the Third', 'coral');
@@ -204,18 +199,15 @@ function isReactionState(state: RowState): boolean {
 function seedStores(state: RowState): void {
   useAuthStore.setState({ user: ME });
   useSpaceStore.setState({
-    channelOriginMap: new Map([[CHANNEL, '']]),
-    spaceChannelIndex: new Map([[CHANNEL, { spaceId: SPACE, origin: '', type: 'text' as const }]]),
+    spaceChannelIndex: new Map([[CHANNEL, { spaceId: SPACE, type: 'text' as const }]]),
     channelToSpaceMap: new Map([[CHANNEL, SPACE]]),
     channelPermissions: new Map([[CHANNEL, permissionsToString(ALL_PERMISSIONS)]]),
     dmChannels: [],
     members: [MIRA, OSKAR, TOVE, ME].map((user) => ({ spaceId: SPACE, userId: user.id, nickname: null, joinedAt: 1, user, roles: [] })),
     spaces: [],
     currentSpaceId: SPACE,
-    userViews: new Map([[userKey(ALEKSANDR_STUB, ''), {
+    userViews: new Map([[ALEKSANDR_STUB.id, {
       user: ALEKSANDR_HOME,
-      deliveredBy: 'https://nova.example',
-      isHome: true,
       updatedAt: BASE,
     }]]),
   });

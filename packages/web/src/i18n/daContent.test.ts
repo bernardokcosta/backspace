@@ -4,12 +4,10 @@ import common from '../locales/da/common.json';
 import dm from '../locales/da/dm.json';
 import spaces from '../locales/da/spaces.json';
 import voice from '../locales/da/voice.json';
-import auth from '../locales/da/auth.json';
 import admin from '../locales/da/admin.json';
 
 describe('Danish contextual content', () => {
-  it('agrees with the neuter domain noun and keeps complete setup instructions', () => {
-    expect(auth.join.domain.label).toBe('Dit instansdomæne');
+  it('keeps complete native setup instructions', () => {
     expect(common.language.description).toContain('. Andres beskeder');
     expect(admin.streaming.matrix.scaleHint).toBe('Træk for at skalere alle bitrates. Finjustér enkelte celler nedenfor.');
   });

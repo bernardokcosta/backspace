@@ -9,9 +9,17 @@
       "cropTitle": "Recortar icono del espacio",
       "uploadFailed": "No se pudo subir el icono"
     },
-    "name": { "label": "Nombre del espacio", "placeholder": "Mi espacio genial", "required": "El nombre del espacio es obligatorio" },
+    "name": {
+      "label": "Nombre del espacio",
+      "placeholder": "Mi espacio genial",
+      "required": "El nombre del espacio es obligatorio"
+    },
     "visibilityLabel": "Visibilidad",
-    "description": { "label": "Descripción", "placeholder": "Una descripción breve de tu espacio…", "counter": "{{length}}/{{max}}" },
+    "description": {
+      "label": "Descripción",
+      "placeholder": "Una descripción breve de tu espacio…",
+      "counter": "{{length}}/{{max}}"
+    },
     "submit": "Crear",
     "submitting": "Creando…"
   },
@@ -20,8 +28,14 @@
       "title": "Crear canal",
       "typeLabel": "Tipo de canal",
       "types": {
-        "text": { "name": "Texto", "description": "Envía mensajes, imágenes y archivos" },
-        "voice": { "name": "Voz", "description": "Charla por voz y vídeo" }
+        "text": {
+          "name": "Texto",
+          "description": "Envía mensajes, imágenes y archivos"
+        },
+        "voice": {
+          "name": "Voz",
+          "description": "Charla por voz y vídeo"
+        }
       },
       "nameLabel": "Nombre del canal",
       "namePlaceholder": "nuevo-canal",
@@ -107,7 +121,10 @@
     "send_other": "Enviar {{count}} invitaciones",
     "sending": "Enviando…",
     "retryFailed": "Reintentar invitaciones fallidas",
-    "status": { "sent": "✓ Enviada", "failed": "✗ {{reason}}" },
+    "status": {
+      "sent": "✓ Enviada",
+      "failed": "✗ {{reason}}"
+    },
     "shareLink": "O comparte un enlace",
     "generating": "Generando…",
     "generateFailed": "No se pudo generar el enlace de invitación",
@@ -142,21 +159,6 @@
     "invitePlaceholder": "p. ej., abc123 o https://instance.com/join/abc123",
     "submit": "Entrar en el espacio",
     "submitting": "Entrando…",
-    "connect": {
-      "intro": "Conecta con <host>{{host}}</host> para entrar en este espacio.",
-      "passwordLabel": "Introduce tu contraseña para conectar",
-      "passwordPlaceholder": "La contraseña de tu cuenta",
-      "passwordNote": "Tu instancia de origen comprueba tu contraseña y nunca la envía a {{host}}. Esa instancia recibe una credencial única generada solo para ella.",
-      "submit": "Conectar y entrar",
-      "submitting": "Conectando…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "Tu nombre de usuario en esta instancia",
-      "passwordLabel": "Contraseña de esta instancia",
-      "passwordPlaceholder": "Contraseña de la instancia remota",
-      "submit": "Iniciar sesión y entrar",
-      "submitting": "Iniciando sesión…"
-    },
     "request": {
       "messagePlaceholder": "¿Por qué quieres entrar? (opcional)",
       "send": "Enviar solicitud",
@@ -170,7 +172,15 @@
   "settings": {
     "title": "Ajustes del espacio",
     "backAria": "Volver al menú de ajustes del espacio",
-    "nav": { "general": "General", "management": "Gestión", "tabs": { "overview": "Vista general", "roles": "Roles", "bans": "Bloqueos" } },
+    "nav": {
+      "general": "General",
+      "management": "Gestión",
+      "tabs": {
+        "overview": "Vista general",
+        "roles": "Roles",
+        "bans": "Bloqueos"
+      }
+    },
     "discardChanges": "Descartar",
     "overview": {
       "identity": "Identidad del espacio",
@@ -208,9 +218,18 @@
         "label": "Visibilidad",
         "hint": "Controla cómo entran en este espacio las personas que tienen una invitación.",
         "options": {
-          "private": { "label": "Privado", "description": "Solo se puede entrar con un enlace de invitación" },
-          "request": { "label": "Solicitar acceso", "description": "La invitación permite enviar una solicitud que debe aprobar alguien con permisos de gestión" },
-          "public": { "label": "Público", "description": "Quien tenga una invitación puede entrar de inmediato" }
+          "private": {
+            "label": "Privado",
+            "description": "Solo se puede entrar con un enlace de invitación"
+          },
+          "request": {
+            "label": "Solicitar acceso",
+            "description": "La invitación permite enviar una solicitud que debe aprobar alguien con permisos de gestión"
+          },
+          "public": {
+            "label": "Público",
+            "description": "Quien tenga una invitación puede entrar de inmediato"
+          }
         }
       },
       "description": {
@@ -219,7 +238,11 @@
         "placeholder": "Una descripción breve de este espacio…",
         "counter": "{{length}}/{{max}}"
       },
-      "requests": { "title": "Solicitudes de acceso pendientes", "empty": "No hay solicitudes de acceso pendientes", "actionFailed": "La acción ha fallado" }
+      "requests": {
+        "title": "Solicitudes de acceso pendientes",
+        "empty": "No hay solicitudes de acceso pendientes",
+        "actionFailed": "La acción ha fallado"
+      }
     },
     "members": {
       "description": "Gestiona los miembros de este espacio. Haz clic en un miembro para editar sus roles.",
@@ -304,7 +327,11 @@
     "colorLabel": "Color del rol",
     "nameEmpty": "El nombre del rol no puede estar vacío",
     "nameDuplicate": "Ya existe un rol con este nombre",
-    "groups": { "general": "General", "text": "Texto", "voice": "Voz" },
+    "groups": {
+      "general": "General",
+      "text": "Texto",
+      "voice": "Voz"
+    },
     "saved": "Rol guardado",
     "copy": "Copiar rol",
     "copying": "Copiando…",
@@ -352,7 +379,11 @@
       "disconnectMembers": "Desconectar miembros",
       "mentionEveryone": "Mencionar a @everyone, @here y roles"
     },
-    "tristate": { "deny": "Denegar", "neutral": "Neutro (heredar)", "allow": "Permitir" },
+    "tristate": {
+      "deny": "Denegar",
+      "neutral": "Neutro (heredar)",
+      "allow": "Permitir"
+    },
     "overrideCount_one": "{{count}} excepción",
     "overrideCount_many": "{{count}} excepciones",
     "overrideCount_other": "{{count}} excepciones",
@@ -409,8 +440,6 @@
       "transferOwnership": "Transferir propiedad",
       "settings": "Ajustes del espacio",
       "leave": "Salir del espacio",
-      "reconnecting": "Reconectando con {{instance}}…",
-      "remoteInstance": "instancia remota",
       "leaveConfirm": {
         "title": "Salir del espacio",
         "titleNamed": "Salir de {{name}}",
@@ -468,7 +497,10 @@
     "deleteCategory": "Eliminar categoría",
     "emptyCategory": "No hay canales",
     "empty": "Aún no hay canales.",
-    "deleteConfirm": { "title": "Eliminar canal", "description": "¿Seguro que quieres hacerlo? Se eliminarán el canal y todos sus mensajes definitivamente." },
+    "deleteConfirm": {
+      "title": "Eliminar canal",
+      "description": "¿Seguro que quieres hacerlo? Se eliminarán el canal y todos sus mensajes definitivamente."
+    },
     "deleteCategoryConfirm": {
       "title": "Eliminar categoría",
       "description": "¿Seguro que quieres eliminar esta categoría? Sus canales pasarán a estar sin categoría. No se eliminará ningún canal."
@@ -484,14 +516,20 @@
     "titleWithCount_other": "Miembros — {{count}}",
     "loading": "Cargando miembros",
     "resizeHandle": "Cambiar el tamaño de la lista de miembros",
-    "groups": { "owner": "Propietario" },
+    "groups": {
+      "owner": "Propietario"
+    },
     "ownerTitle": {
       "edit": "Editar título del propietario",
       "label": "Título del propietario",
       "hint": "Visible para todos los miembros de este espacio. Usa entre 1 y {{max}} caracteres. No cambia los permisos.",
       "reset": "Restablecer al predeterminado"
     },
-    "menu": { "profile": "Ver perfil", "nickname": "Cambiar apodo en el espacio…", "roles": "Roles" },
+    "menu": {
+      "profile": "Ver perfil",
+      "nickname": "Cambiar apodo en el espacio…",
+      "roles": "Roles"
+    },
     "nickname": {
       "title": "Cambiar apodo en el espacio",
       "label": "Apodo en el espacio",
@@ -501,12 +539,21 @@
       "shownAs": "Apodo en este espacio: {{nickname}}"
     }
   },
-  "mobile": { "addSheet": { "createSpace": "Crear espacio", "joinSpace": "Entrar en un espacio" }, "muteUser": "Silenciar usuario" },
+  "mobile": {
+    "addSheet": {
+      "createSpace": "Crear espacio",
+      "joinSpace": "Entrar en un espacio"
+    },
+    "muteUser": "Silenciar usuario"
+  },
   "main": {
     "selectChannel": "Selecciona un canal",
     "selectChannelHint": "Selecciona un canal de texto o de voz para empezar",
     "notificationSettings": "Ajustes de notificaciones",
-    "topic": { "show": "Mostrar tema completo", "dialogTitle": "#{{name}}" },
+    "topic": {
+      "show": "Mostrar tema completo",
+      "dialogTitle": "#{{name}}"
+    },
     "voice": {
       "connectionFailed": "Error de conexión",
       "connected": "Conectado",
@@ -551,10 +598,20 @@
     "channelTitle": "Notificaciones de #{{channel}}",
     "spaceTitle": "Notificaciones de {{space}}",
     "levelHeading": "Notificarme sobre",
-    "level": { "all": "Todos los mensajes", "mentions": "Solo @menciones", "nothing": "Nada", "inherit": "Predeterminado del espacio ({{level}})" },
+    "level": {
+      "all": "Todos los mensajes",
+      "mentions": "Solo @menciones",
+      "nothing": "Nada",
+      "inherit": "Predeterminado del espacio ({{level}})"
+    },
     "dmNote": "Los mensajes directos siempre generan notificaciones.",
     "muteHeading": "Silenciar",
-    "mute": { "oneHour": "Durante 1 hora", "eightHours": "Durante 8 horas", "oneDay": "Durante 24 horas", "indefinite": "Hasta reactivar notificaciones" },
+    "mute": {
+      "oneHour": "Durante 1 hora",
+      "eightHours": "Durante 8 horas",
+      "oneDay": "Durante 24 horas",
+      "indefinite": "Hasta reactivar notificaciones"
+    },
     "unmute": "Reactivar notificaciones",
     "mutedUntil": "Silenciado hasta {{time}}",
     "mutedIndefinitely": "Silenciado hasta que lo reactives",

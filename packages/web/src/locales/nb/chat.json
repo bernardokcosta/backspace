@@ -61,14 +61,12 @@
       "group": {
         "intro": "Dette er begynnelsen på gruppesamtalen din.",
         "owner": "Eier: <owner>@{{name}}</owner>",
-        "federatedNotice": "Meldinger lagres på hjeminstansen din og mottakernes hjeminstanser. De er ikke end-to-end-krypterte.",
         "openSettings": "Åpne gruppeinnstillinger",
         "leave": "Forlat gruppen"
       },
       "dm": {
         "fallbackName": "Direktemelding",
         "intro": "Dette er begynnelsen på direktemeldingshistorikken din med <strong>@{{name}}</strong>.",
-        "federatedNotice": "Meldinger lagres på hjeminstansen din og mottakerens hjeminstans. De er ikke end-to-end-krypterte.",
         "removeFriend": "Fjern venn"
       }
     }
@@ -133,14 +131,6 @@
     },
     "audio": {
       "unsupportedBrowser": "Nettleseren din støtter ikke lydavspilling."
-    },
-    "federation": {
-      "remoteNamed": "Hostet på {{sender}} sin instans. Last ned for en lokal kopi.",
-      "remoteUnknown": "Hostet på avsenderens instans. Last ned for en lokal kopi.",
-      "partialGeneric": "Noen mottakere kan ikke mellomlagre denne filen lokalt.",
-      "partialInstance": "{{username}} sin instans (grense: {{limit}})",
-      "partialList": "Filen kunne ikke mellomlagres på {{instances}}. De kan fortsatt se den fra din.",
-      "listPair": "{{first}} og {{second}}"
     }
   },
   "gif": {
@@ -267,7 +257,6 @@
     "stickersCount_one": "{{count}} klistremerke",
     "stickersCount_other": "{{count}} klistremerker",
     "noPacks": "Ingen klistremerkepakker funnet",
-    "replicaBadge": "Føderert",
     "viewPack": "Se pakke",
     "saveDraft": "Lagre som utkast",
     "packCreated": "Pakke opprettet",
@@ -284,8 +273,6 @@
     "rejectedSuccess": "Klistremerkepakke avvist",
     "reviewNotes": "Avvisningsårsak",
     "creator": "Skaper",
-    "sourceInstance": "Instans",
-    "localInstance": "Lokal instans",
     "viewStickers": "Se klistremerker",
     "pendingReviewHint": "Hos administrator til gjennomgang; vises i Utforsk etter godkjenning"
   },

@@ -12,6 +12,7 @@ import { describeCodedError } from '../../i18n/errors';
 import { Toggle } from '../ui/Toggle';
 import { useFormatters } from '../../i18n/formatters';
 import { useUIStore } from '../../stores/uiStore';
+import { useAuthStore } from '../../stores/authStore';
 import {
   selectNotificationSetting,
   useNotificationSettingsStore,
@@ -22,13 +23,8 @@ import {
  * one channel of it. Shared by the channel header's bell popover and the
  * notification settings dialog; the surface around it (glass popover or
  * glass modal) is the caller's.
- *
- * `origin` is the instance that hosts the space: the settings are read from
- * and written to that instance (docs/systems/sounds.md, "Notification
- * settings").
  */
 export interface NotificationSettingsControlsProps {
-  origin: string;
   spaceId: string;
   channelId: string | null;
 }
@@ -52,13 +48,14 @@ function RadioDot({ checked }: { checked: boolean }) {
   );
 }
 
-export function NotificationSettingsControls({ origin, spaceId, channelId }: NotificationSettingsControlsProps) {
+export function NotificationSettingsControls({ spaceId, channelId }: NotificationSettingsControlsProps) {
   const { t } = useTranslation(['spaces']);
   const formatters = useFormatters();
   const addToast = useUIStore((s) => s.addToast);
   const update = useNotificationSettingsStore((s) => s.update);
-  const own = useNotificationSettingsStore((s) => selectNotificationSetting(s, origin, { spaceId, channelId }));
-  const spaceSetting = useNotificationSettingsStore((s) => selectNotificationSetting(s, origin, { spaceId, channelId: null }));
+  const own = useNotificationSettingsStore((s) => selectNotificationSetting(s, { spaceId, channelId }));
+  const spaceSetting = useNotificationSettingsStore((s) => selectNotificationSetting(s, { spaceId, channelId: null }));
+  const revision = useAuthStore(s => s.sessionRevision);
   // Re-render when a timed mute ends while the controls are open.
   useNotificationSettingsStore((s) => s.clock);
   const [saving, setSaving] = useState(false);
@@ -104,15 +101,16 @@ export function NotificationSettingsControls({ origin, spaceId, channelId }: Not
   const save = async (change: UpdateNotificationSettingRequest): Promise<void> => {
     setSaving(true);
     try {
-      await update(origin, { spaceId, channelId }, change);
+      await update({ spaceId, channelId }, change);
     } catch (err) {
+      if (revision !== useAuthStore.getState().sessionRevision) return;
       addToast(
         describeCodedError(err, t('spaces:notifications.saveFailed')),
         'warning',
         4000,
       );
     } finally {
-      setSaving(false);
+      if (revision === useAuthStore.getState().sessionRevision) setSaving(false);
     }
   };
 

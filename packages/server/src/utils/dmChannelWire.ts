@@ -13,9 +13,8 @@ type DmMessageRow = typeof schema.dmMessages.$inferSelect;
 /**
  * The one place a `DmChannel` is put on the wire. The ready payload,
  * `GET /api/dm` and `dm_channel_created` all go through it, so a client that
- * learns a conversation from any of them gets the same fields: above all
- * `federatedId`, the key it uses to recognise two instances' copies of one
- * conversation, and the group metadata (`name`, `icon`, owner identity).
+ * learns a conversation from any of them gets the same local channel id and
+ * group metadata (`name`, `icon`, owner). The private pair key is never exposed.
  *
  * `members` are user rows in the order the caller wants them listed; they are
  * sanitized here.
@@ -27,10 +26,7 @@ export function toDmChannelWire(
 ): DmChannel {
   return {
     id: channel.id,
-    federatedId: channel.federatedId ?? null,
     ownerId: channel.ownerId ?? null,
-    ownerHomeUserId: channel.ownerHomeUserId ?? null,
-    ownerHomeInstance: channel.ownerHomeInstance ?? null,
     createdAt: channel.createdAt,
     name: channel.name ?? null,
     icon: channel.icon ?? null,
@@ -186,11 +182,11 @@ export function loadOpenDmChannels(db: Db, userId: string, openMemberships?: DmM
 /**
  * One DM channel as it goes on the wire, or null when the row does not exist
  * or is soft-deleted. Every emitter that sends a single conversation
- * (`dm_channel_created`, the create responses, re-attach) uses this, so its
+ * (`dm_channel_created`, the create responses) uses this, so its
  * payload is the entry the ready payload and `GET /api/dm` list for the row.
  *
  * `lastMessage` is the message the emitter is delivering with the channel
- * (the one that reopens it, a relayed message, a bootstrap system message);
+ * (the one that reopens it, a system message);
  * without it, the newest stored message's preview is used.
  */
 export function loadDmChannelWire(

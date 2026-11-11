@@ -158,21 +158,6 @@
     "invitePlaceholder": "ví dụ abc123 hoặc https://instance.com/join/abc123",
     "submit": "Tham gia không gian",
     "submitting": "Đang tham gia…",
-    "connect": {
-      "intro": "Kết nối tới <host>{{host}}</host> để tham gia không gian này.",
-      "passwordLabel": "Nhập mật khẩu để kết nối",
-      "passwordPlaceholder": "Mật khẩu tài khoản của bạn",
-      "passwordNote": "Mật khẩu của bạn do máy chủ chính kiểm tra và không bao giờ gửi tới {{host}}. Máy chủ đó nhận một chứng chỉ riêng tạo chỉ cho nó.",
-      "submit": "Kết nối & tham gia",
-      "submitting": "Đang kết nối…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "Tên người dùng của bạn trên máy chủ này",
-      "passwordLabel": "Mật khẩu cho máy chủ này",
-      "passwordPlaceholder": "Mật khẩu trên máy chủ xa",
-      "submit": "Đăng nhập & tham gia",
-      "submitting": "Đang đăng nhập…"
-    },
     "request": {
       "messagePlaceholder": "Tại sao bạn muốn tham gia? (tùy chọn)",
       "send": "Gửi yêu cầu",
@@ -450,8 +435,6 @@
       "transferOwnership": "Chuyển quyền sở hữu",
       "settings": "Cài đặt không gian",
       "leave": "Rời không gian",
-      "reconnecting": "Đang kết nối lại tới {{instance}}…",
-      "remoteInstance": "máy chủ xa",
       "leaveConfirm": {
         "title": "Rời không gian",
         "titleNamed": "Rời {{name}}",

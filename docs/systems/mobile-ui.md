@@ -11,7 +11,7 @@ Source files:
 - `packages/web/src/components/layout/MobileSpacesScreen.tsx` — Space strip + channel list (split-pane), folder support, voice user rows
 - `packages/web/src/components/layout/MobileYouScreen.tsx` — User profile card, action rows, logout
 - `packages/web/src/components/layout/MobileSettingsScreen.tsx` — Settings hub and direct-panel rendering via `initialPanel` prop
-- `packages/web/src/components/layout/MobileInstancePanel.tsx` — Admin-only instance settings hub (General, Registration, Federation, Streaming, Storage, Users; surfaces federation approval-count badge)
+- `packages/web/src/components/layout/MobileInstancePanel.tsx` — Native admin hub (General, Registration, Streaming, Storage, Users, Updates)
 - `packages/web/src/components/layout/MobileMembersScreen.tsx` — Space member list grouped by role, with activity cards
 - `packages/web/src/components/layout/MobileVoiceFullScreen.tsx` — Full-screen voice call view with participant grid and control bar
 - `packages/web/src/components/layout/MobileVoiceMiniBar.tsx` — Persistent mini-bar overlay during voice calls
@@ -301,7 +301,7 @@ Returns `null` when `mobileStack.length > 0` — hidden whenever a pushed screen
 |-----|-----------|--------------|
 | Spaces | Dot (red) | `unreadChannels` has any non-voice channel |
 | DMs | Numeric count | Count of DM channels where `lastMessage.id > readStates[dmId]` |
-| You | Dot (red) | Pending incoming friend requests (resolved with federation-aware `isIncomingRequest`) or an instance update badge (`useInstanceUpdateBadge`) |
+| You | Dot (red) | Native incoming friend requests or an instance update badge (`useInstanceUpdateBadge`) |
 
 Badge caps at `99+` for numeric badges.
 
@@ -383,13 +383,11 @@ Event options: `touchstart` is `{ passive: true }`, `touchmove` is `{ passive: f
 | `settings-appearance` | `MobileSettingsScreen` | `initialPanel="appearance"` |
 | `settings-voice` | `MobileSettingsScreen` | `initialPanel="voice"` |
 | `settings-privacy` | `MobileSettingsScreen` | `initialPanel="privacy"` |
-| `settings-connections` | `MobileSettingsScreen` | `initialPanel="connections"` |
 | `settings-keybinds` | `MobileSettingsScreen` | `initialPanel="keybinds"` (Electron-only entry; map row always present) |
 | `settings-desktop` | `MobileSettingsScreen` | `initialPanel="desktop"` (reachable everywhere; only the panel body differs by environment) |
 | `settings-instance` | `MobileInstancePanel` | — |
 | `settings-instance-general` | `GeneralPanel` (wrapped) | — |
 | `settings-instance-registration` | `RegistrationPanel` (wrapped) | — |
-| `settings-instance-federation` | `FederationPanel` (wrapped, forwards `onApprovalCountChange` → `uiStore.setFederationApprovalCount`) | — |
 | `settings-instance-streaming` | `StreamingPanel` (wrapped) | — |
 | `settings-instance-storage` | `StoragePanel` (wrapped) | — |
 | `settings-instance-users` | `UsersPanel` (wrapped) | — |
@@ -411,7 +409,6 @@ Split-pane layout: 60px `glass-strip` space strip on the left + channel list on 
 - Home/DMs button at top (navigates to DMs tab)
 - Folder-aware layout via `spaceLayout` and `folders` from spaceStore
 - Unread pill indicator on left edge (8px dot for unread, 32px bar for selected)
-- Federation badge on space icons (globe icon, amber dot if disconnected)
 - Context menu: Invite, Create Folder, Move to Folder, Remove from Folder, Transfer Ownership, Leave
 - Add Space button at bottom (opens bottom sheet: Create / Join by invitation)
 
@@ -437,8 +434,8 @@ Split-pane layout: 60px `glass-strip` space strip on the left + channel list on 
 - Online friends activity row (horizontal scroll, shows avatar + status dot)
 - DM list sorted by last message time (newest first)
 - Each DM row: avatar, name, message preview, timestamp, unread dot
-- Group DMs: rendered via the shared `<AvatarStack>` (size 40, `border="channel"`, `iconUrl={dm.icon}`) so single-other-member groups, 2-member overlap, and 3+ grids match the desktop sidebar; group name uses `dm.name ?? otherMembers.map(displayName).join(', ')`. A federation globe renders next to the name when any group member is federated. Context menu: "Leave Group".
-- Federated users: `@domain` subtitle below username
+- Group DMs: rendered via the shared `<AvatarStack>` (size 40, `border="channel"`, `iconUrl={dm.icon}`) so single-other-member groups, 2-member overlap, and 3+ grids match the desktop sidebar; group name uses `dm.name ?? otherMembers.map(displayName).join(', ')`. Context menu: "Leave Group".
+- Native account names are shown exactly; `@` in a retained username is not remote identity metadata.
 - Empty state: sleeping mascot
 - FAB: New DM button (opens `newDm` modal), positioned `bottom-20 right-4`
 
@@ -446,7 +443,7 @@ Split-pane layout: 60px `glass-strip` space strip on the left + channel list on 
 
 - Settings gear in header (pushes `settings`)
 - Profile card: banner/accent background, avatar (-10 overlap), display name, username, custom status, bio
-- Action rows (each pushes a screen): Edit Profile, Friends, Connections, Voice & Video.
+- Action rows (each pushes a screen): Edit Profile, Friends, Voice & Video.
   The project-hub row/screen and its update-dot subscription were removed in
   1.15.2. The settings gear's instance-update indicator remains independent.
 - Log Out button with `ConfirmDialog`
@@ -479,8 +476,8 @@ Params: `{ channelId, spaceId }`
 
 Two modes controlled by `initialPanel` prop:
 
-1. **Hub mode** (`initialPanel` undefined): List of setting sections (Account, Appearance, Voice & Video, Privacy, Connections, Keybinds when in Electron, Desktop, Instance for admins). Each pushes `settings-{id}`.
-2. **Direct panel mode** (`initialPanel` set): Renders the corresponding panel component (AccountPanel, AppearancePanel, VoicePanel, PrivacyPanel, ConnectionsPanel, KeybindsPanel, and for Desktop either DesktopPanel or DesktopDownloadPanel) directly with a back header.
+1. **Hub mode** (`initialPanel` undefined): Account, Appearance, Voice & Video, Privacy, Keybinds in Electron, Desktop, Instance for admins; each pushes `settings-{id}`. Developer/Bots retain their native capability gates.
+2. **Direct panel mode** (`initialPanel` set): the selected native panel with a back header. Connections and Federation routes/entries/imports no longer exist; old unknown selections cannot reopen their implementation.
 
 **Desktop entry.** The Desktop section is listed everywhere, mirroring the `UserSettings` modal's wiring: inside Electron it opens `DesktopPanel`, in a browser it opens `DesktopDownloadPanel`, the download offer (see `docs/systems/desktop.md`, "Desktop tab in the browser"). A phone is a reasonable place to be offered the desktop build, because the visitor may be downloading for another machine. The download panel needs the instance version, so the screen fetches `api.instance.info()` on mount when that panel is the one being opened, cancelled on unmount; a failed fetch is tolerated and every link falls back to the releases listing.
 
@@ -490,12 +487,10 @@ Both panels are mobile-fit at 360-390px viewports (single-column rows with `flex
 
 ### MobileInstancePanel
 
-Admin-only instance settings hub. Pre-fetches instance settings and streaming limits on mount. Lists six sub-sections (General, Registration, Federation, Streaming, Storage, Users), each pushing `settings-instance-{id}`. Mirrors the desktop `InstancePanel` exactly.
-
-The Federation row carries a numeric badge driven by `uiStore.federationApprovalCount` (capped at `99+`, styled like the unread-DM badge in `MobileBottomNav`). The badge source has two paths:
-
-1. **Initial / standalone fetch:** `MobileInstancePanel` calls `api.federation.approvalRequests()` on mount and re-fetches when `onFederationPeersChanged` fires (mirrors what `FederationPanel`'s internal `PendingApprovals` component does). This makes the badge accurate before the admin enters the Federation panel.
-2. **Live updates while inside the panel:** the wrapper around `FederationPanel` in `MobileShell.tsx` forwards the panel's `onApprovalCountChange` callback into `uiStore.setFederationApprovalCount`. As the admin approves/denies requests inside the panel, the count drops and the badge in the parent hub stays in sync.
+Admin-only hub for General, Registration, Streaming, Storage, Users and Updates,
+matching desktop. It prefetches native instance settings; Streaming owns its own
+policy fetch. The Updates badge remains. Peer approval fetch/subscription/count
+state and the Federation wrapper have been physically removed, not hidden.
 
 `MobileInstancePanel` is rendered behind a top-level `isAdmin` guard from `MobileSettingsScreen` — non-admin users cannot reach it.
 
@@ -506,7 +501,7 @@ Params: `{ spaceId? }` (falls back to `currentSpaceId`)
 - Groups online members by their highest-positioned role
 - Owner gets special `__owner__` group (position Infinity), headed by `OwnerTitleHeading` as on desktop: the owner title when one is set, with the owner's edit control (spaces.md, "Owner title")
 - Offline members in separate section
-- Each member row: avatar with status, role-colored name, federated domain, activity card
+- Each member row: avatar with status, role-colored native name, activity card
 - Tap opens `user-profile` screen
 
 Member group resolution (`getMemberGroup`):
@@ -526,10 +521,10 @@ Layout:
 - Header (`MobileScreenHeader`): "Group Info" + back button.
 - Hero: `<AvatarStack size=80 border="modal" iconUrl={dm.icon}>` (or icon when set), large group name (`dm.name ?? comma-joined fallback`), `N members`, and an Edit button (owner-only) that toggles **inline edit mode** — name becomes a text input; tapping the icon opens the existing `ImageCropModal` (also used by `RegisterPage` and `CreateSpace`). Save/Cancel bar appears at the bottom of the screen, positioned via `useVisualViewportInset` so it rides above the iOS keyboard. Upload defers to Save (no orphan uploads).
 - Actions row: Add Member (any-member; opens `AddDmMemberModal`).
-- Members list: OWNER (crown badge), ONLINE, OFFLINE (dimmed). Uses the shared `DmMemberRow` component. Tap → `user-profile` screen. Long-press OR always-visible kebab → context menu (`Transfer Ownership` and `Remove from Group` are owner-only and hidden on self; `Remove Friend` shown when row user is a friend AND not self). The federation globe renders without a long-press tooltip — the per-row `@domain` subtitle already surfaces federated identity, so a tooltip would be redundant.
+- Members list: OWNER (crown badge), ONLINE, OFFLINE (dimmed). Uses the shared `DmMemberRow` component. Tap → `user-profile` screen. Long-press OR always-visible kebab → context menu (`Transfer Ownership` and `Remove from Group` are owner-only and hidden on self; `Remove Friend` shown when row user is a friend AND not self). Self/owner comparisons use native account IDs.
 - Destructive footer: "Leave Group" (red).
 
-Owner-only API calls (`updateMetadata`, `kickMember`, `transferOwnership`) route through `getApiForOrigin(getOwnerInstanceForDm(channelId))` — see `docs/systems/dm-system.md` "Owner-Only Routing Helper" for why this is distinct from `getChannelOrigin`.
+Owner-only API calls (`updateMetadata`, `kickMember`, `transferOwnership`) use the primary API, native DM ID and the authenticated owner check. See [dm-system.md](dm-system.md).
 
 ### MobileScreenHeader
 
@@ -547,7 +542,7 @@ interface MobileScreenHeaderProps {
 - Bottom border: `border-border-soft`
 - Background: `bg-surface-base`
 
-**Canonical pattern — TransferIndicator in `rightActions`:** every settings/instance screen mounts `<TransferIndicator />` via the `rightActions` slot so an in-flight profile/banner upload (or any transfer initiated before navigating into settings) remains visible and controllable from the screen the user is currently on. Wired in: `MobileSettingsScreen` (hub + each direct panel mode), `MobileInstancePanel`, all six `settings-instance-*` wrappers in `MobileShell.tsx` (general / registration / federation / streaming / storage / users). The indicator is idle-cheap — a single Map subscription + small icon button when no transfers are active — so mounting it on every settings screen has no measurable performance cost. See `docs/systems/uploads.md` for the transfer-chrome surface inventory.
+**Canonical pattern — TransferIndicator in `rightActions`:** every settings/instance screen mounts `<TransferIndicator />` via the `rightActions` slot so an in-flight profile/banner upload (or any transfer initiated before navigating into settings) remains visible and controllable from the screen the user is currently on. Wired in: `MobileSettingsScreen` (hub + each direct panel mode), `MobileInstancePanel`, and the five native `settings-instance-*` wrappers in `MobileShell.tsx` (general / registration / streaming / storage / users). The indicator is idle-cheap — a single Map subscription + small icon button when no transfers are active — so mounting it on every settings screen has no measurable performance cost. See `docs/systems/uploads.md` for the transfer-chrome surface inventory.
 
 `MobileChatScreen` uses its own inline header (not `MobileScreenHeader`) and mounts `TransferIndicator` directly. The dropdown panel renders below the trigger via `absolute right-0 top-full mt-2` and is width-capped at `min(300px, calc(100vw - 16px))` to avoid clipping on narrow viewports. Click-outside dismissal listens to both `mousedown` and `touchstart` so iOS Safari closes the tray on a single tap.
 
@@ -807,8 +802,8 @@ The component declares one `composerClass` shared by both modes. Differences:
 
 The draft keeps the wire format: a mention is a `<@id>` token, and that is what `composerStore` saves per channel, what is sent and what counts against `MAX_MESSAGE_LENGTH`. The textarea shows each token whose id the channel knows as `@name`. `MentionTextarea.tsx` paints the text in a mirror behind a native textarea whose own text is transparent, so composition, selection, paste and the placeholder stay native. `composerMentions.ts` maps offsets between the shown text and the draft; `useMentionComposer.ts` holds the picker state and turns each textarea change into a draft edit.
 
-- **Tokens.** The draft is cut by the shared scan in `utils/mentionTokens.ts`, the same one the rendered message, the reply preview and the alert rule use, so a token inside code stays text. Only `<@id>` is a mention: the wire has no role or everyone mentions, and the composer paints none. The token rule itself is in [dm-system.md](dm-system.md) "Mentions in relayed messages".
-- **Names.** A token is named through `useChannelUserResolver` (`utils/channelUser.ts`), which reads the same roster and user view as `useChannelUser`, the lookup `MentionBadge` uses, so the composer names a token as the sent message will. A DM's tokens are read in its pinned origin's ids, the signed-in user included (client-federation.md §5). An id the channel does not know is shown as written.
+- **Tokens.** The draft is cut by the shared scan in `utils/mentionTokens.ts`, the same one the rendered message, the reply preview and the alert rule use, so a token inside code stays text. Direct mentions use `<@id>` with native account IDs. See [dm-system.md](dm-system.md) for native DM mentions and [permissions.md](permissions.md) for space role/mass-mention authorization.
+- **Names.** A token is named through `useChannelUserResolver` (`utils/channelUser.ts`), which reads the same roster and user view as `useChannelUser`, the lookup `MentionBadge` uses, so the composer names a token as the sent message will. A DM's tokens use native account IDs, the signed-in user included. An id the channel does not know is shown as written.
 - **Edits.** An edit or selection that touches a shown mention replaces the whole token, so no partial id is left behind. The caret is put back only when a whole token went, and never during an IME composition. Typed or pasted `@name` text stays text; the picker inserts the token. A `<@id>` typed or pasted as written is a token like any other.
 - **IME.** Enter during an IME composition neither sends nor picks a suggestion (`handleKeyDown` returns first).
 - **Picker anchor.** The desktop picker (`MentionPopover.tsx`) is anchored at the typed `@`, a zero-width marker the mirror renders there, and re-measures it after every render (`useFloatingPosition`'s `followAnchor`), since text before the `@` moves it without resizing anything.

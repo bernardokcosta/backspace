@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
@@ -67,6 +67,7 @@ beforeEach(async () => {
   await app.register(botRoutes);
   await app.ready();
 });
+afterEach(async () => { await app.close(); sqlite.close(); vi.restoreAllMocks(); });
 
 describe('POST /api/bots', () => {
   it('hands out a bsb_ token that authenticates the new bot', async () => {
@@ -186,6 +187,7 @@ describe('POST /api/bots/:id/token (full cut-off)', () => {
     await expect(verifyAccessToken(b.token)).rejects.toMatchObject({ statusCode: 401 });
     await expect(verifyAccessToken(token)).resolves.toMatchObject({ userId: 'bot-1' });
     expect(testDb.select().from(schema.botTokens).all()).toHaveLength(1);
+    expect(res.json()).not.toHaveProperty('federation');
   });
 });
 
@@ -195,5 +197,6 @@ describe('DELETE /api/bots/:id', () => {
     const res = await app.inject({ method: 'DELETE', url: '/api/bots/bot-1', headers: owner() });
     expect(res.statusCode).toBe(200);
     expect(testDb.select().from(schema.botTokens).all()).toHaveLength(0);
+    expect(res.json()).toEqual({ success: true });
   });
 });

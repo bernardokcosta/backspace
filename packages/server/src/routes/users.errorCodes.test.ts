@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
@@ -78,6 +78,7 @@ beforeEach(async () => {
   }).run();
   app = await buildApp();
 });
+afterEach(async () => { await app.close(); sqlite.close(); });
 
 // The account panel and the delete-account dialog show these rejections; the
 // codes let the client phrase them in the user's language.
@@ -134,40 +135,15 @@ describe('user routes send error codes', () => {
     expect(res.json().code).toBe('accent_color_invalid');
   });
 
-  it('PATCH @me with a malformed replicatedInstances entry is validation_failed and names the field', async () => {
+  it('obsolete identity-only profile fields produce no_fields_to_update without a write', async () => {
+    const before = testDb.select().from(schema.users).all();
     const res = await app.inject({
       method: 'PATCH', url: '/api/users/@me', headers: auth(),
       payload: { replicatedInstances: [{ username: 'alice', origin: 'ftp://orbit.test' }] },
     });
     expect(res.statusCode).toBe(400);
-    expect(res.json()).toMatchObject({
-      code: 'validation_failed',
-      details: { field: 'replicatedInstances.origin' },
-    });
-  });
-
-  it('PUT federation-registry with a stale timestamp is registry_conflict', async () => {
-    const first = await app.inject({
-      method: 'PUT', url: '/api/users/@me/federation-registry', headers: auth(),
-      payload: { registry: [], updatedAt: 2000 },
-    });
-    expect(first.statusCode).toBe(200);
-    const stale = await app.inject({
-      method: 'PUT', url: '/api/users/@me/federation-registry', headers: auth(),
-      payload: { registry: [], updatedAt: 1000 },
-    });
-    expect(stale.statusCode).toBe(409);
-    expect(stale.json().code).toBe('registry_conflict');
-  });
-
-  it('POST federation-credential for our own origin is federation_credential_remote_only', async () => {
-    const { getOurOrigin } = await import('../utils/federationAuth.js');
-    const res = await app.inject({
-      method: 'POST', url: '/api/users/@me/federation-credential', headers: auth(),
-      payload: { origin: getOurOrigin() },
-    });
-    expect(res.statusCode).toBe(400);
-    expect(res.json().code).toBe('federation_credential_remote_only');
+    expect(res.json()).toMatchObject({ code: 'no_fields_to_update' });
+    expect(testDb.select().from(schema.users).all()).toEqual(before);
   });
 
   it('POST change-password under the shared minimum is password_too_short with the minimum', async () => {

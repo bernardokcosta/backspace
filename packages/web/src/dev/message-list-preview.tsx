@@ -63,9 +63,6 @@ function person(id: string, username: string, displayName: string, avatarColor: 
     customStatus: null,
     isAdmin: false,
     createdAt: 1,
-    homeInstance: null,
-    homeUserId: null,
-    replicatedInstances: [],
   } as User;
 }
 
@@ -131,7 +128,7 @@ function seedStores(state: ListState): void {
   useUIStore.setState({ isMobile: isMobileViewport() });
   useAuthStore.setState({ user: ME });
   useSpaceStore.setState({
-    channelOriginMap: new Map([[CHANNEL, '']]),
+    spaceChannelIndex: new Map([[CHANNEL, { spaceId: 'space', type: 'text' }]]),
     channelToSpaceMap: new Map([[CHANNEL, SPACE]]),
     channelPermissions: new Map([[CHANNEL, permissionsToString(ALL_PERMISSIONS)]]),
     dmChannels: [],

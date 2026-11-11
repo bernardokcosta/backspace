@@ -183,7 +183,7 @@ interface SearchPopoverProps {
 2. **Debounced search:** 300ms debounce on any query/filter change, calls `doSearch(0)`
 3. **Empty guard:** Search requires at least one of: `query`, `fromFilter`, `hasFilter`, `beforeFilter`, `afterFilter` — otherwise clears results
 4. **Pagination:** "Load more" button appends next page. Offset tracked as `searchOffset + data.results.length`
-5. **Federation-aware:** Uses `getChannelOrigin(channelId)` and `getApiForOrigin(origin)` to route API calls to the correct instance
+5. **Native routing:** Uses the primary API and native channel kind to choose channel or DM search
 6. **Dismiss:** Click-outside (`mousedown` listener) or Escape key closes the popover
 7. **Auto-focus:** Input focused 50ms after popover opens
 
@@ -191,10 +191,8 @@ interface SearchPopoverProps {
 
 ```
 SearchPopover.doSearch(offset)
-  → getChannelOrigin(channelId)       // resolve federation origin
-  → getApiForOrigin(origin)           // get API client for that origin
-  → isDm ? client.search.dm(channelId, params)
-         : client.search.channel(channelId, params)
+  → isDm ? api.search.dm(channelId, params)
+         : api.search.channel(channelId, params)
   → params: { q, from, has, before, after, offset, limit: 25 }
 ```
 
@@ -236,7 +234,7 @@ Search results and reply previews share one jump path in `MessageList.tsx`. [mes
 2. MessageList takes the request once (onJumpHandled clears it in MainContent)
      → jumpToMessage(id)
      → Loaded and rendered: scroll + highlight
-     → Otherwise: loadMessagesAround(channelId, id) on the channel's origin
+     → Otherwise: loadMessagesAround(channelId, id) through the primary API
          → 'loaded': after two frames, scroll + highlight
          → 'not_found' / 'failed': info toast, view stays put
 
@@ -250,13 +248,12 @@ Search results and reply previews share one jump path in `MessageList.tsx`. [mes
 
 `chatStore.loadMessagesAround(channelId, messageId)`:
 
-- Routes to `client.channels.messagesAround()` or `client.dm.messagesAround()` based on `isDmChannel()`, on the channel's origin, with `limit` 50 sent explicitly
-- Normalizes remote asset URLs for federated channels
+- Routes to `api.channels.messagesAround()` or `api.dm.messagesAround()` based on native channel kind, with `limit` 50 sent explicitly
 - **Replaces** the entire message cache for that channel (not append/prepend)
 - Sets `hasMore` to `true` (enables upward scroll loading from the new position)
 - Adds the channel to `detachedChannels` when 25 or more messages after the target came back (the window stops short of the newest message), and removes it otherwise
 - Updates `channelAccessTimes`
-- Returns `'loaded'`, `'not_found'` (any 404; older peers send it without a code) or `'failed'`
+- Returns `'loaded'`, `'not_found'` (404) or `'failed'`
 - Also used by the message list to open a channel at its first unread message and to bring back an anchored row dropped from the cache (docs/systems/message-list.md, "Anchoring model")
 
 ### message-jump-highlight CSS

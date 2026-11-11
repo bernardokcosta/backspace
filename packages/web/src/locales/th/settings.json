@@ -127,7 +127,6 @@
       "appearance": "รูปลักษณ์",
       "voice": "เสียง & วิดีโอ",
       "privacy": "ความเป็นส่วนตัว",
-      "connections": "การเชื่อม",
       "keybinds": "ปุ่มลัด",
       "desktop": "เดสก์ท็อป",
       "instance": "อินสแตนซ์",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "บัญชีของฉัน",
-    "detached": {
-      "notice": "บัญชีนี้แยกจากอินสแตนซ์หลัก",
-      "explanation": "{{homeInstance}} ถูกรีเซ็ตหรือไม่พร้อมแล้ว บัญชีนี้จึงรันท้องถิ่นบนอินสแตนซ์นี้ โปรไฟล์และรหัสผ่านจัดการที่นี่",
-      "reattachHint": "เป็น {{username}} บน {{homeInstance}} คุณสามารถผูกบัญชีนี้ใหม่ โปรไฟล์และการปรากฏจะซิงก์จากนั้นอีก",
-      "reattachButton": "ผูกใหม่กับ {{homeInstance}}",
-      "reattachConfirm": "ยืนยันผูกใหม่เป็น {{username}}",
-      "reattaching": "กำลังผูกใหม่…",
-      "reattachFailed": "ผูกใหม่ล้มเหลว",
-      "reattached": "ผูกบัญชีกับ {{username}} ใหม่แล้ว"
-    },
     "profile": {
       "sectionTitle": "ปรับโปรไฟล์",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "บัญชี",
       "status": {
-        "label": "สถานะ",
-        "homeUnavailable": "สถานะของคุณอยู่บน {{host}} เชื่อม {{host}} เพื่อเปลี่ยน"
+        "label": "สถานะ"
       },
       "customStatus": {
         "label": "สถานะกำหนดเอง",
@@ -243,10 +231,6 @@
         "passwordPlaceholder": "กรอกรหัสผ่านของคุณ",
         "submit": "ลบบัญชีของฉัน",
         "deleting": "กำลังลบ…"
-      },
-      "federation": {
-        "removing": "กำลังลบบัญชีคุณจากอินสแตนซ์ที่เชื่อม…",
-        "deleteAnyway": "ลบบัญชีเลย"
       },
       "complete": {
         "title": "ลบบัญชีแล้ว",
@@ -309,14 +293,10 @@
       }
     }
   },
-  "connections": {
-    "title": "การเชื่อม"
-  },
   "instance": {
     "tabs": {
       "general": "ทั่วไป",
       "registration": "ลงทะเบียน",
-      "federation": "สหพันธ์",
       "streaming": "สตรีม",
       "storage": "ที่เก็บ",
       "users": "ผู้ใช้",

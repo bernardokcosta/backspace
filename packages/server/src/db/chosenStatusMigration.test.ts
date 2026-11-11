@@ -16,10 +16,10 @@ function apply(db: Database.Database, file: string): void {
   }
 }
 
-function insertUser(db: Database.Database, id: string, status: string, homeInstance: string | null, orphaned = 0): void {
+function insertUser(db: Database.Database, id: string, status: string, oldOrigin: string | null, orphaned = 0): void {
   db.prepare(
     'INSERT INTO users (id, username, password_hash, status, home_instance, federation_home_orphaned, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-  ).run(id, id, 'x', status, homeInstance, orphaned, 1);
+  ).run(id, id, 'x', status, oldOrigin, orphaned, 1);
 }
 
 describe(`migration ${CHOSEN_STATUS_MIGRATION}`, () => {

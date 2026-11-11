@@ -1,11 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import {
-  bootTwoInstances,
-  bootTwoInstancesWithRateLimits,
-  type TwoInstanceHarness,
-} from './helpers/twoInstanceHarness.js';
+import { bootInstance, type SpawnedInstance } from './helpers/instanceHarness.js';
 
 /** Split a CSP header value into directive name -> source list. */
 function parsePolicy(header: string): Record<string, string[]> {
@@ -29,28 +25,28 @@ const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0
 const SERVED_FIXTURE = 'security-headers-fixture.png';
 
 describe('HTTP security headers, LiveKit unconfigured', () => {
-  let h: TwoInstanceHarness;
+  let instance: SpawnedInstance, cleanup: (() => Promise<void>) | undefined;
 
   beforeAll(async () => {
-    h = await bootTwoInstances();
+    ({ instance, cleanup } = await bootInstance());
     // The harness owns this instance's UPLOAD_DIR and cleanup. Put the fixture
     // in that exact served directory, without changing the parent's env or
     // depending on the runtime data/uploads fallback.
-    await writeFile(path.join(h.home.storagePath, SERVED_FIXTURE), PNG_SIGNATURE);
+    await writeFile(path.join(instance.storagePath, SERVED_FIXTURE), PNG_SIGNATURE);
   }, 120_000);
 
   afterAll(async () => {
-    await h?.cleanup();
+    await cleanup?.();
   });
 
   it('ships the policy enforcing, so a violation is blocked and not merely logged', async () => {
-    const res = await fetch(`${h.home.origin}/api/instance/info`);
+    const res = await fetch(`${instance.origin}/api/instance/info`);
     expect(res.headers.get('content-security-policy')).toBeTruthy();
     expect(res.headers.get('content-security-policy-report-only')).toBeNull();
   });
 
   it('carries the directives that stop injection and framing', async () => {
-    const res = await fetch(`${h.home.origin}/api/instance/info`);
+    const res = await fetch(`${instance.origin}/api/instance/info`);
     const p = parsePolicy(res.headers.get('content-security-policy') ?? '');
     expect(p['object-src']).toEqual(["'none'"]);
     expect(p['frame-ancestors']).toEqual(["'none'"]);
@@ -60,18 +56,18 @@ describe('HTTP security headers, LiveKit unconfigured', () => {
   });
 
   it('names no LiveKit origin when voice is off', async () => {
-    const res = await fetch(`${h.home.origin}/api/instance/info`);
+    const res = await fetch(`${instance.origin}/api/instance/info`);
     const header = res.headers.get('content-security-policy') ?? '';
     expect(header).not.toContain('livekit.test.local');
   });
 
   it('declares the reporting endpoint group', async () => {
-    const res = await fetch(`${h.home.origin}/api/instance/info`);
+    const res = await fetch(`${instance.origin}/api/instance/info`);
     expect(res.headers.get('reporting-endpoints') ?? '').toContain('/api/csp-report');
   });
 
   it('sets nosniff and a referrer policy', async () => {
-    const res = await fetch(`${h.home.origin}/api/instance/info`);
+    const res = await fetch(`${instance.origin}/api/instance/info`);
     expect(res.headers.get('x-content-type-options')).toBe('nosniff');
     expect(res.headers.get('referrer-policy')).toBeTruthy();
   });
@@ -80,15 +76,12 @@ describe('HTTP security headers, LiveKit unconfigured', () => {
     // Caddy owns Strict-Transport-Security because only the terminator knows
     // TLS is actually in play. Emitting it from the app would be wrong on a
     // plain-HTTP LAN deployment and would double up behind Caddy.
-    const res = await fetch(`${h.home.origin}/api/instance/info`);
+    const res = await fetch(`${instance.origin}/api/instance/info`);
     expect(res.headers.get('strict-transport-security')).toBeNull();
   });
 
-  it('allows cross-origin resource loading, which federation depends on', async () => {
-    // Peers load avatars and attachments from each other with plain <img>.
-    // helmet's default Cross-Origin-Resource-Policy of same-origin would
-    // block every one of them.
-    const res = await fetch(`${h.home.origin}/api/instance/info`);
+  it('allows native asset loading from a separately hosted client', async () => {
+    const res = await fetch(`${instance.origin}/api/instance/info`);
     expect(res.headers.get('cross-origin-resource-policy')).toBe('cross-origin');
   });
 
@@ -100,7 +93,7 @@ describe('HTTP security headers, LiveKit unconfigured', () => {
     //
     // The request has to hit a file that exists. A missing filename returns 404
     // from before the header is set, so asking for one would assert nothing.
-    const res = await fetch(`${h.home.origin}/api/uploads/${SERVED_FIXTURE}`);
+    const res = await fetch(`${instance.origin}/api/uploads/${SERVED_FIXTURE}`);
     expect(res.status).toBe(200);
     const policy = res.headers.get('content-security-policy') ?? '';
     expect(policy).toContain("default-src 'none'");
@@ -114,7 +107,7 @@ describe('HTTP security headers, LiveKit unconfigured', () => {
   it('still applies the app policy to a response the file route rejects', async () => {
     // The counterpart to the test above: the 404 path never reaches the header
     // the file route sets, so the hook must fill it in like any other response.
-    const res = await fetch(`${h.home.origin}/api/uploads/does-not-exist.png`);
+    const res = await fetch(`${instance.origin}/api/uploads/does-not-exist.png`);
     expect(res.status).toBe(404);
     const policy = res.headers.get('content-security-policy') ?? '';
     expect(policy).toContain("object-src 'none'");
@@ -123,7 +116,7 @@ describe('HTTP security headers, LiveKit unconfigured', () => {
   });
 
   it('accepts a violation report over the wire', async () => {
-    const res = await fetch(`${h.home.origin}/api/csp-report`, {
+    const res = await fetch(`${instance.origin}/api/csp-report`, {
       method: 'POST',
       headers: { 'content-type': 'application/csp-report' },
       body: JSON.stringify({ 'csp-report': { 'violated-directive': 'script-src' } }),
@@ -133,32 +126,32 @@ describe('HTTP security headers, LiveKit unconfigured', () => {
 });
 
 describe('HTTP security headers, LiveKit configured', () => {
-  let h: TwoInstanceHarness;
+  let instance: SpawnedInstance, cleanup: (() => Promise<void>) | undefined;
 
   beforeAll(async () => {
-    h = await bootTwoInstances({ enableLiveKit: true });
+    ({ instance, cleanup } = await bootInstance({ livekit: { url: 'wss://livekit.test.local', apiKey: 'key', apiSecret: 'synthetic-secret-at-least-thirty-two-bytes' } }));
   }, 120_000);
 
   afterAll(async () => {
-    await h?.cleanup();
+    await cleanup?.();
   });
 
   it('names the configured LiveKit origin in connect-src', async () => {
-    const res = await fetch(`${h.home.origin}/api/instance/info`);
+    const res = await fetch(`${instance.origin}/api/instance/info`);
     const p = parsePolicy(res.headers.get('content-security-policy') ?? '');
     expect(p['connect-src']).toContain('wss://livekit.test.local');
   });
 });
 
 describe('the violation sink sits behind the rate limiter', () => {
-  let h: TwoInstanceHarness;
+  let instance: SpawnedInstance, cleanup: (() => Promise<void>) | undefined;
 
   beforeAll(async () => {
-    h = await bootTwoInstancesWithRateLimits();
+    ({ instance, cleanup } = await bootInstance({ disableRateLimits: false }));
   }, 120_000);
 
   afterAll(async () => {
-    await h?.cleanup();
+    await cleanup?.();
   });
 
   it('stops answering a flood of reports from one address', async () => {
@@ -170,7 +163,7 @@ describe('the violation sink sits behind the rate limiter', () => {
     const statuses: number[] = [];
     let limited: { status: number; retryAfter: string | null; body: unknown } | null = null;
     for (let i = 0; i < limit + 40; i++) {
-      const res = await fetch(`${h.home.origin}/api/csp-report`, {
+      const res = await fetch(`${instance.origin}/api/csp-report`, {
         method: 'POST',
         headers: { 'content-type': 'application/csp-report' },
         body: JSON.stringify({ 'csp-report': { 'violated-directive': 'img-src' } }),

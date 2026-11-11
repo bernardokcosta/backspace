@@ -11,12 +11,12 @@ import appI18n from '../../i18n';
 import { HttpError } from '../../api/client';
 import { JUNO_SOUNDS, junoMoveSounds, type JunoSoundCue, type JunoSoundLane } from './junoSoundCues';
 
-const scopeKey = (target: JunoTarget | null) => target ? JSON.stringify([target.accountId, target.origin, target.channelId, target.selfId]) : '';
+const scopeKey = (target: JunoTarget | null) => target ? JSON.stringify([target.userId, target.origin, target.channelId]) : '';
 function silent(target: JunoTarget): boolean {
   const voice = useVoiceStore.getState();
   const channel = useSpaceStore.getState().spaceChannelIndex.get(target.channelId);
   return voice.isDeafened || getSfxVolume() <= 0 || useJunoPreferences.getState().effectsVolume <= 0
-    || !channel || channel.origin !== target.origin || voice.spaceDeafenedUserIds.has(`${channel.spaceId}:${target.selfId}`);
+    || channel?.type !== 'voice' || target.origin !== window.location.origin || voice.spaceDeafenedUserIds.has(`${channel.spaceId}:${target.userId}`);
 }
 
 /** One session owner for every short Juno cue, never published to voice. */
@@ -93,7 +93,7 @@ export function JunoSounds({ target, connected }: { target: JunoTarget | null; c
       if (!game || state.stale) return;
       const before = previous; previous = game;
       if (!before || before.id !== game.id) { stop(); return; }
-      const cues = junoMoveSounds(before, game, state.target!.selfId);
+      const cues = junoMoveSounds(before, game, state.target!.userId);
       if (cues.includes('victory') || cues.includes('defeat')) stop();
       for (const cue of cues) play(cue);
     };

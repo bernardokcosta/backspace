@@ -9,9 +9,10 @@ type AdminRow = { id: string; password_hash: string };
 export async function remediateSeedAdmin(
   db: Database.Database
 ): Promise<{ action: 'rotated' | 'noop' | 'skipped-no-admin'; newPassword?: string }> {
-  // Local admin named 'admin' only — replicated users (home_instance set) are never seed admins.
+  // Local admin named 'admin' only. All accounts on this instance are local,
+  // so no provenance predicate remains.
   const admin = db
-    .prepare("SELECT id, password_hash FROM users WHERE username = 'admin' AND home_instance IS NULL AND is_admin = 1")
+    .prepare("SELECT id, password_hash FROM users WHERE username = 'admin' AND is_admin = 1")
     .get() as AdminRow | undefined;
 
   if (!admin) return { action: 'skipped-no-admin' };

@@ -3,7 +3,6 @@ import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { backfillOutboxQueueKeys, outboxQueueKey } from '../utils/federationOutboxQueue.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const MIGRATIONS = path.resolve(__dirname, '../../drizzle');
@@ -85,25 +84,5 @@ describe(`migration ${OUTBOX_QUEUE_MIGRATION}`, () => {
        VALUES ('second', 'active', 'ctx', 'entity-first', 'dm', 'update', '{}', 0, 0, 9999999999999, 2)`,
     ).run();
     expect(db.prepare('SELECT COUNT(*) AS n FROM federation_outbox').get()).toEqual({ n: 2 });
-  });
-});
-
-describe('backfillOutboxQueueKeys', () => {
-  it('gives every row without a queue key the key its event would get today, and is a no-op after', () => {
-    const db = new Database(':memory:');
-    for (const f of fs.readdirSync(MIGRATIONS).filter((f) => f.endsWith('.sql')).sort()) apply(db, f);
-    insertPeer(db, 'active', 'active', 'admin');
-    insertRow(db, 'dana-presence', 'active', 'presence_update', 'profile', 1);
-    db.prepare("UPDATE federation_outbox SET entity_id = 'dana' WHERE id = 'dana-presence'").run();
-    insertRow(db, 'keyed', 'active', 'create', 'dm', 2);
-    db.prepare("UPDATE federation_outbox SET queue_key = 'message:kept' WHERE id = 'keyed'").run();
-
-    expect(backfillOutboxQueueKeys(db)).toBe(1);
-    expect(backfillOutboxQueueKeys(db)).toBe(0);
-
-    expect(db.prepare('SELECT id, queue_key AS queueKey FROM federation_outbox ORDER BY id').all()).toEqual([
-      { id: 'dana-presence', queueKey: outboxQueueKey('presence_update', 'dana', 'ctx', '{}') },
-      { id: 'keyed', queueKey: 'message:kept' },
-    ]);
   });
 });

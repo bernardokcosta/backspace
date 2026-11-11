@@ -40,10 +40,11 @@ describe('memory-only diagnostic reporting', () => {
   });
   it('keeps even maximum-sized normalized batches under the server body limit', async () => {
     const send = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 204 }));
-    const reporter = createDiagnosticReporter({ send, version: '999999.999999.999999-prerelease',
-      context: () => ({ client: 'desktop', desktopVersion: '999999.999999.999999-prerelease' }) }); dispose = reporter.dispose;
+    const maximumVersion = `999999.999999.999999-${'x'.repeat(32)}`;
+    const reporter = createDiagnosticReporter({ send, version: maximumVersion,
+      context: () => ({ client: 'desktop', desktopVersion: maximumVersion }) }); dispose = reporter.dispose;
     for (let reason = 0; reason < 10; reason++) reporter.record({ ...event, reason,
-      route: '/' + Array(16).fill('federation-credential').join('/'),
+      route: '/' + Array(16).fill('change-password').join('/'),
       frames: Array(8).fill(`${'x'.repeat(100)}.tsx:99999999:99999999`),
       errorName: 'OverconstrainedError', errorCode: 'ERR_INTERNET_DISCONNECTED',
       state: 'signalReconnecting', directive: 'script-src-elem', status: 599,

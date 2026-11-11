@@ -321,7 +321,7 @@ fi
 
 # ── Domain ──────────────────────────────────────────────────
 # Required in every mode: it's the public hostname clients use and it drives the
-# federation identity + LiveKit URL. In proxy/tunnel mode TLS is terminated at
+# native public URLs + LiveKit URL. In proxy/tunnel mode TLS is terminated at
 # your edge, but the app still advertises https://DOMAIN.
 
 existing_domain=$(env_val DOMAIN)

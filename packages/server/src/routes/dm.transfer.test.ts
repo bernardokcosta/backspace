@@ -1,500 +1,89 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
-import { eq } from 'drizzle-orm';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
+import { buildNativeDatabase } from '../testing/standaloneUpgrade.js';
 import { setWorkerId } from '../utils/snowflake.js';
 
-setWorkerId(1);
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-type TestDb = ReturnType<typeof drizzle<typeof schema>>;
 let sqlite: Database.Database;
-let testDb: TestDb;
-let currentUserId = 'owner-A';
-
-vi.mock('../db/index.js', () => ({
-  getDb: () => testDb,
-  getRawDb: () => sqlite,
-  schema,
-}));
-
-vi.mock('../utils/auth.js', () => ({
-  authenticate: async (req: { userId?: string }) => {
-    req.userId = currentUserId;
-  },
-}));
-
-vi.mock('../ws/handler.js', () => ({
-  connectionManager: {
-    sendToUser: vi.fn(),
-    sendToDmMembers: vi.fn(),
-    sendToAdmins: vi.fn(),
-    getAllOnlineUserIds: () => [],
-    getRoom: () => undefined,
-    getUserRoom: () => undefined,
-    leaveCurrentRoom: vi.fn(() => false),
-    destroyRoom: vi.fn(),
-    clearVoiceUserStatus: vi.fn(),
-  },
-}));
-
-// Federation: keep the real outbox writers (queueOutboxEvent / appendMutationLog)
-// so we can read federation_outbox rows directly to assert the wire payload.
-// Same-module callers inside helpers bypass vi.mock — inspect the persisted
-// row instead. Unrelated queue helpers are stubbed because they aren't under
-// test here.
-vi.mock('../utils/federationOutbox.js', async () => {
-  const actual = await vi.importActual<typeof import('../utils/federationOutbox.js')>('../utils/federationOutbox.js');
-  return {
-    ...actual,
-    isFederationRelayEnabled: () => true,
-    queueDmCloseRelay: vi.fn(),
-    sendTypingRelay: vi.fn(),
-    queueDmRelay: vi.fn(),
-    queueGroupMetadataRelay: vi.fn(),
-  };
-});
-
-vi.mock('../utils/federationAuth.js', async (importActual) => {
-  const actual = await importActual<typeof import('../utils/federationAuth.js')>();
-  return { ...actual, getOurOrigin: () => 'https://local.test' };
-});
-
-vi.mock('../utils/fileCleanup.js', async () => {
-  const actual = await vi.importActual<typeof import('../utils/fileCleanup.js')>('../utils/fileCleanup.js');
-  return {
-    ...actual,
-    deleteUploadFile: vi.fn(),
-    deleteAttachmentByFilename: vi.fn(),
-    deleteAttachmentFiles: vi.fn(),
-  };
-});
-
+let db: ReturnType<typeof drizzle<typeof schema>>;
+let app: FastifyInstance;
+let caller='owner';
+vi.mock('../db/index.js',()=>({getDb:()=>db,getRawDb:()=>sqlite,schema}));
+vi.mock('../utils/auth.js',()=>({authenticate:async(request:{userId:string})=>{request.userId=caller;}}));
+vi.mock('../ws/handler.js',()=>({connectionManager:{sendToUser:vi.fn(),sendToDmMembers:vi.fn(),getRoom:()=>undefined,getUserRoom:()=>undefined}}));
 import { connectionManager } from '../ws/handler.js';
 
-function applyMigrations(db: Database.Database): void {
-  const migrationsDir = path.resolve(__dirname, '../../drizzle');
-  const files = fs.readdirSync(migrationsDir).filter((f) => f.endsWith('.sql')).sort();
-  for (const f of files) {
-    const sqlText = fs.readFileSync(path.join(migrationsDir, f), 'utf8');
-    const statements = sqlText.split(/-->\s*statement-breakpoint/);
-    for (const stmt of statements) {
-      const clean = stmt.trim();
-      if (clean) db.exec(clean);
-    }
+function group(id='group',members=['owner','bob','carol']): void {
+  sqlite.prepare('INSERT INTO dm_channels (id,owner_id,created_at) VALUES (?,\'owner\',1)').run(id);
+  for (const user of members) sqlite.prepare('INSERT INTO dm_members (dm_channel_id,user_id) VALUES (?,?)').run(id,user);
+}
+function owner(id='group'): unknown { return sqlite.prepare('SELECT owner_id FROM dm_channels WHERE id=?').get(id); }
+function unchangedState(): unknown {
+  return {channels:sqlite.prepare('SELECT * FROM dm_channels').all(),members:sqlite.prepare('SELECT * FROM dm_members').all(),messages:sqlite.prepare('SELECT * FROM dm_messages').all()};
+}
+beforeEach(async()=>{
+  setWorkerId(1); caller='owner'; sqlite=new Database(':memory:'); buildNativeDatabase(sqlite); db=drizzle(sqlite,{schema});
+  for (const [id,name] of [['owner','Alice'],['bob','Bob'],['carol','Carol'],['outsider','Dan']]) {
+    sqlite.prepare("INSERT INTO users (id,username,display_name,password_hash,created_at) VALUES (?,?,?,'synthetic',1)").run(id,id,name);
   }
-}
+  vi.clearAllMocks(); app=Fastify(); const {dmRoutes}=await import('./dm.js'); await app.register(dmRoutes); await app.ready();
+});
+afterEach(async()=>{await app.close(); sqlite.close(); vi.restoreAllMocks();});
 
-function seedUsers(): void {
-  testDb.insert(schema.users).values({
-    id: 'owner-A',
-    username: 'alice',
-    displayName: 'Alice',
-    passwordHash: 'x',
-    homeUserId: 'owner-A',
-    homeInstance: 'https://local.test',
-    createdAt: Date.now(),
-  }).run();
-
-  testDb.insert(schema.users).values({
-    id: 'member-B',
-    username: 'bob',
-    displayName: 'Bob',
-    passwordHash: 'x',
-    homeUserId: 'member-B',
-    homeInstance: 'https://local.test',
-    createdAt: Date.now(),
-  }).run();
-
-  testDb.insert(schema.users).values({
-    id: 'member-C',
-    username: 'carol',
-    displayName: 'Carol',
-    passwordHash: 'x',
-    homeUserId: 'member-C',
-    homeInstance: 'https://local.test',
-    createdAt: Date.now(),
-  }).run();
-
-  testDb.insert(schema.users).values({
-    id: 'remote-D',
-    username: 'dan@remote.test',
-    displayName: 'Dan',
-    passwordHash: 'x',
-    homeUserId: 'remote-dan',
-    homeInstance: 'https://remote.test',
-    createdAt: Date.now(),
-  }).run();
-}
-
-function seedInstanceSettings(): void {
-  testDb.insert(schema.instanceSettings).values({
-    id: 1,
-    federationRelayEnabled: 1,
-    updatedAt: Date.now(),
-  }).run();
-}
-
-function seedFederationPeer(origin: string): void {
-  testDb.insert(schema.federationPeers).values({
-    id: `peer-${origin}`,
-    origin,
-    status: 'active',
-    hmacSecret: 'x',
-    createdAt: Date.now(),
-  }).run();
-}
-
-interface GroupSeed {
-  id: string;
-  ownerId: string;
-  members: string[];
-  federatedId?: string | null;
-  ownerHomeUserId?: string | null;
-  ownerHomeInstance?: string | null;
-}
-
-function seedGroupDm(opts: GroupSeed): void {
-  testDb.insert(schema.dmChannels).values({
-    id: opts.id,
-    ownerId: opts.ownerId,
-    ownerHomeUserId: opts.ownerHomeUserId ?? opts.ownerId,
-    ownerHomeInstance: opts.ownerHomeInstance ?? 'https://local.test',
-    federatedId: opts.federatedId ?? null,
-    createdAt: Date.now(),
-  }).run();
-  for (const userId of opts.members) {
-    testDb.insert(schema.dmMembers).values({
-      dmChannelId: opts.id,
-      userId,
-    }).run();
-  }
-}
-
-function seed1on1Dm(id: string, a: string, b: string): void {
-  testDb.insert(schema.dmChannels).values({
-    id,
-    ownerId: null,
-    createdAt: Date.now(),
-  }).run();
-  testDb.insert(schema.dmMembers).values({ dmChannelId: id, userId: a }).run();
-  testDb.insert(schema.dmMembers).values({ dmChannelId: id, userId: b }).run();
-}
-
-async function buildApp(): Promise<FastifyInstance> {
-  const app = Fastify({ logger: false });
-  const { dmRoutes } = await import('./dm.js');
-  await app.register(dmRoutes);
-  await app.ready();
-  return app;
-}
-
-describe('POST /api/dm/:id/transfer — manual ownership transfer', () => {
-  let app: FastifyInstance;
-
-  beforeEach(async () => {
-    sqlite = new Database(':memory:');
-    testDb = drizzle(sqlite, { schema });
-    applyMigrations(sqlite);
-    seedInstanceSettings();
-    seedUsers();
-    seedFederationPeer('https://remote.test');
-    currentUserId = 'owner-A';
-    vi.clearAllMocks();
-    app = await buildApp();
+describe('POST /api/dm/:id/transfer — native ownership',()=>{
+  it('updates the native owner atomically with the correctly authored system message and broadcasts to all members',async()=>{
+    group(); const result=await app.inject({method:'POST',url:'/api/dm/group/transfer',payload:{newOwnerId:'bob'}});
+    expect(result.statusCode).toBe(200); expect(owner()).toEqual({owner_id:'bob'});
+    const messages=sqlite.prepare('SELECT user_id,type,content FROM dm_messages').all() as Array<{user_id:string;type:string;content:string}>;
+    expect(messages).toHaveLength(1); expect(messages[0]).toMatchObject({user_id:'owner',type:'system'});
+    expect(JSON.parse(messages[0]!.content)).toEqual({event:'owner_changed',newOwnerId:'bob',newOwnerDisplayName:'Bob'});
+    for (const member of ['owner','bob','carol']) expect(connectionManager.sendToUser).toHaveBeenCalledWith(member,{type:'dm_owner_updated',dmChannelId:'group',newOwnerId:'bob'});
+    expect(connectionManager.sendToDmMembers).toHaveBeenCalledWith('group',expect.objectContaining({type:'dm_message_created',message:expect.objectContaining({userId:'owner'})}));
   });
 
-  it('owner transfers to a local member → 200, ownership row mutated, broadcast emitted, system message inserted, outbox queued', async () => {
-    seedGroupDm({
-      id: 'dm-1',
-      ownerId: 'owner-A',
-      members: ['owner-A', 'member-B', 'remote-D'],
-      federatedId: 'fed-transfer-1',
-    });
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/dm-1/transfer',
-      payload: { newOwnerId: 'member-B' },
-    });
-    expect(res.statusCode).toBe(200);
-
-    // Channel ownership row updated to new owner's identity
-    const channel = testDb.select().from(schema.dmChannels).where(eq(schema.dmChannels.id, 'dm-1')).get();
-    expect(channel?.ownerId).toBe('member-B');
-    expect(channel?.ownerHomeUserId).toBe('member-B');
-    expect(channel?.ownerHomeInstance).toBe('https://local.test');
-
-    // owner_changed system message present with new owner display info
-    const sysRows = testDb.select().from(schema.dmMessages)
-      .where(eq(schema.dmMessages.dmChannelId, 'dm-1'))
-      .all();
-    const ownerChangedRow = sysRows.find((r) => {
-      try {
-        return JSON.parse(r.content!).event === 'owner_changed';
-      } catch {
-        return false;
-      }
-    });
-    expect(ownerChangedRow).toBeDefined();
-    expect(ownerChangedRow!.type).toBe('system');
-    // System message is authored by the previous owner (the actor of the transfer)
-    expect(ownerChangedRow!.userId).toBe('owner-A');
-    const parsed = JSON.parse(ownerChangedRow!.content!);
-    expect(parsed.event).toBe('owner_changed');
-    expect(parsed.newOwnerId).toBe('member-B');
-    expect(parsed.newOwnerDisplayName).toBe('Bob');
-
-    // dm_owner_updated broadcast fired for all current members
-    const sendCalls = (connectionManager.sendToUser as ReturnType<typeof vi.fn>).mock.calls;
-    const ownerUpdatedBroadcasts = sendCalls.filter((c) =>
-      c[1]?.type === 'dm_owner_updated' &&
-      c[1]?.dmChannelId === 'dm-1' &&
-      c[1]?.newOwnerId === 'member-B'
-    );
-    const recipients = new Set(ownerUpdatedBroadcasts.map((c) => c[0]));
-    expect(recipients.has('owner-A')).toBe(true);
-    expect(recipients.has('member-B')).toBe(true);
-    expect(recipients.has('remote-D')).toBe(true);
-
-    // Federation outbox queued with correct ownership_transfer payload
-    const outboxRows = testDb.select().from(schema.federationOutbox).all();
-    const transferRows = outboxRows.filter((r) => r.eventType === 'ownership_transfer');
-    expect(transferRows.length).toBe(1);
-    const wire = JSON.parse(transferRows[0]!.payload);
-    expect(wire.eventType).toBe('ownership_transfer');
-    expect(wire.federatedId).toBe('fed-transfer-1');
-    expect(wire.ownership.newOwner.homeUserId).toBe('member-B');
-    expect(wire.ownership.newOwner.homeInstance).toBe('https://local.test');
-    expect(wire.ownership.previousOwner.homeUserId).toBe('owner-A');
-    expect(wire.ownership.previousOwner.homeInstance).toBe('https://local.test');
+  it.each([
+    {caller:'bob',target:'carol',status:403,code:'dm_owner_only'},
+    {caller:'owner',target:'owner',status:400,code:'already_owner'},
+    {caller:'owner',target:'outsider',status:400,code:'target_not_dm_member'},
+  ])('refuses $code without mutating owner, membership or system history',async scenario=>{
+    group(); caller=scenario.caller; const before=unchangedState();
+    const result=await app.inject({method:'POST',url:'/api/dm/group/transfer',payload:{newOwnerId:scenario.target}});
+    expect(result.statusCode).toBe(scenario.status); expect(result.json<{code:string}>().code).toBe(scenario.code); expect(unchangedState()).toEqual(before);
   });
 
-  it('non-owner attempts transfer → 403', async () => {
-    seedGroupDm({
-      id: 'dm-2',
-      ownerId: 'owner-A',
-      members: ['owner-A', 'member-B', 'member-C'],
-    });
-    currentUserId = 'member-B';
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/dm-2/transfer',
-      payload: { newOwnerId: 'member-C' },
-    });
-    expect(res.statusCode).toBe(403);
-    expect(res.json().error).toMatch(/owner/i);
-
-    // Ownership row unchanged
-    const channel = testDb.select().from(schema.dmChannels).where(eq(schema.dmChannels.id, 'dm-2')).get();
-    expect(channel?.ownerId).toBe('owner-A');
+  it('never transfers a one-on-one channel',async()=>{
+    group(); sqlite.exec("UPDATE dm_channels SET owner_id=NULL WHERE id='group'"); const before=unchangedState();
+    expect((await app.inject({method:'POST',url:'/api/dm/group/transfer',payload:{newOwnerId:'bob'}})).statusCode).toBe(400);
+    expect(unchangedState()).toEqual(before);
   });
 
-  it('self-transfer (newOwnerId === ownerId) → 400', async () => {
-    seedGroupDm({
-      id: 'dm-3',
-      ownerId: 'owner-A',
-      members: ['owner-A', 'member-B'],
-    });
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/dm-3/transfer',
-      payload: { newOwnerId: 'owner-A' },
-    });
-    expect(res.statusCode).toBe(400);
-    expect(res.json().error).toMatch(/current owner/i);
-
-    // Ownership row unchanged
-    const channel = testDb.select().from(schema.dmChannels).where(eq(schema.dmChannels.id, 'dm-3')).get();
-    expect(channel?.ownerId).toBe('owner-A');
+  it('returns 404 for an absent channel and 400 for a missing target',async()=>{
+    expect((await app.inject({method:'POST',url:'/api/dm/missing/transfer',payload:{newOwnerId:'bob'}})).statusCode).toBe(404);
+    group(); const before=unchangedState();
+    expect((await app.inject({method:'POST',url:'/api/dm/group/transfer',payload:{}})).statusCode).toBe(400);
+    expect(unchangedState()).toEqual(before);
   });
 
-  it('transfer to non-member → 400', async () => {
-    seedGroupDm({
-      id: 'dm-4',
-      ownerId: 'owner-A',
-      members: ['owner-A', 'member-B'],
-    });
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/dm-4/transfer',
-      payload: { newOwnerId: 'member-C' },
-    });
-    expect(res.statusCode).toBe(400);
-    expect(res.json().error).toMatch(/not a member/i);
-
-    // Ownership row unchanged
-    const channel = testDb.select().from(schema.dmChannels).where(eq(schema.dmChannels.id, 'dm-4')).get();
-    expect(channel?.ownerId).toBe('owner-A');
+  it('cannot resolve a foreign-only body or create an account from it',async()=>{
+    group(); const before=unchangedState(); const fetch=vi.spyOn(globalThis,'fetch');
+    const result=await app.inject({method:'POST',url:'/api/dm/group/transfer',payload:{homeUserId:'bob',homeInstance:'https://unused.invalid'}});
+    expect(result.statusCode).toBe(400); expect(unchangedState()).toEqual(before); expect(fetch).not.toHaveBeenCalled();
   });
 
-  it('transfer with newOwnerId referencing a federated member → ownership fields carry that user homeUserId/homeInstance correctly', async () => {
-    seedGroupDm({
-      id: 'dm-5',
-      ownerId: 'owner-A',
-      members: ['owner-A', 'member-B', 'remote-D'],
-      federatedId: 'fed-transfer-5',
-    });
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/dm-5/transfer',
-      payload: { newOwnerId: 'remote-D' },
-    });
-    expect(res.statusCode).toBe(200);
-
-    // Channel ownership row carries the remote user's home identity
-    const channel = testDb.select().from(schema.dmChannels).where(eq(schema.dmChannels.id, 'dm-5')).get();
-    expect(channel?.ownerId).toBe('remote-D');
-    expect(channel?.ownerHomeUserId).toBe('remote-dan');
-    expect(channel?.ownerHomeInstance).toBe('https://remote.test');
-
-    // Federation outbox newOwner identity matches the remote user's home
-    const outboxRows = testDb.select().from(schema.federationOutbox).all();
-    const transferRows = outboxRows.filter((r) => r.eventType === 'ownership_transfer');
-    expect(transferRows.length).toBe(1);
-    const wire = JSON.parse(transferRows[0]!.payload);
-    expect(wire.ownership.newOwner.homeUserId).toBe('remote-dan');
-    expect(wire.ownership.newOwner.homeInstance).toBe('https://remote.test');
-    expect(wire.ownership.previousOwner.homeUserId).toBe('owner-A');
-    expect(wire.ownership.previousOwner.homeInstance).toBe('https://local.test');
+  it('uses the native target even when obsolete extras name another member',async()=>{
+    group();
+    const result=await app.inject({method:'POST',url:'/api/dm/group/transfer',payload:{newOwnerId:'bob',homeUserId:'carol',homeInstance:'https://unused.invalid'}});
+    expect(result.statusCode).toBe(200); expect(owner()).toEqual({owner_id:'bob'});
   });
 
-  it('transfer in a 1-on-1 DM → 400', async () => {
-    seed1on1Dm('dm-1on1', 'owner-A', 'member-B');
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/dm-1on1/transfer',
-      payload: { newOwnerId: 'member-B' },
-    });
-    expect(res.statusCode).toBe(400);
-    expect(res.json().error).toMatch(/1-on-1/i);
-  });
-
-  it('transfer on non-existent channel → 404', async () => {
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/does-not-exist/transfer',
-      payload: { newOwnerId: 'member-B' },
-    });
-    expect(res.statusCode).toBe(404);
-    expect(res.json().error).toMatch(/not found/i);
-  });
-
-  it('transfer with missing newOwnerId body → 400', async () => {
-    seedGroupDm({
-      id: 'dm-6',
-      ownerId: 'owner-A',
-      members: ['owner-A', 'member-B'],
-    });
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/dm-6/transfer',
-      payload: {},
-    });
-    expect(res.statusCode).toBe(400);
-    expect(res.json().error).toMatch(/newOwnerId/i);
-  });
-
-  // The federated-identification path is the bug-fix surface for the
-  // "cannot transfer to a federated user" report. The client sends
-  // `{ homeUserId, homeInstance }` from the cached user view; the owner
-  // instance must resolve that to its own local replicated row (different
-  // id) before checking membership and recording ownership.
-  it('transfer with federated identity ({ homeUserId, homeInstance }) → resolves to local replicated user and succeeds', async () => {
-    seedGroupDm({
-      id: 'dm-fed-1',
-      ownerId: 'owner-A',
-      members: ['owner-A', 'member-B', 'remote-D'],
-      federatedId: 'fed-transfer-fed-1',
-    });
-
-    // The client only knows the home identity of the federated target.
-    // On THIS instance the local replicated id is `remote-D` but the
-    // request body intentionally omits it — only home identifiers travel.
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/dm-fed-1/transfer',
-      payload: { homeUserId: 'remote-dan', homeInstance: 'https://remote.test' },
-    });
-    expect(res.statusCode).toBe(200);
-
-    // Channel ownership row points to the local replicated user row,
-    // and ownerHomeUserId / ownerHomeInstance match the target's home.
-    const channel = testDb.select().from(schema.dmChannels).where(eq(schema.dmChannels.id, 'dm-fed-1')).get();
-    expect(channel?.ownerId).toBe('remote-D');
-    expect(channel?.ownerHomeUserId).toBe('remote-dan');
-    expect(channel?.ownerHomeInstance).toBe('https://remote.test');
-
-    // Outbox event carries the new owner's home identity.
-    const outboxRows = testDb.select().from(schema.federationOutbox).all();
-    const transferRows = outboxRows.filter((r) => r.eventType === 'ownership_transfer');
-    expect(transferRows.length).toBe(1);
-    const wire = JSON.parse(transferRows[0]!.payload);
-    expect(wire.ownership.newOwner.homeUserId).toBe('remote-dan');
-    expect(wire.ownership.newOwner.homeInstance).toBe('https://remote.test');
-  });
-
-  // When both forms are supplied, the federated args take precedence —
-  // they're strictly more specific. A stale `newOwnerId` from the client's
-  // cached view (could be the home id from `useCanonicalUserView`) should
-  // not override the explicit federated identifier.
-  it('transfer with BOTH newOwnerId and federated identity → federated args win', async () => {
-    seedGroupDm({
-      id: 'dm-fed-2',
-      ownerId: 'owner-A',
-      members: ['owner-A', 'member-B', 'remote-D'],
-      federatedId: 'fed-transfer-fed-2',
-    });
-
-    // newOwnerId references a different member (member-B). Federated args
-    // point to remote-D. The federated path must win.
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/dm-fed-2/transfer',
-      payload: {
-        newOwnerId: 'member-B',
-        homeUserId: 'remote-dan',
-        homeInstance: 'https://remote.test',
-      },
-    });
-    expect(res.statusCode).toBe(200);
-
-    const channel = testDb.select().from(schema.dmChannels).where(eq(schema.dmChannels.id, 'dm-fed-2')).get();
-    expect(channel?.ownerId).toBe('remote-D');
-    expect(channel?.ownerHomeUserId).toBe('remote-dan');
-  });
-
-  // Negative case: federated identity for a user who is not a member of
-  // this DM channel must still 400, matching the existing local-id path.
-  it('transfer with federated identity for a non-member → 400', async () => {
-    seedGroupDm({
-      id: 'dm-fed-3',
-      ownerId: 'owner-A',
-      members: ['owner-A', 'member-B'], // remote-D is NOT a member here
-    });
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/dm/dm-fed-3/transfer',
-      payload: { homeUserId: 'remote-dan', homeInstance: 'https://remote.test' },
-    });
-    expect(res.statusCode).toBe(400);
-    expect(res.json().error).toMatch(/not a member/i);
-
-    // Ownership row unchanged
-    const channel = testDb.select().from(schema.dmChannels).where(eq(schema.dmChannels.id, 'dm-fed-3')).get();
-    expect(channel?.ownerId).toBe('owner-A');
+  it('shares the same native ownership transaction when an owner leaves a non-empty group',async()=>{
+    group();
+    expect((await app.inject({method:'DELETE',url:'/api/dm/group/members'})).statusCode).toBe(200);
+    expect(owner()).toEqual({owner_id:'bob'});
+    expect(sqlite.prepare("SELECT user_id FROM dm_members WHERE dm_channel_id='group' ORDER BY user_id").all()).toEqual([{user_id:'bob'},{user_id:'carol'}]);
+    const contents=sqlite.prepare('SELECT content FROM dm_messages ORDER BY rowid').all() as Array<{content:string}>;
+    expect(contents.map(row=>JSON.parse(row.content).event)).toEqual(['member_removed','owner_changed']);
   });
 });

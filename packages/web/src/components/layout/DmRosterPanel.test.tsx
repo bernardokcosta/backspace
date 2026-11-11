@@ -93,13 +93,14 @@ vi.mock('../../stores/socialStore', () => ({
   ),
 }));
 
-// Owner-only actions, stubbed; calls return success by default. Which
-// instance they go to is covered by `groupDmOwnerActions.test.ts`.
+// Native owner-only endpoints, never an owner-origin router.
 const apiKickMember = vi.fn().mockResolvedValue({ success: true });
 const apiTransferOwnership = vi.fn().mockResolvedValue({});
-vi.mock('../../utils/groupDmOwnerActions', () => ({
-  kickFromGroupDm: (channelId: string, member: User) => apiKickMember(channelId, member),
-  transferGroupDmOwnership: (channelId: string, member: User) => apiTransferOwnership(channelId, member),
+vi.mock('../../api/client', () => ({
+  api: { dm: {
+    kickMember: (channelId: string, userId: string) => apiKickMember(channelId, userId),
+    transferOwnership: (channelId: string, body: { newOwnerId: string }) => apiTransferOwnership(channelId, body),
+  } },
 }));
 
 // useCanonicalUserView falls back to the input on cache miss; that's exactly
@@ -127,9 +128,6 @@ function makeUser(overrides: Partial<User> = {}): User {
     customStatus: null,
     isAdmin: false,
     createdAt: 0,
-    homeInstance: null,
-    homeUserId: null,
-    replicatedInstances: [],
     ...overrides,
   };
 }
@@ -137,7 +135,6 @@ function makeUser(overrides: Partial<User> = {}): User {
 function makeGroupDm(members: User[], ownerId: string): DmChannel {
   return {
     id: 'dm-1',
-    federatedId: null,
     ownerId,
     ownerHomeUserId: null,
     ownerHomeInstance: null,
@@ -332,7 +329,7 @@ describe('DmRosterPanel — action wiring', () => {
     await waitFor(() => {
       expect(apiKickMember).toHaveBeenCalledTimes(1);
     });
-    expect(apiKickMember).toHaveBeenCalledWith('dm-1', expect.objectContaining({ id: 'tgt' }));
+    expect(apiKickMember).toHaveBeenCalledWith('dm-1', 'tgt');
   });
 
   it('transfer action: opens confirm dialog, then transfers ownership on confirm', async () => {
@@ -356,10 +353,10 @@ describe('DmRosterPanel — action wiring', () => {
     await waitFor(() => {
       expect(apiTransferOwnership).toHaveBeenCalledTimes(1);
     });
-    expect(apiTransferOwnership).toHaveBeenCalledWith('dm-1', expect.objectContaining({ id: 'tgt' }));
+    expect(apiTransferOwnership).toHaveBeenCalledWith('dm-1', { newOwnerId: 'tgt' });
   });
 
-  it('remove-friend action: calls socialStore.removeFriend with the member row and the DM origin', async () => {
+  it('remove-friend action: calls socialStore.removeFriend with the native member ID', async () => {
     const u = userEvent.setup();
     const me = makeUser({ id: 'me' });
     const friend = makeUser({ id: 'friend-1', username: 'friend', displayName: 'Friend' });
@@ -384,7 +381,7 @@ describe('DmRosterPanel — action wiring', () => {
     await u.click(removeBtn);
 
     await waitFor(() => {
-      expect(socialState.removeFriend).toHaveBeenCalledWith(expect.objectContaining({ id: 'friend-1' }), '');
+      expect(socialState.removeFriend).toHaveBeenCalledWith('friend-1');
     });
   });
 

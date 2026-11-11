@@ -55,9 +55,9 @@ function CommandBlock({ command }: { command: string }) {
  *
  * There is deliberately no button that performs the update. Applying a
  * container update from inside the container requires mounting the Docker
- * socket, which grants the container root on the host. Backspace parses
- * uploaded media, scrapes URLs for embeds, and accepts federation payloads from
- * remote instances, so any remote-code-execution bug in it would become host
+ * socket, which grants the container root on the host. Veyvox parses
+ * uploaded media and scrapes user-supplied URLs for embeds, so any
+ * remote-code-execution bug in it would become host
  * root the moment that socket exists. This panel hands over an exact command
  * instead, and ./update.sh is where the work went: it snapshots the database
  * first, verifies the running version actually changed, and rolls back if it

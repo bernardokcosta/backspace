@@ -19,7 +19,6 @@
     "activity": "Det er stille for nu… Når venner starter en aktivitet, viser vi den her!"
   },
   "friend": {
-    "viaInstance": "via {{host}}",
     "message": "Besked",
     "remove": "Fjern ven"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "Find folk",
-    "hint": "Søg på brugernavn eller brug <handle>user@instance</handle> for at tilføje nogen direkte.",
     "placeholder": "Søg eller tilføj på navn…",
     "direct": "Send venneanmodning til <handle>{{handle}}</handle>",
     "sendRequest": "Send anmodning",
@@ -99,6 +97,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "Åbn nummer"
-  },
-  "instanceNotConnected": "Ikke forbundet til {{host}}. Forbind igen og prøv igen."
+  }
 }

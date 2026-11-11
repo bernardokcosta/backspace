@@ -1,8 +1,8 @@
 {
   "name": "veyvox",
-  "version": "1.17.1",
+  "version": "1.17.2",
   "private": true,
-  "description": "Open, self-hosted communication platform — text, voice, video, and federation",
+  "description": "Open, self-hosted communication platform — text, voice, and video",
   "license": "AGPL-3.0-only",
   "author": "Jannis Braun",
   "homepage": "https://github.com/bernardokcosta/veyvox",

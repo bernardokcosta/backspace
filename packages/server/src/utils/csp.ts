@@ -8,11 +8,9 @@
  * needs their exact `ws://host:port` listed, and no build-time string can know
  * it.
  *
- * What this policy is and is not for. Backspace renders arbitrary user content
- * and federates with instances discovered at runtime, so `img-src`, `media-src`
- * and `connect-src` cannot be meaningfully constrained: a link embed pulls its
- * preview image from any site on the web, and a peer's API origin is not
- * knowable in advance. The directives that carry the weight here are the ones
+ * Veyvox renders external previews and configurable LiveKit media. The broad
+ * content/connect directives are retained for those native consumers, not
+ * alternate API credentials. The directives that carry the weight here are the ones
  * that stop script injection and clickjacking: `script-src`, `object-src`,
  * `base-uri`, `form-action` and `frame-ancestors`. The permissive content
  * directives are a deliberate, documented trade, not an oversight.

@@ -35,9 +35,6 @@ const me: User = {
   customStatus: null,
   isAdmin: false,
   createdAt: 1,
-  homeInstance: null,
-  homeUserId: null,
-  replicatedInstances: [],
 };
 
 const ownMessage: MessageWithUser = {
@@ -60,12 +57,9 @@ beforeEach(() => {
   useAuthStore.setState({ user: me });
   // dm-1 is a DM because the listing says so; the URL decides nothing.
   useSpaceStore.getState().reset();
-  useSpaceStore.getState().populateFromReady('', [], [], [{
+  useSpaceStore.getState().populateFromReady([], [], [{
     id: 'dm-1',
-    federatedId: null,
     ownerId: null,
-    ownerHomeUserId: null,
-    ownerHomeInstance: null,
     createdAt: 1,
     members: [me],
     lastMessage: null,
@@ -140,6 +134,16 @@ describe('MessageInput edit shortcut', () => {
 });
 
 describe('MessageInput slow sends', () => {
+  it('does not restore old failed text or feedback into another session composer', async () => {
+    let fail!: (error: Error) => void;
+    vi.spyOn(useChatStore.getState(), 'sendMessage').mockReturnValueOnce(new Promise((_, reject) => { fail = reject; }));
+    useComposerStore.getState().setDraft('dm-1', 'Private old send');
+    render(<MessageInput channelId="dm-1" channelName="general" />);
+    fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter' });
+    act(() => useAuthStore.setState(s => ({ user: { ...me, id: 'new-session' }, sessionRevision: s.sessionRevision + 1 })));
+    await act(async () => fail(new Error('Old private failure')));
+    expect(screen.getByRole('textbox')).toHaveValue(''); expect(useUIStore.getState().toasts).toEqual([]);
+  });
   it('consumes a draft immediately, prevents repeated Enter and preserves subsequent typing', async () => {
     let finish!: () => void;
     const sending = new Promise<void>(resolve => { finish = resolve; });
@@ -185,6 +189,17 @@ describe('MessageInput slash commands', () => {
     updatedAt: 1,
     bot: { id: 'bot-1', username: 'radio_bot', displayName: null, avatar: null, avatarColor: null },
   };
+  it('does not invoke a prior-session command after its delayed command-list lookup', async () => {
+    let finish!: (value: { commands: typeof play[] }) => void;
+    vi.spyOn(api.commands, 'forChat').mockReturnValueOnce(new Promise(resolve => { finish = resolve; }));
+    const invoke = vi.spyOn(api.commands, 'invoke').mockResolvedValue({ id: 'i' } as never);
+    useComposerStore.getState().setDraft('dm-1', '/play');
+    render(<MessageInput channelId="dm-1" channelName="general" />);
+    fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter' });
+    act(() => useAuthStore.setState(s => ({ sessionRevision: s.sessionRevision + 1 })));
+    await act(async () => finish({ commands: [play] }));
+    expect(invoke).not.toHaveBeenCalled();
+  });
 
   it('invokes a command once however often Enter is pressed while it is on its way', async () => {
     vi.spyOn(api.commands, 'forChat').mockResolvedValue({ commands: [play] } as never);
@@ -217,9 +232,8 @@ describe('MessageInput slash commands', () => {
     // The list offers the other people of the DM, never oneself.
     const bob: User = { ...me, id: 'bob', username: 'bob', displayName: 'Bob' };
     useSpaceStore.getState().reset();
-    useSpaceStore.getState().populateFromReady('', [], [], [{
+    useSpaceStore.getState().populateFromReady([], [], [{
       id: 'dm-1',
-      federatedId: null,
       ownerId: null,
       ownerHomeUserId: null,
       ownerHomeInstance: null,

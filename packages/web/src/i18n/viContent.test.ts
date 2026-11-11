@@ -18,12 +18,6 @@ describe('Vietnamese contextual content', () => {
     }
   });
 
-  it('keeps the no-E2EE disclosure in the passive voice', () => {
-    for (const value of [chat.list.welcome.group.federatedNotice, chat.list.welcome.dm.federatedNotice]) {
-      expect(value).toContain('không được mã hóa đầu-cuối');
-    }
-  });
-
   it('describes software file references rather than physical handles', () => {
     for (const key of ['noDestination', 'destinationMissing', 'uploadHandleMissing', 'downloadHandleMissing'] as const) {
       expect(uploads.failure[key]).toContain('tham chiếu');

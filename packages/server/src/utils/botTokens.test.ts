@@ -57,7 +57,7 @@ describe('issueBotToken / verifyBotToken', () => {
     const issued = issueBotToken('b1', 'radio', T0);
     expect(issued.token.startsWith(BOT_TOKEN_PREFIX)).toBe(true);
     expect(isBotTokenString(issued.token)).toBe(true);
-    expect(verifyBotToken(issued.token, T0)).toEqual({ tokenId: issued.id, userId: 'b1', username: 'b1_bot', homeInstance: null });
+    expect(verifyBotToken(issued.token, T0)).toEqual({ tokenId: issued.id, userId: 'b1', username: 'b1_bot' });
 
     const secret = issued.token.split('.')[1]!;
     const row = testDb.select().from(schema.botTokens).get()!;
@@ -138,15 +138,14 @@ describe('revoking', () => {
 
 describe('isRetiredLegacyBotJwt', () => {
   it('a native bot with a bsb_ token no longer accepts its old JWT', () => {
-    const bot = { id: 'b1', isBot: 1, homeInstance: null };
+    const bot = { id: 'b1', isBot: 1 };
     expect(isRetiredLegacyBotJwt(bot)).toBe(false);
     issueBotToken('b1', null, T0);
     expect(isRetiredLegacyBotJwt(bot)).toBe(true);
   });
 
-  it('never touches a person or a bot account federated from another instance', () => {
+  it('never retires a human session just because another account has bot tokens', () => {
     issueBotToken('b1', null, T0);
-    expect(isRetiredLegacyBotJwt({ id: 'b1', isBot: 0, homeInstance: null })).toBe(false);
-    expect(isRetiredLegacyBotJwt({ id: 'b1', isBot: 1, homeInstance: 'home.test' })).toBe(false);
+    expect(isRetiredLegacyBotJwt({ id: 'b1', isBot: 0 })).toBe(false);
   });
 });

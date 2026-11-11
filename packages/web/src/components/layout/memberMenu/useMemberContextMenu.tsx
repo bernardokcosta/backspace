@@ -1,9 +1,10 @@
 import { useEffect, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import type { MemberWithUser, User } from '@veyvox/shared';
+import type { MemberWithUser, User, Space } from '@veyvox/shared';
 import { menuPositionFor, useContextMenuStore, type ContextMenuItem, type ContextMenuCheckbox } from '../../../stores/contextMenuStore';
-import { getMyUserIdForOrigin, useSpaceStore, type TaggedSpace } from '../../../stores/spaceStore';
+import { useSpaceStore } from '../../../stores/spaceStore';
+import { useAuthStore } from '../../../stores/authStore';
 import { useUIStore } from '../../../stores/uiStore';
 import { PermissionBits, hasPermissionBit } from '../../../utils/permissions';
 import { viewerCanActOn, viewerCanEditMemberRoles, viewerCanManageRoleAt } from '../../../utils/roleHierarchy';
@@ -39,8 +40,8 @@ function roleMenuItems(target: MemberTarget): ContextMenuCheckbox[] {
   }));
 }
 
-function memberMenuPermissions(space: TaggedSpace, member: MemberWithUser) {
-  const self = getMyUserIdForOrigin(space._instanceOrigin) === member.userId;
+function memberMenuPermissions(space: Space, member: MemberWithUser) {
+  const self = useAuthStore.getState().user?.id === member.userId;
   const protectedMember = self || member.userId === space.ownerId;
   const { members, roles, spacePermissions } = useSpaceStore.getState();
   const permissions = spacePermissions.get(space.id);
@@ -56,18 +57,18 @@ function memberMenuPermissions(space: TaggedSpace, member: MemberWithUser) {
   };
 }
 
-export function useMemberContextMenu(space: TaggedSpace | undefined) {
+export function useMemberContextMenu(space: Space | undefined) {
   const { t } = useTranslation(['spaces', 'social', 'common']);
   const navigate = useNavigate();
   const [dialog, setDialog] = useState<MemberDialog | null>(null);
   const spaceId = space?.id;
-  const origin = space?._instanceOrigin;
+  const revision = useAuthStore(s => s.sessionRevision);
 
   useEffect(() => {
     setDialog(null);
     // A context menu cannot keep acting on members of a space we've left.
     return () => { useContextMenuStore.getState().close(); };
-  }, [spaceId, origin]);
+  }, [spaceId, revision]);
 
   const open = (event: MouseEvent | KeyboardEvent, member: MemberWithUser, canonical: User) => {
     event.preventDefault();
@@ -76,7 +77,7 @@ export function useMemberContextMenu(space: TaggedSpace | undefined) {
     useUIStore.getState().closeUserProfile();
     const anchor = event.currentTarget.getBoundingClientRect();
     const pointer = menuPositionFor(event);
-    const target = { origin: space._instanceOrigin, spaceId: space.id, userId: member.userId };
+    const target = { sessionRevision: revision, spaceId: space.id, userId: member.userId };
     const allowed = memberMenuPermissions(space, member);
     const showDialog = (action: MemberDialog['action']) => setDialog({
       target, action, nickname: member.nickname, self: allowed.self,
@@ -87,14 +88,14 @@ export function useMemberContextMenu(space: TaggedSpace | undefined) {
     const items: ContextMenuItem[] = [
       {
         type: 'action', key: 'profile', label: t('spaces:members.menu.profile'), onClick: () => {
-          useUIStore.getState().openUserProfile(canonical, target.origin, anchor, 'left', { spaceId: member.spaceId, userId: member.userId });
+          useUIStore.getState().openUserProfile(canonical, anchor, 'left', { spaceId: member.spaceId, userId: member.userId });
         }
       },
       {
         type: 'action', key: 'message', label: t('social:profile.sendMessage'), hidden: allowed.self,
-        onClick: () => { void runMemberAction(() => sendMemberMessage(user, target.origin, navigate)); }
+        onClick: () => { void runMemberAction(() => sendMemberMessage(user, navigate)); }
       },
-      ...(allowed.self ? [] : friendshipMenuItems(user, target.origin, t)),
+      ...(allowed.self ? [] : friendshipMenuItems(user, t)),
       { type: 'separator', key: 'member-separator' },
       {
         type: 'action', key: 'nickname', label: t('spaces:members.menu.nickname'), hidden: !allowed.nickname,

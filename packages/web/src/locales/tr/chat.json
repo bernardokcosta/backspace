@@ -61,14 +61,12 @@
       "group": {
         "intro": "Grup konuşmanın başlangıcı burası.",
         "owner": "Sahip: <owner>@{{name}}</owner>",
-        "federatedNotice": "Mesajlar senin ve alıcıların ana örneklerinde saklanır. Uçtan uca şifrelenmezler.",
         "openSettings": "Grup ayarlarını aç",
         "leave": "Gruptan ayrıl"
       },
       "dm": {
         "fallbackName": "Doğrudan mesaj",
         "intro": "<strong>@{{name}}</strong> ile doğrudan mesaj geçmişinin başlangıcı burası.",
-        "federatedNotice": "Mesajlar senin ve alıcının ana örneklerinde saklanır. Uçtan uca şifrelenmezler.",
         "removeFriend": "Arkadaşı kaldır"
       }
     }
@@ -133,14 +131,6 @@
     },
     "audio": {
       "unsupportedBrowser": "Tarayıcın ses oynatmayı desteklemiyor."
-    },
-    "federation": {
-      "remoteNamed": "{{sender}} örneğinde barındırılıyor. Yerel bir kopya tutmak için indir.",
-      "remoteUnknown": "Gönderenin örneğinde barındırılıyor. Yerel bir kopya tutmak için indir.",
-      "partialGeneric": "Bazı alıcılar bu dosyayı yerel olarak önbelleğe alamıyor.",
-      "partialInstance": "{{username}} örneği (sınır: {{limit}})",
-      "partialList": "Dosya {{instances}} üzerinde önbelleğe alınamadı. Yine de senin örneğinden görüntüleyebilirler.",
-      "listPair": "{{first}} ve {{second}}"
     }
   },
   "gif": {
@@ -267,7 +257,6 @@
     "stickersCount_one": "{{count}} sticker",
     "stickersCount_other": "{{count}} sticker",
     "noPacks": "Sticker paketi bulunamadı",
-    "replicaBadge": "Federe",
     "viewPack": "Paketi görüntüle",
     "saveDraft": "Taslak olarak kaydet",
     "packCreated": "Paket başarıyla oluşturuldu",
@@ -284,8 +273,6 @@
     "rejectedSuccess": "Sticker paketi reddedildi",
     "reviewNotes": "Reddetme nedeni",
     "creator": "Oluşturan",
-    "sourceInstance": "Örnek",
-    "localInstance": "Yerel örnek",
     "viewStickers": "Sticker'ları görüntüle",
     "pendingReviewHint": "Yönetici incelemesinde; onaylandığında Keşfet'te listelenecek"
   },

@@ -76,8 +76,6 @@ function seedUser(id: string): void {
     isAdmin: 0,
     isDeleted: 0,
     discoverable: 1,
-    homeInstance: null,
-    homeUserId: null,
     createdAt: NOW,
   }).run();
 }
@@ -236,11 +234,11 @@ describe('channel message events reach only the channel audience', () => {
         for (let i = 0; i < 3; i++) {
           expect((await app.inject({ method: 'POST', url: `/api/channels/${OPEN}/messages`, payload: { content: 'rest channel' } })).statusCode).toBe(201);
           expect((await app.inject({ method: 'POST', url: '/api/dm/shared-dm/messages', payload: { content: 'rest dm' } })).statusCode).toBe(201);
-          handleClientEvent({ type: 'message_create', channelId: OPEN, content: 'ws channel' }, 'author', 'author', sockets.author as unknown as WebSocket, false);
-          handleClientEvent({ type: 'dm_message_create', dmChannelId: 'shared-dm', content: 'ws dm' }, 'author', 'author', sockets.author as unknown as WebSocket, false);
+          handleClientEvent({ type: 'message_create', channelId: OPEN, content: 'ws channel' }, 'author', 'author', sockets.author as unknown as WebSocket);
+          handleClientEvent({ type: 'dm_message_create', dmChannelId: 'shared-dm', content: 'ws dm' }, 'author', 'author', sockets.author as unknown as WebSocket);
         }
         sockets.author.received.length = 0;
-        handleClientEvent({ type: 'message_create', channelId: OPEN, content: 'refuse' }, 'author', 'author', sockets.author as unknown as WebSocket, false);
+        handleClientEvent({ type: 'message_create', channelId: OPEN, content: 'refuse' }, 'author', 'author', sockets.author as unknown as WebSocket);
         expect(sockets.author.received).toEqual([expect.objectContaining({ code: 'rate_limited', retryAfter: 1 })]);
         expect((await app.inject({ method: 'POST', url: '/api/dm/shared-dm/messages', payload: { content: 'refuse' } })).statusCode).toBe(429);
         expect(testDb.select().from(schema.messages).all()).toHaveLength(8);

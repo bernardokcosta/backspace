@@ -209,8 +209,7 @@ export class JunoRooms {
     table.retryAt = this.now() + 1000;
     try {
       // The integration cannot mutate the frozen proposal kept for a retry.
-      table.scoreboard = this.options.settle({ ...table.settlement, standings: table.settlement.standings.map(p => ({ ...p })),
-        ...(table.settlement.recipientIds ? { recipientIds: new Map(table.settlement.recipientIds) } : {}) });
+      table.scoreboard = this.options.settle({ ...table.settlement, standings: table.settlement.standings.map(p => ({ ...p })) });
       if (table.scoreboard.status !== 'pending') this.changed(channelId, table);
     } catch { /* The integration reports failures; keep the same pending result for the next pass. */ }
   }
@@ -294,18 +293,6 @@ export class JunoRooms {
     this.complete(channelId, table); this.changed(channelId, table);
   }
   tick(): void { for (const channelId of this.tables.keys()) this.settle(channelId); }
-  /** Only the committed, proof-authorized merge may redirect a pending award. */
-  remapPendingRecipient(sourceId: string, targetId: string): void {
-    if (sourceId === targetId) return;
-    for (const table of this.tables.values()) {
-      if (!table.settlement || table.scoreboard?.status !== 'pending') continue;
-      const recipientIds = new Map(table.settlement.recipientIds);
-      for (const row of table.settlement.standings) {
-        if ((recipientIds.get(row.userId) ?? row.userId) === sourceId) recipientIds.set(row.userId, targetId);
-      }
-      table.settlement.recipientIds = recipientIds;
-    }
-  }
   dispose(): void { this.tables.clear(); }
   read(channelId: string, userId: string, supportsMemory = false): JunoSnapshot {
     this.settle(channelId);
@@ -330,7 +317,7 @@ export class JunoRooms {
       currentPlayerId: round && !round.result ? round.players[round.turn]!.userId : null,
       drawnCardId: self && !blind && round?.players[round.turn]?.userId === userId ? round.drawnCardId : null,
       remainingMs: round && !round.result ? Math.max(0, round.deadline - this.now()) : 0,
-      winnerId: round?.winnerId ? table.settlement?.recipientIds?.get(round.winnerId) ?? round.winnerId : null, result: round?.result ?? null,
+      winnerId: round?.winnerId ?? null, result: round?.result ?? null,
       lastMove: round?.lastMove ? { ...round.lastMove, ...(round.lastMove.card ? { card: { ...round.lastMove.card } } : {}) } : null,
       supportsBots: true, supportsAnnounce: true, practice: (round ? table.starters : table.people).some(p => !!p.computer),
       supportsReports: true, reportOpportunities: round?.reportWindows.map(window => ({ id: window.id,

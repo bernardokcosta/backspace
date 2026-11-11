@@ -98,7 +98,7 @@ async function setup() {
   cm.addConnection('mod', modWs as never);
   cm.addUserSpace('mod', SPACE_ID);
   const send = (actor: string, event: Record<string, unknown>) =>
-    handleClientEvent(event, actor, actor, (actor === 'mod' ? modWs : helperWs) as never, false);
+    handleClientEvent(event, actor, actor, (actor === 'mod' ? modWs : helperWs) as never);
   return { cm, helperWs, modWs, send };
 }
 

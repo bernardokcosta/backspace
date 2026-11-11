@@ -19,11 +19,11 @@ import { useAuthStore } from '../../stores/authStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { useChatStore } from '../../stores/chatStore';
 import { useContextMenuStore, type ContextMenuAction } from '../../stores/contextMenuStore';
-import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../../stores/spaceStore';
 import { useUIStore } from '../../stores/uiStore';
 import { SpaceSidebar } from './SpaceSidebar';
 
-const SPACE: TaggedSpace = {
+const SPACE: SpaceWithMyRoles = {
   id: 'space-1',
   name: 'Kobold',
   icon: null,
@@ -34,7 +34,6 @@ const SPACE: TaggedSpace = {
   visibility: 'request',
   description: null,
   createdAt: 0,
-  _instanceOrigin: '',
 };
 
 const realGenerateInvite = useSpaceStore.getState().generateInvite;
@@ -81,16 +80,16 @@ afterEach(() => {
 });
 
 describe('SpaceSidebar space menu: Invite People', () => {
-  it('shows the reason an instance up to 1.9.0 gives for refusing a request space its link', async () => {
+  it('shows a native permission refusal without copying a link', async () => {
     useSpaceStore.setState({
       generateInvite: vi.fn().mockRejectedValue(
-        new HttpError(403, 'This space uses join requests', undefined, 'space_uses_join_requests'),
+        new HttpError(403, 'Forbidden', undefined, 'forbidden'),
       ),
     });
     renderSidebar();
     openSpaceMenu();
     await act(async () => { menuAction('invite').onClick(); });
-    await waitFor(() => expect(lastToast()?.message).toBe('This space is joined by request, so it has no invite links.'));
+    await waitFor(() => expect(lastToast()?.message).toBe('You are not allowed to do that.'));
     expect(lastToast()?.type).toBe('warning');
     expect(writeText).not.toHaveBeenCalled();
   });
@@ -131,6 +130,13 @@ describe('SpaceSidebar space menu: Invite People', () => {
     await act(async () => { menuAction('invite').onClick(); });
     await waitFor(() => expect(lastToast()?.message).toBe('Failed to generate invite'));
   });
+  it('does not copy an earlier session invite or show its toast in a replacement session', async () => {
+    let finish!: (code: string) => void;
+    useSpaceStore.setState({ generateInvite: vi.fn().mockReturnValueOnce(new Promise(resolve => { finish = resolve; })) });
+    renderSidebar(); openSpaceMenu(); const pending = menuAction('invite').onClick();
+    act(() => useAuthStore.setState(s => ({ sessionRevision: s.sessionRevision + 1 })));
+    await act(async () => { finish('old-code'); await pending; }); expect(writeText).not.toHaveBeenCalled(); expect(lastToast()).toBeUndefined();
+  });
 
 });
 
@@ -151,7 +157,6 @@ describe('SpaceSidebar space menu: Notification settings', () => {
       name: 'Backspace',
       version: '1.0.0',
       registrationOpen: true,
-      federatedRegistrationOpen: true,
       spaceCreationOpen: false,
       instanceId: 'id-1',
       sourceCodeUrl: 'https://example.com',

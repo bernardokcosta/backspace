@@ -1,28 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "den eksterne instansen",
-    "hostInstance": "vertsinstansen",
-    "acceptDropped": "Kunne ikke bekrefte godtakelsen din hos {{instance}} — samtalen brøt.",
-    "rejectFailed": "Kunne ikke fortelle {{instances}} at du avviste. Innringeren ser deg kanskje som ringende et øyeblikk.",
-    "endFailed": "Kunne ikke fortelle {{instances}} at du la på. Eksterne deltagere ser kanskje samtalen i opptil 60 sekunder.",
-    "hostUnreachable": "Samtale avsluttet — vertsinstansen ble utilgjengelig.",
-    "peeringLost": "Samtale avsluttet — denne instansen er ikke lenger sammenkoblet med {{instance}}.",
-    "instanceUnreachable": "Samtale avsluttet — {{instance}} ble utilgjengelig.",
-    "someUnreachable": "Noen deltagere kunne ikke nås: {{instances}}.",
-    "multipleUnreachable_one": "Kunne ikke nå {{count}} instans: {{instances}}.",
-    "multipleUnreachable_other": "Kunne ikke nå {{count}} instanser: {{instances}}.",
-    "callFailed": "Samtalen kunne ikke gjennomføres.",
-    "manualApproval": "Kan ikke nå {{instance}} — denne instansen krever manuell godkjenning for sammenkobling.",
-    "awaitingApproval": "Venter på at administratoren for {{instance}} godkjenner instansen din. Samtaler virker etter godkjenningen.",
-    "transientFailure": "Kan ikke nå {{instance}}. Prøv om et øyeblikk.",
-    "voiceUnavailable": "Tale er ikke satt opp på denne instansen.",
-    "noRecipient": "{{instance}} ringte ingen.",
-    "targetCallFailed": "Samtalen til {{instance}} kunne ikke gjennomføres."
-  },
-  "feedback": {
-    "relayDenied": "Kan ikke videresende meldinger — serveren deres nektet sammenkobling. Kontakt administratoren deres.",
-    "awaitingPeering": "Meldinger leveres når administratoren deres godkjenner sammenkoblingsforespørselen."
-  },
   "names": {
     "group": "Gruppe",
     "directMessage": "Direktemelding",
@@ -162,12 +138,7 @@
     "notFound": "Samtalen ble ikke funnet.",
     "notGroup": "Denne samtalen har ingen gruppeinfo.",
     "cancelEdit": "Avbryt redigering",
-    "federated": "Føderert gruppe",
     "memberCount_one": "{{count}} medlem",
     "memberCount_other": "{{count}} medlemmer"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "Denne gruppen styres på {{host}}. Koble til den for å endre den.",
-    "ownerNotListed": "{{host}} viser ennå ikke denne gruppen til deg. Prøv om et øyeblikk."
   }
 }

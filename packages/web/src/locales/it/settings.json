@@ -127,7 +127,6 @@
       "appearance": "Aspetto",
       "voice": "Voce e video",
       "privacy": "Privacy",
-      "connections": "Connessioni",
       "keybinds": "Scorciatoie",
       "desktop": "Desktop",
       "instance": "Istanza",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "Il mio account",
-    "detached": {
-      "notice": "Questo account è scollegato dalla sua istanza principale.",
-      "explanation": "{{homeInstance}} è stata reimpostata o non è più disponibile, quindi questo account ora funziona localmente su questa istanza. Il tuo profilo e la tua password sono gestiti qui.",
-      "reattachHint": "Come {{username}} su {{homeInstance}}, puoi ricollegare questo account. Profilo e presenza torneranno a sincronizzarsi da lì.",
-      "reattachButton": "Ricollega a {{homeInstance}}",
-      "reattachConfirm": "Conferma ricollegamento come {{username}}",
-      "reattaching": "Ricollegamento…",
-      "reattachFailed": "Ricollegamento non riuscito",
-      "reattached": "Account ricollegato con {{username}}"
-    },
     "profile": {
       "sectionTitle": "Personalizzazione del profilo",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "Account",
       "status": {
-        "label": "Stato",
-        "homeUnavailable": "Il tuo stato è conservato su {{host}}. Collegati a {{host}} per cambiarlo."
+        "label": "Stato"
       },
       "customStatus": {
         "label": "Stato personalizzato",
@@ -245,10 +233,6 @@
         "passwordPlaceholder": "Inserisci la tua password",
         "submit": "Elimina il mio account",
         "deleting": "Eliminazione…"
-      },
-      "federation": {
-        "removing": "Rimozione del tuo account dalle istanze collegate…",
-        "deleteAnyway": "Elimina l’account ora"
       },
       "complete": {
         "title": "Account eliminato",
@@ -311,14 +295,10 @@
       }
     }
   },
-  "connections": {
-    "title": "Connessioni"
-  },
   "instance": {
     "tabs": {
       "general": "Generale",
       "registration": "Registrazione",
-      "federation": "Federazione",
       "streaming": "Streaming",
       "storage": "Archiviazione",
       "users": "Utenti",

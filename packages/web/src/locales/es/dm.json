@@ -1,29 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "la instancia remota",
-    "hostInstance": "la instancia que aloja la llamada",
-    "acceptDropped": "No se pudo confirmar con {{instance}} que aceptaste. La llamada se ha interrumpido.",
-    "rejectFailed": "No se pudo avisar a {{instances}} de que rechazaste la llamada. Quien llama podría seguir viendo la señal de llamada durante unos instantes.",
-    "endFailed": "No se pudo avisar a {{instances}} de que colgaste. Los participantes remotos podrían seguir viendo la llamada hasta 60 segundos.",
-    "hostUnreachable": "La llamada ha terminado porque la instancia que la aloja ya no está accesible.",
-    "peeringLost": "La llamada ha terminado porque esta instancia ya no está emparejada con {{instance}}.",
-    "instanceUnreachable": "La llamada ha terminado porque {{instance}} ya no está accesible.",
-    "someUnreachable": "No se pudo contactar con algunos participantes: {{instances}}.",
-    "multipleUnreachable_one": "No se pudo conectar con {{count}} instancia: {{instances}}.",
-    "multipleUnreachable_many": "No se pudo conectar con {{count}} instancias: {{instances}}.",
-    "multipleUnreachable_other": "No se pudo conectar con {{count}} instancias: {{instances}}.",
-    "callFailed": "No se pudo realizar la llamada.",
-    "manualApproval": "No se puede conectar con {{instance}}. Esta instancia exige aprobar manualmente el emparejamiento.",
-    "awaitingApproval": "Esperando a que el administrador de {{instance}} apruebe tu instancia. Las llamadas estarán disponibles tras la aprobación.",
-    "transientFailure": "No se pudo conectar con {{instance}}. Vuelve a intentarlo en un momento.",
-    "voiceUnavailable": "La función de voz no está configurada en esta instancia.",
-    "noRecipient": "{{instance}} no pudo hacer llegar la llamada a nadie.",
-    "targetCallFailed": "No se pudo realizar la llamada a {{instance}}."
-  },
-  "feedback": {
-    "relayDenied": "No se pueden retransmitir los mensajes porque el servidor de destino ha rechazado el emparejamiento. Contacta con su administrador.",
-    "awaitingPeering": "Los mensajes se entregarán cuando el administrador de destino apruebe la solicitud de emparejamiento."
-  },
   "names": {
     "group": "Grupo",
     "directMessage": "Mensaje directo",
@@ -168,13 +143,8 @@
     "notFound": "No se encontró la conversación.",
     "notGroup": "Esta conversación no tiene información de grupo.",
     "cancelEdit": "Cancelar edición",
-    "federated": "Grupo federado",
     "memberCount_one": "{{count}} miembro",
     "memberCount_many": "{{count}} miembros",
     "memberCount_other": "{{count}} miembros"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "Este grupo se gestiona en {{host}}. Conecta con esa instancia para modificarlo.",
-    "ownerNotListed": "{{host}} aún no muestra este grupo en tu cuenta. Vuelve a intentarlo en un momento."
   }
 }

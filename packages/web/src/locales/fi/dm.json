@@ -1,28 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "etäinstanssi",
-    "hostInstance": "isäntäinstanssi",
-    "acceptDropped": "Hyväksyntääsi ei voitu vahvistaa kohteelle {{instance}} — puhelu katkesi.",
-    "rejectFailed": "Kohteille {{instances}} ei voitu ilmoittaa, että hylkäsit. Soittaja saattaa nähdä sinut soivana hetken.",
-    "endFailed": "Kohteille {{instances}} ei voitu ilmoittaa, että suljit puhelun. Etäosallistujat saattavat nähdä puhelun jopa 60 sekuntia.",
-    "hostUnreachable": "Puhelu päättyi — isäntäinstanssiin ei saatu yhteyttä.",
-    "peeringLost": "Puhelu päättyi — tämä instanssi ei ole enää yhdistetty kohteeseen {{instance}}.",
-    "instanceUnreachable": "Puhelu päättyi — kohteeseen {{instance}} ei saatu yhteyttä.",
-    "someUnreachable": "Joihinkin osallistujiin ei saatu yhteyttä: {{instances}}.",
-    "multipleUnreachable_one": "Kohteeseen {{count}} instanssi ei saatu yhteyttä: {{instances}}.",
-    "multipleUnreachable_other": "Kohteisiin {{count}} instanssia ei saatu yhteyttä: {{instances}}.",
-    "callFailed": "Puhelua ei voitu soittaa.",
-    "manualApproval": "Kohteeseen {{instance}} ei saatu yhteyttä — tämä instanssi vaatii manuaalisen yhdistämishyväksynnän.",
-    "awaitingApproval": "Odotetaan, että kohteen {{instance}} ylläpitäjä hyväksyy instanssisi. Puhelut toimivat hyväksynnän jälkeen.",
-    "transientFailure": "Kohteeseen {{instance}} ei saatu yhteyttä. Yritä hetken kuluttua.",
-    "voiceUnavailable": "Ääntä ei ole määritetty tällä instanssilla.",
-    "noRecipient": "{{instance}} ei soittanut kenellekään.",
-    "targetCallFailed": "Puhelua kohteeseen {{instance}} ei voitu soittaa."
-  },
-  "feedback": {
-    "relayDenied": "Viestejä ei voi välittää — heidän palvelimensa hylkäsi yhdistämisen. Ota yhteyttä heidän ylläpitäjäänsä.",
-    "awaitingPeering": "Viestit toimitetaan, kun heidän ylläpitäjänsä hyväksyy yhdistämispyynnön."
-  },
   "names": {
     "group": "Ryhmä",
     "directMessage": "Suora viesti",
@@ -162,12 +138,7 @@
     "notFound": "Keskustelua ei löytynyt.",
     "notGroup": "Tällä keskustelulla ei ole ryhmätietoja.",
     "cancelEdit": "Peruuta muokkaus",
-    "federated": "Federoitu ryhmä",
     "memberCount_one": "{{count}} jäsen",
     "memberCount_other": "{{count}} jäsentä"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "Tätä ryhmää hallitaan kohteessa {{host}}. Yhdistä siihen muuttaaksesi sitä.",
-    "ownerNotListed": "{{host}} ei vielä listaa tätä ryhmää sinulle. Yritä hetken kuluttua."
   }
 }

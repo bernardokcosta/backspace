@@ -84,20 +84,19 @@ jobs:
 
       # `pnpm build` runs the server's `tsc`, whose tsconfig includes only
       # `src/**/*` — so nothing in packages/server/test is ever type-checked by
-      # the steps above. This covers the federation e2e suites and the shared
-      # test helpers they boot instances with. See packages/server/tsconfig.e2e.json
+      # the steps above. This covers native/upgrade e2e suites and the shared
+      # helpers they boot disposable servers with. See packages/server/tsconfig.e2e.json
       # for why the older test/ files are not in its include yet.
       - name: Typecheck server e2e suites
         run: pnpm --filter @veyvox/server typecheck:e2e
 
+      - name: Check standalone source and built artifacts
+        run: node scripts/check-standalone.mjs --artifacts
+
       # Runs every package's `test` script (server, web, desktop) via vitest.
-      #
-      # This includes the two-instance federation e2e suites
-      # (packages/server/test/federation-e2e-*.test.ts), which spawn real server
-      # processes on ephemeral ports, peer them over the real HMAC handshake and
-      # relay real events between them. Keeping them in this job feeds their
-      # result into the required aggregate gate below. They need
-      # no Docker, Caddy or LiveKit, and add roughly a minute of wall clock.
+      # Native/upgrade/absence e2e suites spawn disposable real server processes
+      # on ephemeral ports; their result feeds the same required aggregate.
+      # They need no Docker, Caddy or running LiveKit service.
       - name: Test
         run: |
           pnpm test:tooling

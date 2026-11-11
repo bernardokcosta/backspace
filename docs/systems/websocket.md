@@ -27,8 +27,14 @@ Source: `packages/server/src/ws/handler.ts`, `packages/server/src/ws/events.ts`
 1. Client connects to `/ws`
 2. Client sends `{ type: 'auth', token: '<jwt>', client?: 'web' | 'desktop' | 'mobile' }` within 10 seconds. `client` is optional; a missing or unrecognised value is read as `web`. The wire type is the `auth` variant of `ClientEvent` in `packages/shared/src/types.ts`, where the field is typed `ClientKind`
 3. Server validates token (rejects deleted users, tokens issued before `passwordChangedAt`). A bot account holds one open socket per credential: a second one is answered `error` with `code: 'bot_token_in_use'` and closed with code 4409 ([bots.md](bots.md), "One process per token")
+
+Session JWTs must carry valid native ID/name, issued-at and expiry claims; malformed
+signed bodies cannot establish a partial identity. The password cutoff comparison
+preserves milliseconds instead of flooring to seconds, matching REST/tus. A
+self-service password change disconnects existing sockets after commit; only a
+fresh session can authenticate again ([auth.md](auth.md)).
 4. Server responds with `ready` event containing full client state
-5. Server sets the user's live status to their chosen status (`users.chosen_status` for an account that owns its choice, native or detached; for a replicated user the home instance's last projection, or `online` if there is none) and carries it in the `ready` payload's `user.status`, broadcasts `presence_update` to friends + DM co-members + space co-members (via `collectProfileBroadcastTargetIds`); for native users, also queues a S2S `presence_update` relay to all active peers
+5. Server sets live status from `users.chosen_status`, carries it in `ready.user.status`, and broadcasts `presence_update` to friends + DM co-members + space co-members (`collectProfileBroadcastTargetIds`). Every identity is this instance's local account ID; no S2S presence projection exists.
 6. Heartbeat: server pings every 30s (RFC 6455 ping frames), dead connections detected after ~65s
 
 ---
@@ -79,7 +85,7 @@ reconnect ready invalidates the client's previous view. See [juno.md](juno.md).
 ### Reactions (space + DM, auto-detected)
 | type | fields | notes |
 |------|--------|-------|
-| `reaction_add` | messageId, emoji | ADD_REACTIONS perm (space). `emoji` is a native emoji or a sticker token (`sticker:<asset URL>`, uploads.md "Personal stickers"); the server stores and relays either as the same string. One reaction per user and emoji: a repeat stores nothing, sends no `reaction_added` and queues no relay. The client does not send one either (`chatStore.addReaction` skips a reaction the user holds or has an add in flight for) |
+| `reaction_add` | messageId, emoji | ADD_REACTIONS perm (space). `emoji` is a native emoji or a sticker token (`sticker:<asset URL>`, uploads.md "Personal stickers"). One reaction per user and emoji: a repeat stores and announces nothing. The client also skips a held or in-flight reaction |
 | `reaction_remove` | messageId, emoji | own reactions only |
 
 ### Read State
@@ -98,7 +104,7 @@ reconnect ready invalidates the client's previous view. See [juno.md](juno.md).
 | type | fields | notes |
 |------|--------|-------|
 | `voice_join` | channelId | one room per user enforced |
-| `voice_leave` | (none) | leaves the voice the user holds on this instance: a voice channel or DM call hosted here, or a call hosted on a peer that they joined through here (relayed to the host as their leave in a group call). A client joining voice on another instance sends it to the instance its DM call goes through (voice.md, "Client-Side Call Routing") |
+| `voice_leave` | (none) | leaves the user's current voice channel or DM call |
 | `voice_status` | isMuted, isDeafened, isCameraOn, isScreenSharing | server enforces space/permission mute |
 
 ### Voice Moderation
@@ -116,10 +122,10 @@ All four also need the actor to outrank the target (permissions.md, "Role hierar
 ### DM Calls
 | type | fields | notes |
 |------|--------|-------|
-| `dm_call_start` | dmChannelId | 60s auto-timeout if not accepted. In a DM whose call is hosted here, a member not in it joins it (handled as `dm_call_accept`). A member already in it, or any member while the DM's call hosted on another instance still rings or has a member here in it, gets `error` with `code: 'dm_call_in_progress'` and the `dmChannelId`, on the sending socket only (a record of such a call with nobody here in it is dropped and the start goes on); a non-member gets `code: 'not_dm_member'`, a missing `dmChannelId` `code: 'validation_failed'` |
-| `dm_call_accept` | dmChannelId?, federatedCallId? | ringing→active; later accepts join the active call (late join). Refused on the sending socket only with `error` and a code: `dm_call_not_found` (no call any more), `not_dm_member`, `validation_failed`, with the id the client sent as `dmChannelId` |
-| `dm_call_reject` | dmChannelId?, federatedCallId? | 1-on-1: ends the call. Group: stops only the sender's ring; ends the call only when it still rings and every member but the caller has declined. Ignored from the caller or a participant |
-| `dm_call_end` | dmChannelId?, federatedCallId? | 1-on-1: ends the call. Group: takes only the sender out; the caller of a call nobody joined ends it; the call ends with its last participant. Ignored from a member who is not in the call |
+| `dm_call_start` | dmChannelId | 60s ring timeout. Joins an existing call for a member not in it; otherwise `dm_call_in_progress` on the sending socket. A nonmember gets `not_dm_member`, a missing ID `validation_failed` |
+| `dm_call_accept` | dmChannelId | ringing→active; later accepts join. Socket-only refusals: `dm_call_not_found`, `not_dm_member`, `validation_failed`, correlated by the supplied local ID |
+| `dm_call_reject` | dmChannelId | 1-on-1: ends the call. Group: stops only the sender's ring; ends an unanswered call when all ringees decline. Ignored from the caller or a participant |
+| `dm_call_end` | dmChannelId | 1-on-1: ends the call. Group: removes only the sender; an unanswered caller cancels, and an active call ends with its last participant. Ignored from an uninvolved member |
 
 ### System
 | type | fields |
@@ -187,8 +193,7 @@ sending socket only, storing and sending nothing:
 | the target lacks VIEW_CHANNEL there | `poke_target_no_access` |
 | the actor poked 5 times in the last minute | `rate_limited` |
 
-Both ids are the hosting instance's own: the actor is the socket's user there
-(a federated member's replicated row), the target is the `userId` of the
+Both IDs are local: the actor is the authenticated socket's user, the target is the `userId` of the
 message the client right-clicked. Anything else the event carries is
 ignored. The limit is a fixed window of 5 per 60 seconds per actor row,
 across every channel and target (`CHANNEL_POKE_RATE_LIMIT`), on top of the
@@ -289,7 +294,7 @@ the count never runs ahead of or behind the event it belongs to
 |-------|---------------------|
 | `message_created`, `message_deleted` | a message after the cursor came or went |
 | `dm_message_created`, `dm_message_deleted` | the same, in a DM |
-| `channel_ack`, `mark_unread` | the cursor moved, here or relayed from a peer as `read_state_update` |
+| `channel_ack`, `mark_unread` | the local persisted cursor moved |
 | `channel_updated` | the user's access may have changed |
 | `dm_channel_created` | a DM opened or reopened with messages already in it |
 
@@ -311,8 +316,7 @@ agree. A muted space keeps its badge in a quieter colour (sounds.md,
 **Older releases.** An instance on 1.9.1 or earlier sends no
 `unreadCounts`; the client then holds no counts for that origin and shows
 the unread dot alone. A client on 1.9.1 or earlier ignores
-`channel_unread_count` and the extra `ready` field. Federation is unchanged: each instance counts its own
-copies.
+`channel_unread_count` and the extra `ready` field.
 
 **Known limits.** A channel that becomes visible through a role change
 (`space_access_changed`) or a space joined mid-session has no count until
@@ -321,7 +325,7 @@ its next follow-up or the next `ready`; its unread dot shows meanwhile.
 ### Presence & Activity
 | type | fields | scope |
 |------|--------|-------|
-| `presence_update` | userId, status, activities?, homeUserId?, homeInstance? | friends + DM co-members + space co-members of the user (via `collectProfileBroadcastTargetIds`), plus self for multi-tab sync. For federated stubs, the local instance receives status and activities via S2S `presence_update` relay from the home (see `federation.md` §10 — Presence Sync) and re-broadcasts to the same recipient set, with `activities` whenever the relay changed them (empty clears). `activities` absent = unchanged. `homeUserId`/`homeInstance` are the subject row's federated identity, both null for a row native to this instance; the client keys activities and friend status by that identity (activity-presence.md "Keying"). Every emitter builds the event with `presenceUpdateFor`/`presenceUpdateEvent` (`ws/presenceEvent.ts`). Also sent when a friendship is created: each side gets the other's current status and activities (activity-presence.md "Friendship Snapshot"). Servers that predate the identity fields omit them. |
+| `presence_update` | userId, status, activities? | friends + DM/space co-members, plus self for multi-tab status/activity changes. Local account IDs only; absent activities leave the current list, empty clears it. Built by `presenceUpdateFor`/`presenceUpdateEvent`. Friendship acceptance sends each side the other's current snapshot |
 | `user_updated` | user | user |
 
 ### Space / Channel Management
@@ -419,7 +423,7 @@ takes the client out of it (`teardownDmCall`).
 | `dm_channel_closed` | dmChannelId | user |
 | `dm_member_added` | dmChannelId, user | DM members |
 | `dm_member_removed` | dmChannelId, userId | DM members |
-| `dm_owner_updated` | dmChannelId, newOwnerId, newOwnerHomeUserId?, newOwnerHomeInstance? | DM members |
+| `dm_owner_updated` | dmChannelId, newOwnerId | DM members |
 
 ### Voice
 | type | fields | scope |
@@ -437,11 +441,14 @@ reason: `'displaced'` (new tab) | `'session_closed'`
 ### DM Calls
 | type | fields | scope |
 |------|--------|-------|
-| `dm_call_incoming` | dmChannelId?, federatedCallId, callerId, callerName, callOrigin?, livekitUrl?, livekitToken? | DM members (excludes caller). `dmChannelId` can be null for Path B federated calls (no local DM channel). `callOrigin` identifies the hosting instance for cross-instance calls. |
-| `dm_call_accepted` | dmChannelId?, federatedCallId?, answeredBy? | DM members, on every accept including late joins. A client acts on it only when it names the call it holds (`dmCallEventIsOurs`). `answeredBy` (`{ homeUserId, homeInstance }`, absent from servers up to 1.9.0) is the member who answered: the client stops ringing only when that is the signed-in user, compared by federated identity (`acceptStopsRing`), so in a group call another member's answer leaves the ring on. Without it the ring stops as before |
-| `dm_call_rejected` | dmChannelId?, federatedCallId? | DM members when the call ends as rejected; only the decliner (all sessions) for a group decline that leaves the call running |
-| `dm_call_ended` | dmChannelId?, federatedCallId? | DM members. Preceded by a `voice_state_update` leave for each participant still in the call. A client tears down its call state only when the event names the call it holds (`dmCallEventIsOurs`) |
-| `dm_call_undeliverable` | Sent to the originator when a call relay (start / accept / reject / end) to one or more peers fails. Includes `phase: 'start' \| 'accept' \| 'reject' \| 'end' \| 'host_unreachable'` identifying the action; `failures[]` enumerates failed peers with a `reason` (`peer_rejected` / `peer_awaiting_approval` / `peer_transient_failure` / `livekit_unavailable` / `no_recipient` / `identity_not_accepted`, the last when the peer accepts no name this instance could give the acting user, so nothing was sent; see federation.md "Who a call relay names"). `terminal: true` means local call state should be (or has been) torn down; `terminal: false` is informational. See `docs/systems/voice.md` for the full phase × terminal matrix. | originator (caller / acceptor / rejector / ender) |
+| `dm_call_incoming` | dmChannelId, callerId, callerName | DM members except caller; no credentials |
+| `dm_call_accepted` | dmChannelId, answeredByUserId | Every accept, including late join. Answerer is derived from authentication, never client input. Only that user's other sessions stop ringing; another group member may still answer |
+| `dm_call_rejected` | dmChannelId | DM members on termination; only the decliner's sessions for a continuing group call |
+| `dm_call_ended` | dmChannelId | DM members; preceded by participant leave events. Correlates only by local DM ID |
+
+Voice credentials are fetched privately through `POST /api/livekit/token`, never
+included in `ready` or call events. DM room names are `dm-<local channel ID>`;
+the private database pair key is not a room name or wire field.
 
 ### Social
 | type | fields | scope |
@@ -458,19 +465,6 @@ reason: `'displaced'` (new tab) | `'session_closed'`
 | `join_request_received` | request | space (managers) |
 | `join_request_accepted` | request, space | user (requester) |
 | `join_request_declined` | request | user (requester) |
-
-### Federation
-| type | fields | scope |
-|------|--------|-------|
-| `federation_file_rejected` | messageId, dmChannelId, attachmentId, affectedUsers[] | DM members |
-| `federation_approval_request_received` | — (refetch trigger; payload: `{ type }`) | admins. Fires for **both** inbound peering requests (remote → us) AND outbound queue creation when the [Outbound Peering Gate](federation.md#outbound-peering-gate) creates a `peer_approval_requests` row in response to a user_action. Payload shape unchanged from the inbound-only behavior; only the firing surface widened. |
-| `federation_peer_reset_detected` | `{ origin: string }` | admins. Fires from `markPeerReset` when a peer's advertised instance epoch differs from the trusted baseline (a wipe-and-reinstall on the same domain — see [Reset Detection](federation.md#reset-detection-markpeerreset--utilsfederationresetts)). Detection-only: the peer was routed to `needs_attention` (reason `peer_reset_detected`) with no rekey/tombstone. Paired with a `federation_peers_changed` broadcast. **Client handler:** `onFederationPeerResetDetected(cb)` (`useWebSocket.ts`) — the FederationPanel's Reset-cleanup surface subscribes and refetches `GET /api/federation/peers` + `GET /api/federation/reset-events`, raising a persistent banner with one-click Re-peer (see `admin.md` "FederationPanel", `client-federation.md` §8). |
-| `peering_subscription_changed` | — (refetch trigger; payload: `{ type }`) | the subscribing user (all of their connected sessions). Fires when a `peer_approval_subscribers` row belonging to the user is created, modified, or deleted (gate fan-in, user cancel, parent cascade). Client refetches `GET /api/federation/peering-subscriptions`. |
-| `peering_notification_received` | `{ type, kind: 'approved' \| 'denied' \| 'expired' }` | the user the notification belongs to. Fires when a `peer_approval_notifications` row is created (`onPeerActivated` outbound fanout, outbound `/deny` fanout, janitor outbound expiry). Client refetches `GET /api/federation/peering-notifications` and may surface a transient toast for online users. |
-
-**S2S relay-only event (not a direct client WS event):**
-
-`read_state_update` — sent peer-to-peer via the federation relay when a user acknowledges a DM channel on one instance. The receiving instance processes it, upserts the `read_states` row, and then emits a standard `channel_ack` event to the user's local WebSocket connections. The relay event itself is never forwarded to clients directly.
 
 ---
 
@@ -497,18 +491,17 @@ space payloads are otherwise retained. No discovery subscription remains.
   readStates?: ReadState[],
   supportsPoke?: boolean,          // true from an instance that handles channel_poke (see "Channel pokes"); absent before
   unreadCounts?: Record<channelId, number>, // unread messages per countable space channel and open DM, capped at 100 (see "Unread counts")
-  activeCalls?: ActiveCallInfo[],  // includes federatedCallHost?, livekitUrl?, livekitToken? for federated calls
+  activeCalls?: ActiveCallInfo[],  // local DM IDs, caller/participants/state/startedAt only
   userActivities?: Record<userId, Activity[]>,  // space members, DM members and friends; keys are this instance's row ids
-  userActivityIdentities?: Record<userId, { homeUserId: string | null, homeInstance: string | null }>,  // identity of each userActivities key; null pair = native row
-  rejectedPeerOrigins: string[],         // origins with status 'rejected'; used for DM unreachable indicators
-  awaitingApprovalPeerOrigins: string[], // origins with status 'awaiting_approval'
-  pendingApprovalCount: number           // count of peer_approval_requests rows; only non-zero for admins
 }
 ```
 
 **Roles:** each space's `roles` carry their display fields for every member and their `permissions` only when the user holds `MANAGE_ROLES` there; `members[].roles` carry display fields only. The payload has no override rows; the user's own permissions are `myPermissions` on the space and on each channel. The same shaping applies to the `space` in `join_request_accepted` (permissions.md, "Who receives role and override data").
 
-**Federated users:** When the connecting user is federated (`homeInstance` is set), the ready payload carries their DMs on this instance like anyone else's: `dmChannels` (this instance's copies, each with its `federatedId`, which is how the client shows a conversation it also gets from the user's home once) and `activeCalls` for those memberships. `readStates` is filtered to the space channels and DMs in the payload, and a DM with messages but no read state yet gets one at its newest message, so conversations mirrored here before the user first connected do not show as unread.
+**Native DMs:** `dmChannels` and `activeCalls` contain only the authenticated
+user's local memberships. `readStates` is filtered to visible channels and DMs;
+connecting never bootstraps a missing DM read cursor to the newest message.
+No peer registry, approval counts or alternate identity maps are sent.
 
 **Voice-state assembly:** `voiceStates` / `voiceChannelElapsedSeconds` / `voiceUserStates` / `spaceVoiceStates` for each of the user's spaces are produced by `ConnectionManager.buildSpaceVoiceState(spaceId, userId)` — the single source of truth shared with the mid-session join push (see below). `voiceChannelElapsedSeconds` is a whole-second duration computed from the in-memory `VoiceRoom.startedAt`; clients advance that duration from receipt time, so server/client clock skew cannot change the value. It disappears when the room becomes empty. Because rooms are intentionally in-memory, a server restart clears both occupancy and its duration until participants reconnect; this is not persisted to the database. Voice presence is VIEW_CHANNEL-filtered per `computePermissions`: a user is never told who occupies a voice channel they cannot see.
 

@@ -18,7 +18,7 @@ import { generateSnowflake } from './snowflake.js';
 const MANAGED_ROLE_COLOR = '#b9bbbe';
 
 /**
- * A requested-permissions value from a request or a peer: a canonical decimal
+ * A requested-permissions value from a native request: a canonical decimal
  * string (`parsePermissionString`) naming defined bits only. Null otherwise.
  */
 export function parseRequestedPermissions(value: unknown): bigint | null {
@@ -37,7 +37,7 @@ export function storedRequestedPermissions(column: string | null | undefined): b
 export function managedRoleBaseName(bot: { displayName: string | null; username: string }): string {
   const display = bot.displayName?.trim();
   if (display) return display;
-  return bot.username.split('@')[0] || bot.username;
+  return bot.username;
 }
 
 /**

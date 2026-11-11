@@ -6,8 +6,8 @@ import { Modal } from '../ui/Modal';
 import { useUIStore } from '../../stores/uiStore';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useAuthStore } from '../../stores/authStore';
-import { getJoinRequestClient } from '../../utils/inviteJoinRequest';
-import { resolveAssetUrl } from '../../utils/assetUrls';
+import { api } from '../../api/client';
+import { uploadUrl } from '../../utils/assetUrls';
 import { Avatar } from '../ui/Avatar';
 import { hasPermissionBit, PermissionBits } from '../../utils/permissions';
 import { OverviewPanel, MembersPanel, RolesPanel, BansPanel, SoundboardPanel, AfkPanel, SettingsPanelSuspense } from './lazySettingsPanels';
@@ -18,6 +18,11 @@ const DESCRIPTION_MAX_LENGTH = 200;
 
 /** Core invitation access and metadata; independent of any discovery settings. */
 export function AccessPanel({ spaceId }: { spaceId: string }) {
+  const revision = useAuthStore(s => s.sessionRevision);
+  return <AccessContent key={JSON.stringify([revision, spaceId])} spaceId={spaceId} revision={revision} />;
+}
+
+function AccessContent({ spaceId, revision }: { spaceId: string; revision: number }) {
   const { t } = useTranslation(['spaces', 'common']);
   const visibilityOptions = useVisibilityOptions();
   const space = useSpaceStore(s => s.spaces.find(space => space.id === spaceId));
@@ -27,6 +32,9 @@ export function AccessPanel({ spaceId }: { spaceId: string }) {
   const [description, setDescription] = useState(space?.description ?? '');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const current = () => alive.current && revision === useAuthStore.getState().sessionRevision;
 
   useEffect(() => {
     setVisibility(space?.visibility ?? 'private');
@@ -34,7 +42,7 @@ export function AccessPanel({ spaceId }: { spaceId: string }) {
     setSaveError('');
     // Overview saves replace the space object too. Only access-field or
     // identity changes should reseed this independent draft.
-  }, [spaceId, space?._instanceOrigin, space?.visibility, space?.description]);
+  }, [spaceId, space?.visibility, space?.description]);
   if (!space) return null;
 
   const hasChanges = visibility !== space.visibility || description !== (space.description ?? '');
@@ -42,9 +50,10 @@ export function AccessPanel({ spaceId }: { spaceId: string }) {
     setSaving(true); setSaveError('');
     try {
       await updateSpace(spaceId, { visibility, description: description.trim() });
+      if (!current()) return;
       addToast(t('common:states.settingsSaved'), 'success', 2000);
-    } catch (err) { setSaveError(describeError(err)); }
-    finally { setSaving(false); }
+    } catch (err) { if (current()) setSaveError(describeError(err)); }
+    finally { if (current()) setSaving(false); }
   };
   const handleReset = () => {
     setVisibility(space.visibility); setDescription(space.description ?? ''); setSaveError('');
@@ -81,7 +90,7 @@ export function AccessPanel({ spaceId }: { spaceId: string }) {
         </div>
       </div>
       {saveError && <div className="p-2 bg-accent-rose/10 border border-accent-rose/30 rounded text-txt-danger text-sm">{saveError}</div>}
-      {(visibility === 'request' || space.visibility === 'request') && <JoinRequestsSection spaceId={spaceId} origin={space._instanceOrigin} />}
+      {(visibility === 'request' || space.visibility === 'request') && <JoinRequestsSection spaceId={spaceId} />}
       {hasChanges && (
         <div className="sticky bottom-0 z-10 pointer-events-none">
           <div className="flex justify-center pt-3 pb-1">
@@ -98,42 +107,42 @@ export function AccessPanel({ spaceId }: { spaceId: string }) {
   );
 }
 
-export function JoinRequestsSection({ spaceId, origin }: { spaceId: string; origin: string }) {
+export function JoinRequestsSection({ spaceId }: { spaceId: string }) {
+  const revision = useAuthStore(s => s.sessionRevision);
+  return <JoinRequestsContent key={JSON.stringify([revision, spaceId])} spaceId={spaceId} revision={revision} />;
+}
+
+function JoinRequestsContent({ spaceId, revision }: { spaceId: string; revision: number }) {
   const { t } = useTranslation(['spaces', 'common']);
   const [requests, setRequests] = useState<JoinRequest[]>([]);
   const f = useFormatters();
   const [loading, setLoading] = useState(true);
   const [actionError, setActionError] = useState('');
-  const token = useAuthStore(s => s.token);
   const generation = useRef(0);
 
   useEffect(() => {
     let cancelled = false;
     const current = ++generation.current;
     setLoading(true); setRequests([]); setActionError('');
-    getJoinRequestClient(origin).then(client => {
-      if (cancelled || current !== generation.current || token !== useAuthStore.getState().token) return { requests: [] };
-      return client.joinRequests.list(spaceId, 'pending');
-    }).then(({ requests: reqs }) => {
-      if (!cancelled && current === generation.current && token === useAuthStore.getState().token) {
+    api.joinRequests.list(spaceId, 'pending').then(({ requests: reqs }) => {
+      if (!cancelled && current === generation.current && revision === useAuthStore.getState().sessionRevision) {
         setRequests(reqs); setLoading(false);
       }
     }).catch((err: unknown) => {
-      if (!cancelled && current === generation.current && token === useAuthStore.getState().token) {
+      if (!cancelled && current === generation.current && revision === useAuthStore.getState().sessionRevision) {
         setLoading(false); setActionError(describeError(err));
       }
     });
     return () => { cancelled = true; generation.current = current + 1; };
-  }, [spaceId, origin, token]);
+  }, [spaceId, revision]);
 
   const handleDecide = async (requestId: string, action: 'accept' | 'decline') => {
     const current = generation.current;
-    const isCurrent = () => current === generation.current && token === useAuthStore.getState().token;
+    const isCurrent = () => current === generation.current && revision === useAuthStore.getState().sessionRevision;
     setActionError('');
     try {
-      const client = await getJoinRequestClient(origin);
       if (!isCurrent()) return;
-      await client.joinRequests.decide(spaceId, requestId, action);
+      await api.joinRequests.decide(spaceId, requestId, action);
       if (!isCurrent()) return;
       setRequests(prev => prev.filter(r => r.id !== requestId));
     } catch (err) { if (isCurrent()) setActionError(describeError(err)); }
@@ -154,7 +163,7 @@ export function JoinRequestsSection({ spaceId, origin }: { spaceId: string; orig
             const displayName = user?.displayName ?? user?.username ?? t('common:states.unknown');
             return (
               <div key={req.id} className="flex items-start gap-3 p-2.5 rounded bg-surface-base">
-                <Avatar src={resolveAssetUrl(user?.avatar, origin)} name={displayName} size={32} userId={user?.homeUserId ?? user?.id} />
+                <Avatar src={uploadUrl(user?.avatar)} name={displayName} size={32} userId={user?.id} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="text-sm font-medium text-txt-primary truncate">{displayName}</span>

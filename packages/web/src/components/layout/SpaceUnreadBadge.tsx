@@ -8,17 +8,16 @@ import { useNotificationSettingsStore } from '../../stores/notificationSettingsS
 import { UnreadCountBadge } from './UnreadCountBadge';
 
 /**
- * The sum of a space's unread messages, from the counts its own instance sent.
+ * The sum of a native space's unread messages.
  * Only channels the client also holds as unread are summed, so the badge and
  * the unread dot agree; a host without counts shows no badge.
  */
 export function SpaceUnreadBadge({ spaceId }: { spaceId: string }) {
   const { t } = useTranslation('spaces');
-  const origin = useSpaceStore(s => s.spaces.find(space => space.id === spaceId)?._instanceOrigin ?? '');
   const channelSpaces = useSpaceStore(s => s.channelToSpaceMap);
   const unread = useChatStore(s => s.unreadChannels);
-  const counts = useUnreadCountStore(s => s.counts[origin]);
-  const setting = useStoredNotificationSetting(origin, spaceId, null);
+  const counts = useUnreadCountStore(s => s.counts);
+  const setting = useStoredNotificationSetting(spaceId, null);
   // Subscribed so that the end of a timed mute re-renders the badge.
   useNotificationSettingsStore(s => s.clock);
   const muted = isMuteActive(setting, Date.now());

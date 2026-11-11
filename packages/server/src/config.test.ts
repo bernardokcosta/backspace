@@ -37,7 +37,7 @@ describe('retired telemetry configuration', () => {
   });
 });
 
-describe('config.federation.backoffDivisor', () => {
+describe('retired federation configuration is never read', () => {
   const savedDivisor = process.env.FEDERATION_BACKOFF_DIVISOR;
 
   beforeEach(() => {
@@ -49,24 +49,8 @@ describe('config.federation.backoffDivisor', () => {
     else process.env.FEDERATION_BACKOFF_DIVISOR = savedDivisor;
   });
 
-  it('is 1, the production schedule, when FEDERATION_BACKOFF_DIVISOR is unset', async () => {
-    const config = await loadConfig();
-    expect(config.federation.backoffDivisor).toBe(1);
-  });
-
-  it('takes a whole number of at least 1', async () => {
-    process.env.FEDERATION_BACKOFF_DIVISOR = '30';
-    const config = await loadConfig();
-    expect(config.federation.backoffDivisor).toBe(30);
-  });
-
-  it('refuses 0, which would make every retry wait infinite', async () => {
-    process.env.FEDERATION_BACKOFF_DIVISOR = '0';
-    await expect(loadConfig()).rejects.toThrow(/FEDERATION_BACKOFF_DIVISOR/);
-  });
-
-  it('refuses a fraction, which would lengthen the waits', async () => {
-    process.env.FEDERATION_BACKOFF_DIVISOR = '0.5';
-    await expect(loadConfig()).rejects.toThrow(/FEDERATION_BACKOFF_DIVISOR/);
+  it.each([undefined, '0', '0.5', '30', 'malformed'])('legacy divisor %s cannot prevent native startup or expose a federation config', async value => {
+    if (value !== undefined) process.env.FEDERATION_BACKOFF_DIVISOR = value;
+    expect(await loadConfig()).not.toHaveProperty('federation');
   });
 });

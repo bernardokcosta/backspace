@@ -41,8 +41,7 @@ import { KeybindManager } from './keybindManager';
 import { linuxAutoLaunchEnabled, linuxAutoLaunchEntry, shouldRefreshLinuxAutoLaunch } from './autoLaunch';
 import {
   loadInstanceUrl,
-  saveInstanceUrl,
-  clearInstanceUrl,
+  registerInstanceUrlIpc,
   getPickerPath,
 } from './instanceUrl';
 import { getUpdateCapability, isSandboxed } from './updateCapability';
@@ -108,7 +107,6 @@ let tray: Tray | null = null;
 let isQuitting = false;
 let pendingDeepLink: string | null = null;
 
-const knownInstanceOrigins = new Set<string>();
 
 // ─── AGPL-3.0 § 13 source offer ─────────────────────────────────────────────
 // Fork fallback for the "Source code" menu items and the About panel.
@@ -528,7 +526,8 @@ function createWindow(): void {
       const u = new URL(url);
       if (
         (u.protocol === 'http:' || u.protocol === 'https:') &&
-        knownInstanceOrigins.has(u.origin) &&
+        isNavigationAllowed({ targetUrl: url, currentUrl: mainWindow?.webContents.getURL() ?? null,
+          pickerFileUrl: pathToFileURL(getPickerPath()).href }) &&
         u.pathname.startsWith('/join/')
       ) {
         mainWindow?.webContents.send('open-internal-route', u.pathname + u.search);
@@ -543,7 +542,7 @@ function createWindow(): void {
 
   // Deny foreign top-level navigations. See navigationPolicy.ts for the
   // mechanism note on why this is safe for the initial instance load, the
-  // file:// picker, and cross-instance switching (none of them are
+  // file:// picker, and selected-server replacement (none of them are
   // `will-navigate` events). setWindowOpenHandler above is unaffected — this
   // only covers same-window top-level navigation, not new-window/tab opens.
   mainWindow.webContents.on('will-navigate', (event, url) => {
@@ -551,7 +550,6 @@ function createWindow(): void {
       targetUrl: url,
       currentUrl: mainWindow?.webContents.getURL() ?? null,
       pickerFileUrl: pathToFileURL(getPickerPath()).href,
-      knownInstanceOrigins,
     });
     if (!allowed) {
       console.warn(`[main] Blocked will-navigate to disallowed target: ${url}`);
@@ -760,47 +758,25 @@ function registerIpcHandlers(): void {
     mainWindow?.close();
   });
 
-  // Connected-origins sync — renderer pushes the current set of instance origins
-  // so setWindowOpenHandler can route /join/* URLs in-app synchronously.
-  ipcMain.on('set-connected-origins', (_evt, origins: unknown) => {
-    if (!Array.isArray(origins)) return;
-    knownInstanceOrigins.clear();
-    for (const o of origins) {
-      if (typeof o === 'string' && o.length > 0) knownInstanceOrigins.add(o);
-    }
-  });
-
-  // Instance URL management
-  ipcMain.handle('get-instance-url', () => loadInstanceUrl());
-
-  ipcMain.handle('set-instance-url', (_event, url: string) => {
-    saveInstanceUrl(url);
-    if (mainWindow) {
-      mainWindow.loadURL(url);
-      // Force Electron to re-evaluate drag regions after navigation
-      mainWindow.webContents.once('did-finish-load', () => {
-        if (mainWindow && !mainWindow.isDestroyed()) {
-          const bounds = mainWindow.getBounds();
-          mainWindow.setSize(bounds.width + 1, bounds.height);
-          mainWindow.setSize(bounds.width, bounds.height);
-        }
-      });
-    }
-  });
-
-  ipcMain.handle('clear-instance-url', () => {
-    clearInstanceUrl();
-    if (mainWindow) {
-      mainWindow.loadFile(getPickerPath(), { query: getDesktopLanguageQuery() });
-      // Force Electron to re-evaluate drag regions after navigation
-      mainWindow.webContents.once('did-finish-load', () => {
-        if (mainWindow && !mainWindow.isDestroyed()) {
-          const bounds = mainWindow.getBounds();
-          mainWindow.setSize(bounds.width + 1, bounds.height);
-          mainWindow.setSize(bounds.width, bounds.height);
-        }
-      });
-    }
+  // Reuse the live main-frame IPC boundary. A remote page may request the
+  // picker, but only the bundled picker can persist a replacement server.
+  registerInstanceUrlIpc(ipcMain, event => !!mainWindow && !mainWindow.isDestroyed()
+    && !mainWindow.webContents.isDestroyed() && event.sender === mainWindow.webContents
+    && !!event.senderFrame && event.senderFrame === mainWindow.webContents.mainFrame,
+  url => {
+    const window = mainWindow;
+    if (!window || window.isDestroyed()) return;
+    const navigation = url === null
+      ? window.loadFile(getPickerPath(), { query: getDesktopLanguageQuery() })
+      : window.loadURL(url);
+    void navigation.catch(() => { console.warn('[main] Instance navigation failed'); });
+    // Force Electron to re-evaluate drag regions after navigation.
+    window.webContents.once('did-finish-load', () => {
+      if (mainWindow !== window || window.isDestroyed()) return;
+      const bounds = window.getBounds();
+      window.setSize(bounds.width + 1, bounds.height);
+      window.setSize(bounds.width, bounds.height);
+    });
   });
 
   // Auto-update IPC

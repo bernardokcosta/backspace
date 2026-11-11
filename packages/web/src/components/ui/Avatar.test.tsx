@@ -21,9 +21,6 @@ function makeUser(): User {
     customStatus: null,
     isAdmin: false,
     createdAt: 0,
-    homeInstance: null,
-    homeUserId: null,
-    replicatedInstances: [],
   };
 }
 
@@ -91,6 +88,13 @@ describe('Avatar palette (#328)', () => {
   it('keeps the user palette by default', () => {
     const { container } = render(<Avatar src={null} name="Ada" userId="u-1" avatarColor="rose" />);
     expect(fallbackBackground(container)).toBe(asRendered(getAvatarGradient('u-1', 'Ada', 'rose').gradient));
+  });
+  it('hashes the native account ID rather than obsolete provenance on untyped input', () => {
+    const native = makeUser();
+    const oldId = Array.from({ length: 50 }, (_, index) => `old-${index}`).find(id => getAvatarGradient(id, 'Ada').gradient !== getAvatarGradient(native.id, 'Ada').gradient)!;
+    const legacy = { ...native, homeUserId: oldId };
+    const { container } = render(<Avatar src={null} name="Ada" user={legacy} />);
+    expect(fallbackBackground(container)).toBe(asRendered(getAvatarGradient(native.id, 'Ada').gradient));
   });
 
   it('picks a valid preset from randomAvatarColor', () => {

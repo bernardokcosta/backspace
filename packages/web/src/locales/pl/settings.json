@@ -127,7 +127,6 @@
       "appearance": "Wygląd",
       "voice": "Głos i wideo",
       "privacy": "Prywatność",
-      "connections": "Połączenia",
       "keybinds": "Skróty klawiszowe",
       "desktop": "Komputer",
       "instance": "Instancja",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "Moje konto",
-    "detached": {
-      "notice": "To konto jest odłączone od macierzystej instancji.",
-      "explanation": "{{homeInstance}} zresetowano albo jest niedostępna, więc to konto działa teraz lokalnie na tej instancji. Twój profil i hasło są zarządzane tutaj.",
-      "reattachHint": "Jako {{username}} na {{homeInstance}} możesz ponownie powiązać to konto. Profil i obecność znów będą się synchronizować stamtąd.",
-      "reattachButton": "Powiąż ponownie z {{homeInstance}}",
-      "reattachConfirm": "Potwierdź ponowne powiązanie jako {{username}}",
-      "reattaching": "Ponowne wiązanie…",
-      "reattachFailed": "Ponowne powiązanie nie powiodło się",
-      "reattached": "Powiązano konto ponownie z {{username}}"
-    },
     "profile": {
       "sectionTitle": "Dostosowanie profilu",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "Konto",
       "status": {
-        "label": "Status",
-        "homeUnavailable": "Twój status jest trzymany na {{host}}. Połącz się z {{host}}, aby go zmienić."
+        "label": "Status"
       },
       "customStatus": {
         "label": "Własny status",
@@ -247,10 +235,6 @@
         "submit": "Usuń moje konto",
         "deleting": "Usuwanie…"
       },
-      "federation": {
-        "removing": "Usuwanie Twojego konta z połączonych instancji…",
-        "deleteAnyway": "Usuń konto teraz"
-      },
       "complete": {
         "title": "Usunięto konto",
         "redirecting": "Przekierowanie do logowania…"
@@ -312,14 +296,10 @@
       }
     }
   },
-  "connections": {
-    "title": "Połączenia"
-  },
   "instance": {
     "tabs": {
       "general": "Ogólne",
       "registration": "Rejestracja",
-      "federation": "Federacja",
       "streaming": "Streamowanie",
       "storage": "Miejsce",
       "users": "Użytkownicy",

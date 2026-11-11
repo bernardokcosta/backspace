@@ -29,7 +29,7 @@ import { MemberSidebar } from '../components/layout/MemberSidebar';
 import { UserProfilePopout } from '../components/ui/UserProfilePopout';
 import { UserProfileModal } from '../components/modals/UserProfileModal';
 import { MemberRolesModal } from '../components/modals/MemberRolesModal';
-import { useSpaceStore, type TaggedSpace } from '../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../stores/spaceStore';
 import { useUIStore } from '../stores/uiStore';
 import { useAuthStore } from '../stores/authStore';
 import { api, HttpError } from '../api/client';
@@ -47,10 +47,10 @@ const SCENES: readonly Scene[] = [
 ];
 
 const SPACE_ID = 'space-1';
-const SPACE: TaggedSpace = {
+const SPACE: SpaceWithMyRoles = {
   id: SPACE_ID, name: 'Aether Drift', icon: null, banner: null, avatarColor: 'lavender',
   ownerTitle: null, ownerId: 'u-owner', inviteCode: null, visibility: 'public',
-  description: '', createdAt: 1, _instanceOrigin: '',
+  description: '', createdAt: 1,
 };
 
 function role(id: string, name: string, color: string, position: number, permissions: bigint): Role {
@@ -71,12 +71,12 @@ function user(id: string, displayName: string, status: User['status'], extra: Pa
   return {
     id, username: displayName.toLowerCase(), displayName, avatar: null, banner: null, accentColor: null,
     avatarColor: null, bio: null, status, customStatus: null, isAdmin: false, createdAt: 1_690_000_000_000,
-    homeInstance: null, homeUserId: null, replicatedInstances: [], ...extra,
+    ...extra,
   };
 }
 
 const MIRA = user('u-mira', 'Mira', 'offline', {
-  username: 'mira@orbit.ddns.net', homeInstance: 'orbit.ddns.net', homeUserId: 'orbit-mira',
+  username: 'mira@retained.test',
   bio: 'Runs the Thursday listening nights. Ask me about field recordings.',
 });
 const TOBI = user('u-tobi', 'Tobi', 'offline');
@@ -166,7 +166,6 @@ function Workbench({ scene }: { scene: Scene }) {
       {(scene === 'card' || scene === 'no-roles') && (
         <UserProfilePopout
           user={cardUser}
-          origin=""
           member={{ spaceId: SPACE_ID, userId: cardUser.id }}
           onClose={() => undefined}
           anchor={ANCHOR}

@@ -2,9 +2,7 @@ import { useEffect, useRef } from 'react';
 import { isInVoiceRoom, useVoiceStore } from '../../stores/voiceStore';
 import { useChatStore, addedRealtimeMessageEvents } from '../../stores/chatStore';
 import { selectMyChosenStatus, useAuthStore } from '../../stores/authStore';
-import { useSpaceStore, getChannelOrigin, getMyUserIdForOrigin } from '../../stores/spaceStore';
-import { homeIdentityOf } from '../../utils/identity';
-import { voiceSessionOrigin } from '../../utils/dmCall';
+import { useSpaceStore } from '../../stores/spaceStore';
 import { AudioManager } from '../../audio/AudioManager';
 import { selectVoiceStateSound } from '../../utils/voiceSoundTransitions';
 import { getSfxVolume } from '../../utils/sfx';
@@ -22,8 +20,7 @@ function computeEffectiveSelfState(state: ReturnType<typeof useVoiceStore.getSta
 } {
   const cvId = state.currentVoiceChannelId;
   if (!cvId) return { muted: state.isMuted, deafened: state.isDeafened };
-  const origin = getChannelOrigin(cvId);
-  const myId = getMyUserIdForOrigin(origin);
+  const myId = useAuthStore.getState().user?.id;
   const spaceId = useSpaceStore.getState().channelToSpaceMap.get(cvId);
   const key = spaceId && myId ? `${spaceId}:${myId}` : '';
   const muted =
@@ -36,10 +33,8 @@ function computeEffectiveSelfState(state: ReturnType<typeof useVoiceStore.getSta
 
 /**
  * Our own share as the participant list shows it. Found by `isLocal`, not by an
- * account id: the local participant is listed under whatever id the room's
- * instance knows us by (another instance's id in a remote space's channel, the
- * DM member's id in a federated call), while the LiveKit identity is the key
- * every viewer's `stream_watch` ping is filed under (`streamWatchKey`).
+ * account id: the LiveKit identity is the transport key every viewer's
+ * `stream_watch` ping is filed under (`streamWatchKey`).
  */
 function localShareOf(participants: readonly ParticipantInfo[]): { identity: string | null; sharing: boolean } {
   const self = participants.find((p) => p.isLocal);
@@ -49,15 +44,7 @@ function localShareOf(participants: readonly ParticipantInfo[]): { identity: str
 export function SoundController() {
   const audioManager = AudioManager.getInstance();
   const currentUser = useAuthStore((s) => s.user);
-  // A participant id is either the call's instance's row id or, in a
-  // federated call while the DM is not resolved (e.g. during disconnect), the
-  // LiveKit identity's home user id. Both name the signed-in user when they
-  // are the id that instance gave them or the id of their home identity.
-  const isSelf = (id: string): boolean => {
-    if (id === getMyUserIdForOrigin(voiceSessionOrigin(useVoiceStore.getState()))) return true;
-    const user = useAuthStore.getState().user;
-    return !!user && id === homeIdentityOf(user, '')?.userId;
-  };
+  const isSelf = (id: string): boolean => id === useAuthStore.getState().user?.id;
 
   const isInitialMount = useRef(true);
   const initialState = useVoiceStore.getState();
@@ -320,7 +307,7 @@ export function SoundController() {
       if (incomingCallLoop.current) incomingCallLoop.current.stop();
       if (outgoingCallLoop.current) outgoingCallLoop.current.stop();
     };
-  }, [currentUser?.id, currentUser?.homeUserId]);
+  }, [currentUser?.id]);
 
   return null;
 }

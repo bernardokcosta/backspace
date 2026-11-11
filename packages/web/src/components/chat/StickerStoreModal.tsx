@@ -361,11 +361,6 @@ export function StickerStoreModal({ onClose, onPacksChanged }: StickerStoreModal
 
                         <div className="flex items-start justify-between gap-1 mb-1">
                           <h4 className="text-sm font-semibold text-txt-primary truncate">{pack.name}</h4>
-                          {pack.originType === 'replica' && (
-                            <span className="shrink-0 px-1.5 py-0.5 text-[10px] font-medium rounded-md bg-accent-lavender/10 text-accent-lavender border border-accent-lavender/20">
-                              {t('stickers.replicaBadge')}
-                            </span>
-                          )}
                         </div>
 
                         {pack.description && (
@@ -554,8 +549,6 @@ export function StickerStoreModal({ onClose, onPacksChanged }: StickerStoreModal
                           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-txt-tertiary">
                             <span>{t('stickers.creator')}: <strong className="text-txt-secondary font-medium">{pack.creatorName || '—'}</strong></span>
                             <span>•</span>
-                            <span>{t('stickers.sourceInstance')}: <strong className="text-txt-secondary font-medium">{pack.sourceInstance || t('stickers.localInstance')}</strong></span>
-                            <span>•</span>
                             {/* i18n-check: allow-literal */}
                             <span>v{pack.currentVersion} · {t('stickers.stickersCount', { count: pack.itemCount })}</span>
                           </div>
@@ -614,8 +607,6 @@ export function StickerStoreModal({ onClose, onPacksChanged }: StickerStoreModal
                 <h4 className="text-base font-bold text-txt-primary">{previewPack.name}</h4>
                 <div className="flex flex-wrap items-center gap-x-2 text-xs text-txt-tertiary mt-1">
                   <span>{t('stickers.creator')}: <strong className="text-txt-secondary font-medium">{previewPack.creatorName || '—'}</strong></span>
-                  <span>•</span>
-                  <span>{t('stickers.sourceInstance')}: <strong className="text-txt-secondary font-medium">{previewPack.sourceInstance || t('stickers.localInstance')}</strong></span>
                 </div>
                 {previewPack.description && (
                   <p className="text-xs text-txt-secondary mt-1.5">{previewPack.description}</p>

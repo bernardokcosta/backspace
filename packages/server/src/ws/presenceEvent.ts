@@ -1,39 +1,22 @@
-import { eq } from 'drizzle-orm';
-import type { Activity, ActivityAssets, ActivityPlayback, ActivityTimestamps, ActivityType, PresenceIdentity, ServerEvent } from '@veyvox/shared';
+import type { Activity, ActivityAssets, ActivityPlayback, ActivityTimestamps, ActivityType, ServerEvent } from '@veyvox/shared';
 import { ACTIVITY_LIMITS } from '@veyvox/shared/src/activities.js';
-import { getDb, schema } from '../db/index.js';
 
 /**
  * The S→C `presence_update` event, built in one place so every emitter names
  * the subject the same way.
  *
- * `userId` is this instance's row id. The row's federated identity rides along
- * (`homeUserId`/`homeInstance`, null for a native row), because the client keys
- * activities by that identity: a replicated row here and the person's native
- * row on their home must land on the same key (#340).
+ * `userId` is the current instance's stable local account id.
  *
- * Kept free of `connectionManager` so the WS handler, the presence relay and
- * the federation receivers can all import it without an import cycle.
+ * Kept free of `connectionManager` so emitters can share it without a cycle.
  */
 export type PresenceUpdateEvent = Extract<ServerEvent, { type: 'presence_update' }>;
-
-interface IdentityRow {
-  homeUserId: string | null;
-  homeInstance: string | null;
-}
-
-/** The identity a client needs to key a row's presence. Null pair for a native row. */
-export function presenceIdentityOf(row: IdentityRow): PresenceIdentity {
-  if (!row.homeInstance) return { homeUserId: null, homeInstance: null };
-  return { homeUserId: row.homeUserId, homeInstance: row.homeInstance };
-}
 
 /**
  * Build a presence_update about a row already in hand. `activities` omitted
  * means "unchanged" to the client; an empty array clears.
  */
 export function presenceUpdateEvent(
-  subject: { id: string } & IdentityRow,
+  subject: { id: string },
   status: string,
   activities?: Activity[],
 ): PresenceUpdateEvent {
@@ -42,22 +25,16 @@ export function presenceUpdateEvent(
     userId: subject.id,
     status,
     ...(activities !== undefined ? { activities } : {}),
-    ...presenceIdentityOf(subject),
   };
 }
 
-/** Build a presence_update about `userId`, reading its identity from the users table. */
+/** Build a presence_update about a verified local account id. */
 export function presenceUpdateFor(userId: string, status: string, activities?: Activity[]): PresenceUpdateEvent {
-  const row = getDb()
-    .select({ homeUserId: schema.users.homeUserId, homeInstance: schema.users.homeInstance })
-    .from(schema.users)
-    .where(eq(schema.users.id, userId))
-    .get();
-  return presenceUpdateEvent({ id: userId, homeUserId: row?.homeUserId ?? null, homeInstance: row?.homeInstance ?? null }, status, activities);
+  return presenceUpdateEvent({ id: userId }, status, activities);
 }
 
 /**
- * The activity set a snapshot reports for a user: their live (or relayed)
+ * The activity set a snapshot reports for a user: their live
  * activities, else their custom status as a `custom` activity. Used by the
  * ready payload and by the friendship snapshot, so both show the same thing.
  */
@@ -73,7 +50,7 @@ const MAX_TIMESTAMP = 4102444800000;
 const MAX_PLAYBACK_MS = 7 * 24 * 60 * 60 * 1000;
 
 /**
- * Validate and normalize an activity list from a client or a peer. Null when
+ * Validate and normalize an activity list from a client. Null when
  * anything in it is malformed or over the limits in `ACTIVITY_LIMITS`.
  */
 export function validateActivities(raw: unknown): Activity[] | null {
@@ -86,8 +63,7 @@ export function validateActivities(raw: unknown): Activity[] | null {
     const obj = item as Record<string, unknown>;
     if (!VALID_ACTIVITY_TYPES.has(obj.type as string)) return null;
     if (typeof obj.name !== 'string') return null;
-    // Checked on the trimmed name, which is what is stored and relayed: a
-    // name a sender accepts must pass every receiver's check too.
+    // Validate the trimmed name, which is what observers receive.
     if (obj.name.trim().length === 0 || obj.name.length > ACTIVITY_LIMITS.MAX_NAME_LENGTH) return null;
 
     const activity: Activity = { type: obj.type as ActivityType, name: (obj.name as string).trim() };

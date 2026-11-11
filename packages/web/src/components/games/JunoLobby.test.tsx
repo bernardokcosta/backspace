@@ -9,7 +9,7 @@ vi.mock('../../audio/AudioManager', () => ({ AudioManager: { getInstance: () => 
 const command = vi.fn(async () => {});
 beforeEach(() => {
   command.mockClear(); useJunoStore.getState().reset(); useAuthStore.setState({ user: junoUser() });
-  useJunoStore.getState().bind({ accountId: 'a', selfId: 'a', origin: '', channelId: 'voice' }, true);
+  useJunoStore.getState().bind({ userId: 'a', origin: window.location.origin, channelId: 'voice' }, true);
   useJunoStore.setState({ snapshot: { revision: 1, game: null }, command });
 });
 describe('Juno cosmic lobby', () => {
@@ -38,10 +38,10 @@ describe('Juno cosmic lobby', () => {
   });
   it('does not advertise computer management to visitors or old hosts', () => {
     const game = junoGame(); game.supportsBots = true;
-    useJunoStore.setState({ target: { accountId: 'b', selfId: 'b', origin: '', channelId: 'voice' }, snapshot: { revision: 2, game } });
+    useJunoStore.setState({ target: { userId: 'b', origin: window.location.origin, channelId: 'voice' }, snapshot: { revision: 2, game } });
     const { rerender } = render(<JunoLobby onRanking={() => {}} />);
     expect(screen.queryByRole('button', { name: 'Add computer player' })).not.toBeInTheDocument();
-    act(() => useJunoStore.setState({ target: { accountId: 'a', selfId: 'a', origin: '', channelId: 'voice' }, snapshot: { revision: 3, game: { ...game, supportsBots: undefined } } }));
+    act(() => useJunoStore.setState({ target: { userId: 'a', origin: window.location.origin, channelId: 'voice' }, snapshot: { revision: 3, game: { ...game, supportsBots: undefined } } }));
     rerender(<JunoLobby onRanking={() => {}} />);
     expect(screen.queryByRole('button', { name: 'Add computer player' })).not.toBeInTheDocument();
   });

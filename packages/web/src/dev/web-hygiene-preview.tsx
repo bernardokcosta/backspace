@@ -37,7 +37,7 @@ import { RichEmbed } from '../components/chat/embeds/RichEmbed';
 import { MentionBadge } from '../components/chat/MentionBadge';
 import { EmojiPicker } from '../components/chat/EmojiPicker';
 import { loadEmojiShortcodeNames, replaceEmojiShortcodes } from '../utils/emojiShortcodes';
-import { useSpaceStore, type TaggedSpace } from '../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../stores/spaceStore';
 import { useUIStore } from '../stores/uiStore';
 import { useKeybindStore } from '../stores/keybindStore';
 import { getSpaceGradient } from '../utils/gradients';
@@ -66,7 +66,7 @@ function readScene(): Scene {
   return SCENES.find((s) => s === raw) ?? 'space-settings';
 }
 
-const SPACE: TaggedSpace = {
+const SPACE: SpaceWithMyRoles = {
   id: 'workbench-space-7',
   name: 'Tidepool',
   icon: null,
@@ -77,7 +77,6 @@ const SPACE: TaggedSpace = {
   visibility: 'public',
   description: 'Rock pools, field notes and the odd crab.',
   createdAt: 1,
-  _instanceOrigin: '',
 };
 
 const ME: User = {
@@ -93,9 +92,6 @@ const ME: User = {
   customStatus: null,
   isAdmin: true,
   createdAt: 1,
-  homeInstance: null,
-  homeUserId: null,
-  replicatedInstances: [],
 };
 
 const KAI: User = { ...ME, id: 'u-kai', username: 'kai', displayName: 'Kai Okonkwo', avatarColor: 'sky', isAdmin: false };
@@ -114,7 +110,7 @@ function answer(pathPart: string, body: unknown): void {
   };
 }
 
-function seedSpace(space: TaggedSpace): void {
+function seedSpace(space: SpaceWithMyRoles): void {
   useSpaceStore.setState({
     spaces: [space],
     currentSpaceId: space.id,
@@ -123,7 +119,7 @@ function seedSpace(space: TaggedSpace): void {
   useUIStore.setState({ activeModal: 'spaceSettings', modalData: {} });
 }
 
-function SidebarIconSample({ space }: { space: TaggedSpace }) {
+function SidebarIconSample({ space }: { space: SpaceWithMyRoles }) {
   const grad = getSpaceGradient(space.id, space.name, space.avatarColor);
   return (
     <div className="fixed left-4 top-4 z-[10000] flex items-center gap-3 rounded-lg bg-surface-channel px-3 py-2 text-xs text-txt-tertiary">
@@ -289,9 +285,7 @@ async function main(): Promise<void> {
       name: 'Workbench',
       version: '1.7.0',
       registrationOpen: false,
-      federatedRegistrationOpen: true,
       spaceCreationOpen: true,
-      instanceId: 'instance-1',
       sourceCodeUrl: 'https://github.com/bernardokcosta/veyvox',
       commit: null,
     };

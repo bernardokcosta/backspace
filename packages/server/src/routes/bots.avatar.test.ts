@@ -47,7 +47,6 @@ vi.mock('../utils/thumbnail.js', async (importActual) => ({
   ...(await importActual<typeof import('../utils/thumbnail.js')>()),
   resizeProfileImage: vi.fn(async () => undefined),
 }));
-vi.mock('../utils/profileRelay.js', () => ({ queueProfileUpdateRelay: vi.fn() }));
 
 function applyMigrations(db: Database.Database): void {
   const dir = path.resolve(__dirname, '../../drizzle');

@@ -67,6 +67,8 @@ beforeEach(() => {
   computePermissions.mockReset();
   computePermissions.mockImplementation((_u, _s, channelId) => (channelId === 'hidden' ? PermissionBits.VIEW_CHANNEL : READ));
   sqlite.exec(`
+    INSERT INTO users (id,username,password_hash,created_at) VALUES ('me','me','synthetic',1),('other','other','synthetic',1);
+    INSERT INTO spaces (id,name,owner_id,created_at) VALUES ('space','Space','me',1);
     INSERT INTO channels (id, space_id, name, type, created_at) VALUES ('chat', 'space', 'chat', 'text', 1), ('hidden', 'space', 'hidden', 'text', 1);
     INSERT INTO dm_channels (id, created_at, deleted_at) VALUES ('dm', 1, NULL), ('closed', 1, NULL), ('gone', 1, 5);
     INSERT INTO dm_members (dm_channel_id, user_id, closed) VALUES ('dm', 'me', 0), ('dm', 'other', 0), ('closed', 'me', 1), ('gone', 'me', 0);

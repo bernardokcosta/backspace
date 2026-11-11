@@ -50,7 +50,7 @@ import { MembersPanel } from '../components/modals/spaceSettingsPanels/MembersPa
 import { RolesPanel } from '../components/modals/spaceSettingsPanels/RolesPanel';
 import { PermissionsEditor, type Override } from '../components/ui/PermissionsEditor';
 import type { PermissionDef } from '../components/ui/OverrideEntry';
-import { useSpaceStore, type TaggedSpace } from '../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../stores/spaceStore';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
 import { api, HttpError } from '../api/client';
@@ -74,9 +74,9 @@ const SCENES: readonly Scene[] = [
 ];
 
 const SPACE_ID = 'space-1';
-const SPACE: TaggedSpace = {
+const SPACE: SpaceWithMyRoles = {
   id: SPACE_ID, name: 'Aether Drift', icon: null, banner: null, avatarColor: 'lavender', ownerTitle: null, ownerId: 'owner',
-  inviteCode: null, visibility: 'public', description: null, createdAt: 1, _instanceOrigin: '',
+  inviteCode: null, visibility: 'public', description: null, createdAt: 1,
 };
 
 const MODERATION = permissionsToString(
@@ -95,7 +95,7 @@ const MEMBERS_ROLE = role('r-member', 'Members', '#a5f3c4', 1, permissionsToStri
 function user(id: string, displayName: string, status: User['status'] = 'online'): User {
   return {
     id, username: id, displayName, avatar: null, banner: null, accentColor: null, avatarColor: null, bio: null,
-    status, customStatus: null, isAdmin: false, createdAt: 1, homeInstance: null, homeUserId: null, replicatedInstances: [],
+    status, customStatus: null, isAdmin: false, createdAt: 1,
   };
 }
 function member(u: User, roles: Role[]): MemberWithUser {

@@ -18,11 +18,11 @@ import { __resetHomeInstanceInfoForTests } from '../../hooks/useHomeInstanceInfo
 import { useAuthStore } from '../../stores/authStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { useContextMenuStore, type ContextMenuAction } from '../../stores/contextMenuStore';
-import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../../stores/spaceStore';
 import { useUIStore } from '../../stores/uiStore';
 import { MobileSpacesScreen } from './MobileSpacesScreen';
 
-const SPACE: TaggedSpace = {
+const SPACE: SpaceWithMyRoles = {
   id: 'space-1',
   name: 'Kobold',
   icon: null,
@@ -33,7 +33,6 @@ const SPACE: TaggedSpace = {
   visibility: 'request',
   description: null,
   createdAt: 0,
-  _instanceOrigin: '',
 };
 
 const realGenerateInvite = useSpaceStore.getState().generateInvite;
@@ -104,7 +103,6 @@ describe('MobileSpacesScreen space menu: Invite People', () => {
       name: 'Backspace',
       version: '1.0.0',
       registrationOpen: true,
-      federatedRegistrationOpen: true,
       spaceCreationOpen: false,
       instanceId: 'id-1',
       sourceCodeUrl: 'https://example.com',
@@ -128,19 +126,19 @@ describe('MobileSpacesScreen space menu: Invite People', () => {
     expect(screen.getByRole('button', { name: 'Create Space' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Join Space' })).toBeInTheDocument();
   });
-  it('shows the reason an instance up to 1.9.0 gives for refusing a request space its link', async () => {
+  it('shows a native permission refusal without copying a link', async () => {
     __resetHomeInstanceInfoForTests();
   useAuthStore.setState({ user: { id: 'u1', username: 'alice', displayName: null, avatar: null, avatarColor: null, bio: null, pronouns: null, customStatus: null, banner: null, isAdmin: false, status: 'online', createdAt: 0 } });
   useSettingsStore.setState({ isAdmin: false });
   useSpaceStore.setState({
       generateInvite: vi.fn().mockRejectedValue(
-        new HttpError(403, 'This space uses join requests', undefined, 'space_uses_join_requests'),
+        new HttpError(403, 'Forbidden', undefined, 'forbidden'),
       ),
     });
     const { container } = renderScreen();
     openSpaceMenu(container);
     await act(async () => { menuAction('invite').onClick(); });
-    await waitFor(() => expect(lastToast()?.message).toBe('This space is joined by request, so it has no invite links.'));
+    await waitFor(() => expect(lastToast()?.message).toBe('You are not allowed to do that.'));
     expect(lastToast()?.type).toBe('warning');
     expect(writeText).not.toHaveBeenCalled();
   });
@@ -192,5 +190,12 @@ describe('MobileSpacesScreen space menu: Invite People', () => {
     openSpaceMenu(container);
     await act(async () => { menuAction('invite').onClick(); });
     await waitFor(() => expect(lastToast()?.message).toBe('Failed to generate invite'));
+  });
+  it('does not copy a pending invite after replacement of the native session', async () => {
+    let finish!: (code: string) => void;
+    useSpaceStore.setState({ generateInvite: vi.fn().mockReturnValueOnce(new Promise(resolve => { finish = resolve; })) });
+    const { container } = renderScreen(); openSpaceMenu(container); const pending = menuAction('invite').onClick();
+    act(() => useAuthStore.setState(s => ({ sessionRevision: s.sessionRevision + 1 })));
+    await act(async () => { finish('old-code'); await pending; }); expect(writeText).not.toHaveBeenCalled(); expect(lastToast()).toBeUndefined();
   });
 });

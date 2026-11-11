@@ -11,10 +11,8 @@ import { insertComposerMention } from './useComposerMention';
 interface Options {
   /** The channel or DM the message is in. */
   channelId: string;
-  /** The author's id on `origin`: the message's `userId`. */
+  /** The author's native account ID: the message's `userId`. */
   authorId: string;
-  /** The instance that issued the channel's ids ('' is the page's own). */
-  origin: string;
   isDm: boolean;
   /**
    * The viewer can write in the channel and the message is sent: not still
@@ -44,9 +42,9 @@ interface Options {
  * With neither item it does nothing, so the right click reaches the message
  * row and opens the message menu.
  */
-export function useAuthorMenu({ channelId, authorId, origin, isDm, canSend, isAuthor }: Options) {
+export function useAuthorMenu({ channelId, authorId, isDm, canSend, isAuthor }: Options) {
   const { t } = useTranslation('chat');
-  const pokeSupported = useChannelPokeStore(s => s.hosts[origin] === true);
+  const pokeSupported = useChannelPokeStore(s => s.supported);
   return (event: MouseEvent | KeyboardEvent) => {
     if (!canSend || !channelId || isAuthor) return;
     const items: ContextMenuItem[] = [];
@@ -61,7 +59,7 @@ export function useAuthorMenu({ channelId, authorId, origin, isDm, canSend, isAu
       items.push({
         type: 'action', key: 'poke-author', label: t('poke.action'),
         onClick: () => {
-          if (!wsSend({ type: 'channel_poke', channelId, targetUserId: authorId }, origin)) {
+          if (!wsSend({ type: 'channel_poke', channelId, targetUserId: authorId })) {
             useUIStore.getState().addToast(t('poke.disconnected'), 'warning');
           }
         },

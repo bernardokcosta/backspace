@@ -1,232 +1,104 @@
-import React, { useState, useEffect } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Modal } from '../ui/Modal';
 import { useUIStore } from '../../stores/uiStore';
-import { useSpaceStore, NotConnectedError } from '../../stores/spaceStore';
-import { useInstanceStore, RemoteLoginRequiredError, type RemoteLoginReason } from '../../stores/instanceStore';
+import { useSpaceStore } from '../../stores/spaceStore';
 import { useAuthStore } from '../../stores/authStore';
-import { useNavigate } from 'react-router-dom';
 import { parseInviteInput } from '../../utils/inviteParser';
 import { describeError } from '../../i18n/errors';
-import { FallbackNotice } from './RemotePasswordStep';
 import { isJoinRequestPendingError, isNotRequestableError, JoinRequestRequiredError } from '../../utils/joinErrors';
 import { sendInviteJoinRequest, type InviteRequestOutcome } from '../../utils/inviteJoinRequest';
 
-/**
- * `request` offers a join request: the code belongs to a space joined by
- * request, which a code never admits. `request-sent` says what became of it.
- */
-type JoinPhase = 'input' | 'connect' | 'fallback' | 'request' | 'request-sent';
-
-/** The longest note a join request keeps; the server cuts anything longer. */
 const JOIN_REQUEST_MESSAGE_MAX = 500;
+type JoinPhase = 'input' | 'request' | 'request-sent';
 
 export function JoinSpaceModal() {
+  const revision = useAuthStore(s => s.sessionRevision);
+  const active = useUIStore(s => s.activeModal === 'joinSpace');
+  return active ? <JoinSpaceContent key={revision} revision={revision} /> : null;
+}
+
+function JoinSpaceContent({ revision }: { revision: number }) {
   const { t } = useTranslation(['spaces', 'common']);
   const [inviteCode, setInviteCode] = useState('');
+  const [parsedCode, setParsedCode] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [phase, setPhase] = useState<JoinPhase>('input');
-  const [parsedCode, setParsedCode] = useState('');
-  const [parsedOrigin, setParsedOrigin] = useState('');
-  const [password, setPassword] = useState('');
-  const [fallbackUsername, setFallbackUsername] = useState('');
-  const [fallbackReason, setFallbackReason] = useState<RemoteLoginReason>('credential-refused');
-  const [fallbackPassword, setFallbackPassword] = useState('');
-  const [requestTarget, setRequestTarget] = useState<{ spaceId: string; origin: string } | null>(null);
+  const [requestSpaceId, setRequestSpaceId] = useState<string | null>(null);
   const [requestMessage, setRequestMessage] = useState('');
   const [requestOutcome, setRequestOutcome] = useState<InviteRequestOutcome>('sent');
-
-  const activeModal = useUIStore((s) => s.activeModal);
-  const closeModal = useUIStore((s) => s.closeModal);
-  const joinByCode = useSpaceStore((s) => s.joinByCode);
-  const connectToRemote = useInstanceStore((s) => s.connectToRemote);
-  const loginToRemote = useInstanceStore((s) => s.loginToRemote);
-  const user = useAuthStore((s) => s.user);
+  const closeModal = useUIStore(s => s.closeModal);
+  const modalData = useUIStore(s => s.modalData);
+  const joinByCode = useSpaceStore(s => s.joinByCode);
   const navigate = useNavigate();
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const current = () => alive.current && revision === useAuthStore.getState().sessionRevision
+    && useUIStore.getState().activeModal === 'joinSpace' && useUIStore.getState().modalData === modalData;
 
-  const isOpen = activeModal === 'joinSpace';
-
-  // Reset state on close
-  useEffect(() => {
-    if (!isOpen) {
-      setInviteCode('');
-      setError('');
-      setPhase('input');
-      setParsedCode('');
-      setParsedOrigin('');
-      setPassword('');
-      setFallbackUsername('');
-      setFallbackPassword('');
-      setRequestTarget(null);
-      setRequestMessage('');
-      setRequestOutcome('sent');
-    }
-  }, [isOpen]);
-
-  /**
-   * Join by the code and open the space, or, when the code belongs to a
-   * space joined by request, move to the request phase for the user to send
-   * one (or straight to its outcome when one is already waiting). Other
-   * failures are thrown to the calling phase.
-   */
-  const joinAndNavigate = async (code: string, origin?: string) => {
+  const joinAndNavigate = async (code: string) => {
+    if (!current()) return;
     try {
-      const space = await joinByCode(code, origin || undefined);
-      closeModal();
-      navigate(`/channels/${space.id}`);
+      const space = await joinByCode(code);
+      if (!current()) return;
+      closeModal(); navigate(`/channels/${space.id}`);
     } catch (err) {
+      if (!current()) return;
       if (isJoinRequestPendingError(err)) {
-        setRequestOutcome('pending');
-        setPhase('request-sent');
-        setError('');
-        return;
+        setRequestOutcome('pending'); setPhase('request-sent'); setError(''); return;
       }
       if (!(err instanceof JoinRequestRequiredError)) throw err;
-      setRequestTarget({ spaceId: err.spaceId, origin: err.origin });
-      setPhase('request');
-      setError('');
+      setRequestSpaceId(err.spaceId); setPhase('request'); setError('');
     }
   };
 
-  // Request phase: send the join request the code led to
   const handleSendRequest = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!requestTarget) return;
-    setError('');
-    setIsLoading(true);
+    if (!requestSpaceId || !current() || isLoading) return;
+    setError(''); setIsLoading(true);
     try {
-      const outcome = await sendInviteJoinRequest(requestTarget.spaceId, requestTarget.origin, requestMessage.trim() || undefined);
-      setRequestOutcome(outcome);
-      setPhase('request-sent');
+      const outcome = await sendInviteJoinRequest(requestSpaceId, requestMessage.trim() || undefined);
+      if (!current()) return;
+      setRequestOutcome(outcome); setPhase('request-sent');
     } catch (err) {
+      if (!current()) return;
       if (isNotRequestableError(err)) {
-        // The space stopped taking requests since the code was tried: the
-        // code follows its visibility now.
-        try {
-          await joinAndNavigate(parsedCode, parsedOrigin);
-        } catch (joinErr) {
-          setError(describeError(joinErr));
-        }
-      } else {
-        setError(describeError(err));
-      }
-    } finally {
-      setIsLoading(false);
-    }
+        try { await joinAndNavigate(parsedCode); }
+        catch (joinErr) { if (current()) setError(describeError(joinErr)); }
+      } else setError(describeError(err));
+    } finally { if (current()) setIsLoading(false); }
   };
 
-  // Phase 1: Submit invite code/URL
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!current() || isLoading) return;
     setError('');
-
-    let parsed: { code: string; origin?: string };
     try {
-      parsed = parseInviteInput(inviteCode);
-    } catch (err) {
-      setError(describeError(err));
-      return;
-    }
-
-    setParsedCode(parsed.code);
-    setParsedOrigin(parsed.origin || '');
-
-    setIsLoading(true);
-    try {
-      await joinAndNavigate(parsed.code, parsed.origin);
-    } catch (err) {
-      if (err instanceof NotConnectedError) {
-        setPhase('connect');
-        setError('');
-      } else {
-        setError(describeError(err));
-      }
-    } finally {
-      setIsLoading(false);
-    }
+      const parsed = parseInviteInput(inviteCode);
+      // Never strip a foreign host and accidentally admit a colliding local code.
+      if (parsed.origin) throw new Error(t('spaces:join.validation.invalidLink'));
+      setParsedCode(parsed.code); setIsLoading(true);
+      await joinAndNavigate(parsed.code);
+    } catch (err) { if (current()) setError(describeError(err)); }
+    finally { if (current()) setIsLoading(false); }
   };
-
-  // Phase 2: Connect to remote instance with password, then join
-  const handleConnect = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-    try {
-      await connectToRemote(parsedOrigin, password, user?.displayName || undefined);
-      await joinAndNavigate(parsedCode, parsedOrigin);
-    } catch (err) {
-      if (err instanceof RemoteLoginRequiredError) {
-        setPhase('fallback');
-        setFallbackUsername(err.remoteUsername);
-        setFallbackReason(err.reason);
-        setFallbackPassword('');
-        setError('');
-      } else {
-        setError(describeError(err));
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Phase 3: Fallback login with different credentials, then join
-  const handleFallbackLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-    try {
-      await loginToRemote(parsedOrigin, fallbackUsername, fallbackPassword);
-      await joinAndNavigate(parsedCode, parsedOrigin);
-    } catch (err) {
-      setError(describeError(err));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  let hostDisplay = '';
-  try {
-    if (parsedOrigin) hostDisplay = new URL(parsedOrigin).host;
-  } catch { /* ignore */ }
 
   return (
-    <Modal isOpen={isOpen} onClose={closeModal} title={t('spaces:join.title')} mobileStyle="sheet">
-      {/* Error display (shared across all phases) */}
-      {error && (
-        <div className="mb-3 p-2 bg-accent-rose/10 border border-accent-rose/30 rounded text-txt-danger text-sm">
-          {error}
-        </div>
-      )}
-
-      {/* Phase: input — joining requires a supplied invitation. */}
+    <Modal isOpen onClose={closeModal} title={t('spaces:join.title')} mobileStyle="sheet">
+      {error && <div className="mb-3 p-2 bg-accent-rose/10 border border-accent-rose/30 rounded text-txt-danger text-sm">{error}</div>}
       {phase === 'input' && (
         <div>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <input
-                type="text"
-                value={inviteCode}
-                onChange={(e) => setInviteCode(e.target.value)}
-                className="input-standard w-full"
-                placeholder={t('spaces:join.invitePlaceholder')}
-              />
+              <input type="text" value={inviteCode} onChange={e => setInviteCode(e.target.value)} className="input-standard w-full" placeholder={t('spaces:join.invitePlaceholder')} />
             </div>
             <div className="sticky bottom-0 z-10 pointer-events-none">
               <div className="flex justify-center pt-3 pb-1">
                 <div className="glass-bubble rounded-full px-3 py-2 flex items-center gap-3 pointer-events-auto">
-                  <button
-                    type="button"
-                    onClick={closeModal}
-                    className="px-3 py-1 text-sm text-txt-tertiary hover:text-txt-secondary transition-colors"
-                  >
-                    {t('common:actions.cancel')}
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isLoading || !inviteCode.trim()}
-                    className="px-3 py-1.5 bg-accent-primary hover:bg-accent-primary/80 text-white text-sm font-medium rounded-full transition-colors disabled:opacity-50"
-                  >
+                  <button type="button" onClick={closeModal} className="px-3 py-1 text-sm text-txt-tertiary hover:text-txt-secondary transition-colors">{t('common:actions.cancel')}</button>
+                  <button type="submit" disabled={isLoading || !inviteCode.trim()} className="px-3 py-1.5 bg-accent-primary hover:bg-accent-primary/80 text-white text-sm font-medium rounded-full transition-colors disabled:opacity-50">
                     {isLoading ? t('spaces:join.submitting') : t('spaces:join.submit')}
                   </button>
                 </div>
@@ -235,114 +107,22 @@ export function JoinSpaceModal() {
           </form>
         </div>
       )}
-
-      {/* Phase: connect — password prompt to connect to remote instance */}
-      {phase === 'connect' && (
-        <form onSubmit={handleConnect}>
-          <input type="text" autoComplete="username" value={user?.username || ''} readOnly tabIndex={-1} className="sr-only" />
-          <p className="text-txt-secondary text-sm mb-4">
-            <Trans
-              t={t}
-              i18nKey="spaces:join.connect.intro"
-              values={{ host: hostDisplay }}
-              components={{ host: <span className="text-txt-primary font-medium" /> }}
-            />
-          </p>
-          <div className="mb-4 space-y-2">
-            <div>
-              <label className="block text-xs text-txt-tertiary mb-1">
-                {t('spaces:join.connect.passwordLabel')}
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={t('spaces:join.connect.passwordPlaceholder')}
-                className="input-standard w-full"
-                disabled={isLoading}
-                autoFocus
-                autoComplete="current-password"
-              />
-              <div className="text-xs text-txt-tertiary mt-1">
-                {t('spaces:join.connect.passwordNote', { host: hostDisplay })}
-              </div>
-            </div>
-          </div>
-          <div className="sticky bottom-0 z-10 pointer-events-none">
-            <div className="flex justify-center pt-3 pb-1">
-              <div className="glass-bubble rounded-full px-3 py-2 flex items-center gap-3 pointer-events-auto">
-                <button
-                  type="button"
-                  onClick={() => { setPhase('input'); setPassword(''); setError(''); }}
-                  className="px-3 py-1 text-sm text-txt-tertiary hover:text-txt-secondary transition-colors flex items-center gap-1"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                  </svg>
-                  {t('common:actions.back')}
-                </button>
-                <div className="w-px h-5 bg-white/10" />
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="px-3 py-1 text-sm text-txt-tertiary hover:text-txt-secondary transition-colors"
-                >
-                  {t('common:actions.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  disabled={isLoading || !password}
-                  className="px-3 py-1.5 bg-accent-primary hover:bg-accent-primary/80 text-white text-sm font-medium rounded-full transition-colors disabled:opacity-50"
-                >
-                  {isLoading ? t('spaces:join.connect.submitting') : t('spaces:join.connect.submit')}
-                </button>
-              </div>
-            </div>
-          </div>
-        </form>
-      )}
-
-      {/* Phase: request: the code belongs to a space joined by request */}
       {phase === 'request' && (
         <form onSubmit={handleSendRequest}>
           <p className="text-txt-secondary text-sm mb-3">{t('spaces:join.request.notice')}</p>
-          <textarea
-            value={requestMessage}
-            onChange={(e) => setRequestMessage(e.target.value)}
-            placeholder={t('spaces:join.request.messagePlaceholder')}
-            aria-label={t('spaces:join.request.messageLabel')}
-            maxLength={JOIN_REQUEST_MESSAGE_MAX}
-            rows={3}
-            disabled={isLoading}
-            className="input-standard w-full mb-4 resize-none"
-            autoFocus
-          />
+          <textarea value={requestMessage} onChange={e => setRequestMessage(e.target.value)} placeholder={t('spaces:join.request.messagePlaceholder')}
+            aria-label={t('spaces:join.request.messageLabel')} maxLength={JOIN_REQUEST_MESSAGE_MAX} rows={3} disabled={isLoading} className="input-standard w-full mb-4 resize-none" autoFocus />
           <div className="sticky bottom-0 z-10 pointer-events-none">
             <div className="flex justify-center pt-3 pb-1">
               <div className="glass-bubble rounded-full px-3 py-2 flex items-center gap-3 pointer-events-auto">
-                <button
-                  type="button"
-                  onClick={() => { setPhase('input'); setRequestTarget(null); setRequestMessage(''); setError(''); }}
-                  className="px-3 py-1 text-sm text-txt-tertiary hover:text-txt-secondary transition-colors flex items-center gap-1"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                  </svg>
+                <button type="button" onClick={() => { setPhase('input'); setRequestSpaceId(null); setRequestMessage(''); setError(''); }}
+                  className="px-3 py-1 text-sm text-txt-tertiary hover:text-txt-secondary transition-colors flex items-center gap-1">
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
                   {t('common:actions.back')}
                 </button>
                 <div className="w-px h-5 bg-white/10" />
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="px-3 py-1 text-sm text-txt-tertiary hover:text-txt-secondary transition-colors"
-                >
-                  {t('common:actions.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="px-3 py-1.5 bg-accent-primary hover:bg-accent-primary/80 text-white text-sm font-medium rounded-full transition-colors disabled:opacity-50"
-                >
+                <button type="button" onClick={closeModal} className="px-3 py-1 text-sm text-txt-tertiary hover:text-txt-secondary transition-colors">{t('common:actions.cancel')}</button>
+                <button type="submit" disabled={isLoading} className="px-3 py-1.5 bg-accent-primary hover:bg-accent-primary/80 text-white text-sm font-medium rounded-full transition-colors disabled:opacity-50">
                   {isLoading ? t('spaces:join.request.sending') : t('spaces:join.request.send')}
                 </button>
               </div>
@@ -350,88 +130,11 @@ export function JoinSpaceModal() {
           </div>
         </form>
       )}
-
-      {/* Phase: request-sent: the request is with the space's managers */}
       {phase === 'request-sent' && (
         <div role="status">
-          <p className="text-txt-secondary text-sm mb-4">
-            {requestOutcome === 'sent' ? t('spaces:join.request.sent') : t('spaces:join.request.pending')}
-          </p>
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={closeModal}
-              className="px-4 py-1.5 bg-accent-primary hover:bg-accent-primary/80 text-white text-sm font-medium rounded-full transition-colors"
-            >
-              {t('common:actions.done')}
-            </button>
-          </div>
+          <p className="text-txt-secondary text-sm mb-4">{requestOutcome === 'sent' ? t('spaces:join.request.sent') : t('spaces:join.request.pending')}</p>
+          <div className="flex justify-end"><button type="button" onClick={closeModal} className="px-4 py-1.5 bg-accent-primary hover:bg-accent-primary/80 text-white text-sm font-medium rounded-full transition-colors">{t('common:actions.done')}</button></div>
         </div>
-      )}
-
-      {/* Phase: fallback — the account's own credentials on the remote instance */}
-      {phase === 'fallback' && (
-        <form onSubmit={handleFallbackLogin}>
-          <FallbackNotice reason={fallbackReason} host={hostDisplay} className="mb-3" />
-          <div className="mb-4 space-y-3">
-            <div>
-              <label className="block text-xs text-txt-tertiary mb-1">{t('common:labels.username')}</label>
-              <input
-                type="text"
-                value={fallbackUsername}
-                onChange={(e) => setFallbackUsername(e.target.value)}
-                placeholder={t('spaces:join.fallback.usernamePlaceholder')}
-                className="input-standard w-full"
-                disabled={isLoading}
-                autoComplete="username"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-txt-tertiary mb-1">{t('spaces:join.fallback.passwordLabel')}</label>
-              <input
-                type="password"
-                value={fallbackPassword}
-                onChange={(e) => setFallbackPassword(e.target.value)}
-                placeholder={t('spaces:join.fallback.passwordPlaceholder')}
-                className="input-standard w-full"
-                disabled={isLoading}
-                autoFocus
-                autoComplete="current-password"
-              />
-            </div>
-          </div>
-          <div className="sticky bottom-0 z-10 pointer-events-none">
-            <div className="flex justify-center pt-3 pb-1">
-              <div className="glass-bubble rounded-full px-3 py-2 flex items-center gap-3 pointer-events-auto">
-                <button
-                  type="button"
-                  onClick={() => { setPhase('connect'); setFallbackPassword(''); setError(''); }}
-                  className="px-3 py-1 text-sm text-txt-tertiary hover:text-txt-secondary transition-colors flex items-center gap-1"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                  </svg>
-                  {t('common:actions.back')}
-                </button>
-                <div className="w-px h-5 bg-white/10" />
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="px-3 py-1 text-sm text-txt-tertiary hover:text-txt-secondary transition-colors"
-                >
-                  {t('common:actions.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  disabled={isLoading || !fallbackUsername || !fallbackPassword}
-                  className="px-3 py-1.5 bg-accent-primary hover:bg-accent-primary/80 text-white text-sm font-medium rounded-full transition-colors disabled:opacity-50"
-                >
-                  {isLoading ? t('spaces:join.fallback.submitting') : t('spaces:join.fallback.submit')}
-                </button>
-              </div>
-            </div>
-          </div>
-        </form>
       )}
     </Modal>
   );

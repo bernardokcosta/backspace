@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -25,8 +25,8 @@ beforeEach(() => {
 
 describe('ensureDefaults installed_at', () => {
   it('backfills installed_at from the oldest local non-deleted user', () => {
-    db.prepare(`INSERT INTO users (id, username, password_hash, home_instance, is_deleted, created_at)
-      VALUES ('a', 'a', 'x', NULL, 0, 1000), ('b', 'b', 'x', NULL, 1, 500), ('c', 'c', 'x', 'remote.example', 0, 100)`).run();
+    db.prepare(`INSERT INTO users (id, username, password_hash, is_deleted, created_at)
+      VALUES ('a', 'a', 'x', 0, 1000), ('b', 'b', 'x', 1, 500)`).run();
     ensureDefaults(db);
     const row = db.prepare('SELECT installed_at FROM instance_settings WHERE id = 1').get() as { installed_at: number };
     expect(row.installed_at).toBe(1000);
@@ -37,9 +37,10 @@ describe('ensureDefaults installed_at', () => {
     ensureDefaults(db);
     const first = (db.prepare('SELECT installed_at FROM instance_settings WHERE id = 1').get() as { installed_at: number }).installed_at;
     expect(first).toBeGreaterThanOrEqual(before);
-    db.prepare(`INSERT INTO users (id, username, password_hash, home_instance, is_deleted, created_at) VALUES ('a', 'a', 'x', NULL, 0, 1)`).run();
+    db.prepare(`INSERT INTO users (id, username, password_hash, is_deleted, created_at) VALUES ('a', 'a', 'x', 0, 1)`).run();
     ensureDefaults(db);
     const second = (db.prepare('SELECT installed_at FROM instance_settings WHERE id = 1').get() as { installed_at: number }).installed_at;
     expect(second).toBe(first);
   });
 });
+afterEach(() => db.close());

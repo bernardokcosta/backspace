@@ -44,23 +44,6 @@ vi.mock('../ws/handler.js', () => ({
   },
 }));
 
-vi.mock('../utils/federationOutbox.js', async () => {
-  const actual = await vi.importActual<typeof import('../utils/federationOutbox.js')>('../utils/federationOutbox.js');
-  return {
-    ...actual,
-    isFederationRelayEnabled: () => false,
-    queueDmCloseRelay: vi.fn(),
-    sendTypingRelay: vi.fn(),
-    queueDmRelay: vi.fn(),
-    queueGroupMetadataRelay: vi.fn(),
-  };
-});
-
-vi.mock('../utils/federationAuth.js', async (importActual) => {
-  const actual = await importActual<typeof import('../utils/federationAuth.js')>();
-  return { ...actual, getOurOrigin: () => 'https://local.test' };
-});
-
 vi.mock('../utils/fileCleanup.js', async () => {
   const actual = await vi.importActual<typeof import('../utils/fileCleanup.js')>('../utils/fileCleanup.js');
   return {
@@ -89,14 +72,12 @@ function seedUser(id: string, username: string): void {
     username,
     displayName: username,
     passwordHash: 'x',
-    homeUserId: id,
-    homeInstance: 'https://local.test',
     createdAt: Date.now(),
   }).run();
 }
 
 function seedGroupDm(id: string, ownerId: string, members: string[]): void {
-  testDb.insert(schema.dmChannels).values({ id, ownerId, federatedId: null, createdAt: Date.now() }).run();
+  testDb.insert(schema.dmChannels).values({ id, ownerId, createdAt: Date.now() }).run();
   for (const userId of members) {
     testDb.insert(schema.dmMembers).values({ dmChannelId: id, userId }).run();
   }

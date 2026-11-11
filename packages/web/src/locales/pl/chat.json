@@ -63,14 +63,12 @@
       "group": {
         "intro": "To początek Waszej grupowej rozmowy.",
         "owner": "Właściciel: <owner>@{{name}}</owner>",
-        "federatedNotice": "Wiadomości są przechowywane na Twojej instancji macierzystej i instancjach odbiorców. Nie są szyfrowane end-to-end.",
         "openSettings": "Otwórz ustawienia grupy",
         "leave": "Opuść grupę"
       },
       "dm": {
         "fallbackName": "Wiadomość bezpośrednia",
         "intro": "To początek Twojej historii wiadomości bezpośrednich z <strong>@{{name}}</strong>.",
-        "federatedNotice": "Wiadomości są przechowywane na Twojej instancji macierzystej i instancji odbiorcy. Nie są szyfrowane end-to-end.",
         "removeFriend": "Usuń znajomego"
       }
     }
@@ -139,14 +137,6 @@
     },
     "audio": {
       "unsupportedBrowser": "Twoja przeglądarka nie obsługuje odtwarzania dźwięku."
-    },
-    "federation": {
-      "remoteNamed": "Hostowane na instancji użytkownika {{sender}}. Pobierz, aby zachować lokalną kopię.",
-      "remoteUnknown": "Hostowane na instancji nadawcy. Pobierz, aby zachować lokalną kopię.",
-      "partialGeneric": "Niektórzy odbiorcy nie mogą zapisać tego pliku lokalnie.",
-      "partialInstance": "Instancja użytkownika {{username}} (limit: {{limit}})",
-      "partialList": "Plik nie mógł zostać zapisany na: {{instances}}. Odbiorcy mogą go nadal oglądać z Twojej instancji.",
-      "listPair": "{{first}} i {{second}}"
     }
   },
   "gif": {
@@ -285,7 +275,6 @@
     "stickersCount_many": "{{count}} naklejek",
     "stickersCount_other": "{{count}} naklejki",
     "noPacks": "Nie znaleziono pakietów naklejek",
-    "replicaBadge": "Sfederowany",
     "viewPack": "Zobacz pakiet",
     "saveDraft": "Zapisz jako szkic",
     "packCreated": "Pakiet utworzony pomyślnie",
@@ -302,8 +291,6 @@
     "rejectedSuccess": "Pakiet naklejek odrzucony",
     "reviewNotes": "Powód odrzucenia",
     "creator": "Twórca",
-    "sourceInstance": "Instancja",
-    "localInstance": "Lokalna instancja",
     "viewStickers": "Zobacz naklejki",
     "pendingReviewHint": "W trakcie recenzji administratora, po zatwierdzeniu pojawi się w Odkrywaj"
   },

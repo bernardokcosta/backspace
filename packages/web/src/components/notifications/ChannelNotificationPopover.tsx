@@ -72,7 +72,7 @@ export function ChannelNotificationPopover({ open, onClose, anchorRef, channelId
       <div className="px-1 pb-2 text-[14px] font-semibold text-txt-primary truncate">
         {t('spaces:notifications.channelTitle', { channel: channelName })}
       </div>
-      <NotificationSettingsControls origin={location.origin} spaceId={location.spaceId} channelId={channelId} />
+      <NotificationSettingsControls spaceId={location.spaceId} channelId={channelId} />
     </div>,
     document.body,
   );

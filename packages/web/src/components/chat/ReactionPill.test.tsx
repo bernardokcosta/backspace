@@ -18,13 +18,13 @@ import { useUIStore } from '../../stores/uiStore';
 import { useContextMenuStore } from '../../stores/contextMenuStore';
 import { api, HttpError } from '../../api/client';
 
-function user(id: string, username: string, displayName: string | null = null, homeInstance: string | null = null): User {
-  return { id, username, displayName, avatar: null, createdAt: 1, homeInstance, homeUserId: homeInstance ? `${id}-home` : null } as unknown as User;
+function user(id: string, username: string, displayName: string | null = null): User {
+  return { id, username, displayName, avatar: null, createdAt: 1 } as User;
 }
 
 const ME = user('me', 'jannis', 'Jannis');
 const MIRA = user('mira', 'mira', 'Mira');
-const TOVE_STUB = user('tove-local', 'tove@orbit.example', null, 'orbit.example');
+const TOVE = user('tove-local', 'tove@orbit.example');
 
 function reaction(reactor: User, at: number): Reaction {
   return { id: `r-${reactor.id}`, messageId: 'm1', userId: reactor.id, emoji: '🎉', createdAt: at, user: reactor };
@@ -42,7 +42,7 @@ afterEach(() => {
 });
 
 function renderPill(reactions: Reaction[], onToggle = vi.fn()) {
-  render(<ReactionPill emoji="🎉" reactions={reactions} origin="" onToggle={onToggle} />);
+  render(<ReactionPill emoji="🎉" reactions={reactions} onToggle={onToggle} />);
   return screen.getByRole('button');
 }
 
@@ -129,18 +129,10 @@ describe('ReactionPill', () => {
     expect(pill).toHaveAttribute('aria-pressed', 'true');
   });
 
-  it("names a remote user by the best view of them this client has", () => {
-    // The channel's origin knows Tove only as a stub; her home instance's
-    // view (with a display name) reached the userViews cache.
-    useSpaceStore.setState({
-      userViews: new Map([['orbit.example:tove-local-home', {
-        user: { ...TOVE_STUB, displayName: 'Tove' },
-        deliveredBy: 'https://orbit.example',
-        isHome: true,
-        updatedAt: 1,
-      }]]),
-    });
-    const pill = renderPill([reaction(TOVE_STUB, 1)]);
+  it('reacts to native cached profile updates without an origin projection', () => {
+    const pill = renderPill([reaction(TOVE, 1)]);
+    expect(pill).toHaveAccessibleDescription('tove@orbit.example reacted');
+    act(() => useSpaceStore.getState().upsertUserView({ ...TOVE, displayName: 'Tove' }));
     expect(pill).toHaveAccessibleDescription('Tove reacted');
   });
 
@@ -164,7 +156,7 @@ describe('ReactionPill', () => {
 it('shows a sticker preview with reactors and preserves toggle behavior', () => {
   const token = `sticker:https://chat.test/api/stickers/assets/${'a'.repeat(64)}.webp`;
   const toggle = vi.fn();
-  render(<ReactionPill emoji={token} origin="" reactions={[{ ...reaction(MIRA, 1), emoji: token }]} onToggle={toggle} />);
+  render(<ReactionPill emoji={token} reactions={[{ ...reaction(MIRA, 1), emoji: token }]} onToggle={toggle} />);
   expect(screen.getByRole('img')).toHaveAttribute('src', token.slice('sticker:'.length));
   fireEvent.mouseEnter(screen.getByRole('button'));
   act(() => { vi.advanceTimersByTime(400); });
@@ -197,7 +189,7 @@ describe('sticker reaction menu', () => {
 
   function openMenu(token: string) {
     cleanup();
-    render(<ReactionPill emoji={token} origin="" reactions={[{ ...reaction(MIRA, 1), emoji: token }]} onToggle={vi.fn()} />);
+    render(<ReactionPill emoji={token} reactions={[{ ...reaction(MIRA, 1), emoji: token }]} onToggle={vi.fn()} />);
     fireEvent.contextMenu(screen.getByRole('button'), { clientX: 100, clientY: 200 });
     const menu = useContextMenuStore.getState().menu;
     if (!menu) throw new Error('Expected a menu');
@@ -257,7 +249,7 @@ describe('sticker reaction menu', () => {
 
   it('leaves an emoji pill to the message menu', () => {
     const outer = vi.fn();
-    render(<div onContextMenu={outer}><ReactionPill emoji="🎉" origin="" reactions={[reaction(MIRA, 1)]} onToggle={vi.fn()} /></div>);
+    render(<div onContextMenu={outer}><ReactionPill emoji="🎉" reactions={[reaction(MIRA, 1)]} onToggle={vi.fn()} /></div>);
     fireEvent.contextMenu(screen.getByRole('button'));
     expect(useContextMenuStore.getState().menu).toBeNull();
     expect(outer).toHaveBeenCalledOnce();

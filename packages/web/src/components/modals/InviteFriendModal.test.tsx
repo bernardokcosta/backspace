@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { User } from '@veyvox/shared';
+import type { Friend, User } from '@veyvox/shared';
 
 // Stub AudioManager to avoid AudioWorkletNode reference error in jsdom.
 // Reached transitively via spaceStore → chatStore → useWebSocket → voiceStore.
@@ -27,11 +27,10 @@ vi.mock('../../api/client', async (importOriginal) => ({
 
 import { InviteFriendModal } from './InviteFriendModal';
 import { useUIStore } from '../../stores/uiStore';
-import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../../stores/spaceStore';
 import { useAuthStore } from '../../stores/authStore';
-import type { TaggedFriend } from '../../stores/socialStore';
 
-function makeFriend(overrides: Partial<TaggedFriend> = {}): TaggedFriend {
+function makeFriend(overrides: Partial<Friend> = {}): Friend {
   return {
     id: 'f1',
     username: 'alex',
@@ -45,14 +44,11 @@ function makeFriend(overrides: Partial<TaggedFriend> = {}): TaggedFriend {
     status: 'online' as const,
     createdAt: 0,
     addedAt: 0,
-    homeUserId: null,
-    homeInstance: null,
-    _instanceOrigin: '',
     ...overrides,
   };
 }
 
-function makeSpace(overrides: Partial<TaggedSpace> = {}): TaggedSpace {
+function makeSpace(overrides: Partial<SpaceWithMyRoles> = {}): SpaceWithMyRoles {
   return {
     id: 'space-1',
     name: 'My Space',
@@ -65,13 +61,12 @@ function makeSpace(overrides: Partial<TaggedSpace> = {}): TaggedSpace {
     description: '',
     visibility: 'private',
     createdAt: 0,
-    _instanceOrigin: '',
     ...overrides,
   };
 }
 
 function me(id = 'me'): User {
-  return { ...makeFriend({ id, username: id }), isAdmin: false, replicatedInstances: [] };
+  return { ...makeFriend({ id, username: id }), isAdmin: false };
 }
 
 function setUp({
@@ -79,8 +74,8 @@ function setUp({
   spaces = [makeSpace()],
   generateInvite = vi.fn().mockResolvedValue('test-code'),
 }: {
-  friend?: TaggedFriend;
-  spaces?: TaggedSpace[];
+  friend?: Friend;
+  spaces?: SpaceWithMyRoles[];
   generateInvite?: ReturnType<typeof vi.fn>;
 } = {}) {
   useUIStore.setState({ activeModal: 'inviteFriend', modalData: { friend } });
@@ -121,7 +116,7 @@ describe('InviteFriendModal', () => {
     await user.click(screen.getByText('My Space'));
 
     await waitFor(() => expect(mockSpaceInvite).toHaveBeenCalledTimes(1));
-    expect(generateInvite).toHaveBeenCalledWith('space-1', '');
+    expect(generateInvite).toHaveBeenCalledWith('space-1');
     expect(mockSpaceInvite).toHaveBeenCalledWith(
       expect.objectContaining({
         spaceId: 'space-1',
@@ -152,17 +147,17 @@ describe('InviteFriendModal', () => {
     expect(screen.getByText('You’re not in any Spaces yet')).toBeInTheDocument();
   });
 
-  it('generates the selected origin even when another space has the same id', async () => {
+  it('generates the selected native space ID instead of a namesake', async () => {
     const { generateInvite } = setUp({ spaces: [makeSpace({ name: 'Local' }),
-      makeSpace({ name: 'Remote', _instanceOrigin: 'https://remote.example' })] });
+      makeSpace({ id: 'second-space', name: 'Second Space' })] });
     mockSpaceInvite.mockResolvedValue({});
     render(<InviteFriendModal />);
-    await userEvent.click(screen.getByText('Remote'));
-    expect(generateInvite).toHaveBeenCalledWith('space-1', 'https://remote.example');
-    expect(mockSpaceInvite).toHaveBeenCalledWith(expect.objectContaining({ spaceInstanceOrigin: 'https://remote.example' }));
+    await userEvent.click(screen.getByText('Second Space'));
+    expect(generateInvite).toHaveBeenCalledWith('second-space');
+    expect(mockSpaceInvite).toHaveBeenCalledWith(expect.objectContaining({ spaceId: 'second-space', spaceInstanceOrigin: '' }));
   });
 
-  it.each(['close', 'recipient', 'account', 'token', 'unmount'] as const)('does not send after %s changes during code lookup', async change => {
+  it.each(['close', 'recipient', 'account', 'token', 'revision', 'unmount'] as const)('does not send after %s changes during code lookup', async change => {
     let finish!: (code: string) => void;
     setUp({ generateInvite: vi.fn().mockReturnValue(new Promise<string>(resolve => { finish = resolve; })) });
     const view = render(<InviteFriendModal />);
@@ -172,6 +167,7 @@ describe('InviteFriendModal', () => {
       if (change === 'recipient') useUIStore.getState().openModal('inviteFriend', { friend: makeFriend({ id: 'bob', displayName: 'Bob' }) });
       if (change === 'account') useAuthStore.setState({ user: me('other'), token: 'other-session' });
       if (change === 'token') useAuthStore.setState({ token: 'replaced-session' });
+      if (change === 'revision') useAuthStore.setState(s => ({ sessionRevision: s.sessionRevision + 1 }));
       if (change === 'unmount') view.unmount();
     });
     await act(async () => { finish('old-code'); });

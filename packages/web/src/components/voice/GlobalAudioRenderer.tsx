@@ -1,6 +1,7 @@
 import React from 'react';
 import { useVoiceStore } from '../../stores/voiceStore';
-import { useSpaceStore, getChannelOrigin, getMyUserIdForOrigin } from '../../stores/spaceStore';
+import { useSpaceStore } from '../../stores/spaceStore';
+import { useAuthStore } from '../../stores/authStore';
 import { useAudioTrackPlayer } from '../../hooks/useAudioTrackPlayer';
 import type { ParticipantInfo } from '../../hooks/useLiveKit';
 import { isLocallyMutedIn, localVolumeIn } from '../../utils/voiceLocalKeys';
@@ -83,8 +84,8 @@ export function GlobalAudioRenderer() {
 
   // Compute effective deafened: user intent || server enforcement
   const spaceId = useSpaceStore((s) => currentVoiceChannelId ? s.channelToSpaceMap.get(currentVoiceChannelId) : null);
-  const myOriginId = currentVoiceChannelId ? getMyUserIdForOrigin(getChannelOrigin(currentVoiceChannelId)) : undefined;
-  const spaceKey = (spaceId && myOriginId) ? `${spaceId}:${myOriginId}` : '';
+  const myId = useAuthStore(s => s.user?.id);
+  const spaceKey = (spaceId && myId) ? `${spaceId}:${myId}` : '';
   const isDeafened = isDeafenedIntent || spaceDeafenedUserIds.has(spaceKey);
 
   // Determine if someone is currently speaking (for stream attenuation)

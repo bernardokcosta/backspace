@@ -1,30 +1,28 @@
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect } from 'vitest';
 import Database from 'better-sqlite3';
 import { ensureDefaults } from './migrate.js';
+import { buildNativeDatabase, seedNativeUser } from '../testing/standaloneUpgrade.js';
 
-function freshDb(): Database.Database {
-  const db = new Database(':memory:');
-  db.exec(`CREATE TABLE instance_settings (id integer PRIMARY KEY, instance_name text DEFAULT 'Backspace', worker_id integer, instance_id text, max_bitrate_kbps integer, min_bitrate_kbps integer, bitrate_step_kbps integer, allowed_resolutions text, allowed_framerates text, max_resolution integer, max_framerate integer, installed_at integer, updated_at integer);
-    CREATE TABLE users (id text PRIMARY KEY, is_admin integer DEFAULT 0, home_instance text, is_deleted integer DEFAULT 0, created_at integer);`);
-  return db;
+const databases: Database.Database[]=[];
+afterEach(()=>{for(const db of databases.splice(0)) db.close();});
+function fixture(): Database.Database {
+  const db=new Database(':memory:'); databases.push(db); buildNativeDatabase(db); return db;
 }
 
-describe('ensureDefaults instance epoch', () => {
-  it('mints an instance_id when null and is idempotent', () => {
-    const db = freshDb();
-    ensureDefaults(db);
-    const first = (db.prepare('SELECT instance_id FROM instance_settings WHERE id = 1').get() as { instance_id: string }).instance_id;
-    expect(first).toMatch(/^[0-9a-f-]{36}$/);
-    ensureDefaults(db);
-    const second = (db.prepare('SELECT instance_id FROM instance_settings WHERE id = 1').get() as { instance_id: string }).instance_id;
-    expect(second).toBe(first); // stable across boots
+describe('native boot defaults',()=>{
+  it('initializes only native settings and keeps the same worker/date on later boots',()=>{
+    const db=fixture(); ensureDefaults(db);
+    const first=db.prepare('SELECT * FROM instance_settings').get() as {worker_id:number;installed_at:number};
+    expect(first.worker_id).toBeGreaterThanOrEqual(0); expect(first.worker_id).toBeLessThan(1024);
+    expect(first.installed_at).toBeGreaterThan(0);
+    expect(first).not.toHaveProperty('instance_id');
+    ensureDefaults(db); expect(db.prepare('SELECT * FROM instance_settings').get()).toEqual(first);
   });
 
-  it('mints a different id for a separate fresh DB', () => {
-    const a = freshDb(); ensureDefaults(a);
-    const b = freshDb(); ensureDefaults(b);
-    const idA = (a.prepare('SELECT instance_id FROM instance_settings WHERE id = 1').get() as { instance_id: string }).instance_id;
-    const idB = (b.prepare('SELECT instance_id FROM instance_settings WHERE id = 1').get() as { instance_id: string }).instance_id;
-    expect(idA).not.toBe(idB);
+  it('uses the oldest retained live account for installed_at without filtering obsolete provenance',()=>{
+    const db=fixture(); seedNativeUser(db,'native'); seedNativeUser(db,'deleted');
+    db.exec("UPDATE users SET created_at=10 WHERE id='native'; UPDATE users SET is_deleted=1,created_at=1 WHERE id='deleted'");
+    ensureDefaults(db);
+    expect(db.prepare('SELECT installed_at FROM instance_settings').get()).toEqual({installed_at:10});
   });
 });

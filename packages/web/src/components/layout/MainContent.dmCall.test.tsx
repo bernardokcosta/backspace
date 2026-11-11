@@ -12,7 +12,7 @@ vi.mock('../../audio/AudioManager', () => ({
     }),
   },
 }));
-vi.mock('../../hooks/useWebSocket', () => ({ wsSend: vi.fn() }));
+vi.mock('../../hooks/useWebSocket', () => ({ wsSend: vi.fn(() => true) }));
 // The DM header is under test; the message surfaces have their own tests.
 vi.mock('../chat/MessageList', () => ({ MessageList: () => null }));
 vi.mock('../chat/MessageInput', () => ({ MessageInput: () => null }));
@@ -43,25 +43,24 @@ beforeEach(() => {
   vi.clearAllMocks();
   useAuthStore.setState({ user: { id: 'self', username: 'self' } as User });
   useChatStore.setState({ currentChannelId: dm.id });
-  useSpaceStore.setState({ currentSpaceId: null, channels: [], dmChannels: [dm], channelOriginMap: new Map() });
+  useSpaceStore.setState({ currentSpaceId: null, channels: [], dmChannels: [dm] });
   useUIStore.setState({ showDms: true });
   useVoiceStore.setState({ outgoingCall: null, activeDmCall: null, incomingCall: null, voiceUsers: new Map(), connectFn: null });
 });
 
 describe('desktop DM header call actions', () => {
-  it('starts a call on the DM channel origin', () => {
-    useSpaceStore.setState({ channelOriginMap: new Map([[dm.id, 'https://remote.example']]) });
+  it('starts a native DM call through the current socket', () => {
     renderDm();
     fireEvent.click(screen.getByTitle('Start Voice Call'));
     expect(useVoiceStore.getState().outgoingCall).toEqual({ dmChannelId: dm.id, withCamera: false });
-    expect(wsSend).toHaveBeenCalledWith({ type: 'dm_call_start', dmChannelId: dm.id }, 'https://remote.example');
+    expect(wsSend).toHaveBeenCalledWith({ type: 'dm_call_start', dmChannelId: dm.id });
   });
 
   it('starts a video call: the same call, with the camera to go on once connected', () => {
     renderDm();
     fireEvent.click(screen.getByTitle('Start Video Call'));
     expect(useVoiceStore.getState().outgoingCall).toEqual({ dmChannelId: dm.id, withCamera: true });
-    expect(wsSend).toHaveBeenCalledWith({ type: 'dm_call_start', dmChannelId: dm.id }, '');
+    expect(wsSend).toHaveBeenCalledWith({ type: 'dm_call_start', dmChannelId: dm.id });
   });
 
   it('offers no call in a 1-on-1 whose partner was deleted', () => {
@@ -72,7 +71,7 @@ describe('desktop DM header call actions', () => {
   });
 
   it('cannot start a second call while an incoming call rings', () => {
-    useVoiceStore.setState({ incomingCall: { dmChannelId: 'other', federatedCallId: null, callOrigin: null, callerId: 'bob', callerName: 'Bob', livekit: null } });
+    useVoiceStore.setState({ incomingCall: { dmChannelId: 'other', callerId: 'bob', callerName: 'Bob' } });
     renderDm();
     const button = screen.getByTitle('Start Voice Call');
     expect(button).toBeDisabled();
@@ -81,15 +80,13 @@ describe('desktop DM header call actions', () => {
     expect(useVoiceStore.getState().outgoingCall).toBeNull();
   });
 
-  it('cancels a ringing call on the DM channel origin', () => {
-    useSpaceStore.setState({ channelOriginMap: new Map([[dm.id, 'https://remote.example']]) });
+  it('cancels a ringing native DM call', () => {
     useVoiceStore.setState({ outgoingCall: { dmChannelId: dm.id, withCamera: false } });
     renderDm();
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(useVoiceStore.getState().outgoingCall).toBeNull();
     expect(wsSend).toHaveBeenCalledWith(
-      { type: 'dm_call_end', dmChannelId: dm.id, federatedCallId: null },
-      'https://remote.example',
+      { type: 'dm_call_end', dmChannelId: dm.id },
     );
   });
 
@@ -100,9 +97,9 @@ describe('desktop DM header call actions', () => {
     // The voice and video buttons both join; the voice one comes first.
     fireEvent.click(screen.getAllByTitle('Join Call')[0]!);
     expect(useVoiceStore.getState().outgoingCall).toBeNull();
-    expect(useVoiceStore.getState().activeDmCall).toEqual({ dmChannelId: dm.id, federatedCallId: null, callOrigin: null, livekit: null });
-    expect(wsSend).toHaveBeenCalledWith({ type: 'dm_call_accept', dmChannelId: dm.id }, '');
-    expect(wsSend).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'dm_call_start' }), expect.anything());
+    expect(useVoiceStore.getState().activeDmCall).toEqual({ dmChannelId: dm.id });
+    expect(wsSend).toHaveBeenCalledWith({ type: 'dm_call_accept', dmChannelId: dm.id });
+    expect(wsSend).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'dm_call_start' }));
     expect(connectFn).toHaveBeenCalledWith(dm.id, true);
   });
 });

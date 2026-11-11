@@ -1,7 +1,7 @@
 import type { ChosenUserStatus } from '@veyvox/shared';
-import { getMyUserIdForOrigin, isMe, selectMyChosenStatus, useAuthStore } from '../stores/authStore';
+import { selectMyChosenStatus, useAuthStore } from '../stores/authStore';
 import type { RealtimeMessageEvent } from '../stores/chatStore';
-import { getChannelOrigin, isDmChannel, selectMyRoleIdsInChannel, useSpaceStore } from '../stores/spaceStore';
+import { isDmChannel, selectMyRoleIdsInChannel, useSpaceStore } from '../stores/spaceStore';
 import { AudioManager } from '../audio/AudioManager';
 import { sendNotification, type NotificationOptions } from '../platform/notifications';
 import { isAlertAllowed, isMessageAlert, type AlertKind } from './notificationFilters';
@@ -66,11 +66,11 @@ export function messageAlertsUser(
   options: { everyMessage?: boolean } = {},
 ): boolean {
   if (!event.channelId) return false;
-  const origin = getChannelOrigin(event.channelId);
+   const myId = useAuthStore.getState().user?.id;
   const isDm = isDmChannel(event.channelId);
   return isMessageAlert({
-    authoredBySelf: isMe(event.message.user ?? { id: event.message.userId }, origin),
-    myId: getMyUserIdForOrigin(origin),
+    authoredBySelf: event.message.userId === myId,
+    myId,
     isDmChannel: isDm,
     myRoleIds: selectMyRoleIdsInChannel(useSpaceStore.getState(), event.channelId),
     content: event.message.content,

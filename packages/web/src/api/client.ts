@@ -12,7 +12,6 @@ import type {
   NotificationSettingsResponse,
   UpdateNotificationSettingRequest,
   AuthResponse,
-  PeerEnsureRequest,
   RegisterRequest,
   LoginRequest,
   User,
@@ -51,14 +50,11 @@ import type {
   VerifyPasswordResponse,
   ChangePasswordRequest,
   ChangePasswordResponse,
-  FederationCredentialRequest,
-  FederationCredentialResponse,
   DeleteAccountRequest,
   StorageStats,
   OrphanedFile,
   CleanupResult,
   AdminUserListResponse,
-  AdminBlockedBot,
   AdminUser,
   AdminResetPasswordResponse,
   InstanceUpdateStatus,
@@ -68,16 +64,6 @@ import type {
   SpaceFolder,
   InvitePreview,
   GifResult,
-  FederationRegistryEntry,
-  FederationIdentityDeleteRequest,
-  FederationIdentityDeleteResponse,
-  FederationPeer,
-  FederationOrphanedAccount,
-  FederationResetEvent,
-  FederationResetEventsResponse,
-  ApprovalRequest,
-  PeeringSubscription,
-  PeeringNotification,
   InviteLinkSummary,
   InviteRedemption,
   CreateInviteRequest,
@@ -87,9 +73,6 @@ import type {
   CheckInviteResponse,
   SpaceInviteRequest,
   SpaceInviteResponse,
-  AttachProofResponse,
-  ReattachRequest,
-  ReattachResponse,
   BotSearchResult,
   BotSummary,
   CreateBotRequest,
@@ -106,21 +89,11 @@ import { MESSAGE_PAGING_AFTER, MESSAGE_PAGING_HEADER } from '@veyvox/shared';
 import { recordDiagnostic } from '../utils/diagnostics';
 import { diagnosticError } from '@veyvox/shared/src/diagnostics';
 
-export type { FederationPeer, FederationOrphanedAccount, FederationResetEvent, FederationResetEventsResponse, ApprovalRequest, PeeringSubscription, PeeringNotification };
-
 /**
  * Reply of the username availability check. `reason` is the server's
  * English text; `code` and `details` let the client say it in the user's
  * language.
  */
-/**
- * The member an owner-only group DM request acts on, as the receiving
- * instance can find them: its own local id, or a home identity it resolves.
- */
-export type DmMemberTarget =
-  | { userId: string }
-  | { homeUserId: string; homeInstance: string };
-
 export interface CheckUsernameResponse {
   available: boolean;
   reason?: string;
@@ -205,9 +178,9 @@ export class HttpError extends Error {
    * Build from a failed response body of any vintage.
    *
    * Current routes send `{ error, code, statusCode, details? }`. Routes not
-   * yet converted, and peers on older versions, send `{ error }` alone, and
+     * yet converted on older servers send `{ error }` alone, and
    * some of those put the code in `error` itself. Only codes the shared list
-   * knows are accepted, so a peer cannot inject arbitrary catalog keys.
+     * knows are accepted, so a response cannot inject arbitrary catalog keys.
    */
   static fromBody(status: number, body: unknown): HttpError {
     const { errorText, code, details } = readErrorBody(body);
@@ -245,7 +218,6 @@ export class VeyvoxApiClient {
     login: (data: LoginRequest) => Promise<AuthResponse>;
     checkUsername: (username: string) => Promise<CheckUsernameResponse>;
     checkInvite: (token: string) => Promise<CheckInviteResponse>;
-    attachProof: (targetDomain: string) => Promise<AttachProofResponse>;
   };
 
   readonly users: {
@@ -254,13 +226,8 @@ export class VeyvoxApiClient {
     get: (id: string) => Promise<User>;
     verifyPassword: (password: string) => Promise<VerifyPasswordResponse>;
     changePassword: (data: ChangePasswordRequest) => Promise<ChangePasswordResponse>;
-    federationCredential: (data: FederationCredentialRequest) => Promise<FederationCredentialResponse>;
     deleteAccount: (data: DeleteAccountRequest) => Promise<{ success: boolean }>;
-    getMutuals: (id: string, homeUserId?: string) => Promise<{ mutualFriends: User[]; mutualSpaces: { id: string; name: string; icon: string | null; avatarColor: string | null }[] }>;
-    getFederationRegistry: () => Promise<{ registry: FederationRegistryEntry[]; updatedAt: number }>;
-    putFederationRegistry: (data: { registry: FederationRegistryEntry[]; updatedAt: number }) => Promise<{ ok: boolean; updatedAt: number }>;
-    deleteFederationIdentity: (data: FederationIdentityDeleteRequest) => Promise<FederationIdentityDeleteResponse>;
-    reattach: (data: ReattachRequest) => Promise<ReattachResponse>;
+    getMutuals: (id: string) => Promise<{ mutualFriends: User[]; mutualSpaces: { id: string; name: string; icon: string | null; avatarColor: string | null }[] }>;
   };
 
   readonly spaceLayout: {
@@ -349,15 +316,12 @@ export class VeyvoxApiClient {
     addMember: (dmChannelId: string, data: AddDmMemberRequest) => Promise<DmChannel>;
     leave: (dmChannelId: string) => Promise<{ success: boolean }>;
     /**
-     * Owner-only: rename a group DM and/or update its icon, on this client's
-     * instance. `channelId` is that instance's copy. The owner's instance is
-     * chosen, and the ids translated, by `utils/groupDmOwnerActions.ts`.
+     * Owner-only: rename a local group DM and/or update its icon.
      */
     updateMetadata: (channelId: string, body: { name?: string | null; icon?: string | null }) => Promise<DmChannel>;
-    /** Owner-only: remove `target` from a group DM, on this client's instance. See `updateMetadata`. */
-    kickMember: (channelId: string, target: DmMemberTarget) => Promise<{ success: boolean }>;
-    /** Owner-only: make `target` the owner of a group DM, on this client's instance. See `updateMetadata`. */
-    transferOwnership: (channelId: string, target: DmMemberTarget) => Promise<DmChannel>;
+    /** Owner-only: remove an existing local member. */
+    kickMember: (channelId: string, userId: string) => Promise<{ success: boolean }>;
+    transferOwnership: (channelId: string, body: TransferOwnershipRequest) => Promise<DmChannel>;
     spaceInvite: (body: SpaceInviteRequest) => Promise<SpaceInviteResponse>;
   };
 
@@ -412,28 +376,6 @@ export class VeyvoxApiClient {
     enabled: () => Promise<{ enabled: boolean }>;
   };
 
-  readonly federation: {
-    initiatePeering: (data: { remoteOrigin: string }) => Promise<{ peer: FederationPeer; verified?: boolean }>;
-    ensurePeered: (data: PeerEnsureRequest) => Promise<{ peeringStatus: string; peerId?: string; error?: string }>;
-    peers: () => Promise<{ peers: FederationPeer[] }>;
-    resetEvents: () => Promise<FederationResetEventsResponse>;
-    acknowledgeResetEvent: (origin: string) => Promise<{ success: boolean }>;
-    revokePeer: (id: string) => Promise<{ success: boolean }>;
-    resetPeer: (id: string) => Promise<{ success: boolean }>;
-    recheckPeer: (id: string) => Promise<{ recovered: boolean; status: string }>;
-    rotatePeerSecret: (id: string) => Promise<{ success: boolean; gracePeriodMs: number }>;
-    updatePeer: (id: string, data: { autoRotateIntervalDays: number }) => Promise<{ peer: FederationPeer }>;
-    deletePeerPermanently: (id: string) => Promise<{ success: boolean }>;
-    approvalRequests: () => Promise<{ requests: ApprovalRequest[] }>;
-    approveRequest: (id: string) => Promise<{ success: boolean; peer?: FederationPeer }>;
-    denyRequest: (id: string) => Promise<{ success: boolean }>;
-    peeringSubscriptions: () => Promise<{ subscriptions: PeeringSubscription[] }>;
-    cancelPeeringSubscription: (id: string) => Promise<{ success: boolean }>;
-    peeringNotifications: (unreadOnly?: boolean) => Promise<{ notifications: PeeringNotification[] }>;
-    markPeeringNotificationRead: (id: string) => Promise<{ success: boolean }>;
-    markAllPeeringNotificationsRead: () => Promise<{ success: boolean; count: number }>;
-  };
-
   readonly commands: {
     forChat: (target: { channelId?: string; dmChannelId?: string }) => Promise<ChatCommandsResponse>;
     invoke: (body: CreateInteractionRequest) => Promise<CreateInteractionResponse>;
@@ -471,24 +413,17 @@ export class VeyvoxApiClient {
     storageCleanup: (dryRun?: boolean) => Promise<CleanupResult>;
     cleanupOldMedia: (maxAgeDays: number, dryRun?: boolean) => Promise<CleanupResult>;
     cleanupTusSessions: (maxAgeHours: number, dryRun?: boolean) => Promise<CleanupResult>;
-    listUsers: (params?: { q?: string; page?: number; pageSize?: number; showDeleted?: boolean; homeInstance?: string; role?: string; joinedAfter?: string; joinedBefore?: string; sort?: string }) => Promise<AdminUserListResponse>;
-    listInstances: () => Promise<{ instances: string[] }>;
+    listUsers: (params?: { q?: string; page?: number; pageSize?: number; showDeleted?: boolean; role?: string; joinedAfter?: string; joinedBefore?: string; sort?: string }) => Promise<AdminUserListResponse>;
     setUserRole: (userId: string, isAdmin: boolean) => Promise<AdminUser>;
     resetUserPassword: (userId: string) => Promise<AdminResetPasswordResponse>;
-    deleteUser: (userId: string, opts?: { blockBot?: boolean }) => Promise<{ success: boolean }>;
-    listBlockedBots: () => Promise<{ bots: AdminBlockedBot[] }>;
-    unblockBot: (homeInstance: string, homeUserId: string) => Promise<{ success: boolean }>;
+    deleteUser: (userId: string) => Promise<{ success: boolean }>;
     updateStatus: (refresh?: boolean) => Promise<InstanceUpdateStatus>;
     stickerPacks: {
       listReviews: () => Promise<StickerPackSummary[]>;
       approve: (id: string) => Promise<{ success: boolean; status: string }>;
       reject: (id: string, reviewNotes?: string) => Promise<{ success: boolean; status: string }>;
-      listAll: (params?: { status?: string; originType?: string; q?: string }) => Promise<StickerPackSummary[]>;
+      listAll: (params?: { status?: string; q?: string }) => Promise<StickerPackSummary[]>;
       setStatus: (id: string, status: string) => Promise<{ success: boolean; status: string }>;
-      listPeers: () => Promise<Array<{ origin: string; instanceName: string | null; policy: 'allow' | 'block'; autoSync: boolean; replicaCount: number }>>;
-      setPeerPolicy: (peerOrigin: string, policy: 'allow' | 'block', autoSync?: boolean) => Promise<{ success: boolean; policy: string }>;
-      getRemotePacks: (peerOrigin: string) => Promise<{ packs: StickerPackSummary[] }>;
-      syncPack: (peerOrigin: string, packId: string) => Promise<{ success: boolean; packId: string; replicaId: string; itemCount: number }>;
     };
   };
 
@@ -534,18 +469,20 @@ export class VeyvoxApiClient {
   };
 
   constructor(baseUrl: string, getToken: () => string | null, onUnauthorized?: () => void) {
+    let sessionGeneration = 0;
     const recovery = createReadRecovery(getToken, error =>
       error instanceof RateLimitError && error.scope ? error.retryAfter : null);
-    this.cancelPendingReads = () => recovery.cancel();
+    this.cancelPendingReads = () => { sessionGeneration++; recovery.cancel(); };
     const unauthorizedReads = new WeakSet<HttpError>();
 
     function safeRead<T>(key: string, read: (signal: AbortSignal) => Promise<T>, requireAuth = true): Promise<T> {
       const session = getToken();
+      const generation = sessionGeneration;
       return recovery.run(key, read).then(value => structuredClone(value)).catch((error: unknown) => {
         // Notify only after recovery has settled the authoritative refusal.
         // The callback may itself clear the token/cancel other pending reads.
         if (error instanceof HttpError && error.status === 401 && requireAuth
-            && getToken() === session && !unauthorizedReads.has(error)) {
+            && generation === sessionGeneration && getToken() === session && !unauthorizedReads.has(error)) {
           unauthorizedReads.add(error); onUnauthorized?.();
         }
         throw error;
@@ -568,6 +505,7 @@ export class VeyvoxApiClient {
       }
 
       const token = getToken();
+      const generation = sessionGeneration;
       if (requireAuth && token) headers['Authorization'] = `Bearer ${token}`;
 
       const controller = new AbortController();
@@ -586,7 +524,7 @@ export class VeyvoxApiClient {
           if (!signal?.aborted) recordDiagnostic({ event: 'api-failed', subsystem: 'api', level: 'error', method, route: path, ...diagnosticError(error) });
           throw error;
         }
-        const current = () => !signal?.aborted && (!requireAuth || getToken() === token);
+        const current = () => generation === sessionGeneration && !signal?.aborted && (!requireAuth || getToken() === token);
         if (method === 'GET' && !current()) { void response.body?.cancel().catch(() => {}); throw new DOMException('', 'AbortError'); }
         if (!response.ok) {
           const errorBody: unknown = await response.json().catch(() => null);
@@ -708,8 +646,6 @@ export class VeyvoxApiClient {
         request<CheckUsernameResponse>('GET', `/auth/check-username?username=${encodeURIComponent(username)}`, undefined, false),
       checkInvite: (token: string) =>
         request<CheckInviteResponse>('GET', `/auth/check-invite?token=${encodeURIComponent(token)}`, undefined, false),
-      attachProof: (targetDomain: string) =>
-        request<AttachProofResponse>('POST', '/auth/attach-proof', { targetDomain }),
     };
 
     this.users = {
@@ -720,32 +656,13 @@ export class VeyvoxApiClient {
         request<VerifyPasswordResponse>('POST', '/users/@me/verify-password', { password }),
       changePassword: (data: ChangePasswordRequest) =>
         request<ChangePasswordResponse>('POST', '/users/@me/change-password', data),
-      federationCredential: (data: FederationCredentialRequest) =>
-        request<FederationCredentialResponse>('POST', '/users/@me/federation-credential', data),
       deleteAccount: (data: DeleteAccountRequest) =>
         request<{ success: boolean }>('DELETE', '/users/@me', data),
-      getMutuals: (id: string, homeUserId?: string) => {
-        const params = new URLSearchParams();
-        if (homeUserId) params.set('homeUserId', homeUserId);
-        const qs = params.toString();
+      getMutuals: (id: string) => {
         return request<{ mutualFriends: User[]; mutualSpaces: { id: string; name: string; icon: string | null; avatarColor: string | null }[] }>(
-          'GET', `/users/${id}/mutuals${qs ? `?${qs}` : ''}`
+          'GET', `/users/${encodeURIComponent(id)}/mutuals`
         );
       },
-      getFederationRegistry: () =>
-        request<{ registry: FederationRegistryEntry[]; updatedAt: number }>(
-          'GET', '/users/@me/federation-registry'
-        ),
-      putFederationRegistry: (data: { registry: FederationRegistryEntry[]; updatedAt: number }) =>
-        request<{ ok: boolean; updatedAt: number }>(
-          'PUT', '/users/@me/federation-registry', data
-        ),
-      deleteFederationIdentity: (data: FederationIdentityDeleteRequest) =>
-        request<FederationIdentityDeleteResponse>(
-          'POST', '/users/@me/federation-identity/delete', data
-        ),
-      reattach: (data: ReattachRequest) =>
-        request<ReattachResponse>('POST', '/users/@me/reattach', data),
     };
 
     this.spaceLayout = {
@@ -885,28 +802,10 @@ export class VeyvoxApiClient {
         request<DmChannel>('POST', `/dm/${dmChannelId}/members`, data),
       leave: (dmChannelId: string) =>
         request<{ success: boolean }>('DELETE', `/dm/${dmChannelId}/members`),
-      // Owner-only methods: plain requests to this client's instance.
-      // `utils/groupDmOwnerActions.ts` picks the owner's instance and names
-      // the conversation and the member as that instance's copy does.
       updateMetadata: (channelId, body) =>
-        request<DmChannel>('PATCH', `/dm/${channelId}`, body),
-      kickMember: (channelId, target) => {
-        // A member named by home identity: the URL segment is the home user
-        // id and `homeInstance` asks the server to resolve it
-        // (`resolveRemoteIdentityForClient`). Otherwise it is the local id.
-        if ('homeUserId' in target) {
-          const homeId = encodeURIComponent(target.homeUserId);
-          const homeInst = encodeURIComponent(target.homeInstance);
-          return request<{ success: boolean }>('DELETE', `/dm/${channelId}/members/${homeId}?homeInstance=${homeInst}`);
-        }
-        return request<{ success: boolean }>('DELETE', `/dm/${channelId}/members/${encodeURIComponent(target.userId)}`);
-      },
-      transferOwnership: (channelId, target) => {
-        const body: TransferOwnershipRequest = 'homeUserId' in target
-          ? { homeUserId: target.homeUserId, homeInstance: target.homeInstance }
-          : { newOwnerId: target.userId };
-        return request<DmChannel>('POST', `/dm/${channelId}/transfer`, body);
-      },
+        request<DmChannel>('PATCH', `/dm/${encodeURIComponent(channelId)}`, body),
+      kickMember: (channelId, userId) => request<{ success: boolean }>('DELETE', `/dm/${encodeURIComponent(channelId)}/members/${encodeURIComponent(userId)}`),
+      transferOwnership: (channelId, body) => request<DmChannel>('POST', `/dm/${encodeURIComponent(channelId)}/transfer`, body),
       spaceInvite: (body) =>
         request<SpaceInviteResponse>('POST', '/dm/space-invite', body),
     };
@@ -1017,70 +916,6 @@ export class VeyvoxApiClient {
       enabled: () => request<{ enabled: boolean }>('GET', '/gif/enabled'),
     };
 
-    this.federation = {
-      initiatePeering: (data: { remoteOrigin: string }) =>
-        request<{ peer: FederationPeer; verified?: boolean }>(
-          'POST', '/federation/peer/initiate', data
-        ),
-      ensurePeered: (data: PeerEnsureRequest) =>
-        request<{ peeringStatus: string; peerId?: string; error?: string }>(
-          'POST', '/federation/peer/ensure', data
-        ),
-      peers: () =>
-        request<{ peers: FederationPeer[] }>(
-          'GET', '/federation/peers'
-        ),
-      resetEvents: () =>
-        request<FederationResetEventsResponse>('GET', '/federation/reset-events'),
-      acknowledgeResetEvent: (origin: string) =>
-        request<{ success: boolean }>('POST', '/federation/reset-events/acknowledge', { origin }),
-      revokePeer: (id: string) =>
-        request<{ success: boolean }>('DELETE', `/federation/peers/${id}`),
-      resetPeer: (id: string) =>
-        request<{ success: boolean }>('POST', `/federation/peers/${id}/reset`),
-      recheckPeer: (id: string) =>
-        request<{ recovered: boolean; status: string }>('POST', `/federation/peers/${id}/recheck`),
-      rotatePeerSecret: (id: string) =>
-        request<{ success: boolean; gracePeriodMs: number }>('POST', `/federation/peers/${id}/rotate`),
-      updatePeer: (id: string, data: { autoRotateIntervalDays: number }) =>
-        request<{ peer: FederationPeer }>('PATCH', `/federation/peers/${id}`, data),
-      deletePeerPermanently: (id: string) =>
-        request<{ success: boolean }>('DELETE', `/federation/peers/${id}/permanent`),
-      approvalRequests: () =>
-        request<{ requests: ApprovalRequest[] }>(
-          'GET', '/federation/approval-requests'
-        ),
-      approveRequest: (id: string) =>
-        request<{ success: boolean; peer?: FederationPeer }>(
-          'POST', `/federation/approval-requests/${id}/approve`
-        ),
-      denyRequest: (id: string) =>
-        request<{ success: boolean }>(
-          'POST', `/federation/approval-requests/${id}/deny`
-        ),
-      peeringSubscriptions: () =>
-        request<{ subscriptions: PeeringSubscription[] }>(
-          'GET', '/federation/peering-subscriptions'
-        ),
-      cancelPeeringSubscription: (id: string) =>
-        request<{ success: boolean }>(
-          'DELETE', `/federation/peering-subscriptions/${id}`
-        ),
-      peeringNotifications: (unreadOnly = false) =>
-        request<{ notifications: PeeringNotification[] }>(
-          'GET',
-          `/federation/peering-notifications${unreadOnly ? '?unread=1' : ''}`,
-        ),
-      markPeeringNotificationRead: (id: string) =>
-        request<{ success: boolean }>(
-          'POST', `/federation/peering-notifications/${id}/read`
-        ),
-      markAllPeeringNotificationsRead: () =>
-        request<{ success: boolean; count: number }>(
-          'POST', '/federation/peering-notifications/read-all'
-        ),
-    };
-
     this.commands = {
       forChat: (target: { channelId?: string; dmChannelId?: string }) => {
         const params = new URLSearchParams();
@@ -1137,23 +972,17 @@ export class VeyvoxApiClient {
         if (params?.page !== undefined) qs.set('page', String(params.page));
         if (params?.pageSize !== undefined) qs.set('pageSize', String(params.pageSize));
         if (params?.showDeleted) qs.set('showDeleted', 'true');
-        if (params?.homeInstance) qs.set('homeInstance', params.homeInstance);
         if (params?.role) qs.set('role', params.role);
         if (params?.joinedAfter) qs.set('joinedAfter', params.joinedAfter);
         if (params?.joinedBefore) qs.set('joinedBefore', params.joinedBefore);
         if (params?.sort) qs.set('sort', params.sort);
         return request<AdminUserListResponse>('GET', `/admin/users?${qs}`);
       },
-      listInstances: () => request<{ instances: string[] }>('GET', '/admin/users/instances'),
       setUserRole: (userId, isAdmin) =>
         request<AdminUser>('PATCH', `/admin/users/${userId}/role`, { isAdmin }),
       resetUserPassword: (userId) =>
         request<AdminResetPasswordResponse>('POST', `/admin/users/${userId}/reset-password`),
-      deleteUser: (userId, opts) =>
-        request<{ success: boolean }>('DELETE', `/admin/users/${userId}${opts?.blockBot ? '?blockBot=1' : ''}`),
-      listBlockedBots: () => request<{ bots: AdminBlockedBot[] }>('GET', '/admin/blocked-bots'),
-      unblockBot: (homeInstance, homeUserId) =>
-        request<{ success: boolean }>('DELETE', `/admin/blocked-bots/${encodeURIComponent(homeInstance)}/${encodeURIComponent(homeUserId)}`),
+      deleteUser: userId => request<{ success: boolean }>('DELETE', `/admin/users/${encodeURIComponent(userId)}`),
       // `refresh` bypasses the server's six-hour cache for an explicit
       // "Check again" click. It cannot bypass BACKSPACE_UPDATE_CHECK.
       updateStatus: (refresh = false) =>
@@ -1165,18 +994,13 @@ export class VeyvoxApiClient {
         listReviews: () => request<StickerPackSummary[]>('GET', '/admin/sticker-packs/reviews'),
         approve: (id: string) => request<{ success: boolean; status: string }>('POST', `/admin/sticker-packs/${encodeURIComponent(id)}/approve`),
         reject: (id: string, reviewNotes?: string) => request<{ success: boolean; status: string }>('POST', `/admin/sticker-packs/${encodeURIComponent(id)}/reject`, { reviewNotes }),
-        listAll: (params?: { status?: string; originType?: string; q?: string }) => {
+        listAll: (params?: { status?: string; q?: string }) => {
           const qs = new URLSearchParams();
           if (params?.status) qs.set('status', params.status);
-          if (params?.originType) qs.set('originType', params.originType);
           if (params?.q) qs.set('q', params.q);
           return request<StickerPackSummary[]>('GET', `/admin/sticker-packs${qs.toString() ? `?${qs}` : ''}`);
         },
         setStatus: (id: string, status: string) => request<{ success: boolean; status: string }>('POST', `/admin/sticker-packs/${encodeURIComponent(id)}/status`, { status }),
-        listPeers: () => request<Array<{ origin: string; instanceName: string | null; policy: 'allow' | 'block'; autoSync: boolean; replicaCount: number }>>('GET', '/admin/federation/stickers/peers'),
-        setPeerPolicy: (peerOrigin: string, policy: 'allow' | 'block', autoSync?: boolean) => request<{ success: boolean; policy: string }>('PUT', `/admin/federation/stickers/peers/${encodeURIComponent(peerOrigin)}/policy`, { policy, autoSync }),
-        getRemotePacks: (peerOrigin: string) => request<{ packs: StickerPackSummary[] }>('GET', `/admin/federation/stickers/remote-packs?peerOrigin=${encodeURIComponent(peerOrigin)}`),
-        syncPack: (peerOrigin: string, packId: string) => request<{ success: boolean; packId: string; replicaId: string; itemCount: number }>('POST', '/admin/federation/stickers/sync', { peerOrigin, packId }),
       },
     };
 

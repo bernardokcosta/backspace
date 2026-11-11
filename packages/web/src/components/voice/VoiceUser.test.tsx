@@ -29,7 +29,6 @@ function remoteCameraTile(): UserTile {
     identity: '2:bob',
     userId: '2',
     username: 'bob',
-    homeUserId: null,
     isMuted: false,
     isDeafened: false,
     isCameraOn: true,

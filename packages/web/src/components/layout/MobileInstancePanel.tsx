@@ -1,14 +1,12 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUIStore } from '../../stores/uiStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { MobileScreenHeader } from './MobileScreenHeader';
 import { TransferIndicator } from './TransferIndicator';
-import { api } from '../../api/client';
-import { onFederationPeersChanged } from '../../hooks/useWebSocket';
 import { useInstanceUpdateBadge } from '../../hooks/useInstanceUpdateBadge';
 
-type SectionId = 'general' | 'registration' | 'federation' | 'streaming' | 'storage' | 'users' | 'updates';
+type SectionId = 'general' | 'registration' | 'streaming' | 'storage' | 'users' | 'updates';
 
 type SectionDef = {
   id: SectionId;
@@ -31,15 +29,6 @@ const sections: SectionDef[] = [
       // Heroicon: ticket — represents invite-style/registration management
       <svg className="w-5 h-5 text-txt-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" />
-      </svg>
-    ),
-  },
-  {
-    id: 'federation',
-    icon: (
-      // Heroicon: globe-alt — represents cross-instance federation
-      <svg className="w-5 h-5 text-txt-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
       </svg>
     ),
   },
@@ -79,56 +68,8 @@ const sections: SectionDef[] = [
   },
 ];
 
-/**
- * Federation approval-count badge source.
- *
- * Mirrors the desktop InstancePanel/FederationPanel contract: the count comes
- * from `api.federation.approvalRequests()` and is kept fresh by the
- * `onFederationPeersChanged` WebSocket signal that FederationPanel itself
- * subscribes to. We can't read FederationPanel's internal state from here, so
- * we fetch the same endpoint independently — and we wire MobileShell to forward
- * `onApprovalCountChange` callbacks from FederationPanel into a shared store
- * slot so the badge updates live while the admin is inside the panel.
- */
-function useFederationApprovalCount(enabled: boolean) {
-  const liveCount = useUIStore((s) => s.federationApprovalCount);
-  const setLiveCount = useUIStore((s) => s.setFederationApprovalCount);
-
-  const refetch = useCallback(async () => {
-    if (!enabled) return;
-    try {
-      const result = await api.federation.approvalRequests();
-      setLiveCount(result.requests.length);
-    } catch {
-      // Silently ignore — badge simply won't update on transient failures
-    }
-  }, [enabled, setLiveCount]);
-
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
-
-  // Re-fetch when peer state changes (mirrors FederationPanel's own listener)
-  useEffect(() => {
-    if (!enabled) return;
-    let timeout: ReturnType<typeof setTimeout> | undefined;
-    const unsub = onFederationPeersChanged(() => {
-      if (timeout) clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        refetch();
-      }, 500);
-    });
-    return () => {
-      unsub();
-      if (timeout) clearTimeout(timeout);
-    };
-  }, [enabled, refetch]);
-
-  return liveCount;
-}
-
 export function MobileInstancePanel() {
-  const { t } = useTranslation(['federation', 'admin', 'common']);
+  const { t } = useTranslation(['admin', 'common']);
   const pushMobileScreen = useUIStore((s) => s.pushMobileScreen);
   const fetchInstanceSettings = useSettingsStore((s) => s.fetchInstanceSettings);
 
@@ -139,7 +80,6 @@ export function MobileInstancePanel() {
     fetchInstanceSettings();
   }, [fetchInstanceSettings]);
 
-  const approvalCount = useFederationApprovalCount(true);
   const updateBadge = useInstanceUpdateBadge();
 
   return (
@@ -147,7 +87,6 @@ export function MobileInstancePanel() {
       <MobileScreenHeader title={t('admin:mobile.title')} rightActions={<TransferIndicator />} />
       <div className="flex-1 overflow-y-auto">
         {sections.map((section) => {
-          const badge = section.id === 'federation' && approvalCount > 0 ? approvalCount : null;
           const dot = section.id === 'updates' && updateBadge;
           return (
             <button
@@ -157,11 +96,6 @@ export function MobileInstancePanel() {
             >
               {section.icon}
               <span className="text-sm text-txt-primary flex-1">{t(`admin:mobile.sections.${section.id}`)}</span>
-              {badge !== null && (
-                <span className="min-w-[18px] h-[18px] px-1.5 bg-notification text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                  {badge > 99 ? '99+' : badge}
-                </span>
-              )}
               {dot && <span className="w-1.5 h-1.5 rounded-full bg-accent-amber" />}
               <svg className="w-4 h-4 text-txt-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />

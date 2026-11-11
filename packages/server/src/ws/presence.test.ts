@@ -1,75 +1,54 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
-import { eq } from 'drizzle-orm';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import type { Activity } from '@veyvox/shared';
 import * as schema from '../db/schema.js';
-import { setWorkerId } from '../utils/snowflake.js';
+import { buildNativeDatabase, seedNativeUser } from '../testing/standaloneUpgrade.js';
+import { applyChosenStatus, exchangeFriendPresence, publishActivities, applyStoredBotActivity } from './presence.js';
 
-setWorkerId(1);
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-type TestDb = ReturnType<typeof drizzle<typeof schema>>;
-let testDb: TestDb;
-vi.mock('../db/index.js', () => ({ getDb: () => testDb, schema }));
-
-function applyMigrations(db: Database.Database): void {
-  const dir = path.resolve(__dirname, '../../drizzle');
-  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.sql')).sort()) {
-    for (const stmt of fs.readFileSync(path.join(dir, f), 'utf8').split(/-->\s*statement-breakpoint/)) {
-      const clean = stmt.trim();
-      if (clean) db.exec(clean);
-    }
-  }
-}
-
-function insertUser(id: string, homeInstance: string | null, federationHomeOrphaned = 0): void {
-  testDb.insert(schema.users).values({
-    id,
-    username: id,
-    passwordHash: 'x',
-    status: 'offline',
-    homeInstance,
-    homeUserId: homeInstance ? `home-${id}` : null,
-    federationHomeOrphaned,
-    createdAt: 1,
-  }).run();
-}
-
-function row(id: string): { status: string | null; chosen: string } | undefined {
-  return testDb
-    .select({ status: schema.users.status, chosen: schema.users.chosenStatus })
-    .from(schema.users)
-    .where(eq(schema.users.id, id))
-    .get();
-}
-
+let sqlite: Database.Database;
+let db: ReturnType<typeof drizzle<typeof schema>>;
+const online = new Set<string>(), activities = new Map<string, Activity[]>();
+const { sendToUser, setUserStatus } = vi.hoisted(() => ({ sendToUser: vi.fn(), setUserStatus: vi.fn() }));
+vi.mock('../db/index.js', () => ({ getDb: () => db, getRawDb: () => sqlite, schema }));
+vi.mock('./handler.js', () => ({ connectionManager: {
+  isUserOnline: (id: string) => online.has(id), sendToUser, setUserStatus,
+  getUserStatus: () => 'dnd', getUserShowActivity: () => true,
+  getUserActivities: (id: string) => activities.get(id) ?? [],
+  setUserActivities: (id: string, value: Activity[]) => activities.set(id, value),
+} }));
 beforeEach(() => {
-  const sqlite = new Database(':memory:');
-  applyMigrations(sqlite);
-  testDb = drizzle(sqlite, { schema });
+  sqlite = new Database(':memory:'); buildNativeDatabase(sqlite); db = drizzle(sqlite, { schema });
+  seedNativeUser(sqlite, 'native'); seedNativeUser(sqlite, 'friend');
+  sqlite.exec("INSERT INTO friends VALUES ('native','friend',1)");
+  online.clear(); activities.clear(); vi.clearAllMocks();
 });
-
-describe('applyChosenStatus without a live connection', () => {
-  it('stores the choice of a native account and leaves it offline', async () => {
-    insertUser('native', null);
-    const { applyChosenStatus } = await import('./presence.js');
+afterEach(() => { sqlite.close(); vi.restoreAllMocks(); });
+describe('native connection-owned presence and activity', () => {
+  it('stores the local choice while offline without publishing fake online presence', () => {
     applyChosenStatus('native', 'dnd');
-    expect(row('native')).toEqual({ status: 'offline', chosen: 'dnd' });
+    expect(sqlite.prepare("SELECT status,chosen_status FROM users WHERE id='native'").get()).toEqual({ status: 'offline', chosen_status: 'dnd' });
+    expect(sendToUser).not.toHaveBeenCalled();
   });
-
-  it('stores the choice of a detached account, which owns it', async () => {
-    insertUser('detached', 'reset.example', 1);
-    const { applyChosenStatus } = await import('./presence.js');
-    applyChosenStatus('detached', 'dnd');
-    expect(row('detached')).toEqual({ status: 'offline', chosen: 'dnd' });
+  it('updates connected live and chosen state, notifying self/friends with local ids and no provenance', () => {
+    online.add('native'); const fetch = vi.spyOn(globalThis, 'fetch'); applyChosenStatus('native', 'idle');
+    expect(sqlite.prepare("SELECT status,chosen_status FROM users WHERE id='native'").get()).toEqual({ status: 'idle', chosen_status: 'idle' });
+    expect(setUserStatus).toHaveBeenCalledWith('native', 'idle');
+    for (const recipient of ['native', 'friend']) expect(sendToUser).toHaveBeenCalledWith(recipient, { type: 'presence_update', userId: 'native', status: 'idle' });
+    expect(fetch).not.toHaveBeenCalled();
   });
-
-  it("never writes a replicated row's chosen status", async () => {
-    insertUser('replicated', 'home.example');
-    const { applyChosenStatus } = await import('./presence.js');
-    applyChosenStatus('replicated', 'dnd');
-    expect(row('replicated')).toEqual({ status: 'offline', chosen: 'online' });
+  it('exchanges current local status and activity snapshots immediately after friendship, with offline activities cleared', () => {
+    sqlite.exec("UPDATE users SET status='dnd',custom_status='native custom' WHERE id='native'");
+    activities.set('friend', [{ type: 'playing', name: 'Must not appear while offline' }]);
+    exchangeFriendPresence('native', 'friend');
+    expect(sendToUser).toHaveBeenCalledWith('friend', { type: 'presence_update', userId: 'native', status: 'dnd', activities: [{ type: 'custom', name: 'native custom' }] });
+    expect(sendToUser).toHaveBeenCalledWith('native', { type: 'presence_update', userId: 'friend', status: 'offline', activities: [] });
+  });
+  it('publishes and clears native activities without contacting another server', () => {
+    const value: Activity[] = [{ type: 'playing', name: 'Chess' }], fetch = vi.spyOn(globalThis, 'fetch');
+    publishActivities('native', value); expect(activities.get('native')).toEqual(value);
+    expect(sendToUser).toHaveBeenCalledWith('friend', { type: 'presence_update', userId: 'native', status: 'dnd', activities: value });
+    online.add('native'); applyStoredBotActivity('native', null);
+    expect(activities.get('native')).toEqual([]); expect(fetch).not.toHaveBeenCalled();
   });
 });

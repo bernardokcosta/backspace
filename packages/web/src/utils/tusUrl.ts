@@ -1,27 +1,30 @@
-/**
- * Resolve the `Location` a tus create returned into the absolute upload URL.
- *
- * The server answers with a path (`/api/files/<id>`), never an absolute URL:
- * behind a reverse proxy it only sees whatever Host the proxy chose to send,
- * and nginx's `$host` drops the port, so an absolute Location pointed at a
- * port the client never used (#44). The client knows which origin it uploaded
- * to, so the resolution happens here. `origin` is the transfer's origin field:
- * empty or undefined means the home instance, which is the page origin.
- *
- * An absolute Location (older servers, or a remote that still sends one) is
- * returned unchanged.
- */
-export function resolveTusUrl(location: string, origin: string | undefined): string {
-  const base = origin && origin.trim() ? origin.trim() : window.location.origin;
-  return new URL(location, base).toString();
+/** An explicit current-server base must be an HTTP(S) origin, never a URL path. */
+function currentServerOrigin(instanceOrigin?: string): string {
+  const base = new URL(instanceOrigin?.trim() || window.location.origin);
+  if (!['http:', 'https:'].includes(base.protocol) || base.username || base.password
+    || base.pathname !== '/' || base.search || base.hash) {
+    throw new Error(i18n.t('uploads:failure.invalidResponse'));
+  }
+  return base.origin;
 }
 
 /**
- * The absolute tus endpoint for a transfer origin (`''` or undefined = home).
- * Absolute on purpose: tus-js-client resolves the relative `Location` against
- * this, so the upload URL it keeps is complete wherever the page is served
- * from, including a shell whose page origin is not the instance.
+ * Resolve a tus Location against the selected current server, retaining its
+ * scheme/host/port. Validate before exposing the URL to a credentialed request:
+ * a server response or persisted absolute URL is not trusted routing authority.
  */
-export function tusEndpoint(origin: string | undefined): string {
-  return new URL('/api/files/', origin && origin.trim() ? origin.trim() : window.location.origin).toString();
+export function resolveTusUrl(location: string, instanceOrigin?: string): string {
+  const origin = currentServerOrigin(instanceOrigin);
+  const target = new URL(location, origin);
+  if (target.origin !== origin || target.username || target.password || target.search || target.hash
+    || !/^\/api\/files\/[A-Za-z0-9_-]+$/.test(target.pathname)) {
+    throw new Error(i18n.t('uploads:failure.invalidResponse'));
+  }
+  return target.toString();
 }
+
+/** Absolute tus creation endpoint for the selected current server. */
+export function tusEndpoint(instanceOrigin?: string): string {
+  return `${currentServerOrigin(instanceOrigin)}/api/files/`;
+}
+import i18n from '../i18n';

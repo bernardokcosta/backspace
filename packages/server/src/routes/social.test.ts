@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
@@ -46,18 +46,6 @@ vi.mock('../ws/handler.js', () => ({
   },
 }));
 
-vi.mock('../utils/federationOutbox.js', () => ({
-  appendMutationLog: vi.fn(),
-  queueOutboxEvent: vi.fn(),
-  buildFriendContextId: () => 'ctx',
-  getFriendEventTargets: () => [],
-}));
-
-vi.mock('../utils/federationAuth.js', async (importActual) => {
-  const actual = await importActual<typeof import('../utils/federationAuth.js')>();
-  return { ...actual, getOurOrigin: () => 'https://local.test' };
-});
-
 function applyMigrations(db: Database.Database): void {
   const migrationsDir = path.resolve(__dirname, '../../drizzle');
   const files = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
@@ -77,8 +65,6 @@ interface UserSeed {
   displayName?: string | null;
   isDeleted?: 0 | 1;
   discoverable?: 0 | 1;
-  homeInstance?: string | null;
-  homeUserId?: string | null;
 }
 
 function seedUser(u: UserSeed): void {
@@ -91,8 +77,6 @@ function seedUser(u: UserSeed): void {
     isAdmin: 0,
     isDeleted: u.isDeleted ?? 0,
     discoverable: u.discoverable ?? 1,
-    homeInstance: u.homeInstance ?? null,
-    homeUserId: u.homeUserId ?? null,
     createdAt: Date.now(),
   }).run();
 }
@@ -135,17 +119,16 @@ describe('GET /api/social/search — filter hygiene', () => {
     expect(out.map(u => u.id)).not.toContain('u1');
   });
 
-  it('hides replicated federated stubs (homeInstance set)', async () => {
-    // Stub username matches the production form: <homeUserId>@<domain>.
+  afterEach(async () => { await app.close(); sqlite.close(); });
+
+  it('retains discovery of an opted-in sovereign legacy username', async () => {
     seedUser({
-      id: 'stub1',
-      username: 'remote-id@nova.ddns.net',
+      id: 'retained',
+      username: 'legacy@old.invalid',
       displayName: null,
-      homeInstance: 'nova.ddns.net',
-      homeUserId: 'remote-id',
     });
-    const out = await search('nova');
-    expect(out.map(u => u.id)).not.toContain('stub1');
+    const out = await search('legacy');
+    expect(out.map(u => u.id)).toContain('retained');
   });
 
   it('hides users with discoverable=0', async () => {
@@ -169,6 +152,7 @@ describe('GET /api/social/search — filter hygiene', () => {
 
 describe('POST /api/social/requests — case-insensitive username lookup', () => {
   let app: FastifyInstance;
+  afterEach(async () => { await app.close(); sqlite.close(); });
 
   beforeEach(async () => {
     sqlite = new Database(':memory:');
@@ -237,7 +221,7 @@ describe('POST /api/social/requests — case-insensitive username lookup', () =>
     expect(sent).toBeDefined();
     expect(sent![0]).toBe(CALLER_ID);
     // The 'user' field on the sent payload must be the TARGET (alice),
-    // not the sender — symmetric with how the federated branch builds it.
+    // not the sender.
     expect(sent![1].request.user.id).toBe('u1');
     expect(sent![1].request.user.username).toBe('alice');
   });
@@ -245,6 +229,7 @@ describe('POST /api/social/requests — case-insensitive username lookup', () =>
 
 describe('social routes — error codes', () => {
   let app: FastifyInstance;
+  afterEach(async () => { await app.close(); sqlite.close(); });
 
   beforeEach(async () => {
     sqlite = new Database(':memory:');

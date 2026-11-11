@@ -34,7 +34,7 @@ const mocks = vi.hoisted(() => ({
   space: {
     channelToSpaceMap: new Map<string, string>(),
     members: [] as unknown[],
-    dmChannels: [] as { id: string; members: { id: string; homeUserId?: string }[] }[],
+    dmChannels: [] as { id: string; members: { id: string }[] }[],
   },
 }));
 vi.mock('livekit-client', async importOriginal => {
@@ -52,10 +52,9 @@ vi.mock('./useWebSocket', () => ({ wsSend: vi.fn() }));
 vi.mock('../utils/voice', () => ({ broadcastVoiceStatus: vi.fn(), clearSpaceVoiceForDmCall: vi.fn() }));
 vi.mock('../utils/hwOverdrive', () => ({ activate: vi.fn(), deactivate: vi.fn() }));
 vi.mock('../stores/spaceStore', () => ({
-  getApiForOrigin: () => ({ livekit: { token: mocks.token, dmToken: mocks.token } }),
-  getChannelOrigin: () => '', getMyUserIdForOrigin: () => 'me',
   useSpaceStore: { getState: () => mocks.space },
 }));
+vi.mock('../api/client', async original => ({ ...await original<typeof import('../api/client')>(), api: { livekit: { token: mocks.token, dmToken: mocks.token } } }));
 
 const SHARER = 'bob:Bob';
 

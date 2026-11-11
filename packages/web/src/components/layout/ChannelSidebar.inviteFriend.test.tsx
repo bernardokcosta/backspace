@@ -12,24 +12,23 @@ import { useContextMenuStore } from '../../stores/contextMenuStore';
 vi.mock('../../audio/AudioManager', () => ({ AudioManager: { getInstance: () => ({ setOutputDevice: vi.fn(), setVolume: vi.fn() }) } }));
 const user = (id: string): User => ({ id, username: id, displayName: id, avatar: null, banner: null,
   accentColor: null, avatarColor: null, bio: null, status: 'online', customStatus: null, isAdmin: false,
-  createdAt: 1, homeInstance: null, homeUserId: null, replicatedInstances: [] });
+   createdAt: 1 });
 const me = user('me');
 const partner = user('Partner');
-const dm: DmChannel = { id: 'dm', federatedId: null, ownerId: null, ownerHomeUserId: null, ownerHomeInstance: null,
+const dm: DmChannel = { id: 'dm', ownerId: null,
   createdAt: 1, members: [me, partner], lastMessage: null, name: null, icon: null, metadataUpdatedAt: 0 };
 beforeEach(() => {
   useContextMenuStore.getState().close();
-  useAuthStore.setState({ user: me, myRowIds: new Map() });
+  useAuthStore.setState({ user: me });
   useUIStore.setState({ showDms: true, activeModal: null, modalData: {} });
   useChatStore.setState({ currentChannelId: null, unreadChannels: new Set() });
-  useSpaceStore.setState({ spaces: [], currentSpaceId: null, channels: [], dmChannels: [dm],
-    channelOriginMap: new Map([['dm', '']]) });
+  useSpaceStore.setState({ spaces: [], currentSpaceId: null, channels: [], dmChannels: [dm] });
 });
 afterEach(() => { cleanup(); useAuthStore.setState({ user: null }); });
 const renderSidebar = () => render(<MemoryRouter initialEntries={['/channels/@me']}><ChannelSidebar /></MemoryRouter>);
 
 describe('DM context invitation entry', () => {
-  it('passes the actual 1-on-1 counterpart and its origin to the picker', () => {
+  it('passes the native 1-on-1 counterpart without a peer origin to the picker', () => {
     renderSidebar();
     fireEvent.contextMenu(screen.getByText('Partner'));
     const item = useContextMenuStore.getState().menu?.items.find(item => item.key === 'invite-to-server');
@@ -37,7 +36,8 @@ describe('DM context invitation entry', () => {
     if (item?.type !== 'action') throw new Error('missing invitation action');
     act(() => { item.onClick(); });
     expect(useUIStore.getState().activeModal).toBe('inviteFriend');
-    expect(useUIStore.getState().modalData.friend).toMatchObject({ id: partner.id, _instanceOrigin: '' });
+    expect(useUIStore.getState().modalData.friend).toMatchObject({ id: partner.id });
+    expect(useUIStore.getState().modalData.friend).not.toHaveProperty('_instanceOrigin');
   });
   it('keeps Leave Group and does not invent a single recipient for a group', () => {
     useSpaceStore.setState({ dmChannels: [{ ...dm, ownerId: me.id, name: 'Group' }] });

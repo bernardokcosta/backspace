@@ -78,11 +78,10 @@ export function revokeAllBotTokens(botId: string): void {
  * Bots created before `bsb_` tokens hold a 10-year JWT. It keeps working until
  * the bot holds a `bsb_` token, and stops from then on: the owner's first new
  * token is the cut-over, so no flag day is needed and the old token cannot
- * outlive the migration. Federated bot accounts (a host's row for a bot of
- * another instance) log in for their own JWTs and are not affected.
+ * outlive the migration.
  */
-export function isRetiredLegacyBotJwt(account: { id: string; isBot: number | null; homeInstance: string | null }): boolean {
-  return account.isBot === 1 && !account.homeInstance && countBotTokens(account.id) > 0;
+export function isRetiredLegacyBotJwt(account: { id: string; isBot: number | null }): boolean {
+  return account.isBot === 1 && countBotTokens(account.id) > 0;
 }
 
 export interface BotTokenIdentity {
@@ -90,7 +89,6 @@ export interface BotTokenIdentity {
   tokenId: string;
   userId: string;
   username: string;
-  homeInstance: string | null;
 }
 
 /**
@@ -114,7 +112,6 @@ export function verifyBotToken(token: string, now: number = Date.now()): BotToke
     username: schema.users.username,
     isDeleted: schema.users.isDeleted,
     isBot: schema.users.isBot,
-    homeInstance: schema.users.homeInstance,
   }).from(schema.users).where(eq(schema.users.id, row.botId)).get();
   if (!bot || bot.isDeleted === 1) return 'deleted';
   if (bot.isBot !== 1) return 'invalid';
@@ -122,5 +119,5 @@ export function verifyBotToken(token: string, now: number = Date.now()): BotToke
   if (row.lastUsedAt === null || now - row.lastUsedAt >= LAST_USED_WRITE_INTERVAL_MS) {
     db.update(schema.botTokens).set({ lastUsedAt: now }).where(eq(schema.botTokens.id, id)).run();
   }
-  return { tokenId: id, userId: bot.id, username: bot.username, homeInstance: bot.homeInstance ?? null };
+  return { tokenId: id, userId: bot.id, username: bot.username };
 }
