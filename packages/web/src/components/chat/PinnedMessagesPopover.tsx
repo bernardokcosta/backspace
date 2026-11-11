@@ -4,7 +4,6 @@ import { createPortal } from 'react-dom';
 import { useFloatingPosition } from '../../hooks/useFloatingPosition';
 import { useChatStore } from '../../stores/chatStore';
 import { useAuthStore } from '../../stores/authStore';
-import { getChannelOrigin } from '../../stores/spaceStore';
 import { Avatar } from '../ui/Avatar';
 import { formatters } from '../../i18n/formatters';
 import type { PinWithMessage } from '@veyvox/shared';
@@ -75,18 +74,14 @@ export function PinnedMessagesPopover({ open, onClose, anchorRef, channelId, can
   const pins = useChatStore((s) => s.pinnedByChannel.get(channelId)) ?? EMPTY_PINS;
   const loadPins = useChatStore((s) => s.loadPins);
   const unpinMessage = useChatStore((s) => s.unpinMessage);
-  // `pinnedById` is the channel's instance row id: compare with the user's
-  // row on that origin, not the local session id (they differ over federation).
-  const origin = getChannelOrigin(channelId);
-  const homeId = useAuthStore((s) => s.user?.id);
-  const rowIds = useAuthStore((s) => s.myRowIds);
-  const myId = origin ? (rowIds.get(origin) ?? homeId) : homeId;
+  const myId = useAuthStore(s => s.user?.id);
+  const revision = useAuthStore(s => s.sessionRevision);
 
   const { style } = useFloatingPosition(anchorRef, floatingRef, { placement: 'bottom', offset: 8, enabled: open });
 
   useEffect(() => {
     if (open) void loadPins(channelId);
-  }, [open, channelId, loadPins]);
+  }, [open, channelId, loadPins, revision]);
 
   useEffect(() => {
     if (!open) return;

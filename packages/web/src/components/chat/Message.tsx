@@ -12,23 +12,20 @@ import { Avatar } from '../ui/Avatar';
 import { ProfileAvatar } from '../ui/ProfileAvatar';
 import { menuPositionFor, useContextMenuStore } from '../../stores/contextMenuStore';
 import { buildMessageMenuItems } from './messageMenuItems';
-import { useAuthStore, useSelfIdentity } from '../../stores/authStore';
+import { useAuthStore } from '../../stores/authStore';
 import { useChatStore } from '../../stores/chatStore';
 import { selectMyRoleIdsInChannel, useSpaceStore } from '../../stores/spaceStore';
 import { useUIStore } from '../../stores/uiStore';
 import { AttachmentRenderer, attUrlOf } from './AttachmentRenderer';
 import { AttachmentProgress } from './AttachmentProgress';
 import { EmbedRenderer } from './EmbedRenderer';
-import { FederationGlobeIcon } from '../ui/Username';
-import { Tooltip } from '../ui/Tooltip';
 import { EmojiPicker } from './EmojiPicker';
 import { MobilePickerSheet } from './MobilePickerSheet';
 import { ReactionPickerPopover } from './ReactionPickerPopover';
 import { hasPermissionBit, PermissionBits } from '../../utils/permissions';
 import { isDeletedPartnerDm } from '../../utils/dmFormatters';
-import { isFederationGlobeApplicable, isMine, spaceMemberName } from '../../utils/identity';
+import { spaceMemberName } from '../../utils/identity';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
-import { useSelfIdInChannel } from '../../utils/channelUser';
 import { mentionsReader } from '../../utils/notificationFilters';
 import {
   isPendingMessage,
@@ -78,26 +75,15 @@ function PendingAttachmentTile({ transferId }: PendingAttachmentTileProps) {
   );
 }
 
-/**
- * A person's name in a message row (author, reply preview): the name as
- * plain text, followed by the federation globe exactly when the person is
- * from another instance (`isFederationGlobeApplicable`), with the full
- * username as its tooltip. The same rule as the DM list and header.
- */
-function PersonName({ name, person, className, style }: {
+/** A native author or reply name; retained handles are never reinterpreted. */
+function PersonName({ name, className, style }: {
   name: string;
-  person: Pick<User, 'username'>;
   className: string;
   style?: React.CSSProperties;
 }) {
   return (
     <span className={`inline-flex items-center gap-0.5 ${className}`} style={style} dir="auto">
       {name}
-      {isFederationGlobeApplicable(person) && (
-        <Tooltip content={person.username} position="top">
-          <FederationGlobeIcon />
-        </Tooltip>
-      )}
     </span>
   );
 }
@@ -146,7 +132,7 @@ function getImageEmbedSourceUrl(content: string | null, embeds: Embed[]): string
   return hasMatchingImageEmbed ? trimmed : null;
 }
 
-export function Message({ message, isCompact, isFirstInGroup, previousMessageId }: MessageProps) {
+export function Message({ message, isFirstInGroup, previousMessageId }: MessageProps) {
   const { t } = useTranslation(['chat', 'common']);
   const fmt = useFormatters();
   const [editContent, setEditContent] = useState(message.content ?? '');
@@ -209,13 +195,10 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
   const channelKey: string = isPendingMessage(message)
     ? message.channelId || message.dmChannelId || ''
     : message.channelId || (message as MessageWithUser & { dmChannelId?: string }).dmChannelId || '';
-  // The instance that issued this message and its rows.
-  const messageOrigin = useSpaceStore((s) => s.channelOriginMap.get(channelKey) ?? '');
-  const self = useSelfIdentity();
-  const isAuthor = isMine(message.user, messageOrigin, self);
-  // The channel whose origin issued this message's ids; mentions resolve there.
+  const isAuthor = message.userId === currentUser?.id;
+  // Mentions resolve only against this native channel's roster.
   const mentionChannelId = channelKey || null;
-  const selfIdHere = useSelfIdInChannel(mentionChannelId);
+  const selfIdHere = useAuthStore(state => state.user?.id);
   const myRoleIdsHere = useSpaceStore((s) => (mentionChannelId ? selectMyRoleIdsInChannel(s, mentionChannelId) : undefined));
   const startEditing = () => {
     setEditContent(message.content ?? '');
@@ -239,7 +222,7 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
   // DISPLAY, but the add/toggle affordances are withdrawn since the server drops them.
   const isDeadDmThread = !!dmChannelId && (() => {
     const dm = dmChannels.find(d => d.id === dmChannelId);
-    return dm ? isDeletedPartnerDm(dm, { self, origin: messageOrigin }) : false;
+    return dm ? isDeletedPartnerDm(dm, currentUser?.id ?? null) : false;
   })();
   const canManageMessages = hasPermissionBit(myChPerms, PermissionBits.MANAGE_MESSAGES);
   const pinMessage = useChatStore((s) => s.pinMessage);
@@ -260,11 +243,11 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
     if (channelKey) setReplyTo(channelKey, message);
   };
 
-  const _FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false, replicatedInstances: [] } as unknown as User;
+  const _FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false } as User;
   const _rawMsgUser = message.user ?? null;
-  const _canonicalMsgUser = useCanonicalUserView(_rawMsgUser ?? _FALLBACK_USER, messageOrigin);
+  const _canonicalMsgUser = useCanonicalUserView(_rawMsgUser ?? _FALLBACK_USER);
   const _rawReplyUser = (!isPendingMessage(message) && message.replyTo?.user) ? message.replyTo.user : null;
-  const _canonicalReplyUser = useCanonicalUserView(_rawReplyUser ?? _FALLBACK_USER, messageOrigin);
+  const _canonicalReplyUser = useCanonicalUserView(_rawReplyUser ?? _FALLBACK_USER);
 
   const toggleReaction = (emoji: string) => {
     // Read-only: a dead 1-on-1 DM accepts no reaction mutations (add OR remove).
@@ -421,11 +404,10 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
 
   // Display identity: the user's own messages, from any instance, show their
   // session row; anyone else's go through the userViews cache so a stale copy
-  // shows the best-known profile. `displayOrigin` issued the row shown.
+  // shows the best-known native profile.
   const displayIdentity = isAuthor && currentUser
     ? currentUser
     : (_rawMsgUser ? _canonicalMsgUser : message.user);
-  const displayOrigin = isAuthor && currentUser ? '' : messageOrigin;
 
   const spaces = useSpaceStore((s) => s.spaces);
   const currentSpaceId = useSpaceStore((s) => s.currentSpaceId);
@@ -455,7 +437,6 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
   const handleAuthorMenu = useAuthorMenu({
     channelId: channelKey,
     authorId: message.userId,
-    origin: messageOrigin,
     isDm: isDmMessage,
     canSend: canSendMessages && !isDeadDmThread && !pending,
     isAuthor,
@@ -464,7 +445,7 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
   const handleUsernameClick = (e: React.MouseEvent | React.KeyboardEvent) => {
     if (!message.user) return;
     e.stopPropagation();
-    openUserProfile(message.user, messageOrigin, e.currentTarget.getBoundingClientRect(), undefined, authorMember);
+    openUserProfile(message.user, e.currentTarget.getBoundingClientRect(), undefined, authorMember);
   };
 
   // The name is the author's keyboard stop (the avatar beside it opens the
@@ -484,7 +465,7 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
   const replyRoleColor = (msg: { userId: string }) => getMemberDisplayColor(msg.userId);
 
   // Mention highlighting, by the rule the alert uses (`messageMentions`): a
-  // `<@id>` token for my id on the channel's origin, not my home id (#332),
+  // `<@id>` token for my native account ID,
   // or a mass mention the space's instance stamped that reaches me
   // (`@everyone`, `@here`, a role I hold there). Tokens inside code are not
   // mentions (the shared scan in utils/mentionTokens.ts). A pending message
@@ -532,7 +513,6 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
               name={displayName}
               size={40}
               user={displayIdentity}
-              origin={displayOrigin}
               member={authorMember}
               className="hover:drop-shadow-md transition-all active:translate-y-[1px]"
             />
@@ -548,7 +528,7 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
       <div className="flex-1 min-w-0">
         {message.replyTo && (() => {
           const replyTo = message.replyTo;
-          const replyIdentity = isMine(replyTo.user, messageOrigin, self) && currentUser
+          const replyIdentity = replyTo.userId === currentUser?.id && currentUser
             ? currentUser
             : (_rawReplyUser ? _canonicalReplyUser : replyTo.user);
           const replyDisplayName = spaceMemberName(spaceMemberOf(replyTo.userId), replyIdentity);
@@ -557,7 +537,6 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
               <Avatar src={replyIdentity.avatar} name={replyDisplayName} size={16} user={replyIdentity} />
               <PersonName
                 name={replyDisplayName}
-                person={replyIdentity}
                 className="text-[14px] font-bold text-txt-primary"
                 style={replyRoleColor(replyTo)}
               />
@@ -594,7 +573,6 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
             >
               <PersonName
                 name={displayName}
-                person={displayIdentity}
                 className="font-semibold cursor-pointer hover:underline text-[15px] leading-tight"
                 style={roleColor}
               />
@@ -766,7 +744,6 @@ export function Message({ message, isCompact, isFirstInGroup, previousMessageId 
                     key={emoji}
                     emoji={emoji}
                     reactions={reactions}
-                    origin={messageOrigin}
                     onToggle={() => toggleReaction(emoji)}
                   />
                 ))}

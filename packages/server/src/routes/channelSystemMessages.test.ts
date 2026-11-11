@@ -120,7 +120,7 @@ describe('channel system messages are not what members wrote', () => {
     expect(res.statusCode).toBe(400);
     expect(res.json()).toMatchObject({ code: 'reply_target_invalid' });
     const { handleClientEvent } = await import('../ws/events.js');
-    handleClientEvent({ type: 'message_create', channelId: CHANNEL, content: 'hi', replyToId: poke }, 'member', 'member', {} as never, false);
+    handleClientEvent({ type: 'message_create', channelId: CHANNEL, content: 'hi', replyToId: poke }, 'member', 'member', {} as never);
     expect(testDb.select().from(schema.messages).all()).toHaveLength(1);
   });
 
@@ -136,7 +136,7 @@ describe('channel system messages are not what members wrote', () => {
     expect(res.statusCode).toBe(403);
     expect(res.json()).toMatchObject({ code: 'system_message_immutable' });
     const { handleClientEvent } = await import('../ws/events.js');
-    handleClientEvent({ type: 'message_edit', messageId: poke, content: 'rewritten' }, 'member', 'member', {} as never, false);
+    handleClientEvent({ type: 'message_edit', messageId: poke, content: 'rewritten' }, 'member', 'member', {} as never);
     expect(sendToUser).toHaveBeenCalledWith('member', expect.objectContaining({ type: 'error', code: 'system_message_immutable' }));
     expect(testDb.select().from(schema.messages).get()?.content).toBe(POKE);
   });

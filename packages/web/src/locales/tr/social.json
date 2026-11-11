@@ -19,7 +19,6 @@
     "activity": "Şimdilik sessiz... Arkadaşların bir etkinliğe başladığında burada göstereceğiz!"
   },
   "friend": {
-    "viaInstance": "{{host}} üzerinden",
     "message": "Mesaj",
     "remove": "Arkadaşı kaldır"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "Kişi bul",
-    "hint": "Kullanıcı adıyla ara veya doğrudan eklemek için <handle>user@instance</handle> kullan.",
     "placeholder": "Kullanıcı adıyla ara veya ekle...",
     "direct": "<handle>{{handle}}</handle> adresine arkadaşlık isteği gönder",
     "sendRequest": "İstek gönder",
@@ -99,6 +97,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "Parçayı aç"
-  },
-  "instanceNotConnected": "{{host}} ile bağlantı yok. Yeniden bağlanıp tekrar dene."
+  }
 }

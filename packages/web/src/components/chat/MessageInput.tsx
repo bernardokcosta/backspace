@@ -6,7 +6,7 @@ import React, { useState, useRef, useCallback, useMemo, useEffect, useLayoutEffe
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useChatStore } from '../../stores/chatStore';
-import { isDmChannel, useIsDmChannel, getChannelOrigin, useSpaceStore } from '../../stores/spaceStore';
+import { isDmChannel, useIsDmChannel, useSpaceStore } from '../../stores/spaceStore';
 import { wsSend } from '../../hooks/useWebSocket';
 import { MentionPopover } from './MentionPopover';
 import { CommandOptionPopover, CommandPopover, CommandSubcommandPopover, CommandValuePopover, type CommandValueCandidate } from './CommandPopover';
@@ -27,11 +27,10 @@ import { usePendingMessageStore } from '../../stores/pendingMessageStore';
 import { putHandle, supportsFsHandles, supportsDnDHandles } from '../../utils/idbHandles';
 import { useVisualViewportInset } from '../../hooks/useVisualViewportInset';
 import { useAuthStore } from '../../stores/authStore';
-import { selfIdentityOf, spaceMemberName } from '../../utils/identity';
+import { spaceMemberName } from '../../utils/identity';
 import { findLastOwnEditableMessage } from './messageEditing';
-import { getApiForOrigin } from '../../utils/crossStoreResolvers';
 import { describeError } from '../../i18n/errors';
-import { HttpError } from '../../api/client';
+import { api, HttpError } from '../../api/client';
 import {
   argumentFrames,
   commandPath,
@@ -79,14 +78,20 @@ function makeFileHandleKey(): string {
   return `up-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-export function MessageInput({ channelId, channelName, placeholder }: MessageInputProps) {
+export function MessageInput(props: MessageInputProps) {
+  const revision = useAuthStore(s => s.sessionRevision);
+  const accountId = useAuthStore(s => s.user?.id);
+  return <MessageInputContent key={JSON.stringify([revision, accountId, props.channelId])} {...props} revision={revision} />;
+}
+
+function MessageInputContent({ channelId, channelName, placeholder, revision }: MessageInputProps & { revision: number }) {
   const { t } = useTranslation(['chat', 'common']);
+  const alive = useRef(true);
+  const origin = window.location.origin;
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const current = useCallback(() => alive.current && revision === useAuthStore.getState().sessionRevision && origin === window.location.origin, [revision, origin]);
   // Composer state lives in composerStore (per-channel, persisted)
-  const composerState = useComposerStore((s) => s.states.get(channelId)) ?? {
-    draftText: '',
-    replyTo: null,
-    stagedTransferIds: [] as string[],
-  };
+  const composerState = useComposerStore((s) => s.get(channelId));
   const setDraft = useComposerStore((s) => s.setDraft);
   const composerSetReplyTo = useComposerStore((s) => s.setReplyTo);
   const attachToComposer = useComposerStore((s) => s.attach);
@@ -260,7 +265,7 @@ export function MessageInput({ channelId, channelName, placeholder }: MessageInp
   const loadChatCommands = useCallback((fresh = false): Promise<BotCommandListing[]> => {
     const existing = commandsRequestRef.current;
     if (existing && !fresh) return existing;
-    const request: Promise<BotCommandListing[]> = getApiForOrigin(getChannelOrigin(channelId)).commands
+    const request: Promise<BotCommandListing[]> = api.commands
       .forChat(isDm ? { dmChannelId: channelId } : { channelId })
       .then((res) => res.commands)
       .catch(() => [] as BotCommandListing[])
@@ -474,9 +479,9 @@ export function MessageInput({ channelId, channelName, placeholder }: MessageInp
     if (typingTimeoutRef.current) return;
     const dm = isDmChannel(channelId);
     if (dm) {
-      wsSend({ type: 'dm_typing_start', dmChannelId: channelId }, getChannelOrigin(channelId));
+      wsSend({ type: 'dm_typing_start', dmChannelId: channelId });
     } else {
-      wsSend({ type: 'typing_start', channelId }, getChannelOrigin(channelId));
+      wsSend({ type: 'typing_start', channelId });
     }
     typingTimeoutRef.current = setTimeout(() => {
       typingTimeoutRef.current = undefined;
@@ -494,6 +499,7 @@ export function MessageInput({ channelId, channelName, placeholder }: MessageInp
       input: { file: File; handle?: FileSystemFileHandle | undefined },
     ): Promise<void> => {
       const { file, handle } = input;
+      if (!current()) return;
       let fileHandleId: string | undefined;
       if (handle && supportsFsHandles()) {
         try {
@@ -508,12 +514,13 @@ export function MessageInput({ channelId, channelName, placeholder }: MessageInp
       }
 
       try {
+        if (!current()) return;
         const id = await startUpload(file, {
           channelId,
           tray: true,
-          origin: getChannelOrigin(channelId),
           fileHandleId,
         });
+        if (!current()) return;
         attachToComposer(channelId, id);
         // Best-effort image preview for the current session. transferStore
         // doesn't retain the File, so this URL only exists in-memory.
@@ -526,11 +533,12 @@ export function MessageInput({ channelId, channelName, placeholder }: MessageInp
           }
         }
       } catch (err) {
+        if (!current()) return;
         const reason = err instanceof Error ? err.message : t('chat:composer.uploadFailedReason');
         addToast(t('chat:composer.uploadFailed', { file: file.name, reason }), 'warning');
       }
     },
-    [channelId, startUpload, attachToComposer, addToast, t],
+    [channelId, startUpload, attachToComposer, addToast, t, current],
   );
 
   const removeStagedTransfer = useCallback(
@@ -572,6 +580,7 @@ export function MessageInput({ channelId, channelName, placeholder }: MessageInp
   }, []);
 
   const handleSubmit = async (): Promise<void> => {
+    if (!current()) return;
     // Read the live draft: another Enter may arrive before React re-renders.
     const composer = useComposerStore.getState().get(channelId);
     const submittedDraft = composer.draftText;
@@ -608,6 +617,7 @@ export function MessageInput({ channelId, channelName, placeholder }: MessageInp
           (picked && picked.name === name ? picked : list.find((c) => c.name === name));
         // A pasted command may be sent before the list has loaded: wait for it.
         const command = find(chatCommands ?? await loadChatCommands());
+        if (!current()) return;
         if (command) {
           // A command with subcommands is sent only with a path that reaches one.
           const head = commandPath(trimmed, command, true);
@@ -628,7 +638,7 @@ export function MessageInput({ channelId, channelName, placeholder }: MessageInp
             textareaRef.current.focus();
           }
           try {
-            await getApiForOrigin(getChannelOrigin(channelId)).commands.invoke({
+            await api.commands.invoke({
               botId: command.botId,
               command: command.name,
               ...(head.path.length > 0 ? { subcommand: head.path } : {}),
@@ -636,6 +646,7 @@ export function MessageInput({ channelId, channelName, placeholder }: MessageInp
               ...(isDm ? { dmChannelId: channelId } : { channelId }),
             });
           } catch (err) {
+            if (!current()) return;
             const currentDraft = useComposerStore.getState().get(channelId).draftText;
             setDraft(channelId, submittedDraft + (currentDraft ? '\n' + currentDraft : ''));
             addToast(describeCommandError(err), 'warning');
@@ -659,6 +670,7 @@ export function MessageInput({ channelId, channelName, placeholder }: MessageInp
         }
         await sending;
       } catch (err) {
+        if (!current()) return;
         // Keep both the failed text and anything typed while the request was pending.
         const currentDraft = useComposerStore.getState().get(channelId).draftText;
         setDraft(channelId, submittedDraft + (currentDraft ? '\n' + currentDraft : ''));
@@ -839,8 +851,7 @@ export function MessageInput({ channelId, channelName, placeholder }: MessageInp
       // Read the list on demand: subscribing to it would re-render the composer
       // on every incoming message, and the shortcut only needs it at keypress time.
       const channelMessages = useChatStore.getState().messages.get(channelId) ?? [];
-      const { user, myRowIds } = useAuthStore.getState();
-      const message = findLastOwnEditableMessage(channelMessages, getChannelOrigin(channelId), selfIdentityOf(user, myRowIds));
+      const message = findLastOwnEditableMessage(channelMessages, useAuthStore.getState().user?.id ?? null);
       if (message) {
         e.preventDefault();
         setActivePopover(null);
@@ -1292,7 +1303,6 @@ export function MessageInput({ channelId, channelName, placeholder }: MessageInp
             selectedIndex={commandState.selectedIndex}
             onSelect={selectCommand}
             anchorRef={inputContainerRef}
-            origin={getChannelOrigin(channelId)}
           />
         )}
 

@@ -21,11 +21,11 @@ function MentionMemberRow({
   onSelect: (candidate: ChannelUser) => void;
   mobile: boolean;
 }) {
-  const canonical = useCanonicalUserView(candidate.user, candidate.origin);
+  const canonical = useCanonicalUserView(candidate.user);
   const roleColor = candidate.nameColor;
   const displayName = spaceMemberName(candidate.member, canonical);
   // The username is the second label whenever it says more than the name:
-  // a display name is set, or the name is the base of a federated username.
+  // a display name or space nickname is set.
   const showUsername = canonical.username !== displayName;
   // Mobile: ≥44 px tap target per Apple HIG; desktop: compact list.
   const rowSizing = mobile
@@ -44,7 +44,7 @@ function MentionMemberRow({
         name={displayName}
         size={mobile ? 28 : 24}
         status={canonical.status}
-        userId={canonical.homeUserId ?? canonical.id}
+        userId={canonical.id}
         user={canonical}
       />
       {/* The name keeps its width while the username has any to give: the

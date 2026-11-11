@@ -32,9 +32,6 @@ const self: User = {
   customStatus: null,
   isAdmin: false,
   createdAt: 0,
-  homeInstance: null,
-  homeUserId: null,
-  replicatedInstances: [],
 };
 
 const pushMobileScreen = vi.fn();
@@ -72,7 +69,8 @@ describe('MobileYouScreen after hub retirement', () => {
   it('puts the dot on no other row', () => {
     render(<MobileYouScreen />);
 
-    for (const label of ['Edit Profile', 'Friends', 'Connections', 'Voice']) {
+    expect(screen.queryByRole('button', { name: /^Connections/ })).toBeNull();
+    for (const label of ['Edit Profile', 'Friends', 'Voice']) {
       expect(within(row(label)).queryByRole('img', { name: DOT })).toBeNull();
     }
   });

@@ -39,8 +39,6 @@ function seedUser(id: string): void {
     id,
     username: id,
     passwordHash: 'x',
-    homeUserId: id,
-    homeInstance: null,
     createdAt: Date.now(),
   }).run();
 }

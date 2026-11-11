@@ -1,5 +1,4 @@
 import { and, eq, inArray, ne } from 'drizzle-orm';
-import { ownsChosenStatus } from '@veyvox/shared';
 import { getDb, schema } from '../db/index.js';
 
 /**
@@ -14,41 +13,31 @@ import { getDb, schema } from '../db/index.js';
  * connect.
  *
  * At boot, the in-memory `ConnectionManager` is empty by construction, so
- * any non-`offline` status row this instance owns is by definition stale and
+ * any non-`offline` status row is by definition stale and
  * safe to reset.
  *
- * Which rows: the ones whose status this instance owns, by the same rule as
- * the chosen status (`ownsChosenStatus`: native, or detached from a reset
- * home). Their live `status` is a function of this instance's WebSocket state.
+ * All retained accounts are local: live `status` is connection state, while
+ * `chosen_status` is the user's saved preference and must not be changed.
  *
- * Federation safety:
- * - A replicated row (`home_instance` set, not detached) carries a projection
- *   of remote presence, broadcast to us by its home instance, and is NOT a
- *   function of our local WebSocket state. It is never touched here.
  * - Soft-deleted (tombstoned) users have `is_deleted = 1` and are excluded
  *   from presence broadcasts already; leave their stored status alone.
  *
  * Called once during server boot, after `getDb()` succeeds and before the
  * WebSocket handler is registered. Idempotent — re-running has no effect
- * once all owned rows are `'offline'`.
+ * once all live rows are `'offline'`.
  *
  * @returns Number of rows reset (for logging / test assertions).
  */
 export function resetStalePresenceOnBoot(): number {
   const db = getDb();
   const staleIds = db
-    .select({
-      id: schema.users.id,
-      homeInstance: schema.users.homeInstance,
-      federationHomeOrphaned: schema.users.federationHomeOrphaned,
-    })
+    .select({ id: schema.users.id })
     .from(schema.users)
     .where(and(
       eq(schema.users.isDeleted, 0),
       ne(schema.users.status, 'offline'),
     ))
     .all()
-    .filter((row) => ownsChosenStatus(row))
     .map((row) => row.id);
 
   if (staleIds.length === 0) return 0;

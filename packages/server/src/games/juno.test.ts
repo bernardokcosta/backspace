@@ -206,15 +206,14 @@ describe('Juno immutable settlement lifecycle', () => {
     expect(settle.mock.calls.at(-1)?.[0].standings).toEqual(JSON.parse(frozen));
     expect(rooms.read('voice', 'watcher').game).toBeNull();
   });
-  it('redirects chained pending recipients without changing the frozen placements or transferring a seat', () => {
+  it('retains the native winner and recipients across pending-credit retries', () => {
     const { rooms, settle, finish, fail, advance } = setup();
     fail(true); const done = finish(); const frozen = JSON.stringify(done.scoreboard!.standings);
-    rooms.remapPendingRecipient(done.winnerId!, 'intermediate');
-    rooms.remapPendingRecipient('intermediate', 'retained');
+    expect('remapPendingRecipient' in rooms).toBe(false);
     expect(JSON.stringify(rooms.read('voice', 'watcher').game!.scoreboard!.standings)).toBe(frozen);
-    expect(rooms.read('voice', 'retained').game!.hand).toEqual([]);
+    expect(rooms.read('voice', 'watcher').game!.hand).toEqual([]);
     fail(false); advance(); rooms.tick();
-    expect(settle.mock.calls.at(-1)?.[0].recipientIds?.get(done.winnerId!)).toBe('retained');
-    expect(rooms.read('voice', 'watcher').game!.winnerId).toBe('retained');
+    expect(settle.mock.calls.at(-1)?.[0].standings).toEqual(JSON.parse(frozen));
+    expect(rooms.read('voice', 'watcher').game!.winnerId).toBe(done.winnerId);
   });
 });

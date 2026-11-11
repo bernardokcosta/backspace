@@ -4,7 +4,6 @@
     "description": "Richte deine Veyvox-Instanz ein. Diese Einstellungen gelten für alle Nutzer.",
     "instanceName": {
       "label": "Instanzname",
-      "description": "Der Name, der auf der Anmeldeseite und gegenüber föderierten Instanzen angezeigt wird.",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "Registrierung",
-    "description": "Lege fest, wer auf dieser Instanz Konten anlegen darf. Die öffentliche Registrierung betrifft die Erstellung lokaler Konten, die föderierte Registrierung Nutzer verbundener Instanzen, die hier ein Konto anlegen.",
     "public": {
       "label": "Öffentliche Registrierung",
       "toggleLabel": "Neue lokale Konten erlauben",
       "toggleDescription": "Jeder kann über die Registrierungsseite ein lokales Konto anlegen. Wenn ausgeschaltet, entstehen neue lokale Konten nur über Einladungslinks."
-    },
-    "federated": {
-      "label": "Föderierte Registrierung",
-      "toggleLabel": "Neue föderierte Konten erlauben",
-      "toggleDescription": "Nutzer anderer Instanzen können hier über ihre Verbindungseinstellungen ein föderiertes Konto anlegen. Bestehende föderierte Konten können sich unabhängig von dieser Einstellung immer anmelden."
     },
     "spaceCreation": {
       "label": "Space-Erstellung",
@@ -355,8 +348,6 @@
     "loadFailed": "Nutzer konnten nicht geladen werden",
     "empty": "Keine Nutzer gefunden",
     "filters": {
-      "allInstances": "Alle Instanzen",
-      "localOnly": "Nur lokale",
       "allRoles": "Alle Rollen",
       "admin": "Administrator",
       "nonAdmin": "Kein Administrator",
@@ -376,9 +367,7 @@
     "actions": {
       "demote": "Administratorrechte entziehen",
       "promote": "Zum Administrator machen",
-      "federatedNoAdmin": "Föderierte Nutzer können keine Administratoren sein",
       "resetPassword": "Passwort zurücksetzen",
-      "federatedNoReset": "Föderierte Nutzer melden sich über ihre Heimatinstanz an",
       "delete": "Nutzer löschen",
       "selfDelete": "Dein eigenes Konto löschst du in den Kontoeinstellungen"
     },
@@ -405,15 +394,7 @@
     "deleteDialog": {
       "title": "Nutzer löschen",
       "description": "<strong>{{username}}</strong> endgültig löschen? Die Person wird aus allen Spaces, Direktnachrichten und Freundeslisten entfernt. Das lässt sich nicht rückgängig machen.",
-      "confirm": "Nutzer löschen",
-      "blockBot": "Erneute Registrierung dieses Bots verhindern",
-      "blockBotHint": "Wenn seine Heimatinstanz wieder erreichbar ist, kann der Bot hier kein Konto anlegen. Entsperren kannst du ihn unter der Benutzerliste."
-    },
-    "blockedBots": {
-      "title": "Gesperrte Bots",
-      "description": "Bots anderer Instanzen, die sich hier nicht registrieren dürfen. Entsperre einen Bot, um ihn wieder zuzulassen.",
-      "blockedAt": "Gesperrt am {{date}}",
-      "unblock": "Entsperren"
+      "confirm": "Nutzer löschen"
     }
   },
   "mobile": {
@@ -421,7 +402,6 @@
     "sections": {
       "general": "Allgemein",
       "registration": "Registrierung",
-      "federation": "Föderation",
       "streaming": "Streaming",
       "storage": "Speicher",
       "updates": "Updates",

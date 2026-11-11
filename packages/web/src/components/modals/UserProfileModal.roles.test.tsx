@@ -9,38 +9,34 @@ vi.mock('../../audio/AudioManager', () => ({
     getInstance: vi.fn().mockReturnValue({ setOutputDevice: vi.fn(), setVolume: vi.fn() }),
   },
 }));
-vi.mock('../../utils/mutuals', () => ({
-  loadFederatedMutuals: vi.fn().mockResolvedValue({ mutualFriends: [], mutualSpaces: [] }),
-}));
 const usersGet = vi.fn();
-vi.mock('../../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../utils/crossStoreResolvers')>()),
-  getApiForOrigin: () => ({
-    users: { get: (...args: unknown[]) => usersGet(...args) },
+vi.mock('../../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../api/client')>()),
+  api: {
+    users: { get: (...args: unknown[]) => usersGet(...args), getMutuals: vi.fn().mockResolvedValue({ mutualFriends: [], mutualSpaces: [] }) },
     uploads: { url: (k: string) => `/uploads/${k}` },
-  }),
+  },
 }));
 
 import { UserProfileModal } from './UserProfileModal';
-import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../../stores/spaceStore';
 import { useUIStore } from '../../stores/uiStore';
 
 // #302: the full profile lists the member's roles in the space it was opened
 // from. On mobile it is opened with ids only, so it takes the member's user
-// from the space it came from rather than looking the id up on the home
-// instance, where a federated space's member id means nothing.
+// from the native roster rather than issuing an unnecessary profile request.
 
 const SPACE_ID = 'space-1';
-const SPACE: TaggedSpace = {
+const SPACE: SpaceWithMyRoles = {
   id: SPACE_ID, name: 'Aether Drift', icon: null, banner: null, avatarColor: 'lavender',
   ownerId: 'u-owner', inviteCode: null, visibility: 'public',
-  description: '', createdAt: 1, _instanceOrigin: 'https://orbit.example',
+  description: '', createdAt: 1,
 };
 
 const MIRA: User = {
   id: 'orbit-mira', username: 'mira', displayName: 'Mira', avatar: null, banner: null,
   accentColor: null, avatarColor: null, bio: null, status: 'offline', customStatus: null,
-  isAdmin: false, createdAt: 1, homeInstance: null, homeUserId: null, replicatedInstances: [],
+  isAdmin: false, createdAt: 1,
 };
 
 const MODS: Role = { id: 'r-mod', spaceId: SPACE_ID, name: 'Moderators', color: '#c4b5fd', position: 3, createdAt: 1 };
@@ -55,7 +51,7 @@ beforeEach(() => {
 });
 
 describe('UserProfileModal: roles (#302)', () => {
-  it('lists the member\'s roles when opened with ids only, without asking the home instance', async () => {
+  it('lists the native member roles from an ID-only open without another lookup', async () => {
     useUIStore.setState({
       activeModal: 'userProfile',
       modalData: { userId: MIRA.id, member: { spaceId: SPACE_ID, userId: MIRA.id } },

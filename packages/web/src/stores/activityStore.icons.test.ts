@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 // Mock useWebSocket before importing activityStore
 const mockWsSendAll = vi.fn();
 vi.mock('../hooks/useWebSocket', () => ({
-  wsSendAll: (...args: unknown[]) => mockWsSendAll(...args),
+  wsSend: (...args: unknown[]) => mockWsSendAll(...args),
 }));
 
 // Mock the api client: the icon upload is the only call the store makes
@@ -163,5 +163,21 @@ describe('activityStore game icon enrichment', () => {
 
     expect(mockWsSendAll).not.toHaveBeenCalled();
     expect(useActivityStore.getState().myActivities).toBeNull();
+  });
+  it('never uploads a previous session\'s extracted icon using the next account credentials', async () => {
+    let finish!: (icon: { data: string; mime: string }) => void;
+    getGameIcon.mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+    useActivityStore.getState().pushActivities([GAME_ACTIVITY]); await vi.advanceTimersByTimeAsync(5000);
+    useActivityStore.getState().reset(); finish({ data: 'cHJldmlvdXM=', mime: 'image/png' }); await vi.advanceTimersByTimeAsync(10);
+    expect(mockUpload).not.toHaveBeenCalled(); expect(mockWsSendAll).not.toHaveBeenCalled();
+    expect(localStorage.getItem('backspace_game_icons')).toBeNull();
+  });
+  it('does not cache a late upload result into the next session or publish it', async () => {
+    let finish!: (value: { id: string; url: string }) => void;
+    getGameIcon.mockResolvedValue({ data: 'aWNjb24=', mime: 'image/png' });
+    mockUpload.mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+    useActivityStore.getState().pushActivities([GAME_ACTIVITY]); await vi.advanceTimersByTimeAsync(5000);
+    useActivityStore.getState().reset(); finish({ id: 'old', url: 'https://previous.invalid/api/game-icons/assets/old.webp' }); await vi.advanceTimersByTimeAsync(10);
+    expect(localStorage.getItem('backspace_game_icons')).toBeNull(); expect(mockWsSendAll).not.toHaveBeenCalled();
   });
 });

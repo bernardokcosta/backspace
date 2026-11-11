@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-vi.mock('../../../hooks/useWebSocket', () => ({ wsSendAll: vi.fn() }));
+vi.mock('../../../hooks/useWebSocket', () => ({ wsSend: vi.fn() }));
 vi.mock('../../../api/client', () => ({ api: { gameIcons: { upload: vi.fn() } } }));
 
 import { ActivityGameSection } from './ActivityGameSection';

@@ -4,42 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { Modal } from '../ui/Modal';
 import { Avatar } from '../ui/Avatar';
 import { useUIStore } from '../../stores/uiStore';
-import { useSpaceStore, dmCopyOnOrigin } from '../../stores/spaceStore';
-import { useSelfIdentity } from '../../stores/authStore';
-import { useSocialStore, type TaggedFriend } from '../../stores/socialStore';
-import { getFriendsHomeOrigin } from '../../stores/instanceStore';
-import { getApiForOrigin } from '../../utils/crossStoreResolvers';
-import { isMine, parseFederatedUsername, personRequest, userKey, type IdentityFields, type PersonTarget } from '../../utils/identity';
-import { useDmViewer } from '../../hooks/useDmViewer';
+import { useSpaceStore } from '../../stores/spaceStore';
+import { useAuthStore } from '../../stores/authStore';
+import { useSocialStore } from '../../stores/socialStore';
+import { api } from '../../api/client';
+import { userDisplayName } from '../../utils/identity';
+import { uploadUrl } from '../../utils/assetUrls';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
-import type { BotSummary, GroupDmUserIdentity, User } from '@veyvox/shared';
-
-/**
- * How the instance at `to` is told about the person `row` names (issued by
- * `origin`): their id there when they are native to it, else their home
- * identity (`personRequest`). Null for a legacy stub another instance issued,
- * which cannot be named to `to`.
- */
-function memberTarget(row: IdentityFields, origin: string, to: string): PersonTarget | null {
-  const request = personRequest(row, origin, to);
-  return request.origin === to ? request.target : null;
-}
-
-/** A member of a group DM create request to `to` (`memberTarget`). */
-function groupMemberRef(row: IdentityFields, origin: string, to: string): GroupDmUserIdentity | null {
-  const target = memberTarget(row, origin, to);
-  if (!target) return null;
-  return { id: target.userId ?? row.id, homeUserId: target.homeUserId ?? null, homeInstance: target.homeInstance ?? null };
-}
-
-/**
- * The person a friend row names (`userKey`). Friends come from every
- * connected instance, whose row ids can coincide, and the DM's members are
- * another instance's rows, so the list selects and compares by person.
- */
-function friendKey(friend: TaggedFriend): string {
-  return userKey(friend, friend._instanceOrigin);
-}
+import type { BotSummary, Friend } from '@veyvox/shared';
 
 function AddDmFriendRow({
   friend,
@@ -49,7 +21,7 @@ function AddDmFriendRow({
   isAdding,
   onToggle,
 }: {
-  friend: TaggedFriend;
+  friend: Friend;
   isInDm: boolean;
   isSelected: boolean;
   atCapacity: boolean;
@@ -57,12 +29,11 @@ function AddDmFriendRow({
   onToggle: (key: string) => void;
 }) {
   const { t } = useTranslation(['dm', 'common']);
-  const canonical = useCanonicalUserView(friend as unknown as User, friend._instanceOrigin);
-  const { baseName } = parseFederatedUsername(canonical.username);
-  const friendDisplayName = canonical.displayName ?? baseName;
+  const canonical = useCanonicalUserView(friend);
+  const friendDisplayName = userDisplayName(canonical);
   return (
     <button
-      onClick={() => onToggle(friendKey(friend))}
+      onClick={() => onToggle(friend.id)}
       disabled={isInDm || isAdding || atCapacity}
       className={`w-full flex items-center gap-3 px-3 py-2 rounded-[4px] transition-colors text-left ${
         isInDm
@@ -76,8 +47,8 @@ function AddDmFriendRow({
         src={canonical.avatar}
         name={friendDisplayName}
         size={30}
-        status={canonical.status as any}
-        userId={canonical.homeUserId ?? canonical.id}
+        status={canonical.status}
+        userId={canonical.id}
         avatarColor={canonical.avatarColor}
       />
       <div className="flex-1 min-w-0">
@@ -133,7 +104,7 @@ function AddDmBotRow({
       } ${atCapacity && !isInDm ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       <Avatar
-        src={bot.avatar ? getApiForOrigin(getFriendsHomeOrigin()).uploads.url(bot.avatar) : null}
+        src={uploadUrl(bot.avatar)}
         name={name}
         size={30}
         avatarColor={bot.avatarColor}
@@ -173,20 +144,20 @@ export function AddDmMemberModal() {
   const modalData = useUIStore((s) => s.modalData);
   const closeModal = useUIStore((s) => s.closeModal);
   const dmChannels = useSpaceStore((s) => s.dmChannels);
-  const upsertDmCopy = useSpaceStore((s) => s.upsertDmCopy);
+  const upsertDmChannel = useSpaceStore((s) => s.upsertDmChannel);
   const friends = useSocialStore((s) => s.friends);
   const navigate = useNavigate();
-  const self = useSelfIdentity();
+  const selfId = useAuthStore(s => s.user?.id);
+  const revision = useAuthStore(s => s.sessionRevision);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const isOpen = activeModal === 'addDmMember';
   const dmChannelId = modalData.dmChannelId as string | undefined;
   const dmChannel = dmChannels.find(dm => dm.id === dmChannelId);
-  const viewer = useDmViewer(dmChannelId);
-  // The members as the DM's own instance issued them, by person.
+  // Native roster IDs are also the selection and membership keys.
   const currentMemberKeys = useMemo(
-    () => new Set(dmChannel?.members.map(m => userKey(m, viewer.origin)) ?? []),
-    [dmChannel?.members, viewer.origin],
+    () => new Set(dmChannel?.members.map(m => m.id) ?? []),
+    [dmChannel?.members],
   );
   const memberCount = dmChannel?.members.length ?? 0;
   const maxMembers = 10;
@@ -196,26 +167,29 @@ export function AddDmMemberModal() {
   const filteredFriends = useMemo(() => {
     const q = query.trim().toLowerCase();
     return friends.filter((f) => {
-      if (isMine(f, f._instanceOrigin, self)) return false;
+      if (f.id === selfId) return false;
       if (!q) return true;
       const displayName = (f.displayName ?? '').toLowerCase();
       const username = f.username.toLowerCase();
       return displayName.includes(q) || username.includes(q);
     });
-  }, [friends, query, self]);
+  }, [friends, query, selfId]);
 
   // Reset state when modal opens
   useEffect(() => {
+    let alive = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     if (isOpen) {
       setQuery('');
       setSelected(new Set());
       setError('');
       setIsAdding(false);
       setSelectedBotIds(new Set());
-      getApiForOrigin(getFriendsHomeOrigin()).bots.list().then((res) => setBots(res.bots)).catch(() => setBots([]));
-      setTimeout(() => inputRef.current?.focus(), 100);
+      void api.bots.list().then(res => { if (alive) setBots(res.bots); }).catch(() => { if (alive) setBots([]); });
+      timer = setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [isOpen]);
+    return () => { alive = false; clearTimeout(timer); };
+  }, [isOpen, dmChannelId, revision]);
 
   const toggleFriend = (key: string) => {
     if (currentMemberKeys.has(key)) return;
@@ -241,7 +215,7 @@ export function AddDmMemberModal() {
   };
 
   const selectedFriends = useMemo(
-    () => friends.filter((f) => selected.has(friendKey(f))),
+    () => friends.filter(f => selected.has(f.id)),
     [friends, selected],
   );
 
@@ -258,9 +232,9 @@ export function AddDmMemberModal() {
     [bots, selectedBotIds],
   );
 
-  // A bot is native to its owner's home instance, so it is named by that instance's own row.
+  // Owned bots use native account IDs, exactly like friends.
   const botIsInDm = (bot: BotSummary): boolean =>
-    currentMemberKeys.has(userKey({ id: bot.id, homeUserId: null, homeInstance: null }, getFriendsHomeOrigin()));
+    currentMemberKeys.has(bot.id);
 
   const toggleBot = (botId: string) => {
     const bot = bots.find((b) => b.id === botId);
@@ -283,64 +257,34 @@ export function AddDmMemberModal() {
     if (!dmChannelId || !dmChannel || isAdding || totalSelected === 0) return;
     setError('');
     setIsAdding(true);
-    // Both requests go to the user's home (`getFriendsHomeOrigin`), the
-    // instance whose friend list they are checked against; on a session
-    // signed in to another instance that is a secondary connection, not the
-    // page's own instance. Home knows the conversation only as its own copy:
-    // its id and its members. The row may be pinned to another instance's
-    // copy, whose ids mean nothing there.
-    const home = getFriendsHomeOrigin();
-    const homeApi = getApiForOrigin(home);
-    const homeCopy = dmCopyOnOrigin(dmChannelId, home);
+    const current = () => revision === useAuthStore.getState().sessionRevision;
     try {
       if (!dmChannel.ownerId) {
         // 1-on-1 DM → create a new group DM with all selected + existing other member
-        const partnerOrigin = homeCopy ? home : viewer.origin;
-        const partner = (homeCopy ?? dmChannel).members.find(m => !isMine(m, partnerOrigin, self));
+        const partner = dmChannel.members.find(m => m.id !== selfId);
         if (!partner) {
           setError(t('dm:addMember.noOtherMember'));
           setIsAdding(false);
           return;
         }
-        // Home's own row for the partner when it holds the conversation;
-        // otherwise the partner by their home identity, which home resolves.
-        const refs = [
-          groupMemberRef(partner, partnerOrigin, home),
-          ...selectedFriends.map((f) => groupMemberRef(f, f._instanceOrigin, home)),
-          ...selectedBots.map((b): GroupDmUserIdentity => ({ id: b.id, homeUserId: null, homeInstance: null })),
-        ];
-        const users = refs.filter((ref): ref is GroupDmUserIdentity => ref !== null);
-        if (users.length !== refs.length) {
-          setError(t('dm:addMember.failed'));
-          setIsAdding(false);
-          return;
-        }
-        // Home checks the source 1-on-1 by its own id; without a home copy
-        // there is none to name.
-        const newChannel = await homeApi.dm.createGroup({ users, fromDmChannelId: homeCopy?.id });
-        const rowId = upsertDmCopy(home, newChannel, 'stated');
+        const users = [partner, ...selectedFriends, ...selectedBots].map(user => ({ id: user.id }));
+        const newChannel = await api.dm.createGroup({ users, fromDmChannelId: dmChannelId });
+        if (!current()) return;
+        const rowId = upsertDmChannel(newChannel);
         closeModal();
         navigate(`/channels/@me/${rowId}`);
       } else {
-        // Existing group DM → add each friend sequentially, on home's copy.
-        const targets = selectedFriends.map((f) => memberTarget(f, f._instanceOrigin, home));
-        if (!homeCopy || targets.some((target) => target === null)) {
-          setError(t('dm:addMember.failed'));
-          setIsAdding(false);
-          return;
+        // Existing native group → retain sequential additions and server checks.
+        for (const target of [...selectedFriends, ...selectedBots]) {
+          if (!current()) return;
+          await api.dm.addMember(dmChannelId, { userId: target.id });
         }
-        for (const target of targets) {
-          if (target) await homeApi.dm.addMember(homeCopy.id, target);
-        }
-        for (const bot of selectedBots) {
-          await homeApi.dm.addMember(homeCopy.id, { userId: bot.id });
-        }
-        closeModal();
+        if (current()) closeModal();
       }
     } catch (err) {
-      setError((err as Error).message || t('dm:addMember.failed'));
+      if (current()) setError((err as Error).message || t('dm:addMember.failed'));
     } finally {
-      setIsAdding(false);
+      if (current()) setIsAdding(false);
     }
   };
 
@@ -366,12 +310,12 @@ export function AddDmMemberModal() {
           <div className="flex gap-1.5 flex-wrap">
             {selectedFriends.map((f) => (
               <span
-                key={friendKey(f)}
+                key={f.id}
                 className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] bg-accent-mint/15 text-accent-mint"
               >
-                {f.displayName ?? parseFederatedUsername(f.username).baseName}
+                {userDisplayName(f)}
                 <button
-                  onClick={() => removeFriend(friendKey(f))}
+                  onClick={() => removeFriend(f.id)}
                   className="opacity-60 hover:opacity-100 transition-opacity text-[14px] leading-none"
                 >
                   &times;
@@ -409,7 +353,7 @@ export function AddDmMemberModal() {
           )}
 
           {filteredFriends.map((friend) => {
-            const key = friendKey(friend);
+            const key = friend.id;
             const isInDm = currentMemberKeys.has(key);
             const isSelected = selected.has(key);
             const atCapacity = !isSelected && selected.size + selectedBotIds.size >= remainingSlots;

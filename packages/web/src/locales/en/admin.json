@@ -4,7 +4,6 @@
     "description": "Configure your Veyvox instance. These settings affect all users.",
     "instanceName": {
       "label": "Instance Name",
-      "description": "The name shown on the login page and to federated instances.",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "Registration",
-    "description": "Control who can create accounts on this instance. Public registration covers local sign-ups; federated registration covers users from peered instances creating an account here.",
     "public": {
       "label": "Public Registration",
       "toggleLabel": "Allow new local accounts",
       "toggleDescription": "Anyone can create a local account from the registration page. When off, only invite links can create new local accounts."
-    },
-    "federated": {
-      "label": "Federated Registration",
-      "toggleLabel": "Allow new federated accounts",
-      "toggleDescription": "Users from other instances can create a federated account here via their Connections settings. Existing federated accounts can always log in regardless of this setting."
     },
     "spaceCreation": {
       "label": "Space Creation",
@@ -355,8 +348,6 @@
     "loadFailed": "Failed to load users",
     "empty": "No users found",
     "filters": {
-      "allInstances": "All instances",
-      "localOnly": "Local only",
       "allRoles": "All roles",
       "admin": "Admin",
       "nonAdmin": "Non-admin",
@@ -376,9 +367,7 @@
     "actions": {
       "demote": "Demote from admin",
       "promote": "Promote to admin",
-      "federatedNoAdmin": "Federated users cannot be admin",
       "resetPassword": "Reset password",
-      "federatedNoReset": "Federated users authenticate via home instance",
       "delete": "Delete user",
       "selfDelete": "Use account settings to delete your own account"
     },
@@ -405,15 +394,7 @@
     "deleteDialog": {
       "title": "Delete User",
       "description": "Permanently delete <strong>{{username}}</strong>? This will remove them from all spaces, DMs, and friends lists. This cannot be undone.",
-      "confirm": "Delete User",
-      "blockBot": "Do not let this bot register again",
-      "blockBotHint": "When its home instance comes back, the bot cannot create an account here. You can unblock it below the user list."
-    },
-    "blockedBots": {
-      "title": "Blocked bots",
-      "description": "Bots of other instances that cannot register here. Unblock one to let it in again.",
-      "blockedAt": "Blocked {{date}}",
-      "unblock": "Unblock"
+      "confirm": "Delete User"
     }
   },
   "mobile": {
@@ -421,7 +402,6 @@
     "sections": {
       "general": "General",
       "registration": "Registration",
-      "federation": "Federation",
       "streaming": "Streaming",
       "storage": "Storage",
       "updates": "Updates",

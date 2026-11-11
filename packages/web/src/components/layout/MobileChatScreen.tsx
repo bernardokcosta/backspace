@@ -8,15 +8,15 @@ import { useSpaceStore } from '../../stores/spaceStore';
 import { MessageList } from '../chat/MessageList';
 import { MessageInput } from '../chat/MessageInput';
 import { TransferIndicator } from './TransferIndicator';
-import { isMine, userDisplayName } from '../../utils/identity';
+import { userDisplayName } from '../../utils/identity';
 import { formatDmHeaderName, formatDmInputLabel, isDeletedPartnerDm } from '../../utils/dmFormatters';
 import { DmDeletedNotice } from '../chat/DmDeletedNotice';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 import { canStartDmCall, startDmCall, cancelOutgoingDmCall, isDmCallRunning, joinDmCall } from '../../utils/voiceActions';
-import { useDmViewer } from '../../hooks/useDmViewer';
+import { useAuthStore } from '../../stores/authStore';
 import type { User } from '@veyvox/shared';
 
-const FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false, replicatedInstances: [] } as unknown as User;
+const FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false } as unknown as User;
 
 interface MobileChatScreenProps {
   params?: Record<string, string>;
@@ -49,16 +49,15 @@ export function MobileChatScreen({ params }: MobileChatScreenProps) {
 
   // Resolve the "main other member" of a 1:1 DM up-front so we can route it
   // through useCanonicalUserView (hook, must run unconditionally). Group DMs
-  // don't get the cache treatment in the header — the comma-joined title falls
-  // back to per-member parseFederatedUsername normalization, matching the
-  // pattern in MobileDmsScreen.
+  // use the native member formatter for their comma-joined header, matching
+  // MobileDmsScreen without interpreting legacy @ handles.
   const dm = isDm && channelId ? dmChannels.find(d => d.id === channelId) : undefined;
-  const viewer = useDmViewer(dm?.id);
-  const otherMembers = dm ? dm.members.filter(m => !isMine(m, viewer.origin, viewer.self)) : [];
+  const selfId = useAuthStore(s => s.user?.id ?? null);
+  const otherMembers = dm ? dm.members.filter(m => m.id !== selfId) : [];
   const isGroup = !!dm?.ownerId;
   const rawMainOther = !isGroup ? otherMembers[0] : undefined;
-  const canonicalMainOther = useCanonicalUserView((rawMainOther as unknown as User) ?? FALLBACK_USER, viewer.origin);
-  const dmPartnerDeleted = dm ? isDeletedPartnerDm(dm, viewer) : false;
+  const canonicalMainOther = useCanonicalUserView(rawMainOther ?? FALLBACK_USER);
+  const dmPartnerDeleted = dm ? isDeletedPartnerDm(dm, selfId) : false;
   // The header call button has five states, in this order of precedence:
   // in a call with this DM (opens the call screen), ringing this DM (cancels),
   // busy (disabled: `canStartDmCall` refuses while any DM call rings or runs,
@@ -89,15 +88,14 @@ export function MobileChatScreen({ params }: MobileChatScreenProps) {
   // Resolve channel/DM name. Group DMs route through `formatDmHeaderName` so
   // a renamed group shows `dm.name` (previously this surface silently dropped
   // it and always rendered the joined-names fallback). 1-on-1 DMs keep the
-  // canonical-view lookup so replicated aliases still surface the home
-  // account's displayName.
+  // latest native profile lookup for the account's displayName.
   let channelName: string;
   let inputPlaceholder: string | undefined;
   if (isDm) {
     channelName = t('spaces:main.dm.fallbackName');
     if (dm && isGroup) {
-      channelName = formatDmHeaderName(dm, viewer);
-      inputPlaceholder = t('spaces:main.dm.composerPlaceholder', { target: formatDmInputLabel(dm, viewer) });
+      channelName = formatDmHeaderName(dm, selfId);
+      inputPlaceholder = t('spaces:main.dm.composerPlaceholder', { target: formatDmInputLabel(dm, selfId) });
     } else if (dm && rawMainOther) {
       channelName = userDisplayName(canonicalMainOther);
       // Use the canonical `channelName` directly so header + placeholder stay

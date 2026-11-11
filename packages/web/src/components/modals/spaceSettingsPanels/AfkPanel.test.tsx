@@ -15,15 +15,15 @@ vi.mock('react-i18next', () => ({
 }));
 
 const apiUpdate = vi.fn();
-vi.mock('../../../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../../utils/crossStoreResolvers')>()),
-  getApiForOrigin: () => ({ spaces: { update: apiUpdate } }),
+vi.mock('../../../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../api/client')>()),
+  api: { spaces: { update: (...args: unknown[]) => apiUpdate(...args) } },
 }));
 
 import { AfkPanel } from './AfkPanel';
 import { useSpaceStore } from '../../../stores/spaceStore';
 
-const space: Space & { _instanceOrigin: string } = {
+const space: Space = {
   id: 'space-1',
   name: 'Space',
   icon: null,
@@ -37,7 +37,6 @@ const space: Space & { _instanceOrigin: string } = {
   afkChannelId: null,
   afkTimeoutSeconds: 300,
   createdAt: 1,
-  _instanceOrigin: '',
 };
 
 const channel = (id: string, type: Channel['type']): Channel => ({

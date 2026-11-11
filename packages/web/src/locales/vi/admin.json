@@ -4,7 +4,6 @@
     "description": "Cấu hình máy chủ Veyvox của bạn. Các cài đặt này áp dụng cho mọi người dùng.",
     "instanceName": {
       "label": "Tên máy chủ",
-      "description": "Tên hiện trên trang đăng nhập và với các máy chủ liên hợp.",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "Đăng ký",
-    "description": "Kiểm soát ai tạo được tài khoản trên máy chủ này. Đăng ký công khai bao phủ đăng ký cục bộ; đăng ký liên hợp bao phủ người dùng từ máy chủ ghép tạo tài khoản ở đây.",
     "public": {
       "label": "Đăng ký công khai",
       "toggleLabel": "Cho phép tài khoản cục bộ mới",
       "toggleDescription": "Bất kỳ ai cũng tạo được tài khoản cục bộ trên trang đăng ký. Khi tắt, tài khoản cục bộ mới chỉ qua liên kết thư mời."
-    },
-    "federated": {
-      "label": "Đăng ký liên hợp",
-      "toggleLabel": "Cho phép tài khoản liên hợp mới",
-      "toggleDescription": "Người dùng từ máy chủ khác tạo được tài khoản liên hợp ở đây qua cài đặt Kết nối. Tài khoản liên hợp hiện có luôn đăng nhập được, bất kể cài đặt này."
     },
     "spaceCreation": {
       "label": "Tạo không gian",
@@ -355,8 +348,6 @@
     "loadFailed": "Không thể tải người dùng",
     "empty": "Không tìm thấy người dùng",
     "filters": {
-      "allInstances": "Tất cả máy chủ",
-      "localOnly": "Chỉ cục bộ",
       "allRoles": "Tất cả vai trò",
       "admin": "Quản trị",
       "nonAdmin": "Không quản trị",
@@ -376,9 +367,7 @@
     "actions": {
       "demote": "Hạ quyền quản trị",
       "promote": "Cấp quyền quản trị",
-      "federatedNoAdmin": "Người dùng liên hợp không thể làm quản trị",
       "resetPassword": "Đặt lại mật khẩu",
-      "federatedNoReset": "Người dùng liên hợp đăng nhập qua máy chủ chính",
       "delete": "Xóa người dùng",
       "selfDelete": "Dùng cài đặt để xóa tài khoản của mình"
     },
@@ -405,15 +394,7 @@
     "deleteDialog": {
       "title": "Xóa người dùng",
       "description": "Xóa vĩnh viễn <strong>{{username}}</strong>? Người dùng bị gỡ khỏi mọi không gian, DM và danh sách bạn. Điều này không thể hoàn tác.",
-      "confirm": "Xóa người dùng",
-      "blockBot": "Không cho bot này đăng ký lại",
-      "blockBotHint": "Khi máy chủ chính của nó trở lại, bot không tạo được tài khoản ở đây. Bỏ chặn dưới danh sách người dùng."
-    },
-    "blockedBots": {
-      "title": "Bot bị chặn",
-      "description": "Bot từ máy chủ khác không được đăng ký ở đây. Bỏ chặn bot để cho truy cập lại.",
-      "blockedAt": "Bị chặn {{date}}",
-      "unblock": "Bỏ chặn"
+      "confirm": "Xóa người dùng"
     }
   },
   "mobile": {
@@ -421,7 +402,6 @@
     "sections": {
       "general": "Chung",
       "registration": "Đăng ký",
-      "federation": "Liên hợp",
       "streaming": "Phát trực tiếp",
       "storage": "Lưu trữ",
       "users": "Người dùng",

@@ -62,8 +62,6 @@ beforeEach(() => {
     id: OWNER_ID,
     username: OWNER_ID,
     passwordHash: 'x',
-    homeUserId: OWNER_ID,
-    homeInstance: null,
     createdAt: now,
   }).run();
 });

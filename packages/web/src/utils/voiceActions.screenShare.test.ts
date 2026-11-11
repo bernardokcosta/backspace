@@ -7,11 +7,6 @@ vi.mock('../audio/AudioManager', () => ({
 vi.mock('../hooks/useWebSocket', () => ({
   wsSend: vi.fn(),
 }));
-vi.mock('../stores/instanceStore', async () => {
-  const { create } = await import('zustand');
-  const store = create<{ instances: unknown[] }>()(() => ({ instances: [] }));
-  return { useInstanceStore: store };
-});
 const room = { localParticipant: {} };
 vi.mock('../hooks/useLiveKit', () => ({
   getActiveRoom: vi.fn(() => room),

@@ -3,27 +3,26 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import type { User } from '@veyvox/shared';
 
-// The card reaches into the space store, the API client and the federated
-// mutuals loader. None of that is under test here; stub it so the test sees
+// The card reaches into the space store and native API. Stub them to inspect
 // only where the card lands in the document.
 vi.mock('../../stores/spaceStore', () => ({
   useSpaceStore: Object.assign(
     (selector: (s: Record<string, unknown>) => unknown) =>
-      selector({ upsertDmCopy: vi.fn(), findExistingDmForUser: vi.fn() }),
-    { getState: () => ({ upsertDmCopy: vi.fn(), findExistingDmForUser: vi.fn() }) },
+      selector({ upsertDmChannel: vi.fn(), findExistingDmForUser: vi.fn() }),
+    { getState: () => ({ upsertDmChannel: vi.fn(), findExistingDmForUser: vi.fn() }) },
   ),
-  getApiForOrigin: () => ({ uploads: { url: (k: string) => `/uploads/${k}` } }),
 }));
 // authStore imports voiceStore, which imports AudioManager and with it an
 // AudioWorklet module jsdom cannot evaluate.
 vi.mock('../../audio/AudioManager', () => ({
   AudioManager: { getInstance: vi.fn().mockReturnValue({ setOutputDevice: vi.fn(), setVolume: vi.fn() }) },
 }));
-vi.mock('../../utils/mutuals', () => ({
-  loadFederatedMutuals: vi.fn().mockResolvedValue({ mutualFriends: [], mutualSpaces: [] }),
-}));
+vi.mock('../../api/client', async original => {
+  const actual = await original<typeof import('../../api/client')>();
+  return { ...actual, api: { ...actual.api, users: { ...actual.api.users, getMutuals: vi.fn().mockResolvedValue({ mutualFriends: [], mutualSpaces: [] }) } } };
+});
 vi.mock('../../utils/userViewLookup', () => ({ useCanonicalUserView: (u: User) => u }));
-vi.mock('../../hooks/useShownStatus', () => ({ useShownStatus: (_u: User, _origin: string, status: User['status']) => status }));
+vi.mock('../../hooks/useShownStatus', () => ({ useShownStatus: (_u: User, status: User['status']) => status }));
 
 import { Modal } from './Modal';
 import { UserProfilePopoutLayer } from './UserProfilePopoutLayer';
@@ -32,8 +31,7 @@ import { useUIStore } from '../../stores/uiStore';
 const ADA: User = {
   id: 'u-1', username: 'ada', displayName: 'Ada', avatar: null, banner: null,
   accentColor: null, avatarColor: null, bio: null, status: 'online',
-  customStatus: null, isAdmin: false, createdAt: 0, homeInstance: null,
-  homeUserId: null, replicatedInstances: [],
+  customStatus: null, isAdmin: false, createdAt: 0,
 };
 const ANCHOR = { top: 200, left: 200, right: 240, bottom: 240, width: 40, height: 40 };
 
@@ -41,7 +39,7 @@ function MembersDialog() {
   const openUserProfile = useUIStore((s) => s.openUserProfile);
   return (
     <Modal isOpen onClose={() => {}} title="Group settings">
-      <button type="button" onClick={() => openUserProfile(ADA, '', ANCHOR)}>Ada</button>
+      <button type="button" onClick={() => openUserProfile(ADA, ANCHOR)}>Ada</button>
     </Modal>
   );
 }
@@ -84,7 +82,7 @@ describe('UserProfilePopoutLayer', () => {
         <UserProfilePopoutLayer />
       </MemoryRouter>,
     );
-    act(() => { useUIStore.getState().openUserProfile(ADA, '', ANCHOR); });
+    act(() => { useUIStore.getState().openUserProfile(ADA, ANCHOR); });
     const backdrop = document.querySelector('body > .fixed.inset-0.z-\\[145\\]');
     expect(backdrop).toBeInstanceOf(HTMLElement);
     if (!(backdrop instanceof HTMLElement)) return;

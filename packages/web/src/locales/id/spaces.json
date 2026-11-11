@@ -158,21 +158,6 @@
     "invitePlaceholder": "mis. abc123 atau https://instance.com/join/abc123",
     "submit": "Bergabung Ruang",
     "submitting": "Bergabung…",
-    "connect": {
-      "intro": "Hubungkan ke <host>{{host}}</host> untuk bergabung ruang ini.",
-      "passwordLabel": "Masukkan kata sandi untuk menghubungkan",
-      "passwordPlaceholder": "Kata sandi akun Anda",
-      "passwordNote": "Kata sandi Anda diperiksa instans utama dan tidak pernah dikirim ke {{host}}. Instans itu mendapat kredensial unik yang dibuat hanya untuknya.",
-      "submit": "Hubungkan & Bergabung",
-      "submitting": "Menghubungkan…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "Nama pengguna Anda di instans ini",
-      "passwordLabel": "Kata sandi instans ini",
-      "passwordPlaceholder": "Kata sandi di instans remote",
-      "submit": "Masuk & Bergabung",
-      "submitting": "Masuk…"
-    },
     "request": {
       "messagePlaceholder": "Mengapa ingin bergabung? (opsional)",
       "send": "Kirim Permintaan",
@@ -450,8 +435,6 @@
       "transferOwnership": "Transfer Kepemilikan",
       "settings": "Pengaturan Ruang",
       "leave": "Keluar Ruang",
-      "reconnecting": "Menyambung ulang ke {{instance}}…",
-      "remoteInstance": "instans remote",
       "leaveConfirm": {
         "title": "Keluar Ruang",
         "titleNamed": "Keluar {{name}}",

@@ -10,9 +10,8 @@ import { useSocialStore } from '../../stores/socialStore';
 import { useTransferStore } from '../../stores/transferStore';
 import { waitForTransferAttachment } from '../../utils/waitForTransfer';
 import { api } from '../../api/client';
-import { kickFromGroupDm, transferGroupDmOwnership, updateGroupDmMetadata } from '../../utils/groupDmOwnerActions';
-import { isMine, parseFederatedUsername, userKey } from '../../utils/identity';
-import { useDmViewer } from '../../hooks/useDmViewer';
+import { userDisplayName } from '../../utils/identity';
+import { useAuthStore } from '../../stores/authStore';
 import { AvatarStack } from '../ui/AvatarStack';
 import { DmMemberRow, type DmMemberRowAction } from '../layout/DmMemberRow';
 import { visualPixels } from '../../platform/interfaceScale';
@@ -31,8 +30,7 @@ type Tab = 'overview' | 'members';
  * Reads its target channel from `useUIStore.modalData.dmChannelId`. Optional
  * `initialTab` selects which tab opens first.
  *
- * Owner detection: `isMine` of the owner id on the DM copy's origin
- * (`useDmViewer`), the identity rule of client-federation.md section 5.
+ * Owner detection compares the native ownerId with the authenticated account.
  * Non-owners see read-only fields (icon click is a no-op, name input disabled,
  * Save button absent). "Leave Group" is enabled for everyone.
  *
@@ -40,7 +38,7 @@ type Tab = 'overview' | 'members';
  *   1. If an icon blob is staged, upload it via transferStore.
  *   2. Build PATCH body with ONLY changed fields (name and/or icon).
  *      Cleared icon → `icon: null`.
- *   3. `updateGroupDmMetadata(channelId, body)` then close the modal.
+ *   3. `api.dm.updateMetadata(channelId, body)` then close the modal.
  * Cancel discards the staged blob; no upload fires.
  */
 export function GroupDmSettings() {
@@ -62,7 +60,7 @@ export function GroupDmSettings() {
     () => dmChannels.find((dm) => dm.id === dmChannelId) ?? null,
     [dmChannels, dmChannelId],
   );
-  const viewer = useDmViewer(dmChannel?.id);
+  const selfId = useAuthStore(s => s.user?.id);
 
   // ── Tab + mobile pane state ────────────────────────────────────────────
   const [tab, setTab] = useState<Tab>(initialTab);
@@ -127,12 +125,12 @@ export function GroupDmSettings() {
   // Group DMs only: this modal is meaningless for 1-on-1 conversations.
   if (!dmChannel.ownerId) return null;
 
-  const isOwner = isMine({ id: dmChannel.ownerId }, viewer.origin, viewer.self);
+  const isOwner = dmChannel.ownerId === selfId;
 
-  const otherMembers: User[] = dmChannel.members.filter((m) => !isMine(m, viewer.origin, viewer.self));
+  const otherMembers: User[] = dmChannel.members.filter(m => m.id !== selfId);
 
   const fallbackName = otherMembers
-    .map((m) => m.displayName ?? parseFederatedUsername(m.username).baseName)
+    .map(userDisplayName)
     .join(', ');
 
   const currentName = dmChannel.name ?? '';
@@ -219,7 +217,7 @@ export function GroupDmSettings() {
         body.icon = filename;
       }
 
-      await updateGroupDmMetadata(dmChannelId, body);
+      await api.dm.updateMetadata(dmChannelId, body);
       // Mirror SpaceSettings save behavior: close the modal. The WS broadcast
       // (`dm_channel_updated`) updates the open channel in-place.
       closeModal();
@@ -252,10 +250,9 @@ export function GroupDmSettings() {
   };
 
   // ── Members panel data ────────────────────────────────────────────────
-  // Friend lookup by person (`userKey`), each row with its own origin.
+  // Friend lookup uses the same native account IDs as the DM roster.
   const isFriendOfCaller = (m: User): boolean => {
-    const key = userKey(m, viewer.origin);
-    return friends.some((f) => userKey(f, f._instanceOrigin) === key);
+    return friends.some(f => f.id === m.id);
   };
 
   const memberCount = dmChannel.members.length;
@@ -270,7 +267,7 @@ export function GroupDmSettings() {
       // Fallback path — DmMemberRow normally opens the profile itself via
       // its own bounding rect. If we reach this branch, just route to a
       // top-left anchor (matches DmRosterPanel's fallback).
-      useUIStore.getState().openUserProfile(member, viewer.origin, pointAnchor(visualPixels(100), visualPixels(100)));
+      useUIStore.getState().openUserProfile(member, pointAnchor(visualPixels(100), visualPixels(100)));
       return;
     }
     if (action === 'kick') {
@@ -283,7 +280,7 @@ export function GroupDmSettings() {
     }
     if (action === 'remove-friend') {
       try {
-        await useSocialStore.getState().removeFriend(member, viewer.origin);
+        await useSocialStore.getState().removeFriend(member.id);
       } catch (err) {
         addToast(
           err instanceof Error ? err.message : t('dm:removeFriend.failed'),
@@ -298,9 +295,9 @@ export function GroupDmSettings() {
     if (!pendingKick) return;
     setMemberActionSubmitting(true);
     try {
-      await kickFromGroupDm(dmChannelId, pendingKick);
+      await api.dm.kickMember(dmChannelId, pendingKick.id);
       addToast(
-        t('dm:kick.success', { name: pendingKick.displayName ?? parseFederatedUsername(pendingKick.username).baseName }),
+        t('dm:kick.success', { name: userDisplayName(pendingKick) }),
         'success',
         3000,
       );
@@ -320,9 +317,9 @@ export function GroupDmSettings() {
     if (!pendingTransfer) return;
     setMemberActionSubmitting(true);
     try {
-      await transferGroupDmOwnership(dmChannelId, pendingTransfer);
+      await api.dm.transferOwnership(dmChannelId, { newOwnerId: pendingTransfer.id });
       addToast(
-        t('dm:transfer.success', { name: pendingTransfer.displayName ?? parseFederatedUsername(pendingTransfer.username).baseName }),
+        t('dm:transfer.success', { name: userDisplayName(pendingTransfer) }),
         'success',
         3000,
       );
@@ -374,7 +371,6 @@ export function GroupDmSettings() {
           >
             <AvatarStack
               members={otherMembers}
-              origin={viewer.origin}
               size={80}
               border="modal"
               iconUrl={previewIconUrl}
@@ -510,8 +506,8 @@ export function GroupDmSettings() {
   // ── Members panel ──────────────────────────────────────────────────────
   const ownerMember = dmChannel.members.find((m) => m.id === dmChannel.ownerId) ?? null;
   const sortByDisplayName = (a: User, b: User) => {
-    const aName = (a.displayName ?? parseFederatedUsername(a.username).baseName).toLowerCase();
-    const bName = (b.displayName ?? parseFederatedUsername(b.username).baseName).toLowerCase();
+    const aName = userDisplayName(a).toLowerCase();
+    const bName = userDisplayName(b).toLowerCase();
     return aName.localeCompare(bName);
   };
   const nonOwnerMembers = dmChannel.members
@@ -548,8 +544,7 @@ export function GroupDmSettings() {
           <DmMemberRow
             member={ownerMember}
             isOwner
-            isSelf={isMine(ownerMember, viewer.origin, viewer.self)}
-            origin={viewer.origin}
+            isSelf={ownerMember.id === selfId}
             callerIsOwner={isOwner}
             isFriend={isFriendOfCaller(ownerMember)}
             showKebab={false}
@@ -561,8 +556,7 @@ export function GroupDmSettings() {
             key={m.id}
             member={m}
             isOwner={false}
-            isSelf={isMine(m, viewer.origin, viewer.self)}
-            origin={viewer.origin}
+            isSelf={m.id === selfId}
             callerIsOwner={isOwner}
             isFriend={isFriendOfCaller(m)}
             showKebab={false}
@@ -582,7 +576,6 @@ export function GroupDmSettings() {
           <div className="glass-bubble rounded-lg p-3 flex items-center gap-3">
             <AvatarStack
               members={otherMembers}
-              origin={viewer.origin}
               size={36}
               border="modal"
               iconUrl={dmChannel.icon}
@@ -612,7 +605,6 @@ export function GroupDmSettings() {
             <div className="glass-bubble rounded-lg p-3 flex items-center gap-3">
               <AvatarStack
                 members={otherMembers}
-                origin={viewer.origin}
                 size={36}
                 border="modal"
                 iconUrl={dmChannel.icon}
@@ -691,7 +683,7 @@ export function GroupDmSettings() {
         title={t('dm:kick.title')}
         description={
           pendingKick
-            ? t('dm:kick.description', { name: pendingKick.displayName ?? parseFederatedUsername(pendingKick.username).baseName })
+            ? t('dm:kick.description', { name: userDisplayName(pendingKick) })
             : ''
         }
         confirmLabel={t('common:actions.remove')}
@@ -706,7 +698,7 @@ export function GroupDmSettings() {
         title={t('dm:transfer.title')}
         description={
           pendingTransfer
-            ? t('dm:transfer.description', { name: pendingTransfer.displayName ?? parseFederatedUsername(pendingTransfer.username).baseName })
+            ? t('dm:transfer.description', { name: userDisplayName(pendingTransfer) })
             : ''
         }
         confirmLabel={t('dm:transfer.confirm')}

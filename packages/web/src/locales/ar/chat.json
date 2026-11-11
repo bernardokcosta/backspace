@@ -65,14 +65,12 @@
       "group": {
         "intro": "هذه بداية محادثة مجموعتك.",
         "owner": "المالك: <owner>@{{name}}</owner>",
-        "federatedNotice": "تُخزَّن الرسائل في نسختك الرئيسية والنسخ الرئيسية للمستلمين. ليست مشفرة طرفًا لطرف.",
         "openSettings": "فتح إعدادات المجموعة",
         "leave": "مغادرة المجموعة"
       },
       "dm": {
         "fallbackName": "رسالة مباشرة",
         "intro": "هذه بداية سجل رسائلك المباشرة مع <strong>@{{name}}</strong>.",
-        "federatedNotice": "تُخزَّن الرسائل في نسختك الرئيسية والنسخة الرئيسية للمستلم. ليست مشفرة طرفًا لطرف.",
         "removeFriend": "إزالة الصديق"
       }
     }
@@ -145,14 +143,6 @@
     },
     "audio": {
       "unsupportedBrowser": "متصفحك لا يدعم تشغيل الصوت."
-    },
-    "federation": {
-      "remoteNamed": "مستضاف على نسخة {{sender}}. نزّل لنسخة محلية.",
-      "remoteUnknown": "مستضاف على نسخة المرسل. نزّل لنسخة محلية.",
-      "partialGeneric": "تعذّر على بعض المستلمين تخزين هذا الملف محليًا.",
-      "partialInstance": "نسخة {{username}} (الحد: {{limit}})",
-      "partialList": "تعذّر تخزين الملف على {{instances}}. يمكنهم رؤيته من نسختك.",
-      "listPair": "{{first}} و{{second}}"
     }
   },
   "gif": {
@@ -303,7 +293,6 @@
     "stickersCount_many": "{{count}} ملصقًا",
     "stickersCount_other": "{{count}} ملصق",
     "noPacks": "لا حزم ملصقات",
-    "replicaBadge": "مفدرلة",
     "viewPack": "عرض الحزمة",
     "saveDraft": "حفظ كمسودة",
     "packCreated": "أُنشئت الحزمة",
@@ -320,8 +309,6 @@
     "rejectedSuccess": "رُفضت حزمة الملصقات",
     "reviewNotes": "سبب الرفض",
     "creator": "المنشئ",
-    "sourceInstance": "النسخة",
-    "localInstance": "النسخة المحلية",
     "viewStickers": "عرض الملصقات",
     "pendingReviewHint": "قيد مراجعة المسؤول؛ ستظهر في الاستكشاف بعد الموافقة"
   },

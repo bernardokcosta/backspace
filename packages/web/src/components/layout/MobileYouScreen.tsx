@@ -4,7 +4,6 @@ import { useUIStore } from '../../stores/uiStore';
 import { useAuthStore } from '../../stores/authStore';
 import { Avatar } from '../ui/Avatar';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
-import { parseFederatedUsername } from '../../utils/identity';
 import { replaceEmojiShortcodes, useEmojiShortcodeNames } from '../../utils/emojiShortcodes';
 import { useInstanceUpdateBadge } from '../../hooks/useInstanceUpdateBadge';
 
@@ -49,15 +48,6 @@ export function MobileYouScreen() {
         </svg>
       ),
       action: () => pushMobileScreen('friends'),
-    },
-    {
-      label: t('settings:nav.tabs.connections'),
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-4.122a4.5 4.5 0 00-6.364-6.364L4.5 6.325a4.5 4.5 0 001.242 7.244" />
-        </svg>
-      ),
-      action: () => pushMobileScreen('settings-connections'),
     },
     {
       label: t('settings:nav.tabs.voice'),
@@ -119,11 +109,6 @@ export function MobileYouScreen() {
             {user.displayName ?? user.username}
           </h2>
           <p className="text-sm text-txt-secondary">@{user.username}</p>
-          {(() => {
-            const { domain } = parseFederatedUsername(user.username);
-            if (!domain) return null;
-            return <div className="text-[10px] leading-[1.3] text-txt-tertiary opacity-60">{t('mobile:you.homeInstance', { domain })}</div>;
-          })()}
           {user.customStatus && (
             <p className="text-sm text-txt-secondary mt-1">{replaceEmojiShortcodes(user.customStatus)}</p>
           )}

@@ -1,19 +1,16 @@
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import type { BaseSQLiteDatabase } from 'drizzle-orm/sqlite-core';
-import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
+import { runMigrations } from './migrationRunner.js';
 import { config } from '../config.js';
 import * as schema from './schema.js';
-import { ensureDefaults, backfillOneOnOneDmMembership, healSkippedStickerSizeMigration } from './migrate.js';
+import { ensureDefaults, backfillOneOnOneDmMembership } from './migrate.js';
 import { normalizeAllRolePositions } from './rolePositions.js';
 import { normalizeStoredPermissions } from './permissionStrings.js';
 import { setWorkerId } from '../utils/snowflake.js';
 import { backfillOneOnOneKeys } from '../utils/dmConversation.js';
-import { backfillOutboxQueueKeys } from '../utils/federationOutboxQueue.js';
-import { rehomeDetachedAccountsOnBoot } from '../utils/detachedIdentity.js';
-import { getOurOrigin } from '../utils/federationAuth.js';
+import { retryRetirementFiles } from './retirementFiles.js';
 import { createSnapshot } from '../utils/backup.js';
-import { hasPendingMigrations } from './pendingMigrations.js';
 import { mkdirSync, existsSync } from 'fs';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
@@ -43,7 +40,8 @@ export function initDatabase() {
   // is actually pending. History is stable across most boots, so this avoids
   // churning the pre-migration retention with identical copies on every restart.
   let snapshotTaken = false;
-  if (!config.backup.disabled && dbExisted && hasPendingMigrations(sqlite, migrationsFolder)) {
+  const beforeMigrationChanges = (): void => {
+    if (config.backup.disabled || !dbExisted || snapshotTaken) return;
     try {
       const snap = createSnapshot(sqlite, 'pre-migration');
       snapshotTaken = true;
@@ -52,12 +50,19 @@ export function initDatabase() {
       console.error(`[backup] pre-migration snapshot FAILED — aborting migration to protect data: ${(err as Error).message}`);
       throw err;
     }
-  }
-
-  healSkippedStickerSizeMigration(sqlite, migrationsFolder);
+  };
 
   const db = drizzle(sqlite, { schema });
-  migrate(db, { migrationsFolder });
+  const retirementFiles = { dbPath: config.dbPath, uploadDir: config.uploadDir };
+  const finishPendingCleanup = (): void => {
+    const result = retryRetirementFiles(sqlite, retirementFiles);
+    if (result.pending !== 0) throw new Error(`Targeted retirement cleanup incomplete (${result.pending} files pending)`);
+  };
+  // Retry committed work or discard a proven uncommitted sidecar before a new
+  // attempt. No defaults/backfills/routes may run with incomplete cleanup.
+  finishPendingCleanup();
+  runMigrations(sqlite, { migrationsFolder, beforeChanges: beforeMigrationChanges, retirementFiles });
+  finishPendingCleanup();
 
   // Ensure data invariants (settings row, worker ID, first admin)
   ensureDefaults(sqlite);
@@ -80,21 +85,8 @@ export function initDatabase() {
     }
   };
 
-  // A detached account is homed on this instance (federation.md, "Detached
-  // accounts are homed here"): accounts detached before that rule still carry
-  // their former home in home_instance; move it aside and re-key their DMs.
-  // Runs before the 1-on-1 key backfill so that pass sees the new identities.
-  // Idempotent.
-  rehomeDetachedAccountsOnBoot(sqlite, getOurOrigin(), { beforeChanges: snapshotBefore('detached account rehome') });
-
-  // Every 1-on-1 row holds the key of its two members (ADR 0002): keys rows
-  // made while relay was off and heals drifted ones, merging rows where two
-  // hold one conversation. Idempotent.
+  // Native pair identity repair is idempotent and preserves duplicate history.
   backfillOneOnOneKeys(sqlite, { beforeChanges: snapshotBefore('1-on-1 DM key backfill') });
-
-  // Key every outbox row queued before queue keys existed (migration 0021)
-  // by the rule the outbox queues by today. Idempotent.
-  backfillOutboxQueueKeys(sqlite);
 
   // Give every role its own position, in the order the role list already
   // shows them, so the role hierarchy has something to compare. Roles created

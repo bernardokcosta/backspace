@@ -157,21 +157,6 @@
     "invitePlaceholder": "예: abc123 또는 https://instance.com/join/abc123",
     "submit": "스페이스 참가",
     "submitting": "참가 중…",
-    "connect": {
-      "intro": "이 스페이스에 참가하려면 <host>{{host}}</host>에 연결하세요.",
-      "passwordLabel": "연결하려면 비밀번호 입력",
-      "passwordPlaceholder": "계정의 비밀번호",
-      "passwordNote": "비밀번호는 홈 인스턴스가 확인하며 {{host}}에 전송되지 않습니다. 해당 인스턴스는 그것만을 위해 만든 고유 자격 증명을 받습니다.",
-      "submit": "연결 & 참가",
-      "submitting": "연결 중…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "이 인스턴스의 사용자 이름",
-      "passwordLabel": "이 인스턴스의 비밀번호",
-      "passwordPlaceholder": "원격 인스턴스의 비밀번호",
-      "submit": "로그인 & 참가",
-      "submitting": "로그인 중…"
-    },
     "request": {
       "messagePlaceholder": "참가하려는 이유는? (선택)",
       "send": "요청 보내기",
@@ -445,8 +430,6 @@
       "transferOwnership": "소유권 이전",
       "settings": "스페이스 설정",
       "leave": "스페이스 나가기",
-      "reconnecting": "{{instance}}에 다시 연결 중…",
-      "remoteInstance": "원격 인스턴스",
       "leaveConfirm": {
         "title": "스페이스 나가기",
         "titleNamed": "{{name}} 나가기",

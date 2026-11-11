@@ -1,29 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "a instância remota",
-    "hostInstance": "a instância que hospeda a chamada",
-    "acceptDropped": "Não foi possível confirmar com {{instance}} que você aceitou a chamada. A ligação foi encerrada.",
-    "rejectFailed": "Não foi possível avisar {{instances}} que você recusou a chamada. Quem ligou ainda poderá ver o aviso de chamada por alguns instantes.",
-    "endFailed": "Não foi possível avisar {{instances}} que você desligou. A chamada poderá continuar aparecendo para os participantes remotos por até 60 segundos.",
-    "hostUnreachable": "Chamada encerrada: a instância que a hospedava ficou inacessível.",
-    "peeringLost": "Chamada encerrada: esta instância não está mais em peering com {{instance}}.",
-    "instanceUnreachable": "Chamada encerrada: {{instance}} ficou inacessível.",
-    "someUnreachable": "Não foi possível contatar alguns participantes: {{instances}}.",
-    "multipleUnreachable_one": "Não foi possível contatar {{count}} instância: {{instances}}.",
-    "multipleUnreachable_many": "Não foi possível contatar {{count}} instâncias: {{instances}}.",
-    "multipleUnreachable_other": "Não foi possível contatar {{count}} instâncias: {{instances}}.",
-    "callFailed": "Não foi possível iniciar a chamada.",
-    "manualApproval": "Não foi possível contatar {{instance}}: esta instância exige aprovação manual de peering.",
-    "awaitingApproval": "Aguardando o administrador de {{instance}} aprovar sua instância. As chamadas estarão disponíveis após a aprovação.",
-    "transientFailure": "Não foi possível contatar {{instance}}. Tente novamente em instantes.",
-    "voiceUnavailable": "O recurso de voz não está configurado nesta instância.",
-    "noRecipient": "{{instance}} não conseguiu chamar ninguém.",
-    "targetCallFailed": "Não foi possível iniciar a chamada para {{instance}}."
-  },
-  "feedback": {
-    "relayDenied": "Não é possível retransmitir as mensagens: a instância da outra pessoa recusou o peering. Entre em contato com o administrador dela.",
-    "awaitingPeering": "As mensagens serão entregues quando o administrador da outra instância aprovar a solicitação de peering."
-  },
   "names": {
     "group": "Grupo",
     "directMessage": "Mensagem direta",
@@ -168,13 +143,8 @@
     "notFound": "Conversa não encontrada.",
     "notGroup": "Esta conversa não tem informações de grupo.",
     "cancelEdit": "Cancelar edição",
-    "federated": "Grupo federado",
     "memberCount_one": "{{count}} membro",
     "memberCount_many": "{{count}} membros",
     "memberCount_other": "{{count}} membros"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "Este grupo é gerenciado em {{host}}. Conecte-se a essa instância para alterá-lo.",
-    "ownerNotListed": "{{host}} ainda não lista este grupo para você. Tente de novo em instantes."
   }
 }

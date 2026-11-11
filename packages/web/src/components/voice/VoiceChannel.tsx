@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
 import { useVoiceStore, type VoiceChannelElapsed } from '../../stores/voiceStore';
 import { useSpaceStore } from '../../stores/spaceStore';
+import { useAuthStore } from '../../stores/authStore';
 import { useUIStore } from '../../stores/uiStore';
-import { useSelfIdInChannel } from '../../utils/channelUser';
 import { useContextMenuStore, menuPositionFor, type ContextMenuItem } from '../../stores/contextMenuStore';
 import { buildVoiceModMenuItems, VolumeSliderItem } from './voiceMenuItems';
 import { VoiceUserRow } from './VoiceUserRow';
@@ -99,14 +99,12 @@ export function VoiceChannel({ channelId, channelName, onClick, locked, canManag
   });
   const members = useSpaceStore((s) => s.members);
   const channelToSpaceMap = useSpaceStore((s) => s.channelToSpaceMap);
-  // The user's row id on the channel's instance: the ids in `voiceUsers` are
-  // that instance's.
-  const myIdHere = useSelfIdInChannel(channelId);
+  // All channel rosters use the native authenticated account ID.
+  const myIdHere = useAuthStore(state => state.user?.id);
   const isActive = currentVoiceChannel === channelId;
 
   const openContextMenu = useContextMenuStore((s) => s.open);
   const openUserProfile = useUIStore((s) => s.openUserProfile);
-  const channelOrigin = useSpaceStore((s) => s.channelOriginMap.get(channelId) ?? '');
 
   const handleContextMenu = useCallback(
     (e: React.MouseEvent | React.KeyboardEvent, userId: string) => {
@@ -156,9 +154,9 @@ export function VoiceChannel({ channelId, channelName, onClick, locked, canManag
       useContextMenuStore.getState().close();
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       const spaceId = useSpaceStore.getState().channelToSpaceMap.get(channelId) ?? member.spaceId;
-      openUserProfile(member.user, channelOrigin, rect, 'right', { spaceId, userId });
+      openUserProfile(member.user, rect, 'right', { spaceId, userId });
     },
-    [channelId, channelOrigin, openUserProfile],
+    [channelId, openUserProfile],
   );
 
   const handleRowKeyDown = useCallback(
@@ -294,7 +292,7 @@ export function VoiceChannel({ channelId, channelName, onClick, locked, canManag
                 onContextMenu={(e) => handleContextMenu(e, userId)}
               >
                 <VoiceUserRow
-                  userId={member?.user.homeUserId ?? userId}
+                  userId={userId}
                   displayName={displayName}
                   avatar={avatar}
                   avatarColor={avatarColor ?? undefined}

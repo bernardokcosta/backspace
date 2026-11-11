@@ -20,9 +20,6 @@ function makeUser(): User {
     customStatus: null,
     isAdmin: false,
     createdAt: 0,
-    homeInstance: null,
-    homeUserId: null,
-    replicatedInstances: [],
   };
 }
 
@@ -52,6 +49,7 @@ describe('ProfileAvatar', () => {
     expect(popout.user).toMatchObject({ id: 'u-1' });
     expect(popout.anchor).toMatchObject({ top: 200, left: 100, right: 140, bottom: 240 });
     expect(popout.placement).toBe('right');
+    expect(popout).not.toHaveProperty('origin');
   });
 
   it('honours an explicit placement so callers do not hand-roll offsets', async () => {
@@ -62,6 +60,12 @@ describe('ProfileAvatar', () => {
     await userEvent.click(el);
 
     expect(useUIStore.getState().userProfilePopout.placement).toBe('left');
+  });
+  it('passes only native IDs and the space context into mobile profile navigation', async () => {
+    useUIStore.setState({ isMobile: true, mobileStack: [] });
+    const { container } = render(<ProfileAvatar user={makeUser()} name="Ada" member={{ spaceId: 's', userId: 'u-1' }} />);
+    await userEvent.click(container.querySelector('[data-avatar]')!);
+    expect(useUIStore.getState().mobileStack).toEqual([{ screen: 'user-profile', params: { userId: 'u-1', spaceId: 's', memberUserId: 'u-1' } }]);
   });
 
   it('degrades to a plain avatar when the user behind it is unknown', async () => {

@@ -67,7 +67,6 @@ export const MAX_STICKER_PACK_DESC_LENGTH = 500;
 /** Maximum number of stickers per sticker pack. */
 export const MAX_STICKERS_PER_PACK = 100;
 
-export type StickerPackOriginType = 'source' | 'replica';
 export type StickerPackStatus =
   | 'draft'
   | 'pending_review'
@@ -86,9 +85,6 @@ export interface StickerPackSummary {
   creatorName: string | null;
   coverAssetId: string | null;
   coverUrl: string | null;
-  originType: StickerPackOriginType;
-  sourceInstance: string | null;
-  sourcePackId: string | null;
   currentVersion: number;
   /** Creator/admin views only: the unpublished candidate, when one exists. */
   editingVersion?: number;
@@ -122,14 +118,6 @@ export interface StickerPackDetail extends StickerPackSummary {
   items: StickerPackItem[];
 }
 
-export interface StickerPeerPolicy {
-  id: string;
-  peerOrigin: string;
-  policy: 'allow' | 'block';
-  autoSync: boolean;
-  createdAt: number;
-  updatedAt: number;
-}
 
 /**
  * Resolves a sticker asset URL to a local origin endpoint if the asset is known or local,

@@ -6,7 +6,6 @@
   },
   "you": {
     "editProfile": "プロフィールを編集",
-    "homeInstance": "ホームインスタンス: {{domain}}",
     "logOutConfirm": "ログアウトしますか？"
   },
   "chat": {

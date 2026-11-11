@@ -11,9 +11,8 @@ import { api } from '../../../api/client';
 import { useSettingsStore } from '../../../stores/settingsStore';
 
 const base: InstanceAdminSettings = {
-  instanceName: 'Workbench', registrationOpen: true, federatedRegistrationOpen: true,
-  maxUploadSizeMb: 100, maxStickerSizeMb: 8, federationRelayEnabled: true,
-  federationRelayTtlDays: 30, defaultAutoRotateIntervalDays: 90, autoAcceptPeering: true,
+  instanceName: 'Workbench', registrationOpen: true,
+  maxUploadSizeMb: 100, maxStickerSizeMb: 8,
 };
 
 function seed() {

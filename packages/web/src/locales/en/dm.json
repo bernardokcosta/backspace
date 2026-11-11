@@ -1,28 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "the remote instance",
-    "hostInstance": "the host instance",
-    "acceptDropped": "Couldn't confirm your acceptance with {{instance}} — the call was dropped.",
-    "rejectFailed": "Couldn't notify {{instances}} that you declined. Caller may still see you as ringing briefly.",
-    "endFailed": "Couldn't notify {{instances}} that you hung up. Remote participants may see the call for up to 60 seconds.",
-    "hostUnreachable": "Call ended — host instance became unreachable.",
-    "peeringLost": "Call ended — this instance is no longer peered with {{instance}}.",
-    "instanceUnreachable": "Call ended — {{instance}} became unreachable.",
-    "someUnreachable": "Some participants could not be reached: {{instances}}.",
-    "multipleUnreachable_one": "Could not reach {{count}} instance: {{instances}}.",
-    "multipleUnreachable_other": "Could not reach {{count}} instances: {{instances}}.",
-    "callFailed": "Call could not be placed.",
-    "manualApproval": "Cannot reach {{instance}} — this instance requires manual peering approval.",
-    "awaitingApproval": "Waiting for {{instance}} admin to approve your instance. Calls will work once approved.",
-    "transientFailure": "Could not reach {{instance}}. Try again in a moment.",
-    "voiceUnavailable": "Voice is not configured on this instance.",
-    "noRecipient": "{{instance}} couldn't ring anyone.",
-    "targetCallFailed": "Call to {{instance}} could not be placed."
-  },
-  "feedback": {
-    "relayDenied": "Cannot relay messages — their server denied peering. Contact their admin.",
-    "awaitingPeering": "Messages will be delivered once their admin approves the peering request."
-  },
   "names": {
     "group": "Group",
     "directMessage": "Direct Message",
@@ -162,12 +138,7 @@
     "notFound": "Conversation not found.",
     "notGroup": "This conversation has no group info.",
     "cancelEdit": "Cancel edit",
-    "federated": "Federated group",
     "memberCount_one": "{{count}} member",
     "memberCount_other": "{{count}} members"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "This group is managed on {{host}}. Connect to that instance to change it.",
-    "ownerNotListed": "{{host}} does not list this group for you yet. Try again in a moment."
   }
 }

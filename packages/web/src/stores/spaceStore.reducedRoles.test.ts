@@ -41,7 +41,6 @@ function user(id: string): User {
   return {
     id, username: id, displayName: null, avatar: null, banner: null, accentColor: null,
     avatarColor: null, bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
-    homeInstance: null, homeUserId: null, replicatedInstances: [],
   };
 }
 
@@ -82,7 +81,7 @@ afterEach(() => {
 
 describe('a member who receives roles without bits', () => {
   it('reads the space and channel permissions from a ready payload without role bits', () => {
-    useSpaceStore.getState().populateFromReady('', [space([EVERYONE, VIP, MODS])]);
+    useSpaceStore.getState().populateFromReady([space([EVERYONE, VIP, MODS])]);
     const state = useSpaceStore.getState();
 
     expect(state.spacePermissions.get(SPACE_ID)).toBe(SPACE_BITS);
@@ -97,7 +96,7 @@ describe('a member who receives roles without bits', () => {
 
   it('keeps the role list, the colours and the ranks from a detail without role bits', async () => {
     useSpaceStore.setState({
-      spaces: [{ ...space([]), _instanceOrigin: '' }],
+      spaces: [space([])],
       currentSpaceId: SPACE_ID,
     });
     vi.spyOn(api.spaces, 'get').mockResolvedValueOnce(space([EVERYONE, VIP, MODS]));
@@ -116,7 +115,7 @@ describe('a member who receives roles without bits', () => {
 
   it('takes the bits from the refetch after they are given MANAGE_ROLES, and drops them after it is taken away', async () => {
     useSpaceStore.setState({
-      spaces: [{ ...space([]), _instanceOrigin: '' }],
+      spaces: [space([])],
       currentSpaceId: SPACE_ID,
     });
     const managerBits = permissionsToString(PermissionBits.VIEW_CHANNEL | PermissionBits.MANAGE_ROLES);
@@ -139,10 +138,9 @@ describe('a member who receives roles without bits', () => {
 
 
 describe('role mention audiences without permission-bit disclosure', () => {
-  it('caches the current user role IDs for an unopened space on its hosting instance', () => {
-    useAuthStore.setState({ user: user('home-me'), myRowIds: new Map() });
-    useAuthStore.getState().recordMyRow('https://remote.example', 'u-me');
-    useSpaceStore.getState().populateFromReady('https://remote.example', [space([EVERYONE, VIP, MODS])]);
+  it('caches native role IDs for an unopened space', () => {
+    useAuthStore.setState({ user: user('u-me') });
+    useSpaceStore.getState().populateFromReady([space([EVERYONE, VIP, MODS])]);
     expect(useSpaceStore.getState().currentSpaceId).toBeNull();
     expect(useSpaceStore.getState().spaces[0]?.myRoleIds).toEqual(['r-vip']);
     const event = { channelId: GENERAL.id, message: { userId: 'u-owner', content: '<@&r-vip>', mentionRoleIds: ['r-vip'] } } as Parameters<typeof messageAlertsUser>[0];
@@ -152,8 +150,8 @@ describe('role mention audiences without permission-bit disclosure', () => {
     expect(messageAlertsUser({ ...event, message: { ...event.message, mentionRoleIds: undefined } })).toBe(false);
   });
   it('refreshes the audience after permission changes even when the space is not open', async () => {
-    useAuthStore.setState({ user: user('u-me'), myRowIds: new Map() });
-    useSpaceStore.getState().populateFromReady('', [space([EVERYONE, VIP, MODS])]);
+    useAuthStore.setState({ user: user('u-me') });
+    useSpaceStore.getState().populateFromReady([space([EVERYONE, VIP, MODS])]);
     vi.spyOn(api.spaces, 'get').mockResolvedValueOnce(space([EVERYONE, VIP, MODS], { members: [member('u-me', [MODS])] }));
     await useSpaceStore.getState().loadSpaceDetail(SPACE_ID, { quiet: true });
     expect(useSpaceStore.getState().spaces[0]?.myRoleIds).toEqual(['r-mod']);

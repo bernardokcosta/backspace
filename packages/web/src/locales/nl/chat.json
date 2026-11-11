@@ -61,14 +61,12 @@
       "group": {
         "intro": "Dit is het begin van je groepsgesprek.",
         "owner": "Eigenaar: <owner>@{{name}}</owner>",
-        "federatedNotice": "Berichten worden opgeslagen op jouw thuisbasis en die van ontvangers. Ze zijn niet end-to-end versleuteld.",
         "openSettings": "Groepsinstellingen openen",
         "leave": "Groep verlaten"
       },
       "dm": {
         "fallbackName": "Privébericht",
         "intro": "Dit is het begin van je privéberichtgeschiedenis met <strong>@{{name}}</strong>.",
-        "federatedNotice": "Berichten worden opgeslagen op jouw thuisbasis en die van de ontvanger. Ze zijn niet end-to-end versleuteld.",
         "removeFriend": "Vriend verwijderen"
       }
     }
@@ -133,14 +131,6 @@
     },
     "audio": {
       "unsupportedBrowser": "Je browser ondersteunt geen audioweergave."
-    },
-    "federation": {
-      "remoteNamed": "Gehost op de instantie van {{sender}}. Download voor een lokale kopie.",
-      "remoteUnknown": "Gehost op de instantie van de afzender. Download voor een lokale kopie.",
-      "partialGeneric": "Sommige ontvangers kunnen dit bestand niet lokaal cachen.",
-      "partialInstance": "Instantie van {{username}} (limiet: {{limit}})",
-      "partialList": "Bestand kon niet op {{instances}} worden gecachet. Ze kunnen het nog wel van jou bekijken.",
-      "listPair": "{{first}} en {{second}}"
     }
   },
   "gif": {
@@ -267,7 +257,6 @@
     "stickersCount_one": "{{count}} sticker",
     "stickersCount_other": "{{count}} stickers",
     "noPacks": "Geen stickerpakketten gevonden",
-    "replicaBadge": "Gefedereerd",
     "viewPack": "Pakket bekijken",
     "saveDraft": "Als concept opslaan",
     "packCreated": "Pakket aangemaakt",
@@ -284,8 +273,6 @@
     "rejectedSuccess": "Stickerpakket afgewezen",
     "reviewNotes": "Reden voor afwijzing",
     "creator": "Maker",
-    "sourceInstance": "Instantie",
-    "localInstance": "Lokale instantie",
     "viewStickers": "Stickers bekijken",
     "pendingReviewHint": "In beoordeling bij beheerder, na goedkeuring zichtbaar bij Verkennen"
   },

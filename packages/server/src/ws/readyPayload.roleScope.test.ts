@@ -4,8 +4,8 @@ import { PermissionBits, permissionsToString, stringToPermissions } from '@veyvo
 import { setWorkerId } from '../utils/snowflake.js';
 import * as schema from '../db/schema.js';
 import {
-  REPLICATED,
-  addReplicatedMember,
+  EXTRA_MEMBERS,
+  addFixtureMember,
   storedBitsOf,
   SPACE_ID,
   PRIVATE_ID,
@@ -116,16 +116,16 @@ describe('ready payload: roles by audience', () => {
     for (const role of space.roles) expect(role).not.toHaveProperty('permissions');
   });
 
-  it('decides on the replicated id of a user whose home is another instance', async () => {
-    addReplicatedMember(testDb, SPACE_ID, REPLICATED.manager, 'r-mod');
-    addReplicatedMember(testDb, SPACE_ID, REPLICATED.member);
+  it('decides on each native account\'s actual local role assignments', async () => {
+    addFixtureMember(testDb, SPACE_ID, EXTRA_MEMBERS.manager, 'r-mod');
+    addFixtureMember(testDb, SPACE_ID, EXTRA_MEMBERS.member);
 
-    const manager = await readySpace(REPLICATED.manager.id);
+    const manager = await readySpace(EXTRA_MEMBERS.manager.id);
     expect(displayOf(manager)).toEqual(DISPLAY);
     for (const role of manager.roles) expect(role.permissions).toBe(storedBitsOf(role.id));
 
-    for (const role of (await readySpace(REPLICATED.member.id)).roles) expect(role).not.toHaveProperty('permissions');
-    // The local member whose id is the manager's id at home gets no bits.
+    for (const role of (await readySpace(EXTRA_MEMBERS.member.id)).roles) expect(role).not.toHaveProperty('permissions');
+    // Another member cannot inherit this manager's bits.
     for (const role of (await readySpace(USERS.member)).roles) expect(role).not.toHaveProperty('permissions');
   });
 

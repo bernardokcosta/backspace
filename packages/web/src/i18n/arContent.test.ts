@@ -6,7 +6,6 @@ import spaces from '../locales/ar/spaces.json';
 import voice from '../locales/ar/voice.json';
 import admin from '../locales/ar/admin.json';
 import errors from '../locales/ar/errors.json';
-import federation from '../locales/ar/federation.json';
 
 describe('Arabic contextual content', () => {
   it('labels the unread action as unread rather than read', () => {
@@ -17,12 +16,8 @@ describe('Arabic contextual content', () => {
     expect(common.units.percent).toBe('{{value}}٪');
   });
 
-  it('translates the reset instruction and federation prose completely', () => {
+  it('translates the streaming matrix reset instruction completely', () => {
     expect(admin.streaming.matrix.cellDefault).toBe('افتراضي: {{value}} (انقر × لإعادة الضبط)');
-    for (const value of [errors.peer_rejected, errors.peer_pending_approval, errors.peer_pending_local_admin, errors.PEER_REVOKED, federation.connections.empty]) {
-      expect(value).not.toContain('الفدرation');
-      expect(value).toContain('الفدرالية');
-    }
   });
 
   it('asks for voice-chat audio without duplicating the audio noun', () => {

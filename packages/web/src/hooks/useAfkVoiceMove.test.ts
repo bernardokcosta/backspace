@@ -34,7 +34,6 @@ const space = {
   afkChannelId: 'afk',
   afkTimeoutSeconds: 300,
   createdAt: 1,
-  _instanceOrigin: '',
 };
 
 const channel = (id: string, type: 'voice' | 'text') => ({
@@ -64,8 +63,8 @@ beforeEach(() => {
     channels: [channel('general', 'voice'), channel('afk', 'voice')],
     channelToSpaceMap: new Map([['general', 'space-1'], ['afk', 'space-1']]),
     spaceChannelIndex: new Map([
-      ['general', { spaceId: 'space-1', origin: '', type: 'voice' }],
-      ['afk', { spaceId: 'space-1', origin: '', type: 'voice' }],
+      ['general', { spaceId: 'space-1', type: 'voice' }],
+      ['afk', { spaceId: 'space-1', type: 'voice' }],
     ]),
   } as never);
   seedVoice();

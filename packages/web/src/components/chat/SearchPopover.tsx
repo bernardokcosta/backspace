@@ -4,7 +4,8 @@ import i18n from '../../i18n';
 import { formatters } from '../../i18n/formatters';
 import { createPortal } from 'react-dom';
 import { useFloatingPosition } from '../../hooks/useFloatingPosition';
-import { isDmChannel, getChannelOrigin, getApiForOrigin } from '../../stores/spaceStore';
+import { api } from '../../api/client';
+import { useAuthStore } from '../../stores/authStore';
 import { Avatar } from '../ui/Avatar';
 import { highlightMatch } from './searchHighlight';
 import { messageTextForPreview } from '../../utils/stickerMessages';
@@ -36,23 +37,20 @@ function formatTime(timestamp: number): string {
   return formatters.formatDateTime(timestamp);
 }
 
-const _FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false, replicatedInstances: [] } as unknown as User;
+const _FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false } as User;
 
 function SearchResultRow({
   msg,
-  origin,
   query,
   onJumpToMessage,
 }: {
   msg: AnyMessage;
-  /** The instance that issued the result (the searched channel's). */
-  origin: string;
   query: string;
   onJumpToMessage: (id: string) => void;
 }) {
   useEmojiShortcodeNames();
   const { t } = useTranslation(['search']);
-  const canonical = useCanonicalUserView(msg.user ?? _FALLBACK_USER, origin);
+  const canonical = useCanonicalUserView(msg.user ?? _FALLBACK_USER);
   const displayName = canonical.displayName ?? canonical.username ?? '?';
   const avatar = msg.user ? canonical.avatar : undefined;
   return (
@@ -93,7 +91,12 @@ function SearchResultRow({
   );
 }
 
-export function SearchPopover({ open, onClose, anchorRef, channelId, isDm, onJumpToMessage }: SearchPopoverProps) {
+export function SearchPopover(props: SearchPopoverProps) {
+  const revision = useAuthStore(s => s.sessionRevision);
+  return <SearchContent key={`${revision}:${props.channelId}:${props.open}`} {...props} revision={revision} />;
+}
+
+function SearchContent({ open, onClose, anchorRef, channelId, isDm, onJumpToMessage, revision }: SearchPopoverProps & { revision: number }) {
   const { t } = useTranslation(['search', 'common']);
   const popoverRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -114,6 +117,9 @@ export function SearchPopover({ open, onClose, anchorRef, channelId, isDm, onJum
   const [isSearching, setIsSearching] = useState(false);
   const [offset, setOffset] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const searchSeq = useRef(0);
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
 
   // Reset state when channel changes or popover opens
   useEffect(() => {
@@ -127,7 +133,8 @@ export function SearchPopover({ open, onClose, anchorRef, channelId, isDm, onJum
       setTotalCount(0);
       setOffset(0);
       setShowFilters(false);
-      setTimeout(() => inputRef.current?.focus(), 50);
+      const timer = setTimeout(() => inputRef.current?.focus(), 50);
+      return () => clearTimeout(timer);
     }
   }, [open, channelId]);
 
@@ -154,17 +161,19 @@ export function SearchPopover({ open, onClose, anchorRef, channelId, isDm, onJum
   }, [open, onClose]);
 
   const doSearch = useCallback(async (searchOffset = 0) => {
+    const request = ++searchSeq.current;
+    const current = () => alive.current && revision === useAuthStore.getState().sessionRevision && request === searchSeq.current;
+    if (!open || !current()) return;
     const trimmed = query.trim();
     if (!trimmed && !fromFilter && !hasFilter && !beforeFilter && !afterFilter) {
       setResults([]);
       setTotalCount(0);
+      setIsSearching(false);
       return;
     }
 
     setIsSearching(true);
     try {
-      const origin = getChannelOrigin(channelId);
-      const client = getApiForOrigin(origin);
       const params = {
         q: trimmed || undefined,
         from: fromFilter || undefined,
@@ -176,8 +185,9 @@ export function SearchPopover({ open, onClose, anchorRef, channelId, isDm, onJum
       };
 
       const data = isDm
-        ? await client.search.dm(channelId, params)
-        : await client.search.channel(channelId, params);
+        ? await api.search.dm(channelId, params)
+        : await api.search.channel(channelId, params);
+      if (!current()) return;
 
       if (searchOffset === 0) {
         setResults(data.results as AnyMessage[]);
@@ -187,14 +197,15 @@ export function SearchPopover({ open, onClose, anchorRef, channelId, isDm, onJum
       setTotalCount(data.totalCount);
       setOffset(searchOffset + data.results.length);
     } catch (err) {
-      console.error('Search failed:', err);
+      if (current()) console.error('Search failed:', err);
     } finally {
-      setIsSearching(false);
+      if (current()) setIsSearching(false);
     }
-  }, [query, fromFilter, hasFilter, beforeFilter, afterFilter, channelId, isDm]);
+  }, [query, fromFilter, hasFilter, beforeFilter, afterFilter, channelId, isDm, open, revision]);
 
   // Debounced search on query/filter change
   useEffect(() => {
+    searchSeq.current++;
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       doSearch(0);
@@ -334,7 +345,6 @@ export function SearchPopover({ open, onClose, anchorRef, channelId, isDm, onJum
               <SearchResultRow
                 key={msg.id}
                 msg={msg}
-                origin={getChannelOrigin(channelId)}
                 query={query}
                 onJumpToMessage={onJumpToMessage}
               />

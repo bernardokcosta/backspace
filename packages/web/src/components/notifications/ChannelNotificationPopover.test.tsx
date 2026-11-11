@@ -10,25 +10,22 @@ import { ChannelMutedIndicator } from './ChannelMutedIndicator';
 import { NotificationSettingsControls } from './NotificationSettingsControls';
 import { NotificationSettingsModal } from './NotificationSettingsModal';
 
-const REMOTE = 'https://remote.example';
 const SPACE = 'space-1';
 const CHANNEL = 'general';
 const HOUR = 60 * 60 * 1000;
 
-const updateSpace = vi.fn<(spaceId: string, data: UpdateNotificationSettingRequest) => Promise<NotificationSetting>>();
-const updateChannel = vi.fn<(channelId: string, data: UpdateNotificationSettingRequest) => Promise<NotificationSetting>>();
-const clientOrigins: string[] = [];
+const { updateSpace, updateChannel } = vi.hoisted(() => ({
+  updateSpace: vi.fn<(spaceId: string, data: UpdateNotificationSettingRequest) => Promise<NotificationSetting>>(),
+  updateChannel: vi.fn<(channelId: string, data: UpdateNotificationSettingRequest) => Promise<NotificationSetting>>(),
+}));
 
 vi.mock('../../audio/AudioManager', () => ({ AudioManager: { getInstance: () => ({}) } }));
 
-vi.mock('../../utils/crossStoreResolvers', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../utils/crossStoreResolvers')>();
+vi.mock('../../api/client', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../api/client')>();
   return {
     ...actual,
-    getApiForOrigin: (origin: string) => {
-      clientOrigins.push(origin);
-      return { notificationSettings: { list: vi.fn(), updateSpace, updateChannel } };
-    },
+    api: { notificationSettings: { list: vi.fn(), updateSpace, updateChannel } },
   };
 });
 
@@ -38,7 +35,7 @@ function setting(over: Partial<NotificationSetting>): NotificationSetting {
 
 function seed(entries: NotificationSetting[]): void {
   useNotificationSettingsStore.setState({
-    settings: new Map(entries.map((s) => [notificationSettingKey(REMOTE, { spaceId: s.spaceId, channelId: s.channelId }), s])),
+    settings: new Map(entries.map((s) => [notificationSettingKey({ spaceId: s.spaceId, channelId: s.channelId }), s])),
   });
 }
 
@@ -57,7 +54,6 @@ function answer(channelId: string | null, data: UpdateNotificationSettingRequest
 
 beforeEach(async () => {
   await setLanguage('en');
-  clientOrigins.length = 0;
   updateSpace.mockReset();
   updateChannel.mockReset();
   updateChannel.mockImplementation(async (channelId, data) => answer(channelId, data, 10));
@@ -65,7 +61,6 @@ beforeEach(async () => {
   useNotificationSettingsStore.getState().reset();
   useSpaceStore.setState({
     channelToSpaceMap: new Map([[CHANNEL, SPACE]]),
-    channelOriginMap: new Map([[CHANNEL, REMOTE]]),
   });
   useUIStore.setState({ toasts: [] });
 });
@@ -98,12 +93,11 @@ describe('ChannelNotificationPopover', () => {
     expect(screen.getByRole('radio', { name: 'Space default (Nothing)' })).toHaveAttribute('aria-checked', 'true');
   });
 
-  it('writes a level to the instance that hosts the space and shows the answer', async () => {
+  it('writes a native level through the current API and shows the answer', async () => {
     openPopover();
     fireEvent.click(screen.getByRole('radio', { name: 'All messages' }));
     await waitFor(() => expect(screen.getByRole('radio', { name: 'All messages' })).toHaveAttribute('aria-checked', 'true'));
     expect(updateChannel).toHaveBeenCalledWith(CHANNEL, { level: 'all' });
-    expect(clientOrigins).toContain(REMOTE);
   });
 
   it('clears the channel level with the space default row', async () => {
@@ -170,7 +164,7 @@ describe('ChannelNotificationPopover', () => {
   });
 
   it('does not open for a channel no listing has named yet', () => {
-    useSpaceStore.setState({ channelToSpaceMap: new Map(), channelOriginMap: new Map() });
+    useSpaceStore.setState({ channelToSpaceMap: new Map() });
     render(<ChannelNotificationButton channelId="unknown" channelName="unknown" />);
     fireEvent.click(screen.getByTitle('Notification Settings'));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -196,7 +190,7 @@ describe('ChannelMutedIndicator', () => {
   it('goes away by itself when a timed mute ends', () => {
     vi.useFakeTimers();
     try {
-      act(() => useNotificationSettingsStore.getState().apply(REMOTE, setting({ channelId: CHANNEL, muted: true, mutedUntil: Date.now() + HOUR })));
+      act(() => useNotificationSettingsStore.getState().apply(setting({ channelId: CHANNEL, muted: true, mutedUntil: Date.now() + HOUR })));
       render(<ChannelMutedIndicator channelId={CHANNEL} />);
       expect(screen.getByRole('img', { name: 'Muted' })).toBeInTheDocument();
       act(() => vi.advanceTimersByTime(HOUR + 10));
@@ -211,7 +205,7 @@ describe('NotificationSettingsModal for a space', () => {
   it('offers the three levels without a default row and writes through the space route', async () => {
     render(
       <NotificationSettingsModal
-        target={{ kind: 'space', origin: REMOTE, spaceId: SPACE, spaceName: 'Space One' }}
+        target={{ kind: 'space', spaceId: SPACE, spaceName: 'Space One' }}
         onClose={() => {}}
       />,
     );
@@ -226,13 +220,12 @@ describe('NotificationSettingsModal for a space', () => {
 
 
 describe('mass mention settings controls', () => {
-  it('writes a space suppression preference to its hosting origin', async () => {
-    render(<NotificationSettingsControls origin={REMOTE} spaceId={SPACE} channelId={null} />);
+  it('writes a native space suppression preference', async () => {
+    render(<NotificationSettingsControls spaceId={SPACE} channelId={null} />);
     const checkbox = screen.getByRole('switch', { name: 'Suppress @everyone and @here' });
     fireEvent.click(checkbox);
     await waitFor(() => expect(checkbox).toHaveAttribute('aria-checked', 'true'));
     expect(updateSpace).toHaveBeenCalledWith(SPACE, { suppressEveryone: true });
-    expect(clientOrigins).toContain(REMOTE);
     expect(updateChannel).not.toHaveBeenCalled();
   });
   it('keeps suppression controls out of channel overrides', () => {
@@ -241,7 +234,7 @@ describe('mass mention settings controls', () => {
   });
   it('reports a failed save without silently changing the preference', async () => {
     updateSpace.mockRejectedValue(new Error('offline'));
-    render(<NotificationSettingsControls origin={REMOTE} spaceId={SPACE} channelId={null} />);
+    render(<NotificationSettingsControls spaceId={SPACE} channelId={null} />);
     const checkbox = screen.getByRole('switch', { name: 'Suppress role mentions' });
     fireEvent.click(checkbox);
     await waitFor(() => expect(useUIStore.getState().toasts).toHaveLength(1));

@@ -137,7 +137,7 @@ and only service `backspace`; it must not start Caddy/ACME or LiveKit. ZAP joins
 the isolated Compose network and scans `http://backspace:3000`.
 
 The unauthenticated spider primarily reaches the SPA shell/assets, not
-authenticated API, federation, voice or user flows. A historical 2026-09-03 sample
+authenticated native API, voice or user flows. A historical 2026-09-03 sample
 visited 11 URLs and no `/api/` routes; do not present that sample as a fresh
 measurement. A healthy container plus an advisory baseline is not an application
 security assessment, and HTTP cannot verify deployment-owned HTTPS/HSTS behavior.

@@ -1,5 +1,6 @@
 import { useVoiceStore } from '../stores/voiceStore';
-import { useSpaceStore, getChannelOrigin, getMyUserIdForOrigin } from '../stores/spaceStore';
+import { useSpaceStore } from '../stores/spaceStore';
+import { useAuthStore } from '../stores/authStore';
 import { AudioManager } from './AudioManager';
 import type { ParticipantInfo } from '../hooks/useLiveKit';
 
@@ -176,9 +177,9 @@ export class SpeakingDetector {
       if (channelId) {
         const spaceId = useSpaceStore.getState().channelToSpaceMap.get(channelId);
         if (spaceId) {
-          const myOriginId = getMyUserIdForOrigin(getChannelOrigin(channelId));
-          if (myOriginId) {
-            const spaceKey = `${spaceId}:${myOriginId}`;
+          const myId = useAuthStore.getState().user?.id;
+          if (myId) {
+            const spaceKey = `${spaceId}:${myId}`;
             effectiveMuted = effectiveMuted || store.spaceMutedUserIds.has(spaceKey);
             effectiveDeafened = effectiveDeafened || store.spaceDeafenedUserIds.has(spaceKey);
           }

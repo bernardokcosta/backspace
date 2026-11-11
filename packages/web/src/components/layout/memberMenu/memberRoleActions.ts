@@ -1,22 +1,25 @@
 import { create } from 'zustand';
 import type { MemberWithUser } from '@veyvox/shared';
-import { getApiForOrigin, useSpaceStore } from '../../../stores/spaceStore';
+import { useSpaceStore } from '../../../stores/spaceStore';
+import { useAuthStore } from '../../../stores/authStore';
+import { api } from '../../../api/client';
 import { applySpaceMemberUpdate } from '../../../stores/spaceMemberUpdates';
 import { useUIStore } from '../../../stores/uiStore';
 import { describeError } from '../../../i18n/errors';
 
 export interface MemberTarget {
-  origin: string;
+  sessionRevision: number;
   spaceId: string;
   userId: string;
 }
 const useRoleWrites = create<{ pending: ReadonlySet<string> }>(() => ({ pending: new Set() }));
-const targetKey = (target: MemberTarget) => JSON.stringify([target.origin, target.spaceId, target.userId]);
+const targetKey = (target: MemberTarget) => JSON.stringify([target.sessionRevision, target.spaceId, target.userId]);
 
 export function getCurrentMember(target: MemberTarget): MemberWithUser | undefined {
   const state = useSpaceStore.getState();
+  if (target.sessionRevision !== useAuthStore.getState().sessionRevision) return undefined;
   if (state.currentSpaceId !== target.spaceId) return undefined;
-  if (!state.spaces.some(s => s.id === target.spaceId && s._instanceOrigin === target.origin)) return undefined;
+  if (!state.spaces.some(s => s.id === target.spaceId)) return undefined;
   return state.members.find(m => m.userId === target.userId);
 }
 
@@ -39,11 +42,11 @@ export async function changeMemberRole(target: MemberTarget, roleId: string, che
   const key = targetKey(target);
   useRoleWrites.setState({ pending: new Set([...useRoleWrites.getState().pending, key]) });
   try {
-    const updated = await getApiForOrigin(target.origin).spaces.updateMember(target.spaceId, target.userId, { roleIds });
+    const updated = await api.spaces.updateMember(target.spaceId, target.userId, { roleIds });
     // Checkboxes change only once the server has accepted the assignment.
-    applySpaceMemberUpdate(target.origin, updated);
+    if (target.sessionRevision === useAuthStore.getState().sessionRevision) applySpaceMemberUpdate(updated);
   } catch (error) {
-    useUIStore.getState().addToast(describeError(error), 'warning');
+    if (target.sessionRevision === useAuthStore.getState().sessionRevision) useUIStore.getState().addToast(describeError(error), 'warning');
   } finally {
     const pending = new Set(useRoleWrites.getState().pending);
     pending.delete(key);

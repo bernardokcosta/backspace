@@ -11,14 +11,14 @@ import {
 import { config } from '../config.js';
 import { getDb, schema } from '../db/index.js';
 import { authenticate } from '../utils/auth.js';
-import { getOurOrigin } from '../utils/federationAuth.js';
+import { getPublicOrigin } from '../utils/publicOrigin.js';
 import { stickerAssetPath as assetPath, stickerPreviewPath } from '../utils/stickerAssets.js';
 import { sendError } from '../utils/httpErrors.js';
 import { createFixedWindowLimit } from '../utils/fixedWindowLimit.js';
 import { sendRateLimit } from '../utils/rateLimits.js';
 import { MAX_STICKER_JSON_BYTES, stickerUploadBodyLimit } from '../utils/stickerUpload.js';
 
-export const tokenFor = (id: string) => `${STICKER_PREFIX}${getOurOrigin()}/api/stickers/assets/${id}.webp`;
+export const tokenFor = (id: string) => `${STICKER_PREFIX}${getPublicOrigin()}/api/stickers/assets/${id}.webp`;
 
 /**
  * Returns the effective sticker upload size limit in bytes, configured by the instance admin
@@ -40,8 +40,7 @@ export const MAX_STICKER_PREVIEW_DIMENSION = 128;
 const MAX_DECODED_PIXELS = 67_108_864;
 
 /**
- * Uploads per account (the row id on this instance, so each federated account
- * counts on its own). Every upload is a full decode and re-encode, so the
+ * Uploads per local account. Every upload is a full decode and re-encode, so the
  * budget is per account and not only the per-address HTTP limit.
  */
 const uploadLimit = createFixedWindowLimit({ max: STICKER_UPLOADS_PER_MINUTE, windowMs: 60_000 });

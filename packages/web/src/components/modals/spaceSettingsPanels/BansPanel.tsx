@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFormatters } from '../../../i18n/formatters';
 import { describeError } from '../../../i18n/errors';
 import { Avatar } from '../../ui/Avatar';
-import { useSpaceStore, getApiForOrigin } from '../../../stores/spaceStore';
+import { api } from '../../../api/client';
+import { useAuthStore } from '../../../stores/authStore';
 
 interface Ban {
   spaceId: string;
@@ -20,38 +21,39 @@ interface BansPanelProps {
 }
 
 export function BansPanel({ spaceId }: BansPanelProps) {
+  const revision = useAuthStore(s => s.sessionRevision);
+  return <BansContent key={JSON.stringify([revision, spaceId])} spaceId={spaceId} revision={revision} />;
+}
+
+function BansContent({ spaceId, revision }: BansPanelProps & { revision: number }) {
   const { t } = useTranslation(['spaces', 'common']);
-  const spaces = useSpaceStore((s) => s.spaces);
   const f = useFormatters();
-  const space = spaces.find((s) => s.id === spaceId);
-  const spaceApi = getApiForOrigin(space?._instanceOrigin ?? '');
 
   const [bans, setBans] = useState<Ban[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const loadBans = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const data = await spaceApi.spaces.getBans(spaceId);
-      setBans(data);
-    } catch (err) {
-      setError(describeError(err));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [spaceId, spaceApi]);
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const current = () => alive.current && revision === useAuthStore.getState().sessionRevision;
 
   useEffect(() => {
-    loadBans();
-  }, [loadBans]);
+    let active = true;
+    void api.spaces.getBans(spaceId).then(data => {
+      if (active && revision === useAuthStore.getState().sessionRevision) setBans(data);
+    }).catch(err => {
+      if (active && revision === useAuthStore.getState().sessionRevision) setError(describeError(err));
+    }).finally(() => { if (active && revision === useAuthStore.getState().sessionRevision) setIsLoading(false); });
+    return () => { active = false; };
+  }, [spaceId, revision]);
 
   const handleUnban = async (userId: string) => {
+    if (!current()) return;
     try {
-      await spaceApi.spaces.unban(spaceId, userId);
-      setBans((prev) => prev.filter((b) => b.userId !== userId));
+      await api.spaces.unban(spaceId, userId);
+      if (current()) setBans((prev) => prev.filter((b) => b.userId !== userId));
     } catch (err) {
-      setError(describeError(err));
+      if (current()) setError(describeError(err));
     }
   };
 

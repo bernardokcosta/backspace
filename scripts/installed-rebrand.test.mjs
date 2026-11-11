@@ -53,12 +53,46 @@ test('requires every independent runner/opt-in guard and a matching OS', () => {
   for (const [suffix, digest] of Object.values(BASELINES)) { assert.match(suffix, /\.(exe|deb|dmg)$/); assert.match(digest, /^[a-f0-9]{64}$/); }
 });
 test('acceptance rejects any lost state rather than reseeding the candidate', () => {
-  const report = { ok: true, phase: 'upgrade', version: '1.17.0', token: 'synthetic-session', language: 'auto', pending: 'synthetic-pending', cookie: 'synthetic-session', instances: 'synthetic-peer', scale: 200, music: 20, legacy: true, canonical: true, documentVisibility: 'visible', startup: { openAtLogin: true, startMinimized: true } };
+  const report = { ok: true, phase: 'upgrade', version: '1.17.0', token: 'synthetic-session', language: 'auto', pending: 'synthetic-pending', cookie: 'synthetic-session', retiredKeys: [], nativeStorage: { ...acceptance.INSTALLED_NATIVE_WORK }, scale: 200, music: 20, legacy: true, canonical: true, documentVisibility: 'visible', startup: { openAtLogin: true, startMinimized: true } };
   assert.doesNotThrow(() => assertInstalledReport(report, 'upgrade', '1.17.0', true));
   for (const key of Object.keys(report)) assert.throws(() => assertInstalledReport({ ...report, [key]: null }, 'upgrade', '1.17.0', true), key);
   assert.throws(() => assertInstalledReport({ ...report, startup: { openAtLogin: false, startMinimized: true } }, 'upgrade', '1.17.0', true));
   assert.doesNotThrow(() => assertInstalledReport({ ...report, documentVisibility: 'hidden' }, 'upgrade', '1.17.0', true));
   assert.throws(() => assertInstalledReport({ ...report, cookie: 'must-not-appear-in-errors' }, 'upgrade', '1.17.0', true), error => /failed checks: cookie$/.test(error.message) && !error.message.includes('must-not-appear'));
+  for (const key of Object.keys(acceptance.INSTALLED_NATIVE_WORK)) {
+    assert.throws(() => assertInstalledReport({ ...report, nativeStorage: { ...report.nativeStorage, [key]: null } }, 'upgrade', '1.17.0', true));
+  }
+  for (const phase of ['upgrade', 'repeat', 'disable', 'appimage-upgrade', 'appimage-repeat']) {
+    assert.throws(() => assertInstalledReport({ ...report, phase, retiredKeys: ['backspace_instances_synthetic-owner'] }, phase, '1.17.0', true));
+  }
+  for (const phase of ['seed', 'appimage-seed']) {
+    const baseline = { ...report, phase, canonical: false, retiredKeys: [...acceptance.INSTALLED_RETIRED_KEYS] };
+    assert.doesNotThrow(() => assertInstalledReport(baseline, phase, '1.17.0', true));
+    assert.throws(() => assertInstalledReport({ ...baseline, retiredKeys: [] }, phase, '1.17.0', true));
+  }
+});
+
+test('installed candidate imports the actual compiled retirement and preserves native work byte for byte', async () => {
+  const code = await acceptance.compileInstalledRetirement();
+  assert.match(code, /export function retireFederationStorage/);
+  const values = new Map(Object.entries(acceptance.INSTALLED_NATIVE_WORK));
+  for (const key of acceptance.INSTALLED_RETIRED_KEYS) values.set(key, '{malformed-synthetic-peer');
+  const storage = { get length() { return values.size; }, key: index => [...values.keys()][index] ?? null, removeItem: key => values.delete(key) };
+  const before = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+  Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: storage });
+  try {
+    const compiled = await import('data:text/javascript;base64,' + Buffer.from(code).toString('base64'));
+    assert.deepEqual(Object.fromEntries(values), acceptance.INSTALLED_NATIVE_WORK);
+    compiled.retireFederationStorage(storage);
+    assert.deepEqual(Object.fromEntries(values), acceptance.INSTALLED_NATIVE_WORK);
+  } finally {
+    if (before) Object.defineProperty(globalThis, 'localStorage', before); else delete globalThis.localStorage;
+  }
+  const html = readFileSync(new URL('./fixtures/installed-rebrand.html', import.meta.url), 'utf8');
+  assert.match(html, /if \(!seed\) await import\('\/retire-state\.js'\)/);
+  assert.doesNotMatch(html, /removeItem\(|localStorage\.clear\(/);
+  const source = readFileSync(new URL('./verify-installed-rebrand.mjs', import.meta.url), 'utf8');
+  assert.match(source, /request\.url === '\/retire-state\.js'/);
 });
 
 test('preserves measured cookie protection without enabling or downgrading encryption', () => {

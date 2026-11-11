@@ -1,30 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "vzdálená instance",
-    "hostInstance": "hostitelská instance",
-    "acceptDropped": "Přijetí se u {{instance}} nepodařilo potvrdit — hovor spadl.",
-    "rejectFailed": "Nepodařilo se oznámit {{instances}}, žes odmítl. Volajícímu můžeš ještě chvíli zvonit.",
-    "endFailed": "Nepodařilo se oznámit {{instances}}, žes zavěsil. Vzdálení účastníci mohou hovor vidět až 60 sekund.",
-    "hostUnreachable": "Hovor ukončen — hostitelská instance je nedostupná.",
-    "peeringLost": "Hovor ukončen — tato instance už není propojena s {{instance}}.",
-    "instanceUnreachable": "Hovor ukončen — {{instance}} je nedostupná.",
-    "someUnreachable": "Některé účastníky se nepodařilo zastihnout: {{instances}}.",
-    "multipleUnreachable_one": "Nepodařilo se zastihnout {{count}} instanci: {{instances}}.",
-    "multipleUnreachable_few": "Nepodařilo se zastihnout {{count}} instance: {{instances}}.",
-    "multipleUnreachable_many": "Nepodařilo se zastihnout {{count}} instancí: {{instances}}.",
-    "multipleUnreachable_other": "Nepodařilo se zastihnout {{count}} instance: {{instances}}.",
-    "callFailed": "Hovor se nepodařilo uskutečnit.",
-    "manualApproval": "K {{instance}} se nelze dovolat — tato instance vyžaduje ruční schválení propojení.",
-    "awaitingApproval": "Čekání, až správce {{instance}} schválí tvou instanci. Hovory půjdou po schválení.",
-    "transientFailure": "K {{instance}} se nelze dovolat. Zkus to za chvíli.",
-    "voiceUnavailable": "Hlas není na této instanci nastaven.",
-    "noRecipient": "{{instance}} nikoho nevyzvonila.",
-    "targetCallFailed": "Volání do {{instance}} se nepodařilo."
-  },
-  "feedback": {
-    "relayDenied": "Nelze předávat zprávy — jejich server propojení odmítl. Kontaktuj jejich správce.",
-    "awaitingPeering": "Zprávy se doručí, jakmile jejich správce schválí žádost o propojení."
-  },
   "names": {
     "group": "Skupina",
     "directMessage": "Přímá zpráva",
@@ -174,14 +148,9 @@
     "notFound": "Konverzace nenalezena.",
     "notGroup": "Tato konverzace nemá informace o skupině.",
     "cancelEdit": "Zrušit úpravy",
-    "federated": "Federovaná skupina",
     "memberCount_one": "{{count}} člen",
     "memberCount_few": "{{count}} členové",
     "memberCount_many": "{{count}} členů",
     "memberCount_other": "{{count}} člena"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "Tuto skupinu spravuje {{host}}. Připoj se k ní pro změnu.",
-    "ownerNotListed": "{{host}} ti tuto skupinu zatím neuvádí. Zkus to za chvíli."
   }
 }

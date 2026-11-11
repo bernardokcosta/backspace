@@ -60,14 +60,12 @@
       "group": {
         "intro": "นี่คือจุดเริ่มบทสนทนากลุ่มของคุณ",
         "owner": "เจ้าของ: <owner>@{{name}}</owner>",
-        "federatedNotice": "ข้อความเก็บในอินสแตนซ์หลักของคุณและของผู้รับ ไม่เข้ารหัสต้นถึงปลาย",
         "openSettings": "เปิดตั้งค่ากลุ่ม",
         "leave": "ออกจากกลุ่ม"
       },
       "dm": {
         "fallbackName": "ข้อความตรง",
         "intro": "นี่คือจุดเริ่มประวัติข้อความตรงกับ <strong>@{{name}}</strong>",
-        "federatedNotice": "ข้อความเก็บในอินสแตนซ์หลักของคุณและของผู้รับ ไม่เข้ารหัสต้นถึงปลาย",
         "removeFriend": "ลบเพื่อน"
       }
     }
@@ -130,14 +128,6 @@
     },
     "audio": {
       "unsupportedBrowser": "เบราว์เซอร์คุณไม่รองรับเล่นเสียง"
-    },
-    "federation": {
-      "remoteNamed": "โฮสต์บนอินสแตนซ์ของ {{sender}} ดาวน์โหลดเพื่อเก็บสำเนา",
-      "remoteUnknown": "โฮสต์บนอินสแตนซ์ผู้ส่ง ดาวน์โหลดเพื่อเก็บสำเนา",
-      "partialGeneric": "ผู้รับบางคนแคชไฟล์นี้ในเครื่องไม่ได้",
-      "partialInstance": "อินสแตนซ์ของ {{username}} (ขีด: {{limit}})",
-      "partialList": "แคชไฟล์บน {{instances}} ไม่ได้ พวกเขายังดูจากของคุณได้",
-      "listPair": "{{first}} และ {{second}}"
     }
   },
   "gif": {
@@ -258,7 +248,6 @@
     "deletePack": "ลบแพ็ก",
     "stickersCount_other": "สติกเกอร์ {{count}}",
     "noPacks": "ไม่พบแพ็กสติกเกอร์",
-    "replicaBadge": "สหพันธ์",
     "viewPack": "ดูแพ็ก",
     "saveDraft": "บันทึกเป็นร่าง",
     "packCreated": "สร้างแพ็กแล้ว",
@@ -275,8 +264,6 @@
     "rejectedSuccess": "ปฏิเสธแพ็กสติกเกอร์แล้ว",
     "reviewNotes": "เหตุผลปฏิเสธ",
     "creator": "ผู้สร้าง",
-    "sourceInstance": "อินสแตนซ์",
-    "localInstance": "อินสแตนซ์ท้องถิ่น",
     "viewStickers": "ดูสติกเกอร์",
     "pendingReviewHint": "ผู้ดูแลกำลังตรวจ; แสดงที่สำรวจหลังอนุมัติ"
   },

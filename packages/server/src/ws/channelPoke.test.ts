@@ -185,10 +185,10 @@ describe('a channel poke', () => {
     });
   });
 
-  it('records the account name without the instance for a target without a nickname', () => {
+  it('records the exact retained native handle for a target without a nickname', () => {
     poke({ channelId: CHANNEL, targetUserId: 'target' });
     expect(parseChannelSystemEvent(testDb.select().from(schema.messages).get()!.content)).toEqual({
-      event: 'channel_poke', targetUserId: 'target', targetDisplayName: 'target',
+      event: 'channel_poke', targetUserId: 'target', targetDisplayName: 'target@peer.example',
     });
   });
 

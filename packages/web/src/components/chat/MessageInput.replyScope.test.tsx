@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MessageWithUser, User } from '@veyvox/shared';
 import { useAuthStore } from '../../stores/authStore';
@@ -8,7 +8,7 @@ import { useSpaceStore } from '../../stores/spaceStore';
 import { HttpError } from '../../api/client';
 import { MessageInput } from './MessageInput';
 
-vi.mock('../../hooks/useWebSocket', () => ({ wsSend: vi.fn(), wsSendAll: vi.fn() }));
+vi.mock('../../hooks/useWebSocket', () => ({ wsSend: vi.fn() }));
 vi.mock('../../audio/AudioManager', () => ({
   AudioManager: {
     getInstance: vi.fn().mockReturnValue({
@@ -28,12 +28,12 @@ interface SendBody {
 const { send } = vi.hoisted(() => ({
   send: vi.fn<(channelId: string, body: SendBody) => Promise<void>>(),
 }));
-vi.mock('../../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../utils/crossStoreResolvers')>()),
-  getApiForOrigin: () => ({
+vi.mock('../../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../api/client')>()),
+  api: {
     channels: { sendMessage: send },
     dm: { sendMessage: send },
-  }),
+  },
 }));
 
 const me: User = {
@@ -49,9 +49,6 @@ const me: User = {
   customStatus: null,
   isAdmin: false,
   createdAt: 1,
-  homeInstance: null,
-  homeUserId: null,
-  replicatedInstances: [],
 };
 
 const bob: User = { ...me, id: 'bob', username: 'bob', displayName: 'Bob' };
@@ -74,9 +71,9 @@ beforeEach(() => {
   window.history.replaceState({}, '', '/channels/@me/dm-1');
   useAuthStore.setState({ user: me });
   useSpaceStore.getState().reset();
-  useSpaceStore.getState().populateFromReady('', [], [], [
-    { id: 'dm-1', federatedId: null, createdAt: 1, members: [me, bob] },
-    { id: 'dm-2', federatedId: null, createdAt: 1, members: [me] },
+  useSpaceStore.getState().populateFromReady([], [], [
+    { id: 'dm-1', createdAt: 1, members: [me, bob] },
+    { id: 'dm-2', createdAt: 1, members: [me] },
   ]);
   useComposerStore.setState({ states: new Map() });
   useChatStore.setState({
@@ -94,6 +91,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  cleanup();
   send.mockReset();
   useChatStore.getState().clearAllMessages();
   useComposerStore.setState({ states: new Map() });

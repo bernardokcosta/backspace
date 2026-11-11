@@ -25,17 +25,7 @@
       "count": 1
     }
   },
-  "packages/server/src/db/pendingMigrations.test.ts": {
-    "@typescript-eslint/no-require-imports": {
-      "count": 1
-    }
-  },
   "packages/server/src/index.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "packages/server/src/routes/admin.ts": {
     "@typescript-eslint/no-unused-vars": {
       "count": 1
     }
@@ -46,81 +36,8 @@
     }
   },
   "packages/server/src/routes/dm.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 4
-    },
     "@typescript-eslint/no-unused-vars": {
       "count": 4
-    }
-  },
-  "packages/server/src/routes/federation.presenceUpdate.test.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 3
-    }
-  },
-  "packages/server/src/routes/federation.resolveOrCreate.test.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "packages/server/src/routes/federation/dmChannels.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    }
-  },
-  "packages/server/src/routes/federation/events/dispatch.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "packages/server/src/routes/federation/events/dmMessages.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    }
-  },
-  "packages/server/src/routes/federation/events/friends.ts": {
-    "prefer-const": {
-      "count": 1
-    }
-  },
-  "packages/server/src/routes/federation/events/membership.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 3
-    }
-  },
-  "packages/server/src/routes/federation/handlers/approvals.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    }
-  },
-  "packages/server/src/routes/federation/handlers/attach.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 4
-    }
-  },
-  "packages/server/src/routes/federation/handlers/peerAdmin.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "packages/server/src/routes/federation/handlers/peerHandshake.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    }
-  },
-  "packages/server/src/routes/federation/identity.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "packages/server/src/routes/federation/origin.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "packages/server/src/routes/federation/reconciliation.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
     }
   },
   "packages/server/src/routes/messages.ts": {
@@ -133,23 +50,8 @@
       "count": 1
     }
   },
-  "packages/server/src/routes/social.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
   "packages/server/src/routes/spaces.ts": {
     "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    }
-  },
-  "packages/server/src/routes/users.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "packages/server/src/utils/auth.test.ts": {
-    "@typescript-eslint/no-explicit-any": {
       "count": 2
     }
   },
@@ -158,42 +60,17 @@
       "count": 1
     }
   },
-  "packages/server/src/utils/federationOutbox.systemType.test.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 3
-    }
-  },
-  "packages/server/src/utils/federationPresence.peerLifecycle.test.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 2
-    }
-  },
-  "packages/server/src/utils/federationWorker.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "packages/server/src/utils/spaceInviteSnapshot.test.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 7
-    }
-  },
   "packages/server/src/utils/storageJanitor.ts": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 5
+      "count": 4
     }
   },
   "packages/server/src/ws/events.ts": {
     "@typescript-eslint/no-unused-vars": {
-      "count": 6
+      "count": 4
     }
   },
   "packages/server/src/ws/handler.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    }
-  },
-  "packages/server/test/federation-e2e-call-addressing.test.ts": {
     "@typescript-eslint/no-unused-vars": {
       "count": 1
     }
@@ -208,11 +85,6 @@
       "count": 3
     }
   },
-  "packages/web/src/components/JoinPage.tsx": {
-    "react-hooks/exhaustive-deps": {
-      "count": 1
-    }
-  },
   "packages/web/src/components/auth/RegisterPage.tsx": {
     "@typescript-eslint/no-unused-vars": {
       "count": 2
@@ -223,20 +95,7 @@
   },
   "packages/web/src/components/chat/FriendsPage.test.tsx": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 6
-    },
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    }
-  },
-  "packages/web/src/components/chat/FriendsPage.tsx": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/web/src/components/chat/Message.tsx": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
+      "count": 4
     }
   },
   "packages/web/src/components/chat/MessageInput.tsx": {
@@ -249,22 +108,7 @@
       "count": 1
     }
   },
-  "packages/web/src/components/chat/SearchPopover.tsx": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "packages/web/src/components/chat/SpaceInviteCard.test.tsx": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
   "packages/web/src/components/layout/ChannelSidebar.tsx": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 2
-    }
-  },
-  "packages/web/src/components/layout/DmListItem.tsx": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
     }
@@ -278,11 +122,6 @@
     },
     "react-hooks/immutability": {
       "count": 1
-    }
-  },
-  "packages/web/src/components/layout/MainContent.tsx": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
     }
   },
   "packages/web/src/components/layout/MobileGroupDmInfo.tsx": {
@@ -305,17 +144,7 @@
       "count": 1
     }
   },
-  "packages/web/src/components/modals/AddDmMemberModal.tsx": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
   "packages/web/src/components/modals/CategorySettingsModal.tsx": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "packages/web/src/components/modals/ConnectedInstances.tsx": {
     "@typescript-eslint/no-unused-vars": {
       "count": 1
     }
@@ -332,32 +161,7 @@
   },
   "packages/web/src/components/modals/InviteModal.test.tsx": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 20
-    }
-  },
-  "packages/web/src/components/modals/InviteModal.tsx": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/web/src/components/modals/NewDmModal.tsx": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/web/src/components/modals/UserProfileModal.tsx": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "packages/web/src/components/modals/instanceSettingsPanels/FederationPanel.tsx": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 3
-    }
-  },
-  "packages/web/src/components/modals/instanceSettingsPanels/UsersPanel.tsx": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
+      "count": 2
     }
   },
   "packages/web/src/components/modals/settingsPanels/AccountPanel.tsx": {
@@ -385,11 +189,6 @@
       "count": 1
     }
   },
-  "packages/web/src/components/ui/UserProfilePopout.tsx": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
   "packages/web/src/components/voice/SoundController.tsx": {
     "react-hooks/exhaustive-deps": {
       "count": 1
@@ -413,11 +212,6 @@
   "packages/web/src/hooks/__tests__/useGridLayout.test.ts": {
     "prefer-const": {
       "count": 1
-    }
-  },
-  "packages/web/src/hooks/dmMessageCreated.fallback.test.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 5
     }
   },
   "packages/web/src/hooks/useAudioDevices.test.ts": {
@@ -453,46 +247,6 @@
       "count": 1
     }
   },
-  "packages/web/src/hooks/useWebSocket.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 20
-    }
-  },
-  "packages/web/src/stores/chatStore.rekey.test.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/web/src/stores/chatStore.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 2
-    }
-  },
-  "packages/web/src/stores/instanceStore.connect.test.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 6
-    }
-  },
-  "packages/web/src/stores/instanceStore.failover.test.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 2
-    }
-  },
-  "packages/web/src/stores/instanceStore.remoteCredential.test.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "packages/web/src/stores/spaceStore.dmAlternatives.test.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/web/src/stores/spaceStore.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
   "packages/web/src/stores/transferStore.test.ts": {
     "@typescript-eslint/no-unused-vars": {
       "count": 2
@@ -522,11 +276,6 @@
   "packages/web/src/utils/colorExtractor.ts": {
     "prefer-const": {
       "count": 1
-    }
-  },
-  "packages/web/src/utils/dmFormatters.test.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 5
     }
   },
   "packages/web/src/utils/livekitInternals.ts": {

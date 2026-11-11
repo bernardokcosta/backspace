@@ -4,7 +4,6 @@
     "description": "Veyvox örneğini yapılandır. Bu ayarlar tüm kullanıcıları etkiler.",
     "instanceName": {
       "label": "Örnek adı",
-      "description": "Giriş sayfasında ve federasyondaki örneklerde gösterilen ad.",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "Kayıt",
-    "description": "Bu örnekte kimlerin hesap oluşturabileceğini kontrol et. Genel kayıt yerel kayıtları, federasyon kaydı ise eşleşmiş örneklerden burada hesap oluşturan kullanıcıları kapsar.",
     "public": {
       "label": "Genel kayıt",
       "toggleLabel": "Yeni yerel hesaplara izin ver",
       "toggleDescription": "Kayıt sayfasından herkes yerel hesap oluşturabilir. Kapalıyken yalnızca davet bağlantıları yeni yerel hesap oluşturabilir."
-    },
-    "federated": {
-      "label": "Federasyon kaydı",
-      "toggleLabel": "Yeni federasyon hesaplarına izin ver",
-      "toggleDescription": "Diğer örneklerdeki kullanıcılar Bağlantılar ayarlarından burada federasyon hesabı oluşturabilir. Mevcut federasyon hesapları bu ayardan bağımsız olarak her zaman giriş yapabilir."
     },
     "spaceCreation": {
       "label": "Alan oluşturma",
@@ -355,8 +348,6 @@
     "loadFailed": "Kullanıcılar yüklenemedi",
     "empty": "Kullanıcı bulunamadı",
     "filters": {
-      "allInstances": "Tüm örnekler",
-      "localOnly": "Yalnızca yerel",
       "allRoles": "Tüm roller",
       "admin": "Yönetici",
       "nonAdmin": "Yönetici olmayan",
@@ -376,9 +367,7 @@
     "actions": {
       "demote": "Yöneticilikten düşür",
       "promote": "Yönetici yap",
-      "federatedNoAdmin": "Federasyon kullanıcıları yönetici olamaz",
       "resetPassword": "Parolayı sıfırla",
-      "federatedNoReset": "Federasyon kullanıcıları ana örnek üzerinden kimlik doğrular",
       "delete": "Kullanıcıyı sil",
       "selfDelete": "Kendi hesabını silmek için hesap ayarlarını kullan"
     },
@@ -405,15 +394,7 @@
     "deleteDialog": {
       "title": "Kullanıcıyı sil",
       "description": "<strong>{{username}}</strong> kalıcı olarak silinsin mi? Tüm alanlardan, DM'lerden ve arkadaş listelerinden kaldırılacak. Bu geri alınamaz.",
-      "confirm": "Kullanıcıyı sil",
-      "blockBot": "Bu botun yeniden kayıt olmasına izin verme",
-      "blockBotHint": "Ana örneği geri döndüğünde bot burada hesap oluşturamaz. Kullanıcı listesinin altından engelini kaldırabilirsin."
-    },
-    "blockedBots": {
-      "title": "Engellenen botlar",
-      "description": "Burada kayıt olamayan diğer örneklerin botları. Yeniden girişine izin vermek için birinin engelini kaldır.",
-      "blockedAt": "{{date}} tarihinde engellendi",
-      "unblock": "Engeli kaldır"
+      "confirm": "Kullanıcıyı sil"
     }
   },
   "mobile": {
@@ -421,7 +402,6 @@
     "sections": {
       "general": "Genel",
       "registration": "Kayıt",
-      "federation": "Federasyon",
       "streaming": "Yayın",
       "storage": "Depolama",
       "updates": "Güncellemeler",

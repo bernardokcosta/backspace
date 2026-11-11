@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useVoiceStore } from '../../stores/voiceStore';
 import { useSpaceStore } from '../../stores/spaceStore';
-import { parseFederatedUsername } from '../../utils/identity';
+import { userDisplayName } from '../../utils/identity';
 import { sendDmCallReject } from '../../utils/dmCall';
 import { acceptIncomingDmCall } from '../../utils/voiceActions';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
@@ -10,9 +10,7 @@ import { Avatar } from '../ui/Avatar';
 import type { User } from '@veyvox/shared';
 
 /**
- * Decline the call ringing in: the decline goes where the ring came from,
- * with the ids it came with, and only the ring's slot clears. A call the
- * client is in keeps its own ids and origin.
+ * Decline only the native ring's slot, leaving the active call intact.
  */
 function declineRing(): void {
   const { incomingCall, setIncomingCall } = useVoiceStore.getState();
@@ -42,21 +40,20 @@ export function IncomingCallModal() {
 
   const dmChannels = useSpaceStore((s) => s.dmChannels);
 
-  const _FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false, replicatedInstances: [] } as unknown as User;
+  const _FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false } as User;
   // Look up caller member before the early return so useCanonicalUserView is always called
   const _rawCallerMember = (() => {
     if (!incomingCall) return null;
     const dmChannel = dmChannels.find(d => d.id === incomingCall.dmChannelId);
     return dmChannel?.members.find(m => m.id === incomingCall.callerId) ?? null;
   })();
-  const _callerOrigin = useSpaceStore((s) => (incomingCall?.dmChannelId ? s.channelOriginMap.get(incomingCall.dmChannelId) ?? '' : ''));
-  const _canonicalCaller = useCanonicalUserView((_rawCallerMember as User | null) ?? _FALLBACK_USER, _callerOrigin);
+  const _canonicalCaller = useCanonicalUserView(_rawCallerMember ?? _FALLBACK_USER);
   const callerMember = _rawCallerMember ? _canonicalCaller : null;
 
   if (!incomingCall) return null;
 
-  const callerAvatarId = callerMember?.homeUserId ?? incomingCall.callerId;
-  const { baseName: callerBaseName } = parseFederatedUsername(incomingCall.callerName);
+  const callerAvatarId = incomingCall.callerId;
+  const callerBaseName = callerMember ? userDisplayName(callerMember) : incomingCall.callerName;
 
   // Accepting arms the microphone and connects inside this tap (iOS needs
   // the gesture), and the call becomes active at once (`acceptIncomingDmCall`).

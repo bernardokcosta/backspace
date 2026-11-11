@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
-import { getApiForOrigin, useSpaceStore } from '../../../stores/spaceStore';
+import { useSpaceStore } from '../../../stores/spaceStore';
+import { useAuthStore } from '../../../stores/authStore';
+import { api } from '../../../api/client';
 import { useUIStore } from '../../../stores/uiStore';
 import { describeError } from '../../../i18n/errors';
 import { getCurrentMember, type MemberTarget } from './memberRoleActions';
@@ -16,20 +18,20 @@ export function MemberRemovalDialog({ target, action, name, onClose }: {
   const [saving, setSaving] = useState(false);
   const writing = useRef(false);
   const confirm = async () => {
-    if (writing.current) return;
+    if (writing.current || !getCurrentMember(target)) return;
     writing.current = true;
     setSaving(true);
     try {
-      const api = getApiForOrigin(target.origin);
       if (action === 'kick') await api.spaces.removeMember(target.spaceId, target.userId);
       else await api.spaces.ban(target.spaceId, target.userId);
+      if (target.sessionRevision !== useAuthStore.getState().sessionRevision) return;
       if (getCurrentMember(target)) useSpaceStore.getState().removeMember(target.spaceId, target.userId);
       onClose();
     } catch (error) {
-      useUIStore.getState().addToast(describeError(error), 'warning');
+      if (target.sessionRevision === useAuthStore.getState().sessionRevision) useUIStore.getState().addToast(describeError(error), 'warning');
     } finally {
       writing.current = false;
-      setSaving(false);
+      if (target.sessionRevision === useAuthStore.getState().sessionRevision) setSaving(false);
     }
   };
   return <ConfirmDialog isOpen onClose={() => { if (!writing.current) onClose(); }} onConfirm={() => void confirm()}

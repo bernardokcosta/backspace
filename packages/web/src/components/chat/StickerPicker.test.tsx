@@ -163,7 +163,7 @@ describe('sticker controls', () => {
     fireEvent.submit(form);
     await waitFor(() => expect(screen.queryByRole('form')).not.toBeInTheDocument());
     expect(api.stickers.rename).toHaveBeenCalledWith(sticker.id, 'Super Happy');
-    expect(screen.getByRole('button', { name: 'Rename Super Happy' })).toHaveFocus();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Rename Super Happy' })).toHaveFocus());
     expect(screen.getByRole('button', { name: 'Super Happy' })).toBeInTheDocument();
   });
 
@@ -202,9 +202,6 @@ describe('sticker controls', () => {
       creatorName: 'Alice',
       coverAssetId: sticker.id,
       coverUrl: null,
-      originType: 'source',
-      sourceInstance: null,
-      sourcePackId: null,
       currentVersion: 1,
       status: 'approved',
       itemCount: 1,

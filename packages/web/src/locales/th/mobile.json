@@ -6,7 +6,6 @@
   },
   "you": {
     "editProfile": "แก้ไขโปรไฟล์",
-    "homeInstance": "อินสแตนซ์หลัก: {{domain}}",
     "logOutConfirm": "แน่ใจหรือไม่ว่าต้องการออกจากระบบ?"
   },
   "chat": {

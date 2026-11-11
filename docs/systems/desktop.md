@@ -201,6 +201,16 @@ No real historical-host acceptance is implied by the probe.
 
 ### Desktop startup
 
+Installed-upgrade acceptance keeps the verified **1.17.0** baseline and all eight
+pinned installer hashes. Only baseline seed phases write synthetic old peer keys
+and opaque native work bytes. Candidate phases import the compiled production
+storage-retirement module, require every old key absent, and compare native
+token/cookie/preferences/work bytes without reseeding. Nine tooling tests exercise
+these phase/report contracts; real installation, encryption and startup behavior
+still require all six disposable hosted OS/architecture legs. They never run on a
+developer's personal profile. Native-store ownership has separate web regressions;
+opaque acceptance bytes are not proof of queued-message sending.
+
 The public Veyvox rebrand does not rename the installed fork's runtime crypto or
 profile identity. `initializeUserData` sets the internal name `Backspace Fork`
 before resolving profile paths. It reuses that profile and migrates only the
@@ -225,9 +235,9 @@ prompts, settings and native recovery remain unchanged.
 
 `App` starts the reference-counted pending-message orchestrator and tears it
 down on unmount. Confirmed message receipts still settle without parsing a
-response body, avoiding duplicate sends after teardown. Federation bootstrap
-callers share one attempt per account/session; account changes and store resets
-invalidate late initialization results. Transfers retain their ordinary explicit
+response body, avoiding duplicate sends after teardown. Native session changes
+and store resets invalidate late results; no peer bootstrap remains.
+Transfers retain their ordinary explicit
 pause, resume and cancellation behavior without a compatibility pause.
 
 The desktop app wraps the Veyvox web client in Electron with:
@@ -305,6 +315,9 @@ Close does **not** quit the app. The `close` event is intercepted; the window is
 3. No URL: loads `resources/instance-picker.html` (local HTML file)
 
 Instance URL management functions: `loadInstanceUrl()`, `saveInstanceUrl()`, `clearInstanceUrl()` — all operate on `{userData}/instance-url.json`.
+Saved selections are validated as HTTP(S) URLs without credentials/control
+characters before use. Unsafe stored bytes are ignored, not deleted or migrated
+into another profile.
 
 ### Interface Scale
 
@@ -325,14 +338,18 @@ Window `focus`/`blur` events send `window-focus-changed` (boolean) to the render
 
 ### In-Instance `/join/` Interception
 
-Click-handlers on `https://...` URLs use `setWindowOpenHandler` (`packages/desktop/src/main.ts:391`). The handler intercepts URLs whose origin matches a connected instance and whose pathname starts with `/join/`, routing them in-app via the `open-internal-route` IPC channel instead of `shell.openExternal`.
+`setWindowOpenHandler` intercepts HTTP(S) `/join/` links only when their origin
+matches the actual current top-level URL read by main. It routes them through
+`open-internal-route`; other HTTP(S) links open externally.
 
 State plumbing:
-- Main process maintains `knownInstanceOrigins: Set<string>` populated via `set-connected-origins` IPC pushes from the renderer. Synchronously readable from inside `setWindowOpenHandler` (which must return its result synchronously).
-- Renderer's `instanceStore` subscribes its own `instances` selector and forwards the connected-origin list (home + connected remotes) to main on every change, including initial mount.
+- Main reads `webContents.getURL()` synchronously, reusing `isNavigationAllowed`.
+  There is no renderer-maintained connected-origin trust set or setter IPC.
 - `packages/web/src/platform/deepLink.ts` (`useDeepLinkHandler`) subscribes to `onOpenInternalRoute` and calls `navigate(path)`.
 
-Predicate scope: only intercept URLs whose host matches a **currently connected** instance. Invites for unknown instances or disconnected federated peers still open externally — that's the entry point for `JoinPage`'s federation-redirect flow and must not be hijacked.
+Predicate scope: exact current origin (scheme/host/port), no URL credentials.
+External invitation hosts cannot create another authenticated session. Initial
+selection and Change Instance remain main-owned `loadURL`/`loadFile` navigation.
 
 Dev-mode caveat: if a developer runs Electron pointed at the Vite dev server (`http://localhost:5173`) while the API runs on `http://localhost:3005`, `window.location.origin` won't match the API origin and interception will not trigger. Production and standard-Electron-pointed-at-server dev are unaffected.
 
@@ -341,6 +358,11 @@ Dev-mode caveat: if a developer runs Electron pointed at the Vite dev server (`h
 ## Instance Picker
 
 When no instance URL is configured, the app loads `resources/instance-picker.html` — a self-contained HTML page where the user enters their Veyvox instance URL. The renderer communicates the chosen URL back via the `set-instance-url` IPC handler.
+All instance preference IPC requires the live main-window/main-frame sender.
+Only the bundled picker may invoke the setter successfully; remote page code can
+open the picker through the existing clear/Change Instance flow, not directly
+persist a replacement. Validated choices retain HTTP development hosts and ports.
+Saving failure prevents navigation. See [desktop-security.md](desktop-security.md).
 
 After navigation (both to an instance URL and back to the picker), the main process forces Electron to re-evaluate drag regions by momentarily resizing the window (+1px then back).
 
@@ -1055,7 +1077,6 @@ All handlers registered in `main.ts:registerIpcHandlers()`.
 | `open-release-page` | R->M | — | `shell.openExternal(RELEASES_URL)` |
 | `screen-share-selected` | R->M | `sourceId, shareAudio?` | Safety net (actual handler is `ipcMain.once` in display media flow) |
 | `keybinds-sync` | R->M | `KeybindConfig[]` | `keybindManager.updateKeybinds()` |
-| `set-connected-origins` | R->M | `string[]` | Update `knownInstanceOrigins` set (used by in-instance `/join/` interception) |
 | `renderer-ready` | R->M | — | Boot-completion ping; disarms boot timer |
 | `recovery-action` | R->M | `RecoveryAction` enum | Recovery page button dispatcher (allowlist-validated) |
 
@@ -1146,7 +1167,6 @@ Detection: `typeof window.backspace !== 'undefined'` (see `platform.ts:isElectro
 | `onAccessibilityStatus(cb)` | listen | M->R | Returns cleanup function |
 | `onKeybindHookError(cb)` | listen | M->R | Returns cleanup function |
 | `checkAccessibility()` | invoke | R->M | Returns `Promise<boolean>` |
-| `setConnectedOrigins(origins)` | fire | R->M | Push connected-instance origin list to main (in-instance `/join/` interception) |
 | `onOpenInternalRoute(cb)` | listen | M->R | Returns cleanup function; `cb` receives a path string to navigate in-app |
 | `rendererReady()` | fire | R->M | Boot-completion ping; semantic: "renderer survived render" |
 | `getRecoveryState()` | invoke | R->M | Returns `Promise<RecoveryState>` |

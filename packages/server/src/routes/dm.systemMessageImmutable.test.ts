@@ -41,24 +41,6 @@ vi.mock('../ws/handler.js', () => ({
   },
 }));
 
-vi.mock('../utils/federationOutbox.js', async () => {
-  const actual = await vi.importActual<typeof import('../utils/federationOutbox.js')>('../utils/federationOutbox.js');
-  return {
-    ...actual,
-    isFederationRelayEnabled: () => false,
-    queueDmCloseRelay: vi.fn(),
-    sendTypingRelay: vi.fn(),
-    queueDmRelay: vi.fn(),
-    queueOutboxEvent: vi.fn(),
-    appendMutationLog: vi.fn(),
-  };
-});
-
-vi.mock('../utils/federationAuth.js', async (importActual) => {
-  const actual = await importActual<typeof import('../utils/federationAuth.js')>();
-  return { ...actual, getOurOrigin: () => 'https://local.test' };
-});
-
 function applyMigrations(db: Database.Database): void {
   const migrationsDir = path.resolve(__dirname, '../../drizzle');
   const files = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
@@ -88,8 +70,6 @@ function seedUser(u: UserSeed): void {
     isAdmin: 0,
     isDeleted: 0,
     discoverable: 1,
-    homeInstance: null,
-    homeUserId: null,
     createdAt: Date.now(),
   }).run();
 }
@@ -117,7 +97,7 @@ describe('PATCH /api/dm/messages/:id on a system message', () => {
 
   it('refuses an edit of a system message, even by its author', async () => {
     const now = Date.now();
-    testDb.insert(schema.dmChannels).values({ id: 'dm1', ownerId: null, federatedId: null, createdAt: now }).run();
+    testDb.insert(schema.dmChannels).values({ id: 'dm1', ownerId: null, createdAt: now }).run();
     testDb.insert(schema.dmMembers).values([{ dmChannelId: 'dm1', userId: 'alice', closed: 0 }, { dmChannelId: 'dm1', userId: 'bob', closed: 0 }]).run();
     const invite = JSON.stringify({ event: 'space_invite', spaceId: 'S1', spaceInstanceOrigin: 'https://local.test', inviteCode: 'abc', snapshot: { spaceName: 'Real', icon: null, avatarColor: null, memberCount: 2, description: null, instanceName: 'local' } });
     testDb.insert(schema.dmMessages).values({ id: 'm1', dmChannelId: 'dm1', userId: 'alice', content: invite, type: 'system', createdAt: now }).run();

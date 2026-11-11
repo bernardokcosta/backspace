@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import fs from 'node:fs';
@@ -15,7 +15,7 @@ setWorkerId(1);
 /**
  * #393: the same user adding the same emoji to the same message twice stores
  * one reaction. The second `reaction_add` inserts nothing, announces nothing
- * and, on a DM message, queues no relay.
+ * and makes no outgoing HTTP requests.
  */
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -40,16 +40,7 @@ vi.mock('./handler.js', () => ({
   },
 }));
 
-const queueOutboxEvent = vi.fn();
-const appendMutationLog = vi.fn();
-vi.mock('../utils/federationOutbox.js', async () => {
-  const actual = await vi.importActual<typeof import('../utils/federationOutbox.js')>('../utils/federationOutbox.js');
-  return {
-    ...actual,
-    queueOutboxEvent: (...args: unknown[]) => queueOutboxEvent(...args),
-    appendMutationLog: (...args: unknown[]) => appendMutationLog(...args),
-  };
-});
+const outgoingHttp = vi.fn<typeof fetch>();
 
 const NOW = 1_700_000_000_000;
 
@@ -68,7 +59,7 @@ function applyMigrations(db: Database.Database): void {
 function seedUser(id: string): void {
   testDb.insert(schema.users).values({
     id, username: id, displayName: null, passwordHash: 'x', status: 'offline',
-    isAdmin: 0, isDeleted: 0, discoverable: 1, homeInstance: null, homeUserId: null, createdAt: NOW,
+    isAdmin: 0, isDeleted: 0, discoverable: 1, createdAt: NOW,
   }).run();
 }
 
@@ -93,7 +84,7 @@ function seedSpaceMessage(): void {
 }
 
 function seedDmMessage(): void {
-  testDb.insert(schema.dmChannels).values({ id: 'dm1', ownerId: 'alice', federatedId: null, createdAt: NOW }).run();
+  testDb.insert(schema.dmChannels).values({ id: 'dm1', ownerId: 'alice', createdAt: NOW }).run();
   testDb.insert(schema.dmMembers).values([
     { dmChannelId: 'dm1', userId: 'alice', closed: 0 },
     { dmChannelId: 'dm1', userId: 'bob', closed: 0 },
@@ -119,17 +110,18 @@ describe('WS reaction_add repeated by the same user', () => {
     applyMigrations(sqlite);
     sendToChannel.mockReset();
     sendToDmMembers.mockReset();
-    queueOutboxEvent.mockReset();
-    appendMutationLog.mockReset();
+    outgoingHttp.mockReset(); vi.stubGlobal('fetch', outgoingHttp);
     seedUser('alice');
     seedUser('bob');
   });
+
+  afterEach(() => { sqlite.close(); vi.unstubAllGlobals(); });
 
   it('stores and announces one reaction on a space message', async () => {
     seedSpaceMessage();
     const { handleClientEvent } = await import('./events.js');
     const send = (userId: string, emoji: string): void =>
-      handleClientEvent({ type: 'reaction_add', messageId: 'msg1', emoji }, userId, userId, {} as WebSocket, false);
+      handleClientEvent({ type: 'reaction_add', messageId: 'msg1', emoji }, userId, userId, {} as WebSocket);
 
     send('bob', '👍');
     send('bob', '👍');
@@ -144,23 +136,23 @@ describe('WS reaction_add repeated by the same user', () => {
     expect(reactionAddedEvents(sendToChannel)).toHaveLength(3);
   });
 
-  it('stores, announces and relays one reaction on a DM message', async () => {
+  it('stores and announces one reaction on a native DM message without HTTP', async () => {
     seedDmMessage();
     const { handleClientEvent } = await import('./events.js');
     const send = (userId: string, emoji: string): void =>
-      handleClientEvent({ type: 'reaction_add', messageId: 'dmmsg1', emoji }, userId, userId, {} as WebSocket, false);
+      handleClientEvent({ type: 'reaction_add', messageId: 'dmmsg1', emoji }, userId, userId, {} as WebSocket);
 
     send('bob', '👍');
     send('bob', '👍');
 
     expect(countRows('dm_reactions', 'dm_message_id', 'dmmsg1')).toBe(1);
     expect(reactionAddedEvents(sendToDmMembers)).toHaveLength(1);
-    expect(appendMutationLog).toHaveBeenCalledTimes(1);
-    expect(queueOutboxEvent).toHaveBeenCalledTimes(1);
+    expect(outgoingHttp).not.toHaveBeenCalled();
 
     send('alice', '👍');
     expect(countRows('dm_reactions', 'dm_message_id', 'dmmsg1')).toBe(2);
-    expect(queueOutboxEvent).toHaveBeenCalledTimes(2);
+    expect(reactionAddedEvents(sendToDmMembers)).toHaveLength(2);
+    expect(outgoingHttp).not.toHaveBeenCalled();
   });
 
   it('does not spend mutation capacity on duplicates and shares add/remove admission', async () => {
@@ -175,7 +167,8 @@ describe('WS reaction_add repeated by the same user', () => {
       expect(applyReactionRemove('dmmsg1', 'absent', 'bob')).toEqual({ ok: true, changed: false });
       expect(applyReactionAdd('dmmsg1', 'new', 'alice')).toEqual({ ok: true, changed: true });
       expect(countRows('dm_reactions', 'dm_message_id', 'dmmsg1')).toBe(21);
-      expect(queueOutboxEvent).toHaveBeenCalledTimes(21);
+      expect(reactionAddedEvents(sendToDmMembers)).toHaveLength(21);
+      expect(outgoingHttp).not.toHaveBeenCalled();
     } finally { clock.mockRestore(); }
   });
 
@@ -183,7 +176,7 @@ describe('WS reaction_add repeated by the same user', () => {
     seedDmMessage();
     const { handleClientEvent } = await import('./events.js');
     const send = (type: 'reaction_add' | 'reaction_remove'): void =>
-      handleClientEvent({ type, messageId: 'dmmsg1', emoji: '👍' }, 'bob', 'bob', {} as WebSocket, false);
+      handleClientEvent({ type, messageId: 'dmmsg1', emoji: '👍' }, 'bob', 'bob', {} as WebSocket);
 
     send('reaction_add');
     send('reaction_remove');

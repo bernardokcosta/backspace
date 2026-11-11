@@ -11,8 +11,7 @@ import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
 import type { DmChannel, DmLastMessagePreview, MessageWithUser, User } from '@veyvox/shared';
 import { SystemMessage } from '../components/chat/SystemMessage';
-import { formatDmSidebarPreview, type DmViewer } from '../utils/dmFormatters';
-import { selfIdentityOf } from '../utils/identity';
+import { formatDmSidebarPreview } from '../utils/dmFormatters';
 import { initI18n } from '../i18n';
 import { initializeInterfaceScale } from '../platform/interfaceScale';
 import '../styles/globals.css';
@@ -21,7 +20,6 @@ function user(id: string, displayName: string | null, username: string): User {
   return {
     id, username, displayName, avatar: null, banner: null, accentColor: null, avatarColor: 'lavender',
     bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 0,
-    homeUserId: null, homeInstance: null, replicatedInstances: [],
   };
 }
 
@@ -61,7 +59,7 @@ function message(row: Row, index: number): MessageWithUser {
 }
 
 // The viewer is a user outside the roster, so every row reads as someone else's.
-const VIEWER: DmViewer = { origin: '', self: selfIdentityOf({ id: 'SELF' }, new Map()) };
+const VIEWER = 'SELF';
 
 function preview(row: Row): string | null {
   const lastMessage = { type: 'system', userId: row.author.id, content: row.content, createdAt: 1 } as DmLastMessagePreview;

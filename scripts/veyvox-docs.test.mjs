@@ -6,6 +6,22 @@ import sharp from 'sharp';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const read = name => fs.readFileSync(path.join(ROOT, name), 'utf8');
+test('current onboarding, example environment and image metadata describe native features only', () => {
+  for (const file of ['README.md', 'README.pt-BR.md']) {
+    const text = read(file);
+    assert.doesNotMatch(text.slice(0, text.indexOf('</div>')), /federation|federação/i, file);
+    assert.doesNotMatch(text, /^- \*\*(?:Federation|Federação):/m, file);
+  }
+  for (const file of ['.env.example', 'packages/server/src/config.ts']) assert.doesNotMatch(read(file), /FEDERATION_ALLOW_PRIVATE_PEERS/, file);
+  const description = read('.github/workflows/docker-publish.yml').split('\n').find(line => line.includes('org.opencontainers.image.description='));
+  assert.ok(description); assert.doesNotMatch(description, /federation/i);
+});
+
+test('localization exemptions do not retain deleted peer namespaces or source labels', () => {
+  const retired = new Set(['stickers.sourceInstance', 'mobile.sections.federation', 'instance.tabs.federation']);
+  const entries = JSON.parse(read('scripts/i18n-allowlist.json'));
+  assert.deepEqual(entries.filter(entry => typeof entry === 'object' && (entry.namespace === 'federation' || retired.has(entry.key))), []);
+});
 test('presents Juno only as a minigame example', () => {
   for (const [file, category, label] of [
     ['README.md', 'minigames', 'Minigames and soundboard'],

@@ -6,9 +6,8 @@ import type { ProfileMemberContext } from '../stores/uiStore';
 /**
  * The space member a profile was opened for, read from the loaded space.
  *
- * `member.userId` is the id on the space's own instance, which is also the id
- * the loaded member list carries, so the match is exact for local and
- * federated members alike. The member list only ever holds the current space,
+ * `member.userId` is the native account ID the loaded member list carries.
+ * The member list only ever holds the current space,
  * so a context naming any other space resolves to nothing rather than to a
  * look-alike from the wrong space.
  */
@@ -21,18 +20,14 @@ export function useProfileMember(member: ProfileMemberContext | null | undefined
 }
 
 /**
- * Non-reactive read of the same member and the origin of the space it belongs
- * to, for code that runs once when a profile opens.
+ * Non-reactive read of the same native member when a profile opens.
  */
 export function getProfileMember(
   member: ProfileMemberContext,
-): { row: MemberWithUser; origin: string } | undefined {
+): MemberWithUser | undefined {
   const state = useSpaceStore.getState();
   if (state.currentSpaceId !== member.spaceId) return undefined;
-  const row = state.members.find((m) => m.userId === member.userId);
-  if (!row) return undefined;
-  const origin = state.spaces.find((sp) => sp.id === member.spaceId)?._instanceOrigin ?? '';
-  return { row, origin };
+  return state.members.find((m) => m.userId === member.userId);
 }
 
 /**

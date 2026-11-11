@@ -18,14 +18,15 @@ export interface UrlMetadata {
 export async function fetchUrlMetadata(url: string): Promise<UrlMetadata | null> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 5000);
+  let response: Response | undefined;
+  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
   try {
-    const response = await safeFetch(url, {
+    response = await safeFetch(url, {
       headers: {
         'User-Agent': 'BackspaceBot/1.0',
       },
       signal: controller.signal,
     });
-    clearTimeout(timeout);
 
     if (!response.ok) {
       return null;
@@ -46,7 +47,7 @@ export async function fetchUrlMetadata(url: string): Promise<UrlMetadata | null>
 
     // Stream-read the body with a hard 512KB byte limit to prevent OOM from chunked responses
     if (!response.body) return null;
-    const reader = response.body.getReader();
+    reader = response.body.getReader();
     const decoder = new TextDecoder();
     let html = '';
     let bytesRead = 0;
@@ -55,8 +56,7 @@ export async function fetchUrlMetadata(url: string): Promise<UrlMetadata | null>
       if (done) break;
       bytesRead += value.length;
       if (bytesRead > 512_000) {
-        reader.cancel();
-        break;
+        return null;
       }
       html += decoder.decode(value, { stream: true });
     }
@@ -87,5 +87,11 @@ export async function fetchUrlMetadata(url: string): Promise<UrlMetadata | null>
     return null;
   } finally {
     clearTimeout(timeout);
+    controller.abort();
+    try {
+      if (reader) await reader.cancel();
+      else await response?.body?.cancel();
+    } catch { /* An aborted/errored body is already released by the transport. */ }
+    finally { reader?.releaseLock(); }
   }
 }

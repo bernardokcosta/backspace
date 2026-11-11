@@ -158,21 +158,6 @@
     "invitePlaceholder": "örn. abc123 veya https://instance.com/join/abc123",
     "submit": "Alana katıl",
     "submitting": "Katılınıyor...",
-    "connect": {
-      "intro": "Bu alana katılmak için <host>{{host}}</host> adresine bağlan.",
-      "passwordLabel": "Bağlanmak için parolanı gir",
-      "passwordPlaceholder": "Hesap parolan",
-      "passwordNote": "Parolan ana örneğin tarafından kontrol edilir ve {{host}} adresine asla gönderilmez. O örnek yalnızca kendisi için oluşturulmuş benzersiz bir kimlik bilgisi alır.",
-      "submit": "Bağlan ve katıl",
-      "submitting": "Bağlanılıyor..."
-    },
-    "fallback": {
-      "usernamePlaceholder": "Bu örnekteki kullanıcı adın",
-      "passwordLabel": "Bu örnek için parola",
-      "passwordPlaceholder": "Uzak örnekteki parola",
-      "submit": "Giriş yap ve katıl",
-      "submitting": "Giriş yapılıyor..."
-    },
     "request": {
       "messagePlaceholder": "Neden katılmak istiyorsun? (isteğe bağlı)",
       "send": "İstek gönder",
@@ -450,8 +435,6 @@
       "transferOwnership": "Sahipliği devret",
       "settings": "Alan ayarları",
       "leave": "Alandan ayrıl",
-      "reconnecting": "{{instance}} ile yeniden bağlanılıyor…",
-      "remoteInstance": "uzak örnek",
       "leaveConfirm": {
         "title": "Alandan ayrıl",
         "titleNamed": "{{name}} alanından ayrıl",

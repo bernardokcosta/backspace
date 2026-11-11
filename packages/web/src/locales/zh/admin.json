@@ -4,7 +4,6 @@
     "description": "配置您的 Veyvox 实例。这些设置将影响所有用户。",
     "instanceName": {
       "label": "实例名称",
-      "description": "显示在登录页面和对等联邦实例上的名称。",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "注册",
-    "description": "控制谁可以在此实例上创建账号。公开注册适用于本地注册；联邦注册适用于来自对等实例的用户在此创建账号。",
     "public": {
       "label": "公开注册",
       "toggleLabel": "允许新的本地账号注册",
       "toggleDescription": "任何人均可从注册页面创建本地账号。关闭后，只有通过邀请链接才能创建新的本地账号。"
-    },
-    "federated": {
-      "label": "联邦注册",
-      "toggleLabel": "允许新的联邦账号注册",
-      "toggleDescription": "来自其他实例的用户可通过其“连接”设置在此创建联邦账号。现有联邦账号始终可以正常登录，不受此设置影响。"
     },
     "spaceCreation": {
       "label": "创建空间",
@@ -342,8 +335,6 @@
     "loadFailed": "加载用户失败",
     "empty": "未找到用户",
     "filters": {
-      "allInstances": "所有实例",
-      "localOnly": "仅限本地",
       "allRoles": "所有角色",
       "admin": "管理员",
       "nonAdmin": "非管理员",
@@ -363,9 +354,7 @@
     "actions": {
       "demote": "取消管理员权限",
       "promote": "提拔为管理员",
-      "federatedNoAdmin": "联邦用户不能设为管理员",
       "resetPassword": "重置密码",
-      "federatedNoReset": "联邦用户通过其主实例进行认证",
       "delete": "删除用户",
       "selfDelete": "请前往账号设置以注销您自己的账号"
     },
@@ -391,15 +380,7 @@
     "deleteDialog": {
       "title": "删除用户",
       "description": "确定永久删除 <strong>{{username}}</strong> 吗？这将把他们从所有空间、私信和好友列表中移除。此操作无法撤销。",
-      "confirm": "删除用户",
-      "blockBot": "禁止此机器人再次注册",
-      "blockBotHint": "当其主实例恢复后，该机器人无法在此创建账号。可在用户列表下方解除封禁。"
-    },
-    "blockedBots": {
-      "title": "已封禁的机器人",
-      "description": "被禁止在此注册的其他实例的机器人。解除封禁后可再次加入。",
-      "blockedAt": "封禁于 {{date}}",
-      "unblock": "解除封禁"
+      "confirm": "删除用户"
     }
   },
   "mobile": {
@@ -407,7 +388,6 @@
     "sections": {
       "general": "常规",
       "registration": "注册",
-      "federation": "联邦",
       "streaming": "推流",
       "storage": "存储",
       "updates": "更新",

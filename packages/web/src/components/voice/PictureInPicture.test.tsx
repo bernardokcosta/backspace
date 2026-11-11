@@ -26,7 +26,6 @@ function remoteCameraParticipant() {
     identity: '2:bob',
     userId: '2',
     username: 'bob',
-    homeUserId: null,
     isMuted: false,
     isDeafened: false,
     isCameraOn: true,
@@ -78,7 +77,7 @@ describe('PictureInPicture and the floating window setting', () => {
   });
 
   it('follows the setting during a DM call viewed from elsewhere', () => {
-    useVoiceStore.setState({ currentVoiceChannelId: null, activeDmCall: { dmChannelId: 'dm-1', federatedCallId: null, callOrigin: null, livekit: null } });
+    useVoiceStore.setState({ currentVoiceChannelId: null, activeDmCall: { dmChannelId: 'dm-1' } });
     const shown = renderPip();
     expect(shown.container).not.toBeEmptyDOMElement();
     cleanup();
@@ -88,20 +87,20 @@ describe('PictureInPicture and the floating window setting', () => {
     expect(hidden.container).toBeEmptyDOMElement();
   });
 
-  it('reads a call held by its key as the conversation this client has, never as a DM id', () => {
-    useSpaceStore.setState({ dmChannels: [{ id: 'dm-copy', federatedId: 'key-1', members: [] } as unknown as DmChannel] });
+  it('matches the native conversation ID exactly, with no alternate-key lookup', () => {
+    useSpaceStore.setState({ dmChannels: [{ id: 'dm-native', members: [] } as unknown as DmChannel] });
     useVoiceStore.setState({
       currentVoiceChannelId: null,
-      activeDmCall: { dmChannelId: null, federatedCallId: 'key-1', callOrigin: 'https://peer.example', livekit: null },
+      activeDmCall: { dmChannelId: 'dm-native' },
     });
 
     // Viewing the call's conversation: no floating window.
-    useChatStore.setState({ currentChannelId: 'dm-copy' });
+    useChatStore.setState({ currentChannelId: 'dm-native' });
     expect(renderPip().container).toBeEmptyDOMElement();
     cleanup();
 
-    // Viewing the key as if it were a conversation is viewing something else.
-    useChatStore.setState({ currentChannelId: 'key-1' });
+    // A different DM never hides the active call's floating window.
+    useChatStore.setState({ currentChannelId: 'dm-other' });
     expect(renderPip().container).not.toBeEmptyDOMElement();
   });
 
@@ -116,7 +115,6 @@ describe('PictureInPicture and the floating window setting', () => {
         identity: '2:bob',
         userId: '2',
         username: 'bob',
-        homeUserId: null,
         isMuted: false,
         isDeafened: false,
         isCameraOn: false,

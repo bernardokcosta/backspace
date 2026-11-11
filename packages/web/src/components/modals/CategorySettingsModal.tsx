@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Modal } from '../ui/Modal';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useUIStore } from '../../stores/uiStore';
 import { useSpaceStore } from '../../stores/spaceStore';
+import { useAuthStore } from '../../stores/authStore';
 import { PermissionBits, hasPermissionBit, isHiddenFromEveryone } from '../../utils/permissions';
 import { InlineNameEditor } from '../ui/InlineNameEditor';
 import { PermissionsEditor } from '../ui/PermissionsEditor';
@@ -119,13 +120,20 @@ function OverviewTab({
 // ─── Main Modal ─────────────────────────────────────────────────────────────────
 
 export function CategorySettingsModal() {
+  const revision = useAuthStore(s => s.sessionRevision);
+  const active = useUIStore(s => s.activeModal === 'categorySettings');
+  const categoryId = useUIStore(s => s.modalData.categoryId as string | undefined);
+  const spaceId = useSpaceStore(s => s.currentSpaceId);
+  return active ? <CategorySettingsContent key={JSON.stringify([revision, spaceId, categoryId])} revision={revision} /> : null;
+}
+
+function CategorySettingsContent({ revision }: { revision: number }) {
   const { t } = useTranslation(['spaces', 'common']);
   const activeModal = useUIStore((s) => s.activeModal);
   const modalData = useUIStore((s) => s.modalData);
   const closeModal = useUIStore((s) => s.closeModal);
   const currentSpaceId = useSpaceStore((s) => s.currentSpaceId);
   const categories = useSpaceStore((s) => s.categories);
-  const spaces = useSpaceStore((s) => s.spaces);
   const spacePermissions = useSpaceStore((s) => s.spacePermissions);
 
   const [tab, setTab] = useState<'overview' | 'permissions'>('overview');
@@ -142,20 +150,15 @@ export function CategorySettingsModal() {
   const canManageChannels = myPerms !== undefined && hasPermissionBit(myPerms, PermissionBits.MANAGE_CHANNELS);
   const canManageRoles = myPerms !== undefined && hasPermissionBit(myPerms, PermissionBits.MANAGE_ROLES);
 
-  // Reset state when modal closes
-  useEffect(() => {
-    if (!isOpen) {
-      setShowDeleteConfirm(false);
-      setIsDeleting(false);
-      setTab('overview');
-    }
-  }, [isOpen]);
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const current = () => alive.current && revision === useAuthStore.getState().sessionRevision
+    && useUIStore.getState().activeModal === 'categorySettings' && useUIStore.getState().modalData === modalData;
 
   // One list of this category's overrides for the whole dialog: the Overview
   // derives privacy from it and the Permissions tab edits it, so neither
   // shows a copy the other has made stale.
-  const space = spaces.find(s => s.id === currentSpaceId);
-  const entityOverrides = useEntityOverrides('category', isOpen ? categoryId : undefined, space, canManageRoles);
+  const entityOverrides = useEntityOverrides('category', isOpen ? categoryId : undefined, canManageRoles);
   const isPrivate = currentSpaceId ? isHiddenFromEveryone(entityOverrides.overrides, currentSpaceId) : false;
   const isFetching = !entityOverrides.loaded;
   const shownError = error || entityOverrides.error;
@@ -163,6 +166,7 @@ export function CategorySettingsModal() {
   if (!isOpen || !category || !categoryId || !currentSpaceId) return null;
 
   const handleToggle = async () => {
+    if (!current()) return;
     setError('');
     setIsLoading(true);
     try {
@@ -170,31 +174,31 @@ export function CategorySettingsModal() {
       // other @everyone bit on this category stays (#327, #365).
       await entityOverrides.setBits('role', currentSpaceId, PermissionBits.VIEW_CHANNEL, isPrivate ? 'neutral' : 'deny');
     } catch (err) {
-      setError(describeError(err));
+      if (current()) setError(describeError(err));
     } finally {
-      setIsLoading(false);
+      if (current()) setIsLoading(false);
     }
   };
 
   const handleRename = async (name: string): Promise<void> => {
+    if (!current()) return;
     setError('');
     try {
       await useSpaceStore.getState().updateCategory(categoryId, { name });
     } catch (err) {
-      setError(describeError(err));
+      if (current()) setError(describeError(err));
       throw err;
     }
   };
 
   const handleDeleteCategory = async () => {
-    if (!categoryId) return;
+    if (!current() || isDeleting) return;
     setIsDeleting(true);
     try {
       await useSpaceStore.getState().deleteCategory(categoryId);
-      closeModal();
+      if (current()) closeModal();
     } catch (err) {
-      setError(describeError(err));
-      setIsDeleting(false);
+      if (current()) { setError(describeError(err)); setIsDeleting(false); }
     }
   };
 

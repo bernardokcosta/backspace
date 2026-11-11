@@ -4,9 +4,8 @@ import { useFormatters } from '../../i18n/formatters';
 import { Avatar } from '../ui/Avatar';
 import { BotBadge } from '../ui/BotBadge';
 import { MarkdownRenderer } from './MarkdownRenderer';
-import { getChannelOrigin } from '../../stores/spaceStore';
 import { useEphemeralReplyStore } from '../../stores/ephemeralReplyStore';
-import { uploadUrlOn } from '../../utils/assetUrls';
+import { uploadUrl } from '../../utils/assetUrls';
 
 /**
  * A bot's answer only the signed-in person sees (`ephemeral: true`), shown in
@@ -28,7 +27,7 @@ export function EphemeralReplyRow({ reply, chatId }: { reply: EphemeralReply; ch
       className="relative flex gap-4 px-5 py-[3px] mt-[1.0625rem] bg-accent-primary/[0.06] border-l-2 border-l-accent-primary/50"
     >
       <div className="w-10 flex-shrink-0 mt-0.5">
-        <Avatar src={uploadUrlOn(reply.user.avatar, getChannelOrigin(chatId))} name={name} size={40} avatarColor={reply.user.avatarColor} />
+        <Avatar src={uploadUrl(reply.user.avatar)} name={name} size={40} avatarColor={reply.user.avatarColor} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2 mb-0.5">

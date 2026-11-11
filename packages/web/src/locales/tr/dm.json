@@ -1,28 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "uzak örnek",
-    "hostInstance": "barındıran örnek",
-    "acceptDropped": "{{instance}} ile kabulün doğrulanamadı — arama kesildi.",
-    "rejectFailed": "{{instances}} tarafına reddettiğin bildirilemedi. Arayan seni kısa süreliğine hâlâ çalıyor olarak görebilir.",
-    "endFailed": "{{instances}} tarafına kapattığın bildirilemedi. Uzak katılımcılar aramayı 60 saniye kadar görebilir.",
-    "hostUnreachable": "Arama sona erdi — barındıran örneğe ulaşılamıyor.",
-    "peeringLost": "Arama sona erdi — bu örnek artık {{instance}} ile eşlemesi yok.",
-    "instanceUnreachable": "Arama sona erdi — {{instance}} adresine ulaşılamıyor.",
-    "someUnreachable": "Bazı katılımcılara ulaşılamadı: {{instances}}.",
-    "multipleUnreachable_one": "{{count}} örneğe ulaşılamadı: {{instances}}.",
-    "multipleUnreachable_other": "{{count}} örneğe ulaşılamadı: {{instances}}.",
-    "callFailed": "Arama başlatılamadı.",
-    "manualApproval": "{{instance}} adresine ulaşılamıyor — bu örnek elle eşleme onayı gerektiriyor.",
-    "awaitingApproval": "{{instance}} yöneticisinin örneğini onaylaması bekleniyor. Onaylandığında aramalar çalışacak.",
-    "transientFailure": "{{instance}} adresine ulaşılamadı. Birazdan tekrar dene.",
-    "voiceUnavailable": "Bu örnekte ses yapılandırılmamış.",
-    "noRecipient": "{{instance}} kimseyi arayamadı.",
-    "targetCallFailed": "{{instance}} araması başlatılamadı."
-  },
-  "feedback": {
-    "relayDenied": "Mesajlar iletilemiyor — sunucuları eşlemeyi reddetti. Yöneticilerine ulaş.",
-    "awaitingPeering": "Yöneticileri eşleme isteğini onayladığında mesajlar teslim edilecek."
-  },
   "names": {
     "group": "Grup",
     "directMessage": "Doğrudan mesaj",
@@ -162,12 +138,7 @@
     "notFound": "Konuşma bulunamadı.",
     "notGroup": "Bu konuşmanın grup bilgisi yok.",
     "cancelEdit": "Düzenlemeyi iptal et",
-    "federated": "Federe grup",
     "memberCount_one": "{{count}} üye",
     "memberCount_other": "{{count}} üye"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "Bu grup {{host}} üzerinde yönetiliyor. Değiştirmek için o örneğe bağlan.",
-    "ownerNotListed": "{{host}} bu grubu senin için henüz listelemiyor. Birazdan tekrar dene."
   }
 }

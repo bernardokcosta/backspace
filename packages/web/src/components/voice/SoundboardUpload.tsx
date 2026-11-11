@@ -3,14 +3,15 @@ import { useTranslation } from 'react-i18next';
 import { MAX_SOUNDBOARD_BYTES, SOUNDBOARD_SAMPLE_RATE } from '@veyvox/shared/src/soundboard';
 import { AudioManager } from '../../audio/AudioManager';
 import { audioBase64, encodeSoundboardClip, soundboardSelectionSamples } from '../../utils/soundboardAudio';
-import { getApiForOrigin } from '../../utils/crossStoreResolvers';
+import { api } from '../../api/client';
+import { useAuthStore } from '../../stores/authStore';
 import { describeError } from '../../i18n/errors';
 import { useFormatters } from '../../i18n/formatters';
 
 const MIN_SELECTION = 0.1;
 
-export function SoundboardUpload({ origin, spaceId, maxDuration, onDone, onCancel }: {
-  origin: string; spaceId: string; maxDuration: number; onDone: () => void; onCancel: () => void;
+export function SoundboardUpload({ spaceId, maxDuration, onDone, onCancel }: {
+  spaceId: string; maxDuration: number; onDone: () => void; onCancel: () => void;
 }) {
   const { t } = useTranslation(['voice', 'common']);
   const selectionId = useId();
@@ -22,6 +23,8 @@ export function SoundboardUpload({ origin, spaceId, maxDuration, onDone, onCance
   const [previewing, setPreviewing] = useState(false);
   const source = useRef<AudioBufferSourceNode | null>(null);
   const generation = useRef(0);
+  const sessionRevision = useRef(useAuthStore.getState().sessionRevision).current;
+  const current = (run: number) => run === generation.current && sessionRevision === useAuthStore.getState().sessionRevision;
   // Drag-to-select anchor in seconds; null when not dragging.
   const dragAnchor = useRef<number | null>(null);
   const stop = () => { try { source.current?.stop(); } catch { /* Already ended. */ } source.current?.disconnect(); source.current = null; setPreviewing(false); };
@@ -50,12 +53,12 @@ export function SoundboardUpload({ origin, spaceId, maxDuration, onDone, onCance
     setBusy(true);
     try {
       const decoded = await AudioManager.getInstance().ensureContext().decodeAudioData(await file.arrayBuffer());
-      if (run !== generation.current) return;
+      if (!current(run)) return;
       if (!Number.isFinite(decoded.duration) || decoded.duration < 0.1 || decoded.length * decoded.numberOfChannels > 50_000_000) throw new Error('Audio too large');
       setBuffer(decoded); setName(file.name.replace(/\.[^.]+$/, '').slice(0, 48)); setStart(0);
       setEnd(Math.min(decoded.duration, maxDuration));
-    } catch { if (run === generation.current) setError(t('voice:soundboard.decodeFailed')); }
-    finally { if (run === generation.current) setBusy(false); }
+    } catch { if (current(run)) setError(t('voice:soundboard.decodeFailed')); }
+    finally { if (current(run)) setBusy(false); }
   };
   const preview = async () => {
     if (previewing) { stop(); return; }
@@ -63,7 +66,7 @@ export function SoundboardUpload({ origin, spaceId, maxDuration, onDone, onCance
     const run = generation.current;
     try {
       const manager = AudioManager.getInstance(); await manager.resumeContext();
-      if (run !== generation.current) return;
+      if (!current(run)) return;
       const context = manager.ensureContext(); const node = context.createBufferSource();
       node.buffer = buffer; node.connect(manager.getMasterOutput()); source.current = node;
       node.onended = () => { if (source.current === node) { node.disconnect(); source.current = null; setPreviewing(false); } };
@@ -72,13 +75,16 @@ export function SoundboardUpload({ origin, spaceId, maxDuration, onDone, onCance
   };
   const save = async () => {
     if (!buffer || !valid || !name.trim() || !emoji.trim() || busy) return;
+    const run = generation.current;
+    if (!current(run)) return;
     stop(); setBusy(true); setError('');
     try {
       const bytes = await encodeSoundboardClip(buffer, start, end);
-      await getApiForOrigin(origin).soundboard.upload(spaceId, { name: name.trim(), emoji: emoji.trim(), audio: audioBase64(bytes) });
-      onDone();
-    } catch (cause) { setError(describeError(cause)); }
-    finally { setBusy(false); }
+      if (!current(run)) return;
+      await api.soundboard.upload(spaceId, { name: name.trim(), emoji: emoji.trim(), audio: audioBase64(bytes) });
+      if (current(run)) onDone();
+    } catch (cause) { if (current(run)) setError(describeError(cause)); }
+    finally { if (current(run)) setBusy(false); }
   };
   const resetSelection = () => {
     if (!buffer || busy) return;

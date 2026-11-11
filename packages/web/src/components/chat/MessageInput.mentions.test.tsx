@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { DmChannel, MemberWithUser, User } from '@veyvox/shared';
 import { useAuthStore } from '../../stores/authStore';
@@ -32,9 +32,6 @@ function makeUser(id: string, username: string, displayName: string | null): Use
     customStatus: null,
     isAdmin: false,
     createdAt: 1,
-    homeInstance: null,
-    homeUserId: null,
-    replicatedInstances: [],
   };
 }
 
@@ -42,9 +39,8 @@ function member(spaceId: string, user: User): MemberWithUser {
   return { spaceId, userId: user.id, nickname: null, joinedAt: 1, user, roles: [] };
 }
 
-const ORBIT = 'https://orbit.example';
-const me = makeUser('me', 'alice', 'Alice');
-// The DM is pinned to a remote origin: its member ids are that origin's ids.
+const me = makeUser('me-orbit', 'alice@retained.invalid', 'Alice');
+// A native DM roster uses the same authenticated account ID.
 const meOnOrbit = makeUser('me-orbit', 'alice@home.example', 'Alice');
 const kaiOnOrbit = makeUser('kai-orbit', 'kai', 'Kai');
 const zed = makeUser('zed', 'zed', 'Zed');
@@ -69,28 +65,25 @@ beforeEach(() => {
   useAuthStore.setState({ user: me });
   useUIStore.setState({ isMobile: false });
   useComposerStore.setState({ states: new Map() });
-  useAuthStore.getState().recordMyRow(ORBIT, meOnOrbit.id);
 });
 
 afterEach(() => {
+  cleanup();
   useChatStore.getState().clearAllMessages();
   useComposerStore.setState({ states: new Map() });
   useSpaceStore.setState({
     dmChannels: [],
     members: [],
     currentSpaceId: null,
-    channelOriginMap: new Map(),
     channelToSpaceMap: new Map(),
   });
   useAuthStore.setState({ user: null });
-  useAuthStore.setState({ myRowIds: new Map() });
 });
 
 describe('MessageInput mention picker (#338)', () => {
   it("lists the DM's other members, not the roster of the space opened last", () => {
     useSpaceStore.setState({
       dmChannels: [dm],
-      channelOriginMap: new Map([[dm.id, ORBIT]]),
       // Stale roster of a space opened earlier in the session.
       members: [member('space-9', zed), member('space-9', me)],
       currentSpaceId: null,
@@ -108,7 +101,6 @@ describe('MessageInput mention picker (#338)', () => {
   it("inserts the member's id on the DM's origin", () => {
     useSpaceStore.setState({
       dmChannels: [dm],
-      channelOriginMap: new Map([[dm.id, ORBIT]]),
       members: [member('space-9', zed)],
     });
     render(<MessageInput channelId={dm.id} channelName="@Kai" />);
@@ -141,7 +133,6 @@ describe('MessageInput mention labels', () => {
   beforeEach(() => {
     useSpaceStore.setState({
       dmChannels: [dm],
-      channelOriginMap: new Map([[dm.id, ORBIT]]),
       // Stale roster of a space opened earlier in the session.
       members: [member('space-9', zed), member('space-9', me)],
     });

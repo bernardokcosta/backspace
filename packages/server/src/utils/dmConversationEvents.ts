@@ -5,15 +5,14 @@ import { loadDmChannelWire } from './dmChannelWire.js';
 import type { DmReconcileResult } from './dmConversation.js';
 
 /**
- * Tell local clients about 1-on-1 rows `reconcileDmChannelFederatedId`
+ * Tell local clients about 1-on-1 rows `reconcileDmChannelPairKey`
  * re-keyed or merged, so each DM list shows the conversation once, under its
- * current row and key, without a reload. Existing events only:
+ * current local channel id, without a reload. Existing events only:
  *
  * - merged: `dm_channel_closed` for the merged-away row to every affected
  *   member (a client that never listed it ignores it);
  * - merged or re-keyed: `dm_channel_created` with the surviving row, which the
- *   client's DM merge module upserts (refreshing a stale `federatedId` in
- *   place), to the members who have that row open. A member who closed the
+ *   client upserts, to the members who have that row open. A member who closed the
  *   conversation keeps it closed; the next message resurfaces it as usual.
  *
  * Call after the transaction that reconciled has committed. Noops tell no one.

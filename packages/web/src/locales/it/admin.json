@@ -4,7 +4,6 @@
     "description": "Configura la tua istanza Veyvox. Queste impostazioni riguardano tutti gli utenti.",
     "instanceName": {
       "label": "Nome dell’istanza",
-      "description": "Il nome mostrato nella pagina di accesso e alle istanze federate.",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "Registrazione",
-    "description": "Controlla chi può creare account su questa istanza. La registrazione pubblica riguarda le iscrizioni locali; quella federata riguarda gli utenti di istanze in peering che creano un account qui.",
     "public": {
       "label": "Registrazione pubblica",
       "toggleLabel": "Consenti nuovi account locali",
       "toggleDescription": "Chiunque può creare un account locale dalla pagina di registrazione. Se disattivato, solo i link d’invito possono creare nuovi account locali."
-    },
-    "federated": {
-      "label": "Registrazione federata",
-      "toggleLabel": "Consenti nuovi account federati",
-      "toggleDescription": "Gli utenti di altre istanze possono creare un account federato qui tramite le impostazioni Connessioni. Gli account federati esistenti possono sempre accedere, indipendentemente da questa impostazione."
     },
     "spaceCreation": {
       "label": "Creazione di spazi",
@@ -368,8 +361,6 @@
     "loadFailed": "Impossibile caricare gli utenti",
     "empty": "Nessun utente trovato",
     "filters": {
-      "allInstances": "Tutte le istanze",
-      "localOnly": "Solo locali",
       "allRoles": "Tutti i ruoli",
       "admin": "Amministratore",
       "nonAdmin": "Non amministratore",
@@ -389,9 +380,7 @@
     "actions": {
       "demote": "Rimuovi da amministratore",
       "promote": "Promuovi ad amministratore",
-      "federatedNoAdmin": "Gli utenti federati non possono essere amministratori",
       "resetPassword": "Reimposta password",
-      "federatedNoReset": "Gli utenti federati si autenticano tramite la propria istanza principale",
       "delete": "Elimina utente",
       "selfDelete": "Usa le impostazioni dell’account per eliminare il tuo account"
     },
@@ -419,15 +408,7 @@
     "deleteDialog": {
       "title": "Elimina utente",
       "description": "Eliminare definitivamente <strong>{{username}}</strong>? Verrà rimosso da tutti gli spazi, dai messaggi diretti e dalle liste amici. Questa azione non può essere annullata.",
-      "confirm": "Elimina utente",
-      "blockBot": "Impedisci a questo bot di registrarsi di nuovo",
-      "blockBotHint": "Quando la sua istanza principale tornerà disponibile, il bot non potrà creare un account qui. Puoi sbloccarlo sotto l’elenco utenti."
-    },
-    "blockedBots": {
-      "title": "Bot bloccati",
-      "description": "Bot di altre istanze che non possono registrarsi qui. Sbloccane uno per consentirgli di entrare di nuovo.",
-      "blockedAt": "Bloccato il {{date}}",
-      "unblock": "Sblocca"
+      "confirm": "Elimina utente"
     }
   },
   "mobile": {
@@ -435,7 +416,6 @@
     "sections": {
       "general": "Generale",
       "registration": "Registrazione",
-      "federation": "Federazione",
       "streaming": "Streaming",
       "storage": "Archiviazione",
       "updates": "Aggiornamenti",

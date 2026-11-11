@@ -6,7 +6,6 @@
   },
   "you": {
     "editProfile": "Profili düzenle",
-    "homeInstance": "Ana örnek: {{domain}}",
     "logOutConfirm": "Çıkış yapmak istediğine emin misin?"
   },
   "chat": {

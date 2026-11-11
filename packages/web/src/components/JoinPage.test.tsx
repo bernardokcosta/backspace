@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { InvitePreview, User } from '@veyvox/shared';
@@ -41,13 +41,11 @@ vi.mock('react-router-dom', async () => ({
 import { JoinPage } from './JoinPage';
 import { HttpError } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
-import { useSpaceStore, NotConnectedError } from '../stores/spaceStore';
+import { useSpaceStore } from '../stores/spaceStore';
 import { sendInviteJoinRequest } from '../utils/inviteJoinRequest';
 vi.mock('../utils/inviteJoinRequest', () => ({ sendInviteJoinRequest: vi.fn() }));
-import { useInstanceStore } from '../stores/instanceStore';
 import { JoinRequestRequiredError } from '../utils/joinErrors';
 
-const REMOTE = 'https://orbit.example';
 
 const ME = {
   id: 'me',
@@ -73,7 +71,6 @@ function preview(overrides: Partial<InvitePreview> = {}): InvitePreview {
 
 let joinByCode: ReturnType<typeof vi.fn>;
 let requestJoinSpace: ReturnType<typeof vi.fn>;
-let connectToRemote: ReturnType<typeof vi.fn>;
 
 function renderAt(code: string) {
   return render(
@@ -85,24 +82,22 @@ function renderAt(code: string) {
   );
 }
 
-function joinRequestRequired(spaceId: string, origin: string): JoinRequestRequiredError {
+function joinRequestRequired(spaceId: string): JoinRequestRequiredError {
   return new JoinRequestRequiredError(
     new HttpError(403, 'This space takes join requests', undefined, 'join_request_required', { spaceId }),
     spaceId,
-    origin,
   );
 }
 
 beforeEach(() => {
   mockLocalPreview.mockReset();
   mockRemotePreview.mockReset();
+  mockCreateApiClient.mockClear();
   mockNavigate.mockReset();
   joinByCode = vi.fn().mockResolvedValue({ id: 'S-REQ' });
   requestJoinSpace = vi.mocked(sendInviteJoinRequest).mockReset().mockResolvedValue('sent');
-  connectToRemote = vi.fn().mockResolvedValue(undefined);
   useAuthStore.setState({ token: 'token', user: ME, isLoading: false });
   useSpaceStore.setState({ joinByCode } as never);
-  useInstanceStore.setState({ connectToRemote, instances: [] } as never);
 });
 
 describe('JoinPage for a space joined by request', () => {
@@ -118,7 +113,7 @@ describe('JoinPage for a space joined by request', () => {
     await user.type(screen.getByLabelText('Note with your request'), 'Hi from the forum');
     await user.click(screen.getByRole('button', { name: 'Ask to join as Mira' }));
 
-    expect(requestJoinSpace).toHaveBeenCalledWith('S-REQ', '', 'Hi from the forum');
+    expect(requestJoinSpace).toHaveBeenCalledWith('S-REQ', 'Hi from the forum');
     expect(joinByCode).not.toHaveBeenCalled();
     expect(await screen.findByText('Request sent to Quiet Harbor')).toBeInTheDocument();
     expect(screen.getByText('A manager will review it. The space appears in your list once they approve.')).toBeInTheDocument();
@@ -164,7 +159,7 @@ describe('JoinPage for a space joined by request', () => {
   it('switches to the request when an instance without visibility in its preview refuses the join', async () => {
     const user = userEvent.setup();
     mockLocalPreview.mockResolvedValue(preview({ visibility: undefined }));
-    joinByCode.mockRejectedValue(joinRequestRequired('S-REQ', ''));
+    joinByCode.mockRejectedValue(joinRequestRequired('S-REQ'));
     renderAt('abc123');
 
     await user.click(await screen.findByRole('button', { name: 'Join as Mira' }));
@@ -174,7 +169,7 @@ describe('JoinPage for a space joined by request', () => {
     expect(requestJoinSpace).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole('button', { name: 'Ask to join as Mira' }));
-    expect(requestJoinSpace).toHaveBeenCalledWith('S-REQ', '', undefined);
+    expect(requestJoinSpace).toHaveBeenCalledWith('S-REQ', undefined);
     expect(await screen.findByText('Request sent to Quiet Harbor')).toBeInTheDocument();
   });
 
@@ -199,29 +194,22 @@ describe('JoinPage for a space joined by request', () => {
     await user.click(await screen.findByRole('button', { name: 'Ask to join as Mira' }));
 
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/channels/S-REQ'));
-    expect(joinByCode).toHaveBeenCalledWith('abc123', undefined);
+    expect(joinByCode).toHaveBeenCalledWith('abc123');
   });
 
-  it('connects to the space\'s instance first, then sends the request there', async () => {
-    const user = userEvent.setup();
-    mockRemotePreview.mockResolvedValue(preview({ spaceId: 'R-REQ' }));
-    requestJoinSpace
-      .mockRejectedValueOnce(new NotConnectedError(REMOTE))
-      .mockResolvedValueOnce('sent');
-    renderAt('abc123@orbit.example');
-
-    expect(await screen.findByText('Quiet Harbor')).toBeInTheDocument();
-    expect(mockCreateApiClient).toHaveBeenCalledWith(REMOTE, expect.any(Function));
-
-    await user.click(screen.getByRole('button', { name: 'Ask to join as Mira' }));
-    const submit = await screen.findByRole('button', { name: 'Connect & Ask to Join' });
-
-    await user.type(screen.getByPlaceholderText('Your account password'), 'pw');
-    await user.click(submit);
-
-    expect(connectToRemote).toHaveBeenCalledWith(REMOTE, 'pw', 'Mira');
-    expect(requestJoinSpace).toHaveBeenLastCalledWith('R-REQ', REMOTE, undefined);
-    expect(await screen.findByText('Request sent to Quiet Harbor')).toBeInTheDocument();
+  it('refuses a foreign invitation without reading a colliding local code or creating a foreign client', async () => {
+    mockLocalPreview.mockResolvedValue(preview()); mockRemotePreview.mockResolvedValue(preview());
+    renderAt('abc123@other.example'); await screen.findByText('Invalid Invite');
+    expect(mockLocalPreview).not.toHaveBeenCalled(); expect(mockCreateApiClient).not.toHaveBeenCalled();
+    expect(joinByCode).not.toHaveBeenCalled(); expect(requestJoinSpace).not.toHaveBeenCalled();
+    expect(document.querySelector('input[type="password"]')).toBeNull();
+  });
+  it('does not navigate from a prior-session native join response', async () => {
+    let finish!: (value: { id: string }) => void;
+    mockLocalPreview.mockResolvedValue(preview({ visibility: 'public' })); joinByCode.mockReturnValueOnce(new Promise(resolve => { finish = resolve; }));
+    renderAt('abc123'); await userEvent.click(await screen.findByRole('button', { name: 'Join as Mira' }));
+    act(() => useAuthStore.setState(s => ({ sessionRevision: s.sessionRevision + 1 })));
+    await act(async () => finish({ id: 'old' })); expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('asks a signed-out visitor to log in to ask to join', async () => {
@@ -278,7 +266,7 @@ describe('JoinPage heading for a space joined by request', () => {
   it('switches the heading when a join is refused with join_request_required', async () => {
     const user = userEvent.setup();
     mockLocalPreview.mockResolvedValue(preview({ visibility: undefined }));
-    joinByCode.mockRejectedValue(joinRequestRequired('S-REQ', ''));
+    joinByCode.mockRejectedValue(joinRequestRequired('S-REQ'));
     renderAt('abc123');
 
     expect(await screen.findByText(JOIN_HEADING)).toBeInTheDocument();
@@ -304,7 +292,7 @@ describe('JoinPage for spaces not joined by request', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Join as Mira' }));
 
-    expect(joinByCode).toHaveBeenCalledWith('open123', undefined);
+    expect(joinByCode).toHaveBeenCalledWith('open123');
     expect(requestJoinSpace).not.toHaveBeenCalled();
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/channels/S-OPEN'));
     expect(screen.queryByText(/takes join requests/)).not.toBeInTheDocument();

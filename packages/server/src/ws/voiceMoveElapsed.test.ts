@@ -37,8 +37,6 @@ function seedUser(id: string): void {
     id,
     username: id,
     passwordHash: 'x',
-    homeUserId: id,
-    homeInstance: null,
     createdAt: Date.now(),
   }).run();
 }
@@ -119,7 +117,6 @@ describe('voice_move channel duration', () => {
       'owner',
       'owner',
       ws as never,
-      false,
     );
 
     const join = ws.send.mock.calls

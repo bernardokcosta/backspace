@@ -73,7 +73,6 @@ beforeEach(async () => {
   // leaving every column at its schema default.
   testDb.insert(schema.instanceSettings).values({
     id: 1,
-    instanceId: '123e4567-e89b-12d3-a456-426614174000',
     updatedAt: Date.now(),
   }).run();
 
@@ -87,10 +86,8 @@ beforeEach(async () => {
 
 afterEach(async () => { await app.close(); sqlite.close(); });
 
-function storedSupportCardEnabled(): number {
-  const row = sqlite.prepare('SELECT support_card_enabled AS v FROM instance_settings WHERE id = 1').get() as { v: number } | undefined;
-  if (!row) throw new Error('instance_settings row missing');
-  return row.v;
+function hasRetiredColumn(): boolean {
+  return (sqlite.pragma('table_info(instance_settings)') as Array<{ name: string }>).some(column => column.name === 'support_card_enabled');
 }
 
 async function patchAs(userId: string, payload: Record<string, unknown>) {
@@ -103,18 +100,17 @@ async function patchAs(userId: string, payload: Record<string, unknown>) {
 }
 
 describe('retired support-card setting', () => {
-  it('preserves the historical database default for rollback', () => {
-    expect(storedSupportCardEnabled()).toBe(1);
+  it('permanently removes the inert column through the generated cleanup', () => {
+    expect(hasRetiredColumn()).toBe(false);
   });
 
-  describe.each([0, 1])('legacy stored value %i', (value) => {
-    beforeEach(() => { sqlite.prepare('UPDATE instance_settings SET support_card_enabled = ? WHERE id = 1').run(value); });
+  describe('native settings with obsolete request extras', () => {
 
     it.each(['/api/instance/info', '/api/settings/instance'])('omits the field from %s', async (url) => {
       const res = await app.inject({ method: 'GET', url, headers: { 'x-test-user': ADMIN_ID } });
       expect(res.statusCode).toBe(200);
       expect(res.json()).not.toHaveProperty('supportCardEnabled');
-      expect(storedSupportCardEnabled()).toBe(value);
+      expect(hasRetiredColumn()).toBe(false);
     });
 
     it.each([true, false, 'no', null])('ignores legacy PATCH value %s without changing stored data', async (input) => {
@@ -122,25 +118,26 @@ describe('retired support-card setting', () => {
       const res = await patchAs(ADMIN_ID, { supportCardEnabled: input });
       expect(res.statusCode).toBe(200);
       expect(res.json()).not.toHaveProperty('supportCardEnabled');
-      expect(storedSupportCardEnabled()).toBe(value);
+      expect(hasRetiredColumn()).toBe(false);
       const after = testDb.select().from(schema.instanceSettings).where(eq(schema.instanceSettings.id, 1)).get();
       expect(after).toEqual({ ...before, updatedAt: after?.updatedAt });
     });
 
     it('keeps unrelated settings editable and the shared public sticker limits', async () => {
-      const res = await patchAs(ADMIN_ID, { instanceName: 'Retained', supportCardEnabled: !value, maxStickerSizeMb: 42 });
+      const res = await patchAs(ADMIN_ID, { instanceName: 'Retained', supportCardEnabled: false, maxStickerSizeMb: 42 });
       expect(res.statusCode).toBe(200);
       expect(res.json()).toMatchObject({ instanceName: 'Retained', maxStickerSizeMb: 42 });
       const info = await app.inject({ method: 'GET', url: '/api/instance/info' });
       expect(info.json()).toMatchObject({ name: 'Retained', maxStickerSizeMb: 42 });
-      expect(storedSupportCardEnabled()).toBe(value);
+      expect(hasRetiredColumn()).toBe(false);
     });
 
     it('still refuses non-admin settings writes', async () => {
-      const res = await patchAs(MEMBER_ID, { supportCardEnabled: !value, instanceName: 'Forbidden' });
+      const before = testDb.select().from(schema.instanceSettings).get();
+      const res = await patchAs(MEMBER_ID, { supportCardEnabled: false, instanceName: 'Forbidden' });
       expect(res.statusCode).toBe(403);
       expect(res.json()).toMatchObject({ code: 'forbidden' });
-      expect(storedSupportCardEnabled()).toBe(value);
+      expect(testDb.select().from(schema.instanceSettings).get()).toEqual(before);
     });
   });
 

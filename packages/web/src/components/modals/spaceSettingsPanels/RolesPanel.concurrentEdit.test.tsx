@@ -45,8 +45,7 @@ const HELPERS = role('r-helper', 'Helpers', 1, PermissionBits.KICK_MEMBERS);
 function user(id: string): User {
   return {
     id, username: id, displayName: id, avatar: null, banner: null, accentColor: null, avatarColor: null, bio: null,
-    status: 'online', customStatus: null, isAdmin: false, createdAt: 1, homeInstance: null, homeUserId: null,
-    replicatedInstances: [],
+    status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
   };
 }
 function member(id: string, roles: Role[]): MemberWithUser {

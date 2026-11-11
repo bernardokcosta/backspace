@@ -1,34 +1,24 @@
-import type { User } from '@veyvox/shared';
-import { isOutgoingRequest, type TaggedFriend, type TaggedFriendRequest } from '../stores/socialStore';
-import { isMine, userKey, type SelfIdentity } from './identity';
+import type { Friend, FriendRequest, User } from '@veyvox/shared';
 
 export type FriendshipStatus =
   | { state: 'self' }
-  | { state: 'friends'; friend: TaggedFriend }
-  | { state: 'outbound_pending'; request: TaggedFriendRequest }
-  | { state: 'inbound_pending'; request: TaggedFriendRequest }
+  | { state: 'friends'; friend: Friend }
+  | { state: 'outbound_pending'; request: FriendRequest }
+  | { state: 'inbound_pending'; request: FriendRequest }
   | { state: 'none' };
 
-/**
- * Where the viewer stands with the person `viewedUser` names (as `origin`
- * issued the row). Friends and requests from any instance are matched by
- * person (`userKey`), never by id or username alone.
- */
-export function getFriendshipStatus({ viewedUser, origin, self, friends, requests }: { viewedUser: User; origin: string; self: SelfIdentity | null; friends: TaggedFriend[]; requests: TaggedFriendRequest[] }): FriendshipStatus {
-  if (!self) return { state: 'none' };
-  if (isMine(viewedUser, origin, self)) return { state: 'self' };
-
-  const key = userKey(viewedUser, origin);
-  const friend = friends.find(f => userKey(f, f._instanceOrigin) === key);
+/** Resolve the current native graph by account IDs, never by display handles. */
+export function getFriendshipStatus({ viewedUser, selfUserId, friends, requests }: {
+  viewedUser: Pick<User, 'id'>; selfUserId: string | null | undefined; friends: Friend[]; requests: FriendRequest[];
+}): FriendshipStatus {
+  if (!selfUserId) return { state: 'none' };
+  if (viewedUser.id === selfUserId) return { state: 'self' };
+  const friend = friends.find(row => row.id === viewedUser.id);
   if (friend) return { state: 'friends', friend };
-
-  const request = requests.find(r => r.user && userKey(r.user, r._instanceOrigin) === key);
-  if (request?.user) {
-    return isOutgoingRequest(request)
-      ? { state: 'outbound_pending', request }
-      : { state: 'inbound_pending', request };
+  for (const request of requests) {
+    if (request.status !== 'pending') continue;
+    if (request.fromId === selfUserId && request.toId === viewedUser.id) return { state: 'outbound_pending', request };
+    if (request.fromId === viewedUser.id && request.toId === selfUserId) return { state: 'inbound_pending', request };
   }
-
   return { state: 'none' };
 }
-

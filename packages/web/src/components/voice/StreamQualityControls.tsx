@@ -3,9 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useVoiceStore } from '../../stores/voiceStore';
 import type { ScreenShareConfig, ScreenShareAudioState } from '../../stores/voiceStore';
 import { buildScreenShareOptions, effectiveScreenShareConfig } from '../../utils/screenShare';
-import { DEFAULT_STREAMING_LIMITS } from '../../stores/settingsStore';
-import { useStreamHostLimits } from '../../utils/streamHostLimits';
-import { hostOf } from '../../utils/identity';
+import { DEFAULT_STREAMING_LIMITS, useSettingsStore } from '../../stores/settingsStore';
 import { Toggle } from '../ui/Toggle';
 import { isElectron, getElectronAPI } from '../../platform/platform';
 import { RESOLUTION_LABELS } from '@veyvox/shared/src/constants';
@@ -22,8 +20,7 @@ import { resolveScreenShareCodec, supportsScreenShareH265 } from '../../utils/sc
  * Shared by the two places a user tunes a stream: ScreenShareSetup before it
  * starts, and ScreenShareSettingsPopover while it is live. Presentation-only:
  * the pills show the effective config (`effectiveScreenShareConfig`, the saved
- * choice fitted to the limits of the instance hosting the call, see
- * `utils/streamHostLimits.ts`), and only a click saves. The limits never write
+ * choice fitted to the current instance's limits), and only a click saves. The limits never write
  * into the saved config, so a strict host does not lower it for later streams.
  */
 
@@ -59,22 +56,6 @@ export function formatKbps(kbps: number): string {
     return i18n.t('common:units.mbps', { value: formatters.formatNumber(mbps) });
   }
   return i18n.t('common:units.kbps', { value: formatters.formatNumber(kbps) });
-}
-
-/**
- * "Limits set by <host>" under the Stream Settings title, when the call is
- * hosted by an instance other than home. Nothing at home, and nothing when
- * the host is unknown (a relayed DM token), where the defaults apply.
- */
-export function StreamHostSubtitle({ className = '' }: { className?: string }) {
-  const { t } = useTranslation(['voice']);
-  const { origin } = useStreamHostLimits();
-  if (!origin) return null;
-  return (
-    <div className={`text-[11px] text-txt-tertiary break-all ${className}`}>
-      {t('voice:streamSettings.hostLimits', { host: hostOf(origin) })}
-    </div>
-  );
 }
 
 /** "4 Mbps · balanced" — the computed outcome of the current config. */
@@ -130,7 +111,7 @@ export function StreamQualityControls({ capturePending = false }: { capturePendi
   const effectiveCodec = resolveScreenShareCodec(config.codec);
   const h265DescriptionId = React.useId();
   const showH265Help = config.codec === 'h265' || !h265Supported;
-  const { origin: hostOrigin, limits } = useStreamHostLimits();
+  const limits = useSettingsStore(state => state.streamingLimits);
   const electronPlatform = isElectron() ? getElectronAPI()?.platform : null;
   const isScreenSharing = useVoiceStore((s) => s.isScreenSharing);
   const liveSdr = useVoiceStore((s) => s.screenShareSdr);
@@ -309,9 +290,7 @@ export function StreamQualityControls({ capturePending = false }: { capturePendi
               {formatKbps(autoKbps)}
             </div>
             <div className="text-[10px] text-txt-tertiary mt-0.5">
-              {hostOrigin
-                ? t('voice:streamSettings.customBitrateDisabledByHost', { host: hostOf(hostOrigin) })
-                : t('voice:streamSettings.customBitrateDisabled')}
+              {t('voice:streamSettings.customBitrateDisabled')}
             </div>
           </div>
         )}

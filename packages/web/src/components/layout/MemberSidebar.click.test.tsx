@@ -12,7 +12,7 @@ vi.mock('../../audio/AudioManager', () => ({
 }));
 
 import { MemberSidebar } from './MemberSidebar';
-import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../../stores/spaceStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useUIStore } from '../../stores/uiStore';
 import { ALL_PERMISSIONS, PermissionBits, permissionsToString } from '../../utils/permissions';
@@ -22,11 +22,10 @@ import { ALL_PERMISSIONS, PermissionBits, permissionsToString } from '../../util
 // the click means the same thing for everyone.
 
 const SPACE_ID = 'space-1';
-const ORBIT = 'https://orbit.example';
 
-const SPACE: TaggedSpace = {
+const SPACE: SpaceWithMyRoles = {
   id: SPACE_ID, name: 'Space', icon: null, banner: null, avatarColor: null, ownerId: 'owner',
-  inviteCode: null, visibility: 'public', description: null, createdAt: 1, _instanceOrigin: '',
+  inviteCode: null, visibility: 'public', description: null, createdAt: 1,
 };
 
 function role(id: string, name: string, position: number, permissions: bigint): Role {
@@ -39,15 +38,14 @@ const HELPERS = role('r-helper', 'Helpers', 1, PermissionBits.KICK_MEMBERS);
 function user(id: string, name: string): User {
   return {
     id, username: name.toLowerCase(), displayName: name, avatar: null, banner: null, accentColor: null, avatarColor: null,
-    bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1, homeInstance: null, homeUserId: null,
-    replicatedInstances: [],
+    bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
   };
 }
 function member(id: string, name: string, roles: Role[]): MemberWithUser {
   return { spaceId: SPACE_ID, userId: id, nickname: null, joinedAt: 1, user: user(id, name), roles };
 }
 
-function seed(space: TaggedSpace, members: MemberWithUser[], held: bigint): void {
+function seed(space: SpaceWithMyRoles, members: MemberWithUser[], held: bigint): void {
   useSpaceStore.setState({
     spaces: [space],
     currentSpaceId: SPACE_ID,
@@ -94,13 +92,13 @@ describe('MemberSidebar: a click on a member', () => {
     expect(useUIStore.getState().userProfilePopout.user?.id).toBe('lead');
   });
 
-  it('opens the viewer\'s own card on a remote space, where they have a replicated id', async () => {
+  it('opens the exact native viewer card without interpreting an @ username', async () => {
     seed(
-      { ...SPACE, _instanceOrigin: ORBIT },
+      SPACE,
       [member('owner', 'Olga', []), member('lead-local', 'Lena', [LEADS]), member('helper', 'Hugo', [HELPERS])],
       PermissionBits.MANAGE_ROLES,
     );
-    useAuthStore.getState().recordMyRow(ORBIT, 'lead-local');
+    useAuthStore.setState({ user: { ...user('lead-local', 'Lena'), username: 'lena@retained.test' } });
     await clickMember('Lena');
 
     expect(useUIStore.getState().activeModal).toBeNull();

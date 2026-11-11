@@ -13,8 +13,8 @@ function fixture(): Database.Database {
     max_bitrate_kbps INTEGER, min_bitrate_kbps INTEGER, bitrate_step_kbps INTEGER,
     allowed_resolutions TEXT, allowed_framerates TEXT, max_resolution INTEGER,
     max_framerate INTEGER, updated_at INTEGER, worker_id INTEGER,
-    instance_id TEXT, installed_at INTEGER
-  ); CREATE TABLE users (id TEXT PRIMARY KEY, home_instance TEXT, is_deleted INTEGER DEFAULT 0, created_at INTEGER, is_admin INTEGER);`);
+    installed_at INTEGER
+  ); CREATE TABLE users (id TEXT PRIMARY KEY, is_deleted INTEGER DEFAULT 0, created_at INTEGER, is_admin INTEGER);`);
   return db;
 }
 describe('Veyvox boot defaults and existing instance ownership', () => {
@@ -28,7 +28,7 @@ describe('Veyvox boot defaults and existing instance ownership', () => {
   });
   it.each(['Backspace', 'Backspace Fork', 'My community'])('never renames an existing instance named %s or replaces its identities', name => {
     const db = fixture();
-    db.prepare('INSERT INTO instance_settings (id, instance_name, worker_id, instance_id, installed_at) VALUES (1, ?, 42, ?, 123)').run(name, 'synthetic-stable-epoch');
+    db.prepare('INSERT INTO instance_settings (id, instance_name, worker_id, installed_at) VALUES (1, ?, 42, 123)').run(name);
     db.prepare('INSERT INTO users (id, created_at, is_admin) VALUES (?, 10, 1)').run('synthetic-owner');
     const settings = db.prepare('SELECT * FROM instance_settings').get();
     const owner = db.prepare('SELECT * FROM users').get();

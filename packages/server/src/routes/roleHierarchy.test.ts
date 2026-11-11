@@ -131,7 +131,7 @@ beforeEach(async () => {
   addUser('instance-admin', { isAdmin: 1 });
   // A helper whose home is another instance. On this instance they are the
   // local replicated user their session authenticates as.
-  addUser('fed-helper', { username: 'fed@orbit.example', homeInstance: 'orbit.example', homeUserId: 'orbit-id-of-fed' });
+  addUser('fed-helper', { username: 'legacy@old.invalid' });
   assign('fed-helper', 'r-helper');
 
   const { spaceRoutes } = await import('./spaces.js');

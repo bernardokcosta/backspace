@@ -127,7 +127,6 @@
       "appearance": "Uiterlijk",
       "voice": "Voice & video",
       "privacy": "Privacy",
-      "connections": "Verbindingen",
       "keybinds": "Toetscombinaties",
       "desktop": "Desktop",
       "instance": "Instantie",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "Mijn account",
-    "detached": {
-      "notice": "Dit account is losgekoppeld van zijn thuisbasis.",
-      "explanation": "{{homeInstance}} is gereset of niet meer beschikbaar, dus dit account werkt nu lokaal op deze instantie. Je profiel en wachtwoord worden hier beheerd.",
-      "reattachHint": "Als {{username}} op {{homeInstance}} kun je dit account opnieuw koppelen. Profiel en aanwezigheid syncen dan weer vanaf daar.",
-      "reattachButton": "Opnieuw koppelen aan {{homeInstance}}",
-      "reattachConfirm": "Opnieuw koppelen als {{username}} bevestigen",
-      "reattaching": "Opnieuw koppelen…",
-      "reattachFailed": "Opnieuw koppelen mislukt",
-      "reattached": "Account opnieuw gekoppeld met {{username}}"
-    },
     "profile": {
       "sectionTitle": "Profielaanpassing",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "Account",
       "status": {
-        "label": "Status",
-        "homeUnavailable": "Je status wordt op {{host}} bewaard. Maak verbinding met {{host}} om hem te wijzigen."
+        "label": "Status"
       },
       "customStatus": {
         "label": "Aangepaste status",
@@ -244,10 +232,6 @@
         "passwordPlaceholder": "Voer je wachtwoord in",
         "submit": "Mijn account verwijderen",
         "deleting": "Verwijderen…"
-      },
-      "federation": {
-        "removing": "Je account van verbonden instanties verwijderen…",
-        "deleteAnyway": "Account nu verwijderen"
       },
       "complete": {
         "title": "Account verwijderd",
@@ -310,14 +294,10 @@
       }
     }
   },
-  "connections": {
-    "title": "Verbindingen"
-  },
   "instance": {
     "tabs": {
       "general": "Algemeen",
       "registration": "Registratie",
-      "federation": "Federatie",
       "streaming": "Streamen",
       "storage": "Opslag",
       "users": "Gebruikers",

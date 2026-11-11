@@ -1,160 +1,553 @@
 {
   "interfaceScale": {
-    "label": "Échelle de l’interface", "description": "Redimensionne le texte, les boutons et les panneaux. Ce réglage est enregistré dans ce navigateur ou cette application, sur cet appareil.", "reset": "Rétablir à 100 %"
+    "label": "Échelle de l’interface",
+    "description": "Redimensionne le texte, les boutons et les panneaux. Ce réglage est enregistré dans ce navigateur ou cette application, sur cet appareil.",
+    "reset": "Rétablir à 100 %"
   },
   "voice": {
     "input": {
-      "title": "Périphérique d’entrée", "checkingAccess": "Vérification de l’accès au micro…",
-      "accessDenied": { "title": "Accès au micro refusé", "description": "Autorise l’accès au micro pour choisir un périphérique d’entrée.", "retry": "Réessayer" },
-      "permissionPrompt": { "description": "L’autorisation du micro est nécessaire pour lister et choisir les périphériques d’entrée.", "enable": "Autoriser l’accès au micro" },
-      "device": { "systemDefault": "Par défaut du système", "currentlyUsing": "Actuellement utilisé : {{label}}", "none": "Aucun micro détecté." },
-      "volume": { "label": "Volume d’entrée" }, "meter": { "hint": "L’indicateur de niveau s’active quand tu rejoins un canal vocal." }
+      "title": "Périphérique d’entrée",
+      "checkingAccess": "Vérification de l’accès au micro…",
+      "accessDenied": {
+        "title": "Accès au micro refusé",
+        "description": "Autorise l’accès au micro pour choisir un périphérique d’entrée.",
+        "retry": "Réessayer"
+      },
+      "permissionPrompt": {
+        "description": "L’autorisation du micro est nécessaire pour lister et choisir les périphériques d’entrée.",
+        "enable": "Autoriser l’accès au micro"
+      },
+      "device": {
+        "systemDefault": "Par défaut du système",
+        "currentlyUsing": "Actuellement utilisé : {{label}}",
+        "none": "Aucun micro détecté."
+      },
+      "volume": {
+        "label": "Volume d’entrée"
+      },
+      "meter": {
+        "hint": "L’indicateur de niveau s’active quand tu rejoins un canal vocal."
+      }
     },
     "output": {
-      "title": "Périphérique de sortie", "checkingAccess": "Vérification de l’accès audio…",
-      "device": { "systemDefault": "Par défaut du système", "unsupported": "Ce navigateur ne permet pas de choisir un périphérique de sortie. Le son est diffusé sur la sortie par défaut du système." },
-      "permissionPrompt": { "description": "Autorise l’accès au micro pour lister les périphériques de sortie. Les navigateurs exigent cette autorisation pour afficher leurs noms.", "enable": "Autoriser l’accès audio" },
-      "volume": { "label": "Volume de sortie" }, "testSound": "Jouer un son de test"
+      "title": "Périphérique de sortie",
+      "checkingAccess": "Vérification de l’accès audio…",
+      "device": {
+        "systemDefault": "Par défaut du système",
+        "unsupported": "Ce navigateur ne permet pas de choisir un périphérique de sortie. Le son est diffusé sur la sortie par défaut du système."
+      },
+      "permissionPrompt": {
+        "description": "Autorise l’accès au micro pour lister les périphériques de sortie. Les navigateurs exigent cette autorisation pour afficher leurs noms.",
+        "enable": "Autoriser l’accès audio"
+      },
+      "volume": {
+        "label": "Volume de sortie"
+      },
+      "testSound": "Jouer un son de test"
     },
     "video": {
-      "title": "Vidéo", "checkingAccess": "Vérification de l’accès à la caméra…",
-      "accessDenied": { "title": "Accès à la caméra refusé", "description": "Autorise l’accès à la caméra pour en choisir une.", "retry": "Réessayer" },
+      "title": "Vidéo",
+      "checkingAccess": "Vérification de l’accès à la caméra…",
+      "accessDenied": {
+        "title": "Accès à la caméra refusé",
+        "description": "Autorise l’accès à la caméra pour en choisir une.",
+        "retry": "Réessayer"
+      },
       "blocked": {
         "browser": "Le navigateur bloque la caméra. Clique sur l’icône de caméra dans la barre d’adresse, réinitialise l’autorisation, puis clique sur Réessayer.",
         "mac": "Autorise l’accès à la caméra dans Réglages Système → Confidentialité et sécurité → Caméra, puis redémarre l’application.",
         "windows": "Autorise l’accès à la caméra dans Paramètres → Confidentialité et sécurité → Caméra, puis redémarre l’application.",
         "other": "L’autorisation de la caméra a été refusée. Réinitialise-la dans la demande de ton navigateur ou de Chromium, puis réessaie."
       },
-      "permissionPrompt": { "description": "L’autorisation de la caméra est nécessaire pour en choisir une et afficher son aperçu.", "enable": "Activer l’aperçu de la caméra" },
-      "camera": { "label": "Caméra", "auto": "Automatique (défaut du système)", "fallbackName": "Caméra {{number}}", "detectedFallback": "caméra détectée", "currentlyUsing": "Actuellement utilisée : {{label}}", "none": "Aucune caméra détectée." },
-      "preview": { "testAria": "Tester la caméra", "testHint": "Cliquer pour tester la caméra", "stop": "Arrêter l’aperçu", "retry": "Réessayer" },
-      "previewError": { "inUse": "La caméra est utilisée par une autre application.", "unavailable": "La caméra sélectionnée est indisponible.", "notFound": "Aucune caméra détectée.", "generic": "Impossible de démarrer l’aperçu de la caméra." }
+      "permissionPrompt": {
+        "description": "L’autorisation de la caméra est nécessaire pour en choisir une et afficher son aperçu.",
+        "enable": "Activer l’aperçu de la caméra"
+      },
+      "camera": {
+        "label": "Caméra",
+        "auto": "Automatique (défaut du système)",
+        "fallbackName": "Caméra {{number}}",
+        "detectedFallback": "caméra détectée",
+        "currentlyUsing": "Actuellement utilisée : {{label}}",
+        "none": "Aucune caméra détectée."
+      },
+      "preview": {
+        "testAria": "Tester la caméra",
+        "testHint": "Cliquer pour tester la caméra",
+        "stop": "Arrêter l’aperçu",
+        "retry": "Réessayer"
+      },
+      "previewError": {
+        "inUse": "La caméra est utilisée par une autre application.",
+        "unavailable": "La caméra sélectionnée est indisponible.",
+        "notFound": "Aucune caméra détectée.",
+        "generic": "Impossible de démarrer l’aperçu de la caméra."
+      }
     },
     "title": "Voix et vidéo",
     "volume": {
-      "sectionTitle": "Volume", "soundEffects": { "label": "Volume des effets sonores" },
-      "messageSound": { "label": "Jouer un son à chaque message", "description": "Désactivé (par défaut) : uniquement les messages privés et les mentions de ton nom. Activé : tous les canaux." }
+      "sectionTitle": "Volume",
+      "soundEffects": {
+        "label": "Volume des effets sonores"
+      },
+      "messageSound": {
+        "label": "Jouer un son à chaque message",
+        "description": "Désactivé (par défaut) : uniquement les messages privés et les mentions de ton nom. Activé : tous les canaux."
+      }
     },
     "pip": {
-      "sectionTitle": "Fenêtre flottante", "showOnSwitch": { "label": "Afficher une fenêtre flottante pendant les appels", "description": "Quand tu es dans un canal vocal ou un appel et regardes autre chose, une petite fenêtre garde l’appel visible." }
+      "sectionTitle": "Fenêtre flottante",
+      "showOnSwitch": {
+        "label": "Afficher une fenêtre flottante pendant les appels",
+        "description": "Quand tu es dans un canal vocal ou un appel et regardes autre chose, une petite fenêtre garde l’appel visible."
+      }
     },
     "processing": {
-      "sectionTitle": "Traitement vocal", "noiseSuppression": { "label": "Suppression du bruit par IA", "description": "Suppression du bruit par apprentissage automatique (RNNoise). Filtre le clavier, les ventilateurs et les bruits de fond." },
-      "echoCancellation": { "label": "Annulation de l’écho", "description": "Élimine l’écho des haut-parleurs repris par le micro. Toujours active dans les canaux vocaux et les appels." },
-      "autoGain": { "label": "Contrôle automatique du gain", "description": "Ajuste automatiquement le volume du micro. Peut atténuer la voix pendant les diffusions." }
-    }
-  },
-  "nav": {
-    "userSettings": "Paramètres utilisateur", "appSettings": "Paramètres de l’application", "administration": "Administration",
-    "tabs": { "account": "Compte", "appearance": "Apparence", "voice": "Voix et vidéo", "privacy": "Confidentialité", "connections": "Connexions", "keybinds": "Raccourcis clavier", "desktop": "Bureau", "instance": "Instance", "bots": "Bots", "developer": "Développeur" },
-    "logOut": "Se déconnecter", "backToMenu": "Retour au menu des paramètres"
-  },
-  "appearance": { "title": "Apparence" },
-  "account": {
-    "title": "Mon compte",
-    "detached": {
-      "notice": "Ce compte est détaché de son instance d’origine.",
-      "explanation": "{{homeInstance}} a été réinitialisée ou n’est plus disponible. Ce compte fonctionne désormais localement sur cette instance. Ton profil et ton mot de passe sont gérés ici.",
-      "reattachHint": "Avec ton identité {{username}} sur {{homeInstance}}, tu peux rattacher ce compte. Ton profil et ta présence seront à nouveau synchronisés depuis là-bas.",
-      "reattachButton": "Rattacher à {{homeInstance}}", "reattachConfirm": "Confirmer le rattachement en tant que {{username}}", "reattaching": "Rattachement…", "reattachFailed": "Échec du rattachement", "reattached": "Compte rattaché à {{username}}"
-    },
-    "profile": {
-      "sectionTitle": "Personnalisation du profil", "avatar": { "label": "Avatar", "alt": "Ton avatar", "change": "Changer l’avatar", "uploadFailed": "Impossible d’importer l’avatar", "cropTitle": "Recadrer l’avatar" },
-      "banner": { "label": "Bannière", "change": "Changer la bannière", "uploadFailed": "Impossible d’importer la bannière", "cropTitle": "Recadrer la bannière" },
-      "avatarColor": { "label": "Couleur de l’avatar" }, "bannerColor": { "label": "Couleur de la bannière", "hexPlaceholder": "#hex" },
-      "bio": { "label": "À propos de moi", "placeholder": "Parle de toi au monde entier…", "counter": "{{used}}/{{max}}" }
-    },
-    "details": {
-      "sectionTitle": "Compte", "status": { "label": "Statut", "homeUnavailable": "Ton statut est conservé sur {{host}}. Connecte-toi à {{host}} pour le modifier." },
-      "customStatus": { "label": "Statut personnalisé", "placeholder": "Qu’est-ce que tu fais ?" }
-    },
-    "password": {
-      "current": { "label": "Mot de passe actuel", "placeholder": "Saisis le mot de passe actuel" }, "new": { "label": "Nouveau mot de passe", "placeholder": "{{min}} caractères minimum" },
-      "confirm": { "label": "Confirmer le nouveau mot de passe", "placeholder": "Confirme le nouveau mot de passe" }, "show": "Afficher le mot de passe", "hide": "Masquer le mot de passe",
-      "tooShort": "Le nouveau mot de passe doit comporter au moins {{min}} caractères", "mismatch": "Les mots de passe ne correspondent pas", "changed": "Mot de passe modifié", "changeFailed": "Impossible de modifier le mot de passe", "submit": "Changer le mot de passe", "submitting": "Modification…"
-    },
-    "danger": { "description": "La suppression de ton compte est irréversible. Tes messages seront conservés, mais attribués à « Utilisateur supprimé ».", "deleteButton": "Supprimer le compte" },
-    "save": { "updated": "Profil modifié", "failed": "Impossible de modifier le profil" },
-    "deletion": {
-      "title": "Supprimer le compte", "warning": { "headline": "Ton compte sera définitivement supprimé.", "spaces": "Toutes tes appartenances à des espaces seront supprimées", "friends": "Toutes tes relations d’amitié seront supprimées", "dms": "Tu seras retiré de toutes tes conversations privées", "messages": "Tes messages seront conservés, mais attribués à « Utilisateur supprimé »" },
-      "ownedSpaces": { "prompt_one": "Tu possèdes {{count}} espace. Occupe-toi de chacun avant de continuer :", "prompt_many": "Tu possèdes {{count}} espaces. Occupe-toi de chacun avant de continuer :", "prompt_other": "Tu possèdes {{count}} espaces. Occupe-toi de chacun avant de continuer :", "transfer": "Transférer", "delete": "Supprimer l’espace", "selectOwner": "Choisir le nouveau propriétaire…" },
-      "processing": "Traitement…", "confirm": { "permanent": "Cette action est définitive et irréversible.", "usernamePrompt": "Saisis ton nom d’utilisateur <username>{{username}}</username> pour confirmer", "passwordPlaceholder": "Saisis ton mot de passe", "submit": "Supprimer mon compte", "deleting": "Suppression…" },
-      "federation": { "removing": "Suppression de ton compte sur les instances connectées…", "deleteAnyway": "Supprimer le compte maintenant" },
-      "complete": { "title": "Compte supprimé", "redirecting": "Redirection vers la connexion…" }, "errors": { "usernameMismatch": "Le nom d’utilisateur ne correspond pas", "spacesFailed": "Impossible de traiter les espaces", "deleteFailed": "Impossible de supprimer le compte" }
-    }
-  },
-  "privacy": {
-    "title": "Confidentialité", "discovery": { "sectionTitle": "Découverte", "label": "Autoriser les autres à trouver mon profil", "description": "Si cette option est activée, ton profil apparaît dans Découvrir des personnes. Il est toujours possible de t’ajouter avec ton nom d’utilisateur exact." },
-    "activity": {
-      "sectionTitle": "Statut d’activité", "label": "Partager mon activité", "description": "Autorise les autres à voir ce que tu fais, comme les jeux auxquels tu joues ou la musique que tu écoutes.",
-      "game": {
-        "label": "Créé manuellement", "description": "Ajoute un jeu non détecté. Il reste affiché jusqu’à ce que tu le retires.", "placeholder": "Nom du jeu", "set": "Définir",
-        "detectedLabel": "Détecté actuellement", "detectedDescription": "Affiche un jeu détecté sous un autre nom. Ce choix est mémorisé pour la prochaine fois.", "renamePlaceholder": "Afficher sous le nom…", "renameLabel": "Afficher {{name}} sous le nom", "renamedLabel": "Jeux renommés", "renamedItem": "{{detected}} → {{chosen}}", "restore": "Rétablir",
-        "descriptionBound": "Ajoute un jeu non détecté : choisis son programme et donne-lui un nom. Il s’affiche tant que ce programme est en cours d’exécution.",
-        "programLabel": "Programme", "programPlaceholder": "Choisis un programme en cours d’exécution…", "programHint": "Lance d’abord le jeu, puis choisis son programme dans la liste.", "clearRename": "Effacer",
-        "unknownLabel": "Programmes Wine non reconnus", "unknownDescription": "Ces programmes sont en cours d’exécution, mais ne correspondent à aucun jeu connu. Si l’un d’eux est ton jeu, tu peux l’afficher comme le jeu auquel tu joues.",
-        "unknownUse": "Ajouter à mes jeux", "gamesLabel": "Tes jeux", "gamesDescription": "Le premier jeu est celui qui apparaît dans les listes. Déplace les jeux pour définir leur priorité. Un jeu masqué n’est pas visible par les autres.",
-        "moveUp": "Monter {{name}}", "moveDown": "Descendre {{name}}", "hide": "Masquer", "show": "Afficher", "hideGame": "Masquer {{name}}", "showGame": "Afficher {{name}}", "add": "Ajouter", "remove": "Retirer",
-        "statusName": "affiché par son nom", "statusRunning": "en cours d’exécution", "statusWaiting": "en attente de {{program}}", "dragHandle": "Faire glisser {{name}} pour changer sa priorité", "manualNameLabel": "Nom de {{name}}", "save": "Enregistrer"
+      "sectionTitle": "Traitement vocal",
+      "noiseSuppression": {
+        "label": "Suppression du bruit par IA",
+        "description": "Suppression du bruit par apprentissage automatique (RNNoise). Filtre le clavier, les ventilateurs et les bruits de fond."
+      },
+      "echoCancellation": {
+        "label": "Annulation de l’écho",
+        "description": "Élimine l’écho des haut-parleurs repris par le micro. Toujours active dans les canaux vocaux et les appels."
+      },
+      "autoGain": {
+        "label": "Contrôle automatique du gain",
+        "description": "Ajuste automatiquement le volume du micro. Peut atténuer la voix pendant les diffusions."
       }
     }
   },
-  "connections": { "title": "Connexions" },
-  "instance": { "tabs": { "general": "Général", "registration": "Inscription", "federation": "Fédération", "streaming": "Diffusion", "storage": "Stockage", "users": "Utilisateurs", "updates": "Mises à jour" } },
+  "nav": {
+    "userSettings": "Paramètres utilisateur",
+    "appSettings": "Paramètres de l’application",
+    "administration": "Administration",
+    "tabs": {
+      "account": "Compte",
+      "appearance": "Apparence",
+      "voice": "Voix et vidéo",
+      "privacy": "Confidentialité",
+      "keybinds": "Raccourcis clavier",
+      "desktop": "Bureau",
+      "instance": "Instance",
+      "bots": "Bots",
+      "developer": "Développeur"
+    },
+    "logOut": "Se déconnecter",
+    "backToMenu": "Retour au menu des paramètres"
+  },
+  "appearance": {
+    "title": "Apparence"
+  },
+  "account": {
+    "title": "Mon compte",
+    "profile": {
+      "sectionTitle": "Personnalisation du profil",
+      "avatar": {
+        "label": "Avatar",
+        "alt": "Ton avatar",
+        "change": "Changer l’avatar",
+        "uploadFailed": "Impossible d’importer l’avatar",
+        "cropTitle": "Recadrer l’avatar"
+      },
+      "banner": {
+        "label": "Bannière",
+        "change": "Changer la bannière",
+        "uploadFailed": "Impossible d’importer la bannière",
+        "cropTitle": "Recadrer la bannière"
+      },
+      "avatarColor": {
+        "label": "Couleur de l’avatar"
+      },
+      "bannerColor": {
+        "label": "Couleur de la bannière",
+        "hexPlaceholder": "#hex"
+      },
+      "bio": {
+        "label": "À propos de moi",
+        "placeholder": "Parle de toi au monde entier…",
+        "counter": "{{used}}/{{max}}"
+      }
+    },
+    "details": {
+      "sectionTitle": "Compte",
+      "status": {
+        "label": "Statut"
+      },
+      "customStatus": {
+        "label": "Statut personnalisé",
+        "placeholder": "Qu’est-ce que tu fais ?"
+      }
+    },
+    "password": {
+      "current": {
+        "label": "Mot de passe actuel",
+        "placeholder": "Saisis le mot de passe actuel"
+      },
+      "new": {
+        "label": "Nouveau mot de passe",
+        "placeholder": "{{min}} caractères minimum"
+      },
+      "confirm": {
+        "label": "Confirmer le nouveau mot de passe",
+        "placeholder": "Confirme le nouveau mot de passe"
+      },
+      "show": "Afficher le mot de passe",
+      "hide": "Masquer le mot de passe",
+      "tooShort": "Le nouveau mot de passe doit comporter au moins {{min}} caractères",
+      "mismatch": "Les mots de passe ne correspondent pas",
+      "changed": "Mot de passe modifié",
+      "changeFailed": "Impossible de modifier le mot de passe",
+      "submit": "Changer le mot de passe",
+      "submitting": "Modification…"
+    },
+    "danger": {
+      "description": "La suppression de ton compte est irréversible. Tes messages seront conservés, mais attribués à « Utilisateur supprimé ».",
+      "deleteButton": "Supprimer le compte"
+    },
+    "save": {
+      "updated": "Profil modifié",
+      "failed": "Impossible de modifier le profil"
+    },
+    "deletion": {
+      "title": "Supprimer le compte",
+      "warning": {
+        "headline": "Ton compte sera définitivement supprimé.",
+        "spaces": "Toutes tes appartenances à des espaces seront supprimées",
+        "friends": "Toutes tes relations d’amitié seront supprimées",
+        "dms": "Tu seras retiré de toutes tes conversations privées",
+        "messages": "Tes messages seront conservés, mais attribués à « Utilisateur supprimé »"
+      },
+      "ownedSpaces": {
+        "prompt_one": "Tu possèdes {{count}} espace. Occupe-toi de chacun avant de continuer :",
+        "prompt_many": "Tu possèdes {{count}} espaces. Occupe-toi de chacun avant de continuer :",
+        "prompt_other": "Tu possèdes {{count}} espaces. Occupe-toi de chacun avant de continuer :",
+        "transfer": "Transférer",
+        "delete": "Supprimer l’espace",
+        "selectOwner": "Choisir le nouveau propriétaire…"
+      },
+      "processing": "Traitement…",
+      "confirm": {
+        "permanent": "Cette action est définitive et irréversible.",
+        "usernamePrompt": "Saisis ton nom d’utilisateur <username>{{username}}</username> pour confirmer",
+        "passwordPlaceholder": "Saisis ton mot de passe",
+        "submit": "Supprimer mon compte",
+        "deleting": "Suppression…"
+      },
+      "complete": {
+        "title": "Compte supprimé",
+        "redirecting": "Redirection vers la connexion…"
+      },
+      "errors": {
+        "usernameMismatch": "Le nom d’utilisateur ne correspond pas",
+        "spacesFailed": "Impossible de traiter les espaces",
+        "deleteFailed": "Impossible de supprimer le compte"
+      }
+    }
+  },
+  "privacy": {
+    "title": "Confidentialité",
+    "discovery": {
+      "sectionTitle": "Découverte",
+      "label": "Autoriser les autres à trouver mon profil",
+      "description": "Si cette option est activée, ton profil apparaît dans Découvrir des personnes. Il est toujours possible de t’ajouter avec ton nom d’utilisateur exact."
+    },
+    "activity": {
+      "sectionTitle": "Statut d’activité",
+      "label": "Partager mon activité",
+      "description": "Autorise les autres à voir ce que tu fais, comme les jeux auxquels tu joues ou la musique que tu écoutes.",
+      "game": {
+        "label": "Créé manuellement",
+        "description": "Ajoute un jeu non détecté. Il reste affiché jusqu’à ce que tu le retires.",
+        "placeholder": "Nom du jeu",
+        "set": "Définir",
+        "detectedLabel": "Détecté actuellement",
+        "detectedDescription": "Affiche un jeu détecté sous un autre nom. Ce choix est mémorisé pour la prochaine fois.",
+        "renamePlaceholder": "Afficher sous le nom…",
+        "renameLabel": "Afficher {{name}} sous le nom",
+        "renamedLabel": "Jeux renommés",
+        "renamedItem": "{{detected}} → {{chosen}}",
+        "restore": "Rétablir",
+        "descriptionBound": "Ajoute un jeu non détecté : choisis son programme et donne-lui un nom. Il s’affiche tant que ce programme est en cours d’exécution.",
+        "programLabel": "Programme",
+        "programPlaceholder": "Choisis un programme en cours d’exécution…",
+        "programHint": "Lance d’abord le jeu, puis choisis son programme dans la liste.",
+        "clearRename": "Effacer",
+        "unknownLabel": "Programmes Wine non reconnus",
+        "unknownDescription": "Ces programmes sont en cours d’exécution, mais ne correspondent à aucun jeu connu. Si l’un d’eux est ton jeu, tu peux l’afficher comme le jeu auquel tu joues.",
+        "unknownUse": "Ajouter à mes jeux",
+        "gamesLabel": "Tes jeux",
+        "gamesDescription": "Le premier jeu est celui qui apparaît dans les listes. Déplace les jeux pour définir leur priorité. Un jeu masqué n’est pas visible par les autres.",
+        "moveUp": "Monter {{name}}",
+        "moveDown": "Descendre {{name}}",
+        "hide": "Masquer",
+        "show": "Afficher",
+        "hideGame": "Masquer {{name}}",
+        "showGame": "Afficher {{name}}",
+        "add": "Ajouter",
+        "remove": "Retirer",
+        "statusName": "affiché par son nom",
+        "statusRunning": "en cours d’exécution",
+        "statusWaiting": "en attente de {{program}}",
+        "dragHandle": "Faire glisser {{name}} pour changer sa priorité",
+        "manualNameLabel": "Nom de {{name}}",
+        "save": "Enregistrer"
+      }
+    }
+  },
+  "instance": {
+    "tabs": {
+      "general": "Général",
+      "registration": "Inscription",
+      "streaming": "Diffusion",
+      "storage": "Stockage",
+      "users": "Utilisateurs",
+      "updates": "Mises à jour"
+    }
+  },
   "keybinds": {
     "portal": {
       "description": "Sous Wayland, l’environnement de bureau gère tous les raccourcis de Veyvox. Attribue, modifie ou retire des touches dans les paramètres de raccourcis clavier du système, sous Veyvox. Les raccourcis locaux du navigateur ou de X11 ne sont pas utilisés ici.",
-      "idle": "Préparation du premier enregistrement de toutes les actions disponibles.", "pending": "Connexion au portail du bureau. Si une boîte de dialogue système apparaît, choisis des raccourcis pour les actions que tu veux utiliser.",
+      "idle": "Préparation du premier enregistrement de toutes les actions disponibles.",
+      "pending": "Connexion au portail du bureau. Si une boîte de dialogue système apparaît, choisis des raccourcis pour les actions que tu veux utiliser.",
       "ready": "Veyvox est enregistré. Ouvre les paramètres de raccourcis clavier du système pour modifier ou retirer les attributions. La liste ci-dessous est en lecture seule et s’actualise à ton retour dans Veyvox.",
       "unavailable": "Le portail est indisponible, l’autorisation a été refusée ou la session est terminée. Une implémentation du portail de raccourcis globaux est nécessaire. Les raccourcis locaux sont désactivés sous Wayland.",
-      "retry": "Enregistrer ou reconnecter les raccourcis", "assigned": "Raccourci système : {{shortcut}}", "notAssigned": "Aucune attribution système active"
+      "retry": "Enregistrer ou reconnecter les raccourcis",
+      "assigned": "Raccourci système : {{shortcut}}",
+      "notAssigned": "Aucune attribution système active"
     },
-    "title": "Raccourcis clavier", "note": { "webOnly": "Les raccourcis fonctionnent quand cet onglet a le focus. Pour des raccourcis globaux utilisables dans d’autres applications, utilise l’application de bureau." }, "section": { "voice": "Raccourcis vocaux" },
-    "action": { "toggleMute": "Activer/désactiver le micro", "toggleDeafen": "Activer/désactiver l’audio", "pushToTalk": "Appuyer pour parler", "toggleCamera": "Activer/désactiver la caméra", "toggleScreenShare": "Activer/désactiver le partage d’écran", "disconnect": "Déconnecter" },
-    "row": { "recordingPrompt": "Appuie sur une combinaison de touches…", "notBound": "Non attribué", "record": "Enregistrer", "escToCancel": "Échap pour annuler" },
-    "key": { "shift": "Maj", "ctrl": "Ctrl", "alt": "Alt", "option": "Option", "cmd": "Cmd", "win": "Win", "space": "Espace", "middleClick": "Clic central", "mouse4": "Souris 4", "mouse5": "Souris 5", "mouseGeneric": "Souris {{button}}" },
-    "accessibility": { "title": "Autorisation d’accessibilité nécessaire", "description": "Veyvox a besoin de l’autorisation d’accessibilité pour les raccourcis globaux en dehors de l’application.", "grant": "Accorder l’autorisation" },
-    "hookError": { "title": "Raccourcis globaux indisponibles", "description": "Impossible de démarrer l’écoute des entrées. Sous Linux, ton utilisateur doit peut-être faire partie du groupe <code>input</code>." },
-    "conflict": { "message": "<strong>{{combo}}</strong> est déjà attribué à <strong>{{action}}</strong>. Remplacer ?", "overwrite": "Remplacer" }
+    "title": "Raccourcis clavier",
+    "note": {
+      "webOnly": "Les raccourcis fonctionnent quand cet onglet a le focus. Pour des raccourcis globaux utilisables dans d’autres applications, utilise l’application de bureau."
+    },
+    "section": {
+      "voice": "Raccourcis vocaux"
+    },
+    "action": {
+      "toggleMute": "Activer/désactiver le micro",
+      "toggleDeafen": "Activer/désactiver l’audio",
+      "pushToTalk": "Appuyer pour parler",
+      "toggleCamera": "Activer/désactiver la caméra",
+      "toggleScreenShare": "Activer/désactiver le partage d’écran",
+      "disconnect": "Déconnecter"
+    },
+    "row": {
+      "recordingPrompt": "Appuie sur une combinaison de touches…",
+      "notBound": "Non attribué",
+      "record": "Enregistrer",
+      "escToCancel": "Échap pour annuler"
+    },
+    "key": {
+      "shift": "Maj",
+      "ctrl": "Ctrl",
+      "alt": "Alt",
+      "option": "Option",
+      "cmd": "Cmd",
+      "win": "Win",
+      "space": "Espace",
+      "middleClick": "Clic central",
+      "mouse4": "Souris 4",
+      "mouse5": "Souris 5",
+      "mouseGeneric": "Souris {{button}}"
+    },
+    "accessibility": {
+      "title": "Autorisation d’accessibilité nécessaire",
+      "description": "Veyvox a besoin de l’autorisation d’accessibilité pour les raccourcis globaux en dehors de l’application.",
+      "grant": "Accorder l’autorisation"
+    },
+    "hookError": {
+      "title": "Raccourcis globaux indisponibles",
+      "description": "Impossible de démarrer l’écoute des entrées. Sous Linux, ton utilisateur doit peut-être faire partie du groupe <code>input</code>."
+    },
+    "conflict": {
+      "message": "<strong>{{combo}}</strong> est déjà attribué à <strong>{{action}}</strong>. Remplacer ?",
+      "overwrite": "Remplacer"
+    }
   },
   "desktop": {
-    "title": "Bureau", "autoLaunch": { "openAtLogin": { "label": "Lancer au démarrage", "description": "Lancer Veyvox automatiquement à l’ouverture de session" }, "startMinimized": { "label": "Démarrer réduit", "description": "Démarrer masqué dans la zone de notification plutôt que d’afficher la fenêtre" } },
+    "title": "Bureau",
+    "autoLaunch": {
+      "openAtLogin": {
+        "label": "Lancer au démarrage",
+        "description": "Lancer Veyvox automatiquement à l’ouverture de session"
+      },
+      "startMinimized": {
+        "label": "Démarrer réduit",
+        "description": "Démarrer masqué dans la zone de notification plutôt que d’afficher la fenêtre"
+      }
+    },
     "updates": {
-      "appName": "Veyvox Desktop", "versionLabel": "Version {{version}}", "checking": "Recherche de mises à jour…", "checkingShort": "Vérification…", "checkNow": "Rechercher des mises à jour", "downloading": "Téléchargement de {{version}}, {{percent}}%", "downloadingWithRate": "Téléchargement de {{version}}, {{percent}}% à {{rate}}",
-      "rateMegabytes": "{{value}} Mo/s", "rateKilobytes": "{{value}} Ko/s", "upToDate": "Tu utilises la dernière version", "available": "La version {{version}} est disponible", "readyToInstall": "La version {{version}} est prête à être installée", "installFailed": "Impossible d’installer la version {{version}}", "checkFailed": "La dernière recherche de mises à jour a échoué",
-      "idle": "Rechercher de nouvelles versions de l’application de bureau", "external": "Les mises à jour sont installées par ton gestionnaire de logiciels Flatpak", "download": "Télécharger", "restart": "Redémarrer",
+      "appName": "Veyvox Desktop",
+      "versionLabel": "Version {{version}}",
+      "checking": "Recherche de mises à jour…",
+      "checkingShort": "Vérification…",
+      "checkNow": "Rechercher des mises à jour",
+      "downloading": "Téléchargement de {{version}}, {{percent}}%",
+      "downloadingWithRate": "Téléchargement de {{version}}, {{percent}}% à {{rate}}",
+      "rateMegabytes": "{{value}} Mo/s",
+      "rateKilobytes": "{{value}} Ko/s",
+      "upToDate": "Tu utilises la dernière version",
+      "available": "La version {{version}} est disponible",
+      "readyToInstall": "La version {{version}} est prête à être installée",
+      "installFailed": "Impossible d’installer la version {{version}}",
+      "checkFailed": "La dernière recherche de mises à jour a échoué",
+      "idle": "Rechercher de nouvelles versions de l’application de bureau",
+      "external": "Les mises à jour sont installées par ton gestionnaire de logiciels Flatpak",
+      "download": "Télécharger",
+      "restart": "Redémarrer",
       "manualNote": "Cette version ne peut pas installer ses mises à jour seule. Télécharge les nouvelles versions depuis GitHub et remplace l’application manuellement. Consulte les notes de version pour les étapes propres à ta plateforme.",
       "externalNote": "Flatpak applique les mises à jour de façon atomique en dehors de l’application. Utilise ton gestionnaire de logiciels ou la commande <code>flatpak update</code> pour mettre Veyvox à jour."
     },
-    "instance": { "current": "Instance actuellement connectée", "change": "Changer d’instance" }
+    "instance": {
+      "current": "Instance actuellement connectée",
+      "change": "Changer d’instance"
+    }
   },
   "desktopDownload": {
-    "title": "Bureau", "intro": "Raccourcis globaux, lancement au démarrage et icône dans la zone de notification.", "unsupported": "L’application de bureau fonctionne sous Windows, Linux et macOS.",
-    "name": { "windows": "Windows", "mac": "macOS", "linux": "Linux" }, "tag": { "windows": "Ce PC", "mac": "Ce Mac", "linux": "Cette machine" },
-    "covers": { "windows": "x64 ou arm64", "mac": "Fonctionne sur les Mac Apple Silicon et Intel", "linux": "AppImage ou paquet deb, x64 ou arm64" },
-    "download": { "windows": "Télécharger pour Windows", "mac": "Télécharger pour macOS", "linux": "Télécharger pour Linux" }, "picker": { "architecture": "Architecture", "format": "Format du paquet" },
-    "arch": { "appleSilicon": "Apple Silicon", "intel": "Intel", "x64": "x64", "arm64": "arm64" }, "kind": { "appimage": "AppImage", "deb": "deb" },
-    "archGuessed": { "windows": "Ton navigateur n’a pas indiqué le processeur de ce PC ; x64 est donc présélectionné.", "mac": "Ton navigateur n’a pas indiqué la puce de ce Mac ; Apple Silicon est donc présélectionné.", "linux": "Ton navigateur n’a pas indiqué le processeur de cette machine ; x64 est donc présélectionné." },
-    "version": "Version {{version}}", "allReleases": "Toutes les versions sur GitHub"
+    "title": "Bureau",
+    "intro": "Raccourcis globaux, lancement au démarrage et icône dans la zone de notification.",
+    "unsupported": "L’application de bureau fonctionne sous Windows, Linux et macOS.",
+    "name": {
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux"
+    },
+    "tag": {
+      "windows": "Ce PC",
+      "mac": "Ce Mac",
+      "linux": "Cette machine"
+    },
+    "covers": {
+      "windows": "x64 ou arm64",
+      "mac": "Fonctionne sur les Mac Apple Silicon et Intel",
+      "linux": "AppImage ou paquet deb, x64 ou arm64"
+    },
+    "download": {
+      "windows": "Télécharger pour Windows",
+      "mac": "Télécharger pour macOS",
+      "linux": "Télécharger pour Linux"
+    },
+    "picker": {
+      "architecture": "Architecture",
+      "format": "Format du paquet"
+    },
+    "arch": {
+      "appleSilicon": "Apple Silicon",
+      "intel": "Intel",
+      "x64": "x64",
+      "arm64": "arm64"
+    },
+    "kind": {
+      "appimage": "AppImage",
+      "deb": "deb"
+    },
+    "archGuessed": {
+      "windows": "Ton navigateur n’a pas indiqué le processeur de ce PC ; x64 est donc présélectionné.",
+      "mac": "Ton navigateur n’a pas indiqué la puce de ce Mac ; Apple Silicon est donc présélectionné.",
+      "linux": "Ton navigateur n’a pas indiqué le processeur de cette machine ; x64 est donc présélectionné."
+    },
+    "version": "Version {{version}}",
+    "allReleases": "Toutes les versions sur GitHub"
   },
   "bots": {
-    "title": "Bots", "description": "Un bot est un compte contrôlé par un programme à l’aide d’un jeton. Crée-en un, copie son jeton et connecte ton programme. Les bots répondent en message privé.",
-    "create": { "sectionTitle": "Créer un bot", "nameLabel": "Nom d’utilisateur du bot", "submit": "Créer le bot", "hint": "De {{min}} à {{max}} caractères : lettres latines minuscules (a–z), chiffres (0–9) et traits de soulignement (_). Tu peux créer jusqu’à {{limit}} bots." },
-    "list": { "sectionTitle": "Tes bots", "empty": "Tu n’as pas encore de bots.", "createdOn": "Créé le {{date}}" },
-    "token": { "title": "Jeton de {{name}}", "warning": "Copie le jeton maintenant. Il n’est affiché qu’une seule fois et quiconque le possède contrôle le bot.", "copy": "Copier le jeton", "copied": "Copié", "dismiss": "Je l’ai enregistré" },
+    "title": "Bots",
+    "description": "Un bot est un compte contrôlé par un programme à l’aide d’un jeton. Crée-en un, copie son jeton et connecte ton programme. Les bots répondent en message privé.",
+    "create": {
+      "sectionTitle": "Créer un bot",
+      "nameLabel": "Nom d’utilisateur du bot",
+      "submit": "Créer le bot",
+      "hint": "De {{min}} à {{max}} caractères : lettres latines minuscules (a–z), chiffres (0–9) et traits de soulignement (_). Tu peux créer jusqu’à {{limit}} bots."
+    },
+    "list": {
+      "sectionTitle": "Tes bots",
+      "empty": "Tu n’as pas encore de bots.",
+      "createdOn": "Créé le {{date}}"
+    },
+    "token": {
+      "title": "Jeton de {{name}}",
+      "warning": "Copie le jeton maintenant. Il n’est affiché qu’une seule fois et quiconque le possède contrôle le bot.",
+      "copy": "Copier le jeton",
+      "copied": "Copié",
+      "dismiss": "Je l’ai enregistré"
+    },
     "tokens": {
-      "title": "Jetons d’accès", "loading": "Chargement des jetons", "legacy": "Ce bot utilise encore son ancien jeton à longue durée de vie. Crée un jeton pour changer : l’ancien cesse de fonctionner immédiatement.", "empty": "Ce bot n’a pas de jetons.", "unnamed": "Jeton sans nom", "createdOn": "Créé le {{date}}", "neverUsed": "jamais utilisé", "lastUsed": "dernière utilisation : {{time}}",
-      "revoke": "Révoquer", "confirmRevoke": "Confirmer la révocation", "nameLabel": "Libellé du jeton", "namePlaceholder": "Libellé (facultatif)", "create": "Créer un jeton", "limitHint": "Jusqu’à {{max}} jetons par bot. Révoquer un jeton déconnecte le bot ; les autres jetons continuent de fonctionner."
+      "title": "Jetons d’accès",
+      "loading": "Chargement des jetons",
+      "legacy": "Ce bot utilise encore son ancien jeton à longue durée de vie. Crée un jeton pour changer : l’ancien cesse de fonctionner immédiatement.",
+      "empty": "Ce bot n’a pas de jetons.",
+      "unnamed": "Jeton sans nom",
+      "createdOn": "Créé le {{date}}",
+      "neverUsed": "jamais utilisé",
+      "lastUsed": "dernière utilisation : {{time}}",
+      "revoke": "Révoquer",
+      "confirmRevoke": "Confirmer la révocation",
+      "nameLabel": "Libellé du jeton",
+      "namePlaceholder": "Libellé (facultatif)",
+      "create": "Créer un jeton",
+      "limitHint": "Jusqu’à {{max}} jetons par bot. Révoquer un jeton déconnecte le bot ; les autres jetons continuent de fonctionner."
     },
-    "actions": { "regenerate": "Réinitialiser tous les jetons", "delete": "Supprimer", "confirmDelete": "Confirmer la suppression", "cancel": "Annuler", "edit": "Modifier", "save": "Enregistrer", "addToServer": "Ajouter à un espace", "tokens": "Jetons" },
-    "edit": { "nameLabel": "Nom affiché", "hint": "Le nom d’utilisateur @{{username}} ne peut pas être modifié. {{max}} caractères maximum.", "bioLabel": "À propos", "bioPlaceholder": "Ce que fait le bot, ses commandes et où trouver de l’aide", "bioCounter": "{{used}}/{{max}}" },
+    "actions": {
+      "regenerate": "Réinitialiser tous les jetons",
+      "delete": "Supprimer",
+      "confirmDelete": "Confirmer la suppression",
+      "cancel": "Annuler",
+      "edit": "Modifier",
+      "save": "Enregistrer",
+      "addToServer": "Ajouter à un espace",
+      "tokens": "Jetons"
+    },
+    "edit": {
+      "nameLabel": "Nom affiché",
+      "hint": "Le nom d’utilisateur @{{username}} ne peut pas être modifié. {{max}} caractères maximum.",
+      "bioLabel": "À propos",
+      "bioPlaceholder": "Ce que fait le bot, ses commandes et où trouver de l’aide",
+      "bioCounter": "{{used}}/{{max}}"
+    },
     "status": {
-      "label": "Statut", "none": "Aucun statut", "textLabel": "Texte du statut", "placeholder": "Ce que le bot affiche à côté de son nom", "hint": "Affiché tant que le bot est connecté. Son code peut le remplacer jusqu’à sa prochaine connexion.",
-      "types": { "custom": "Personnalisé", "playing": "Joue", "listening": "Écoute", "watching": "Regarde" }, "display": { "custom": "{{name}}", "playing": "Joue à {{name}}", "listening": "Écoute {{name}}", "watching": "Regarde {{name}}" }
+      "label": "Statut",
+      "none": "Aucun statut",
+      "textLabel": "Texte du statut",
+      "placeholder": "Ce que le bot affiche à côté de son nom",
+      "hint": "Affiché tant que le bot est connecté. Son code peut le remplacer jusqu’à sa prochaine connexion.",
+      "types": {
+        "custom": "Personnalisé",
+        "playing": "Joue",
+        "listening": "Écoute",
+        "watching": "Regarde"
+      },
+      "display": {
+        "custom": "{{name}}",
+        "playing": "Joue à {{name}}",
+        "listening": "Écoute {{name}}",
+        "watching": "Regarde {{name}}"
+      }
     },
-    "permissions": { "label": "Permissions demandées par le bot", "hint": "La personne qui ajoute le bot à un espace voit ces permissions cochées et peut en décocher. Elles sont attribuées à un rôle nommé d’après le bot. Les modifier plus tard ne change pas les rôles déjà créés." },
-    "avatar": { "change": "Changer l’avatar", "remove": "Retirer l’avatar", "cropTitle": "Recadrer l’avatar du bot", "uploadFailed": "Impossible d’importer l’avatar", "notImage": "Choisis un fichier image" },
-    "spaces": { "title": "Ajouter à un espace", "loading": "Chargement des espaces", "empty": "Tu ne gères pas encore d’espaces. Ajouter un bot exige la permission de gérer l’espace.", "add": "Ajouter", "added": "Ajouté", "remove": "Retirer" }
+    "permissions": {
+      "label": "Permissions demandées par le bot",
+      "hint": "La personne qui ajoute le bot à un espace voit ces permissions cochées et peut en décocher. Elles sont attribuées à un rôle nommé d’après le bot. Les modifier plus tard ne change pas les rôles déjà créés."
+    },
+    "avatar": {
+      "change": "Changer l’avatar",
+      "remove": "Retirer l’avatar",
+      "cropTitle": "Recadrer l’avatar du bot",
+      "uploadFailed": "Impossible d’importer l’avatar",
+      "notImage": "Choisis un fichier image"
+    },
+    "spaces": {
+      "title": "Ajouter à un espace",
+      "loading": "Chargement des espaces",
+      "empty": "Tu ne gères pas encore d’espaces. Ajouter un bot exige la permission de gérer l’espace.",
+      "add": "Ajouter",
+      "added": "Ajouté",
+      "remove": "Retirer"
+    }
   },
-  "developer": { "title": "Développeur", "mode": { "label": "Mode développeur", "description": "Affiche les outils de développement, comme l’onglet Bots, dans les paramètres. Désactiver ce mode masque seulement ces outils ; tes bots continuent de fonctionner.", "saveFailed": "Impossible d’enregistrer ce réglage. Réessaie." } }
+  "developer": {
+    "title": "Développeur",
+    "mode": {
+      "label": "Mode développeur",
+      "description": "Affiche les outils de développement, comme l’onglet Bots, dans les paramètres. Désactiver ce mode masque seulement ces outils ; tes bots continuent de fonctionner.",
+      "saveFailed": "Impossible d’enregistrer ce réglage. Réessaie."
+    }
+  }
 }

@@ -1,15 +1,13 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
 import { authenticate } from '../utils/auth.js';
 import { sendError } from '../utils/httpErrors.js';
 import { tombstoneUser, collectProfileBroadcastTargetIds } from '../utils/userDeletion.js';
-import { deleteUploadFile, deleteAttachmentByFilename } from '../utils/fileCleanup.js';
+import { deleteUnreferencedUploadFiles, deleteAttachmentByFilename, isOwnLooseUpload, getProfileReferencedFilenames } from '../utils/fileCleanup.js';
 import { connectionManager } from '../ws/handler.js';
 import { generateSnowflake } from '../utils/snowflake.js';
 import { BOT_NAME_MAX_LENGTH, BOT_NAME_MIN_LENGTH, MAX_BOTS_PER_USER, PROFILE_BIO_MAX_LENGTH } from '@veyvox/shared/src/constants.js';
-import { collectBotFederationOrigins } from '../utils/botFederation.js';
-import { revokeBotWithRetry } from '../utils/botRevocationQueue.js';
 import {
   BOT_TOKEN_NAME_MAX_LENGTH,
   MAX_BOT_TOKENS_PER_BOT,
@@ -24,7 +22,6 @@ import path from 'node:path';
 import { config } from '../config.js';
 import { resizeProfileImage } from '../utils/thumbnail.js';
 import { sanitizeUser } from '../utils/sanitize.js';
-import { queueProfileUpdateRelay } from '../utils/profileRelay.js';
 import { BOT_ACTIVITY_NAME_MAX_LENGTH, normalizeBotActivity, parseStoredBotActivity, serializeBotActivity } from '../utils/botActivity.js';
 import { applyStoredBotActivity } from '../ws/presence.js';
 import type {
@@ -42,7 +39,7 @@ import { addBotToSpace, announceSpaceRolesChanged, removeUserFromSpace } from '.
 import { parseRequestedPermissions, renameManagedBotRoles, storedRequestedPermissions } from '../utils/botRoles.js';
 import { permissionsToString, roleBitsChangeRefusal, type HeldBitsRefusal } from '@veyvox/shared/src/permissions.js';
 
-/** Not a bcrypt hash, so password login is impossible (same idea as '!federation-replicated'). */
+/** Not a bcrypt hash, so password login is impossible. */
 const BOT_PASSWORD_MARKER = '!bot';
 const BOT_NAME_RE = /^[a-z0-9_]+$/;
 /** Bounds of the invite search string: a username is 5-32 characters, so nothing outside can match. */
@@ -51,16 +48,6 @@ const BOT_SEARCH_MAX_QUERY = 32;
 /** A bare upload filename: starts alphanumeric, so `..` and dotfiles cannot pass. */
 const AVATAR_FILE_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,254}$/;
 
-/** Whether `filename` is an upload of `userId` that no channel or DM message holds yet. */
-function isOwnLooseUpload(filename: string, userId: string): boolean {
-  const row = getDb().select({ id: schema.attachments.id }).from(schema.attachments).where(and(
-    eq(schema.attachments.filename, filename),
-    eq(schema.attachments.uploaderId, userId),
-    isNull(schema.attachments.messageId),
-    isNull(schema.attachments.dmMessageId),
-  )).get();
-  return row !== undefined;
-}
 /** Same palette as registration (routes/auth.ts). */
 const AVATAR_COLORS = ['mint', 'sky', 'lavender', 'coral', 'rose', 'teal', 'amber'] as const;
 
@@ -89,15 +76,11 @@ function findOwnedBot(ownerId: string, botId: string) {
 
 /**
  * The bots a space manager here may add to a space or take out of one: a
- * native bot of this instance, or the account a bot of another instance
- * registered here with its proof (bots.md, 7). A replica row of a bot that
- * never registered here (`'!federation-replicated'`) cannot sign in, so it is
- * not one. Whatever the owner: a manager needs no consent.
+ * live local bot, regardless of its owner. A space manager needs no consent.
  */
 const spaceBotCondition = and(
   eq(schema.users.isBot, 1),
   eq(schema.users.isDeleted, 0),
-  sql`(${schema.users.homeInstance} IS NULL OR ${schema.users.homeInstance} = '' OR ${schema.users.passwordHash} != '!federation-replicated')`,
 );
 
 function findSpaceBot(botId: string) {
@@ -142,17 +125,7 @@ function grantedBotPermissions(
  * `is_bot = 1`; they authenticate with `bsb_` tokens issued here (utils/botTokens.ts).
  */
 export async function botRoutes(app: FastifyInstance): Promise<void> {
-  // Only a human with an account native to this instance manages bots.
-  const requireNativeHuman = async (request: FastifyRequest, reply: FastifyReply) => {
-    const caller = getDb().select({ isBot: schema.users.isBot })
-      .from(schema.users).where(eq(schema.users.id, request.userId)).get();
-    if (!caller || caller.isBot === 1 || request.homeInstance) {
-      return sendError(reply, 403, 'bots_native_only');
-    }
-  };
-  const pre = [authenticate, requireNativeHuman];
-  // Inviting or removing a bot is an action on a space of this instance, not on the
-  // bot's home: a federated human who manages the space may do it. Bots may not.
+  // Real human authority is shared by bot management and space invite/removal.
   const requireHuman = async (request: FastifyRequest, reply: FastifyReply) => {
     const caller = getDb().select({ isBot: schema.users.isBot })
       .from(schema.users).where(eq(schema.users.id, request.userId)).get();
@@ -160,7 +133,7 @@ export async function botRoutes(app: FastifyInstance): Promise<void> {
       return sendError(reply, 403, 'bots_native_only');
     }
   };
-  const preSpaceAction = [authenticate, requireHuman];
+  const pre = [authenticate, requireHuman];
   const rateLimit = { rateLimit: { max: 5, timeWindow: '15 minutes' } };
 
   app.get('/api/bots', { preHandler: pre }, async (request, reply) => {
@@ -270,8 +243,7 @@ export async function botRoutes(app: FastifyInstance): Promise<void> {
       botRequestedPermissions?: string | null;
     } = {};
 
-    // The login (username) is deliberately not editable: it is the federation
-    // identity peers and host accounts (`name@home`) are keyed on.
+    // Keep the existing immutable login handle; only the display name changes.
     if (displayName !== undefined) {
       const trimmed = typeof displayName === 'string' ? displayName.trim() : '';
       if (trimmed.length === 0) {
@@ -299,7 +271,7 @@ export async function botRoutes(app: FastifyInstance): Promise<void> {
         // The file must be the owner's own upload that no message holds (or the
         // bot's current avatar): any other file on disk belongs to someone else,
         // and taking it would let a later change of avatar delete it.
-        if (bare !== bot.avatar && !isOwnLooseUpload(bare, request.userId)) {
+        if (bare !== bot.avatar && (!isOwnLooseUpload(bare, request.userId) || getProfileReferencedFilenames().has(bare))) {
           return sendError(reply, 400, 'avatar_url_invalid');
         }
         newAvatar = bare;
@@ -318,8 +290,7 @@ export async function botRoutes(app: FastifyInstance): Promise<void> {
       update.bio = trimmed.length > 0 ? trimmed : null;
     }
 
-    // The stored status. It is part of the profile (relayed with it), so a
-    // host's federated account of the bot shows the same status there.
+    // The stored activity is restored on the bot's next local connection.
     let newActivity: string | null | undefined;
     if (activity !== undefined) {
       if (activity === null) {
@@ -349,8 +320,7 @@ export async function botRoutes(app: FastifyInstance): Promise<void> {
     db.update(schema.users).set({ ...update, profileUpdatedAt }).where(eq(schema.users.id, bot.id)).run();
 
     if (newAvatar !== undefined && bot.avatar && bot.avatar !== newAvatar && !bot.avatar.startsWith('http')) {
-      await deleteUploadFile(bot.avatar);
-      deleteAttachmentByFilename(bot.avatar);
+      deleteUnreferencedUploadFiles([bot.avatar]);
     }
     if (typeof newAvatar === 'string' && newAvatar !== bot.avatar) {
       // The upload's attachment record is redundant once users.avatar holds it,
@@ -367,7 +337,6 @@ export async function botRoutes(app: FastifyInstance): Promise<void> {
     for (const uid of targets) {
       connectionManager.sendToUser(uid, { type: 'user_updated' as const, user: sanitizeUser(updated, uid === bot.id) });
     }
-    queueProfileUpdateRelay(updated);
     // Only a change of the status itself touches the live activity: saving the
     // name or the "About" must not wipe a status the bot code set.
     if (newActivity !== undefined && newActivity !== bot.botActivity) {
@@ -416,7 +385,7 @@ export async function botRoutes(app: FastifyInstance): Promise<void> {
   // A space manager brings a bot into a space they manage. Same result as the
   // bot joining by invite, without handing out a code.
   app.post<{ Params: { id: string }; Body: Partial<Record<keyof AddBotToSpaceRequest, unknown>> }>('/api/bots/:id/spaces', {
-    preHandler: preSpaceAction,
+    preHandler: pre,
     config: { rateLimit: { max: 30, timeWindow: '15 minutes' } },
   }, async (request, reply) => {
     // Any space manager may bring a bot in; the bot's owner does not take
@@ -449,7 +418,7 @@ export async function botRoutes(app: FastifyInstance): Promise<void> {
 
   // The counterpart of the add above: the bot's owner or a space manager takes the bot out.
   app.delete<{ Params: { id: string; spaceId: string } }>('/api/bots/:id/spaces/:spaceId', {
-    preHandler: preSpaceAction,
+    preHandler: pre,
     config: { rateLimit: { max: 30, timeWindow: '15 minutes' } },
   }, async (request, reply) => {
     // The owner may take their bot out of any space; a space manager may
@@ -476,14 +445,6 @@ export async function botRoutes(app: FastifyInstance): Promise<void> {
   }, async (request, reply) => {
     const bot = findOwnedBot(request.userId, request.params.id);
     if (!bot) return sendError(reply, 404, 'bot_not_found');
-    // Cut the bot off from every instance it registered on FIRST: a leaked
-    // token could already have minted host JWTs there, and those outlive the
-    // home token. The host account is tombstoned; the legitimate bot
-    // re-registers with the new token and rejoins by invite.
-    const origins = collectBotFederationOrigins(bot.id);
-    const federation = await revokeBotWithRetry(bot.id, origins, 'soft');
-    getDb().delete(schema.userFederationCredentials)
-      .where(eq(schema.userFederationCredentials.userId, bot.id)).run();
     // Every earlier token ends: the `bsb_` tokens are deleted, and an old JWT
     // is revoked the way a password change revokes sessions.
     revokeAllBotTokens(bot.id);
@@ -491,11 +452,11 @@ export async function botRoutes(app: FastifyInstance): Promise<void> {
       .where(eq(schema.users.id, bot.id)).run();
     connectionManager.forceDisconnectUser(bot.id);
     const { token } = issueBotToken(bot.id, null);
-    return reply.send({ token, federation });
+    return reply.send({ token });
   });
 
   // ── Tokens of one bot ────────────────────────────────────────────────────
-  // `POST /token` above is the full cut-off (every token, every other instance).
+  // `POST /token` above is the full cut-off (every token of this bot).
   // These add and remove single tokens, so a leaked one can go without
   // restarting the rest of the bot's processes.
   const tokenRoutesLimit = { rateLimit: { max: 30, timeWindow: '15 minutes' } };
@@ -569,11 +530,9 @@ export async function botRoutes(app: FastifyInstance): Promise<void> {
   }, async (request, reply) => {
     const bot = findOwnedBot(request.userId, request.params.id);
     if (!bot) return sendError(reply, 404, 'bot_not_found');
-    const origins = collectBotFederationOrigins(bot.id);
-    const federation = await revokeBotWithRetry(bot.id, origins, 'full');
     const files = tombstoneUser(bot.id);
     connectionManager.forceDisconnectUser(bot.id);
-    for (const filename of files) await deleteUploadFile(filename);
-    return reply.send({ success: true, federation });
+    deleteUnreferencedUploadFiles(files);
+    return reply.send({ success: true });
   });
 }

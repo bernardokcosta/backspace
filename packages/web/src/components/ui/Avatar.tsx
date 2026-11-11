@@ -65,7 +65,7 @@ export function Avatar({ src, name, size = 40, status, className = '', onClick, 
   const fontPx = Math.round(size * 0.4);
   const gradient = palette === 'space'
     ? getSpaceGradient(userId, name, avatarColor)
-    : getAvatarGradient(userId ?? user?.homeUserId ?? user?.id, name, avatarColor ?? user?.avatarColor);
+    : getAvatarGradient(userId ?? user?.id, name, avatarColor ?? user?.avatarColor);
 
   const ringWidth = ring?.width ?? 0;
   const outerSize = size + ringWidth * 2;

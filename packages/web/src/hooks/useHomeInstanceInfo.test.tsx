@@ -13,7 +13,6 @@ function info(over: Partial<InstanceInfoResponse> = {}): InstanceInfoResponse {
     name: 'Home',
     version: '1.5.1',
     registrationOpen: true,
-    federatedRegistrationOpen: true,
     instanceId: 'instance-1',
     sourceCodeUrl: 'https://github.com/TheZwiss/backspace',
     commit: null,

@@ -5,8 +5,7 @@ import { BOT_ACTIVITY_TYPES } from '@veyvox/shared/src/constants.js';
 /**
  * A bot's stored status (`users.bot_activity`): the owner sets it in Settings >
  * Bots, the bot shows it as its live activity while connected. Pure helpers,
- * free of the connection manager, so routes, the WS handler and the federation
- * receivers can all import them.
+ * free of the connection manager, shared by native REST and WS handlers.
  */
 
 const BOT_ACTIVITY_TYPE_SET: ReadonlySet<string> = new Set(BOT_ACTIVITY_TYPES);
@@ -15,7 +14,7 @@ const BOT_ACTIVITY_TYPE_SET: ReadonlySet<string> = new Set(BOT_ACTIVITY_TYPES);
 export const BOT_ACTIVITY_NAME_MAX_LENGTH = ACTIVITY_LIMITS.MAX_NAME_LENGTH;
 
 /**
- * A `BotActivity` from untrusted input (an owner's request, a peer's payload,
+ * A `BotActivity` from untrusted input (an owner's request,
  * the stored column), with the text trimmed. Null when anything is malformed:
  * an unknown type, a text that is not a string, empty after trim, or too long.
  */

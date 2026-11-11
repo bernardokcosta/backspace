@@ -87,3 +87,4 @@ must now follow. Include what is deliberately not tested or not supported.
 |---|---|---|
 | 0001 | Mobile client architecture (#125) | Proposed |
 | 0001 | DM conversation identity (#345) | Proposed |
+| 0003 | [Native session revocation precision](0003-native-session-revocation-precision.md) | Proposed; synthetic audit regressions and implementation in the standalone branch |

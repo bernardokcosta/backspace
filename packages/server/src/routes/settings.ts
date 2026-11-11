@@ -47,16 +47,11 @@ function rowToAdminSettings(row: SettingsRow): InstanceAdminSettings {
   return {
     instanceName: row.instanceName ?? 'Veyvox',
     registrationOpen: row.registrationOpen !== null ? row.registrationOpen === 1 : config.registrationOpen,
-    federatedRegistrationOpen: row.federatedRegistrationOpen === 1,
     spaceCreationOpen: row.spaceCreationOpen !== 0,
     gifApiKey: gifKey ? `****${gifKey.slice(-4)}` : undefined,
     gifEnabled: !!gifKey,
     maxUploadSizeMb: Math.round(maxUploadBytes / (1024 * 1024)),
     maxStickerSizeMb: Math.round(maxStickerBytes / (1024 * 1024)),
-    federationRelayEnabled: row.federationRelayEnabled === 1,
-    federationRelayTtlDays: row.federationRelayTtlDays,
-    defaultAutoRotateIntervalDays: row.defaultAutoRotateIntervalDays,
-    autoAcceptPeering: row.autoAcceptPeering === 1,
   };
 }
 
@@ -227,13 +222,6 @@ export async function settingsRoutes(app: FastifyInstance): Promise<void> {
       updateData.registrationOpen = body.registrationOpen ? 1 : 0;
     }
 
-    if (body.federatedRegistrationOpen !== undefined) {
-      if (typeof body.federatedRegistrationOpen !== 'boolean') {
-        return sendError(reply, 400, 'field_not_boolean', { field: 'federatedRegistrationOpen' });
-      }
-      updateData.federatedRegistrationOpen = body.federatedRegistrationOpen ? 1 : 0;
-    }
-
     if (body.spaceCreationOpen !== undefined) {
       if (typeof body.spaceCreationOpen !== 'boolean') {
         return sendError(reply, 400, 'field_not_boolean', { field: 'spaceCreationOpen' });
@@ -268,30 +256,6 @@ export async function settingsRoutes(app: FastifyInstance): Promise<void> {
         return sendError(reply, 400, 'sticker_limit_out_of_range', { min: 1, max: MAX_MB });
       }
       updateData.maxStickerSizeBytes = mb * 1024 * 1024;
-    }
-
-    if (body.federationRelayEnabled !== undefined) {
-      updateData.federationRelayEnabled = body.federationRelayEnabled ? 1 : 0;
-    }
-
-    if (body.federationRelayTtlDays !== undefined) {
-      const ttl = Number(body.federationRelayTtlDays);
-      if (isNaN(ttl) || !Number.isInteger(ttl) || ttl < 1 || ttl > 365) {
-        return sendError(reply, 400, 'relay_ttl_out_of_range', { min: 1, max: 365 });
-      }
-      updateData.federationRelayTtlDays = ttl;
-    }
-
-    if (body.defaultAutoRotateIntervalDays !== undefined) {
-      const interval = Number(body.defaultAutoRotateIntervalDays);
-      if (isNaN(interval) || !Number.isInteger(interval) || interval < 1 || interval > 365) {
-        return sendError(reply, 400, 'rotation_interval_out_of_range', { min: 1, max: 365 });
-      }
-      updateData.defaultAutoRotateIntervalDays = interval;
-    }
-
-    if (body.autoAcceptPeering !== undefined) {
-      updateData.autoAcceptPeering = body.autoAcceptPeering ? 1 : 0;
     }
 
     const currentRow = db.select().from(schema.instanceSettings).where(eq(schema.instanceSettings.id, 1)).get();

@@ -4,7 +4,6 @@
     "description": "Nastav svou instanci Veyvox. Tato nastavení platí pro všechny uživatele.",
     "instanceName": {
       "label": "Název instance",
-      "description": "Název zobrazený na přihlašovací stránce a federovaným instancím.",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "Registrace",
-    "description": "Urči, kdo si na této instanci smí vytvářet účty. Veřejná registrace kryje místní registrace; federovaná registrace kryje uživatele ze spřátelených instancí, kteří si tu vytvářejí účet.",
     "public": {
       "label": "Veřejná registrace",
       "toggleLabel": "Povolit nové místní účty",
       "toggleDescription": "Kdokoliv si může vytvořit místní účet na registrační stránce. Po vypnutí vznikají nové místní účty jen z odkazu s pozvánkou."
-    },
-    "federated": {
-      "label": "Federovaná registrace",
-      "toggleLabel": "Povolit nové federované účty",
-      "toggleDescription": "Uživatelé z jiných instancí si tu mohou vytvořit federovaný účet v nastavení Připojení. Stávající federované účty se přihlašují vždy, bez ohledu na toto nastavení."
     },
     "spaceCreation": {
       "label": "Vytváření prostorů",
@@ -381,8 +374,6 @@
     "loadFailed": "Uživatele se nepodařilo načíst",
     "empty": "Nenalezeni žádní uživatelé",
     "filters": {
-      "allInstances": "Všechny instance",
-      "localOnly": "Jen místní",
       "allRoles": "Všechny role",
       "admin": "Správce",
       "nonAdmin": "Nesprávce",
@@ -402,9 +393,7 @@
     "actions": {
       "demote": "Odebrat práva správce",
       "promote": "Dát práva správce",
-      "federatedNoAdmin": "Federovaní uživatelé nemohou být správci",
       "resetPassword": "Resetovat heslo",
-      "federatedNoReset": "Federovaní uživatelé se přihlašují přes domovskou instanci",
       "delete": "Smazat uživatele",
       "selfDelete": "Pro smazání vlastního účtu použij nastavení"
     },
@@ -433,15 +422,7 @@
     "deleteDialog": {
       "title": "Smazat uživatele",
       "description": "Trvale smazat <strong>{{username}}</strong>? Uživatel bude odebrán ze všech prostorů, přímých zpráv a seznamů přátel. Toto nelze vrátit.",
-      "confirm": "Smazat uživatele",
-      "blockBot": "Nedovolit tomuto botovi se znovu registrovat",
-      "blockBotHint": "Až jeho domovská instance ožije, bot si tu nebude moci vytvořit účet. Odblokuješ jej pod seznamem uživatelů."
-    },
-    "blockedBots": {
-      "title": "Blokovaní boti",
-      "description": "Boti jiných instancí, kteří se tu nesmějí registrovat. Odblokováním mu zase povolíš přístup.",
-      "blockedAt": "Blokováno {{date}}",
-      "unblock": "Odblokovat"
+      "confirm": "Smazat uživatele"
     }
   },
   "mobile": {
@@ -449,7 +430,6 @@
     "sections": {
       "general": "Obecné",
       "registration": "Registrace",
-      "federation": "Federace",
       "streaming": "Streamování",
       "storage": "Úložiště",
       "updates": "Aktualizace",

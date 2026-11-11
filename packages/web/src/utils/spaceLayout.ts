@@ -1,10 +1,10 @@
 import type { SpaceFolder, SpaceLayoutItem } from '@veyvox/shared';
-import type { TaggedSpace } from '../stores/spaceStore';
+import type { SpaceWithMyRoles } from '../stores/spaceStore';
 
 /** One entry of the space rail as it is drawn: a lone space or a folder of them. */
 export type ResolvedSpaceLayoutItem =
-  | { type: 'space'; space: TaggedSpace }
-  | { type: 'folder'; folder: SpaceFolder; spaces: TaggedSpace[] };
+  | { type: 'space'; space: SpaceWithMyRoles }
+  | { type: 'folder'; folder: SpaceFolder; spaces: SpaceWithMyRoles[] };
 
 /**
  * The space rail as the user sees it: the stored layout, reconciled against
@@ -18,7 +18,7 @@ export type ResolvedSpaceLayoutItem =
  * them agree on the order.
  */
 export function resolveSpaceLayout(
-  spaces: readonly TaggedSpace[],
+  spaces: readonly SpaceWithMyRoles[],
   spaceLayout: readonly SpaceLayoutItem[] | null,
   folders: readonly SpaceFolder[],
 ): ResolvedSpaceLayoutItem[] {
@@ -39,7 +39,7 @@ export function resolveSpaceLayout(
       if (!folder) continue;
       const folderSpaces = folder.spaceIds
         .map((sid) => spaceMap.get(sid))
-        .filter((s): s is TaggedSpace => !!s);
+        .filter((s): s is SpaceWithMyRoles => !!s);
       if (folderSpaces.length > 0) {
         result.push({ type: 'folder', folder, spaces: folderSpaces });
         for (const s of folderSpaces) accounted.add(s.id);
@@ -58,6 +58,6 @@ export function resolveSpaceLayout(
 }
 
 /** The rail flattened top to bottom, a folder's spaces in the folder's order. */
-export function spacesInLayoutOrder(layout: readonly ResolvedSpaceLayoutItem[]): TaggedSpace[] {
+export function spacesInLayoutOrder(layout: readonly ResolvedSpaceLayoutItem[]): SpaceWithMyRoles[] {
   return layout.flatMap((item) => (item.type === 'space' ? [item.space] : item.spaces));
 }

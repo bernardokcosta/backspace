@@ -24,9 +24,11 @@ export async function probeRemoteImageDimensions(
 ): Promise<{ width: number; height: number } | null> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
+  let response: Response | undefined;
+  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
 
   try {
-    const response = await safeFetch(url, {
+    response = await safeFetch(url, {
       headers: {
         'User-Agent': 'BackspaceBot/1.0',
         Accept: 'image/*',
@@ -41,17 +43,19 @@ export async function probeRemoteImageDimensions(
     if (!response.body) return null;
 
     // Read up to PROBE_BYTES regardless of whether server honored Range
-    const reader = response.body.getReader();
+    reader = response.body.getReader();
     const chunks: Uint8Array[] = [];
     let bytesRead = 0;
 
     while (bytesRead < PROBE_BYTES) {
       const { done, value } = await reader.read();
       if (done) break;
-      chunks.push(value);
-      bytesRead += value.length;
+      const bytes = Math.min(value.byteLength, PROBE_BYTES - bytesRead);
+      chunks.push(Uint8Array.from(value.subarray(0, bytes)));
+      bytesRead += bytes;
     }
-    reader.cancel().catch(() => {}); // Aggressively close the connection
+    await reader.cancel(); // Release the stream before decoding the bounded image.
+    reader.releaseLock(); reader = undefined;
 
     const buffer = Buffer.concat(chunks);
     const metadata = await sharp(buffer).metadata();
@@ -64,6 +68,12 @@ export async function probeRemoteImageDimensions(
     return null;
   } finally {
     clearTimeout(timeout);
+    controller.abort();
+    try {
+      if (reader) await reader.cancel();
+      else await response?.body?.cancel();
+    } catch { /* An aborted/errored body is already released by the transport. */ }
+    finally { reader?.releaseLock(); }
   }
 }
 

@@ -34,6 +34,7 @@ function makeTransfer(over: Partial<Transfer> & Pick<Transfer, 'id'>): Transfer 
     file: { name: 'a', size: 1, mimetype: 'image/png' },
     progress: { loaded: 0, total: 1 },
     tray: true,
+    uploaderUserId: 'u-9',
     ...over,
   };
 }

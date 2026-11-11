@@ -1,9 +1,7 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { selectMyChosenStatus, useAuthStore } from '../../../stores/authStore';
 import { useUIStore } from '../../../stores/uiStore';
-import { useInstanceStore } from '../../../stores/instanceStore';
-import { useSpaceStore } from '../../../stores/spaceStore';
 import { Avatar } from '../../ui/Avatar';
 import { ImageCropModal } from '../../ui/ImageCropModal';
 import { DeleteAccountModal } from '../DeleteAccountModal';
@@ -11,16 +9,20 @@ import { api } from '../../../api/client';
 import { useTransferStore } from '../../../stores/transferStore';
 import { waitForTransferAttachment } from '../../../utils/waitForTransfer';
 import { getAvatarGradient, adjustColor, mutedGradient, AVATAR_GRADIENT_MAP, BANNER_COLOR_PRESETS } from '../../../utils/gradients';
-import { AVATAR_COLORS, detachedHomeOf } from '@veyvox/shared';
+import { AVATAR_COLORS } from '@veyvox/shared';
 import { PASSWORD_MIN_LENGTH, PROFILE_BIO_MAX_LENGTH as BIO_MAX_LENGTH } from '@veyvox/shared/src/constants';
 import type { User, ChosenUserStatus, AvatarColor } from '@veyvox/shared';
 import { describeError } from '../../../i18n/errors';
 
 export function AccountPanel() {
+  const revision = useAuthStore(s => s.sessionRevision);
+  return <AccountContent key={revision} revision={revision} />;
+}
+
+function AccountContent({ revision }: { revision: number }) {
   const { t } = useTranslation(['settings', 'common']);
   const user = useAuthStore((s) => s.user);
-  // The chosen status lives on the account that owns it, which is not this
-  // page's account when it is a replicated row (utils/selfStatus.ts).
+  // The current native account owns its chosen status.
   const savedStatus: ChosenUserStatus = useAuthStore(selectMyChosenStatus) ?? 'online';
   const updateProfile = useAuthStore((s) => s.updateProfile);
 
@@ -49,6 +51,11 @@ export function AccountPanel() {
   const addToast = useUIStore((s) => s.addToast);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const current = () => alive.current && revision === useAuthStore.getState().sessionRevision;
+  useEffect(() => () => { if (avatarPreview) URL.revokeObjectURL(avatarPreview); }, [avatarPreview]);
+  useEffect(() => () => { if (bannerPreview) URL.revokeObjectURL(bannerPreview); }, [bannerPreview]);
 
   useEffect(() => {
     if (user) {
@@ -81,58 +88,7 @@ export function AccountPanel() {
   // Delete account state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const instances = useInstanceStore((s) => s.instances);
   const changePassword = useAuthStore((s) => s.changePassword);
-
-  // ── Detached-account re-attach (fallback path, re-attach spec §3.4) ──
-  // Explicit action shown only when this client also holds an active connection
-  // to the account's home domain. Two-step armed confirm names both identities
-  // before minting the proof. The primary/automatic path lives in instanceStore.
-  const [reattachArmed, setReattachArmed] = useState(false);
-  const [reattaching, setReattaching] = useState(false);
-  const [reattachError, setReattachError] = useState<string | null>(null);
-
-  // The home a detached account was federated from. A detached account is
-  // homed on this instance, so `homeInstance` is null and only this names it.
-  const formerHome = user ? detachedHomeOf(user) : null;
-
-  const homeConnection = useMemo(() => {
-    if (!formerHome) return null;
-    const homeDomain = formerHome.replace(/^https?:\/\//, '').replace(/\/+$/, '').toLowerCase();
-    return instances.find(
-      (i) => i.status === 'connected'
-        // Portless hostname — must agree with the server's extractDomain
-        // (new URL(origin).hostname) so a ported home instance still matches.
-        && new URL(i.origin).hostname.toLowerCase() === homeDomain,
-    ) ?? null;
-  }, [instances, formerHome]);
-
-  const handleReattach = async () => {
-    if (!homeConnection) return;
-    if (!reattachArmed) {
-      setReattachArmed(true);
-      return;
-    }
-    setReattaching(true);
-    setReattachError(null);
-    try {
-      // Target domain = THIS instance (where the detached account lives).
-      // Portless hostname to match the server's extractDomain contract.
-      const { token } = await homeConnection.api.auth.attachProof(window.location.hostname);
-      const res = await api.users.reattach({ token });
-      useAuthStore.getState().setUser(res.user);
-      // Re-attach reconciled this (home) account's 1-on-1 DM federatedIds on the
-      // server; refetch the home DM list so the split conversation collapses
-      // without a reload.
-      try { await useSpaceStore.getState().reloadDmsForOrigin(''); } catch { /* non-fatal */ }
-      addToast(t('settings:account.detached.reattached', { username: homeConnection.username }), 'success', 3000);
-    } catch (err) {
-      setReattachError(err instanceof Error ? describeError(err) : t('settings:account.detached.reattachFailed'));
-    } finally {
-      setReattaching(false);
-      setReattachArmed(false);
-    }
-  };
 
   if (!user) return null;
 
@@ -167,7 +123,7 @@ export function AccountPanel() {
   const bannerFallback = effectiveAccent
     ? mutedGradient(effectiveAccent, adjustColor(effectiveAccent, -40))
     : (() => {
-        const g = getAvatarGradient(user.homeUserId ?? user.id, effectiveDisplayName, effectiveAvatarColor);
+        const g = getAvatarGradient(user.id, effectiveDisplayName, effectiveAvatarColor);
         return mutedGradient(g.from, g.to);
       })();
 
@@ -176,7 +132,7 @@ export function AccountPanel() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => setAvatarCropSrc(reader.result as string);
+    reader.onload = () => { if (current()) setAvatarCropSrc(reader.result as string); };
     reader.readAsDataURL(file);
     if (avatarInputRef.current) avatarInputRef.current.value = '';
   };
@@ -185,13 +141,14 @@ export function AccountPanel() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => setBannerCropSrc(reader.result as string);
+    reader.onload = () => { if (current()) setBannerCropSrc(reader.result as string); };
     reader.readAsDataURL(file);
     if (bannerInputRef.current) bannerInputRef.current.value = '';
   };
 
   // ── Crop complete handlers ──
   const handleAvatarCropComplete = async (blob: Blob) => {
+    if (!current()) return;
     if (avatarPreview) URL.revokeObjectURL(avatarPreview);
     const previewUrl = URL.createObjectURL(blob);
     setAvatarPreview(previewUrl);
@@ -200,18 +157,21 @@ export function AccountPanel() {
     setUploadingAvatar(true);
     try {
       const tid = await useTransferStore.getState().startUpload(file, { tray: false });
+      if (!current()) return;
       const { filename } = await waitForTransferAttachment(tid);
-      setAvatarFilename(filename);
+      if (current()) setAvatarFilename(filename);
     } catch {
+      if (!current()) return;
       setError(t('settings:account.profile.avatar.uploadFailed'));
       setAvatarPreview(null);
       URL.revokeObjectURL(previewUrl);
     } finally {
-      setUploadingAvatar(false);
+      if (current()) setUploadingAvatar(false);
     }
   };
 
   const handleBannerCropComplete = async (blob: Blob) => {
+    if (!current()) return;
     if (bannerPreview) URL.revokeObjectURL(bannerPreview);
     const previewUrl = URL.createObjectURL(blob);
     setBannerPreview(previewUrl);
@@ -220,14 +180,16 @@ export function AccountPanel() {
     setUploadingBanner(true);
     try {
       const tid = await useTransferStore.getState().startUpload(file, { tray: false });
+      if (!current()) return;
       const { filename } = await waitForTransferAttachment(tid);
-      setBannerFilename(filename);
+      if (current()) setBannerFilename(filename);
     } catch {
+      if (!current()) return;
       setError(t('settings:account.profile.banner.uploadFailed'));
       setBannerPreview(null);
       URL.revokeObjectURL(previewUrl);
     } finally {
-      setUploadingBanner(false);
+      if (current()) setUploadingBanner(false);
     }
   };
 
@@ -244,6 +206,7 @@ export function AccountPanel() {
   };
 
   const handleSave = async () => {
+    if (!current() || isLoading) return;
     setError('');
     setIsLoading(true);
     try {
@@ -258,15 +221,17 @@ export function AccountPanel() {
       if (bannerFilename !== null) updates.banner = bannerFilename;
 
       await updateProfile(updates as Parameters<typeof updateProfile>[0]);
+      if (!current()) return;
       addToast(t('settings:account.save.updated'), 'success', 2000);
     } catch (err) {
-      setError(err instanceof Error ? describeError(err) : t('settings:account.save.failed'));
+      if (current()) setError(err instanceof Error ? describeError(err) : t('settings:account.save.failed'));
     } finally {
-      setIsLoading(false);
+      if (current()) setIsLoading(false);
     }
   };
 
   const handleChangePassword = async () => {
+    if (!current() || passwordLoading) return;
     setPasswordError('');
 
     if (newPassword.length < PASSWORD_MIN_LENGTH) {
@@ -281,14 +246,18 @@ export function AccountPanel() {
     setPasswordLoading(true);
     try {
       await changePassword(currentPassword, newPassword);
-      addToast(t('settings:account.password.changed'), 'success', 2000);
+      // A successful native password rotation advances the session itself while
+      // retaining this exact verified user object. Replacement login does not.
+      const next = useAuthStore.getState();
+      if (current() || (next.user === user && next.sessionRevision === revision + 1)) addToast(t('settings:account.password.changed'), 'success', 2000);
+      if (!current()) return;
       setCurrentPassword('');
       setNewPassword('');
       setConfirmNewPassword('');
     } catch (err) {
-      setPasswordError(err instanceof Error ? describeError(err) : t('settings:account.password.changeFailed'));
+      if (current()) setPasswordError(err instanceof Error ? describeError(err) : t('settings:account.password.changeFailed'));
     } finally {
-      setPasswordLoading(false);
+      if (current()) setPasswordLoading(false);
     }
   };
 
@@ -312,30 +281,6 @@ export function AccountPanel() {
   return (
     <div className="space-y-5">
       <h2 className="text-lg font-semibold text-txt-primary mb-6">{t('settings:account.title')}</h2>
-      {formerHome && (
-        <div className="rounded-lg bg-accent-amber/10 border border-accent-amber/25 px-3.5 py-3 text-xs text-txt-secondary leading-relaxed mb-4">
-          <span className="font-medium text-txt-primary">{t('settings:account.detached.notice')}</span>{' '}
-          {t('settings:account.detached.explanation', { homeInstance: formerHome })}
-          {homeConnection && (
-            <>
-              {' '}{t('settings:account.detached.reattachHint', { username: homeConnection.username, homeInstance: formerHome })}
-              <button
-                type="button"
-                onClick={handleReattach}
-                disabled={reattaching}
-                className="mt-2 block rounded-md bg-accent-amber/20 hover:bg-accent-amber/30 disabled:opacity-50 text-txt-primary px-3 py-1.5 text-xs font-medium transition-colors"
-              >
-                {reattaching
-                  ? t('settings:account.detached.reattaching')
-                  : reattachArmed
-                    ? t('settings:account.detached.reattachConfirm', { username: homeConnection.username })
-                    : t('settings:account.detached.reattachButton', { homeInstance: formerHome })}
-              </button>
-              {reattachError && <div className="mt-1.5 text-accent-rose">{reattachError}</div>}
-            </>
-          )}
-        </div>
-      )}
       {/* ── Profile Customization ── */}
       <div>
         <div className="text-[11px] font-semibold text-txt-tertiary uppercase tracking-wider mb-1.5">
@@ -358,7 +303,7 @@ export function AccountPanel() {
               src={avatarPreview ?? (avatarFilename === '' ? null : user.avatar)}
               name={effectiveDisplayName}
               size={56}
-              userId={user.homeUserId ?? user.id}
+              userId={user.id}
               user={{ ...user, avatarColor: effectiveAvatarColor } as User}
               ring={{ width: 4, color: 'var(--color-surface-channel, #1e1e2a)' }}
               className="mt-[-32px] mb-2"
@@ -397,7 +342,7 @@ export function AccountPanel() {
                       src={null}
                       name={effectiveDisplayName}
                       size={64}
-                      userId={user.homeUserId ?? user.id}
+                      userId={user.id}
                       user={{ ...user, avatarColor: effectiveAvatarColor } as User}
                     />
                   )}
@@ -460,8 +405,8 @@ export function AccountPanel() {
                 style={displayBannerSrc
                   ? { backgroundImage: `url(${displayBannerSrc})`, backgroundSize: 'cover', backgroundPosition: 'center' }
                   : { background: mutedGradient(
-                      effectiveAccent ?? getAvatarGradient(user.homeUserId ?? user.id, effectiveDisplayName, effectiveAvatarColor).from,
-                      effectiveAccent ? adjustColor(effectiveAccent, -40) : getAvatarGradient(user.homeUserId ?? user.id, effectiveDisplayName, effectiveAvatarColor).to,
+                      effectiveAccent ?? getAvatarGradient(user.id, effectiveDisplayName, effectiveAvatarColor).from,
+                      effectiveAccent ? adjustColor(effectiveAccent, -40) : getAvatarGradient(user.id, effectiveDisplayName, effectiveAvatarColor).to,
                       0.5
                     ) }
                 }

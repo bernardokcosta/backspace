@@ -19,7 +19,6 @@
     "activity": "Está tudo quieto por enquanto... Quando seus amigos começarem uma atividade, ela aparecerá aqui!"
   },
   "friend": {
-    "viaInstance": "via {{host}}",
     "message": "Mensagem",
     "remove": "Remover amigo"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "Encontrar pessoas",
-    "hint": "Pesquise por nome de usuário ou use <handle>usuario@instancia</handle> para adicionar alguém diretamente.",
     "placeholder": "Pesquisar ou adicionar por nome de usuário...",
     "direct": "Enviar solicitação de amizade para <handle>{{handle}}</handle>",
     "sendRequest": "Enviar solicitação",
@@ -83,7 +81,7 @@
     "quietDescription": "Quando um amigo começar uma atividade, como jogar ou ficar num canal de voz, ela aparecerá aqui!",
     "online": "Online — {{n}}",
     "offline": "Offline — {{n}}",
-    "resizeHandle": "Redimensionar lista de amigos",
+    "resizeHandle": "Redimensionar lista de amigos",
     "types": {
       "playing": "Jogando",
       "listening": "Ouvindo música",
@@ -101,6 +99,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "Abrir faixa"
-  },
-  "instanceNotConnected": "Não conectado a {{host}}. Conecte-se novamente e tente de novo."
+  }
 }

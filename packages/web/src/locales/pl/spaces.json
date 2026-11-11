@@ -160,21 +160,6 @@
     "invitePlaceholder": "np. abc123 albo https://instance.com/join/abc123",
     "submit": "Dołącz do przestrzeni",
     "submitting": "Dołączanie…",
-    "connect": {
-      "intro": "Połącz się z <host>{{host}}</host>, aby dołączyć do tej przestrzeni.",
-      "passwordLabel": "Podaj hasło, aby połączyć",
-      "passwordPlaceholder": "Hasło Twojego konta",
-      "passwordNote": "Hasło sprawdza Twoja macierzysta instancja i nigdy nie trafia do {{host}}. Tamta instancja dostaje unikalne poświadczenie utworzone tylko dla niej.",
-      "submit": "Połącz i dołącz",
-      "submitting": "Łączenie…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "Twoja nazwa użytkownika na tej instancji",
-      "passwordLabel": "Hasło do tej instancji",
-      "passwordPlaceholder": "Hasło na zdalnej instancji",
-      "submit": "Zaloguj i dołącz",
-      "submitting": "Logowanie…"
-    },
     "request": {
       "messagePlaceholder": "Dlaczego chcesz dołączyć? (opcjonalnie)",
       "send": "Wyślij prośbę",
@@ -460,8 +445,6 @@
       "transferOwnership": "Przekaż własność",
       "settings": "Ustawienia przestrzeni",
       "leave": "Wyjdź z przestrzeni",
-      "reconnecting": "Ponowne łączenie z {{instance}}…",
-      "remoteInstance": "zdalna instancja",
       "leaveConfirm": {
         "title": "Wyjdź z przestrzeni",
         "titleNamed": "Wyjdź z {{name}}",

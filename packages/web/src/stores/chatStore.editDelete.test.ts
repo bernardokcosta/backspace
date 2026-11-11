@@ -19,12 +19,12 @@ const { updateMessage, deleteMessage } = vi.hoisted(() => ({
   updateMessage: vi.fn(),
   deleteMessage: vi.fn(),
 }));
-vi.mock('../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../utils/crossStoreResolvers')>()),
-  getApiForOrigin: () => ({
+vi.mock('../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../api/client')>()),
+  api: {
     dm: { updateMessage, deleteMessage },
     messages: { update: updateMessage, delete: deleteMessage },
-  }),
+  },
 }));
 
 import { useChatStore } from './chatStore';
@@ -38,7 +38,7 @@ import i18n, { initI18n } from '../i18n';
 // why, in their language.
 
 const DM = 'dm-dead';
-const me = { id: 'u-1', username: 'jannis', displayName: null, avatar: null, homeInstance: null, homeUserId: null, createdAt: 1 } as unknown as User;
+const me = { id: 'u-1', username: 'jannis', displayName: null, avatar: null, createdAt: 1 } as User;
 
 // A DM message is keyed by its dmChannelId; channelId is empty.
 const original = {
@@ -57,8 +57,7 @@ function cached(): MessageWithUser[] {
 beforeEach(async () => {
   await initI18n();
   useSpaceStore.setState({
-    dmChannels: [{ id: DM, federatedId: null, members: [], ownerId: null } as never],
-    channelOriginMap: new Map(),
+    dmChannels: [{ id: DM, members: [], ownerId: null, name: null, icon: null, createdAt: 1 }],
   });
   useChatStore.setState({ messages: new Map([[DM, [original]]]) });
   useUIStore.setState({ toasts: [] });
@@ -68,7 +67,7 @@ afterEach(() => {
   updateMessage.mockReset();
   deleteMessage.mockReset();
   useChatStore.setState({ messages: new Map() });
-  useSpaceStore.setState({ dmChannels: [], channelOriginMap: new Map() });
+  useSpaceStore.setState({ dmChannels: [] });
 });
 
 describe('a refused DM edit', () => {

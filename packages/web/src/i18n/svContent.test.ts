@@ -5,7 +5,6 @@ import dm from '../locales/sv/dm.json';
 import spaces from '../locales/sv/spaces.json';
 import voice from '../locales/sv/voice.json';
 import settings from '../locales/sv/settings.json';
-import federation from '../locales/sv/federation.json';
 import errors from '../locales/sv/errors.json';
 
 function strings(value: unknown): string[] {
@@ -14,20 +13,11 @@ function strings(value: unknown): string[] {
 }
 
 describe('Swedish contextual content', () => {
-  it('keeps home-instance compounds and sticker-pack words intact', () => {
+  it('keeps native software compounds and sticker-pack words intact', () => {
     const catalogs = import.meta.glob('../locales/sv/*.json', { eager: true, import: 'default' });
     for (const value of strings(catalogs)) {
       expect(value).not.toMatch(/hemmanstans|dekalpaketetet|admingsgranskning|spel ikonen/iu);
     }
-  });
-
-  it('describes an authentication credential rather than an unrelated reference', () => {
-    for (const value of [federation.validation.connectHomeFirst, federation.connections.add.passwordHint,
-      federation.connections.add.fallbackNotice.credentialRefused]) {
-      expect(value).toContain('autentiseringsuppgift');
-      expect(value).not.toContain('referens');
-    }
-    expect(federation.connections.add.probing).toBe('Sonderar…');
   });
 
   it('translates keybind actions without an adjective standing in for deafen', () => {

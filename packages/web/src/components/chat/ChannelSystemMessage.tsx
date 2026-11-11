@@ -10,7 +10,7 @@ interface ChannelSystemMessageProps {
 }
 
 /** Stands in for the roster row's user when the target is not in the roster; its name is never shown. */
-const NO_USER = { id: '', username: '', createdAt: 0, isAdmin: false, replicatedInstances: [] } as unknown as User;
+const NO_USER = { id: '', username: '', createdAt: 0, isAdmin: false } as User;
 
 /**
  * Timeline row for a space channel system message (`channelSystemEvents.ts`).
@@ -22,16 +22,14 @@ const NO_USER = { id: '', username: '', createdAt: 0, isAdmin: false, replicated
  */
 export function ChannelSystemMessage({ message }: ChannelSystemMessageProps) {
   const { t } = useTranslation(['chat', 'dm']);
-  const origin = useSpaceStore((s) => s.channelOriginMap.get(message.channelId) ?? '');
   const members = useSpaceStore((s) => s.members);
   const event = parseChannelSystemEvent(message.content);
 
-  // message.userId and targetUserId are ids on the space's instance, the ids
-  // its roster carries.
+  // Message and roster IDs name the same native accounts.
   const actorMember = members.find((m) => m.userId === message.userId);
   const targetMember = event ? members.find((m) => m.userId === event.targetUserId) : undefined;
-  const actorUser = useCanonicalUserView(message.user, origin);
-  const targetUser = useCanonicalUserView(targetMember?.user ?? NO_USER, origin);
+  const actorUser = useCanonicalUserView(message.user);
+  const targetUser = useCanonicalUserView(targetMember?.user ?? NO_USER);
 
   let text: string;
   if (event?.event === 'channel_poke') {

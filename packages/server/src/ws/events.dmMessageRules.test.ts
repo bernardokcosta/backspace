@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
@@ -60,27 +60,7 @@ vi.mock('./handler.js', () => ({
   getVoiceRoomElapsedSeconds: () => 0,
 }));
 
-const queueDmRelay = vi.fn();
-const queueDmMessageDeleteRelay = vi.fn();
-vi.mock('../utils/federationOutbox.js', async () => {
-  const actual = await vi.importActual<typeof import('../utils/federationOutbox.js')>('../utils/federationOutbox.js');
-  return {
-    ...actual,
-    isFederationRelayEnabled: () => false,
-    queueDmCloseRelay: vi.fn(),
-    queueDmRelay: (...args: unknown[]) => queueDmRelay(...args),
-    queueDmMessageDeleteRelay: (...args: unknown[]) => queueDmMessageDeleteRelay(...args),
-    queueOutboxEvent: vi.fn(),
-    queueReadStateRelay: vi.fn(),
-    sendTypingRelay: vi.fn(),
-    appendMutationLog: vi.fn(),
-  };
-});
-
-vi.mock('../utils/federationAuth.js', async (importActual) => {
-  const actual = await importActual<typeof import('../utils/federationAuth.js')>();
-  return { ...actual, getOurOrigin: () => 'https://local.test' };
-});
+const outgoingHttp = vi.fn<typeof fetch>();
 
 vi.mock('../utils/embedResolver.js', async (importActual) => {
   const actual = await importActual<typeof import('../utils/embedResolver.js')>();
@@ -105,22 +85,19 @@ function applyMigrations(db: Database.Database): void {
 
 interface SeedUserOpts {
   deleted?: boolean;
-  homeUserId?: string;
-  homeInstance?: string;
+  username?: string;
 }
 
 function seedUser(id: string, opts: SeedUserOpts = {}): void {
   testDb.insert(schema.users).values({
     id,
-    username: opts.deleted ? `!deleted:${id}` : id,
+    username: opts.deleted ? `!deleted:${id}` : opts.username ?? id,
     displayName: null,
     passwordHash: 'x',
     status: 'offline',
     isAdmin: 0,
     isDeleted: opts.deleted ? 1 : 0,
     discoverable: 1,
-    homeInstance: opts.homeInstance ?? null,
-    homeUserId: opts.homeUserId ?? null,
     createdAt: Date.now(),
   }).run();
 }
@@ -129,7 +106,6 @@ function seedDm(id: string, memberIds: string[], ownerId: string | null = null):
   testDb.insert(schema.dmChannels).values({
     id,
     ownerId,
-    federatedId: null,
     createdAt: Date.now(),
     metadataUpdatedAt: 0,
   }).run();
@@ -179,7 +155,7 @@ async function send(event: Record<string, unknown>, userId = 'alice', address?: 
   const { handleClientEvent } = await import('./events.js');
   lastSocket = {} as WebSocket;
   if (address) recordSocketAddress(lastSocket, address);
-  handleClientEvent(event, userId, userId, lastSocket, false);
+  handleClientEvent(event, userId, userId, lastSocket);
 }
 
 /** Every event the server sent to a user's sessions, as `[recipient, event]` pairs. */
@@ -204,10 +180,7 @@ function expectOnlyRefusal(code: string, details?: Record<string, unknown>): voi
   else expect(event.details).toBeUndefined();
 }
 
-// Dead 1-on-1s: alice with a deleted native user, alice with a deleted
-// replicated user, and a federated account acting here with a deleted native
-// user. Live conversations: a 1-on-1 and a group that still holds a deleted
-// member's row.
+// Native dead/live 1-on-1s and groups, including sovereign legacy handles.
 const DEAD_LOCAL = 'dm-dead-local';
 const DEAD_REMOTE = 'dm-dead-remote';
 const DEAD_FOR_FEDERATED = 'dm-dead-federated';
@@ -224,8 +197,8 @@ beforeEach(() => {
   seedUser('alice');
   seedUser('bob');
   seedUser('gone', { deleted: true });
-  seedUser('gone-remote', { deleted: true, homeUserId: 'r-gone-1', homeInstance: 'https://orbit.test' });
-  seedUser('fed-carol', { homeUserId: 'r-carol-1', homeInstance: 'https://orbit.test' });
+  seedUser('gone-remote', { deleted: true });
+  seedUser('fed-carol', { username: 'legacy@old.invalid' });
 
   seedDm(DEAD_LOCAL, ['alice', 'gone']);
   seedDm(DEAD_REMOTE, ['alice', 'gone-remote']);
@@ -238,9 +211,9 @@ beforeEach(() => {
   _resetActionLimits();
   sendToUser.mockClear();
   sendToWs.mockClear();
-  queueDmRelay.mockClear();
-  queueDmMessageDeleteRelay.mockClear();
+  outgoingHttp.mockReset(); vi.stubGlobal('fetch', outgoingHttp);
 });
+afterEach(() => { sqlite.close(); vi.unstubAllGlobals(); });
 
 describe('WS DM message writes in a 1-on-1 whose partner was deleted', () => {
   it.each([
@@ -252,7 +225,7 @@ describe('WS DM message writes in a 1-on-1 whose partner was deleted', () => {
 
     expectOnlyRefusal('recipient_deleted');
     expect(messagesIn(dmId)).toHaveLength(0);
-    expect(queueDmRelay).not.toHaveBeenCalled();
+    expect(outgoingHttp).not.toHaveBeenCalled();
   });
 
   it('refuses an attachment-only create and leaves the attachment unlinked', async () => {
@@ -277,7 +250,7 @@ describe('WS DM message writes in a 1-on-1 whose partner was deleted', () => {
     expectOnlyRefusal('recipient_deleted');
     expect(messageRow(id)?.content).toBe('before');
     expect(messageRow(id)?.editedAt).toBeNull();
-    expect(queueDmRelay).not.toHaveBeenCalled();
+    expect(outgoingHttp).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -291,7 +264,7 @@ describe('WS DM message writes in a 1-on-1 whose partner was deleted', () => {
 
     expectOnlyRefusal('recipient_deleted');
     expect(messageRow(id)).toBeDefined();
-    expect(queueDmMessageDeleteRelay).not.toHaveBeenCalled();
+    expect(outgoingHttp).not.toHaveBeenCalled();
   });
 });
 
@@ -305,29 +278,24 @@ describe('WS DM message writes where the rule does not apply', () => {
     expect(created?.content).toBe('hi');
     expect(sent().some(([, e]) => e.type === 'dm_message_created')).toBe(true);
     expect(sent().some(([, e]) => e.type === 'error')).toBe(false);
-    expect(queueDmRelay).toHaveBeenCalledTimes(1);
-    expect(queueDmRelay).toHaveBeenCalledWith(expect.objectContaining({ id: created!.id }), dmId, 'create');
+    expect(outgoingHttp).not.toHaveBeenCalled();
 
     sendToUser.mockClear();
-    queueDmRelay.mockClear();
     await send({ type: 'dm_message_edit', messageId: created!.id, content: 'hi again' });
     expect(messageRow(created!.id)?.content).toBe('hi again');
     expect(sent().some(([, e]) => e.type === 'dm_message_updated')).toBe(true);
-    expect(queueDmRelay).toHaveBeenCalledTimes(1);
-    expect(queueDmRelay).toHaveBeenCalledWith(
-      expect.objectContaining({ id: created!.id, content: 'hi again' }), dmId, 'update',
-    );
+    expect(outgoingHttp).not.toHaveBeenCalled();
 
     sendToUser.mockClear();
     await send({ type: 'dm_message_delete', messageId: created!.id });
     expect(messageRow(created!.id)).toBeUndefined();
     expect(sent().some(([, e]) => e.type === 'dm_message_deleted')).toBe(true);
     expect(sent().some(([, e]) => e.type === 'error')).toBe(false);
-    expect(queueDmMessageDeleteRelay).toHaveBeenCalledTimes(1);
+    expect(outgoingHttp).not.toHaveBeenCalled();
     expect(sendToWs).not.toHaveBeenCalled();
   });
 
-  it('creates with an attachment: links it, sends one dm_message_created per member, relays once', async () => {
+  it('atomically links an attachment and sends one native message event per member without HTTP', async () => {
     seedAttachment('att-own', 'alice');
 
     await send({ type: 'dm_message_create', dmChannelId: LIVE, content: 'look', attachments: ['att-own'] });
@@ -343,12 +311,7 @@ describe('WS DM message writes where the rule does not apply', () => {
     expect(message.id).toBe(created!.id);
     expect(message.attachments.map((a) => a.id)).toEqual(['att-own']);
 
-    expect(queueDmRelay).toHaveBeenCalledTimes(1);
-    expect(queueDmRelay).toHaveBeenCalledWith(
-      expect.objectContaining({ id: created!.id, attachments: [expect.objectContaining({ id: 'att-own' })] }),
-      LIVE,
-      'create',
-    );
+    expect(outgoingHttp).not.toHaveBeenCalled();
     expect(sendToWs).not.toHaveBeenCalled();
   });
 
@@ -367,7 +330,7 @@ describe('WS DM message writes where the rule does not apply', () => {
     const first = testDb.select().from(schema.attachments).where(eq(schema.attachments.id, 'att-first')).get();
     expect(first?.dmMessageId).toBeNull();
     expect(sent()).toHaveLength(0);
-    expect(queueDmRelay).not.toHaveBeenCalled();
+    expect(outgoingHttp).not.toHaveBeenCalled();
   });
 });
 
@@ -383,7 +346,7 @@ describe('WS DM message edits and deletes by someone no longer in the conversati
     expectOnlyRefusal('not_dm_member');
     expect(messageRow(id)?.content).toBe('before');
     expect(messageRow(id)?.editedAt).toBeNull();
-    expect(queueDmRelay).not.toHaveBeenCalled();
+    expect(outgoingHttp).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -396,7 +359,7 @@ describe('WS DM message edits and deletes by someone no longer in the conversati
 
     expectOnlyRefusal('not_dm_member');
     expect(messageRow(id)).toBeDefined();
-    expect(queueDmMessageDeleteRelay).not.toHaveBeenCalled();
+    expect(outgoingHttp).not.toHaveBeenCalled();
   });
 
   it('refuses an edit and a delete in a 1-on-1 the user is not in', async () => {
@@ -460,8 +423,7 @@ describe('every other refusal on the WS DM message paths carries a code', () => 
       [ids.bobs, 'his', null],
     ]));
     expect(messagesIn(LIVE)).toHaveLength(3);
-    expect(queueDmRelay).not.toHaveBeenCalled();
-    expect(queueDmMessageDeleteRelay).not.toHaveBeenCalled();
+    expect(outgoingHttp).not.toHaveBeenCalled();
   });
 });
 
@@ -473,18 +435,17 @@ describe('the WS dm_message_create rate limit', () => {
     await send({ type: 'dm_message_create', dmChannelId, content: 'hi' }, userId, address);
   }
 
-  it('admits a natural burst for one account, then refuses without storing or relaying', async () => {
+  it('admits a natural burst for one account, then refuses without storing or HTTP', async () => {
     for (let i = 0; i < max; i += 1) await createFrom('198.51.100.7');
     expect(messagesIn(LIVE)).toHaveLength(max);
     expect(sendToWs).not.toHaveBeenCalled();
 
     sendToUser.mockClear();
-    queueDmRelay.mockClear();
     await createFrom('198.51.100.7');
 
     expectOnlyRefusal('rate_limited');
     expect(messagesIn(LIVE)).toHaveLength(max);
-    expect(queueDmRelay).not.toHaveBeenCalled();
+    expect(outgoingHttp).not.toHaveBeenCalled();
   });
 
   it('counts by verified actor across sockets and addresses, not NAT neighbors', async () => {
@@ -604,8 +565,7 @@ describe('the REST routes answer from the same checks', () => {
       expect(JSON.parse(res.body).code).toBe('not_dm_member');
     }
     expect(messageRow(id)?.content).toBe('before');
-    expect(queueDmRelay).not.toHaveBeenCalled();
-    expect(queueDmMessageDeleteRelay).not.toHaveBeenCalled();
+    expect(outgoingHttp).not.toHaveBeenCalled();
   });
 
   it('sends the length limit with content_too_long', async () => {

@@ -2,10 +2,11 @@ import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MAX_MEMBER_NICKNAME_LENGTH, normalizeMemberNickname } from '@veyvox/shared/src/constants';
 import { Modal } from '../../ui/Modal';
-import { getApiForOrigin } from '../../../stores/spaceStore';
+import { useAuthStore } from '../../../stores/authStore';
+import { api } from '../../../api/client';
 import { applySpaceMemberUpdate } from '../../../stores/spaceMemberUpdates';
 import { describeError } from '../../../i18n/errors';
-import type { MemberTarget } from './memberRoleActions';
+import { getCurrentMember, type MemberTarget } from './memberRoleActions';
 
 /**
  * Sets or clears one member's nickname in one space. `accountName` is what
@@ -28,7 +29,7 @@ export function MemberNicknameDialog({ target, nickname, accountName, self, onCl
   const close = () => { if (!writing.current) onClose(); };
 
   const save = async (raw: string | null) => {
-    if (writing.current) return;
+    if (writing.current || !getCurrentMember(target)) return;
     const next = normalizeMemberNickname(raw);
     if (next === undefined) {
       setError(t('errors:member_nickname_invalid', { max: MAX_MEMBER_NICKNAME_LENGTH }));
@@ -42,14 +43,15 @@ export function MemberNicknameDialog({ target, nickname, accountName, self, onCl
     setSaving(true);
     setError('');
     try {
-      const member = await getApiForOrigin(target.origin).spaces.updateMember(target.spaceId, target.userId, { nickname: next });
-      applySpaceMemberUpdate(target.origin, member);
+      const member = await api.spaces.updateMember(target.spaceId, target.userId, { nickname: next });
+      if (target.sessionRevision !== useAuthStore.getState().sessionRevision) return;
+      applySpaceMemberUpdate(member);
       onClose();
     } catch (err) {
-      setError(describeError(err));
+      if (target.sessionRevision === useAuthStore.getState().sessionRevision) setError(describeError(err));
     } finally {
       writing.current = false;
-      setSaving(false);
+      if (target.sessionRevision === useAuthStore.getState().sessionRevision) setSaving(false);
     }
   };
 

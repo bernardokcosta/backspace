@@ -9,6 +9,7 @@ import * as schema from '../db/schema.js';
 import { setWorkerId } from '../utils/snowflake.js';
 import { and, eq } from 'drizzle-orm';
 import type { DmChannel, DmMessageWithUser } from '@veyvox/shared';
+import { oneOnOneKey } from '../utils/dmConversation.js';
 
 setWorkerId(1);
 
@@ -52,22 +53,19 @@ const GROUP = 'dm-group';
 
 function seed(): void {
   testDb.insert(schema.users).values([
-    { id: ME, username: 'me', passwordHash: 'x', homeUserId: null, homeInstance: null, createdAt: now },
-    { id: 'user-bob', username: 'bob', passwordHash: 'x', homeUserId: 'bob-home', homeInstance: 'remote.example', createdAt: now },
-    { id: 'user-carol', username: 'carol', passwordHash: 'x', homeUserId: null, homeInstance: null, createdAt: now },
+    { id: ME, username: 'me', passwordHash: 'x', createdAt: now },
+    { id: 'user-bob', username: 'bob', passwordHash: 'x', createdAt: now },
+    { id: 'user-carol', username: 'carol', passwordHash: 'x', createdAt: now },
   ]).run();
 
-  // A federated 1-on-1: every nullable column that a 1-on-1 leaves empty stays null.
+  // A native 1-on-1: metadata is empty and the private pair key stays internal.
   testDb.insert(schema.dmChannels).values({
-    id: ONE_ON_ONE, ownerId: null, federatedId: 'f'.repeat(32), createdAt: now,
+    id: ONE_ON_ONE, ownerId: null, pairKey: oneOnOneKey({id:ME},{id:'user-bob'}), createdAt: now,
   }).run();
   // A group with every metadata column set.
   testDb.insert(schema.dmChannels).values({
     id: GROUP,
     ownerId: ME,
-    federatedId: '0e0e0e0e-0000-4000-8000-000000000000',
-    ownerHomeUserId: ME,
-    ownerHomeInstance: 'local.example',
     name: 'Weekend plans',
     icon: '/uploads/group-icon.png',
     metadataUpdatedAt: now + 5,
@@ -119,7 +117,7 @@ describe('DmChannel wire shape: GET /api/dm, ready and dm_channel_created agree'
   });
 
   it.each([
-    ['a federated 1-on-1', ONE_ON_ONE],
+    ['a native 1-on-1', ONE_ON_ONE],
     ['a group', GROUP],
   ])('the list entry for %s has the same keys and values as the ready entry', async (_label, id) => {
     const readyEntry = (await readyDmChannels()).find(d => d.id === id);
@@ -130,17 +128,15 @@ describe('DmChannel wire shape: GET /api/dm, ready and dm_channel_created agree'
     expect(listEntry).toEqual(readyEntry);
   });
 
-  it('the list carries the conversation key and the group metadata', async () => {
+  it('the list carries native group metadata without private or obsolete keys', async () => {
     const list = await listedDmChannels(app);
     const one = list.find(d => d.id === ONE_ON_ONE)!;
     const group = list.find(d => d.id === GROUP)!;
-    expect(one.federatedId).toBe('f'.repeat(32));
+    expect(one).not.toHaveProperty('pairKey');
+    expect(one).not.toHaveProperty('federatedId');
     expect(one.name).toBeNull();
     expect(group).toMatchObject({
-      federatedId: '0e0e0e0e-0000-4000-8000-000000000000',
       ownerId: ME,
-      ownerHomeUserId: ME,
-      ownerHomeInstance: 'local.example',
       name: 'Weekend plans',
       icon: '/uploads/group-icon.png',
       metadataUpdatedAt: now + 5,
@@ -148,7 +144,7 @@ describe('DmChannel wire shape: GET /api/dm, ready and dm_channel_created agree'
   });
 
   it.each([
-    ['a federated 1-on-1', ONE_ON_ONE],
+    ['a native 1-on-1', ONE_ON_ONE],
     ['a group', GROUP],
   ])('the dm_channel_created payload for %s has the same keys as the ready entry', async (_label, id) => {
     const { loadDmChannelWire } = await import('../utils/dmChannelWire.js');
@@ -175,8 +171,8 @@ describe('every DmChannel emitter builds its payload with loadDmChannelWire', ()
     applyMigrations(sqlite);
     seed();
     testDb.insert(schema.users).values([
-      { id: 'user-dave', username: 'dave', passwordHash: 'x', homeUserId: null, homeInstance: null, createdAt: now },
-      { id: 'user-erin', username: 'erin', passwordHash: 'x', homeUserId: null, homeInstance: null, createdAt: now },
+      { id: 'user-dave', username: 'dave', passwordHash: 'x', createdAt: now },
+      { id: 'user-erin', username: 'erin', passwordHash: 'x', createdAt: now },
     ]).run();
     testDb.insert(schema.friends).values([
       { userId: ME, friendId: 'user-carol', createdAt: now },

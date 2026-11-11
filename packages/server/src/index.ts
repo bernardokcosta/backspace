@@ -38,15 +38,12 @@ import { searchRoutes } from './routes/search.js';
 import { adminRoutes } from './routes/admin.js';
 import { adminUpdateRoutes } from './routes/adminUpdates.js';
 import { gifRoutes } from './routes/gif.js';
-import { federationRoutes } from './routes/federation.js';
 import { cspReportRoutes } from './routes/cspReport.js';
 import { diagnosticRoutes } from './routes/diagnostics.js';
 import { DiagnosticLogStore, diagnosticLoggerStream, captureServerConsole, writeDiagnostic, installFatalDiagnostics } from './utils/diagnosticLogs.js';
 import { buildCspHeaderValue, CSP_REPORT_GROUP, CSP_REPORT_PATH } from './utils/csp.js';
-import { startFederationWorkers, stopFederationWorkers } from './utils/federationWorker.js';
+import { startStorageWorker, stopStorageWorker } from './utils/storageWorker.js';
 import { startBackupWorker, stopBackupWorker } from './utils/backupWorker.js';
-import './utils/federationRollback.js'; // Side-effect: registers rollback callbacks for outbox terminal failures.
-import { registerCallRelayHooks } from './ws/events.js';
 import { resetStalePresenceOnBoot } from './utils/presenceBoot.js';
 
 import { registerWebSocket } from './ws/handler.js';
@@ -78,13 +75,8 @@ async function main(): Promise<void> {
       ['/api/health', '/api/diagnostics'].includes(request.url.split('?', 1)[0] ?? '') }),
   });
 
-  // The origin is deliberately reflected rather than restricted to a peer
-  // allowlist. Client federation has a browser on one instance call
-  // /api/instance/info, /api/auth/register and /api/auth/login directly against
-  // another instance BEFORE any server-to-server peering exists, and peering can
-  // legitimately be declined by an admin while that browser connection keeps
-  // working (see instanceStore.connectToRemote and docs/systems/client-federation.md).
-  // An allowlist would reject the whole onboarding flow.
+  // The separately hosted web/desktop client can select this instance on login,
+  // so the API supports explicit bearer-authenticated cross-origin requests.
   //
   // Reflecting is safe here only because there is no ambient credential to ride
   // on: this API has no cookies and no HTTP auth, and the bearer token is read
@@ -97,7 +89,7 @@ async function main(): Promise<void> {
   await app.register(cors, {
     origin: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
-    // Tus-* and Upload-* headers are required for federated tus uploads
+    // Tus-* and Upload-* headers are required for a separately hosted client
     // (cross-origin POST/HEAD/PATCH/DELETE on /api/files/*). Without them the
     // browser preflight blocks the request before it ever reaches the server.
     allowedHeaders: [
@@ -114,8 +106,7 @@ async function main(): Promise<void> {
     ],
     // Expose tus response headers so tus-js-client can read them across origins
     // (Location is the per-upload URL returned on POST; the rest are standard
-    // tus protocol headers). MESSAGE_PAGING_HEADER tells a client talking to
-    // another instance that a history request honoured `after`.
+    // tus protocol headers). MESSAGE_PAGING_HEADER acknowledges `after` support.
     exposedHeaders: [
       'Retry-After',
       'X-RateLimit-Limit',
@@ -144,8 +135,7 @@ async function main(): Promise<void> {
     // Only the TLS terminator knows whether HTTPS is actually in play. Caddy
     // owns HSTS; see Caddyfile and docs/systems/web-security.md.
     strictTransportSecurity: false,
-    // Federation loads avatars and attachments across origins with plain <img>
-    // and <video>. helmet's default of same-origin would block all of it.
+    // A separately hosted web/desktop client loads native assets across origins.
     crossOriginResourcePolicy: { policy: 'cross-origin' },
     crossOriginOpenerPolicy: { policy: 'same-origin' },
     // Not enabled: it would require CORP headers on every third-party image an
@@ -221,11 +211,8 @@ async function main(): Promise<void> {
   // Initialize database
   getDb();
 
-  // Reset orphaned `users.status` rows this instance owns (native and detached
-  // accounts). The previous process's in-memory disconnect timers are gone, so
-  // any non-offline owned row is stale by construction. Replicated rows are
-  // skipped — their status is a projection of remote presence, not local WS
-  // state. Must run
+  // The previous process's disconnect timers are gone. Reset stale live status
+  // without changing saved chosen status. Must run
   // before WS auth is accepted so the first connection broadcasts the correct
   // online transition. See utils/presenceBoot.ts.
   resetStalePresenceOnBoot();
@@ -260,7 +247,6 @@ async function main(): Promise<void> {
   await app.register(adminRoutes);
   await app.register(adminUpdateRoutes);
   await app.register(gifRoutes);
-  await app.register(federationRoutes);
   // Registered here rather than beside the hook above so it sits behind the
   // rate limiter. The sink is unauthenticated by design and writes a log line
   // per report, and @fastify/rate-limit only covers routes registered after it.
@@ -294,27 +280,14 @@ async function main(): Promise<void> {
   // Log ffmpeg availability at startup (so admins see the warning immediately)
   checkFfmpeg();
 
-  // Register WS-layer call relay hooks (ring-timeout fan-out).
-  registerCallRelayHooks();
-
-  // Start federation background workers (outbox delivery, file download, health check,
-  // storage janitor, federated-call sentinel). Skip when DISABLE_FEDERATION_WORKERS is
-  // set to '1' or 'true' (matches envBool semantics in config.ts; used by integration
-  // tests to keep two-instance harnesses quiet).
-  const disableWorkers = process.env.DISABLE_FEDERATION_WORKERS === '1'
-    || process.env.DISABLE_FEDERATION_WORKERS === 'true';
-  if (disableWorkers) {
-    console.log('[startup] federation workers disabled via DISABLE_FEDERATION_WORKERS');
-  } else {
-    startFederationWorkers();
-  }
+  startStorageWorker();
 
   startBackupWorker();
 
   const shutdown = async () => {
     writeDiagnostic(diagnosticLogs, 'server', { event: 'server-stopped', subsystem: 'server', level: 'info', version: config.version });
     console.log('Shutting down...');
-    stopFederationWorkers();
+    stopStorageWorker();
     stopBackupWorker();
     await app.close();
     closeDatabase(); // checkpoints WAL — leaves a complete on-disk file

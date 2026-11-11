@@ -1,30 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "zdalna instancja",
-    "hostInstance": "instancja hostująca",
-    "acceptDropped": "Nie udało się potwierdzić przyjęcia z {{instance}} — rozmowa została przerwana.",
-    "rejectFailed": "Nie udało się powiadomić {{instances}}, że odrzuciłeś. Dzwoniący może widzieć Cię jako dzwoniącego jeszcze przez chwilę.",
-    "endFailed": "Nie udało się powiadomić {{instances}}, że się rozłączyłeś. Uczestnicy mogą widzieć rozmowę jeszcze do 60 sekund.",
-    "hostUnreachable": "Rozmowa zakończona — utracono połączenie z instancją hostującą.",
-    "peeringLost": "Rozmowa zakończona — ta instancja nie ma już federacji z {{instance}}.",
-    "instanceUnreachable": "Rozmowa zakończona — utracono połączenie z {{instance}}.",
-    "someUnreachable": "Nie udało się dotrzeć do niektórych uczestników: {{instances}}.",
-    "multipleUnreachable_one": "Nie udało się połączyć z {{count}} instancją: {{instances}}.",
-    "multipleUnreachable_few": "Nie udało się połączyć z {{count}} instancjami: {{instances}}.",
-    "multipleUnreachable_many": "Nie udało się połączyć z {{count}} instancjami: {{instances}}.",
-    "multipleUnreachable_other": "Nie udało się połączyć z {{count}} instancją: {{instances}}.",
-    "callFailed": "Nie udało się nawiązać połączenia.",
-    "manualApproval": "Brak połączenia z {{instance}} — ta instancja wymaga ręcznego zatwierdzenia federacji.",
-    "awaitingApproval": "Oczekiwanie na zatwierdzenie Twojej instancji przez administratora {{instance}}. Połączenia zadziałają po zatwierdzeniu.",
-    "transientFailure": "Brak połączenia z {{instance}}. Spróbuj za chwilę.",
-    "voiceUnavailable": "Głos nie jest skonfigurowany na tej instancji.",
-    "noRecipient": "{{instance}} nie mogła nikogo zawołać.",
-    "targetCallFailed": "Nie udało się zadzwonić do {{instance}}."
-  },
-  "feedback": {
-    "relayDenied": "Nie można przekazywać wiadomości — ich serwer odmówił federacji. Skontaktuj się z administratorem.",
-    "awaitingPeering": "Wiadomości zostaną dostarczone, gdy ich administrator zatwierdzi prośbę o federację."
-  },
   "names": {
     "group": "Grupa",
     "directMessage": "Wiadomość bezpośrednia",
@@ -174,14 +148,9 @@
     "notFound": "Nie znaleziono rozmowy.",
     "notGroup": "Ta rozmowa nie ma informacji o grupie.",
     "cancelEdit": "Anuluj edycję",
-    "federated": "Sfederowana grupa",
     "memberCount_one": "{{count}} członek",
     "memberCount_few": "{{count}} członkowie",
     "memberCount_many": "{{count}} członków",
     "memberCount_other": "{{count}} członka"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "Ta grupa jest zarządzana na {{host}}. Połącz się z tą instancją, aby ją zmienić.",
-    "ownerNotListed": "{{host}} nie pokazuje Ci jeszcze tej grupy. Spróbuj za chwilę."
   }
 }

@@ -16,9 +16,8 @@ import { dmMessageEditRefusal } from './dmSystemMessages.js';
  * details in an `error` event.
  *
  * Identity: every id here is a row id on this instance. The session's user
- * row and the conversation's member rows live in the same table, so a
- * federated account acting here, or a replicated partner whose home deleted
- * them (tombstoned here by the identity delete), is judged by its own row.
+ * row and the conversation's member rows live in the same native table;
+ * tombstones are judged by that same row, never an inferred external identity.
  *
  * Membership: all three checks ask `isDmMember` against this instance's copy
  * of the conversation. A member who left or was removed from a group no

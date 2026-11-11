@@ -19,16 +19,13 @@ function makeUser(id: string, username: string, displayName: string | null): Use
   return {
     id, username, displayName, avatar: null, banner: null, accentColor: null, avatarColor: null,
     bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
-    homeInstance: null, homeUserId: null, replicatedInstances: [],
   };
 }
 
 const me = makeUser('me', 'alice', 'Alice');
-// Replicated rows from orbit: their usernames carry the instance.
+// Preserved native handles can contain @ without representing a foreign identity.
 const zed = makeUser('zed-stub', 'zed@orbit.example', null);
 const zedNamed = makeUser('zed-named', 'zed@orbit.example', 'Zed');
-// A user native to this instance, and a replicated row of a user whose home
-// is this instance (seen through another instance's space).
 const mira = makeUser('mira', 'mira', null);
 const frank = makeUser('frank-stub', `frank@${window.location.host}`, 'Frank');
 const dm = { id: 'dm-1', ownerId: 'me', name: 'Crew', createdAt: 1, members: [me, zed, zedNamed, mira, frank], lastMessage: null } as unknown as DmChannel;
@@ -53,12 +50,12 @@ function dmMessage(id: string, author: User, replyTo: MessageWithUser | null): M
 
 beforeEach(() => {
   useAuthStore.setState({ user: me });
-  useSpaceStore.setState({ dmChannels: [dm], channelOriginMap: new Map([[dm.id, '']]) });
+  useSpaceStore.setState({ dmChannels: [dm] });
 });
 
 afterEach(() => {
   useAuthStore.setState({ user: null });
-  useSpaceStore.setState({ dmChannels: [], channelOriginMap: new Map() });
+  useSpaceStore.setState({ dmChannels: [] });
 });
 
 /** The name element in a row, and whether it carries the federation globe. */
@@ -68,15 +65,13 @@ function nameIn(rowId: string, text: string): { text: string | null; globe: bool
   return { text: name.textContent, globe: name.querySelector('svg') !== null };
 }
 
-// One rule for every row that names a person, as the DM list and header do:
-// the display name, else the base of the username, as plain text, and the
-// globe exactly when the person is from another instance.
+// One native display-name/full-username rule, without foreign-identity badges.
 describe('Message author names', () => {
   it.each([
-    ['a federated author without a display name', zed, 'zed', true],
-    ['a federated author with a display name', zedNamed, 'Zed', true],
+    ['a retained handle without a display name', zed, 'zed@orbit.example', false],
+    ['a retained handle with a display name', zedNamed, 'Zed', false],
     ['a native author', mira, 'mira', false],
-    ["a replicated row of a user whose home is this instance", frank, 'Frank', false],
+    ['an @ handle containing the page hostname', frank, 'Frank', false],
   ])('names %s in the author row', (_label, author, shown, globe) => {
     const message = dmMessage('m-1', author, null);
     render(<Message message={message} isCompact={false} isFirstInGroup previousMessageId={null} />);
@@ -84,8 +79,8 @@ describe('Message author names', () => {
   });
 
   it.each([
-    ['a federated author without a display name', zed, 'zed', true],
-    ['a federated author with a display name', zedNamed, 'Zed', true],
+    ['a retained handle without a display name', zed, 'zed@orbit.example', false],
+    ['a retained handle with a display name', zedNamed, 'Zed', false],
     ['a native author', mira, 'mira', false],
   ])('names %s in a reply preview', (_label, author, shown, globe) => {
     const original = dmMessage('m-0', author, null);

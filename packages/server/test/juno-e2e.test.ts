@@ -4,10 +4,9 @@ import path from 'node:path';
 import { tmpdir } from 'node:os';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { canPlayJuno, type JunoAction, type JunoSnapshot, type JunoRankingPage } from '@veyvox/shared/src/juno.js';
-import { spawnInstance, type SpawnedInstance } from './helpers/twoInstanceHarness.js';
+import { spawnInstance, stopInstance, type SpawnedInstance } from './helpers/instanceHarness.js';
 import { registerLocal, type TestUser } from './helpers/testUsers.js';
 import { connectWs, type WsCapture } from './helpers/wsListener.js';
-import { waitUntil } from './helpers/federationE2E.js';
 
 vi.setConfig({ testTimeout: 60_000 });
 let instance: SpawnedInstance;
@@ -77,13 +76,13 @@ beforeAll(async () => {
     const ws = await connectWs(instance.origin, user.token); sockets.push(ws);
     expect((await ws.waitForEvent('ready')).supportsJuno).toBe(true);
     ws.send({ type: 'voice_join', channelId });
-    await waitUntil(() => ws.events.some(e => e.type === 'voice_state_update' && e.userId === user.id && e.action === 'join'), { timeoutMs: 5_000 });
+    expect(await ws.waitForEvent('voice_state_update')).toMatchObject({ userId: user.id, action: 'join' });
   }
 }, 90_000);
 afterAll(async () => {
   for (const ws of sockets) ws.close();
   if (instance?.proc.exitCode === null && instance.proc.signalCode === null) {
-    const exited = new Promise<void>(resolve => instance.proc.once('exit', () => resolve())); instance.proc.kill('SIGTERM'); await exited;
+    await stopInstance(instance);
   }
   if (directory) await rm(directory, { recursive: true, force: true }); // Only this suite's unique fixture.
 });
@@ -121,7 +120,7 @@ describe('real Juno server with four independently authenticated voice sockets',
     expect(snapshot.game!.practice).toBe(true); expect(snapshot.game!.hand).toHaveLength(7);
     let own = snapshot;
     for (let n = 0; n < 2 && own.game!.currentPlayerId === owner.id; n++) own = await act(owner, { type: own.game!.drawnCardId ? 'pass' : 'draw' });
-    await waitUntil(async () => (await read(owner)).game!.lastMove?.userId === bot.userId, { timeoutMs: 6000 });
+    await expect.poll(async () => (await read(owner)).game!.lastMove?.userId === bot.userId, { timeout: 6000 }).toBe(true);
     const move = (await read(owner)).game!.lastMove!;
     expect(move.id).toBeTruthy(); expect((await read(owner)).game!.lastMove!.id).toBe(move.id);
     expect((await read(users[4]!)).game!.hand).toEqual([]);
@@ -135,14 +134,14 @@ describe('real Juno server with four independently authenticated voice sockets',
     channelId = ((await channel.json()) as { id: string }).id;
     for (let i = 0; i < 2; i++) {
       sockets[i]!.send({ type: 'voice_join', channelId });
-      await waitUntil(() => sockets[i]!.events.some(e => e.type === 'voice_state_update' && e.channelId === channelId && e.userId === users[i]!.id && e.action === 'join'), { timeoutMs: 5000 });
+      await expect.poll(() => sockets[i]!.events.some(e => e.type === 'voice_state_update' && e.channelId === channelId && e.userId === users[i]!.id && e.action === 'join'), { timeout: 5000 }).toBe(true);
     }
     await act(users[0]!, { type: 'create' }); await act(users[1]!, { type: 'join' });
     expect((await finishRound(await act(users[0]!, { type: 'start' }))).game!.scoreboard?.status).toBe('credited');
     const before = await (await call(users[0]!, 'GET', `/api/spaces/${spaceId}/juno/ranking`)).json() as JunoRankingPage;
     expect(before.me.completedRounds).toBe(2);
     for (const ws of sockets) ws.close();
-    const exited = new Promise<void>(resolve => instance.proc.once('exit', () => resolve())); instance.proc.kill('SIGTERM'); await exited;
+    await stopInstance(instance);
     instance = await spawnInstance({ domain: instance.domain, dbPath: instance.dbPath, storagePath: instance.storagePath,
       jwtSecret: instance.jwtSecret, logPath: path.join(directory, 'restarted.log') });
     const after = await (await call(users[0]!, 'GET', `/api/spaces/${spaceId}/juno/ranking`)).json() as JunoRankingPage;

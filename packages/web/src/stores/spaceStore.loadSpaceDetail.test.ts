@@ -25,7 +25,6 @@ function user(id: string): User {
   return {
     id, username: id, displayName: null, avatar: null, banner: null, accentColor: null,
     avatarColor: null, bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
-    homeInstance: null, homeUserId: null, replicatedInstances: [],
   };
 }
 

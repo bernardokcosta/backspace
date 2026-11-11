@@ -4,22 +4,8 @@ import { MemoryRouter } from 'react-router-dom';
 import { SystemMessage } from './SystemMessage';
 import type { DmChannel, MessageWithUser, User } from '@veyvox/shared';
 
-// SpaceInviteCard is unrelated to the cases under test but is imported by
-// SystemMessage; stub its store hooks so the import graph resolves cleanly.
-vi.mock('../../stores/spaceStore', () => ({
-  useSpaceStore: (selector: (s: unknown) => unknown) =>
-    selector({ joinByCode: vi.fn() }),
-  getApiForOrigin: vi.fn(),
-}));
-vi.mock('../../utils/inviteJoinRequest', () => ({
-  sendInviteJoinRequest: vi.fn(),
-}));
-// HttpError stays real: utils/joinErrors extends it when the card loads.
-vi.mock('../../api/client', async (importOriginal) => ({
-  HttpError: (await importOriginal<typeof import('../../api/client')>()).HttpError,
-  api: {},
-  createApiClient: vi.fn(),
-}));
+// The card has its own native integration suite; these cases cover timeline labels.
+vi.mock('./SpaceInviteCard', () => ({ SpaceInviteCard: () => null }));
 
 const actor: User = {
   id: 'U1',
@@ -34,9 +20,6 @@ const actor: User = {
   customStatus: null,
   isAdmin: false,
   createdAt: 0,
-  homeUserId: null,
-  homeInstance: null,
-  replicatedInstances: [],
 };
 
 function buildMessage(content: object, userId = 'U1'): MessageWithUser {

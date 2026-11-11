@@ -15,10 +15,12 @@ The optional daily usage ping ("Say hi to Jannis" / `hello.backspacechat.com`) a
 
 ## Persistence
 
-Historical columns and migrations remain unchanged for upgrade/rollback compatibility:
-- `instance_settings`: `telemetry_enabled`, `telemetry_id`, `telemetry_last_day`, `telemetry_last_error`, `telemetry_declined_version` (and `installed_at`, which remains backfilled by `ensureDefaults`).
-- `users`: `last_active_day`, `last_client`.
-
-ORM mappings remain only to preserve those schemas; no active feature reads, writes, clears or serializes the retired telemetry columns.
+Generated migration `0050_standalone_cleanup` permanently removes the five old
+`instance_settings.telemetry_*` columns and `users.last_active_day` / `last_client`.
+Their ORM mappings are gone. Historical migrations remain immutable so old
+installations can upgrade through the same validated transaction; rollback means
+restoring the pre-migration snapshot, not retaining obsolete columns in production.
+`installed_at`, worker identity and native operational diagnostics remain separate
+and are preserved, including `ensureDefaults`' installation-date backfill.
 
 See [admin.md](admin.md), [api.md](api.md), [database.md](database.md) and [websocket.md](websocket.md).

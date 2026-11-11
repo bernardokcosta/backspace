@@ -127,7 +127,6 @@
       "appearance": "Ulkoasu",
       "voice": "Ääni & video",
       "privacy": "Yksityisyys",
-      "connections": "Yhteydet",
       "keybinds": "Näppäinsidokset",
       "desktop": "Työpöytä",
       "instance": "Instanssi",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "Oma tili",
-    "detached": {
-      "notice": "Tämä tili on irrotettu koti-instanssistaan.",
-      "explanation": "{{homeInstance}} nollattiin tai se ei ole enää saatavilla, joten tämä tili toimii nyt paikallisesti tällä instanssilla. Profiiliasi ja salasanaasi hallitaan täällä.",
-      "reattachHint": "{{username}}:nä kohteessa {{homeInstance}} voit liittää tämän tilin uudelleen. Profiili ja läsnäolo synkronoituvat sieltä jälleen.",
-      "reattachButton": "Liitä uudelleen kohteeseen {{homeInstance}}",
-      "reattachConfirm": "Vahvista uudelleenliittäminen nimellä {{username}}",
-      "reattaching": "Liitetään uudelleen…",
-      "reattachFailed": "Uudelleenliittäminen epäonnistui",
-      "reattached": "Tili linkitetty uudelleen käyttäjään {{username}}"
-    },
     "profile": {
       "sectionTitle": "Profiilin mukautus",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "Tili",
       "status": {
-        "label": "Tila",
-        "homeUnavailable": "Tilasi pidetään kohteessa {{host}}. Yhdistä kohteeseen {{host}} muuttaaksesi sitä."
+        "label": "Tila"
       },
       "customStatus": {
         "label": "Mukautettu tila",
@@ -244,10 +232,6 @@
         "passwordPlaceholder": "Anna salasanasi",
         "submit": "Poista tilini",
         "deleting": "Poistetaan…"
-      },
-      "federation": {
-        "removing": "Poistetaan tiliäsi yhdistetyistä instansseista…",
-        "deleteAnyway": "Poista tili nyt"
       },
       "complete": {
         "title": "Tili poistettu",
@@ -310,14 +294,10 @@
       }
     }
   },
-  "connections": {
-    "title": "Yhteydet"
-  },
   "instance": {
     "tabs": {
       "general": "Yleiset",
       "registration": "Rekisteröinti",
-      "federation": "Federointi",
       "streaming": "Striimaus",
       "storage": "Tallennus",
       "users": "Käyttäjät",

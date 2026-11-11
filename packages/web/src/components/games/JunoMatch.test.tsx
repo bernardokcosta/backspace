@@ -9,7 +9,7 @@ const command = vi.fn(async () => {});
 afterEach(() => vi.useRealTimers());
 beforeEach(() => {
   command.mockClear(); useJunoStore.getState().reset();
-  useJunoStore.getState().bind({ accountId: 'a', selfId: 'a', origin: '', channelId: 'voice' }, true);
+  useJunoStore.getState().bind({ userId: 'a', origin: window.location.origin, channelId: 'voice' }, true);
   useJunoStore.setState({ snapshot: { revision: 1, game: junoGame('playing') }, observedAt: Date.now(), command });
 });
 describe('Juno cosmic interactive match', () => {
@@ -92,7 +92,7 @@ describe('Juno cosmic interactive match', () => {
   });
   it('shows a spectator only opponents and no private hand or draw action', () => {
     const game = junoGame('playing'); game.hand = [];
-    useJunoStore.setState({ target: { accountId: 'watcher', selfId: 'watcher', origin: '', channelId: 'voice' }, snapshot: { revision: 2, game } });
+    useJunoStore.setState({ target: { userId: 'watcher', origin: window.location.origin, channelId: 'voice' }, snapshot: { revision: 2, game } });
     render(<JunoMatch />); expect(screen.queryByRole('group', { name: 'Your hand' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Draw pile' })).not.toBeInTheDocument();
     expect(screen.getByText(/you’re watching/i)).toBeInTheDocument();
@@ -129,7 +129,7 @@ describe('Juno cosmic interactive match', () => {
     const game = junoGame('playing'); game.supportsReports = mode !== 'old-host'; game.players[1]!.cardCount = 1;
     game.reportOpportunities = [{ id: 'miss', targetUserId: mode === 'self' ? 'a' : 'b', remainingMs: 1000 }];
     useJunoStore.setState({ snapshot: { revision: 4, game }, connected: mode !== 'disconnected',
-      ...(mode === 'spectator' ? { target: { accountId: 'w', selfId: 'w', origin: '', channelId: 'voice' } } : {}) });
+      ...(mode === 'spectator' ? { target: { userId: 'w', origin: window.location.origin, channelId: 'voice' } } : {}) });
     render(<JunoMatch />);
     if (mode === 'disconnected') expect(screen.getByRole('button', { name: /report bo/i })).toBeDisabled();
     else expect(screen.queryByRole('button', { name: /report .*juno/i })).not.toBeInTheDocument();

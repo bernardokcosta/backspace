@@ -91,7 +91,8 @@ beforeEach(async () => {
   app = await buildApp();
 });
 
-afterEach(() => {
+afterEach(async () => {
+  await app.close(); sqlite.close();
   if (fs.existsSync(tusTmpDir)) {
     fs.rmSync(tusTmpDir, { recursive: true, force: true });
   }
@@ -268,27 +269,27 @@ describe('error codes on the admin routes', () => {
     expect(res.json()).toMatchObject({ code: 'last_admin_cannot_be_demoted', error: 'Cannot demote the last admin' });
   });
 
-  it('refuses to promote a federated user with federated_user_cannot_be_admin', async () => {
-    testDb.update(schema.users).set({ homeInstance: 'remote.example' }).where(eq(schema.users.id, USER_ID)).run();
+  it('refuses to promote a deleted account with deleted_user_role_change', async () => {
+    testDb.update(schema.users).set({ isDeleted: 1 }).where(eq(schema.users.id, USER_ID)).run();
     const res = await app.inject({
       method: 'PATCH',
       url: `/api/admin/users/${USER_ID}/role`,
       headers: { Authorization: `Bearer ${adminToken()}` },
       payload: { isAdmin: true },
     });
-    expect(res.statusCode).toBe(403);
-    expect(res.json().code).toBe('federated_user_cannot_be_admin');
+    expect(res.statusCode).toBe(400);
+    expect(res.json().code).toBe('deleted_user_role_change');
   });
 
-  it('refuses to reset a federated password with federated_user_password_managed_by_home', async () => {
-    testDb.update(schema.users).set({ homeInstance: 'remote.example' }).where(eq(schema.users.id, USER_ID)).run();
+  it('refuses to reset a password without actual admin authority', async () => {
+    const before = testDb.select().from(schema.users).all();
     const res = await app.inject({
       method: 'POST',
       url: `/api/admin/users/${USER_ID}/reset-password`,
-      headers: { Authorization: `Bearer ${adminToken()}` },
+      headers: { Authorization: `Bearer ${userToken()}` },
     });
-    expect(res.statusCode).toBe(400);
-    expect(res.json().code).toBe('federated_user_password_managed_by_home');
+    expect(res.statusCode).toBe(403);
+    expect(testDb.select().from(schema.users).all()).toEqual(before);
   });
 
   it("refuses to reset a deleted user's password with deleted_user_password_reset", async () => {

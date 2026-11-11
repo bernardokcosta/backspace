@@ -6,7 +6,7 @@
 // `?lang=en|de|ru|pt|zh` picks the interface language (initI18n's dev preview).
 import { createRoot } from 'react-dom/client';
 import type { InstanceStreamingLimits } from '@veyvox/shared';
-import { StreamQualityControls, StreamSummary, StreamHostSubtitle } from '../components/voice/StreamQualityControls';
+import { StreamQualityControls, StreamSummary } from '../components/voice/StreamQualityControls';
 import { useVoiceStore } from '../stores/voiceStore';
 import type { ScreenShareAudioState } from '../stores/voiceStore';
 import { useSettingsStore } from '../stores/settingsStore';
@@ -39,7 +39,6 @@ const STRICT_LIMITS: InstanceStreamingLimits = {
 
 interface Scene {
   caption: string;
-  origin: string;
   hostLimits: InstanceStreamingLimits;
   /** System audio of a live share; absent = not sharing (the setup screen's view). */
   live?: { audio: ScreenShareAudioState; preference: boolean };
@@ -57,61 +56,53 @@ interface Scene {
 const SCENES: Record<string, Scene> = {
   'sdr-ready': {
     caption: 'Windows Force SDR: saved off, capable host; changing recreates only the staged preview',
-    origin: '', hostLimits: HOME_LIMITS, desktopPlatform: 'win32', ownAudio: 'excluded', nativeSdr: true, forceSdr: false,
+    hostLimits: HOME_LIMITS, desktopPlatform: 'win32', ownAudio: 'excluded', nativeSdr: true, forceSdr: false,
   },
   'sdr-live': {
     caption: 'Live SDR capture: actual mode on, saved next-capture preference off; stop/restart required',
-    origin: '', hostLimits: HOME_LIMITS, desktopPlatform: 'win32', ownAudio: 'excluded', nativeSdr: true, forceSdr: false,
+    hostLimits: HOME_LIMITS, desktopPlatform: 'win32', ownAudio: 'excluded', nativeSdr: true, forceSdr: false,
     live: { audio: 'published', preference: true },
   },
   'sdr-unavailable': {
     caption: 'Browser with saved Windows preference: effective off/unavailable, saved choice preserved',
-    origin: '', hostLimits: HOME_LIMITS, forceSdr: true,
+    hostLimits: HOME_LIMITS, forceSdr: true,
   },
   home: {
-    caption: 'Home voice channel: home limits, no host line',
-    origin: '',
+    caption: 'Native voice channel with current instance limits',
     hostLimits: HOME_LIMITS,
   },
-  remote: {
-    caption: 'Federated space, saved 1080p60: the host allows 540p/720p, 30 fps, 3 Mbps, no custom bitrate',
-    origin: 'https://orbit.ddns.net',
+  strict: {
+    caption: 'Native policy with saved 1080p60: allows 540p/720p, 30 fps, 3 Mbps, no custom bitrate',
     hostLimits: STRICT_LIMITS,
   },
-  'remote-long': {
-    caption: 'Federated space on a host with a long name (wraps), saved 1080p60',
-    origin: 'https://voice-and-streaming.a-rather-long-community-instance-name.example.org',
+  'strict-custom': {
+    caption: 'Strict native limits with custom bitrate enabled, saved 1080p60',
     hostLimits: { ...STRICT_LIMITS, allowCustomBitrate: true },
   },
   'live-published': {
     caption: 'Live share sending system audio: the switch is on and can be turned off',
-    origin: '',
     hostLimits: HOME_LIMITS,
     live: { audio: 'published', preference: true },
   },
   'live-held': {
     caption: 'Browser share, audio turned off mid-stream: capture kept aside, the switch can turn it back on',
-    origin: '',
     hostLimits: HOME_LIMITS,
     live: { audio: 'held', preference: false },
   },
   'live-acquiring': {
     caption: 'Desktop app (Windows), System Audio just turned on mid-stream: switch on and waiting while the loopback capture is taken',
-    origin: '',
     hostLimits: HOME_LIMITS,
     live: { audio: 'acquiring', preference: true },
     desktopPlatform: 'win32',
   },
   'live-published-desktop': {
     caption: 'Desktop app (Windows), live share sending system audio',
-    origin: '',
     hostLimits: HOME_LIMITS,
     live: { audio: 'published', preference: true },
     desktopPlatform: 'win32',
   },
   'win10-off': {
     caption: 'Desktop app, Windows 10: System Audio still off, the warning is already there',
-    origin: '',
     hostLimits: HOME_LIMITS,
     desktopPlatform: 'win32',
     ownAudio: 'included',
@@ -119,14 +110,12 @@ const SCENES: Record<string, Scene> = {
   },
   'win10-on': {
     caption: 'Desktop app, Windows 10: System Audio on',
-    origin: '',
     hostLimits: HOME_LIMITS,
     desktopPlatform: 'win32',
     ownAudio: 'included',
   },
   'win11-off': {
     caption: 'Desktop app, Windows 11: System Audio off, nothing to warn about',
-    origin: '',
     hostLimits: HOME_LIMITS,
     desktopPlatform: 'win32',
     ownAudio: 'excluded',
@@ -134,21 +123,18 @@ const SCENES: Record<string, Scene> = {
   },
   'win11-on': {
     caption: 'Desktop app, Windows 11: System Audio on, Backspace is left out',
-    origin: '',
     hostLimits: HOME_LIMITS,
     desktopPlatform: 'win32',
     ownAudio: 'excluded',
   },
   'mac-14-on': {
     caption: 'Desktop app, macOS 14.2+: System Audio on, Backspace is left out',
-    origin: '',
     hostLimits: HOME_LIMITS,
     desktopPlatform: 'darwin',
     ownAudio: 'excluded',
   },
   'mac-13-off': {
     caption: 'Desktop app, macOS 13.0 to 14.1: System Audio off, warned',
-    origin: '',
     hostLimits: HOME_LIMITS,
     desktopPlatform: 'darwin',
     ownAudio: 'included',
@@ -156,7 +142,6 @@ const SCENES: Record<string, Scene> = {
   },
   'mac-12': {
     caption: 'Desktop app, macOS 12: no system audio at all',
-    origin: '',
     hostLimits: HOME_LIMITS,
     desktopPlatform: 'darwin',
     ownAudio: 'unavailable',
@@ -164,7 +149,6 @@ const SCENES: Record<string, Scene> = {
   },
   'linux-off': {
     caption: 'Desktop app, Linux: System Audio off, warned',
-    origin: '',
     hostLimits: HOME_LIMITS,
     desktopPlatform: 'linux',
     ownAudio: 'included',
@@ -172,13 +156,11 @@ const SCENES: Record<string, Scene> = {
   },
   'win-old-app': {
     caption: 'Desktop app too old to report the capability (Windows): the previous note, once on',
-    origin: '',
     hostLimits: HOME_LIMITS,
     desktopPlatform: 'win32',
   },
   'live-unavailable': {
     caption: 'Browser share started without audio: cannot be added mid-stream, switch disabled and explained',
-    origin: '',
     hostLimits: HOME_LIMITS,
     live: { audio: 'unavailable', preference: true },
   },
@@ -200,11 +182,9 @@ function seed(scene: Scene): void {
     };
   }
   useSettingsStore.setState({
-    streamingLimits: scene.origin ? HOME_LIMITS : scene.hostLimits,
-    streamingLimitsByOrigin: scene.origin ? { [scene.origin]: scene.hostLimits } : {},
+    streamingLimits: scene.hostLimits,
   });
   useVoiceStore.setState({
-    livekitHostOrigin: scene.origin,
     isScreenSharing: scene.live !== undefined,
     screenShareAudio: scene.live?.audio ?? null,
     screenShareSdr: !!scene.live && scene.nativeSdr === true,
@@ -221,7 +201,6 @@ function Popover() {
     <div className="w-[260px] glass rounded-lg overflow-hidden">
       <div className="px-3 py-2 border-b border-border-hard">
         <div className="text-[14px] font-bold text-txt-primary">{i18n.t('voice:streamSettings.title')}</div>
-        <StreamHostSubtitle className="mt-0.5" />
       </div>
       <div className="px-3 py-3">
         <StreamQualityControls />
@@ -240,7 +219,6 @@ function Drawer() {
       <div className="flex items-start justify-between gap-3 px-5 pt-4 pb-3 border-b border-border-hard">
         <div className="min-w-0">
           <div className="text-[15px] font-bold text-txt-primary">{i18n.t('voice:streamSettings.title')}</div>
-          <StreamHostSubtitle className="mt-0.5" />
         </div>
       </div>
       <div className="px-5 py-4">

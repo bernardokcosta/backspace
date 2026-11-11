@@ -23,7 +23,7 @@ beforeEach(async () => {
     for (const sql of fs.readFileSync(path.join(dir, file), 'utf8').split(/-->\s*statement-breakpoint/)) if (sql.trim()) sqlite.exec(sql);
   }
   testDb = drizzle(sqlite, { schema });
-  testDb.insert(schema.instanceSettings).values({ id: 1, instanceId: '123e4567-e89b-12d3-a456-426614174000', updatedAt: 1 }).run();
+  testDb.insert(schema.instanceSettings).values({ id: 1, updatedAt: 1 }).run();
   app = Fastify(); const { instanceRoutes } = await import('./instance.js'); await app.register(instanceRoutes);
 });
 afterEach(async () => { await app.close(); sqlite.close(); });
@@ -32,35 +32,33 @@ describe('GET /api/instance/info', () => {
   it('does not advertise a desktop version requirement', async () => {
     expect((await app.inject('/api/instance/info')).json()).not.toHaveProperty('minimumDesktopVersion');
   });
-  it('keeps federated registration default and stored override', async () => {
-    expect((await app.inject('/api/instance/info')).json().federatedRegistrationOpen).toBe(true);
-    testDb.update(schema.instanceSettings).set({ federatedRegistrationOpen: 0 }).where(eq(schema.instanceSettings.id, 1)).run();
-    expect((await app.inject('/api/instance/info')).json().federatedRegistrationOpen).toBe(false);
+  it('omits obsolete peer epoch and registration metadata rather than disabling a mode', async () => {
+    const result = await app.inject('/api/instance/info'); expect(result.statusCode).toBe(200);
+    expect(result.json()).not.toHaveProperty('federatedRegistrationOpen'); expect(result.json()).not.toHaveProperty('instanceId');
   });
   it('reports spaceCreationOpen default true and stored false override', async () => {
     expect((await app.inject('/api/instance/info')).json().spaceCreationOpen).toBe(true);
     testDb.update(schema.instanceSettings).set({ spaceCreationOpen: 0 }).where(eq(schema.instanceSettings.id, 1)).run();
     expect((await app.inject('/api/instance/info')).json().spaceCreationOpen).toBe(false);
   });
-  it('retains the real version, source offer, identity and upload limits', async () => {
+  it('retains the real version, source offer and upload limits', async () => {
     const res = await app.inject('/api/instance/info'); expect(res.statusCode).toBe(200);
     const body = res.json();
     expect(typeof body.name).toBe('string');
     // config.version reads the package manifest, not a hardcoded test version.
     expect(body.version).toBe(config.version); expect(body.version).toMatch(/^\d+\.\d+\.\d+$/);
-    expect(typeof body.registrationOpen).toBe('boolean'); expect(typeof body.federatedRegistrationOpen).toBe('boolean');
+    expect(typeof body.registrationOpen).toBe('boolean');
     expect(body.sourceCodeUrl).toMatch(/^https?:\/\//); expect(body.commit === null || typeof body.commit === 'string').toBe(true);
-    expect(body.instanceId).toBe('123e4567-e89b-12d3-a456-426614174000');
     expect(body.maxStickerSizeMb).toBeGreaterThan(0);
   });
-  it.each([0, 1])('omits all retired metadata with legacy flags stored as %i', async value => {
-    testDb.update(schema.instanceSettings).set({ discoveryEnabled: value, directoryEnabled: value,
-      directoryBrowseEnabled: value, directoryDirty: value, supportCardEnabled: !!value }).where(eq(schema.instanceSettings.id, 1)).run();
+  it('omits all retired metadata with no inert persistence columns', async () => {
     const before = testDb.select().from(schema.instanceSettings).get();
     const res = await app.inject('/api/instance/info'); expect(res.statusCode).toBe(200);
     for (const key of ['discoveryEnabled', 'directoryConfigured', 'directoryAvailable', 'directoryEnabled', 'directoryBrowseEnabled', 'supportCardEnabled']) {
       expect(res.json()).not.toHaveProperty(key);
     }
     expect(testDb.select().from(schema.instanceSettings).get()).toEqual(before);
+    const columns = sqlite.pragma('table_info(instance_settings)') as Array<{ name: string }>;
+    expect(columns.map(column => column.name)).not.toContain('support_card_enabled');
   });
 });

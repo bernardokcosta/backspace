@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
@@ -69,13 +69,15 @@ beforeEach(async () => {
 
   app = await buildApp();
 });
+afterEach(async () => { await app.close(); sqlite.close(); });
+
+async function seedLogin(): Promise<void> {
+  testDb.insert(schema.users).values({
+    id: 'login-user', username: 'loginuser', passwordHash: await bcrypt.hash('valid-password', 4), createdAt: Date.now(),
+  }).run();
+}
 
 describe('login admission', () => {
-  async function seedLogin(): Promise<void> {
-    testDb.insert(schema.users).values({
-      id: 'login-user', username: 'loginuser', passwordHash: await bcrypt.hash('valid-password', 4), createdAt: Date.now(),
-    }).run();
-  }
 
   it('does not count twenty successful sign-ins as credential failures', async () => {
     await seedLogin();
@@ -238,9 +240,9 @@ describe('GET /api/auth/check-invite', () => {
   });
 });
 
-describe('POST /api/auth/register — federation gate split', () => {
+describe('POST /api/auth/register — native invitation gate', () => {
   beforeEach(() => {
-    // Ensure a fresh instance_settings singleton row with both gates default-true.
+    // Ensure a fresh instance_settings singleton row with registration open.
     // The test harness's applyMigrations creates the table but does not seed the
     // id=1 row (production does so via migrate.ts:ensureDefaults on first boot).
     // Each test then mutates the toggles it cares about.
@@ -248,7 +250,6 @@ describe('POST /api/auth/register — federation gate split', () => {
     testDb.insert(schema.instanceSettings).values({
       id: 1,
       registrationOpen: 1,
-      federatedRegistrationOpen: 1,
       updatedAt: Date.now(),
     }).run();
   });
@@ -364,104 +365,6 @@ describe('POST /api/auth/register — federation gate split', () => {
     expect(redemptions).toHaveLength(0);
   });
 
-  it('federated registration: blocked when federatedRegistrationOpen=false', async () => {
-    testDb.update(schema.instanceSettings)
-      .set({ federatedRegistrationOpen: 0 })
-      .where(eq(schema.instanceSettings.id, 1))
-      .run();
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/auth/register',
-      payload: {
-        username: 'alice@otherhost',
-        password: 'password123',
-        homeInstance: 'otherhost',
-        homeUserId: 'remote-id',
-      },
-    });
-    expect(res.statusCode).toBe(403);
-    expect(res.json().error).toContain('Federated registration');
-  });
-
-  it('federated registration: blocked even with valid token when federatedRegistrationOpen=false', async () => {
-    testDb.update(schema.instanceSettings)
-      .set({ federatedRegistrationOpen: 0 })
-      .where(eq(schema.instanceSettings.id, 1))
-      .run();
-    const token = 'abcdefghijklmnopqrstuv';
-    testDb.insert(schema.inviteLinks).values({
-      id: 'inv-fed-blocked',
-      token,
-      name: 'F',
-      createdBy: ADMIN_ID,
-      createdAt: Date.now(),
-      maxUses: 5,
-      usedCount: 0,
-      expiresAt: null,
-      revokedAt: null,
-    }).run();
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/auth/register',
-      payload: {
-        username: 'alice@otherhost',
-        password: 'password123',
-        homeInstance: 'otherhost',
-        homeUserId: 'remote-id',
-        inviteToken: token,
-      },
-    });
-    expect(res.statusCode).toBe(403);
-    expect(res.json().error).toContain('Federated registration');
-
-    // Token MUST NOT be consumed
-    const inv = testDb.select().from(schema.inviteLinks)
-      .where(eq(schema.inviteLinks.id, 'inv-fed-blocked')).get();
-    expect(inv?.usedCount).toBe(0);
-  });
-
-  it('federated registration: token IGNORED even if provided (no usedCount increment)', async () => {
-    testDb.update(schema.instanceSettings)
-      .set({ registrationOpen: 0, federatedRegistrationOpen: 1 })
-      .where(eq(schema.instanceSettings.id, 1))
-      .run();
-    const token = 'abcdefghijklmnopqrstuv';
-    testDb.insert(schema.inviteLinks).values({
-      id: 'inv-fed-ignore',
-      token,
-      name: 'F',
-      createdBy: ADMIN_ID,
-      createdAt: Date.now(),
-      maxUses: 5,
-      usedCount: 0,
-      expiresAt: null,
-      revokedAt: null,
-    }).run();
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/auth/register',
-      payload: {
-        username: 'alice@otherhost',
-        password: 'password123',
-        homeInstance: 'otherhost',
-        homeUserId: 'remote-id',
-        inviteToken: token,
-      },
-    });
-    expect(res.statusCode).toBe(201);
-
-    const inv = testDb.select().from(schema.inviteLinks)
-      .where(eq(schema.inviteLinks.id, 'inv-fed-ignore')).get();
-    expect(inv?.usedCount).toBe(0);
-
-    const redemptions = testDb.select().from(schema.inviteRedemptions)
-      .where(eq(schema.inviteRedemptions.inviteId, 'inv-fed-ignore')).all();
-    expect(redemptions).toHaveLength(0);
-  });
-
   it('closed registration: token last-slot race → 403 (in-txn re-derive)', async () => {
     testDb.update(schema.instanceSettings)
       .set({ registrationOpen: 0 })
@@ -531,7 +434,6 @@ describe('POST /api/auth/register — first-user-admin promotion', () => {
     testDb.insert(schema.instanceSettings).values({
       id: 1,
       registrationOpen: 1,
-      federatedRegistrationOpen: 1,
       updatedAt: Date.now(),
     }).run();
   });
@@ -565,121 +467,83 @@ describe('POST /api/auth/register — first-user-admin promotion', () => {
     expect(second?.isAdmin).toBe(0);
   });
 
-  it('federated user (homeInstance set) is never promoted to admin even if first in DB', async () => {
+  it('a foreign-form username cannot create an account, even on an otherwise empty instance', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/api/auth/register',
       payload: { username: 'feduser@remote.example', password: 'password123', homeInstance: 'remote.example' },
     });
-    // Federated registration is open (federatedRegistrationOpen: 1)
-    expect(res.statusCode).toBe(201);
-
-    const user = testDb.select().from(schema.users).where(eq(schema.users.username, 'feduser@remote.example')).get();
-    expect(user?.isAdmin).toBe(0);
+    expect(res.statusCode).toBe(400);
+    expect(testDb.select().from(schema.users).all()).toEqual([]);
   });
 });
 
-describe('POST /api/auth/register — federation-replicated stubs are never claimed', () => {
-  // A relay-created stub is a placeholder row for a person who has never
-  // authenticated here. Public registration is unauthenticated and carries no
-  // proof of control over the claimed home identity, so it must never bind
-  // credentials to an existing stub — it may only ever create a fresh row.
-  // Merging a stub into a real account is exclusively the job of the
-  // authenticated, S2S-proof-gated reattach flow (POST /api/users/@me/reattach).
-  const STUB_ID = 'stub-user-1';
-  const STUB_HASH = '!federation-replicated';
-
+describe('POST /api/auth/register — existing native credentials are never claimed', () => {
   beforeEach(() => {
     testDb.delete(schema.instanceSettings).run();
     testDb.insert(schema.instanceSettings).values({
       id: 1,
       registrationOpen: 1,
-      federatedRegistrationOpen: 1,
       updatedAt: Date.now(),
     }).run();
   });
 
-  function seedStub(homeInstance: string, homeUserId: string, username: string): void {
-    testDb.insert(schema.users).values({
-      id: STUB_ID,
-      username,
-      passwordHash: STUB_HASH,
-      homeInstance,
-      homeUserId,
-      createdAt: Date.now(),
-    }).run();
-  }
-
-  it('a registration from a DIFFERENT home instance cannot claim a stub sharing its homeUserId', async () => {
-    // homeUserId values are only unique within an instance. A hostile instance
-    // can hand out any id it likes, so a registration must never be matched to
-    // a stub on the id alone.
-    seedStub('victim.example', 'shared-home-id', 'victim@victim.example');
-
+  it('a hostile id/identity claim cannot replace an existing native account', async () => {
+    const before = testDb.select().from(schema.users).where(eq(schema.users.id, ADMIN_ID)).get();
     const res = await app.inject({
       method: 'POST',
       url: '/api/auth/register',
       payload: {
-        username: 'mallory@attacker.example',
+        id: ADMIN_ID,
+        username: 'mallory',
         password: 'password123',
         homeInstance: 'attacker.example',
-        homeUserId: 'shared-home-id',
+        homeUserId: ADMIN_ID,
       },
     });
 
     expect(res.statusCode).toBe(201);
-    expect(res.json().user.id).not.toBe(STUB_ID);
-    expect(res.json().user.username).toBe('mallory@attacker.example');
-
-    const stub = testDb.select().from(schema.users).where(eq(schema.users.id, STUB_ID)).get();
-    expect(stub?.passwordHash).toBe(STUB_HASH);
-    expect(stub?.username).toBe('victim@victim.example');
-    expect(stub?.homeInstance).toBe('victim.example');
+    expect(res.json().user.id).not.toBe(ADMIN_ID);
+    expect(testDb.select().from(schema.users).where(eq(schema.users.id, ADMIN_ID)).get()).toEqual(before);
   });
 
-  it('a registration from the SAME home instance cannot claim a stub sharing its homeUserId', async () => {
-    seedStub('otherhost', 'victim-home-id', 'victim@otherhost');
+  it.each(['password', 'cutoff', 'deleted', 'removed'] as const)('refuses a verified login if the account %s changes before issuance', async change => {
+    await seedLogin();
+    const nextHash = await bcrypt.hash('replacement-password', 4);
+    const realVerify = authUtils.verifyPassword;
+    let verified!: () => void, release!: () => void;
+    const reached = new Promise<void>(resolve => { verified = resolve; });
+    const held = new Promise<void>(resolve => { release = resolve; });
+    const verify = vi.spyOn(authUtils, 'verifyPassword').mockImplementationOnce(async (password, hash) => {
+      const valid = await realVerify(password, hash);
+      verified(); await held; return valid;
+    });
+    const pending = app.inject({ method: 'POST', url: '/api/auth/login', payload: { username: 'loginuser', password: 'valid-password' } }).then(response => response);
+    try {
+      await reached;
+      if (change === 'removed') testDb.delete(schema.users).where(eq(schema.users.id, 'login-user')).run();
+      else testDb.update(schema.users).set(change === 'password' ? { passwordHash: nextHash, passwordChangedAt: Date.now() }
+        : change === 'cutoff' ? { passwordChangedAt: Date.now() } : { isDeleted: 1 }).where(eq(schema.users.id, 'login-user')).run();
+      release();
+      const result = await pending;
+      expect(result.statusCode).toBe(401); expect(result.json()).not.toHaveProperty('token');
+      expect(result.json()).not.toHaveProperty('user');
+    } finally { release(); await pending; verify.mockRestore(); }
+    if (change === 'password') expect((await app.inject({ method: 'POST', url: '/api/auth/login', payload: { username: 'loginuser', password: 'replacement-password' } })).statusCode).toBe(200);
+  });
 
+  it('an existing username refuses signup rather than replacing that password', async () => {
+    const before = testDb.select().from(schema.users).where(eq(schema.users.id, ADMIN_ID)).get();
     const res = await app.inject({
       method: 'POST',
       url: '/api/auth/register',
       payload: {
-        username: 'mallory@otherhost',
+        username: 'admin',
         password: 'password123',
-        homeInstance: 'otherhost',
-        homeUserId: 'victim-home-id',
       },
     });
 
-    expect(res.statusCode).toBe(201);
-    expect(res.json().user.id).not.toBe(STUB_ID);
-
-    const stub = testDb.select().from(schema.users).where(eq(schema.users.id, STUB_ID)).get();
-    expect(stub?.passwordHash).toBe(STUB_HASH);
-    expect(stub?.username).toBe('victim@otherhost');
-  });
-
-  it('a registration matching a stub by username hint cannot claim it either', async () => {
-    // The username-hint lookup tier is just as unproven as the id tier: the
-    // username is caller-supplied and the caller is unauthenticated.
-    seedStub('otherhost', 'victim-home-id', 'victim@otherhost');
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/auth/register',
-      payload: {
-        username: 'victim@otherhost.example',
-        password: 'password123',
-        homeInstance: 'otherhost',
-        homeUserId: 'some-other-home-id',
-      },
-    });
-
-    expect(res.statusCode).toBe(201);
-    expect(res.json().user.id).not.toBe(STUB_ID);
-
-    const stub = testDb.select().from(schema.users).where(eq(schema.users.id, STUB_ID)).get();
-    expect(stub?.passwordHash).toBe(STUB_HASH);
-    expect(stub?.username).toBe('victim@otherhost');
+    expect(res.statusCode).toBe(409);
+    expect(testDb.select().from(schema.users).where(eq(schema.users.id, ADMIN_ID)).get()).toEqual(before);
   });
 });

@@ -1,8 +1,9 @@
-import { usePendingMessageStore, type PendingBubble } from './pendingMessageStore';
+import { isCurrentPendingBubble, usePendingMessageStore, type PendingBubble } from './pendingMessageStore';
+import { useAuthStore } from './authStore';
 import { useTransferStore } from './transferStore';
 import { useUIStore } from './uiStore';
-import { getApiForOrigin, getChannelOrigin, getChannelKind, useSpaceStore } from './spaceStore';
-import { HttpError, RateLimitError } from '../api/client';
+import { getChannelKind, useSpaceStore } from './spaceStore';
+import { api, HttpError, RateLimitError } from '../api/client';
 import i18n from '../i18n';
 
 let started = false;
@@ -19,54 +20,38 @@ function releaseLifecycle(): () => void {
     started = false;
     generation++;
     stopSubscriptions?.(); stopSubscriptions = null;
-    channelsSettled = false; readyOrigins.clear(); remotes = null;
+    channelsSettled = false;
   };
 }
 
 /**
- * Whether every instance that could hold a bubble's channel has delivered its
- * ready: home, and every remote the auto-connect started, unless it is down.
- * From then on a channel no listing named is gone (deleted, hidden, or its
- * instance removed), so its bubble fails and the user can retry or discard it.
+ * Once the current server's ready arrives, an unlisted channel is gone or
+ * inaccessible. Pending content stays available for retry or discard.
  */
 let channelsSettled = false;
-const readyOrigins = new Set<string>();
-let remotes: { autoConnectDone: boolean; instances: ReadonlyArray<{ origin: string; status: string }> } | null = null;
 
-/** The ready of `origin` has been applied to the stores (called by the WS ready handler). */
-export function notePendingOriginReady(origin: string): void {
-  readyOrigins.add(origin);
-  recheckSettled();
-}
-
-function recheckSettled(): void {
-  if (
-    !channelsSettled
-    && readyOrigins.has('')
-    && remotes?.autoConnectDone === true
-    && remotes.instances.every((i) => readyOrigins.has(i.origin) || i.status === 'disconnected' || i.status === 'error')
-  ) {
-    channelsSettled = true;
-  }
+/** Called after the sole ready snapshot has been applied to channel stores. */
+export function notePendingReady(): void {
+  channelsSettled = true;
   if (started) dispatchReady();
 }
 
 /**
  * Dispatch every bubble that is ready and not dispatched yet. A bubble whose
  * channel the client does not know yet (no ready has listed it) waits: the
- * endpoint and the instance depend on what the channel is. It is dispatched
+ * endpoint depends on what the channel is. It is dispatched
  * by the spaceStore subscription below once a listing or event names it, and
- * fails once every instance has delivered its ready without naming it.
+ * fails once the current server's ready omits it.
  */
 function dispatchReady(): void {
   if (!started) return;
   for (const b of usePendingMessageStore.getState().listReadyForDeferredSend()) {
-    if (sentClientIds.has(b.clientId)) continue;
+    if (sentClientIds.has(dispatchKey(b))) continue;
     if (getChannelKind(b.channelId) === 'unknown') {
       if (channelsSettled) usePendingMessageStore.getState().markFailed(b.clientId);
       continue;
     }
-    sentClientIds.add(b.clientId);
+    sentClientIds.add(dispatchKey(b));
     void deferredSend(b);
   }
 }
@@ -80,6 +65,9 @@ export function startPendingMessageOrchestrator(): () => void {
   const alive = () => started && generation === revision;
   const disposers: Array<() => void> = [];
   stopSubscriptions = () => { for (const dispose of disposers) dispose(); };
+  disposers.push(useAuthStore.subscribe((state, previous) => {
+    if (state.sessionRevision !== previous.sessionRevision) channelsSettled = false;
+  }));
 
   // 1. TTL discard with toast
   const dropped = usePendingMessageStore.getState().discardExpired(Date.now());
@@ -114,7 +102,7 @@ export function startPendingMessageOrchestrator(): () => void {
     const allTransfers = useTransferStore.getState().transfers;
     for (const list of usePendingMessageStore.getState().bubbles.values()) {
       for (const b of list) {
-        if (b.state !== 'sending') continue;
+        if (b.state !== 'sending' || !isCurrentPendingBubble(b)) continue;
         const anyBad = b.transferIds.some((tid) => {
           const t = allTransfers.get(tid);
           return t && (t.state === 'failed' || t.state === 'aborted');
@@ -159,19 +147,6 @@ export function startPendingMessageOrchestrator(): () => void {
     dispatchReady();
   }));
 
-  // 3d. The remote instances, for `channelsSettled`. Imported lazily:
-  //     instanceStore imports the WS layer, which reports readies here.
-  void import('./instanceStore').then(({ useInstanceStore }) => {
-    if (!alive()) return;
-    const read = (state: { _autoConnectDone: boolean; instances: ReadonlyArray<{ origin: string; status: string }> }): void => {
-      if (!alive()) return;
-      remotes = { autoConnectDone: state._autoConnectDone, instances: state.instances };
-      recheckSettled();
-    };
-    read(useInstanceStore.getState());
-    disposers.push(useInstanceStore.subscribe(read));
-  });
-
   // 4. Auto-retry on `online`: bump+resend bubbles that failed once with no
   //    prior retries (network-induced failure most likely). Uses the
   //    failed-retryable query — listReadyForDeferredSend gates state==='sending'
@@ -180,10 +155,10 @@ export function startPendingMessageOrchestrator(): () => void {
     if (!alive()) return;
     const list = usePendingMessageStore.getState().listFailedRetryable();
     for (const b of list) {
-      if (sentClientIds.has(b.clientId)) continue;
+      if (sentClientIds.has(dispatchKey(b))) continue;
       // Claim before either mutation: markSending can synchronously notify the
       // ready subscriber, which must not issue a second request for this id.
-      sentClientIds.add(b.clientId);
+      sentClientIds.add(dispatchKey(b));
       usePendingMessageStore.getState().bumpRetry(b.clientId);
       usePendingMessageStore.getState().markSending(b.clientId);
       // Add to dispatch set: the markSending transition could re-fire the
@@ -198,35 +173,28 @@ export function startPendingMessageOrchestrator(): () => void {
 }
 
 const sentClientIds = new Set<string>();
+const dispatchKey = (b: PendingBubble) => JSON.stringify([b.origin, b.uploaderUserId, b.clientId, b.createdAtLocal]);
 
 async function deferredSend(b: PendingBubble, attempt = 0, revision = generation): Promise<void> {
-  const alive = () => started && revision === generation;
+  const session = useAuthStore.getState().sessionRevision;
+  const alive = () => started && revision === generation && session === useAuthStore.getState().sessionRevision && isCurrentPendingBubble(b);
   try {
     if (!alive()) return;
     const transfers = useTransferStore.getState().transfers;
     const attachmentIds = b.transferIds
       .map((tid) => transfers.get(tid)?.attachmentId)
       .filter((id): id is string => Boolean(id));
-    let client;
-    let isDm: boolean;
-    try {
-      client = getApiForOrigin(getChannelOrigin(b.channelId));
-      isDm = getChannelKind(b.channelId) === 'dm';
-    } catch (err) {
-      console.warn('[pendingMessageRehydrate] origin resolution failed for', b.clientId, err);
-      if (alive()) usePendingMessageStore.getState().markFailed(b.clientId);
-      return;
-    }
+    const isDm = getChannelKind(b.channelId) === 'dm';
 
     try {
       if (!alive()) return;
       const message = { content: b.content, attachments: attachmentIds, replyToId: b.replyToId ?? undefined };
-      if (isDm) await client.dm.sendMessageReceipt(b.channelId, message);
-      else await client.channels.sendMessageReceipt(b.channelId, message);
+      if (isDm) await api.dm.sendMessageReceipt(b.channelId, message);
+      else await api.channels.sendMessageReceipt(b.channelId, message);
       // An acknowledged request already handed off is delivered,
       // not a queued draft. Settle it even after teardown to avoid duplicate
       // delivery on recovery; teardown itself never discards pending contents.
-      usePendingMessageStore.getState().removeByClientId(b.channelId, b.clientId);
+      usePendingMessageStore.getState().removeByClientId(b.channelId, b.clientId, b);
     } catch (err) {
       if (!alive()) return;
       const status = err instanceof HttpError ? err.status : 0;
@@ -247,7 +215,7 @@ async function deferredSend(b: PendingBubble, attempt = 0, revision = generation
       usePendingMessageStore.getState().markFailed(b.clientId);
     }
   } finally {
-    sentClientIds.delete(b.clientId);
+    sentClientIds.delete(dispatchKey(b));
     // A new lifecycle may have waited for this old in-flight request.
     if (started && revision !== generation) dispatchReady();
   }

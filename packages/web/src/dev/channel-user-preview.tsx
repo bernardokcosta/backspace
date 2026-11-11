@@ -15,11 +15,10 @@
 //                    composer: the picker lists Kai only.
 //   space-picker     a space channel with its own roster loaded, `@` typed:
 //                    role colours and the owner tint, for comparison.
-//   remote-self      a DM pinned to a remote origin; one message mentions me
-//                    by my id on that origin and carries the highlight.
+//   remote-self      a native DM; a mention of my account is highlighted.
 // The typing states are in a group DM ("Release crew") so they can have
 // several typers:
-//   typing-one       one typer, a replicated stub whose username is still
+//   typing-one       one native typer whose retained username is
 //                    `<id>@instance`, shown by its display name.
 //   typing-two       two typers.
 //   typing-several   three typers: the summary.
@@ -30,13 +29,13 @@
 //   typing-long-zh   two long Chinese names, Chinese.
 //   typing-de        two typers, German.
 // Naming a person without a display name (#346):
-//   names            a 1-on-1 DM with Zed, a replicated user whose row has no
+//   names            a 1-on-1 DM with Zed, a native account whose row has no
 //                    display name (username `zed@orbit.example`), next to its
 //                    DM list entry: the list entry, the author row, a reply
 //                    preview, a mention badge and the typing line all say
-//                    "zed".
-//   names-display    the same with Iris, a replicated user of orbit who has
-//                    a display name: the globe shows in the list entry, the
+//                    the exact stored handle.
+//   names-display    the same with Iris, a native account who has
+//                    a display name: it appears in the list entry, the
 //                    author row and the reply preview alike.
 //   picker-long      a group DM, `@` typed: a long display name over a long
 //                    id-shaped username, a stub without a display name, and
@@ -55,7 +54,7 @@ import { MessageInput } from '../components/chat/MessageInput';
 import { DmListItem } from '../components/layout/DmListItem';
 import { useAuthStore } from '../stores/authStore';
 import { useChatStore } from '../stores/chatStore';
-import { useSpaceStore, type TaggedSpace } from '../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../stores/spaceStore';
 import { useUIStore } from '../stores/uiStore';
 import { initI18n, setLanguage } from '../i18n';
 import { initializeInterfaceScale } from '../platform/interfaceScale';
@@ -66,8 +65,8 @@ const STATES = {
   'dm-mention': 'DM opened straight after a start, no space roster: mentions of the other member.',
   'dm-picker': 'DM with a stale roster of another space loaded, @ typed: the DM members only.',
   'space-picker': 'Space channel with its own roster, @ typed: role colours and owner tint.',
-  'remote-self': 'DM pinned to a remote origin: a mention of my id there is highlighted.',
-  'typing-one': 'One typer, a stub whose username is <id>@instance.',
+  'remote-self': 'Native DM: a mention of my authenticated account is highlighted.',
+  'typing-one': 'One native typer with a retained @ username.',
   'typing-two': 'Two typers.',
   'typing-several': 'Three typers: the summary.',
   'typing-long': 'Two typers with very long display names: each truncates, the verb stays.',
@@ -75,7 +74,7 @@ const STATES = {
   'typing-long-zh': 'Two typers with long Chinese names, Chinese.',
   'typing-de': 'Two typers, German.',
   'names': 'DM with a user who has no display name: list entry, author row, reply, mention and typing agree.',
-  'names-display': 'DM with a federated user who has a display name: the globe shows wherever the list entry has it.',
+  'names-display': 'Native DM with a display name: names agree across surfaces.',
   'picker-long': 'Group DM, @ typed: long display names and usernames; the username truncates first.',
   'picker-long-mobile': 'The same in the phone sheet.',
 } as const;
@@ -84,7 +83,6 @@ type PreviewState = keyof typeof STATES;
 const FRAME_WIDTH = 760;
 /** The chat column of the phone state; see `picker-long-mobile` above. */
 const PHONE_WIDTH = 600;
-const ORBIT = 'https://orbit.example';
 const DM_ID = 'workbench-dm';
 const NAMES_DM_ID = 'workbench-names-dm';
 const NAMES_DISPLAY_DM_ID = 'workbench-names-display-dm';
@@ -116,15 +114,12 @@ function person(id: string, username: string, displayName: string | null, avatar
     customStatus: null,
     isAdmin: false,
     createdAt: 1,
-    homeInstance: null,
-    homeUserId: null,
-    replicatedInstances: [],
   } as User;
 }
 
 const ME = person('me', 'quddy', 'Quddy', 'lavender');
 const KAI = person('kai', 'kai', 'Kai', 'mint');
-// A replicated stub the server named in the id shape; a display name was
+// A retained native handle in an id-shaped format; a display name was
 // filled in later, the username was not.
 const QUINN = person('quinn-stub', '1234567890123456789@friend.example', 'Quinn', 'sky');
 const LONG_A = person('long-a', 'maximiliane', 'Maximiliane von Hohenzollern-Sigmaringen', 'rose');
@@ -134,18 +129,11 @@ const ZH_B = person('zh-b', 'sima', '司马相如与卓文君故事的讲述者�
 const MIRA = person('mira', 'mira', 'Mira', 'peach');
 const OSKAR = person('oskar', 'oskar', 'Oskar', 'amber');
 const ZED = person('zed', 'zed', 'Zed', 'peach');
-// The same people as the remote origin knows them: its own ids.
-const ME_ON_ORBIT = { ...person('me-orbit', 'quddy@home.example', 'Quddy', 'lavender') };
-const KAI_ON_ORBIT = { ...person('kai-orbit', 'kai', 'Kai', 'mint') };
-// A replicated row for a user of orbit that has no display name.
-const ZED_STUB: User = { ...person('zed-stub', 'zed@orbit.example', null, 'amber'), homeUserId: 'zed-home', homeInstance: 'orbit.example' };
-// A replicated row for a user of orbit who has a display name.
-const IRIS_STUB: User = { ...person('iris-stub', 'iris@orbit.example', 'Iris', 'sky'), homeUserId: 'iris-home', homeInstance: 'orbit.example' };
+const ZED_STUB: User = person('zed-stub', 'zed@retained.test', null, 'amber');
+const IRIS_STUB: User = person('iris-stub', 'iris@retained.test', 'Iris', 'sky');
 // Long names for the picker: a long display name over an id-shaped username.
 const LONG_STUB: User = {
   ...person('long-stub', '987654321098765432@very-long-instance-name.example', 'Anastasia Konstantinovna Rimsky-Korsakova', 'rose'),
-  homeUserId: '987654321098765432',
-  homeInstance: 'very-long-instance-name.example',
 };
 const NIKA = person('nika', 'nika', null, 'mint');
 
@@ -200,9 +188,9 @@ function dmConversation(): MessageWithUser[] {
 function remoteConversation(): MessageWithUser[] {
   const at = { channelId: '', dmChannelId: REMOTE_DM_ID };
   return [
-    row(0, at, KAI_ON_ORBIT, 'The orbit box is on the new version now.'),
-    row(1, at, KAI_ON_ORBIT, '<@me-orbit> the invite link you asked for is in the pinned message.'),
-    row(2, at, ME_ON_ORBIT, 'Got it, thanks.'),
+    row(0, at, KAI, 'The server is on the new version now.'),
+    row(1, at, KAI, '<@me> the invite link you asked for is in the pinned message.'),
+    row(2, at, ME, 'Got it, thanks.'),
   ];
 }
 
@@ -272,8 +260,7 @@ function typersOf(state: PreviewState): User[] {
 function seedStores(state: PreviewState): void {
   const permissions = permissionsToString(ALL_PERMISSIONS);
   const typers = typersOf(state);
-  // What the remote origin's `ready` records for the signed-in user.
-  useAuthStore.setState({ user: ME, myRowIds: new Map([[ORBIT, ME_ON_ORBIT.id]]) });
+  useAuthStore.setState({ user: ME });
   useUIStore.setState({ isMobile: state === 'picker-long-mobile' });
 
   const staleRoster = state === 'dm-picker'
@@ -290,19 +277,16 @@ function seedStores(state: PreviewState): void {
     dmChannels: [
       dm(DM_ID, [ME, KAI]),
       groupDm(GROUP_ID, 'Release crew', ME, [ME, KAI, QUINN, MIRA, LONG_A, LONG_B, ZH_A, ZH_B]),
-      dm(REMOTE_DM_ID, [ME_ON_ORBIT, KAI_ON_ORBIT]),
+      dm(REMOTE_DM_ID, [ME, KAI]),
       dm(NAMES_DM_ID, [ME, ZED_STUB]),
       dm(NAMES_DISPLAY_DM_ID, [ME, IRIS_STUB]),
       groupDm(PICKER_GROUP_ID, 'Naming things', ME, [ME, LONG_STUB, QUINN, ZED_STUB, NIKA, KAI]),
     ],
-    channelOriginMap: new Map([
-      [DM_ID, ''], [GROUP_ID, ''], [REMOTE_DM_ID, ORBIT], [CHANNEL, ''], [NAMES_DM_ID, ''], [NAMES_DISPLAY_DM_ID, ''], [PICKER_GROUP_ID, ''],
-    ]),
-    spaceChannelIndex: new Map([[CHANNEL, { spaceId: SPACE, origin: '', type: 'text' as const }]]),
+    spaceChannelIndex: new Map([[CHANNEL, { spaceId: SPACE, type: 'text' as const }]]),
     channelToSpaceMap: new Map([[CHANNEL, SPACE]]),
     channelPermissions: new Map([[CHANNEL, permissions]]),
     spaces: state === 'space-picker'
-      ? [{ id: SPACE, name: 'Workbench', ownerId: OSKAR.id, _instanceOrigin: '' } as unknown as TaggedSpace]
+      ? [{ id: SPACE, name: 'Workbench', ownerId: OSKAR.id } as SpaceWithMyRoles]
       : [],
     members: state === 'space-picker' ? spaceRoster : staleRoster,
     currentSpaceId: state === 'space-picker' ? SPACE : null,

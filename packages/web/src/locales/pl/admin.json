@@ -4,7 +4,6 @@
     "description": "Skonfiguruj swoją instancję Veyvox. Te ustawienia dotyczą wszystkich użytkowników.",
     "instanceName": {
       "label": "Nazwa instancji",
-      "description": "Nazwa pokazywana na stronie logowania i instancjom sfederowanym.",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "Rejestracja",
-    "description": "Określ, kto może tworzyć konta na tej instancji. Publiczna rejestracja obejmuje lokalne zapisy; sfederowana rejestracja obejmuje użytkowników z instancji partnerskich tworzących tu konto.",
     "public": {
       "label": "Publiczna rejestracja",
       "toggleLabel": "Zezwalaj na nowe lokalne konta",
       "toggleDescription": "Każdy może utworzyć lokalne konto ze strony rejestracji. Po wyłączeniu nowe lokalne konta tworzą tylko linki z zaproszeniami."
-    },
-    "federated": {
-      "label": "Sfederowana rejestracja",
-      "toggleLabel": "Zezwalaj na nowe sfederowane konta",
-      "toggleDescription": "Użytkownicy z innych instancji mogą utworzyć tu sfederowane konto w ustawieniach Połączeń. Istniejące sfederowane konta mogą się logować niezależnie od tego ustawienia."
     },
     "spaceCreation": {
       "label": "Tworzenie przestrzeni",
@@ -381,8 +374,6 @@
     "loadFailed": "Nie udało się wczytać użytkowników",
     "empty": "Nie znaleziono użytkowników",
     "filters": {
-      "allInstances": "Wszystkie instancje",
-      "localOnly": "Tylko lokalne",
       "allRoles": "Wszystkie role",
       "admin": "Administrator",
       "nonAdmin": "Nie administrator",
@@ -402,9 +393,7 @@
     "actions": {
       "demote": "Degraduj z administratora",
       "promote": "Mianuj administratorem",
-      "federatedNoAdmin": "Sfederowani użytkownicy nie mogą być administratorami",
       "resetPassword": "Zresetuj hasło",
-      "federatedNoReset": "Sfederowani użytkownicy uwierzytelniają się przez instancję macierzystą",
       "delete": "Usuń użytkownika",
       "selfDelete": "Użyj ustawień konta, aby usunąć własne konto"
     },
@@ -433,15 +422,7 @@
     "deleteDialog": {
       "title": "Usuń użytkownika",
       "description": "Trwale usunąć <strong>{{username}}</strong>? Usunie go to ze wszystkich przestrzeni, DM i list znajomych. Nie można tego cofnąć.",
-      "confirm": "Usuń użytkownika",
-      "blockBot": "Nie pozwalaj temu botowi rejestrować się ponownie",
-      "blockBotHint": "Gdy jego instancja macierzysta wróci, bot nie będzie mógł utworzyć tu konta. Możesz go odblokować poniżej listy użytkowników."
-    },
-    "blockedBots": {
-      "title": "Zablokowane boty",
-      "description": "Boty innych instancji, które nie mogą się tu rejestrować. Odblokuj, aby wpuścić z powrotem.",
-      "blockedAt": "Zablokowano {{date}}",
-      "unblock": "Odblokuj"
+      "confirm": "Usuń użytkownika"
     }
   },
   "mobile": {
@@ -449,7 +430,6 @@
     "sections": {
       "general": "Ogólne",
       "registration": "Rejestracja",
-      "federation": "Federacja",
       "streaming": "Streamowanie",
       "storage": "Dysk",
       "updates": "Aktualizacje",

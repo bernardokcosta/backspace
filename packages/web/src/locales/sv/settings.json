@@ -127,7 +127,6 @@
       "appearance": "Utseende",
       "voice": "Röst & video",
       "privacy": "Integritet",
-      "connections": "Anslutningar",
       "keybinds": "Tangentbindningar",
       "desktop": "Dator",
       "instance": "Instans",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "Mitt konto",
-    "detached": {
-      "notice": "Detta konto är losskopplat från sin hemmainstans.",
-      "explanation": "{{homeInstance}} återställdes eller är inte längre tillgänglig, så detta konto fungerar nu lokalt på denna instans. Din profil och lösenord hanteras här.",
-      "reattachHint": "Som {{username}} på {{homeInstance}} kan du återkoppla detta konto. Profil och närvaro synkas därifrån igen.",
-      "reattachButton": "Återkoppla till {{homeInstance}}",
-      "reattachConfirm": "Bekräfta återkoppling som {{username}}",
-      "reattaching": "Återkopplar…",
-      "reattachFailed": "Återkopplingen misslyckades",
-      "reattached": "Konto omlänkat med {{username}}"
-    },
     "profile": {
       "sectionTitle": "Profilanpassning",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "Konto",
       "status": {
-        "label": "Status",
-        "homeUnavailable": "Din status hålls på {{host}}. Anslut till {{host}} för att ändra den."
+        "label": "Status"
       },
       "customStatus": {
         "label": "Anpassad status",
@@ -244,10 +232,6 @@
         "passwordPlaceholder": "Ange ditt lösenord",
         "submit": "Ta bort mitt konto",
         "deleting": "Tar bort…"
-      },
-      "federation": {
-        "removing": "Tar bort ditt konto från anslutna instanser…",
-        "deleteAnyway": "Ta bort konto nu"
       },
       "complete": {
         "title": "Konto borttaget",
@@ -310,14 +294,10 @@
       }
     }
   },
-  "connections": {
-    "title": "Anslutningar"
-  },
   "instance": {
     "tabs": {
       "general": "Allmänt",
       "registration": "Registrering",
-      "federation": "Federation",
       "streaming": "Streaming",
       "storage": "Lagring",
       "users": "Användare",

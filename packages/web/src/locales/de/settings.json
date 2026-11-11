@@ -127,7 +127,6 @@
       "appearance": "Darstellung",
       "voice": "Sprache & Video",
       "privacy": "Privatsphäre",
-      "connections": "Verbindungen",
       "keybinds": "Tastenkürzel",
       "desktop": "Desktop",
       "instance": "Instanz",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "Mein Konto",
-    "detached": {
-      "notice": "Dieses Konto ist von seiner Heimatinstanz abgekoppelt.",
-      "explanation": "{{homeInstance}} wurde zurückgesetzt oder ist nicht mehr erreichbar, daher läuft dieses Konto jetzt lokal auf dieser Instanz. Profil und Passwort werden hier verwaltet.",
-      "reattachHint": "Als {{username}} auf {{homeInstance}} kannst du dieses Konto wieder verknüpfen. Profil und Status werden dann wieder von dort synchronisiert.",
-      "reattachButton": "Wieder mit {{homeInstance}} verknüpfen",
-      "reattachConfirm": "Verknüpfung als {{username}} bestätigen",
-      "reattaching": "Wird verknüpft…",
-      "reattachFailed": "Verknüpfen fehlgeschlagen",
-      "reattached": "Konto wieder mit {{username}} verknüpft"
-    },
     "profile": {
       "sectionTitle": "Profil anpassen",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "Konto",
       "status": {
-        "label": "Status",
-        "homeUnavailable": "Dein Status wird auf {{host}} gespeichert. Verbinde dich mit {{host}}, um ihn zu ändern."
+        "label": "Status"
       },
       "customStatus": {
         "label": "Eigener Status",
@@ -244,10 +232,6 @@
         "passwordPlaceholder": "Passwort eingeben",
         "submit": "Mein Konto löschen",
         "deleting": "Wird gelöscht…"
-      },
-      "federation": {
-        "removing": "Dein Konto wird von den verbundenen Instanzen entfernt…",
-        "deleteAnyway": "Konto jetzt löschen"
       },
       "complete": {
         "title": "Konto gelöscht",
@@ -310,14 +294,10 @@
       }
     }
   },
-  "connections": {
-    "title": "Verbindungen"
-  },
   "instance": {
     "tabs": {
       "general": "Allgemein",
       "registration": "Registrierung",
-      "federation": "Föderation",
       "streaming": "Streaming",
       "storage": "Speicher",
       "users": "Nutzer",

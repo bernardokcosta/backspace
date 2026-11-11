@@ -1,8 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUIStore } from '../../stores/uiStore';
-import { useSpaceStore, getMyUserIdForOrigin, getChannelOrigin } from '../../stores/spaceStore';
-import type { TaggedSpace } from '../../stores/spaceStore';
+import { useSpaceStore } from '../../stores/spaceStore';
 import { resolveSpaceLayout } from '../../utils/spaceLayout';
 import { spaceInviteUrl } from '../../utils/inviteParser';
 import { useChatStore } from '../../stores/chatStore';
@@ -19,7 +18,6 @@ import { Mascot } from '../ui/Mascot';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { TransferOwnershipModal } from '../modals/TransferOwnershipModal';
 import { MobileFolderSheet } from './MobileFolderSheet';
-import { useInstanceStore } from '../../stores/instanceStore';
 import { VoiceUserRow } from '../voice/VoiceUserRow';
 import { MobileVoiceJoinSheet } from '../voice/MobileVoiceJoinSheet';
 import { buildVoiceModMenuItems, VolumeSliderItem } from '../voice/voiceMenuItems';
@@ -342,7 +340,9 @@ export function MobileSpacesScreen() {
     e.stopPropagation();
     const space = spaces.find(s => s.id === spaceId);
     if (!space) return;
-    const isOwner = space.ownerId === getMyUserIdForOrigin((space as TaggedSpace)._instanceOrigin ?? '');
+    const isOwner = space.ownerId === useAuthStore.getState().user?.id;
+    const revision = useAuthStore.getState().sessionRevision;
+    const current = () => revision === useAuthStore.getState().sessionRevision;
 
     // Check if space is in a folder
     const inFolder = folders.some(f => f.spaceIds.includes(spaceId));
@@ -355,15 +355,19 @@ export function MobileSpacesScreen() {
         label: t('common:actions.invitePeople'),
         icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z" /></svg>,
         onClick: async () => {
+          if (!current()) return;
           try {
             const code = await useSpaceStore.getState().generateInvite(spaceId);
-            await navigator.clipboard.writeText(spaceInviteUrl((space as TaggedSpace)._instanceOrigin, code));
+            if (!current()) return;
+            await navigator.clipboard.writeText(spaceInviteUrl(code));
+            if (!current()) return;
             addToast(
               t(space.visibility === 'request' ? 'spaces:sidebar.space.inviteCopiedRequest' : 'spaces:sidebar.space.inviteCopied'),
               'success',
               3000,
             );
           } catch (err) {
+            if (!current()) return;
             addToast(describeCodedError(err, t('spaces:sidebar.space.inviteFailed')), 'warning', 3000);
           }
         },
@@ -412,7 +416,6 @@ export function MobileSpacesScreen() {
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" /></svg>,
       onClick: () => setNotificationTarget({
         kind: 'space',
-        origin: (space as TaggedSpace)._instanceOrigin ?? '',
         spaceId,
         spaceName: space.name,
       }),
@@ -467,7 +470,6 @@ export function MobileSpacesScreen() {
           if (!location || !channel) return;
           setNotificationTarget({
             kind: 'channel',
-            origin: location.origin,
             spaceId: location.spaceId,
             channelId,
             channelName: channel.name,
@@ -654,11 +656,11 @@ export function MobileSpacesScreen() {
                   key={userId}
                   data-context-menu={`voice-user-${userId}`}
                   className="px-3 py-1 rounded-lg hover:bg-interactive-hover transition-colors"
-                  onClick={() => openModal('userProfile', { userId, user: member?.user, origin: getChannelOrigin(channel.id) })}
+                  onClick={() => openModal('userProfile', { userId, user: member?.user })}
                   onContextMenu={(e) => handleVoiceUserContextMenu(e, userId, channel.id)}
                 >
                   <VoiceUserRow
-                    userId={member?.user.homeUserId ?? userId}
+                    userId={userId}
                     displayName={displayName}
                     avatar={avatar}
                     avatarColor={avatarColor ?? undefined}
@@ -730,7 +732,7 @@ export function MobileSpacesScreen() {
             );
           }
 
-          // Standalone space — full space icon rendering with federation badge and context menu
+          // Native space icon with its context menu.
           const space = item.space;
           const isSelected = space.id === selectedSpaceId;
           const hasUnread = spaceHasUnread(space.id);
@@ -768,24 +770,6 @@ export function MobileSpacesScreen() {
                   </span>
                 )}
               </button>
-              {(() => {
-                const origin = (space as TaggedSpace)._instanceOrigin;
-                if (!origin) return null;
-                const instances = useInstanceStore.getState().instances;
-                const inst = instances.find(i => i.origin === origin);
-                const isDisconnected = inst ? inst.status !== 'connected' : false;
-                return (
-                  <div className="absolute -bottom-0.5 -right-0.5 w-[14px] h-[14px] rounded-full bg-surface-base flex items-center justify-center">
-                    {isDisconnected ? (
-                      <div className="w-[8px] h-[8px] rounded-full bg-accent-amber" />
-                    ) : (
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className="text-txt-tertiary/80">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-                      </svg>
-                    )}
-                  </div>
-                );
-              })()}
             </div>
           );
         })}

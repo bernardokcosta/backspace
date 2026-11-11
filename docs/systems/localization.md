@@ -49,7 +49,7 @@ textarea, edit textarea) so Arabic usernames/URLs keep readable order without
 rewriting content or escaping HTML by string injection. The composer mirror uses
 `unicode-bidi: plaintext` to match the native textarea's per-paragraph layout.
 Full account handles in account/settings cards use `<bdi dir="ltr">`, preserving
-the leading `@` and federated handle rather than letting surrounding RTL reorder it.
+the leading `@` and complete retained handle rather than letting surrounding RTL reorder it.
 Role-list names and the unchanged `@everyone` identifier use `bdi dir="auto"`,
 so each role keeps its own reading direction independently of the settings UI.
 
@@ -101,6 +101,15 @@ Danish (`da`), Norwegian Bokmål (`nb`), Finnish (`fi`), Czech (`cs`), Romanian
 Vietnamese (`vi`), Thai (`th`), Japanese (`ja`) and Korean (`ko`). The
 `released` flag mechanism stays in place for future languages; registration
 alone was never delivered language support.
+
+The standalone client removes the `federation` namespace from bundled resources,
+lazy catalogs and all 25 languages. Peer-only signup/password/connection/error,
+call-delivery, profile-provenance and settings keys are deleted, not hidden.
+Native content assertions remain; `standaloneCatalogs.test.ts` checks namespace,
+retired-path and current-wire-error absence across every catalog. Retained native
+translations, plurals and interpolation values are unchanged. Obsolete mixed
+federation help paragraphs are removed from their UI surfaces; native field labels,
+search placeholder and signup/space-creation descriptions remain translated.
 
 The project-hub `project` namespace and Support-card-only admin copy were
 retired in 1.15.2 across all 25 languages; they are not registered or loaded.
@@ -208,14 +217,13 @@ Rules:
 | Namespace | Covers |
 |-----------|--------|
 | `common` | Shared strings used across surfaces, grouped as `actions` (Save, Cancel, Accept, Leave, Log In…), `states` (Loading, Enabled, the four presence labels, Settings saved…), `labels` (Username, Password, Members, Friends, Danger Zone…), `time` (Today at, Yesterday at, Never, Just now), `units` (ms, %, kbps, Mbps) and `colors` (the avatar and folder colour names); the language selector. `src/i18n/presence.ts` maps a presence status to its `states` key so every surface shows the same words |
-| `auth` | Login, register, join-by-invite, password fields, federated account creation |
+| `auth` | Native login, register, join-by-invite and password fields |
 | `chat` | Message list, composer, attachments, embeds, reactions, replies, typing, jump-to-message |
 | `dm` | DM list, group DM management, DM calls, DM system messages |
 | `voice` | Voice channel controls, screen share, stream tiles, device pickers |
 | `spaces` | Space, category and channel CRUD, invites/requests, access/description, membership, bans and roles; per-space and per-channel notification settings (`notifications.*`; level/mute-duration labels are closed unions mapped by `switch` in `NotificationSettingsControls.tsx`) |
 | `settings` | User settings modal and its panels (account, voice, privacy, connections, keybinds, desktop) |
-| `admin` | Instance settings panels (general, registration, users, storage, streaming, updates, federation); the space-discovery ladder and the directory status line (`general.discovery.*`, `general.directory.*`) |
-| `federation` | Connected instances UI, peering requests, identity attach and detach |
+| `admin` | Native instance settings (general, registration, users, storage, streaming, updates) |
 | `social` | Friends page, friend requests, user profiles, mutuals, user search |
 | `search` | Search popover and filter help |
 | `uploads` | Transfer indicator, upload errors, crop dialog |
@@ -435,24 +443,21 @@ interface ApiErrorBody {
 ```
 
 `ErrorCode` is a snake_case string union in `packages/shared`. The shape
-follows the codes that already existed before this system (`recipient_deleted`
-in the DM routes, the friend-request codes in `social.ts`,
-`PEER_EXISTS_RESET_REQUIRED` in peering), all of which are members. A code
-never changes meaning once shipped.
+includes the current native codes such as `recipient_deleted` and the
+friend-request refusals in `social.ts`. A code never changes meaning; an exclusive
+retired feature's codes are removed rather than reused for native behavior.
 
 Routes send errors through `sendError(reply, status, code, details?)` in
 `packages/server/src/utils/httpErrors.ts`, which looks up the English text
 for the code and fills the body. `ERROR_MESSAGES` is typed
 `Record<ErrorCode, string>`, so adding a code without English text does not
-compile. Routes that have not been converted keep sending `{ error,
-statusCode }`; the contract is backward compatible in both directions because
-a desktop app and an instance version independently, and because the web
-client talks directly to federated peers that may run any version.
+compile. Native client/server versions can differ during an installed upgrade,
+so an unrecognized or absent code still falls back to the server's error text.
 
 The client's `HttpError` carries `code` and `details`, parsed by
 `HttpError.fromBody`. It accepts a `code` field, and, for the older routes
 that put the code in `error` itself, an `error` value that is a known code.
-Unknown codes are dropped, so a peer cannot inject arbitrary catalog keys.
+Unknown codes are dropped, so a response cannot inject arbitrary catalog keys.
 Components render an error with `describeError(err)` from `i18n/errors.ts`,
 which returns the localized `errors:` string for the code, interpolating
 `details`, and falls back to the server's English `error` text when there is
@@ -466,14 +471,12 @@ uses `describeCodedError(err, fallback)` from the same file: the code's text
 when the error is an `HttpError` with a code, else `fallback`. The space
 menu's Invite People toasts and the notification settings save use it.
 
-Federation: error bodies relayed from a peer instance follow the same
-contract, so a code from a newer peer is localized and a bare `error` from
-an older peer is shown as is.
-
 Directory-only errors and `space_not_public` were removed with their exclusive
 endpoints/consumers in 1.15.2. Retained invitation errors remain localized.
 
-Two codes are no longer sent by a current server but stay in the list, because an older instance still sends them and a code never changes meaning: `space_uses_join_requests` (an invite link refused for a space joined by request) and `space_requires_approval` (a DM invite to one refused). Both stopped after 1.9.0, when a request space got an invite link that leads to a join request; `join_request_required` now carries `details.spaceId` for that request ([spaces.md](spaces.md), "Join by Invite Code").
+The native invitation refusal is `join_request_required`, with `details.spaceId`
+for the request flow ([spaces.md](spaces.md), "Join by Invite Code"). Obsolete
+cross-version peer aliases are removed rather than retained in the native union.
 
 Personal stickers ([uploads.md](uploads.md#14-personal-stickers)) added
 four codes: `sticker_invalid_image` (`details.max`, in MB), `sticker_not_local`,
@@ -485,32 +488,6 @@ edits") added two `409` codes: `overrides_conflict` (a channel or category
 override changed since the editor loaded it) and `role_permissions_conflict`
 (a role's permissions did). Their catalog text tells the user to review and
 save again; the editors reload before showing it.
-
-One code is minted by the client and never by a route:
-`federation_different_password`, carried by `RemoteLoginRequiredError` when a
-remote instance refuses the credential the user's home issued for it (the same
-class carries the route code `federated_registration_closed` when the instance
-is closed instead; see [client-federation.md](client-federation.md), step 7 of
-the connect flow). It sits in `ERROR_CODES` and in `ERROR_MESSAGES` like any
-other, because
-`ERROR_MESSAGES` is exhaustive and the English text is still the fallback, but
-no route sends it. The pattern for a client-minted code is the one
-`RateLimitError` established: subclass `HttpError`, pass a registered code, and
-let `describeError` find the catalog entry.
-
-Client state that is not an error follows the same split without joining
-`ErrorCode`. The federation registry's `errorMessage` holds one of four
-reason codes (`unreachable`, `session_expired`, `reauthenticate`,
-`authenticate_home`) written by `instanceStore` and turned into words by
-`describeRegistryError` in `i18n/registryErrors.ts`, against
-`federation:connections.row.reason.*`. They are not `ErrorCode`s because
-nothing throws or sends them and `ERROR_MESSAGES` is exhaustive over that
-union, which would put English text in the server package for a string only
-the web client writes and reads. A value the switch does not recognise is
-rendered as it stands: registry rows sync between clients, and one written
-before this change carries an English sentence that is still the row's only
-explanation. See
-[client-federation.md](client-federation.md#the-reason-field-errormessage).
 
 For a store that reports a failure, words should be chosen at the surface in
 the language the reader has now, rather than stored as an English sentence.
@@ -533,19 +510,17 @@ within a bounded cancellable wait; an exhausted/legacy refusal throws `RateLimit
 `HttpError` with `status 429`, the body's own code when the route sends
 one and `rate_limited` otherwise, plus `retryAfter`, so `describeError`
 localizes it like any other server error and the auth pages keep their
-countdown. The federated lookup's `lookup_rate_limited` is a different code
-because it reports a peer's limit, not this instance's; it reaches the
-client through the same class and shows its own catalog text.
+countdown. No peer lookup or alternate-origin rate-limit code remains.
 
 Every route file is converted: auth, users, spaces, channels, messages, DMs
 (including the space-invite endpoint), social, explore, admin, settings,
-search, LiveKit, uploads, GIF and URL metadata. The `authenticate`,
-`requireAdmin` and `requireLocalUser` hooks in `utils/auth.ts` send codes
+search, LiveKit, uploads, GIF and URL metadata. The `authenticate` and
+`requireAdmin` hooks in `utils/auth.ts` send codes
 too (`unauthorized`, `account_deleted`, `forbidden`) while keeping their
 English text. Two responses carry extra fields next to the shared shape: the
 username availability check (`available`, `reason`) and the owned-spaces
 rejection (`ownedSpaces`). The only sites left without codes are the
-test-only peer seeding route and most of the WebSocket handler's error
+uncoded generic WebSocket handler errors and unknown-event
 messages, which are a separate protocol. A WebSocket `error` carries
 `details` next to `code` where the code's text has placeholders, and the
 client passes them to `describeErrorCode`. The WebSocket refusals that carry a
@@ -562,21 +537,18 @@ refusal of `channel_poke` (`validation_failed`, `channel_not_found`,
 `system_message_immutable` for a `message_edit` of a channel system message.
 
 The web client no longer matches on English error text. The places that
-used to (the join page, the space invite card, the invite modal, the roles
-panel, the federated account registration in `instanceStore`) check
-`err.code`; the join helper in `utils/joinErrors.ts` keeps a text fallback
-for a federated peer on a version that predates the codes.
+used to (the join page, space invite card, invite modal and roles panel) check
+`err.code`; the native join helper does not parse English peer error strings.
 
 ---
 
 ## System messages
 
 DM system messages (member added, removed, left, ownership transferred, call
-events, space invites) are stored and relayed as structured JSON with a
+events, space invites) are stored and delivered as structured JSON with a
 `type` discriminator and identity fields, never as English text. The client
 renders them through `dmFormatters.ts`, which now reads the `dm:system.*`
-keys. It is federation safe because peers relay the structure, not a
-rendering.
+keys. Wire content carries native IDs and snapshots, not a localized rendering.
 
 Space channel system messages (a poke) follow the same rule: structured JSON
 (`channelSystemEvents.ts`) with ids and a name snapshot, rendered by
@@ -730,7 +702,7 @@ exhaustive, target tables may be partial with tested per-key English fallback.
 
 Surfaces are converted one PR at a time, in the order users meet them: auth,
 settings (done in the foundation PR as the reference), chat, dm, voice,
-spaces, social, search, uploads, mobile, federation, admin, desktop. Each
+spaces, social, search, uploads, mobile, admin, desktop. Each
 feature requires English copy; translations may follow later while valid supplied
 entries and English fallback remain mandatory. This 25-language initiative is
 stricter at delivery: every current surface must have actual reviewed translations.

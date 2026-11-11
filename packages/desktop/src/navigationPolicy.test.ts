@@ -10,7 +10,6 @@ describe('isNavigationAllowed', () => {
         targetUrl: 'https://chat.example.com/channels/123',
         currentUrl: 'https://chat.example.com/app',
         pickerFileUrl: PICKER_URL,
-        knownInstanceOrigins: new Set(),
       })
     ).toBe(true);
   });
@@ -21,7 +20,6 @@ describe('isNavigationAllowed', () => {
         targetUrl: PICKER_URL,
         currentUrl: null,
         pickerFileUrl: PICKER_URL,
-        knownInstanceOrigins: new Set(),
       })
     ).toBe(true);
   });
@@ -32,20 +30,23 @@ describe('isNavigationAllowed', () => {
         targetUrl: 'file:///etc/passwd',
         currentUrl: null,
         pickerFileUrl: PICKER_URL,
-        knownInstanceOrigins: new Set(),
       })
     ).toBe(false);
   });
 
-  it('allows navigation to a known federation-peer origin', () => {
+  it('denies a foreign origin even when the renderer reports it as connected', () => {
     expect(
       isNavigationAllowed({
         targetUrl: 'https://peer.example.org/join/abc123',
         currentUrl: 'https://chat.example.com/app',
         pickerFileUrl: PICKER_URL,
-        knownInstanceOrigins: new Set(['https://peer.example.org']),
+        ...{ knownInstanceOrigins: new Set(['https://peer.example.org']) },
       })
-    ).toBe(true);
+    ).toBe(false);
+  });
+  it('denies credential-bearing URLs even on the current origin', () => {
+    expect(isNavigationAllowed({ targetUrl: 'https://user:secret@chat.example.com/join/code',
+      currentUrl: 'https://chat.example.com/app', pickerFileUrl: PICKER_URL })).toBe(false);
   });
 
   it('denies navigation to a foreign http(s) origin not in the known set', () => {
@@ -54,7 +55,6 @@ describe('isNavigationAllowed', () => {
         targetUrl: 'https://evil.example.net/phish',
         currentUrl: 'https://chat.example.com/app',
         pickerFileUrl: PICKER_URL,
-        knownInstanceOrigins: new Set(['https://peer.example.org']),
       })
     ).toBe(false);
   });
@@ -65,7 +65,6 @@ describe('isNavigationAllowed', () => {
         targetUrl: 'not a url',
         currentUrl: 'https://chat.example.com/app',
         pickerFileUrl: PICKER_URL,
-        knownInstanceOrigins: new Set(),
       })
     ).toBe(false);
   });
@@ -76,7 +75,6 @@ describe('isNavigationAllowed', () => {
         targetUrl: 'javascript:alert(1)',
         currentUrl: 'https://chat.example.com/app',
         pickerFileUrl: PICKER_URL,
-        knownInstanceOrigins: new Set(),
       })
     ).toBe(false);
   });
@@ -87,7 +85,6 @@ describe('isNavigationAllowed', () => {
         targetUrl: 'https://evil.example.net/phish',
         currentUrl: null,
         pickerFileUrl: PICKER_URL,
-        knownInstanceOrigins: new Set(),
       })
     ).toBe(false);
   });
@@ -98,7 +95,6 @@ describe('isNavigationAllowed', () => {
         targetUrl: 'https://chat.example.com/app',
         currentUrl: 'not a url',
         pickerFileUrl: PICKER_URL,
-        knownInstanceOrigins: new Set(),
       })
     ).toBe(false);
   });

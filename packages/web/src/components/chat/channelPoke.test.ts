@@ -1,8 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const state = vi.hoisted(() => ({ current: 'chat', status: 'online', muted: false, level: 'mentions' }));
-vi.mock('../../stores/authStore', () => ({ useAuthStore: { getState: () => ({}) }, selectMyChosenStatus: () => state.status, getMyUserIdForOrigin: () => 'me' }));
+vi.mock('../../stores/authStore', () => ({ useAuthStore: { getState: () => ({ user: { id: 'me' } }) }, selectMyChosenStatus: () => state.status }));
 vi.mock('../../stores/chatStore', () => ({ useChatStore: { getState: () => ({ currentChannelId: state.current }) } }));
-vi.mock('../../stores/spaceStore', () => ({ getChannelOrigin: () => '' }));
 vi.mock('../../hooks/useNotificationSettings', () => ({ getChannelNotificationPolicy: () => state }));
 import type { MessageWithUser } from '@veyvox/shared';
 import { receiveChannelPoke } from './channelPoke';
@@ -23,7 +22,7 @@ beforeEach(() => {
 afterEach(() => { document.body.replaceChildren(); Element.prototype.animate = originalAnimate; vi.unstubAllGlobals(); });
 describe('server-confirmed poke cue', () => {
   it('animates the target and removes the finger when finished', () => {
-    receiveChannelPoke('', event);
+    receiveChannelPoke(event);
     expect(animate).toHaveBeenCalledTimes(2);
     expect(document.body).toHaveTextContent('👈');
     const fingerAnimation = animate.mock.results[1]!.value as { onfinish: () => void };
@@ -31,20 +30,22 @@ describe('server-confirmed poke cue', () => {
     expect(document.body).not.toHaveTextContent('👈');
   });
   it('ignores a system row that is not a poke', () => {
-    receiveChannelPoke('', { ...event, content: JSON.stringify({ event: 'something_else', targetUserId: 'target' }) });
+    receiveChannelPoke({ ...event, content: JSON.stringify({ event: 'something_else', targetUserId: 'target' }) });
     expect(animate).not.toHaveBeenCalled();
   });
-  it('does not animate reduced-motion, unrelated channels or origins', () => {
-    receiveChannelPoke('https://other.example', event);
-    state.current = 'other'; receiveChannelPoke('', event);
+  it('does not animate reduced-motion or unrelated native channels', () => {
+    state.current = 'other'; receiveChannelPoke(event);
     state.current = 'chat'; vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true })));
-    receiveChannelPoke('', event);
+    receiveChannelPoke(event);
     expect(animate).not.toHaveBeenCalled();
   });
   it('respects DND, mute and suppression for recipients', () => {
-    state.status = 'dnd'; receiveChannelPoke('', event);
-    state.status = 'online'; state.muted = true; receiveChannelPoke('', event);
-    state.muted = false; state.level = 'nothing'; receiveChannelPoke('', event);
+    state.status = 'dnd'; receiveChannelPoke(event);
+    state.status = 'online'; state.muted = true; receiveChannelPoke(event);
+    state.muted = false; state.level = 'nothing'; receiveChannelPoke(event);
     expect(animate).not.toHaveBeenCalled();
+  });
+  it('lets the native actor see their own confirmed poke even under DND', () => {
+    state.status = 'dnd'; receiveChannelPoke({ ...event, userId: 'me' }); expect(animate).toHaveBeenCalledTimes(2);
   });
 });

@@ -4,7 +4,6 @@
     "description": "Veyvox 인스턴스를 구성하세요. 이 설정은 모든 사용자에게 적용됩니다.",
     "instanceName": {
       "label": "인스턴스 이름",
-      "description": "로그인 페이지와 연합 인스턴스에 표시되는 이름.",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "가입",
-    "description": "이 인스턴스에서 누가 계정을 만들 수 있는지 제어합니다. 공개 가입은 로컬 가입을 포함하고, 연합 가입은 여기서 계정을 만드는 피어링 인스턴스의 사용자를 포함합니다.",
     "public": {
       "label": "공개 가입",
       "toggleLabel": "새 로컬 계정 허용",
       "toggleDescription": "누구나 가입 페이지에서 로컬 계정을 만들 수 있습니다. 끄면 새 로컬 계정은 초대 링크로만."
-    },
-    "federated": {
-      "label": "연합 가입",
-      "toggleLabel": "새 연합 계정 허용",
-      "toggleDescription": "다른 인스턴스 사용자는 연결 설정에서 여기서 연합 계정을 만들 수 있습니다. 기존 연합 계정은 이 설정과 관계없이 항상 로그인 가능."
     },
     "spaceCreation": {
       "label": "스페이스 만들기",
@@ -342,8 +335,6 @@
     "loadFailed": "사용자를 불러오지 못했습니다",
     "empty": "사용자 없음",
     "filters": {
-      "allInstances": "모든 인스턴스",
-      "localOnly": "로컬만",
       "allRoles": "모든 역할",
       "admin": "관리자",
       "nonAdmin": "비관리자",
@@ -363,9 +354,7 @@
     "actions": {
       "demote": "관리자 권한 박탈",
       "promote": "관리자 권한 부여",
-      "federatedNoAdmin": "연합 사용자는 관리자 불가",
       "resetPassword": "비밀번호 초기화",
-      "federatedNoReset": "연합 사용자는 홈 인스턴스로 로그인",
       "delete": "사용자 삭제",
       "selfDelete": "자신의 삭제는 설정 사용"
     },
@@ -391,15 +380,7 @@
     "deleteDialog": {
       "title": "사용자 삭제",
       "description": "<strong>{{username}}</strong>을(를) 완전 삭제? 모든 스페이스·DM·친구 목록에서 제외. 되돌릴 수 없습니다.",
-      "confirm": "사용자 삭제",
-      "blockBot": "이 봇의 재등록 금지",
-      "blockBotHint": "홈 인스턴스 복귀 시 봇은 여기서 계정을 만들 수 없음. 사용자 목록 아래에서 차단 해제."
-    },
-    "blockedBots": {
-      "title": "차단된 봇",
-      "description": "여기 등록할 수 없는 다른 인스턴스의 봇. 다시 허용하려면 차단 해제.",
-      "blockedAt": "차단 {{date}}",
-      "unblock": "차단 해제"
+      "confirm": "사용자 삭제"
     }
   },
   "mobile": {
@@ -407,7 +388,6 @@
     "sections": {
       "general": "일반",
       "registration": "가입",
-      "federation": "연합",
       "streaming": "스트리밍",
       "storage": "스토리지",
       "users": "사용자",

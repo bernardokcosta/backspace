@@ -19,7 +19,6 @@
     "activity": "Zatím je tu klid… Když přátelé začnou aktivitu, ukážeme ji tady!"
   },
   "friend": {
-    "viaInstance": "přes {{host}}",
     "message": "Zpráva",
     "remove": "Odebrat přítele"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "Najít lidi",
-    "hint": "Hledej podle uživatelského jména nebo použij <handle>user@instance</handle> a přidej někoho přímo.",
     "placeholder": "Hledat či přidat podle jména…",
     "direct": "Poslat žádost o přátelství <handle>{{handle}}</handle>",
     "sendRequest": "Poslat žádost",
@@ -103,6 +101,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "Otevřít skladbu"
-  },
-  "instanceNotConnected": "K {{host}} nejsi připojen. Připoj se znovu a zkus to ještě jednou."
+  }
 }

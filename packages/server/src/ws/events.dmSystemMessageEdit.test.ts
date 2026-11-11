@@ -33,11 +33,6 @@ vi.mock('./handler.js', () => ({
   },
 }));
 
-const queueDmRelay = vi.fn();
-vi.mock('../utils/federationOutbox.js', async () => {
-  const actual = await vi.importActual<typeof import('../utils/federationOutbox.js')>('../utils/federationOutbox.js');
-  return { ...actual, queueDmRelay: (...args: unknown[]) => queueDmRelay(...args) };
-});
 
 function applyMigrations(db: Database.Database): void {
   const migrationsDir = path.resolve(__dirname, '../../drizzle');
@@ -54,7 +49,7 @@ function applyMigrations(db: Database.Database): void {
 function seedUser(id: string): void {
   testDb.insert(schema.users).values({
     id, username: id, displayName: null, passwordHash: 'x', status: 'offline',
-    isAdmin: 0, isDeleted: 0, discoverable: 1, homeInstance: null, homeUserId: null, createdAt: Date.now(),
+    isAdmin: 0, isDeleted: 0, discoverable: 1, createdAt: Date.now(),
   }).run();
 }
 
@@ -65,11 +60,10 @@ describe('WS dm_message_edit on a system message', () => {
     applyMigrations(sqlite);
     sendToUser.mockReset();
     sendToWs.mockReset();
-    queueDmRelay.mockReset();
     seedUser('alice');
     seedUser('bob');
     const now = Date.now();
-    testDb.insert(schema.dmChannels).values({ id: 'dm1', ownerId: 'alice', federatedId: null, createdAt: now }).run();
+    testDb.insert(schema.dmChannels).values({ id: 'dm1', ownerId: 'alice', createdAt: now }).run();
     testDb.insert(schema.dmMembers).values([{ dmChannelId: 'dm1', userId: 'alice', closed: 0 }, { dmChannelId: 'dm1', userId: 'bob', closed: 0 }]).run();
     testDb.insert(schema.dmMessages).values({
       id: 'm1', dmChannelId: 'dm1', userId: 'alice', type: 'system', createdAt: now,
@@ -80,12 +74,11 @@ describe('WS dm_message_edit on a system message', () => {
   it('refuses the edit and leaves the row and the relay untouched', async () => {
     const { handleClientEvent } = await import('./events.js');
     const socket = {} as WebSocket;
-    handleClientEvent({ type: 'dm_message_edit', messageId: 'm1', content: 'something else' }, 'alice', 'alice', socket, false);
+    handleClientEvent({ type: 'dm_message_edit', messageId: 'm1', content: 'something else' }, 'alice', 'alice', socket);
 
     const row = testDb.select().from(schema.dmMessages).where(eq(schema.dmMessages.id, 'm1')).get();
     expect(row?.content).toBe(JSON.stringify({ event: 'name_changed', oldName: null, newName: 'Crew' }));
     expect(row?.editedAt).toBeNull();
-    expect(queueDmRelay).not.toHaveBeenCalled();
     // The refusal goes to the socket that sent the edit only.
     expect(sendToWs).toHaveBeenCalledWith(socket, expect.objectContaining({ type: 'error', code: 'system_message_immutable' }));
     expect(sendToUser).not.toHaveBeenCalled();

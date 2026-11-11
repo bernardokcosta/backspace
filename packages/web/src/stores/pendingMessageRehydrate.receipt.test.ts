@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Channel } from '@veyvox/shared';
 vi.mock('../audio/AudioManager', () => ({ AudioManager: { getInstance: () => ({ setOutputDevice: vi.fn(), setVolume: vi.fn() }) } }));
-vi.mock('./instanceStore', () => ({ useInstanceStore: { getState: () => ({ _autoConnectDone: true, instances: [] }), subscribe: () => () => {} } }));
+import { useAuthStore } from './authStore';
+import { junoUser } from '../components/games/junoTestFixtures';
 import { usePendingMessageStore } from './pendingMessageStore';
 import { useTransferStore } from './transferStore';
 import { useSpaceStore } from './spaceStore';
@@ -10,10 +11,11 @@ let stop: (() => void) | undefined;
 afterEach(() => { stop?.(); vi.restoreAllMocks(); usePendingMessageStore.setState({ bubbles: new Map() }); });
 describe('confirmed pending delivery with the real API/store/orchestrator', () => {
   it('keeps a rate-limited attachment message for explicit retry, not an online replay', async () => {
+    useAuthStore.setState({ user: junoUser('native'), token: 'jwt' });
     useTransferStore.setState({ transfers: new Map() });
     usePendingMessageStore.setState({ bubbles: new Map() }); useSpaceStore.getState().reset();
     const channel: Channel = { id: 'limited-channel', spaceId: 'space', name: 'limited', type: 'text', topic: null, position: 0, categoryId: null, createdAt: 1, myPermissions: '1' };
-    useSpaceStore.getState().upsertChannel(channel, 'space', '');
+    useSpaceStore.getState().upsertChannel(channel, 'space');
     const transfer = useTransferStore.getState().createTransfer({ type: 'upload', file: { name: 'draft', size: 1, mimetype: 'text/plain' }, tray: false });
     useTransferStore.getState().setAttachmentRef(transfer, 'attachment', 'draft'); useTransferStore.getState().setState_(transfer, 'completed');
     const fetcher = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => new Response(JSON.stringify({ code: 'rate_limited', retryAfter: 2 }), { status: 429 }));
@@ -31,10 +33,11 @@ describe('confirmed pending delivery with the real API/store/orchestrator', () =
   });
 
   it('does not resend an HTTP-confirmed message when its body completes after teardown', async () => {
+    useAuthStore.setState({ user: junoUser('native'), token: 'jwt' });
     useTransferStore.setState({ transfers: new Map() });
     usePendingMessageStore.setState({ bubbles: new Map() }); useSpaceStore.getState().reset();
     const channel: Channel = { id: 'receipt-channel', spaceId: 'space', name: 'receipt', type: 'text', topic: null, position: 0, categoryId: null, createdAt: 1, myPermissions: '1' };
-    useSpaceStore.getState().upsertChannel(channel, 'space', '');
+    useSpaceStore.getState().upsertChannel(channel, 'space');
     const transfer = useTransferStore.getState().createTransfer({ type: 'upload', file: { name: 'draft', size: 1, mimetype: 'text/plain' }, tray: false });
     useTransferStore.getState().setAttachmentRef(transfer, 'attachment', 'draft'); useTransferStore.getState().setState_(transfer, 'completed');
     let finish: (body: unknown) => void = () => {};

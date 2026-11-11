@@ -1,14 +1,16 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { MemberWithUser, Role } from '@veyvox/shared';
+import type { MemberWithUser, Role, Space } from '@veyvox/shared';
 import { Modal } from '../ui/Modal';
 import { Avatar } from '../ui/Avatar';
 import { LockNote, LOCK_ICON } from '../ui/LockNote';
 import { usePermissionNames } from '../ui/OverrideEntry';
 import { useUIStore } from '../../stores/uiStore';
-import { useSpaceStore, getApiForOrigin, type TaggedSpace } from '../../stores/spaceStore';
+import { useSpaceStore } from '../../stores/spaceStore';
+import { useAuthStore } from '../../stores/authStore';
+import { applySpaceMemberUpdate } from '../../stores/spaceMemberUpdates';
 import { PermissionBits, stringToPermissions, permissionsToString, rolePermissionsVersion } from '../../utils/permissions';
-import { HttpError } from '../../api/client';
+import { api, HttpError } from '../../api/client';
 import { PERMISSION_GROUPS, type PermissionGroupId } from '../../utils/permissionGroups';
 import {
   viewerCanManageRoleAt,
@@ -17,7 +19,6 @@ import {
   useViewerHeldPermissions,
 } from '../../utils/roleHierarchy';
 import { userDisplayName } from '../../utils/identity';
-import { useSpaceOrigin } from '../../hooks/useSpaceOrigin';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 import { describeError } from '../../i18n/errors';
 import { isBotManagedRole, isListedForMember } from '../../utils/botRoles';
@@ -66,6 +67,7 @@ function assignedRoleIds(member: MemberWithUser, spaceId: string): Set<string> {
  * switched. Desktop only: AppLayout mounts it in the desktop tree.
  */
 export function MemberRolesModal() {
+  const revision = useAuthStore(s => s.sessionRevision);
   const activeModal = useUIStore((s) => s.activeModal);
   const modalData = useUIStore((s) => s.modalData);
   const closeModal = useUIStore((s) => s.closeModal);
@@ -79,7 +81,7 @@ export function MemberRolesModal() {
       onClose={closeModal}
       size="settings"
     >
-      <MemberRolesEditor key={`${spaceId}:${userId}`} spaceId={spaceId} userId={userId} onClose={closeModal} />
+      <MemberRolesEditor key={`${revision}:${spaceId}:${userId}`} spaceId={spaceId} userId={userId} onClose={closeModal} />
     </Modal>
   );
 }
@@ -109,7 +111,7 @@ function MemberRolesBody({
   member,
   onClose,
 }: {
-  space: TaggedSpace;
+  space: Space;
   member: MemberWithUser;
   onClose: () => void;
 }) {
@@ -122,13 +124,14 @@ function MemberRolesBody({
   const addToast = useUIStore((s) => s.addToast);
   const openUserProfile = useUIStore((s) => s.openUserProfile);
   const permissionNames = usePermissionNames();
-  const origin = useSpaceOrigin(spaceId);
-  const canonical = useCanonicalUserView(member.user, origin);
+  const canonical = useCanonicalUserView(member.user);
   const displayName = userDisplayName(canonical);
   const nameIdPrefix = useId();
 
-  // Roles live on the space's own instance (client-federation.md).
-  const spaceApi = getApiForOrigin(space._instanceOrigin ?? '');
+  const revision = useAuthStore(s => s.sessionRevision);
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const current = () => alive.current && revision === useAuthStore.getState().sessionRevision && useSpaceStore.getState().currentSpaceId === spaceId;
 
   // Same ordering as the roles tab: by position desc, @everyone always last.
   // Another bot's managed role is not listed; a bot's own one is shown, locked.
@@ -241,6 +244,7 @@ function MemberRolesBody({
   };
 
   const handleSave = async () => {
+    if (!current() || saving) return;
     setSaving(true);
     setError('');
     // The role whose write is in flight, so a refusal can name it.
@@ -251,20 +255,22 @@ function MemberRolesBody({
       // server also sends space_access_changed for each, which refreshes the
       // rest of the space for every member.
       if (membershipChanged) {
-        const updated = await spaceApi.spaces.updateMember(spaceId, userId, { roleIds: Array.from(draftRoleIds) });
-        const { members, setMembers } = useSpaceStore.getState();
-        setMembers(members.map((m) => (m.userId === userId ? { ...m, roles: updated.roles } : m)));
+        const updated = await api.spaces.updateMember(spaceId, userId, { roleIds: Array.from(draftRoleIds) });
+        if (!current()) return;
+        applySpaceMemberUpdate(updated);
         // What the server now holds becomes the new baseline.
         setInitialRoleIds(new Set(draftRoleIds));
       }
       for (const role of dirtyRoles) {
+        if (!current()) return;
         const draft = permDrafts.get(role.id);
         if (draft === undefined) continue;
         writingRoleId = role.id;
-        const saved = await spaceApi.roles.update(spaceId, role.id, {
+        const saved = await api.roles.update(spaceId, role.id, {
           permissions: permissionsToString(draft.bits),
           permissionsVersion: rolePermissionsVersion(draft.base),
         });
+        if (!current()) return;
         const { roles, setRoles } = useSpaceStore.getState();
         setRoles(withSavedRole(roles, saved));
         setPermDrafts((prev) => {
@@ -273,8 +279,9 @@ function MemberRolesBody({
           return next;
         });
       }
-      addToast(t('spaces:memberRoles.saved'), 'success', 2000);
+      if (current()) addToast(t('spaces:memberRoles.saved'), 'success', 2000);
     } catch (err) {
+      if (!current()) return;
       if (err instanceof HttpError && err.code === 'role_permissions_conflict' && writingRoleId !== null) {
         // Someone else saved this role's permissions meanwhile. Its draft was
         // made from what they replaced, so it goes, and the role shows what
@@ -288,16 +295,16 @@ function MemberRolesBody({
         });
         await useSpaceStore.getState().loadSpaceDetail(spaceId, { quiet: true });
       }
-      setError(describeError(err));
+      if (current()) setError(describeError(err));
     } finally {
-      setSaving(false);
+      if (current()) setSaving(false);
     }
   };
 
   const handleViewProfile = (e: React.MouseEvent<HTMLButtonElement>) => {
     const anchor = e.currentTarget.getBoundingClientRect();
     onClose();
-    openUserProfile(canonical, origin, anchor, 'right', { spaceId, userId });
+    openUserProfile(canonical, anchor, 'right', { spaceId, userId });
   };
 
   const groupTitle = (id: PermissionGroupId): string => {

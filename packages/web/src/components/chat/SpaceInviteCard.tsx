@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { describeError } from '../../i18n/errors';
 import { isAlreadyMemberError, isJoinRequestPendingError, isNotRequestableError, JoinRequestRequiredError } from '../../utils/joinErrors';
 import { sendInviteJoinRequest, type InviteRequestOutcome } from '../../utils/inviteJoinRequest';
 import { Avatar } from '../ui/Avatar';
-import { getApiForOrigin } from '../../stores/spaceStore';
+import { api } from '../../api/client';
+import { useAuthStore } from '../../stores/authStore';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { useUIStore } from '../../stores/uiStore';
 import type { SpaceInviteSystemPayload, SpaceVisibility } from '@veyvox/shared';
@@ -22,6 +23,11 @@ interface Props {
 }
 
 export function SpaceInviteCard({ payload, senderName }: Props) {
+  const revision = useAuthStore(s => s.sessionRevision);
+  return <InviteCardContent key={JSON.stringify([revision, payload.spaceId, payload.inviteCode, payload.spaceInstanceOrigin])} payload={payload} senderName={senderName} revision={revision} />;
+}
+
+function InviteCardContent({ payload, senderName, revision }: Props & { revision: number }) {
   const { t } = useTranslation(['chat']);
   const navigate = useNavigate();
   const joinByCode = useSpaceStore(s => s.joinByCode);
@@ -34,29 +40,33 @@ export function SpaceInviteCard({ payload, senderName }: Props) {
   const [refusedJoin, setRefusedJoin] = useState(false);
   const [notRequestable, setNotRequestable] = useState(false);
   const [requestOutcome, setRequestOutcome] = useState<InviteRequestOutcome | null>(null);
+  const local = payload.spaceInstanceOrigin === '' || payload.spaceInstanceOrigin === window.location.origin;
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const current = () => alive.current && revision === useAuthStore.getState().sessionRevision;
 
   // Live-preview overlay: snapshot is authoritative until live confirms or
   // revokes it. A mismatched spaceId is treated as revoked because the invite
   // code now points to a different space than was captured at send time.
   useEffect(() => {
     let cancelled = false;
-    const client = getApiForOrigin(payload.spaceInstanceOrigin);
-    client.spaces.invitePreview(payload.inviteCode).then(
+    if (!local) { setLive({ kind: 'revoked' }); return; }
+    api.spaces.invitePreview(payload.inviteCode).then(
       (preview) => {
-        if (cancelled) return;
+        if (cancelled || revision !== useAuthStore.getState().sessionRevision) return;
         if (preview.spaceId !== payload.spaceId) {
           setLive({ kind: 'revoked' });
         } else {
           setLive({ kind: 'confirmed', memberCount: preview.memberCount, visibility: preview.visibility });
         }
       },
-      () => { if (!cancelled) setLive({ kind: 'revoked' }); },
+      () => { if (!cancelled && revision === useAuthStore.getState().sessionRevision) setLive({ kind: 'revoked' }); },
     );
     return () => { cancelled = true; };
-  }, [payload.inviteCode, payload.spaceId, payload.spaceInstanceOrigin]);
+  }, [payload.inviteCode, payload.spaceId, local, revision]);
 
   const memberCount = live.kind === 'confirmed' ? live.memberCount : payload.snapshot.memberCount;
-  const isRevoked = live.kind === 'revoked';
+  const isRevoked = !local || live.kind === 'revoked';
   const asksToJoin = !notRequestable
     && (refusedJoin || (live.kind === 'confirmed' && live.visibility === 'request'));
 
@@ -77,13 +87,13 @@ export function SpaceInviteCard({ payload, senderName }: Props) {
   };
 
   const join = async () => {
+    if (!local || !current()) return;
     try {
-      // Three-way federation invariant: target the space's home origin, not
-      // the DM transport origin nor window.location.origin. Empty string maps
-      // to undefined so joinByCode follows its local-instance branch.
-      const space = await joinByCode(payload.inviteCode, payload.spaceInstanceOrigin || undefined);
+      const space = await joinByCode(payload.inviteCode);
+      if (!current()) return;
       landOnSpace(space.id);
     } catch (err) {
+      if (!current()) return;
       if (isAlreadyMemberError(err)) {
         // Already a member is a successful state — just navigate to the space.
         // Look up the space in the store by id; if not found (rare race), stay
@@ -110,11 +120,14 @@ export function SpaceInviteCard({ payload, senderName }: Props) {
   };
 
   const sendRequest = async () => {
+    if (!local || !current()) return;
     try {
-      const outcome = await sendInviteJoinRequest(payload.spaceId, payload.spaceInstanceOrigin || '');
+      const outcome = await sendInviteJoinRequest(payload.spaceId);
+      if (!current()) return;
       setRequestOutcome(outcome);
       setJoining(false);
     } catch (err) {
+      if (!current()) return;
       if (isAlreadyMemberError(err)) {
         landOnSpace(payload.spaceId);
         return;
@@ -132,7 +145,7 @@ export function SpaceInviteCard({ payload, senderName }: Props) {
   };
 
   const onJoin = async () => {
-    if (joining || isRevoked || requestOutcome) return;
+    if (joining || isRevoked || requestOutcome || !current()) return;
     setJoining(true);
     setJoinError(null);
     if (asksToJoin) {

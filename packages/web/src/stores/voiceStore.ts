@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { ParticipantInfo } from '../hooks/useLiveKit';
 import { AudioManager } from '../audio/AudioManager';
-import { useSpaceStore, getChannelOrigin, getMyUserIdForOrigin } from './spaceStore';
+import { useSpaceStore } from './spaceStore';
 import { useAuthStore } from './authStore';
 import { isElectron } from '../platform/platform';
 import { voiceFlagKey } from '../utils/permissionMute';
@@ -36,35 +36,13 @@ export type ScreenShareAudioState = 'published' | 'held' | 'acquiring' | 'acquir
 
 export type VoiceConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'reconnecting';
 
-/**
- * How this client names one DM call and reaches it. Every call slot carries
- * its own, so a ring for another call never changes the call the client is
- * in (voice.md, "Client-Side Call Routing").
- *
- * - `dmChannelId`: the conversation's id on the instance the call goes
- *   through. Null only for a call rung by an instance that has no copy of
- *   the conversation (federation Path B); never the call's key.
- * - `federatedCallId`: the conversation key the host names a federated call
- *   by. Null for a call hosted on the conversation's own instance.
- * - `callOrigin`: the WebSocket origin the call's accept, decline and
- *   hang-up go to (the one that rang it). Null means the conversation's own
- *   origin (`getChannelOrigin(dmChannelId)`).
- */
-export type DmCallRef =
-  | { dmChannelId: string; federatedCallId: string | null; callOrigin: string | null }
-  | { dmChannelId: null; federatedCallId: string; callOrigin: string };
-
-/** LiveKit credentials a ring brought, for a call hosted on another instance. */
-export interface DmCallCredentials {
-  token: string;
-  url: string;
-}
+/** Every call slot names its own native DM; signaling never carries a media token. */
+export interface DmCallRef { dmChannelId: string }
 
 /** A call ringing in. */
 export type IncomingDmCall = DmCallRef & {
   callerId: string;
   callerName: string;
-  livekit: DmCallCredentials | null;
 };
 
 /** A call this client placed that nobody answered yet. It is always hosted on the conversation's instance. */
@@ -74,13 +52,7 @@ export interface OutgoingDmCall {
   withCamera: boolean;
 }
 
-/**
- * The call this client is in. `livekit` holds the credentials a ring brought
- * until the connect uses them once.
- */
-export type ActiveDmCall = DmCallRef & {
-  livekit: DmCallCredentials | null;
-};
+export type ActiveDmCall = DmCallRef;
 export type VoiceConnectionQuality = 'excellent' | 'good' | 'poor' | 'lost' | 'unknown';
 
 export interface VoiceChannelElapsed {
@@ -98,14 +70,6 @@ export interface VoiceState {
   isDeafened: boolean;
   isCameraOn: boolean;
   isScreenSharing: boolean;
-  /**
-   * Origin of the instance that issued the current LiveKit token (`''` = home),
-   * recorded by `useLiveKit.connect`. That instance hosts the room, so its
-   * streaming limits are the ones a screen share obeys. Null when the token was
-   * relayed from an instance this client holds no session with (a federated DM
-   * call hosted elsewhere): its limits cannot be asked for. Not persisted.
-   */
-  livekitHostOrigin: string | null;
   /** System audio of the live share; null while not sharing. Not persisted. */
   screenShareAudio: ScreenShareAudioState | null;
   /** Actual local video mode, separate from the saved next-capture preference. */
@@ -234,7 +198,6 @@ export interface VoiceState {
   getVoiceUsers: (channelId: string) => string[];
   clearAllVoiceUsers: () => void;
   resetSession: () => void;
-  clearVoiceUsersForOrigin: (origin: string) => void;
   leaveVoice: () => void;
   handleForceDisconnect: () => void;
   // Mic permission state — set when getUserMedia rejects with NotAllowedError
@@ -302,7 +265,6 @@ export const useVoiceStore = create<VoiceState>()(
       isScreenSharing: false,
       screenShareAudio: null,
       screenShareSdr: false,
-      livekitHostOrigin: '',
       micPermissionDenied: false,
       participants: [],
       speakingParticipantIds: new Set(),
@@ -697,7 +659,9 @@ export const useVoiceStore = create<VoiceState>()(
         voiceUserStates: new Map(),
       }),
 
-      resetSession: () => set({
+      resetSession: () => {
+        void get().disconnectFn?.().catch(error => console.warn('[voice] Session disconnect failed:', error));
+        set({
         // Connection state
         voiceUsers: new Map(),
         voiceChannelElapsedSeconds: new Map(),
@@ -733,27 +697,13 @@ export const useVoiceStore = create<VoiceState>()(
         permissionMutedUserIds: new Set(),
         // Mic permission gate
         micPermissionDenied: false,
-      }),
-
-      clearVoiceUsersForOrigin: (origin: string) => {
-        const { channelOriginMap } = useSpaceStore.getState();
-        set((state) => {
-          const newVoiceUsers = new Map(state.voiceUsers);
-          const voiceChannelElapsedSeconds = new Map(state.voiceChannelElapsedSeconds);
-          for (const [channelId] of newVoiceUsers) {
-            if ((channelOriginMap.get(channelId) ?? '') === origin) {
-              newVoiceUsers.delete(channelId);
-              voiceChannelElapsedSeconds.delete(channelId);
-            }
-          }
-          return { voiceUsers: newVoiceUsers, voiceChannelElapsedSeconds };
         });
       },
 
       // Leave voice without wiping the voiceUsers map (so sidebar still shows others)
       leaveVoice: () => {
         const channelId = get().currentVoiceChannelId;
-        const myId = channelId ? getMyUserIdForOrigin(getChannelOrigin(channelId)) : undefined;
+        const myId = useAuthStore.getState().user?.id;
 
         set((state) => {
           // Optimistic: immediately remove self from the channel's voice users

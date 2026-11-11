@@ -46,25 +46,6 @@ vi.mock('../ws/handler.js', () => ({
   },
 }));
 
-vi.mock('../utils/federationOutbox.js', async () => {
-  const actual = await vi.importActual<typeof import('../utils/federationOutbox.js')>('../utils/federationOutbox.js');
-  return {
-    ...actual,
-    isFederationRelayEnabled: () => false,
-    queueDmCloseRelay: vi.fn(),
-    queueDmRelay: vi.fn(),
-    queueOutboxEvent: vi.fn(),
-    queueReadStateRelay: vi.fn(),
-    sendTypingRelay: vi.fn(),
-    appendMutationLog: vi.fn(),
-  };
-});
-
-vi.mock('../utils/federationAuth.js', async (importActual) => {
-  const actual = await importActual<typeof import('../utils/federationAuth.js')>();
-  return { ...actual, getOurOrigin: () => 'https://local.test' };
-});
-
 // Embed resolution performs network work; the reply-target rules are unrelated to it.
 vi.mock('../utils/embedResolver.js', async (importActual) => {
   const actual = await importActual<typeof import('../utils/embedResolver.js')>();
@@ -88,7 +69,7 @@ function applyMigrations(db: Database.Database): void {
   }
 }
 
-function seedUser(id: string, homeUserId: string | null = null, homeInstance: string | null = null): void {
+function seedUser(id: string): void {
   testDb.insert(schema.users).values({
     id,
     username: id,
@@ -98,8 +79,6 @@ function seedUser(id: string, homeUserId: string | null = null, homeInstance: st
     isAdmin: 0,
     isDeleted: 0,
     discoverable: 1,
-    homeInstance,
-    homeUserId,
     createdAt: Date.now(),
   }).run();
 }
@@ -108,7 +87,6 @@ function seedDmChannel(id: string, memberIds: string[]): void {
   testDb.insert(schema.dmChannels).values({
     id,
     ownerId: null,
-    federatedId: null,
     createdAt: Date.now(),
     metadataUpdatedAt: 0,
   }).run();
@@ -157,7 +135,7 @@ describe('DM reply targets are confined to their own channel', () => {
     seedUser('attacker');
     // The victim is a federated identity so the guard is exercised on a
     // replicated row, not just a plain local one.
-    seedUser('victim', 'remote-victim-1', 'https://remote.test');
+    seedUser('victim');
     seedUser('outsider');
 
     seedDmChannel(DM_A, ['attacker', 'victim']);
@@ -227,7 +205,6 @@ describe('DM reply targets are confined to their own channel', () => {
         'attacker',
         'attacker',
         socket,
-        false,
       );
 
       const inA = testDb.select().from(schema.dmMessages)
@@ -250,7 +227,6 @@ describe('DM reply targets are confined to their own channel', () => {
         'attacker',
         'attacker',
         {} as never,
-        false,
       );
 
       const inA = testDb.select().from(schema.dmMessages)

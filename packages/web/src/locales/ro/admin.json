@@ -4,7 +4,6 @@
     "description": "Configurează instanța Veyvox. Aceste setări afectează toți utilizatorii.",
     "instanceName": {
       "label": "Numele instanței",
-      "description": "Numele afișat pe pagina de conectare și pe instanțele federate.",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "Înregistrare",
-    "description": "Controlează cine poate crea conturi pe această instanță. Înregistrarea publică acoperă conturile locale; cea federată acoperă utilizatorii din instanțe conectate care creează un cont aici.",
     "public": {
       "label": "Înregistrare publică",
       "toggleLabel": "Permite conturi locale noi",
       "toggleDescription": "Oricine poate crea un cont local din pagina de înregistrare. Când este oprit, doar linkurile de invitație pot crea conturi locale noi."
-    },
-    "federated": {
-      "label": "Înregistrare federată",
-      "toggleLabel": "Permite conturi federate noi",
-      "toggleDescription": "Utilizatorii din alte instanțe pot crea un cont federat aici din setările lor de Conexiuni. Conturile federate existente se pot conecta oricând indiferent de această setare."
     },
     "spaceCreation": {
       "label": "Crearea spațiilor",
@@ -368,8 +361,6 @@
     "loadFailed": "Utilizatorii nu au putut fi încărcați",
     "empty": "Niciun utilizator găsit",
     "filters": {
-      "allInstances": "Toate instanțele",
-      "localOnly": "Doar local",
       "allRoles": "Toate rolurile",
       "admin": "Administrator",
       "nonAdmin": "Neadministrator",
@@ -389,9 +380,7 @@
     "actions": {
       "demote": "Retrogradează din rolul de administrator",
       "promote": "Promovează ca administrator",
-      "federatedNoAdmin": "Utilizatorii federați nu pot fi administratori",
       "resetPassword": "Resetează parola",
-      "federatedNoReset": "Utilizatorii federați se autentifică prin instanța principală",
       "delete": "Șterge utilizatorul",
       "selfDelete": "Folosește setările contului pentru a-ți șterge propriul cont"
     },
@@ -419,15 +408,7 @@
     "deleteDialog": {
       "title": "Șterge utilizatorul",
       "description": "Ștergi definitiv <strong>{{username}}</strong>? Va fi eliminat din toate spațiile, DM-urile și listele de prieteni. Această acțiune nu poate fi anulată.",
-      "confirm": "Șterge utilizatorul",
-      "blockBot": "Nu lăsa acest bot să se înregistreze din nou",
-      "blockBotHint": "Când instanța sa principală revine, botul nu va putea crea un cont aici. Îl poți debloca sub lista de utilizatori."
-    },
-    "blockedBots": {
-      "title": "Boți blocați",
-      "description": "Boții altor instanțe care nu se pot înregistra aici. Deblochează unul pentru a-i permite din nou accesul.",
-      "blockedAt": "Blocat {{date}}",
-      "unblock": "Deblochează"
+      "confirm": "Șterge utilizatorul"
     }
   },
   "mobile": {
@@ -435,7 +416,6 @@
     "sections": {
       "general": "General",
       "registration": "Înregistrare",
-      "federation": "Federare",
       "streaming": "Transmisie",
       "storage": "Stocare",
       "updates": "Actualizări",

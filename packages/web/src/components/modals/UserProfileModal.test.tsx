@@ -3,25 +3,23 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import type { User } from '@veyvox/shared';
 
-// The modal reaches into the space store (origin routing, DM lookup) and the
-// federated-mutuals loader. None of that is under test here:
-// stub it so the test exercises what the About tab renders.
+// Keep the native API and profile lookups deterministic for presentation tests.
 vi.mock('../../stores/spaceStore', () => ({
   useSpaceStore: Object.assign(
     (selector: (s: Record<string, unknown>) => unknown) =>
-      selector({ upsertDmCopy: vi.fn(), findExistingDmForUser: vi.fn(), upsertUserView: vi.fn() }),
-    { getState: () => ({ upsertDmCopy: vi.fn(), findExistingDmForUser: vi.fn(), upsertUserView: vi.fn() }) },
+      selector({ upsertDmChannel: vi.fn(), findExistingDmForUser: vi.fn(), upsertUserView: vi.fn() }),
+    { getState: () => ({ upsertDmChannel: vi.fn(), findExistingDmForUser: vi.fn(), upsertUserView: vi.fn() }) },
   ),
-  getApiForOrigin: () => ({ uploads: { url: (k: string) => `/uploads/${k}` }, users: { get: vi.fn() } }),
 }));
 // authStore imports voiceStore, which imports AudioManager and with it an
 // AudioWorklet module jsdom cannot evaluate.
 vi.mock('../../audio/AudioManager', () => ({
   AudioManager: { getInstance: vi.fn().mockReturnValue({ setOutputDevice: vi.fn(), setVolume: vi.fn() }) },
 }));
-vi.mock('../../utils/mutuals', () => ({
-  loadFederatedMutuals: vi.fn().mockResolvedValue({ mutualFriends: [], mutualSpaces: [] }),
-}));
+vi.mock('../../api/client', async original => {
+  const actual = await original<typeof import('../../api/client')>();
+  return { ...actual, api: { ...actual.api, users: { ...actual.api.users, getMutuals: vi.fn().mockResolvedValue({ mutualFriends: [], mutualSpaces: [] }) } } };
+});
 
 import { UserProfileModal } from './UserProfileModal';
 import { useUIStore } from '../../stores/uiStore';
@@ -34,8 +32,7 @@ function makeUser(overrides: Partial<User>): User {
   return {
     id: 'u-1', username: 'james', displayName: 'James', avatar: null, banner: null,
     accentColor: null, avatarColor: null, bio: null, status: 'online',
-    customStatus: null, isAdmin: false, createdAt: 0, homeInstance: null,
-    homeUserId: null, replicatedInstances: [],
+    customStatus: null, isAdmin: false, createdAt: 0,
     ...overrides,
   };
 }
@@ -64,7 +61,7 @@ describe('UserProfileModal', () => {
 
   it('lists every game the person is playing, with its own time, in the About tab', () => {
     const user = makeUser({});
-    useActivityStore.getState().setUserActivities(user, '', [
+    useActivityStore.getState().setUserActivities(user.id, [
       { type: 'playing', name: 'Honkai: Star Rail', timestamps: { start: Date.now() - 90_000 } },
       { type: 'playing', name: 'Stardew Valley', timestamps: { start: Date.now() - 3_600_000 } },
     ]);
@@ -84,15 +81,11 @@ describe('UserProfileModal', () => {
     expect(document.querySelectorAll('.tabular-nums')).toHaveLength(2);
   });
 
-  it('Add Friend on a federated user sends their home identity, not only the stub username (issue #339)', async () => {
-    // A stub minted without a name hint is called <homeUserId>@<domain>; the
-    // peer cannot find anyone by that name.
+  it('Add Friend sends only the exact native username, including retained @ text', async () => {
     const stub = makeUser({
       id: 'stub-local-id',
       username: '342939417492520960@orbit.test',
       displayName: 'Yoko',
-      homeUserId: '342939417492520960',
-      homeInstance: 'orbit.test',
     });
     const sendFriendRequest = vi.fn().mockResolvedValue('req-1');
     useSocialStore.setState({ friends: [], requests: [], sendFriendRequest });
@@ -108,8 +101,6 @@ describe('UserProfileModal', () => {
     await waitFor(() => expect(sendFriendRequest).toHaveBeenCalledOnce());
     expect(sendFriendRequest).toHaveBeenCalledWith({
       username: '342939417492520960@orbit.test',
-      homeUserId: '342939417492520960',
-      homeInstance: 'orbit.test',
     });
   });
 
@@ -134,15 +125,14 @@ describe('UserProfileModal', () => {
 
   describe('the signed-in user (#325)', () => {
     const pageHost = window.location.host;
-    /** erin@nova signed in directly on this page's instance: a replicated row. */
-    const erinHere = makeUser({ id: 'erin-here', username: 'erin@nova.example', homeInstance: 'nova.example', homeUserId: 'erin-nova' });
+    const erinHere = makeUser({ id: 'erin-here', username: 'erin@nova.example' });
 
     afterEach(() => {
-      useAuthStore.setState({ user: null, myRowIds: new Map() });
+      useAuthStore.setState({ user: null });
     });
 
     it('offers no messaging or friend actions on the own profile', () => {
-      useAuthStore.setState({ user: erinHere, myRowIds: new Map() });
+      useAuthStore.setState({ user: erinHere });
       useSocialStore.setState({ friends: [], requests: [] });
       useUIStore.getState().openModal('userProfile', { userId: erinHere.id, user: erinHere, origin: '' });
 
@@ -153,12 +143,10 @@ describe('UserProfileModal', () => {
     });
 
     it('never takes a different person with the same name for the signed-in user', () => {
-      // The page's own native erin, as nova lists her: erin@<page host>, a
-      // different person from the signed-in erin@nova.
       const otherErin = makeUser({
-        id: 'erin-native-seen-on-nova', username: `erin@${pageHost}`, homeInstance: pageHost, homeUserId: 'erin-native',
+        id: 'erin-native', username: `erin@${pageHost}`,
       });
-      useAuthStore.setState({ user: erinHere, myRowIds: new Map() });
+      useAuthStore.setState({ user: erinHere });
       useSocialStore.setState({ friends: [], requests: [] });
       useUIStore.getState().openModal('userProfile', { userId: otherErin.id, user: otherErin, origin: 'https://nova.example' });
 

@@ -9,7 +9,7 @@ name: DAST
 # unauthenticated and the spider reaches the SPA shell and its static assets
 # only. A measured run visited 11 URLs and none of them were under /api/,
 # because the shell contains no links for a spider to follow. It does not
-# exercise the API, spaces, channels, uploads, federation or voice. Its value is
+# exercise the native API, spaces, channels, uploads or voice. Its value is
 # that it proves the image still builds and the container still becomes healthy,
 # and it passively checks response headers on what it does reach. It is not an
 # assessment of the application.

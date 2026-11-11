@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const mockWsSendAll = vi.fn();
 vi.mock('../hooks/useWebSocket', () => ({
-  wsSendAll: (...args: unknown[]) => mockWsSendAll(...args),
+  wsSend: (...args: unknown[]) => mockWsSendAll(...args),
 }));
 
 const mockUpload = vi.fn();

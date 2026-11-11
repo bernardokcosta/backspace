@@ -5,7 +5,7 @@ import { getLoadedEmojiData, loadEmojiData, onEmojiDataLoaded } from './emojiDat
 // ─── Emoji shortcodes ───────────────────────────────────────────────────────
 // `:name:` text is turned into the emoji it names when user text is rendered.
 // Conversion happens at render time and stored text is never changed, so old
-// bios and messages, and text from federated peers, render the same way on
+// bios and messages, and text from native users, render the same way on
 // every client.
 //
 // Names, in order of precedence:

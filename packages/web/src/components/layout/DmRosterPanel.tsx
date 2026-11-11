@@ -6,9 +6,9 @@ import { useSpaceStore } from '../../stores/spaceStore';
 import { useUIStore } from '../../stores/uiStore';
 import { RightPanelResizeHandle } from './RightPanelResizeHandle';
 import { useSocialStore } from '../../stores/socialStore';
-import { isMine, parseFederatedUsername, userKey } from '../../utils/identity';
-import { useDmViewer } from '../../hooks/useDmViewer';
-import { kickFromGroupDm, transferGroupDmOwnership } from '../../utils/groupDmOwnerActions';
+import { userDisplayName } from '../../utils/identity';
+import { useAuthStore } from '../../stores/authStore';
+import { api } from '../../api/client';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { DmMemberRow, type DmMemberRowAction } from './DmMemberRow';
 import { visualPixels } from '../../platform/interfaceScale';
@@ -42,7 +42,7 @@ export function DmRosterPanel() {
     () => dmChannels.find((dm) => dm.id === currentChannelId) ?? null,
     [dmChannels, currentChannelId],
   );
-  const viewer = useDmViewer(dmChannel?.id);
+  const selfId = useAuthStore(s => s.user?.id);
 
   // Confirm-state for destructive actions. Two separate slots — kick + transfer
   // — so we can keep simple state without a discriminated union.
@@ -63,7 +63,7 @@ export function DmRosterPanel() {
   }
 
   const ownerId = dmChannel.ownerId;
-  const callerIsOwner = !!ownerId && isMine({ id: ownerId }, viewer.origin, viewer.self);
+  const callerIsOwner = !!ownerId && ownerId === selfId;
 
   // ── Section grouping ────────────────────────────────────────────────────
   // Owner first (always exactly one row), then online and offline groups
@@ -71,8 +71,8 @@ export function DmRosterPanel() {
   // username). This mirrors MemberSidebar's offline-section ordering and
   // its display-name-first label resolution.
   const sortByDisplayName = (a: User, b: User) => {
-    const aName = (a.displayName ?? parseFederatedUsername(a.username).baseName).toLowerCase();
-    const bName = (b.displayName ?? parseFederatedUsername(b.username).baseName).toLowerCase();
+    const aName = userDisplayName(a).toLowerCase();
+    const bName = userDisplayName(b).toLowerCase();
     return aName.localeCompare(bName);
   };
 
@@ -87,9 +87,7 @@ export function DmRosterPanel() {
 
   // ── Per-row helpers ────────────────────────────────────────────────────
   const isFriendOfCaller = (m: User): boolean => {
-    // The same person, whichever instance's row each list holds (`userKey`).
-    const key = userKey(m, viewer.origin);
-    return friends.some((f) => userKey(f, f._instanceOrigin) === key);
+    return friends.some(f => f.id === m.id);
   };
 
   const handleMenuAction = async (action: DmMemberRowAction, member: User) => {
@@ -98,7 +96,7 @@ export function DmRosterPanel() {
       // MemberSidebar pattern). This branch only fires on the unlikely
       // fallback path where the row couldn't compute its bounding rect —
       // in that case, anchor to the top-left of the roster column.
-      openUserProfile(member, viewer.origin, pointAnchor(visualPixels(100), visualPixels(100)));
+      openUserProfile(member, pointAnchor(visualPixels(100), visualPixels(100)));
       return;
     }
     if (action === 'kick') {
@@ -111,7 +109,7 @@ export function DmRosterPanel() {
     }
     if (action === 'remove-friend') {
       try {
-        await removeFriendStore(member, viewer.origin);
+        await removeFriendStore(member.id);
       } catch (err) {
         addToast(
           err instanceof Error ? err.message : t('dm:removeFriend.failed'),
@@ -126,11 +124,9 @@ export function DmRosterPanel() {
     if (!pendingKick) return;
     setSubmitting(true);
     try {
-      // Sent to the owner's instance, naming the conversation and the
-      // member as its copy does (`groupDmOwnerActions`).
-      await kickFromGroupDm(dmChannel.id, pendingKick);
+      await api.dm.kickMember(dmChannel.id, pendingKick.id);
       addToast(
-        t('dm:kick.success', { name: pendingKick.displayName ?? parseFederatedUsername(pendingKick.username).baseName }),
+        t('dm:kick.success', { name: userDisplayName(pendingKick) }),
         'success',
         3000,
       );
@@ -150,9 +146,9 @@ export function DmRosterPanel() {
     if (!pendingTransfer) return;
     setSubmitting(true);
     try {
-      await transferGroupDmOwnership(dmChannel.id, pendingTransfer);
+      await api.dm.transferOwnership(dmChannel.id, { newOwnerId: pendingTransfer.id });
       addToast(
-        t('dm:transfer.success', { name: pendingTransfer.displayName ?? parseFederatedUsername(pendingTransfer.username).baseName }),
+        t('dm:transfer.success', { name: userDisplayName(pendingTransfer) }),
         'success',
         3000,
       );
@@ -198,8 +194,7 @@ export function DmRosterPanel() {
             <DmMemberRow
               member={ownerMember}
               isOwner
-              isSelf={isMine(ownerMember, viewer.origin, viewer.self)}
-              origin={viewer.origin}
+              isSelf={ownerMember.id === selfId}
               callerIsOwner={callerIsOwner}
               isFriend={isFriendOfCaller(ownerMember)}
               showKebab
@@ -218,8 +213,7 @@ export function DmRosterPanel() {
                 key={m.id}
                 member={m}
                 isOwner={false}
-                isSelf={isMine(m, viewer.origin, viewer.self)}
-                origin={viewer.origin}
+                isSelf={m.id === selfId}
                 callerIsOwner={callerIsOwner}
                 isFriend={isFriendOfCaller(m)}
                 showKebab
@@ -239,8 +233,7 @@ export function DmRosterPanel() {
                 key={m.id}
                 member={m}
                 isOwner={false}
-                isSelf={isMine(m, viewer.origin, viewer.self)}
-                origin={viewer.origin}
+                isSelf={m.id === selfId}
                 callerIsOwner={callerIsOwner}
                 isFriend={isFriendOfCaller(m)}
                 showKebab
@@ -258,7 +251,7 @@ export function DmRosterPanel() {
         title={t('dm:kick.title')}
         description={
           pendingKick
-            ? t('dm:kick.description', { name: pendingKick.displayName ?? parseFederatedUsername(pendingKick.username).baseName })
+            ? t('dm:kick.description', { name: userDisplayName(pendingKick) })
             : ''
         }
         confirmLabel={t('common:actions.remove')}
@@ -273,7 +266,7 @@ export function DmRosterPanel() {
         title={t('dm:transfer.title')}
         description={
           pendingTransfer
-            ? t('dm:transfer.description', { name: pendingTransfer.displayName ?? parseFederatedUsername(pendingTransfer.username).baseName })
+            ? t('dm:transfer.description', { name: userDisplayName(pendingTransfer) })
             : ''
         }
         confirmLabel={t('dm:transfer.confirm')}

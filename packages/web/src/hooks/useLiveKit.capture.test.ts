@@ -18,7 +18,6 @@ const mocks = vi.hoisted(() => ({
   scheduleScreenShareOverdrive: vi.fn(),
   syncScreenShareAudio: vi.fn(),
   applyOverdrive: vi.fn(),
-  channelOrigin: vi.fn<(channelId: string) => string>(() => ''),
 }));
 vi.mock('livekit-client', async importOriginal => {
   const sdk = await importOriginal<typeof import('livekit-client')>();
@@ -44,10 +43,9 @@ vi.mock('../utils/screenShare', async importOriginal => {
   };
 });
 vi.mock('../stores/spaceStore', () => ({
-  getApiForOrigin: () => ({ livekit: { token: mocks.token, dmToken: mocks.token } }),
-  getChannelOrigin: (channelId: string) => mocks.channelOrigin(channelId), getMyUserIdForOrigin: () => 'me',
   useSpaceStore: { getState: () => ({ channelToSpaceMap: new Map(), members: [], dmChannels: [] }) },
 }));
+vi.mock('../api/client', async original => ({ ...await original<typeof import('../api/client')>(), api: { livekit: { token: mocks.token, dmToken: mocks.token } } }));
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -57,7 +55,6 @@ beforeEach(() => {
   mocks.audio.setInputDevice.mockResolvedValue(null);
   useVoiceStore.setState({ ...useVoiceStore.getInitialState(), isMuted: false });
   mocks.connect.mockResolvedValue(undefined);
-  mocks.channelOrigin.mockReturnValue('');
   mocks.syncScreenShareAudio.mockResolvedValue(undefined);
   mocks.applyOverdrive.mockResolvedValue(true);
   mocks.disconnect.mockImplementation(async function (this: Room) {
@@ -346,8 +343,7 @@ describe('screen-share audio published mid-stream', () => {
   });
 });
 
-describe('the instance hosting the call', () => {
-  const REMOTE = 'https://remote.example';
+describe('current instance media policy and private tokens', () => {
   const limits = (maxBitrateKbps: number) => ({
     maxBitrateKbps, minBitrateKbps: 500, bitrateStepKbps: 500,
     allowedResolutions: [540, 720, 1080], allowedFramerates: [30, 45, 60],
@@ -355,48 +351,23 @@ describe('the instance hosting the call', () => {
     bitrateMatrixOverrides: null, allowCustomBitrate: true,
   });
 
-  it('records the origin that issued the token and asks it for its limits', async () => {
-    mocks.channelOrigin.mockReturnValue(REMOTE);
-    const fetchFor = vi.spyOn(useSettingsStore.getState(), 'fetchStreamingLimitsFor').mockResolvedValue(undefined);
+  it('fetches a private native channel token and connects to its configured media URL', async () => {
     const { result } = renderHook(() => useLiveKit());
     await act(async () => { await result.current.connect('channel'); });
-    expect(useVoiceStore.getState().livekitHostOrigin).toBe(REMOTE);
-    expect(fetchFor).toHaveBeenCalledWith(REMOTE);
+    expect(mocks.token).toHaveBeenCalledWith('channel');
+    expect(mocks.connect).toHaveBeenCalledWith('wss://example.invalid', 'test', expect.any(Object));
+    expect(useVoiceStore.getState()).not.toHaveProperty('livekitHostOrigin');
   });
 
-  it('records a DM call on a remote origin as hosted there', async () => {
-    mocks.channelOrigin.mockReturnValue(REMOTE);
-    vi.spyOn(useSettingsStore.getState(), 'fetchStreamingLimitsFor').mockResolvedValue(undefined);
+  it('fetches a private native DM token without a call-origin registry', async () => {
     const { result } = renderHook(() => useLiveKit());
     await act(async () => { await result.current.connect('dm-1', true); });
-    expect(useVoiceStore.getState().livekitHostOrigin).toBe(REMOTE);
-  });
-
-  it('records an unknown host for a token relayed from another instance, and uses it once', async () => {
-    useVoiceStore.setState({
-      activeDmCall: { dmChannelId: 'dm-1', federatedCallId: 'key-1', callOrigin: '', livekit: { token: 'relayed', url: 'wss://host.example/livekit' } },
-    });
-    const { result } = renderHook(() => useLiveKit());
-    await act(async () => { await result.current.connect('dm-1', true); });
-    expect(useVoiceStore.getState().livekitHostOrigin).toBeNull();
-    expect(useVoiceStore.getState().activeDmCall?.livekit).toBeNull();
-  });
-
-  it('does not use the credentials of a call other than the one it connects', async () => {
-    mocks.channelOrigin.mockReturnValue(REMOTE);
-    vi.spyOn(useSettingsStore.getState(), 'fetchStreamingLimitsFor').mockResolvedValue(undefined);
-    useVoiceStore.setState({
-      activeDmCall: { dmChannelId: 'dm-other', federatedCallId: 'key-2', callOrigin: '', livekit: { token: 'relayed', url: 'wss://host.example/livekit' } },
-    });
-    const { result } = renderHook(() => useLiveKit());
-    await act(async () => { await result.current.connect('dm-1', true); });
-    expect(useVoiceStore.getState().livekitHostOrigin).toBe(REMOTE);
+    expect(mocks.token).toHaveBeenCalledWith('dm-1');
+    expect(useVoiceStore.getState()).not.toHaveProperty('livekitHostOrigin');
   });
 
   it('re-applies the encoding when the host limits arrive after the share started', async () => {
-    mocks.channelOrigin.mockReturnValue(REMOTE);
-    vi.spyOn(useSettingsStore.getState(), 'fetchStreamingLimitsFor').mockResolvedValue(undefined);
-    useSettingsStore.setState({ streamingLimitsByOrigin: {} });
+    useSettingsStore.setState({ streamingLimits: null });
     useVoiceStore.setState({
       screenShareConfig: { height: 1080, fps: 60, mode: 'gaming', customBitrateKbps: null, shareAudio: false, codec: 'vp9' },
     });
@@ -410,7 +381,7 @@ describe('the instance hosting the call', () => {
     await act(async () => { useVoiceStore.setState({ isScreenSharing: true }); });
     expect(mocks.applyOverdrive).toHaveBeenLastCalledWith(room, Track.Source.ScreenShare, expect.objectContaining({ maxBitrate: 8_000_000 }));
 
-    await act(async () => { useSettingsStore.setState({ streamingLimitsByOrigin: { [REMOTE]: limits(3000) } }); });
+    await act(async () => { useSettingsStore.setState({ streamingLimits: limits(3000) }); });
 
     expect(mocks.applyOverdrive).toHaveBeenLastCalledWith(room, Track.Source.ScreenShare, expect.objectContaining({ maxBitrate: 3_000_000 }));
   });

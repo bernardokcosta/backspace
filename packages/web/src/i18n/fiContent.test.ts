@@ -17,7 +17,6 @@ describe('Finnish contextual content', () => {
 
   it('does not append a guessed Finnish case ending to arbitrary player names', () => {
     expect(voice.juno.theirTurn).toBe('Vuoro: {{name}}');
-    expect(chat.attachment.federation.partialInstance).toBe('Käyttäjän {{username}} instanssi (raja: {{limit}})');
     expect(voice.juno.chooseGame).toBe('Valitse peli pelattavaksi puhelussa olevien kanssa.');
   });
 

@@ -25,7 +25,7 @@ function refusePoke(ws: WebSocket, code: ErrorCode, details?: ErrorDetails): voi
 
 /**
  * How often one member may poke: 5 pokes per minute, counted per actor (the
- * row id on this instance, so each federated account counts on its own),
+ * native account id, so each account counts on its own),
  * across every channel and target. A poke is a stored row that every viewer of
  * the channel receives and that plays a cue on its target, so it is held well
  * below the separate per-user WebSocket control allowance.

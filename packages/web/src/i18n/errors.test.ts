@@ -46,7 +46,7 @@ describe('describeError', () => {
   });
 
   it('shows the server text when the code has no catalog entry in any language', () => {
-    const err = HttpError.fromBody(400, { error: 'Weird thing happened', code: 'peer_rejected', statusCode: 400 });
+    const err = HttpError.fromBody(400, { error: 'Weird thing happened', code: 'space_not_found', statusCode: 400 });
     expect(describeError(err, i18n)).toBe('Weird thing happened');
   });
 
@@ -80,7 +80,7 @@ describe('HttpError.fromBody', () => {
     expect(err.details).toEqual({ max: 32 });
   });
 
-  it('recognises an older peer that sent the code in the error field', () => {
+  it('recognises a native refusal that sent its code in the error field', () => {
     const err = HttpError.fromBody(400, { error: 'cannot_friend_self', statusCode: 400 });
     expect(err.code).toBe('cannot_friend_self');
     expect(err.message).toBe('cannot_friend_self');
@@ -91,7 +91,7 @@ describe('HttpError.fromBody', () => {
     expect(err.code).toBeUndefined();
   });
 
-  it('ignores an unknown code so a newer peer cannot inject arbitrary keys', () => {
+  it('ignores an unknown code so a response cannot inject arbitrary translation keys', () => {
     const err = HttpError.fromBody(400, { error: 'x', code: 'not_a_real_code', statusCode: 400 });
     expect(err.code).toBeUndefined();
   });
@@ -104,14 +104,14 @@ describe('HttpError.fromBody', () => {
 
   // The default instance carries the shipped catalogs (the test setup starts
   // i18n in English), so this is the real contract, not a fixture's.
-  it('localizes the client-minted federation code from the shipped catalog', () => {
-    const err = HttpError.fromBody(409, {
-      error: 'Account exists with a different password on this instance',
-      code: 'federation_different_password',
-      statusCode: 409,
+  it('localizes a native refusal from the real shipped catalog', () => {
+    const err = HttpError.fromBody(403, {
+      error: 'This user account was deleted',
+      code: 'recipient_deleted',
+      statusCode: 403,
     });
     expect(describeError(err)).toBe(
-      'Your account on that instance has a password of its own. Sign in with it to reconnect.',
+      'That account was deleted.',
     );
   });
 });

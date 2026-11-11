@@ -6,7 +6,8 @@ import { Avatar } from '../ui/Avatar';
 import { useUIStore } from '../../stores/uiStore';
 import { api } from '../../api/client';
 import type { User } from '@veyvox/shared';
-import { parseFederatedUsername } from '../../utils/identity';
+import { userDisplayName } from '../../utils/identity';
+import { useAuthStore } from '../../stores/authStore';
 import { openDirectMessage } from '../../utils/openDirectMessage';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 
@@ -18,15 +19,14 @@ function NewDmUserRow({
   onSelect: (user: User) => void;
 }) {
   // Search results come from the page's own instance.
-  const canonical = useCanonicalUserView(user, '');
-  const { baseName } = parseFederatedUsername(canonical.username);
-  const displayName = canonical.displayName ?? baseName;
+  const canonical = useCanonicalUserView(user);
+  const displayName = userDisplayName(canonical);
   return (
     <button
       onClick={() => onSelect(user)}
       className="w-full flex items-center gap-3 px-3 py-2 rounded-[4px] hover:bg-interactive-hover transition-colors text-left"
     >
-      <Avatar src={canonical.avatar} name={displayName} size={36} status={canonical.status as any} userId={canonical.homeUserId ?? canonical.id} avatarColor={canonical.avatarColor} />
+      <Avatar src={canonical.avatar} name={displayName} size={36} status={canonical.status} userId={canonical.id} avatarColor={canonical.avatarColor} />
       <div className="flex-1 min-w-0">
         <div className="text-[14px] font-medium text-txt-primary truncate">
           {displayName}
@@ -38,6 +38,11 @@ function NewDmUserRow({
 }
 
 export function NewDmModal() {
+  const revision = useAuthStore(s => s.sessionRevision);
+  return <NewDmContent key={revision} revision={revision} />;
+}
+
+function NewDmContent({ revision }: { revision: number }) {
   const { t } = useTranslation(['dm', 'common']);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<User[]>([]);
@@ -47,7 +52,6 @@ export function NewDmModal() {
   const closeModal = useUIStore((s) => s.closeModal);
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
-  const searchTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const isOpen = activeModal === 'newDm';
 
@@ -56,45 +60,44 @@ export function NewDmModal() {
       setQuery('');
       setResults([]);
       setError('');
-      setTimeout(() => inputRef.current?.focus(), 100);
+      const timer = setTimeout(() => inputRef.current?.focus(), 100);
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
-  const handleSearch = (value: string) => {
-    setQuery(value);
-    setError('');
-
-    if (searchTimer.current) {
-      clearTimeout(searchTimer.current);
-    }
-
-    if (value.trim().length < 2) {
-      setResults([]);
+  useEffect(() => {
+    let alive = true;
+    const current = () => alive && revision === useAuthStore.getState().sessionRevision;
+    setResults([]);
+    if (!isOpen || query.trim().length < 2) {
+      setIsSearching(false);
       return;
     }
-
-    searchTimer.current = setTimeout(async () => {
-      setIsSearching(true);
+    setIsSearching(true);
+    const timer = setTimeout(async () => {
+      if (!current()) return;
       try {
-        const users = await api.social.search(value.trim());
-        setResults(users);
+        const users = await api.social.search(query.trim());
+        if (current()) setResults(users);
       } catch {
-        setResults([]);
+        if (current()) setResults([]);
       } finally {
-        setIsSearching(false);
+        if (current()) setIsSearching(false);
       }
     }, 300);
-  };
+    return () => { alive = false; clearTimeout(timer); };
+  }, [isOpen, query, revision]);
 
   const handleSelectUser = async (user: User) => {
     setError('');
     try {
-      const rowId = await openDirectMessage(user, '');
+      const rowId = await openDirectMessage(user.id);
+      if (revision !== useAuthStore.getState().sessionRevision) return;
       closeModal();
       useUIStore.getState().setShowDms(true);
       navigate(`/channels/@me/${rowId}`);
     } catch (err) {
-      setError((err as Error).message || t('dm:search.createFailed'));
+      if (revision === useAuthStore.getState().sessionRevision) setError((err as Error).message || t('dm:search.createFailed'));
     }
   };
 
@@ -105,7 +108,7 @@ export function NewDmModal() {
           ref={inputRef}
           type="text"
           value={query}
-          onChange={(e) => handleSearch(e.target.value)}
+          onChange={(e) => { setQuery(e.target.value); setError(''); }}
           placeholder={t('dm:newDm.searchPlaceholder')}
           className="input-search w-full py-2 text-[14px]"
         />

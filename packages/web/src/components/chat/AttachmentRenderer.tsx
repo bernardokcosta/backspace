@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import type { Attachment } from '@veyvox/shared';
 import { useUIStore } from '../../stores/uiStore';
 import { useTransferStore } from '../../stores/transferStore';
-import { Tooltip } from '../ui/Tooltip';
 import { useFormatters } from '../../i18n/formatters';
 
 interface AttachmentRendererProps {
@@ -54,7 +53,6 @@ interface VideoAttachmentProps {
   attachment: Attachment;
   attUrl: string;
   thumbUrl: string | null;
-  federationInlineBadge: React.ReactNode;
 }
 
 /**
@@ -76,7 +74,7 @@ interface VideoAttachmentProps {
  * The fallback card surfaces the poster (still a useful preview), filename,
  * duration and size, and a one-tap download — never a silently broken player.
  */
-function VideoAttachment({ attachment, attUrl, thumbUrl, federationInlineBadge }: VideoAttachmentProps) {
+function VideoAttachment({ attachment, attUrl, thumbUrl }: VideoAttachmentProps) {
   const { t } = useTranslation(['chat']);
   const { formatBytes } = useFormatters();
   const startDownload = useTransferStore((s) => s.startDownload);
@@ -136,7 +134,6 @@ function VideoAttachment({ attachment, attUrl, thumbUrl, federationInlineBadge }
             </div>
           </div>
         </button>
-        {federationInlineBadge && <div className="mt-1">{federationInlineBadge}</div>}
       </div>
     );
   }
@@ -158,7 +155,6 @@ function VideoAttachment({ attachment, attUrl, thumbUrl, federationInlineBadge }
           {t('chat:attachment.video.unsupportedBrowser')}
         </video>
       </div>
-      {federationInlineBadge && <div className="mt-1">{federationInlineBadge}</div>}
     </div>
   );
 }
@@ -179,60 +175,6 @@ export function AttachmentRenderer({ attachment }: AttachmentRendererProps) {
 
   const { mimetype, originalName, size } = attachment;
 
-  // Federation status — build tooltip text
-  const federationTooltip = (() => {
-    if (!attachment.federationStatus) return null;
-
-    if (attachment.federationStatus === 'remote') {
-      let senderName: string | null = null;
-      if (attachment.federationMeta) {
-        try {
-          const meta = JSON.parse(attachment.federationMeta);
-          if (meta.sourceUsername) senderName = meta.sourceUsername;
-        } catch { /* ignore */ }
-      }
-      const text = senderName
-        ? t('chat:attachment.federation.remoteNamed', { sender: senderName })
-        : t('chat:attachment.federation.remoteUnknown');
-      return { text, type: 'remote' as const };
-    }
-
-    if (attachment.federationStatus === 'remote_partial') {
-      let text = t('chat:attachment.federation.partialGeneric');
-      if (attachment.federationMeta) {
-        try {
-          const meta: Array<{ username: string; limit: number }> = JSON.parse(attachment.federationMeta);
-          if (meta.length > 0) {
-            const parts = meta.map(u =>
-              t('chat:attachment.federation.partialInstance', { username: u.username, limit: formatBytes(u.limit) }),
-            );
-            const instances = parts.reduce((first, second) =>
-              t('chat:attachment.federation.listPair', { first, second }),
-            );
-            text = t('chat:attachment.federation.partialList', { instances });
-          }
-        } catch { /* ignore */ }
-      }
-      return { text, type: 'remote_partial' as const };
-    }
-
-    return null;
-  })();
-
-  // Inline badge — sits next to file size or below media, never absolute-positioned
-  const federationInlineBadge = federationTooltip ? (
-    <Tooltip content={federationTooltip.text} position="top">
-      <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded glass-pill text-xs cursor-default ${federationTooltip.type === 'remote' ? 'text-txt-tertiary' : 'text-accent-amber'}`}>
-        <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          {federationTooltip.type === 'remote'
-            ? <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
-            : <><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></>
-          }
-        </svg>
-      </div>
-    </Tooltip>
-  ) : null;
-
   if (mimetype.startsWith('image/')) {
     const { width, height } = attachment;
     return (
@@ -250,7 +192,6 @@ export function AttachmentRenderer({ attachment }: AttachmentRendererProps) {
             loading="lazy"
           />
         </div>
-        {federationInlineBadge && <div className="mt-1">{federationInlineBadge}</div>}
       </div>
     );
   }
@@ -261,7 +202,6 @@ export function AttachmentRenderer({ attachment }: AttachmentRendererProps) {
         attachment={attachment}
         attUrl={attUrl}
         thumbUrl={thumbUrl}
-        federationInlineBadge={federationInlineBadge}
       />
     );
   }
@@ -284,7 +224,6 @@ export function AttachmentRenderer({ attachment }: AttachmentRendererProps) {
             <p className="text-txt-primary text-[14px] font-medium truncate">{originalName}</p>
             <div className="flex items-center gap-2">
               <p className="text-[12px] text-txt-tertiary">{formatBytes(size)}</p>
-              {federationInlineBadge}
             </div>
           </div>
         </div>
@@ -333,7 +272,6 @@ export function AttachmentRenderer({ attachment }: AttachmentRendererProps) {
         <p className="text-txt-link text-[15px] font-medium truncate hover:underline">{originalName}</p>
         <div className="flex items-center gap-2 flex-wrap">
           <p className="text-[12px] text-txt-tertiary font-medium">{formatBytes(size)}</p>
-          {federationInlineBadge}
         </div>
       </div>
     </button>

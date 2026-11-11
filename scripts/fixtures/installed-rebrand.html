@@ -1,5 +1,5 @@
 <!doctype html><html lang="en"><meta charset="utf-8"><title>Isolated installed Veyvox acceptance</title>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; connect-src 'self'; style-src 'unsafe-inline'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; connect-src 'self'; style-src 'unsafe-inline'">
 <style>body{background:#13131a;color:#eee;font:18px system-ui;padding:48px}</style>
 <h1>Installed replacement — synthetic profile only</h1><p id="result">Verifying…</p>
 <script>
@@ -9,15 +9,19 @@
   const report = { phase: config.phase, ok: false };
   try {
     api.rendererReady();
-    const seed = config.phase.endsWith('seed');
+    const seed = config.phase === 'seed' || config.phase === 'appimage-seed';
     if (seed) {
       localStorage.setItem('backspace_token', 'synthetic-session');
       localStorage.setItem('backspace-language', 'auto');
-      localStorage.setItem('backspace_instances_synthetic-owner', 'synthetic-peer');
+      for (const key of config.retiredKeys) localStorage.setItem(key, '{malformed-synthetic-peer');
+      for (const [key, value] of Object.entries(config.nativeWork)) localStorage.setItem(key, value);
       localStorage.setItem('backspace-interface-scale', JSON.stringify({ state: { scale: 200 }, version: 0 }));
       localStorage.setItem('backspace-juno-preferences', JSON.stringify({ state: { musicVolume: 20, language: 'auto', dubbingLanguage: 'auto' }, version: 0 }));
       document.cookie = 'session=synthetic-session; Max-Age=3600; SameSite=Strict; Path=/';
     }
+    // The candidate runs the actual compiled production bootstrap; no copied
+    // key-removal implementation and no candidate reseeding.
+    if (!seed) await import('/retire-state.js');
     const db = await new Promise((resolve, reject) => {
       const request = indexedDB.open('backspace-transfers', 1);
       request.onupgradeneeded = () => { if (!seed) { request.transaction.abort(); return; } request.result.createObjectStore('fs-handles'); };
@@ -34,7 +38,9 @@
     if (config.enableStartup) await api.setAutoLaunchSettings({ openAtLogin: true, startMinimized: true });
     if (config.disableStartup) await api.setAutoLaunchSettings({ openAtLogin: false, startMinimized: true });
     Object.assign(report, { ok: true, version: await api.getVersion(), token: localStorage.getItem('backspace_token'), language: localStorage.getItem('backspace-language'),
-      instances: localStorage.getItem('backspace_instances_synthetic-owner'), scale: JSON.parse(localStorage.getItem('backspace-interface-scale'))?.state?.scale,
+      retiredKeys: config.retiredKeys.filter(key => localStorage.getItem(key) !== null),
+      nativeStorage: Object.fromEntries(Object.keys(config.nativeWork).map(key => [key, localStorage.getItem(key)])),
+      scale: JSON.parse(localStorage.getItem('backspace-interface-scale'))?.state?.scale,
       music: JSON.parse(localStorage.getItem('backspace-juno-preferences'))?.state?.musicVolume, pending,
       cookie: document.cookie.split('; ').find(value => value.startsWith('session='))?.slice(8), legacy: !!window.backspace, canonical: !!window.veyvox,
       documentVisibility: document.visibilityState, startup: await api.getAutoLaunchSettings() });

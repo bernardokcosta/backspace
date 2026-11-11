@@ -28,8 +28,7 @@ export function rateLimitEvent(retryAfterMs: number, dmChannelId?: string): Extr
 /** dmChannelId on an error means a call refusal, not the target of arbitrary DM traffic. */
 export function wsEventRateLimitError(retryAfterMs: number, event: Record<string, unknown>): Extract<ServerEvent, { type: 'error' }> {
   const isCallRequest = event.type === 'dm_call_start' || event.type === 'dm_call_accept';
-  const callId = isCallRequest ? (typeof event.dmChannelId === 'string' ? event.dmChannelId
-    : typeof event.federatedCallId === 'string' ? event.federatedCallId : undefined) : undefined;
+  const callId = isCallRequest && typeof event.dmChannelId === 'string' ? event.dmChannelId : undefined;
   return rateLimitEvent(retryAfterMs, callId);
 }
 

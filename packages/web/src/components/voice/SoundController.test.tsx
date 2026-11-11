@@ -52,7 +52,6 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
-  useAuthStore.setState({ myRowIds: new Map() });
   vi.useRealTimers();
 });
 
@@ -78,7 +77,7 @@ describe('SoundController message sound', () => {
   });
 });
 
-describe('SoundController message sound on a remote instance\'s channels', () => {
+describe('SoundController native channel ownership', () => {
   function event(id: string, channelId: string, content: string, userId = 'other') {
     return { channelId, message: { id, channelId, userId, content } as MessageWithUser };
   }
@@ -86,30 +85,28 @@ describe('SoundController message sound on a remote instance\'s channels', () =>
   beforeEach(() => {
     useSpaceStore.setState({
       dmChannels: [{ id: 'dm' } as DmChannel, { id: 'remote-dm' } as DmChannel],
-      channelOriginMap: new Map([['remote-chat', 'https://remote.example'], ['remote-dm', 'https://remote.example']]),
     });
-    useAuthStore.getState().recordMyRow('https://remote.example', 'remote-me');
   });
 
-  it('plays for a mention by the id the user has on that instance', () => {
+  it('plays for a mention of the native account ID', () => {
     mountAs('online');
-    act(() => useChatStore.setState({ realtimeMessageEvents: [event('m1', 'remote-chat', 'Look <@remote-me>')] }));
+    act(() => useChatStore.setState({ realtimeMessageEvents: [event('m1', 'remote-chat', 'Look <@me>')] }));
     expect(soundsPlayed()).toEqual(['message']);
   });
 
-  it('stays silent for the user\'s own message in a remote DM', () => {
+  it('stays silent for the native user\'s own DM message', () => {
     mountAs('online');
-    act(() => useChatStore.setState({ realtimeMessageEvents: [event('m1', 'remote-dm', 'Hi', 'remote-me')] }));
+    act(() => useChatStore.setState({ realtimeMessageEvents: [event('m1', 'remote-dm', 'Hi', 'me')] }));
     expect(soundsPlayed()).toEqual([]);
   });
 
   it('plays for every other message when the every-message preference is on, but not for the user\'s own', () => {
     useVoiceStore.setState({ messageSoundAllChannels: true });
     mountAs('online');
-    act(() => useChatStore.setState({ realtimeMessageEvents: [event('m1', 'remote-chat', 'Hi', 'remote-me')] }));
+    act(() => useChatStore.setState({ realtimeMessageEvents: [event('m1', 'remote-chat', 'Hi', 'me')] }));
     expect(soundsPlayed()).toEqual([]);
     act(() => useChatStore.setState({ realtimeMessageEvents: [
-      event('m1', 'remote-chat', 'Hi', 'remote-me'),
+      event('m1', 'remote-chat', 'Hi', 'me'),
       event('m2', 'remote-chat', 'Hello everyone'),
     ] }));
     expect(soundsPlayed()).toEqual(['message']);
@@ -117,23 +114,20 @@ describe('SoundController message sound on a remote instance\'s channels', () =>
 });
 
 describe('SoundController message sound follows notification settings (#394)', () => {
-  const REMOTE = 'https://remote.example';
   function event(id: string, channelId: string, content: string) {
     return { channelId, message: { id, channelId, userId: 'other', content } as MessageWithUser };
   }
   function seed(setting: Partial<NotificationSetting>) {
     const full: NotificationSetting = { spaceId: 'remote-space', channelId: null, level: null, muted: false, mutedUntil: null, updatedAt: 1, ...setting };
     useNotificationSettingsStore.setState({
-      settings: new Map([[notificationSettingKey(REMOTE, { spaceId: full.spaceId, channelId: full.channelId }), full]]),
+      settings: new Map([[notificationSettingKey({ spaceId: full.spaceId, channelId: full.channelId }), full]]),
     });
   }
 
   beforeEach(() => {
     useSpaceStore.setState({
       channelToSpaceMap: new Map([['remote-chat', 'remote-space']]),
-      channelOriginMap: new Map([['remote-chat', REMOTE]]),
     });
-    useAuthStore.getState().recordMyRow(REMOTE, 'remote-me');
   });
 
   afterEach(() => {
@@ -150,7 +144,7 @@ describe('SoundController message sound follows notification settings (#394)', (
   it('stays silent for a mention while the space is muted', () => {
     seed({ muted: true });
     mountAs('online');
-    act(() => useChatStore.setState({ realtimeMessageEvents: [event('m1', 'remote-chat', 'Look <@remote-me>')] }));
+    act(() => useChatStore.setState({ realtimeMessageEvents: [event('m1', 'remote-chat', 'Look <@me>')] }));
     expect(soundsPlayed()).toEqual([]);
   });
 
@@ -158,7 +152,7 @@ describe('SoundController message sound follows notification settings (#394)', (
     useVoiceStore.setState({ messageSoundAllChannels: true });
     seed({ channelId: 'remote-chat', level: 'nothing' });
     mountAs('online');
-    act(() => useChatStore.setState({ realtimeMessageEvents: [event('m1', 'remote-chat', 'Look <@remote-me>')] }));
+    act(() => useChatStore.setState({ realtimeMessageEvents: [event('m1', 'remote-chat', 'Look <@me>')] }));
     expect(soundsPlayed()).toEqual([]);
   });
 });

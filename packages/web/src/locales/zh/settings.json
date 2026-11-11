@@ -127,7 +127,6 @@
       "appearance": "外观",
       "voice": "语音与视频",
       "privacy": "隐私",
-      "connections": "连接",
       "keybinds": "按键绑定",
       "desktop": "桌面端",
       "instance": "实例",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "我的账号",
-    "detached": {
-      "notice": "该账号已与其主实例分离。",
-      "explanation": "{{homeInstance}} 已被重置或不再可用，因此该账号目前在此实例本地独立运行。您的个人资料和密码在此处进行管理。",
-      "reattachHint": "在 {{homeInstance}} 上以 {{username}} 身份登录时，您可以重新关联此账号。个人资料和在线状态将恢复同步。",
-      "reattachButton": "重新关联至 {{homeInstance}}",
-      "reattachConfirm": "确认以 {{username}} 身份重新关联",
-      "reattaching": "正在重新关联…",
-      "reattachFailed": "重新关联失败",
-      "reattached": "已成功与 {{username}} 重新关联账号"
-    },
     "profile": {
       "sectionTitle": "个人资料定制",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "账号",
       "status": {
-        "label": "状态",
-        "homeUnavailable": "您的状态保存在 {{host}} 上。请连接到 {{host}} 后再更改。"
+        "label": "状态"
       },
       "customStatus": {
         "label": "自定义状态",
@@ -243,10 +231,6 @@
         "passwordPlaceholder": "输入您的密码",
         "submit": "注销我的账号",
         "deleting": "正在注销…"
-      },
-      "federation": {
-        "removing": "正在从已连接的实例中移除您的账号…",
-        "deleteAnyway": "仍要立即注销账号"
       },
       "complete": {
         "title": "账号已注销",
@@ -309,14 +293,10 @@
       }
     }
   },
-  "connections": {
-    "title": "连接"
-  },
   "instance": {
     "tabs": {
       "general": "常规",
       "registration": "注册",
-      "federation": "联邦",
       "streaming": "推流",
       "storage": "存储",
       "users": "用户",

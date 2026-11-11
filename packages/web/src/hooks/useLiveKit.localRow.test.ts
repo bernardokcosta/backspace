@@ -3,21 +3,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Room, RoomEvent, DisconnectReason } from 'livekit-client';
 import { useLiveKit } from './useLiveKit';
 import { useVoiceStore } from '../stores/voiceStore';
-import { isMe, useAuthStore } from '../stores/authStore';
+import { useAuthStore } from '../stores/authStore';
 import type { User } from '@veyvox/shared';
 
 /**
- * The local participant's fallback row (no member row lists the user) is the
- * user's row as the instance hosting the call issues it:
- * `useVoiceParticipantMeta` reads it with that origin.
+ * The local participant's fallback is the native authenticated account.
  */
-
-const ORBIT = 'https://orbit.example';
 
 const mocks = vi.hoisted(() => ({
   token: vi.fn(),
   connect: vi.fn(), disconnect: vi.fn(),
-  origin: '',
   audio: {
     releaseInputStream: vi.fn(), resumeContext: vi.fn(),
     setVoiceProcessing: vi.fn(), setRnnoiseEnabled: vi.fn(),
@@ -47,13 +42,11 @@ vi.mock('./useWebSocket', () => ({ wsSend: vi.fn() }));
 vi.mock('../utils/voice', () => ({ broadcastVoiceStatus: vi.fn(), clearSpaceVoiceForDmCall: vi.fn() }));
 vi.mock('../utils/hwOverdrive', () => ({ activate: vi.fn(), deactivate: vi.fn() }));
 vi.mock('../stores/spaceStore', () => ({
-  getApiForOrigin: () => ({ livekit: { token: mocks.token, dmToken: mocks.token } }),
-  getChannelOrigin: () => mocks.origin,
-  getMyUserIdForOrigin: () => undefined,
   useSpaceStore: { getState: () => mocks.space },
 }));
+vi.mock('../api/client', async original => ({ ...await original<typeof import('../api/client')>(), api: { livekit: { token: mocks.token, dmToken: mocks.token } } }));
 
-const me = { id: 'n-1', username: 'jannis', displayName: 'Jannis', homeInstance: null, homeUserId: null } as unknown as User;
+const me = { id: 'n-1', username: 'legacy@old.invalid', displayName: 'Jannis' } as User;
 
 async function listedLocalRow(identity: string): Promise<User | null | undefined> {
   const { result } = renderHook(() => useLiveKit());
@@ -75,24 +68,24 @@ beforeEach(() => {
     this.emit(RoomEvent.Disconnected, DisconnectReason.CLIENT_INITIATED);
   });
   useVoiceStore.setState({ ...useVoiceStore.getInitialState(), isMuted: false, currentVoiceChannelId: 'channel' });
-  useAuthStore.setState({ user: me, myRowIds: new Map([[ORBIT, 'o-7']]) });
+  useAuthStore.setState({ user: me });
 });
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
-  useAuthStore.setState({ user: null, myRowIds: new Map() });
+  useAuthStore.setState({ user: null });
 });
 
 describe('the local participant row', () => {
-  it("is the user's row on the instance hosting the call", async () => {
-    mocks.origin = ORBIT;
-    const row = await listedLocalRow('o-7:jannis');
-    expect(row?.id).toBe('o-7');
-    expect(isMe(row!, ORBIT)).toBe(true);
+  it('uses the native session row, without relabeling a retained @ username', async () => {
+    expect(await listedLocalRow('n-1:legacy@old.invalid')).toBe(me);
+    expect(useVoiceStore.getState().participants[0]).not.toHaveProperty('homeUserId');
+    expect(mocks.token).toHaveBeenCalledWith('channel');
   });
-
-  it("is the session row on the page's own instance", async () => {
-    mocks.origin = '';
-    expect(await listedLocalRow('n-1:jannis')).toBe(me);
+  it('fetches DM credentials privately even if an untyped old call slot contains a signaled token', async () => {
+    const stale = { dmChannelId: 'dm', livekit: { token: 'untrusted-old', url: 'wss://unused.invalid' }, federatedCallId: 'obsolete' };
+    useVoiceStore.setState({ activeDmCall: stale });
+    const { result } = renderHook(() => useLiveKit()); await act(async () => { await result.current.connect('dm', true); });
+    expect(mocks.token).toHaveBeenCalledWith('dm'); expect(mocks.connect).toHaveBeenCalledWith('wss://example.invalid', 'test', expect.any(Object));
   });
 });

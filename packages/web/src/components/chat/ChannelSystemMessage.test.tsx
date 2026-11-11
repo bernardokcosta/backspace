@@ -13,8 +13,7 @@ const { useSpaceStore } = await import('../../stores/spaceStore');
 function user(id: string, displayName: string | null, username = id): User {
   return {
     id, username, displayName, avatar: null, banner: null, accentColor: null, avatarColor: 'mint', bio: null,
-    status: 'online', customStatus: null, isAdmin: false, createdAt: 0, homeUserId: null, homeInstance: null,
-    replicatedInstances: [],
+    status: 'online', customStatus: null, isAdmin: false, createdAt: 0,
   } as User;
 }
 
@@ -44,10 +43,10 @@ describe('ChannelSystemMessage', () => {
     expect(container.textContent).toBe('Captain poked Navigator');
   });
 
-  it('names a member without a nickname by their account name, without the instance', () => {
+  it('keeps the full retained account handle when there is no nickname', () => {
     useSpaceStore.setState({ members: [member(actor, null), member(target, null)] });
     const { container } = render(<ChannelSystemMessage message={poke()} />);
-    expect(container.textContent).toBe('Actor account poked target');
+    expect(container.textContent).toBe('Actor account poked target@peer.example');
   });
 
   it('uses the stored name for a target who is no longer in the roster', () => {

@@ -19,7 +19,6 @@
     "activity": "今は静かです… 友達が何か始めるとここに表示します!"
   },
   "friend": {
-    "viaInstance": "{{host}} 経由",
     "message": "メッセージ",
     "remove": "フレンド削除"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "人を見つける",
-    "hint": "ユーザー名で検索するか <handle>user@instance</handle> で直接追加。",
     "placeholder": "名前で検索・追加…",
     "direct": "<handle>{{handle}}</handle> にフレンド申請を送信",
     "sendRequest": "リクエスト送信",
@@ -97,6 +95,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "トラックを開く"
-  },
-  "instanceNotConnected": "{{host}} に未接続。再接続して再試行。"
+  }
 }

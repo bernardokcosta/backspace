@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { exitedOnPortCollision } from './helpers/twoInstanceHarness';
+import { exitedOnPortCollision } from './helpers/instanceHarness.js';
 
 /**
  * The harness retries a spawn that lost a port race, and only that.

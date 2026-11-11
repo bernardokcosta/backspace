@@ -4,7 +4,6 @@
     "description": "Konfigurér din Veyvox-instans. Disse indstillinger gælder alle brugere.",
     "instanceName": {
       "label": "Instansnavn",
-      "description": "Navnet vist på loginsiden og over for fødererede instanser.",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "Registrering",
-    "description": "Bestem hvem der kan oprette konti på denne instans. Offentlig registrering dækker lokale tilmeldinger; fødereret registrering dækker brugere fra forbundne instanser, der opretter en konto her.",
     "public": {
       "label": "Offentlig registrering",
       "toggleLabel": "Tillad nye lokale konti",
       "toggleDescription": "Alle kan oprette en lokal konto på registreringssiden. Når fra, oprettes nye lokale konti kun via invitationslink."
-    },
-    "federated": {
-      "label": "Fødereret registrering",
-      "toggleLabel": "Tillad nye fødererede konti",
-      "toggleDescription": "Brugere fra andre instanser kan oprette en fødereret konto her via deres forbindelsesindstillinger. Eksisterende fødererede konti kan altid logge ind, uanset denne indstilling."
     },
     "spaceCreation": {
       "label": "Oprettelse af rum",
@@ -355,8 +348,6 @@
     "loadFailed": "Kunne ikke indlæse brugere",
     "empty": "Ingen brugere fundet",
     "filters": {
-      "allInstances": "Alle instanser",
-      "localOnly": "Kun lokale",
       "allRoles": "Alle roller",
       "admin": "Administrator",
       "nonAdmin": "Ikke-administrator",
@@ -376,9 +367,7 @@
     "actions": {
       "demote": "Fjern administratorrettigheder",
       "promote": "Giv administratorrettigheder",
-      "federatedNoAdmin": "Fødererede brugere kan ikke være administratorer",
       "resetPassword": "Nulstil adgangskode",
-      "federatedNoReset": "Fødererede brugere logger ind via deres hjemmeinstans",
       "delete": "Slet bruger",
       "selfDelete": "Brug indstillinger for at slette din egen konto"
     },
@@ -405,15 +394,7 @@
     "deleteDialog": {
       "title": "Slet bruger",
       "description": "Slette <strong>{{username}}</strong> permanent? Brugeren fjernes fra alle rum, direkte beskeder og vennelister. Dette kan ikke fortrydes.",
-      "confirm": "Slet bruger",
-      "blockBot": "Lad ikke denne bot registrere sig igen",
-      "blockBotHint": "Når dens hjemmeinstans er tilbage, kan botten ikke oprette en konto her. Ophæv blokeringen under brugerlisten."
-    },
-    "blockedBots": {
-      "title": "Blokerede bots",
-      "description": "Bots fra andre instanser, der ikke må registrere sig her. Ophæv blokeringen for at give adgang igen.",
-      "blockedAt": "Blokeret {{date}}",
-      "unblock": "Ophæv blokering"
+      "confirm": "Slet bruger"
     }
   },
   "mobile": {
@@ -421,7 +402,6 @@
     "sections": {
       "general": "Generelt",
       "registration": "Registrering",
-      "federation": "Føderation",
       "streaming": "Streaming",
       "storage": "Lagring",
       "updates": "Opdateringer",

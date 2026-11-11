@@ -61,14 +61,12 @@
       "group": {
         "intro": "Ini awal percakapan grup Anda.",
         "owner": "Pemilik: <owner>@{{name}}</owner>",
-        "federatedNotice": "Pesan disimpan di instans utama Anda dan instans utama penerima. Tidak terenkripsi end-to-end.",
         "openSettings": "Buka Pengaturan Grup",
         "leave": "Keluar Grup"
       },
       "dm": {
         "fallbackName": "Pesan Langsung",
         "intro": "Ini awal riwayat pesan langsung Anda dengan <strong>@{{name}}</strong>.",
-        "federatedNotice": "Pesan disimpan di instans utama Anda dan instans utama penerima. Tidak terenkripsi end-to-end.",
         "removeFriend": "Hapus Teman"
       }
     }
@@ -133,14 +131,6 @@
     },
     "audio": {
       "unsupportedBrowser": "Peramban Anda tak mendukung pemutaran audio."
-    },
-    "federation": {
-      "remoteNamed": "Dihost di instans {{sender}}. Unduh untuk salinan lokal.",
-      "remoteUnknown": "Dihost di instans pengirim. Unduh untuk salinan lokal.",
-      "partialGeneric": "Beberapa penerima tak dapat mengcache berkas ini secara lokal.",
-      "partialInstance": "Instans {{username}} (batas: {{limit}})",
-      "partialList": "Berkas tak dapat dicache di {{instances}}. Mereka tetap dapat melihatnya dari milik Anda.",
-      "listPair": "{{first}} dan {{second}}"
     }
   },
   "gif": {
@@ -267,7 +257,6 @@
     "stickersCount_one": "{{count}} stiker",
     "stickersCount_other": "{{count}} stiker",
     "noPacks": "Tidak ada paket stiker ditemukan",
-    "replicaBadge": "Federasi",
     "viewPack": "Lihat Paket",
     "saveDraft": "Simpan sebagai Draf",
     "packCreated": "Paket dibuat",
@@ -284,8 +273,6 @@
     "rejectedSuccess": "Paket stiker ditolak",
     "reviewNotes": "Alasan penolakan",
     "creator": "Pembuat",
-    "sourceInstance": "Instans",
-    "localInstance": "Instans lokal",
     "viewStickers": "Lihat stiker",
     "pendingReviewHint": "Dalam tinjauan admin, akan tercantum di Jelajahi setelah disetujui"
   },

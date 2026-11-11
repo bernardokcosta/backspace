@@ -162,21 +162,6 @@
     "invitePlaceholder": "مثل abc123 أو https://instance.com/join/abc123",
     "submit": "الانضمام إلى مساحة",
     "submitting": "جارٍ الانضمام…",
-    "connect": {
-      "intro": "اتصل بـ <host>{{host}}</host> للانضمام إلى هذه المساحة.",
-      "passwordLabel": "أدخل كلمتك للاتصال",
-      "passwordPlaceholder": "كلمة مرور حسابك",
-      "passwordNote": "تتحقق نسختك الرئيسية من كلمتك ولا تُرسَل أبدًا إلى {{host}}. تحصل تلك النسخة على اعتماد فريد مُنشأ لها وحدها.",
-      "submit": "اتصل وانضم",
-      "submitting": "جارٍ الاتصال…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "اسم المستخدم في هذه النسخة",
-      "passwordLabel": "كلمة مرور هذه النسخة",
-      "passwordPlaceholder": "كلمة المرور في النسخة البعيدة",
-      "submit": "سجّل الدخول وانضم",
-      "submitting": "جارٍ تسجيل الدخول…"
-    },
     "request": {
       "messagePlaceholder": "لماذا تريد الانضمام؟ (اختياري)",
       "send": "إرسال الطلب",
@@ -470,8 +455,6 @@
       "transferOwnership": "نقل الملكية",
       "settings": "إعدادات المساحة",
       "leave": "مغادرة المساحة",
-      "reconnecting": "جارٍ إعادة الاتصال بـ {{instance}}…",
-      "remoteInstance": "نسخة بعيدة",
       "leaveConfirm": {
         "title": "مغادرة المساحة",
         "titleNamed": "مغادرة {{name}}",

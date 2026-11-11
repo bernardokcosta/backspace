@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+vi.mock('./authStore', () => ({ useAuthStore: { getState: () => ({ user: { id: 'native' } }) } }));
 import { useComposerStore } from './composerStore';
 
 describe('composerStore', () => {

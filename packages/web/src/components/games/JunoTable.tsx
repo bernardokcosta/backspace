@@ -22,7 +22,7 @@ function JunoTableContent() {
   const table = useRef<HTMLElement>(null);
   useJunoMusicView(table, target);
   const game = snapshot?.game; const revision = snapshot?.revision ?? -1;
-  const context = target ? `${target.accountId}:${target.origin}:${target.channelId}` : '';
+  const context = target ? `${target.userId}:${target.origin}:${target.channelId}` : '';
   const leaveContext = `${context}:${game?.id ?? ''}:${revision}`;
   const [leaveKey, setLeaveKey] = useState<string | null>(null);
   const [rankingContext, setRankingContext] = useState<string | null>(null);
@@ -30,7 +30,7 @@ function JunoTableContent() {
   const settingsTrigger = useRef<HTMLButtonElement>(null);
   const [settingsTarget, setSettingsTarget] = useState<JunoTarget | null>(null);
   const rankingOpen = !!target && rankingContext === context;
-  const isPlayer = !!game?.players.some(p => p.userId === target?.selfId);
+  const isPlayer = !!game?.players.some(p => p.userId === target?.userId);
   const { language: gameLanguage, dir: gameDir } = useJunoLanguage();
   return <section ref={table} className="juno-table" aria-label={t('juno.name')} lang={gameLanguage} dir={gameDir}
     onClickCapture={event => {

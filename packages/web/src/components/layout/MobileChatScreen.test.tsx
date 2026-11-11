@@ -9,7 +9,7 @@ import { useUIStore } from '../../stores/uiStore';
 import { wsSend } from '../../hooks/useWebSocket';
 import type { DmChannel, User } from '@veyvox/shared';
 
-vi.mock('../../hooks/useWebSocket', () => ({ wsSend: vi.fn() }));
+vi.mock('../../hooks/useWebSocket', () => ({ wsSend: vi.fn(() => true) }));
 vi.mock('../../audio/AudioManager', () => ({
   AudioManager: {
     getInstance: vi.fn(() => ({
@@ -43,7 +43,6 @@ beforeEach(() => {
   vi.clearAllMocks();
   useAuthStore.setState({ user: { id: 'self', username: 'self' } as User });
   useSpaceStore.setState({ dmChannels: [dm, groupDm], channels: [] });
-  useSpaceStore.setState({ channelOriginMap: new Map([[dm.id, 'https://remote.example']]) });
   useChatStore.setState({ loadMessages: vi.fn() });
   useUIStore.setState({ mobileStack: [] });
   useVoiceStore.setState({ outgoingCall: null, activeDmCall: null, incomingCall: null, voiceUsers: new Map(), connectFn: null });
@@ -58,34 +57,37 @@ describe('mobile DM calls', () => {
     expect(screen.getByRole('button', { name: START })).toBeEnabled();
   });
 
-  it.each(['', 'https://remote.example'])('starts and cancels a call on origin %j', (origin) => {
-    useSpaceStore.setState({ channelOriginMap: new Map([[dm.id, origin]]) });
+  it('starts and cancels a native DM call through the current socket', () => {
     render(<MobileChatScreen params={params} />);
     fireEvent.click(screen.getByRole('button', { name: START }));
     expect(useVoiceStore.getState().outgoingCall).toEqual({ dmChannelId: dm.id, withCamera: false });
-    expect(wsSend).toHaveBeenCalledWith({ type: 'dm_call_start', dmChannelId: dm.id }, origin);
+    expect(wsSend).toHaveBeenCalledWith({ type: 'dm_call_start', dmChannelId: dm.id });
     fireEvent.click(screen.getByRole('button', { name: CANCEL }));
     expect(useVoiceStore.getState().outgoingCall).toBeNull();
-    expect(wsSend).toHaveBeenLastCalledWith({ type: 'dm_call_end', dmChannelId: dm.id, federatedCallId: null }, origin);
+    expect(wsSend).toHaveBeenLastCalledWith({ type: 'dm_call_end', dmChannelId: dm.id });
+  });
+  it('does not enter a call when the current socket refuses the send', () => {
+    vi.mocked(wsSend).mockReturnValueOnce(false); render(<MobileChatScreen params={params} />);
+    fireEvent.click(screen.getByRole('button', { name: START })); expect(useVoiceStore.getState().outgoingCall).toBeNull();
   });
 
-  it('routes cancellation to the DM origin, whatever a ring that arrived meanwhile names', () => {
-    useSpaceStore.setState({ channelOriginMap: new Map([[dm.id, 'https://call-host.example']]) });
+  it('cancels only the outgoing native DM, not a later incoming ring', () => {
     useVoiceStore.setState({
       outgoingCall: { dmChannelId: dm.id, withCamera: false },
-      incomingCall: { dmChannelId: null, federatedCallId: 'remote-call', callOrigin: 'https://elsewhere.example', callerId: 'c', callerName: 'C', livekit: null },
+      incomingCall: { dmChannelId: 'other', callerId: 'c', callerName: 'C' },
     });
     render(<MobileChatScreen params={params} />);
     fireEvent.click(screen.getByRole('button', { name: CANCEL }));
-    expect(wsSend).toHaveBeenCalledWith({ type: 'dm_call_end', dmChannelId: dm.id, federatedCallId: null }, 'https://call-host.example');
+    expect(wsSend).toHaveBeenCalledWith({ type: 'dm_call_end', dmChannelId: dm.id });
+    expect(useVoiceStore.getState().incomingCall?.dmChannelId).toBe('other');
   });
 
   it('prevents another call while one is active, outgoing or incoming elsewhere', () => {
     render(<MobileChatScreen params={params} />);
     for (const state of [
-      { activeDmCall: { dmChannelId: 'other', federatedCallId: null, callOrigin: null, livekit: null } },
+      { activeDmCall: { dmChannelId: 'other' } },
       { outgoingCall: { dmChannelId: 'other', withCamera: false } },
-      { incomingCall: { dmChannelId: 'other', federatedCallId: null, callOrigin: null, callerId: 'other', callerName: 'Other', livekit: null } },
+      { incomingCall: { dmChannelId: 'other', callerId: 'other', callerName: 'Other' } },
     ]) {
       act(() => useVoiceStore.setState({ outgoingCall: null, activeDmCall: null, incomingCall: null, ...state }));
       const button = screen.getByRole('button', { name: START });
@@ -96,7 +98,7 @@ describe('mobile DM calls', () => {
   });
 
   it('cannot call back over a call ringing in from this DM', () => {
-    useVoiceStore.setState({ incomingCall: { dmChannelId: dm.id, federatedCallId: null, callOrigin: null, callerId: partner.id, callerName: 'alice', livekit: null } });
+    useVoiceStore.setState({ incomingCall: { dmChannelId: dm.id, callerId: partner.id, callerName: 'alice' } });
     render(<MobileChatScreen params={params} />);
     const button = screen.getByRole('button', { name: START });
     expect(button).toBeDisabled();
@@ -110,14 +112,14 @@ describe('mobile DM calls', () => {
     useVoiceStore.setState({ voiceUsers: new Map([[groupDm.id, ['partner', 'bob']]]), connectFn });
     render(<MobileChatScreen params={{ channelId: groupDm.id, spaceId: '@me' }} />);
     fireEvent.click(screen.getByRole('button', { name: JOIN }));
-    expect(useVoiceStore.getState().activeDmCall).toEqual({ dmChannelId: groupDm.id, federatedCallId: null, callOrigin: null, livekit: null });
+    expect(useVoiceStore.getState().activeDmCall).toEqual({ dmChannelId: groupDm.id });
     expect(useVoiceStore.getState().outgoingCall).toBeNull();
-    expect(wsSend).toHaveBeenCalledWith({ type: 'dm_call_accept', dmChannelId: groupDm.id }, '');
+    expect(wsSend).toHaveBeenCalledWith({ type: 'dm_call_accept', dmChannelId: groupDm.id });
     expect(connectFn).toHaveBeenCalledWith(groupDm.id, true);
   });
 
   it('opens the call screen while in a call with this DM', () => {
-    useVoiceStore.setState({ activeDmCall: { dmChannelId: dm.id, federatedCallId: null, callOrigin: null, livekit: null } });
+    useVoiceStore.setState({ activeDmCall: { dmChannelId: dm.id } });
     render(<MobileChatScreen params={params} />);
     expect(screen.queryByRole('button', { name: START })).toBeNull();
     const button = screen.getByRole('button', { name: OPEN });

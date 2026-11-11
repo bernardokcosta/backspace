@@ -62,14 +62,12 @@
       "group": {
         "intro": "Questo è l’inizio della conversazione di gruppo.",
         "owner": "Proprietario: <owner>@{{name}}</owner>",
-        "federatedNotice": "I messaggi sono archiviati sulla tua istanza principale e su quella dei destinatari. Non sono cifrati end-to-end.",
         "openSettings": "Apri le impostazioni del gruppo",
         "leave": "Esci dal gruppo"
       },
       "dm": {
         "fallbackName": "Messaggio diretto",
         "intro": "Questo è l’inizio della cronologia dei tuoi messaggi diretti con <strong>@{{name}}</strong>.",
-        "federatedNotice": "I messaggi sono archiviati sulla tua istanza principale e su quella del destinatario. Non sono cifrati end-to-end.",
         "removeFriend": "Rimuovi amico"
       }
     }
@@ -136,14 +134,6 @@
     },
     "audio": {
       "unsupportedBrowser": "Il tuo browser non supporta la riproduzione audio."
-    },
-    "federation": {
-      "remoteNamed": "Ospitato sull’istanza di {{sender}}. Scarica per conservarne una copia locale.",
-      "remoteUnknown": "Ospitato sull’istanza del mittente. Scarica per conservarne una copia locale.",
-      "partialGeneric": "Alcuni destinatari non possono memorizzare questo file localmente.",
-      "partialInstance": "L’istanza di {{username}} (limite: {{limit}})",
-      "partialList": "Impossibile memorizzare il file su {{instances}}. Possono comunque visualizzarlo dalla tua.",
-      "listPair": "{{first}} e {{second}}"
     }
   },
   "gif": {
@@ -276,7 +266,6 @@
     "stickersCount_many": "{{count}} sticker",
     "stickersCount_other": "{{count}} sticker",
     "noPacks": "Nessun pacchetto di sticker trovato",
-    "replicaBadge": "Federato",
     "viewPack": "Visualizza pacchetto",
     "saveDraft": "Salva come bozza",
     "packCreated": "Pacchetto creato correttamente",
@@ -293,8 +282,6 @@
     "rejectedSuccess": "Pacchetto di sticker rifiutato",
     "reviewNotes": "Motivo del rifiuto",
     "creator": "Autore",
-    "sourceInstance": "Istanza",
-    "localInstance": "Istanza locale",
     "viewStickers": "Visualizza sticker",
     "pendingReviewHint": "In revisione da parte dell’amministratore; sarà elencato in Esplora dopo l’approvazione"
   },

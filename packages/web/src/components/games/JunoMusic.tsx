@@ -28,7 +28,7 @@ export function useJunoMusicView(ref: RefObject<HTMLElement | null>, target: Jun
 
 /** One owner per voice target; view remounts pause but do not reset its position. */
 export function JunoMusic({ target }: { target: JunoTarget | null }) {
-  const key = target ? JSON.stringify([target.accountId, target.origin, target.channelId, target.selfId]) : '';
+  const key = target ? JSON.stringify([target.userId, target.origin, target.channelId]) : '';
   useEffect(() => {
     if (!target || !key) return;
     const owner = target;
@@ -39,11 +39,11 @@ export function JunoMusic({ target }: { target: JunoTarget | null }) {
       const channel = useSpaceStore.getState().spaceChannelIndex.get(owner.channelId);
       const current = game.target;
       const gain = .20 * useJunoPreferences.getState().musicVolume / 100 * voice.outputVolume / 100;
-      const eligible = !!current && current.accountId === owner.accountId && current.origin === owner.origin && current.channelId === owner.channelId && current.selfId === owner.selfId
+      const eligible = !!current && current.userId === owner.userId && current.origin === owner.origin && current.channelId === owner.channelId
         && game.connected && !!game.snapshot && game.open && game.presentedViews.size > 0
         && voice.isLiveKitConnected && voice.voiceConnectionStatus === 'connected' && voice.currentVoiceChannelId === owner.channelId
-        && channel?.type === 'voice' && channel.origin === owner.origin
-        && !voice.isDeafened && !voice.spaceDeafenedUserIds.has(`${channel.spaceId}:${owner.selfId}`)
+        && channel?.type === 'voice' && owner.origin === window.location.origin
+        && !voice.isDeafened && !voice.spaceDeafenedUserIds.has(`${channel.spaceId}:${owner.userId}`)
         && !ui.activeModal && !useSoundboardStore.getState().open && !useScreenShareSetupStore.getState().isOpen && !voice.incomingCall
         && (!ui.isMobile || ui.mobileStack.at(-1)?.screen === 'voice-full')
         && !ui.voiceChatOpen && document.visibilityState === 'visible' && focused && gain > 0;

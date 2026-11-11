@@ -11,9 +11,8 @@
  * - 1024 workers
  * - 4096 IDs per millisecond per worker
  *
- * IMPORTANT: The worker ID MUST be unique per instance to prevent ID
- * collisions in a federation setup. It is generated randomly at first boot
- * and persisted to the database. Call setWorkerId() before generating any IDs.
+ * The native installation's worker ID is generated once and persisted.
+ * Preserve it across upgrades; call setWorkerId() before generating any IDs.
  */
 
 const EPOCH = 1704067200000n; // Jan 1, 2024 00:00:00 UTC

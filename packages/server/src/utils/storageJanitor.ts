@@ -1,16 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import { and, eq, inArray, isNotNull, isNull, lt, lte, notExists } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull, lt } from 'drizzle-orm';
 import { FileStore } from '@tus/file-store';
 import { config } from '../config.js';
 import { getDb, getRawDb, schema } from '../db/index.js';
-import { deleteUploadFile, deleteAttachmentFiles } from './fileCleanup.js';
-import { generateSnowflake } from './snowflake.js';
-import { federationFetch } from './federationFetch.js';
-import { MUTATION_LOG_RETENTION_MS } from './federationOutbox.js';
-import { expireOutboxQueues } from './federationOutboxQueue.js';
-import { sweepAppliedEvents } from './federationAppliedEvents.js';
-import { sweepSubjectClocks } from './federationSubjectClock.js';
+import { deleteUnreferencedUploadFiles, deleteAttachmentFiles, getProfileReferencedFilenames, getReferencedFilenames } from './fileCleanup.js';
 import { cleanupUnusedStickerAssets } from './stickerAssets.js';
 import { cleanupGameIconAssets } from './gameIconAssets.js';
 import type { StorageStats, StorageBreakdown, OrphanedFile, CleanupResult } from '@veyvox/shared';
@@ -60,95 +54,6 @@ function getDiskFiles(): DiskFile[] {
     if (err.code === 'ENOENT') return [];
     throw err;
   }
-}
-
-/** Filenames referenced by user/space profiles (avatars, banners, icons). */
-function getProfileReferencedFilenames(): Set<string> {
-  const db = getDb();
-  const referenced = new Set<string>();
-
-  // User avatars
-  const avatarRows = db.select({ avatar: schema.users.avatar })
-    .from(schema.users)
-    .where(isNotNull(schema.users.avatar))
-    .all();
-  for (const row of avatarRows) {
-    if (row.avatar) referenced.add(path.basename(row.avatar));
-  }
-
-  // User banners
-  const bannerRows = db.select({ banner: schema.users.banner })
-    .from(schema.users)
-    .where(isNotNull(schema.users.banner))
-    .all();
-  for (const row of bannerRows) {
-    if (row.banner) referenced.add(path.basename(row.banner));
-  }
-
-  // Space icons
-  const iconRows = db.select({ icon: schema.spaces.icon })
-    .from(schema.spaces)
-    .where(isNotNull(schema.spaces.icon))
-    .all();
-  for (const row of iconRows) {
-    if (row.icon) referenced.add(path.basename(row.icon));
-  }
-
-  // Space banners
-  const spaceBannerRows = db.select({ banner: schema.spaces.banner })
-    .from(schema.spaces)
-    .where(isNotNull(schema.spaces.banner))
-    .all();
-  for (const row of spaceBannerRows) {
-    if (row.banner) referenced.add(path.basename(row.banner));
-  }
-
-  // Group DM icons. Skip soft-deleted DMs (the soft-deleted-DM purge in
-  // cleanupSoftDeletedDmChannels handles their attachments separately) and
-  // skip absolute URLs (those reference assets on a remote instance, not
-  // local upload-dir files).
-  const dmIconRows = db.select({ icon: schema.dmChannels.icon })
-    .from(schema.dmChannels)
-    .where(and(
-      isNotNull(schema.dmChannels.icon),
-      isNull(schema.dmChannels.deletedAt),
-    ))
-    .all();
-  for (const row of dmIconRows) {
-    if (row.icon && !row.icon.startsWith('http')) {
-      referenced.add(path.basename(row.icon));
-    }
-  }
-
-  return referenced;
-}
-
-/** All filenames referenced anywhere: attachments + profiles. */
-function getReferencedFilenames(): Set<string> {
-  const db = getDb();
-  const referenced = getProfileReferencedFilenames();
-
-  for (const row of db.select({ filename: schema.soundboardSounds.filename }).from(schema.soundboardSounds).all()) {
-    referenced.add(path.basename(row.filename));
-  }
-
-  // Attachment filenames
-  const attachmentRows = db.select({ filename: schema.attachments.filename })
-    .from(schema.attachments).all();
-  for (const row of attachmentRows) {
-    referenced.add(path.basename(row.filename));
-  }
-
-  // Attachment thumbnails
-  const thumbRows = db.select({ thumbnailFilename: schema.attachments.thumbnailFilename })
-    .from(schema.attachments)
-    .where(isNotNull(schema.attachments.thumbnailFilename))
-    .all();
-  for (const row of thumbRows) {
-    if (row.thumbnailFilename) referenced.add(path.basename(row.thumbnailFilename));
-  }
-
-  return referenced;
 }
 
 function getUnlinkedAttachments(): { id: string; filename: string; thumbnailFilename: string | null; size: number }[] {
@@ -310,15 +215,15 @@ export function cleanupStorage(dryRun: boolean): CleanupResult {
   let deletedAttachmentRecords = 0;
 
   // Phase 1: Delete orphaned disk files (not referenced by any DB record)
-  for (const orphan of orphans) {
-    if (!dryRun) {
-      try {
-        deleteUploadFile(orphan.filename);
-      } catch (err: any) {
-        errors.push(`Failed to delete ${orphan.filename}: ${err.message}`);
-        continue;
-      }
+  let removedOrphans = orphans;
+  if (!dryRun) {
+    try { deleteUnreferencedUploadFiles(orphans.map(file => file.filename)); }
+    catch (error) {
+      errors.push(`Failed to clean up orphan files: ${error instanceof Error ? error.message : String(error)}`);
+      removedOrphans = [];
     }
+  }
+  for (const orphan of removedOrphans) {
     deletedFiles++;
     freedBytes += orphan.size;
   }
@@ -326,23 +231,16 @@ export function cleanupStorage(dryRun: boolean): CleanupResult {
   // Phase 2: Clean up stale unlinked attachment records.
   // Files referenced by user/space profiles (avatars, banners, icons) are
   // preserved on disk — only the orphaned attachment DB record is removed.
-  // Thumbnails are always deleted since profile images don't need them.
+  // Surviving attachment/profile thumbnail references protect shared bytes too.
+  const unlinkedFiles: string[] = [];
   for (const att of unlinked) {
     const fileInUseByProfile = profileReferenced.has(path.basename(att.filename));
     if (!dryRun) {
       try {
-        if (!fileInUseByProfile) {
-          deleteUploadFile(att.filename);
-        } else if (att.thumbnailFilename) {
-          // Main file is a profile image — keep it. But delete the thumbnail
-          // since it's only useful for message attachments, and the attachment
-          // record is about to be deleted (which would orphan the thumbnail).
-          const thumbPath = path.join(config.uploadDir, path.basename(att.thumbnailFilename));
-          try { fs.unlinkSync(thumbPath); } catch { /* may not exist */ }
-        }
         db.delete(schema.attachments)
           .where(eq(schema.attachments.id, att.id))
           .run();
+        unlinkedFiles.push(att.filename, ...(att.thumbnailFilename ? [att.thumbnailFilename] : []));
       } catch (err: any) {
         errors.push(`Failed to clean up attachment ${att.id}: ${err.message}`);
         continue;
@@ -354,16 +252,24 @@ export function cleanupStorage(dryRun: boolean): CleanupResult {
     }
   }
 
+  // One fresh inventory after this phase's successful row deletions, not one
+  // full attachment/profile scan per candidate. No stale pre-mutation snapshot.
+  if (!dryRun) {
+    try { deleteUnreferencedUploadFiles(unlinkedFiles); }
+    catch (error) { errors.push(`Failed to clean up unlinked files: ${error instanceof Error ? error.message : String(error)}`); }
+  }
+
   // Phase 3: Delete dangling attachment records (message_id / dm_message_id
   // points to a message that no longer exists) and their files from disk.
   const dangling = getDanglingAttachments();
+  const danglingFiles: string[] = [];
   for (const att of dangling) {
     if (!dryRun) {
       try {
-        deleteUploadFile(att.filename);
         db.delete(schema.attachments)
           .where(eq(schema.attachments.id, att.id))
           .run();
+        danglingFiles.push(att.filename);
       } catch (err: any) {
         errors.push(`Failed to clean up dangling attachment ${att.id}: ${err.message}`);
         continue;
@@ -372,6 +278,11 @@ export function cleanupStorage(dryRun: boolean): CleanupResult {
     deletedFiles++;
     freedBytes += att.size;
     deletedAttachmentRecords++;
+  }
+
+  if (!dryRun) {
+    try { deleteUnreferencedUploadFiles(danglingFiles); }
+    catch (error) { errors.push(`Failed to clean up dangling files: ${error instanceof Error ? error.message : String(error)}`); }
   }
 
   // Phase 4: Sticker assets no collection, message or reaction on this
@@ -414,16 +325,17 @@ export function cleanupOldMedia(maxAgeDays: number, dryRun: boolean): CleanupRes
       AND created_at < ?
   `).all(cutoff) as { id: string; filename: string; size: number }[];
 
+  const files: string[] = [];
   for (const att of oldMedia) {
     // Never delete files currently used as profile images
     if (profileReferenced.has(path.basename(att.filename))) continue;
 
     if (!dryRun) {
       try {
-        deleteUploadFile(att.filename);
         db.delete(schema.attachments)
           .where(eq(schema.attachments.id, att.id))
           .run();
+        files.push(att.filename);
       } catch (err: any) {
         errors.push(`Failed to delete old media ${att.id}: ${err.message}`);
         continue;
@@ -434,267 +346,17 @@ export function cleanupOldMedia(maxAgeDays: number, dryRun: boolean): CleanupRes
     deletedAttachmentRecords++;
   }
 
+  if (!dryRun) {
+    try { deleteUnreferencedUploadFiles(files); }
+    catch (error) { errors.push(`Failed to delete old media files: ${error instanceof Error ? error.message : String(error)}`); }
+  }
   return { dryRun, deletedFiles, freedBytes, deletedAttachmentRecords, errors };
-}
-
-/**
- * Delete federation outbox rows past their relay TTL, by queue: see
- * `expireOutboxQueues`. Returns the number of rows deleted.
- */
-export function cleanupFederationOutbox(now: number = Date.now()): number {
-  return expireOutboxQueues(now);
-}
-
-/**
- * How old an `initiatedBy = 'auto'` pending peer row must be before
- * cleanupUnusedAutoPendingPeers may remove it. One hour, the same grace
- * UNLINKED_AGE_MS gives an upload that was never attached to a message, and the
- * janitor's own interval: a row that local traffic has just created is never
- * swept on the sweep that first sees it, and the worker has made several
- * handshake attempts on it (immediately, then 1m, 5m, 15m later) before it can go.
- */
-export const AUTO_PENDING_PEER_GRACE_MS = 60 * 60 * 1000;
-
-/**
- * Remove `pending` peer rows with `initiatedBy = 'auto'` that nothing is
- * waiting on: older than AUTO_PENDING_PEER_GRACE_MS, with no outbox entry, and
- * no handshake with the origin in flight (that handshake still writes to the
- * row). Broadcasts are not queued onto pending peers (`queueOutboxEvent`), so
- * every entry on such a row was addressed to that origin and waits on its
- * handshake. A row with none is what local traffic leaves behind once its
- * events have expired at the relay TTL; left alone it lives forever and makes
- * an admin's `/peer/initiate` for the origin a takeover of a dead row. Rows an
- * admin or the remote created, and auto rows that have left `pending`, are
- * never touched. Returns the number of rows removed.
- */
-export function cleanupUnusedAutoPendingPeers(
-  isHandshakeInFlight: (origin: string) => boolean,
-  now: number = Date.now(),
-): number {
-  const db = getDb();
-  const unusedRowConditions = and(
-    eq(schema.federationPeers.status, 'pending'),
-    eq(schema.federationPeers.initiatedBy, 'auto'),
-    lt(schema.federationPeers.createdAt, now - AUTO_PENDING_PEER_GRACE_MS),
-    notExists(
-      db.select({ id: schema.federationOutbox.id })
-        .from(schema.federationOutbox)
-        .where(eq(schema.federationOutbox.peerId, schema.federationPeers.id)),
-    ),
-  );
-
-  const candidates = db
-    .select({ id: schema.federationPeers.id, origin: schema.federationPeers.origin })
-    .from(schema.federationPeers)
-    .where(unusedRowConditions)
-    .all()
-    .filter((peer) => !isHandshakeInFlight(peer.origin));
-
-  let removed = 0;
-  for (const peer of candidates) {
-    const deleted = db.delete(schema.federationPeers)
-      .where(and(eq(schema.federationPeers.id, peer.id), unusedRowConditions))
-      .run();
-    if (deleted.changes > 0) {
-      removed += 1;
-      console.log(`[storage-janitor] Removed unused auto-created pending peer row for ${peer.origin}`);
-    }
-  }
-  return removed;
-}
-
-/**
- * Delete federation mutation log entries older than `MUTATION_LOG_RETENTION_MS`.
- * Returns the number of rows deleted.
- */
-export function cleanupFederationMutationLog(): number {
-  const db = getDb();
-  const cutoff = Date.now() - MUTATION_LOG_RETENTION_MS;
-  const result = db.delete(schema.federationMutationLog)
-    .where(lt(schema.federationMutationLog.mutatedAt, cutoff))
-    .run();
-  return result.changes;
-}
-
-/**
- * Delete stale federation file queue entries:
- *   - completed entries older than 7 days
- *   - any entries whose expiresAt has passed (regardless of status)
- * Returns the total number of rows deleted.
- */
-export function cleanupFederationFileQueue(): number {
-  const db = getDb();
-  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-
-  // Completed entries older than 7 days
-  const completed = db.delete(schema.federationFileQueue)
-    .where(and(
-      eq(schema.federationFileQueue.status, 'completed'),
-      lt(schema.federationFileQueue.createdAt, sevenDaysAgo),
-    ))
-    .run();
-
-  // Expired entries (any status)
-  const expired = db.delete(schema.federationFileQueue)
-    .where(lt(schema.federationFileQueue.expiresAt, Date.now()))
-    .run();
-
-  return completed.changes + expired.changes;
-}
-
-/**
- * Expire peer approval requests older than their expiresAt timestamp.
- *
- * Outbound rows: before deletion, fan out kind='expired' notifications to
- * each subscriber so the original requester(s) can see the terminal state on
- * next page load. Subscriber rows cascade-delete via FK when the parent row
- * is removed. No network call — the remote was never told about our queued
- * outbound request to begin with.
- *
- * Inbound rows: send a signed POST /peer/denied with reason='expired' to
- * the requesting origin so it can update its UI. Only delete the row if the
- * POST succeeded; otherwise keep it and retry on the next janitor cycle.
- *
- * No WebSocket broadcast is emitted on local expiry — offline users see the
- * notification on next GET /api/federation/peering-notifications, matching
- * the persistence guarantee of the notifications table.
- */
-export async function cleanupExpiredApprovalRequests(): Promise<number> {
-  const db = getDb();
-  const expiredRequests = db
-    .select()
-    .from(schema.peerApprovalRequests)
-    .where(lte(schema.peerApprovalRequests.expiresAt, Date.now()))
-    .all();
-
-  if (expiredRequests.length === 0) return 0;
-
-  const { getOurOrigin, buildFederationHeaders } = await import('./federationAuth.js');
-  const { connectionManager } = await import('../ws/handler.js');
-  const ourOrigin = getOurOrigin();
-  const now = Date.now();
-  let deletedCount = 0;
-
-  for (const req of expiredRequests) {
-    if (req.direction === 'outbound') {
-      // Outbound expiry: fan out kind='expired' notifications to subscribers,
-      // then cascade-delete. No network call.
-      const subs = db
-        .select()
-        .from(schema.peerApprovalSubscribers)
-        .where(eq(schema.peerApprovalSubscribers.requestId, req.id))
-        .all();
-      for (const sub of subs) {
-        db.insert(schema.peerApprovalNotifications)
-          .values({
-            id: generateSnowflake(),
-            userId: sub.userId,
-            kind: 'expired',
-            peerOrigin: req.origin,
-            triggerReason: sub.triggerReason,
-            triggerTarget: sub.triggerTarget,
-            createdAt: now,
-            readAt: null,
-          })
-          .run();
-        // Subscriber row is about to cascade-delete; if the user is online,
-        // refresh their pending list AND notification list. Offline users see
-        // both on next page load via the GET endpoints (persistence guarantee).
-        connectionManager.sendToUser(sub.userId, {
-          type: 'peering_notification_received' as const,
-          kind: 'expired',
-        });
-        connectionManager.sendToUser(sub.userId, {
-          type: 'peering_subscription_changed' as const,
-        });
-      }
-      db.delete(schema.peerApprovalRequests)
-        .where(eq(schema.peerApprovalRequests.id, req.id))
-        .run();
-      deletedCount++;
-      continue;
-    }
-
-    // Inbound expiry: signed /peer/denied POST to origin; only delete on
-    // success. Preserved verbatim from pre-branch behavior.
-    if (!req.hmacSecret) {
-      // CHECK constraint guarantees inbound rows have hmac_secret; defensive guard.
-      console.warn(
-        `[storage-janitor] Inbound approval-request ${req.id} missing hmac_secret — skipping expiry notification`,
-      );
-      continue;
-    }
-
-    const denialBody = JSON.stringify({
-      origin: ourOrigin,
-      reason: 'expired' as const,
-      message: 'Request expired — no response from admin within 30 days',
-    });
-    const headers = buildFederationHeaders(denialBody, req.hmacSecret, ourOrigin);
-
-    let sent = false;
-    try {
-      // 'asserted': the origin came from an inbound peering request that
-      // expired without ever being accepted, so nothing has approved it.
-      const response = await federationFetch(req.origin, '/api/federation/peer/denied', {
-        method: 'POST',
-        headers,
-        body: denialBody,
-        signal: AbortSignal.timeout(10_000),
-      }, 'asserted');
-      sent = response.ok;
-    } catch {
-      // Network error — will retry next cycle
-    }
-
-    if (sent) {
-      // No rejected peer record for expiry — origin can re-request
-      db.delete(schema.peerApprovalRequests)
-        .where(eq(schema.peerApprovalRequests.id, req.id))
-        .run();
-      deletedCount++;
-    } else {
-      console.warn(
-        `[storage-janitor] Failed to send expiry denial to ${req.origin} — will retry next cycle`,
-      );
-    }
-  }
-
-  if (deletedCount > 0) {
-    console.log(`[storage-janitor] Deleted ${deletedCount} expired peer_approval_requests rows`);
-  }
-
-  return deletedCount;
-}
-
-/**
- * Delete read peering notifications older than 30 days. Unread notifications
- * are never auto-cleaned — the user must explicitly read or dismiss them.
- */
-const NOTIFICATION_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
-
-export function cleanupReadPeeringNotifications(): number {
-  const db = getDb();
-  const cutoff = Date.now() - NOTIFICATION_RETENTION_MS;
-  const result = db
-    .delete(schema.peerApprovalNotifications)
-    .where(
-      and(
-        isNotNull(schema.peerApprovalNotifications.readAt),
-        lte(schema.peerApprovalNotifications.readAt, cutoff),
-      ),
-    )
-    .run();
-  if (result.changes > 0) {
-    console.log(`[storage-janitor] Deleted ${result.changes} read peering notifications older than 30 days`);
-  }
-  return result.changes;
 }
 
 /**
  * Hard-delete DM channels that were soft-deleted more than 24 hours ago.
  * Cascades: reactions, embeds, attachments (files + DB rows), messages,
- * members, outbox entries, mutation log entries, file queue entries, then the channel.
+ * members and read states, then the channel.
  * Returns the number of channels purged.
  */
 export function cleanupSoftDeletedDmChannels(): number {
@@ -752,10 +414,6 @@ export function cleanupSoftDeletedDmChannels(): number {
             .where(inArray(schema.attachments.dmMessageId, msgIds))
             .run();
 
-          // Delete file queue entries
-          tx.delete(schema.federationFileQueue)
-            .where(inArray(schema.federationFileQueue.dmMessageId, msgIds))
-            .run();
         }
 
         // Delete messages
@@ -771,16 +429,6 @@ export function cleanupSoftDeletedDmChannels(): number {
         // Delete read states
         tx.delete(schema.readStates)
           .where(eq(schema.readStates.channelId, channel.id))
-          .run();
-
-        // Delete federation outbox entries
-        tx.delete(schema.federationOutbox)
-          .where(eq(schema.federationOutbox.contextId, channel.id))
-          .run();
-
-        // Delete mutation log entries
-        tx.delete(schema.federationMutationLog)
-          .where(eq(schema.federationMutationLog.contextId, channel.id))
           .run();
 
         // Delete the channel itself
@@ -958,56 +606,14 @@ const STORAGE_CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000;
 let lastStorageCleanupAt = 0;
 
 /**
- * Run all periodic federation/GC cleanup tasks:
- *  - Expired outbox entries
- *  - Old mutation log entries
- *  - Applied-event ledger rows past their retention (sweepAppliedEvents)
- *  - Member and friend clock rows past their retention (sweepSubjectClocks)
- *  - Stale file queue entries
+ * Run the existing local periodic cleanup tasks:
  *  - Soft-deleted DM channels past grace period
- *  - Unused auto-created pending peer rows (cleanupUnusedAutoPendingPeers)
+ *  - Expired tus uploads and stale tus sidecars
  *  - Once-per-day: cleanupStorage (orphan files + unlinked + dangling + unused stickers)
  */
-export async function runFederationJanitor(): Promise<void> {
+export async function runStorageJanitor(): Promise<void> {
   try {
-    const outbox = cleanupFederationOutbox();
-    const mutLog = cleanupFederationMutationLog();
-    const appliedEvents = sweepAppliedEvents();
-    const subjectClocks = sweepSubjectClocks();
-    const fileQ = cleanupFederationFileQueue();
-    const dmGc = cleanupSoftDeletedDmChannels();
-
-    // After the outbox expiry above, so a row whose last real entry just hit
-    // its TTL goes in the same sweep.
-    const { isHandshakeInFlight } = await import('./federationPeering.js');
-    const pendingPeers = cleanupUnusedAutoPendingPeers(isHandshakeInFlight);
-    if (pendingPeers > 0) {
-      const { connectionManager } = await import('../ws/handler.js');
-      connectionManager.sendToAdmins({ type: 'federation_peers_changed' as const });
-    }
-
-    const total = outbox + mutLog + appliedEvents + subjectClocks + fileQ + dmGc + pendingPeers;
-    if (total > 0) {
-      console.log(
-        `[storage-janitor] Federation GC sweep: outbox=${outbox} mutationLog=${mutLog} appliedEvents=${appliedEvents} subjectClocks=${subjectClocks} fileQueue=${fileQ} dmChannels=${dmGc} pendingPeers=${pendingPeers}`,
-      );
-    }
-
-    // Expire approval requests:
-    //   - Outbound rows fan out kind='expired' notifications to subscribers
-    //     before cascade-delete (local DB only).
-    //   - Inbound rows send a signed /peer/denied POST to the requesting
-    //     origin; only delete on success, otherwise retry next cycle.
-    // Then sweep read peering notifications older than 30 days.
-    try {
-      const approvalExpired = await cleanupExpiredApprovalRequests();
-      if (approvalExpired > 0) {
-        console.log(`[storage-janitor] Expired ${approvalExpired} peer approval request(s)`);
-      }
-      cleanupReadPeeringNotifications();
-    } catch (err) {
-      console.error('[storage-janitor] Approval request expiry error:', err);
-    }
+    cleanupSoftDeletedDmChannels();
 
     // Tus expiration sweep — every tick. Removes tus uploads whose
     // creation_date sidecar is past config.tusExpirationMs (24h default).
@@ -1047,6 +653,6 @@ export async function runFederationJanitor(): Promise<void> {
       }
     }
   } catch (err) {
-    console.error('[storage-janitor] Federation GC sweep error:', err);
+    console.error('[storage-janitor] Native GC sweep error:', err);
   }
 }

@@ -27,14 +27,12 @@ const DM_ID = 'dm-1';
 function user(id: string, name: string): User {
   return {
     id, username: name.toLowerCase(), displayName: name, avatar: null, banner: null, accentColor: null, avatarColor: null,
-    bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1, homeInstance: null, homeUserId: null,
-    replicatedInstances: [],
+    bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
   };
 }
 
 const GROUP_DM: DmChannel = {
   id: DM_ID,
-  federatedId: null,
   ownerId: 'owner',
   ownerHomeUserId: null,
   ownerHomeInstance: null,

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { User } from '@veyvox/shared';
 import { ProfileAvatar } from '../ui/ProfileAvatar';
 import { Tooltip } from '../ui/Tooltip';
-import { parseFederatedUsername, isFederationGlobeApplicable } from '../../utils/identity';
+import { userDisplayName } from '../../utils/identity';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 import { replaceEmojiShortcodes, useEmojiShortcodeNames } from '../../utils/emojiShortcodes';
 import {
@@ -16,8 +16,6 @@ export type DmMemberRowAction = 'profile' | 'transfer' | 'kick' | 'remove-friend
 
 export interface DmMemberRowProps {
   member: User;
-  /** The instance that issued `member` (the DM's pinned origin). */
-  origin: string;
   /** True when this row represents the channel owner. */
   isOwner: boolean;
   /** True when this row is the viewer themselves. */
@@ -42,14 +40,6 @@ export interface DmMemberRowProps {
 }
 
 // ── Inline icons ─────────────────────────────────────────────────────────────
-
-function GlobeIcon({ size = 12 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className="text-txt-tertiary/80 flex-shrink-0">
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-    </svg>
-  );
-}
 
 function CrownIcon() {
   // Simple inline crown — matches the warm-amber accent used elsewhere for owner emphasis.
@@ -81,7 +71,6 @@ function KebabIcon() {
 
 export function DmMemberRow({
   member,
-  origin,
   isOwner,
   isSelf,
   callerIsOwner,
@@ -92,14 +81,12 @@ export function DmMemberRow({
 }: DmMemberRowProps) {
   useEmojiShortcodeNames();
   const { t } = useTranslation(['dm', 'common']);
-  const canonical = useCanonicalUserView(member, origin);
+  const canonical = useCanonicalUserView(member);
   const openContextMenu = useContextMenuStore((s) => s.open);
   const rowRef = useRef<HTMLDivElement>(null);
 
-  const { baseName, domain } = parseFederatedUsername(canonical.username);
-  const displayName = canonical.displayName ?? baseName;
+  const displayName = userDisplayName(canonical);
   const isOffline = canonical.status === 'offline';
-  const showGlobe = isFederationGlobeApplicable(canonical);
 
   const buildMenuItems = (): ContextMenuItem[] => {
     const items: ContextMenuItem[] = [];
@@ -114,7 +101,7 @@ export function DmMemberRow({
         // is ignored by the store (full-screen push).
         const rect = rowRef.current?.getBoundingClientRect();
         if (rect) {
-          useUIStore.getState().openUserProfile(canonical, origin, rect, 'left');
+          useUIStore.getState().openUserProfile(canonical, rect, 'left');
         } else {
           // Fallback: defer to the consumer if we can't compute a rect
           // (shouldn't happen in practice, but keeps the contract intact).
@@ -192,7 +179,6 @@ export function DmMemberRow({
           size={32}
           status={isOffline ? null : canonical.status}
           user={canonical}
-          origin={origin}
           placement="left"
         />
       </div>
@@ -206,13 +192,6 @@ export function DmMemberRow({
           >
             {displayName}
           </span>
-          {showGlobe && (
-            <Tooltip content={canonical.username} position="top">
-              <span data-federation-globe className="inline-flex">
-                <GlobeIcon />
-              </span>
-            </Tooltip>
-          )}
           {isOwner && (
             <Tooltip content={t('dm:memberRow.ownerTooltip')} position="top">
               <span data-owner-crown className="inline-flex">
@@ -221,12 +200,6 @@ export function DmMemberRow({
             </Tooltip>
           )}
         </div>
-
-        {showGlobe && domain && (
-          <div className="text-[10px] leading-[1.3] text-txt-tertiary truncate opacity-60">
-            @{domain}
-          </div>
-        )}
 
         {!isOffline && canonical.customStatus && (
           <div className="text-[11px] leading-[1.3] text-txt-tertiary truncate">

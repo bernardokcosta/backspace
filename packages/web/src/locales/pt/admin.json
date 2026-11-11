@@ -4,7 +4,6 @@
     "description": "Configure sua instância do Veyvox. Estas configurações afetam todos os usuários.",
     "instanceName": {
       "label": "Nome da instância",
-      "description": "O nome exibido na página de login e para instâncias federadas.",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "Cadastro",
-    "description": "Controle quem pode criar contas nesta instância. O cadastro público abrange inscrições locais; o cadastro federado abrange usuários de instâncias parceiras criando uma conta aqui.",
     "public": {
       "label": "Cadastro público",
       "toggleLabel": "Permitir novas contas locais",
       "toggleDescription": "Qualquer pessoa pode criar uma conta local pela página de cadastro. Quando desativado, somente links de convite podem criar novas contas locais."
-    },
-    "federated": {
-      "label": "Cadastro federado",
-      "toggleLabel": "Permitir novas contas federadas",
-      "toggleDescription": "Usuários de outras instâncias podem criar uma conta federada aqui pelas configurações de Conexões. Contas federadas existentes sempre podem fazer login, independentemente desta configuração."
     },
     "spaceCreation": {
       "label": "Criação de espaços",
@@ -368,8 +361,6 @@
     "loadFailed": "Falha ao carregar usuários",
     "empty": "Nenhum usuário encontrado",
     "filters": {
-      "allInstances": "Todas as instâncias",
-      "localOnly": "Somente locais",
       "allRoles": "Todas as funções",
       "admin": "Administrador",
       "nonAdmin": "Não administrador",
@@ -389,9 +380,7 @@
     "actions": {
       "demote": "Remover administrador",
       "promote": "Promover a administrador",
-      "federatedNoAdmin": "Usuários federados não podem ser administradores",
       "resetPassword": "Redefinir senha",
-      "federatedNoReset": "Usuários federados se autenticam pela instância de origem",
       "delete": "Excluir usuário",
       "selfDelete": "Use as configurações da conta para excluir sua própria conta"
     },
@@ -419,15 +408,7 @@
     "deleteDialog": {
       "title": "Excluir usuário",
       "description": "Excluir permanentemente <strong>{{username}}</strong>? Isso removerá a pessoa de todos os espaços, DMs e listas de amigos. Isso não pode ser desfeito.",
-      "confirm": "Excluir usuário",
-      "blockBot": "Não permitir que este bot se registre novamente",
-      "blockBotHint": "Quando a instância de origem voltar, o bot não poderá criar uma conta aqui. Você pode desbloqueá-lo abaixo da lista de usuários."
-    },
-    "blockedBots": {
-      "title": "Bots bloqueados",
-      "description": "Bots de outras instâncias que não podem se registrar aqui. Desbloqueie um bot para permiti-lo novamente.",
-      "blockedAt": "Bloqueado em {{date}}",
-      "unblock": "Desbloquear"
+      "confirm": "Excluir usuário"
     }
   },
   "mobile": {
@@ -435,7 +416,6 @@
     "sections": {
       "general": "Geral",
       "registration": "Cadastro",
-      "federation": "Federação",
       "streaming": "Transmissão",
       "storage": "Armazenamento",
       "updates": "Atualizações",

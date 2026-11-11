@@ -62,14 +62,12 @@
       "group": {
         "intro": "Este es el comienzo de la conversación de tu grupo.",
         "owner": "Propietario: <owner>@{{name}}</owner>",
-        "federatedNotice": "Los mensajes se almacenan en tu instancia de origen y en las de los destinatarios. No están cifrados de extremo a extremo.",
         "openSettings": "Abrir ajustes del grupo",
         "leave": "Salir del grupo"
       },
       "dm": {
         "fallbackName": "Mensaje directo",
         "intro": "Este es el comienzo de tu historial de mensajes directos con <strong>@{{name}}</strong>.",
-        "federatedNotice": "Los mensajes se almacenan en tu instancia de origen y en la del destinatario. No están cifrados de extremo a extremo.",
         "removeFriend": "Eliminar de amigos"
       }
     }
@@ -136,14 +134,6 @@
     },
     "audio": {
       "unsupportedBrowser": "Tu navegador no permite reproducir audio."
-    },
-    "federation": {
-      "remoteNamed": "Alojado en la instancia de {{sender}}. Descárgalo para conservar una copia local.",
-      "remoteUnknown": "Alojado en la instancia de quien lo envió. Descárgalo para conservar una copia local.",
-      "partialGeneric": "Algunos destinatarios no pueden guardar este archivo en su caché local.",
-      "partialInstance": "la instancia de {{username}} (límite: {{limit}})",
-      "partialList": "No se pudo guardar el archivo en la caché de {{instances}}. Sus destinatarios podrán seguir viéndolo desde tu instancia.",
-      "listPair": "{{first}} y {{second}}"
     }
   },
   "gif": {
@@ -276,7 +266,6 @@
     "stickersCount_many": "{{count}} stickers",
     "stickersCount_other": "{{count}} stickers",
     "noPacks": "No se encontraron paquetes de stickers",
-    "replicaBadge": "Federado",
     "viewPack": "Ver paquete",
     "saveDraft": "Guardar como borrador",
     "packCreated": "Paquete creado correctamente",
@@ -293,8 +282,6 @@
     "rejectedSuccess": "Paquete de stickers rechazado",
     "reviewNotes": "Motivo del rechazo",
     "creator": "Creador",
-    "sourceInstance": "Instancia",
-    "localInstance": "Instancia local",
     "viewStickers": "Ver stickers",
     "pendingReviewHint": "El administrador lo está revisando. Aparecerá en Explorar cuando se apruebe"
   },

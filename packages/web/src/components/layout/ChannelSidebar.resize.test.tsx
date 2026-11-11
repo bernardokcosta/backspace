@@ -178,7 +178,7 @@ describe('ChannelSidebar: drag-to-resize (left column)', () => {
       user: {
         id: 'u1', username: 'bekco', displayName: 'BeKCo', avatar: null, banner: null,
         accentColor: null, avatarColor: null, bio: null, status: 'online', customStatus: null,
-        isAdmin: false, createdAt: 1, homeInstance: null, homeUserId: null, replicatedInstances: [],
+        isAdmin: false, createdAt: 1,
       },
     });
     const { container } = renderSidebar();

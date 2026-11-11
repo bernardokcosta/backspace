@@ -54,7 +54,6 @@ beforeEach(async () => {
   testDb.insert(schema.instanceSettings).values({
     id: 1,
     registrationOpen: 1,
-    federatedRegistrationOpen: 1,
     updatedAt: Date.now(),
   }).run();
   testDb.insert(schema.users).values({
@@ -149,14 +148,14 @@ describe('auth routes send error codes', () => {
     expect(res.json().code).toBe('username_taken');
   });
 
-  it('register: a federated registration without the @domain form is replicated_username_format_required', async () => {
+  it('register: an @domain username stays invalid even with obsolete identity extras', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/api/auth/register',
-      payload: { username: 'alice', password: 'password123', homeInstance: 'orbit.test' },
+      payload: { username: 'alice@orbit.test', password: 'password123', homeInstance: 'orbit.test' },
     });
     expect(res.statusCode).toBe(400);
-    expect(res.json().code).toBe('replicated_username_format_required');
+    expect(res.json().code).toBe('username_characters_invalid');
   });
 
   it('login: a deleted account is account_deleted, not invalid_credentials', async () => {

@@ -10,10 +10,7 @@ import { splitMentions } from '@veyvox/shared/src/mentions';
  * client reader goes through it, so the rendered message
  * (`MarkdownRenderer`), the reply preview (`InlineMessageText`), the mention
  * highlight (`Message`), the composer's labels (`composerMentions`) and the
- * alert rule (`notificationFilters`) agree on which tokens are mentions. The
- * server's relay rewrite of user tokens
- * (`server/src/utils/federationMentions.ts`) uses the same user-token
- * expression.
+ * alert rule (`notificationFilters`) agree on which native tokens are mentions.
  */
 export { splitMentions, type MentionPart } from '@veyvox/shared/src/mentions';
 

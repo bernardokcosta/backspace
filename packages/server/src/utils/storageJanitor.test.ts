@@ -62,9 +62,6 @@ function insertDmChannel(opts: {
   testDb.insert(schema.dmChannels).values({
     id: opts.id,
     ownerId: opts.ownerId ?? 'owner-1',
-    federatedId: null,
-    ownerHomeUserId: null,
-    ownerHomeInstance: null,
     deletedAt: opts.deletedAt ?? null,
     createdAt: Date.now(),
     name: 'Test Group',
@@ -95,8 +92,6 @@ function insertAttachment(opts: {
     width: null,
     height: null,
     duration: null,
-    sourceUrl: null,
-    federationStatus: null,
     // Default: 2h ago — comfortably past the 1h unlinked cutoff
     createdAt: opts.createdAt ?? (Date.now() - 2 * 60 * 60 * 1000),
   } as typeof schema.attachments.$inferInsert).run();

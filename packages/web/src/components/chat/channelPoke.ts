@@ -1,18 +1,17 @@
 import type { MessageWithUser } from '@veyvox/shared';
 import { parseChannelSystemEvent } from '@veyvox/shared/src/channelSystemEvents';
-import { useAuthStore, selectMyChosenStatus, getMyUserIdForOrigin } from '../../stores/authStore';
+import { useAuthStore, selectMyChosenStatus } from '../../stores/authStore';
 import { useChatStore } from '../../stores/chatStore';
-import { getChannelOrigin } from '../../stores/spaceStore';
 import { getChannelNotificationPolicy } from '../../hooks/useNotificationSettings';
 
-/** Plays the poke cue for a `channel_poke` row from `origin`, for a viewer of its channel. */
-export function receiveChannelPoke(origin: string, message: MessageWithUser): void {
+/** Plays a confirmed native poke only for a viewer of that channel. */
+export function receiveChannelPoke(message: MessageWithUser): void {
   const event = parseChannelSystemEvent(message.content);
   if (event?.event !== 'channel_poke') return;
   const channelId = useChatStore.getState().currentChannelId;
-  const inChannel = channelId === message.channelId && getChannelOrigin(channelId) === origin;
+  const inChannel = channelId === message.channelId;
   if (!inChannel) return;
-  if (message.userId !== getMyUserIdForOrigin(origin)) {
+  if (message.userId !== useAuthStore.getState().user?.id) {
     if (selectMyChosenStatus(useAuthStore.getState()) === 'dnd') return;
     const policy = getChannelNotificationPolicy(message.channelId);
     if (policy.muted || policy.level === 'nothing') return;

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { MemberWithUser, Role, User } from '@veyvox/shared';
-import { groupMembers, hostKeepsOwnerTitle, memberGroup, memberNameColor, memberTopRole, ownerGroupTitle, OWNER_NAME_COLOR } from './memberGroups';
+import { groupMembers, memberGroup, memberNameColor, memberTopRole, ownerGroupTitle, OWNER_NAME_COLOR } from './memberGroups';
 
 function role(id: string, position: number, color: string): Role {
   return { id, spaceId: 's', name: id, color, position, permissions: '0', createdAt: 1 };
@@ -10,7 +10,7 @@ function member(userId: string, roles: Role[], status: User['status'] = 'online'
     spaceId: 's', userId, nickname: null, joinedAt: 1, roles,
     user: {
       id: userId, username: userId, displayName: null, avatar: null, banner: null, accentColor: null, avatarColor: null,
-      bio: null, status, customStatus: null, isAdmin: false, createdAt: 1, homeInstance: null, homeUserId: null, replicatedInstances: [],
+      bio: null, status, customStatus: null, isAdmin: false, createdAt: 1,
     },
   };
 }
@@ -56,9 +56,4 @@ describe('owner group title', () => {
     expect(ownerGroupTitle({})).toBeNull();
   });
 
-  it('treats a host that does not send the field as one that does not keep titles', () => {
-    expect(hostKeepsOwnerTitle({ ownerTitle: null })).toBe(true);
-    expect(hostKeepsOwnerTitle({ ownerTitle: 'Captain' })).toBe(true);
-    expect(hostKeepsOwnerTitle({})).toBe(false);
-  });
 });

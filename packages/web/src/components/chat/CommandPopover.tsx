@@ -6,7 +6,7 @@ import type { CommandRow } from '../../utils/commandArgs';
 import { Avatar } from '../ui/Avatar';
 import { BotBadge } from '../ui/BotBadge';
 import { useUIStore } from '../../stores/uiStore';
-import { uploadUrlOn } from '../../utils/assetUrls';
+import { uploadUrl } from '../../utils/assetUrls';
 import { useAnchorRect } from './useAnchorRect';
 
 type AnchorRef = React.RefObject<HTMLElement | null>;
@@ -75,10 +75,9 @@ interface CommandPopoverProps {
   onSelect: (row: CommandRow) => void;
   anchorRef: AnchorRef;
   /** Origin of the chat ('' is home): the listing's avatar filenames are uploads of that instance. */
-  origin: string;
 }
 
-function CommandList({ commands, selectedIndex, onSelect, origin }: Omit<CommandPopoverProps, 'anchorRef'>) {
+function CommandList({ commands, selectedIndex, onSelect }: Omit<CommandPopoverProps, 'anchorRef'>) {
   const { t } = useTranslation(['chat']);
   const mobile = useUIStore((s) => s.isMobile);
   const selectedRef = useRef<HTMLDivElement>(null);
@@ -102,7 +101,7 @@ function CommandList({ commands, selectedIndex, onSelect, origin }: Omit<Command
             className={rowClass(mobile, i === selectedIndex)}
           >
             <Avatar
-              src={uploadUrlOn(command.bot.avatar, origin)}
+              src={uploadUrl(command.bot.avatar)}
               name={command.bot.displayName || command.bot.username}
               size={mobile ? 28 : 24}
               avatarColor={command.bot.avatarColor}
@@ -126,12 +125,12 @@ function CommandList({ commands, selectedIndex, onSelect, origin }: Omit<Command
   );
 }
 
-export function CommandPopover({ commands, selectedIndex, onSelect, anchorRef, origin }: CommandPopoverProps) {
+export function CommandPopover({ commands, selectedIndex, onSelect, anchorRef }: CommandPopoverProps) {
   if (commands.length === 0) return null;
 
   return (
     <PopoverShell anchorRef={anchorRef} enabled>
-      <CommandList commands={commands} selectedIndex={selectedIndex} onSelect={onSelect} origin={origin} />
+      <CommandList commands={commands} selectedIndex={selectedIndex} onSelect={onSelect} />
     </PopoverShell>
   );
 }

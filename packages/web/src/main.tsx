@@ -1,3 +1,4 @@
+import './platform/retireFederationStorage';
 import { getElectronAPI } from './platform/platform';
 import './diagnosticsBootstrap';
 import React from 'react';

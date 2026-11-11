@@ -1,5 +1,5 @@
 import { getFriendshipStatus, type FriendshipStatus } from '../../utils/friendshipStatus';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFormatters } from '../../i18n/formatters';
 import { describeError } from '../../i18n/errors';
@@ -10,16 +10,14 @@ import { Username } from '../ui/Username';
 import { BotBadge } from '../ui/BotBadge';
 import { ProfileBio } from '../ui/ProfileBio';
 import { useUIStore, type ProfileMemberContext } from '../../stores/uiStore';
-import { useSpaceStore, getApiForOrigin } from '../../stores/spaceStore';
+import { useSpaceStore } from '../../stores/spaceStore';
 import { api } from '../../api/client';
 import { useSocialStore } from '../../stores/socialStore';
-import { useSelfIdentity } from '../../stores/authStore';
+import { useAuthStore } from '../../stores/authStore';
 import { getAvatarGradient, getSpaceGradient, adjustColor, mutedGradient } from '../../utils/gradients';
-import { parseFederatedUsername } from '../../utils/identity';
+import { userDisplayName } from '../../utils/identity';
 import { openDirectMessage } from '../../utils/openDirectMessage';
-import { normalizeUserAssets } from '../../utils/assetUrls';
-import { loadFederatedMutuals, type TaggedMutualFriend, type MutualSpace } from '../../utils/mutuals';
-import { friendRequestTarget } from '../../utils/friendRequestTarget';
+import { uploadUrl } from '../../utils/assetUrls';
 import { presenceLabel } from '../../i18n/presence';
 import { replaceEmojiShortcodes, useEmojiShortcodeNames } from '../../utils/emojiShortcodes';
 import { getProfileMember, useProfileMemberRoles } from '../../hooks/useProfileMember';
@@ -34,6 +32,13 @@ const EMPTY_ACTIVITIES: Activity[] = [];
 type Tab = 'about' | 'friends' | 'spaces';
 
 export function UserProfileModal() {
+  const revision = useAuthStore(s => s.sessionRevision);
+  const active = useUIStore(s => s.activeModal === 'userProfile');
+  const userId = useUIStore(s => s.modalData.userId as string | undefined);
+  return <ProfileContent key={JSON.stringify([revision, active, userId])} revision={revision} />;
+}
+
+function ProfileContent({ revision }: { revision: number }) {
   useEmojiShortcodeNames();
   const { t } = useTranslation(['social', 'common']);
   const activeModal = useUIStore((s) => s.activeModal);
@@ -48,27 +53,25 @@ export function UserProfileModal() {
   const removeFriend = useSocialStore((s) => s.removeFriend);
   const updateFriendRequest = useSocialStore((s) => s.updateFriendRequest);
   const cancelFriendRequest = useSocialStore((s) => s.cancelFriendRequest);
-  const self = useSelfIdentity();
+  const selfId = useAuthStore(s => s.user?.id);
 
   const [user, setUser] = useState<User | null>(null);
-  const [userOrigin, setUserOrigin] = useState('');
   const [activeTab, setActiveTab] = useState<Tab>('about');
-  const [mutualFriends, setMutualFriends] = useState<TaggedMutualFriend[]>([]);
-  const [mutualSpaces, setMutualSpaces] = useState<MutualSpace[]>([]);
+  const [mutualFriends, setMutualFriends] = useState<User[]>([]);
+  const [mutualSpaces, setMutualSpaces] = useState<Awaited<ReturnType<typeof api.users.getMutuals>>['mutualSpaces']>([]);
   const [loadingMutuals, setLoadingMutuals] = useState(false);
   const [friendActionLoading, setFriendActionLoading] = useState(false);
 
   const isOpen = activeModal === 'userProfile';
   const userId = modalData?.userId as string | undefined;
   const passedUser = modalData?.user as User | undefined;
-  const passedOrigin = (modalData?.origin as string | undefined) ?? '';
   const memberContext = (modalData?.member as ProfileMemberContext | null | undefined) ?? null;
   const memberSpaceId = memberContext?.spaceId;
   const memberUserId = memberContext?.userId;
   const roles = useProfileMemberRoles(memberContext);
 
   const friendship: FriendshipStatus = user
-    ? getFriendshipStatus({ viewedUser: user, origin: userOrigin, self, friends, requests })
+    ? getFriendshipStatus({ viewedUser: user, selfUserId: selfId, friends, requests })
     : { state: 'none' };
 
   const isYou = friendship.state === 'self';
@@ -76,71 +79,35 @@ export function UserProfileModal() {
     user
       ? isYou && s.myActivities
         ? s.myActivities
-        : activitiesFor(s.userActivities, user, userOrigin)
+        : activitiesFor(s.userActivities, user.id)
       : EMPTY_ACTIVITIES,
   );
 
-  const loadUser = useCallback(async (id: string, origin: string) => {
-    try {
-      const targetApi = getApiForOrigin(origin);
-      const u = await targetApi.users.get(id);
-      // Another instance's assets as absolute URLs, like every other row.
-      if (origin) normalizeUserAssets(u, origin);
-      setUser(u);
-      useSpaceStore.getState().upsertUserView(u, origin);
-    } catch {
-      // User not found
-    }
-  }, []);
-
-  const loadMutuals = useCallback(async (id: string, targetUser?: User) => {
-    setLoadingMutuals(true);
-    try {
-      const data = await loadFederatedMutuals(id, targetUser?.homeUserId);
-      setMutualFriends(data.mutualFriends);
-      setMutualSpaces(data.mutualSpaces);
-    } catch {
-      setMutualFriends([]);
-      setMutualSpaces([]);
-    } finally {
-      setLoadingMutuals(false);
-    }
-  }, []);
-
   useEffect(() => {
+    let alive = true;
+    const current = () => alive && revision === useAuthStore.getState().sessionRevision;
     if (isOpen && userId) {
       setActiveTab('about');
-      // Opened with ids only (the mobile profile screen): a space member's
-      // user comes from the space it was opened in, whose instance is the one
-      // that id belongs to. Looking it up on the home instance would miss for
-      // any member of a federated space.
+      // Mobile can open by IDs only; reuse an exact native roster match first.
       const fromSpace = !passedUser && memberSpaceId && memberUserId
         ? getProfileMember({ spaceId: memberSpaceId, userId: memberUserId })
         : undefined;
-      const knownUser = passedUser ?? fromSpace?.row.user;
-      // The instance that issued the row: every opener names it; a member
-      // opened by ids alone is its space's.
-      const origin = passedUser || !fromSpace ? passedOrigin : fromSpace.origin;
-      setUserOrigin(origin);
-      // Use a user already in hand (avoids 404 for federated users on local API)
-      if (knownUser) {
-        setUser(knownUser);
-      } else {
-        loadUser(userId, origin);
+      const knownUser = passedUser?.id === userId ? passedUser : fromSpace?.user.id === userId ? fromSpace.user : null;
+      setUser(knownUser);
+      if (!knownUser) {
+        void api.users.get(userId).then(row => {
+          if (!current()) return;
+          setUser(row); useSpaceStore.getState().upsertUserView(row);
+        }).catch(() => {});
       }
-      loadMutuals(userId, knownUser);
+      setMutualFriends([]); setMutualSpaces([]); setLoadingMutuals(true);
+      void api.users.getMutuals(userId).then(data => {
+        if (!current()) return;
+        setMutualFriends(data.mutualFriends); setMutualSpaces(data.mutualSpaces);
+      }).catch(() => {}).finally(() => { if (current()) setLoadingMutuals(false); });
     }
-  }, [isOpen, userId, passedUser, passedOrigin, memberSpaceId, memberUserId, loadUser, loadMutuals]);
-
-  // Reset on close
-  useEffect(() => {
-    if (!isOpen) {
-      setUser(null);
-      setUserOrigin('');
-      setMutualFriends([]);
-      setMutualSpaces([]);
-    }
-  }, [isOpen]);
+    return () => { alive = false; };
+  }, [isOpen, userId, passedUser, memberSpaceId, memberUserId, revision]);
 
   // Escape to close
   useEffect(() => {
@@ -152,87 +119,81 @@ export function UserProfileModal() {
     return () => document.removeEventListener('keydown', handleKey);
   }, [isOpen, closeModal]);
 
-  const shownStatus = useShownStatus(user, userOrigin, user?.status);
+  const shownStatus = useShownStatus(user, user?.status);
 
   if (!isOpen || !user) return null;
 
-  const { baseName, domain } = parseFederatedUsername(user.username);
-  const displayName = user.displayName ?? baseName;
+  const displayName = userDisplayName(user);
+  const current = () => {
+    const ui = useUIStore.getState();
+    return revision === useAuthStore.getState().sessionRevision && ui.activeModal === 'userProfile' && ui.modalData.userId === userId;
+  };
 
-  // Banner. Another instance's assets are absolute URLs
-  // (`normalizeUserAssets`); a bare filename is the page's own instance's.
-  const bannerSrc = user.banner
-    ? (user.banner.startsWith('http') || user.banner.startsWith('/') ? user.banner : api.uploads.url(user.banner))
-    : null;
+  const bannerSrc = uploadUrl(user.banner);
   const bannerFallback = user.accentColor
     ? mutedGradient(user.accentColor, adjustColor(user.accentColor, -40))
     : (() => {
-        const g = getAvatarGradient(user.homeUserId ?? user.id, displayName, user.avatarColor);
+        const g = getAvatarGradient(user.id, displayName, user.avatarColor);
         return mutedGradient(g.from, g.to);
       })();
 
   const handleSendMessage = async () => {
     try {
-      const rowId = await openDirectMessage(user, userOrigin);
+      const rowId = await openDirectMessage(user.id);
+      if (!current()) return;
       useUIStore.getState().setShowDms(true);
       closeModal();
       navigate(`/channels/@me/${rowId}`);
     } catch (err) {
-      addToast(t('social:sendMessage.failed', { reason: describeError(err) }), 'warning');
+      if (current()) addToast(t('social:sendMessage.failed', { reason: describeError(err) }), 'warning');
     }
   };
 
   const handleAddFriend = async () => {
     setFriendActionLoading(true);
     try {
-      await sendFriendRequest(friendRequestTarget(user, userOrigin));
+      await sendFriendRequest({ username: user.username });
     } catch (err) {
-      addToast(describeError(err), 'warning');
+      if (current()) addToast(describeError(err), 'warning');
     } finally {
-      setFriendActionLoading(false);
+      if (current()) setFriendActionLoading(false);
     }
   };
 
   const handleRemoveFriend = async () => {
     if (friendship.state !== 'friends') return;
     setFriendActionLoading(true);
-    try { await removeFriend(friendship.friend, friendship.friend._instanceOrigin); }
-    catch (err) { addToast(describeError(err), 'warning'); }
-    finally { setFriendActionLoading(false); }
+    try { await removeFriend(friendship.friend.id); }
+    catch (err) { if (current()) addToast(describeError(err), 'warning'); }
+    finally { if (current()) setFriendActionLoading(false); }
   };
 
   const handleCancelRequest = async () => {
     if (friendship.state !== 'outbound_pending') return;
     setFriendActionLoading(true);
-    try { await cancelFriendRequest(friendship.request.id, friendship.request._instanceOrigin); }
-    catch (err) { addToast(describeError(err), 'warning'); }
-    finally { setFriendActionLoading(false); }
+    try { await cancelFriendRequest(friendship.request.id); }
+    catch (err) { if (current()) addToast(describeError(err), 'warning'); }
+    finally { if (current()) setFriendActionLoading(false); }
   };
 
   const handleAcceptRequest = async () => {
     if (friendship.state !== 'inbound_pending') return;
     setFriendActionLoading(true);
-    try { await updateFriendRequest(friendship.request.id, friendship.request._instanceOrigin, 'accepted'); }
-    catch (err) { addToast(describeError(err), 'warning'); }
-    finally { setFriendActionLoading(false); }
+    try { await updateFriendRequest(friendship.request.id, 'accepted'); }
+    catch (err) { if (current()) addToast(describeError(err), 'warning'); }
+    finally { if (current()) setFriendActionLoading(false); }
   };
 
   const handleDeclineRequest = async () => {
     if (friendship.state !== 'inbound_pending') return;
     setFriendActionLoading(true);
-    try { await updateFriendRequest(friendship.request.id, friendship.request._instanceOrigin, 'declined'); }
-    catch (err) { addToast(describeError(err), 'warning'); }
-    finally { setFriendActionLoading(false); }
+    try { await updateFriendRequest(friendship.request.id, 'declined'); }
+    catch (err) { if (current()) addToast(describeError(err), 'warning'); }
+    finally { if (current()) setFriendActionLoading(false); }
   };
 
-  const handleViewFriend = (friend: TaggedMutualFriend) => {
-    const friendOrigin = friend._instanceOrigin;
-    setUserOrigin(friendOrigin);
-    setUser(friend);
-    loadMutuals(friend.id, friend);
-    setActiveTab('about');
-    // Update modal data so re-opening preserves context
-    useUIStore.getState().openModal('userProfile', { userId: friend.id, user: friend, origin: friendOrigin });
+  const handleViewFriend = (friend: User) => {
+    useUIStore.getState().openModal('userProfile', { userId: friend.id, user: friend });
   };
 
   const handleGoToSpace = (spaceId: string) => {
@@ -277,7 +238,7 @@ export function UserProfileModal() {
             name={displayName}
             size={96}
             status={shownStatus}
-            userId={user.homeUserId ?? user.id}
+            userId={user.id}
             user={user}
             ring={{ width: 4, color: 'rgba(20,20,26,0.82)' }}
             className="mt-[-52px] mb-2"
@@ -372,7 +333,7 @@ export function UserProfileModal() {
               ) : (
                 <div className="grid grid-cols-2 gap-2">
                   {mutualFriends.map((friend) => {
-                    const fname = friend.displayName ?? parseFederatedUsername(friend.username).baseName;
+                    const fname = userDisplayName(friend);
                     return (
                       <button
                         key={friend.id}
@@ -383,8 +344,8 @@ export function UserProfileModal() {
                           src={friend.avatar}
                           name={fname}
                           size={40}
-                          status={friend.status as 'online' | 'idle' | 'dnd' | 'offline' | null}
-                          userId={friend.homeUserId ?? friend.id}
+                          status={friend.status}
+                          userId={friend.id}
                           avatarColor={friend.avatarColor}
                         />
                         <div className="min-w-0">
@@ -394,14 +355,6 @@ export function UserProfileModal() {
                           <div className="text-[11px] text-txt-tertiary">
                             {presenceLabel(t, friend.status)}
                           </div>
-                          {friend._instanceOrigin && (
-                            <div className="flex items-center gap-1 text-[10px] text-txt-tertiary/70 truncate">
-                              <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-                              </svg>
-                              <span className="truncate">{(() => { try { return new URL(friend._instanceOrigin).host; } catch { return '?'; } })()}</span>
-                            </div>
-                          )}
                         </div>
                       </button>
                     );
@@ -427,17 +380,16 @@ export function UserProfileModal() {
               ) : (
                 <div className="space-y-1">
                   {mutualSpaces.map((space) => {
-                    const spaceApi = getApiForOrigin(space._instanceOrigin);
                     return (
                     <button
-                      key={`${space.id}:${space._instanceOrigin}`}
+                      key={space.id}
                       onClick={() => handleGoToSpace(space.id)}
                       className="flex items-center gap-3 w-full p-2.5 rounded-lg hover:bg-white/[0.06] transition-colors text-left"
                     >
                       <div className="relative shrink-0">
                         {space.icon ? (
                           <img
-                            src={space.icon.startsWith('http') ? space.icon : spaceApi.uploads.url(space.icon)}
+                            src={uploadUrl(space.icon) ?? undefined}
                             alt={space.name}
                             className="w-8 h-8 rounded-lg object-cover"
                           />
@@ -449,26 +401,11 @@ export function UserProfileModal() {
                             {space.name.charAt(0).toUpperCase()}
                           </div>
                         )}
-                        {space._instanceOrigin && (
-                          <div className="absolute -bottom-0.5 -right-0.5 w-[14px] h-[14px] rounded-full bg-[#1a1a23] flex items-center justify-center">
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className="text-txt-tertiary/80">
-                              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-                            </svg>
-                          </div>
-                        )}
                       </div>
                       <div className="min-w-0 flex flex-col">
                         <span className="text-[13px] font-medium text-txt-primary truncate">
                           {space.name}
                         </span>
-                        {space._instanceOrigin && (
-                          <span className="text-[10px] text-txt-tertiary/70 truncate flex items-center gap-1">
-                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
-                              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-                            </svg>
-                            {(() => { try { return new URL(space._instanceOrigin).host; } catch { return '?'; } })()}
-                          </span>
-                        )}
                       </div>
                     </button>
                     );

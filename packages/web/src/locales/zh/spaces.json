@@ -157,21 +157,6 @@
     "invitePlaceholder": "例如 abc123 或 https://instance.com/join/abc123",
     "submit": "加入空间",
     "submitting": "正在加入…",
-    "connect": {
-      "intro": "连接到 <host>{{host}}</host> 以加入此空间。",
-      "passwordLabel": "输入您的密码以连接",
-      "passwordPlaceholder": "您的账号密码",
-      "passwordNote": "您的密码由主实例验证，绝不会发送给 {{host}}。该实例会收到专门为它生成的独立凭据。",
-      "submit": "连接并加入",
-      "submitting": "正在连接…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "您在此实例上的用户名",
-      "passwordLabel": "此实例的密码",
-      "passwordPlaceholder": "远端实例上的密码",
-      "submit": "登录并加入",
-      "submitting": "正在登录…"
-    },
     "request": {
       "messagePlaceholder": "您为什么想加入？（可选）",
       "send": "发送申请",
@@ -445,12 +430,10 @@
       "transferOwnership": "转让所有权",
       "settings": "空间设置",
       "leave": "退出空间",
-      "reconnecting": "正在重新连接至 {{instance}}…",
-      "remoteInstance": "远端实例",
       "leaveConfirm": {
         "title": "退出空间",
         "titleNamed": "退出 {{name}}",
-          "description": "确定要退出此空间吗？重新加入需要邀请链接。"
+        "description": "确定要退出此空间吗？重新加入需要邀请链接。"
       },
       "left": "已退出空间",
       "leaveFailed": "退出空间失败",

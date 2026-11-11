@@ -61,14 +61,12 @@
       "group": {
         "intro": "This is the beginning of your group conversation.",
         "owner": "Owner: <owner>@{{name}}</owner>",
-        "federatedNotice": "Messages are stored on your and your recipients' home instances. They are not end-to-end encrypted.",
         "openSettings": "Open Group Settings",
         "leave": "Leave Group"
       },
       "dm": {
         "fallbackName": "Direct Message",
         "intro": "This is the beginning of your direct message history with <strong>@{{name}}</strong>.",
-        "federatedNotice": "Messages are stored on your and your recipient's home instances. They are not end-to-end encrypted.",
         "removeFriend": "Remove Friend"
       }
     }
@@ -133,14 +131,6 @@
     },
     "audio": {
       "unsupportedBrowser": "Your browser does not support audio playback."
-    },
-    "federation": {
-      "remoteNamed": "Hosted on {{sender}}'s instance. Download to keep a local copy.",
-      "remoteUnknown": "Hosted on the sender's instance. Download to keep a local copy.",
-      "partialGeneric": "Some recipients cannot cache this file locally.",
-      "partialInstance": "{{username}}'s instance (limit: {{limit}})",
-      "partialList": "File couldn't be cached on {{instances}}. They can still view it from yours.",
-      "listPair": "{{first}} and {{second}}"
     }
   },
   "gif": {
@@ -267,7 +257,6 @@
     "stickersCount_one": "{{count}} sticker",
     "stickersCount_other": "{{count}} stickers",
     "noPacks": "No sticker packs found",
-    "replicaBadge": "Federated",
     "viewPack": "View Pack",
     "saveDraft": "Save as Draft",
     "packCreated": "Pack created successfully",
@@ -284,8 +273,6 @@
     "rejectedSuccess": "Sticker pack rejected",
     "reviewNotes": "Rejection reason",
     "creator": "Creator",
-    "sourceInstance": "Instance",
-    "localInstance": "Local instance",
     "viewStickers": "View stickers",
     "pendingReviewHint": "Under admin review, will be listed on Explore once approved"
   },

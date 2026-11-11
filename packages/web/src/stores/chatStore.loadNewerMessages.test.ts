@@ -18,19 +18,15 @@ vi.mock('../audio/AudioManager', () => ({
 const channelsMessages = vi.fn();
 const channelsMessagesAfter = vi.fn();
 const channelsSendMessage = vi.fn();
-const requestedOrigins: string[] = [];
-vi.mock('../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../utils/crossStoreResolvers')>()),
-  getApiForOrigin: (origin: string) => {
-    requestedOrigins.push(origin);
-    return {
+vi.mock('../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../api/client')>()),
+  api: {
       channels: {
         messages: (...args: unknown[]) => channelsMessages(...args),
         messagesAfter: (...args: unknown[]) => channelsMessagesAfter(...args),
         messagesAround: vi.fn(),
         sendMessage: (...args: unknown[]) => channelsSendMessage(...args),
       },
-    };
   },
 }));
 
@@ -39,7 +35,6 @@ import { useSpaceStore } from './spaceStore';
 import { useAuthStore } from './authStore';
 
 const CHANNEL = 'chan-1';
-const ORIGIN = 'https://orbit.example';
 
 const author = { id: 'u1', username: 'mira', displayName: null, avatar: null, createdAt: 1 } as unknown as User;
 
@@ -87,8 +82,7 @@ beforeEach(() => {
   channelsMessages.mockReset();
   channelsMessagesAfter.mockReset();
   channelsSendMessage.mockReset();
-  requestedOrigins.length = 0;
-  useSpaceStore.setState({ channelOriginMap: new Map([[CHANNEL, ORIGIN]]), dmChannels: [] });
+  useSpaceStore.setState({ spaceChannelIndex: new Map([[CHANNEL, { spaceId: 's', type: 'text' }]]), dmChannels: [] });
   useChatStore.setState({
     messages: new Map(),
     hasMore: new Map(),
@@ -101,13 +95,12 @@ beforeEach(() => {
 });
 
 describe('chatStore.loadNewerMessages', () => {
-  it("asks the channel's origin for the page after the window's greatest id and appends it", async () => {
+  it('asks the current API for the page after the greatest id and appends it', async () => {
     detachedWindow();
     channelsMessagesAfter.mockResolvedValue({ messages: range(150, 199), forward: true });
 
     expect(await useChatStore.getState().loadNewerMessages(CHANNEL)).toBe('paged');
 
-    expect(requestedOrigins).toContain(ORIGIN);
     expect(channelsMessagesAfter).toHaveBeenCalledWith(CHANNEL, '149', 50);
     expect(cachedIds()).toEqual(range(100, 199).map((m) => m.id));
     expect(isDetached()).toBe(true);
@@ -227,8 +220,7 @@ describe('live messages on a detached window', () => {
 
 describe('sending from a detached window', () => {
   it('returns the channel to the present and keeps the message being sent', async () => {
-    // The channel is orbit's; its ready named the user's row there.
-    useAuthStore.setState({ user: author, myRowIds: new Map([[ORIGIN, 'u1-on-orbit']]) });
+    useAuthStore.setState({ user: author });
     detachedWindow();
     let resolveNewest: (page: MessageWithUser[]) => void = () => {};
     channelsMessages.mockReturnValue(new Promise((r) => { resolveNewest = r; }));

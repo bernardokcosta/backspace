@@ -61,14 +61,12 @@
       "group": {
         "intro": "Dette er begyndelsen på din gruppesamtale.",
         "owner": "Ejer: <owner>@{{name}}</owner>",
-        "federatedNotice": "Beskeder lagres på din hjemmeinstans og modtagernes hjemmeinstanser. De er ikke end-to-end-krypterede.",
         "openSettings": "Åbn gruppeindstillinger",
         "leave": "Forlad gruppen"
       },
       "dm": {
         "fallbackName": "Direkte besked",
         "intro": "Dette er begyndelsen på din direkte beskedhistorik med <strong>@{{name}}</strong>.",
-        "federatedNotice": "Beskeder lagres på din hjemmeinstans og modtagerens hjemmeinstans. De er ikke end-to-end-krypterede.",
         "removeFriend": "Fjern ven"
       }
     }
@@ -133,14 +131,6 @@
     },
     "audio": {
       "unsupportedBrowser": "Din browser understøtter ikke lydafspilning."
-    },
-    "federation": {
-      "remoteNamed": "Hostet på {{sender}}s instans. Download for en lokal kopi.",
-      "remoteUnknown": "Hostet på afsenderens instans. Download for en lokal kopi.",
-      "partialGeneric": "Nogle modtagere kan ikke cache denne fil lokalt.",
-      "partialInstance": "{{username}}s instans (grænse: {{limit}})",
-      "partialList": "Filen kunne ikke caches på {{instances}}. De kan stadig se den fra din.",
-      "listPair": "{{first}} og {{second}}"
     }
   },
   "gif": {
@@ -267,7 +257,6 @@
     "stickersCount_one": "{{count}} klistermærke",
     "stickersCount_other": "{{count}} klistermærker",
     "noPacks": "Ingen klistermærkepakker fundet",
-    "replicaBadge": "Fødereret",
     "viewPack": "Se pakke",
     "saveDraft": "Gem som udkast",
     "packCreated": "Pakke oprettet",
@@ -284,8 +273,6 @@
     "rejectedSuccess": "Klistermærkepakke afvist",
     "reviewNotes": "Afvisningsårsag",
     "creator": "Skaber",
-    "sourceInstance": "Instans",
-    "localInstance": "Lokal instans",
     "viewStickers": "Se klistermærker",
     "pendingReviewHint": "Hos administrator til gennemgang; vises i Udforsk efter godkendelse"
   },

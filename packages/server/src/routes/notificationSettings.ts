@@ -20,10 +20,8 @@ import { connectionManager } from '../ws/handler.js';
 /**
  * Per-space and per-channel notification settings of the signed-in user.
  *
- * Stored on the instance that hosts the space, keyed by the caller's row on
- * this instance. A federated member reaches these routes with their account
- * here (the client routes by the space's origin), so `request.userId` is
- * already the right identity; no global user id is assumed.
+ * Stored on the selected server, keyed by the authenticated native account
+ * `request.userId`; no alternate credential or identity routing is involved.
  *
  * Every change is pushed to the user's other sessions on this instance as
  * `notification_settings_updated`. See docs/systems/api.md and

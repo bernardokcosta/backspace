@@ -62,14 +62,12 @@
       "group": {
         "intro": "Este é o começo da conversa do seu grupo.",
         "owner": "Dono: <owner>@{{name}}</owner>",
-        "federatedNotice": "As mensagens ficam armazenadas na sua instância de origem e nas instâncias de origem dos seus destinatários. Elas não têm criptografia de ponta a ponta.",
         "openSettings": "Abrir configurações do grupo",
         "leave": "Sair do grupo"
       },
       "dm": {
         "fallbackName": "Mensagem direta",
         "intro": "Este é o começo do seu histórico de mensagens diretas com <strong>@{{name}}</strong>.",
-        "federatedNotice": "As mensagens ficam armazenadas na sua instância de origem e na instância de origem do seu destinatário. Elas não têm criptografia de ponta a ponta.",
         "removeFriend": "Remover amigo"
       }
     }
@@ -136,14 +134,6 @@
     },
     "audio": {
       "unsupportedBrowser": "Seu navegador não é compatível com a reprodução de áudio."
-    },
-    "federation": {
-      "remoteNamed": "Hospedado na instância de {{sender}}. Baixe para manter uma cópia local.",
-      "remoteUnknown": "Hospedado na instância de quem enviou. Baixe para manter uma cópia local.",
-      "partialGeneric": "Alguns destinatários não conseguem guardar este arquivo em cache local.",
-      "partialInstance": "instância de {{username}} (limite: {{limit}})",
-      "partialList": "Não foi possível guardar o arquivo em cache em {{instances}}. Essas pessoas ainda podem vê-lo pela sua instância.",
-      "listPair": "{{first}} e {{second}}"
     }
   },
   "gif": {
@@ -264,7 +254,6 @@
     "stickersCount_many": "{{count}} figurinhas",
     "stickersCount_other": "{{count}} figurinhas",
     "noPacks": "Nenhum pacote de figurinhas encontrado",
-    "replicaBadge": "Federado",
     "viewPack": "Ver Pacote",
     "saveDraft": "Salvar como Rascunho",
     "packCreated": "Pacote criado com sucesso",
@@ -281,8 +270,6 @@
     "rejectedSuccess": "Pacote de figurinhas rejeitado",
     "reviewNotes": "Motivo da rejeição",
     "creator": "Criador",
-    "sourceInstance": "Instância",
-    "localInstance": "Instância local",
     "viewStickers": "Ver figurinhas",
     "pendingReviewHint": "Em análise pelo administrador. Será exibido em Explorar após a aprovação."
   },

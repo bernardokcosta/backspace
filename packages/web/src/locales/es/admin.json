@@ -4,7 +4,6 @@
     "description": "Configura tu instancia de Veyvox. Estos ajustes afectan a todos los usuarios.",
     "instanceName": {
       "label": "Nombre de la instancia",
-      "description": "El nombre que se muestra en la página de inicio de sesión y a las instancias federadas.",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "Registro",
-    "description": "Controla quién puede crear cuentas en esta instancia. El registro público permite crear cuentas locales; el federado permite que usuarios de instancias emparejadas creen una cuenta aquí.",
     "public": {
       "label": "Registro público",
       "toggleLabel": "Permitir cuentas locales nuevas",
       "toggleDescription": "Cualquier persona puede crear una cuenta local desde la página de registro. Si se desactiva, solo se pueden crear cuentas locales con enlaces de invitación."
-    },
-    "federated": {
-      "label": "Registro federado",
-      "toggleLabel": "Permitir cuentas federadas nuevas",
-      "toggleDescription": "Los usuarios de otras instancias pueden crear una cuenta federada aquí desde sus ajustes de Conexiones. Las cuentas federadas existentes siempre pueden iniciar sesión, independientemente de este ajuste."
     },
     "spaceCreation": {
       "label": "Creación de espacios",
@@ -368,8 +361,6 @@
     "loadFailed": "No se pudieron cargar los usuarios",
     "empty": "No se encontraron usuarios",
     "filters": {
-      "allInstances": "Todas las instancias",
-      "localOnly": "Solo locales",
       "allRoles": "Todos los roles de cuenta",
       "admin": "Administrador",
       "nonAdmin": "Sin permisos de administrador",
@@ -389,9 +380,7 @@
     "actions": {
       "demote": "Retirar permisos de administrador",
       "promote": "Conceder permisos de administrador",
-      "federatedNoAdmin": "Los usuarios federados no pueden ser administradores",
       "resetPassword": "Restablecer contraseña",
-      "federatedNoReset": "Los usuarios federados se autentican en su instancia de origen",
       "delete": "Eliminar usuario",
       "selfDelete": "Usa los ajustes de tu cuenta para eliminarla"
     },
@@ -419,15 +408,7 @@
     "deleteDialog": {
       "title": "Eliminar usuario",
       "description": "¿Quieres eliminar a <strong>{{username}}</strong> definitivamente? Se quitará al usuario de todos los espacios, mensajes directos y listas de amigos. Esta acción no se puede deshacer.",
-      "confirm": "Eliminar usuario",
-      "blockBot": "Impedir que este bot vuelva a registrarse",
-      "blockBotHint": "Cuando su instancia de origen vuelva a estar disponible, el bot no podrá crear una cuenta aquí. Puedes desbloquearlo debajo de la lista de usuarios."
-    },
-    "blockedBots": {
-      "title": "Bots bloqueados",
-      "description": "Bots de otras instancias que no pueden registrarse aquí. Desbloquea uno para permitirle entrar de nuevo.",
-      "blockedAt": "Bloqueado el {{date}}",
-      "unblock": "Desbloquear"
+      "confirm": "Eliminar usuario"
     }
   },
   "mobile": {
@@ -435,7 +416,6 @@
     "sections": {
       "general": "General",
       "registration": "Registro",
-      "federation": "Federación",
       "streaming": "Transmisión",
       "storage": "Almacenamiento",
       "updates": "Actualizaciones",

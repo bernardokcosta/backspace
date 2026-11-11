@@ -14,8 +14,8 @@ import type { InstanceUpdateStatus } from '@veyvox/shared';
  * There is no POST here and no way to trigger an update from the API. Applying
  * a container update from inside the container would require mounting
  * /var/run/docker.sock, which hands the container root on the host. Backspace
- * parses uploaded media, scrapes URLs for embeds, and accepts federation
- * payloads from remote instances, so any remote-code-execution bug in it would
+ * parses uploaded media and scrapes user-supplied URLs for embeds, so any
+ * remote-code-execution bug in it would
  * become host root the moment that socket exists. The panel hands the operator
  * an exact command instead; ./update.sh is where the effort went.
  */

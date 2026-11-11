@@ -10,7 +10,8 @@ import { isMember, isSpaceOwner, isBanned, hasPermission, computePermissions, Pe
 import { DEFAULT_EVERYONE_PERMISSIONS, ALL_PERMISSIONS, permissionsToString, stringToPermissions, parsePermissionString, roleBitsChangeRefusal, idsHiddenFromEveryone, rolePermissionsVersion, type HeldBitsRefusal } from '@veyvox/shared/src/permissions.js';
 import crypto from 'crypto';
 import { connectionManager } from '../ws/handler.js';
-import { deleteAttachmentFiles, deleteUploadFile, deleteAttachmentByFilename } from '../utils/fileCleanup.js';
+import { deleteAttachmentFiles, deleteAttachmentByFilename, deleteUnreferencedUploadFiles,
+  getProfileReferencedFilenames, isOwnLooseUpload, isValidAssetUrl, normalizeAssetUrl } from '../utils/fileCleanup.js';
 import { resizeProfileImage } from '../utils/thumbnail.js';
 import { config } from '../config.js';
 import type {
@@ -70,6 +71,28 @@ function rowToChannel(row: typeof schema.channels.$inferSelect): Channel {
 
 function generateInviteCode(): string {
   return crypto.randomBytes(4).toString('hex');
+}
+
+/** Reuse native profile ownership for both space creation and edits. */
+function spaceImageUpdate(
+  input: { icon?: string | null; banner?: string | null }, current: { icon: string | null; banner: string | null }, userId: string,
+): { error: 'icon_url_invalid' | 'banner_url_invalid' } | {
+  values: Partial<{ icon: string | null; banner: string | null }>;
+  claimed: Array<{ filename: string; kind: 'icon' | 'banner' }>;
+} {
+  const values: Partial<{ icon: string | null; banner: string | null }> = {}, claimed: Array<{ filename: string; kind: 'icon' | 'banner' }> = [];
+  const referenced = getProfileReferencedFilenames();
+  for (const field of ['icon', 'banner'] as const) {
+    if (input[field] === undefined) continue;
+    if (!isValidAssetUrl(input[field])) return { error: field === 'icon' ? 'icon_url_invalid' : 'banner_url_invalid' };
+    const filename = normalizeAssetUrl(input[field]); values[field] = filename;
+    if (!filename || filename === normalizeAssetUrl(current[field]) || filename.startsWith('http://') || filename.startsWith('https://')) continue;
+    if (!isOwnLooseUpload(filename, userId) || referenced.has(filename) || claimed.some(image => image.filename === filename)) {
+      return { error: field === 'icon' ? 'icon_url_invalid' : 'banner_url_invalid' };
+    }
+    claimed.push({ filename, kind: field });
+  }
+  return { values, claimed };
 }
 
 /**
@@ -268,6 +291,9 @@ export async function spaceRoutes(app: FastifyInstance): Promise<void> {
       ? avatarColor
       : AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
 
+    const images = spaceImageUpdate({ icon, banner }, { icon: null, banner: null }, request.userId);
+    if ('error' in images) return sendError(reply, 400, images.error);
+
     const spaceId = generateSnowflake();
     const textCategoryId = generateSnowflake();
     const voiceCategoryId = generateSnowflake();
@@ -281,8 +307,8 @@ export async function spaceRoutes(app: FastifyInstance): Promise<void> {
       tx.insert(schema.spaces).values({
         id: spaceId,
         name: trimmedName,
-        icon: icon ?? null,
-        banner: banner ?? null,
+        icon: images.values.icon ?? null,
+        banner: images.values.banner ?? null,
         avatarColor: safeAvatarColor,
         ownerId: request.userId,
         inviteCode,
@@ -356,23 +382,9 @@ export async function spaceRoutes(app: FastifyInstance): Promise<void> {
     // Register the creator in connectionManager so they receive WS broadcasts for this space
     connectionManager.addUserSpace(request.userId, spaceId);
 
-    // Clean up attachment records for icon/banner — reference is now in spaces table
-    if (icon && typeof icon === 'string' && icon.includes('/api/uploads/')) {
-      deleteAttachmentByFilename(icon);
-    }
-    if (banner && typeof banner === 'string' && banner.includes('/api/uploads/')) {
-      deleteAttachmentByFilename(banner);
-    }
-
-    // Resize profile images to optimal dimensions
-    if (icon && typeof icon === 'string' && !icon.startsWith('http')) {
-      const filePath = path.join(config.uploadDir, path.basename(icon));
-      await resizeProfileImage(filePath, 'icon');
-    }
-    if (banner && typeof banner === 'string' && !banner.startsWith('http')) {
-      const filePath = path.join(config.uploadDir, path.basename(banner));
-      await resizeProfileImage(filePath, 'banner');
-    }
+    // Claim every new image synchronously before the first resize yields.
+    for (const image of images.claimed) deleteAttachmentByFilename(image.filename);
+    for (const image of images.claimed) await resizeProfileImage(path.join(config.uploadDir, image.filename), image.kind);
 
     return reply.code(201).send(rowToSpace(server));
   });
@@ -568,17 +580,9 @@ export async function spaceRoutes(app: FastifyInstance): Promise<void> {
       updates.name = trimmedName;
     }
 
-    // Track old files for cleanup after update
-    const oldIcon = server.icon;
-    const oldBanner = server.banner;
-
-    if (icon !== undefined) {
-      updates.icon = icon || null;
-    }
-
-    if (banner !== undefined) {
-      updates.banner = banner || null;
-    }
+    const images = spaceImageUpdate({ icon, banner }, server, request.userId);
+    if ('error' in images) return sendError(reply, 400, images.error);
+    Object.assign(updates, images.values);
 
     if (avatarColor !== undefined) {
       if (avatarColor === '') {
@@ -631,33 +635,10 @@ export async function spaceRoutes(app: FastifyInstance): Promise<void> {
 
     db.update(schema.spaces).set(updates).where(eq(schema.spaces.id, id)).run();
 
-    // Clean up old icon/banner files that were replaced
-    if (icon !== undefined && oldIcon && oldIcon !== (icon || null) && !oldIcon.startsWith('http')) {
-      deleteUploadFile(oldIcon);
-      deleteAttachmentByFilename(oldIcon);
-    }
-    if (banner !== undefined && oldBanner && oldBanner !== (banner || null) && !oldBanner.startsWith('http')) {
-      deleteUploadFile(oldBanner);
-      deleteAttachmentByFilename(oldBanner);
-    }
-    // Clean up attachment records for newly-set profile images — the reference
-    // now lives in the spaces table, so the attachment record is unnecessary
-    if (icon && typeof icon === 'string' && icon.includes('/api/uploads/')) {
-      deleteAttachmentByFilename(icon);
-    }
-    if (banner && typeof banner === 'string' && banner.includes('/api/uploads/')) {
-      deleteAttachmentByFilename(banner);
-    }
-
-    // Resize profile images to optimal dimensions
-    if (icon && typeof icon === 'string' && !icon.startsWith('http')) {
-      const filePath = path.join(config.uploadDir, path.basename(icon));
-      await resizeProfileImage(filePath, 'icon');
-    }
-    if (banner && typeof banner === 'string' && !banner.startsWith('http')) {
-      const filePath = path.join(config.uploadDir, path.basename(banner));
-      await resizeProfileImage(filePath, 'banner');
-    }
+    for (const image of images.claimed) deleteAttachmentByFilename(image.filename);
+    deleteUnreferencedUploadFiles((['icon', 'banner'] as const).flatMap(field =>
+      updates[field] !== undefined && server[field] && normalizeAssetUrl(server[field]) !== updates[field] ? [server[field]] : []));
+    for (const image of images.claimed) await resizeProfileImage(path.join(config.uploadDir, image.filename), image.kind);
 
     const updated = db.select().from(schema.spaces).where(eq(schema.spaces.id, id)).get();
     if (!updated) {
@@ -725,8 +706,7 @@ export async function spaceRoutes(app: FastifyInstance): Promise<void> {
     deleteAttachmentFiles(attachmentRows);
 
     // Clean up space icon/banner files
-    if (spaceIcon && !spaceIcon.startsWith('http')) deleteUploadFile(spaceIcon);
-    if (spaceBanner && !spaceBanner.startsWith('http')) deleteUploadFile(spaceBanner);
+    deleteUnreferencedUploadFiles([spaceIcon, spaceBanner].filter((value): value is string => !!value));
 
     return reply.code(200).send({ success: true });
   });

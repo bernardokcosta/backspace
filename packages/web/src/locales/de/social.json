@@ -19,7 +19,6 @@
     "activity": "Gerade ist es ruhig… Sobald deine Freunde etwas unternehmen, siehst du es hier!"
   },
   "friend": {
-    "viaInstance": "über {{host}}",
     "message": "Nachricht",
     "remove": "Freund entfernen"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "Leute finden",
-    "hint": "Suche nach dem Benutzernamen oder gib <handle>name@instanz</handle> ein, um jemanden direkt hinzuzufügen.",
     "placeholder": "Suchen oder per Benutzername hinzufügen…",
     "direct": "Freundschaftsanfrage senden an <handle>{{handle}}</handle>",
     "sendRequest": "Anfrage senden",
@@ -81,7 +79,7 @@
     "quietDescription": "Sobald deine Freunde etwas unternehmen, etwa ein Spiel spielen oder im Sprachkanal abhängen, siehst du es hier!",
     "online": "Online – {{n}}",
     "offline": "Offline – {{n}}",
-    "resizeHandle": "Breite der Freundesliste ändern",
+    "resizeHandle": "Breite der Freundesliste ändern",
     "types": {
       "playing": "Spielt ein Spiel",
       "listening": "Hört Musik",
@@ -99,6 +97,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "Titel öffnen"
-  },
-  "instanceNotConnected": "Keine Verbindung zu {{host}}. Verbinde dich erneut und versuche es noch einmal."
+  }
 }

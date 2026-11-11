@@ -6,7 +6,6 @@ import spaces from '../locales/ja/spaces.json';
 import voice from '../locales/ja/voice.json';
 import settings from '../locales/ja/settings.json';
 import errors from '../locales/ja/errors.json';
-import federation from '../locales/ja/federation.json';
 
 describe('Japanese contextual content', () => {
   it('translates voice-channel prose and the bot-owned role completely', () => {
@@ -20,12 +19,9 @@ describe('Japanese contextual content', () => {
     expect(errors.space_afk_invalid_timeout).toContain('である必要があります');
   });
 
-  it('uses UI and secret-rotation terms rather than a physical-interface noun or cut-off action', () => {
+  it('uses UI terms rather than a physical-interface noun', () => {
     expect(settings.interfaceScale.label).toBe('インターフェースの表示倍率');
     expect(settings.privacy.activity.game.unknownLabel).toBe('不明なWineプログラム');
-    expect(federation.admin.peer.rotateSecret).toBe('秘密をローテーション');
-    expect(federation.admin.peer.autoRotate).toBe('自動ローテーション');
-    expect(federation.admin.peers.confirm.rotate.description).toBe('{{name}} 用に新規HMAC秘密を生成。両インスタンスは15分の猶予期間中、新旧両方の秘密を受諾。');
   });
 
   it('describes per-listener mute without claiming a server mute', () => {

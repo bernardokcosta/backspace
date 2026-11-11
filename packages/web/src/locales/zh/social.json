@@ -19,7 +19,6 @@
     "activity": "目前很安静… 当好友开始活动时，会显示在这里！"
   },
   "friend": {
-    "viaInstance": "来自 {{host}}",
     "message": "发消息",
     "remove": "删除好友"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "寻找用户",
-    "hint": "按用户名搜索，或使用 <handle>用户@实例</handle> 直接添加好友。",
     "placeholder": "搜索或通过用户名添加…",
     "direct": "向 <handle>{{handle}}</handle> 发送好友申请",
     "sendRequest": "发送申请",
@@ -79,7 +77,7 @@
     "quietDescription": "当好友开始活动时（例如玩游戏或进行语音通话），我们将在此处展示！",
     "online": "在线 — {{n}}",
     "offline": "离线 — {{n}}",
-    "resizeHandle": "调整好友列表大小",
+    "resizeHandle": "调整好友列表大小",
     "types": {
       "playing": "正在游玩",
       "listening": "正在收听",
@@ -97,6 +95,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "打开歌曲"
-  },
-  "instanceNotConnected": "未连接到 {{host}}。请重新连接后再试。"
+  }
 }

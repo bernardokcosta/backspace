@@ -2,7 +2,9 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Role } from '@veyvox/shared';
 import { canManageRoleAt } from '@veyvox/shared/src/permissions';
-import { useSpaceStore, getApiForOrigin } from '../../../stores/spaceStore';
+import { useSpaceStore } from '../../../stores/spaceStore';
+import { useAuthStore } from '../../../stores/authStore';
+import { api } from '../../../api/client';
 import { useUIStore } from '../../../stores/uiStore';
 import { describeError } from '../../../i18n/errors';
 import { LOCK_ICON } from '../../ui/LockNote';
@@ -60,9 +62,7 @@ export function RoleOrderList({ spaceId, onOpen }: RoleOrderListProps) {
   const ranked = rolesInRankOrder(roles, spaceId);
   const everyone = roles.find((r) => r.id === spaceId);
   const reorderable = !!space && canReorderRoles(ranked);
-  // The viewer as a member of the space's own instance (their replicated
-  // user there for a remote space); null when their row is not loaded, and
-  // then the server decides.
+  // The native viewer's standing; the server decides if it is not loaded.
   const viewer = space ? myStandingIn(space, members) : null;
   const canMove = (from: number, to: number) => reorderable && canMoveRole(viewer, ranked, from, to);
   const isLocked = (role: Role) => viewer !== null && !canManageRoleAt(viewer, role.position);
@@ -102,6 +102,8 @@ export function RoleOrderList({ spaceId, onOpen }: RoleOrderListProps) {
     if (!role || !request) return;
 
     const before = roles;
+    const revision = useAuthStore.getState().sessionRevision;
+    const current = () => revision === useAuthStore.getState().sessionRevision && useSpaceStore.getState().currentSpaceId === spaceId;
     const optimistic = [...moveRoleInRankOrder(ranked, from, to), ...(everyone ? [everyone] : [])];
     pendingFocus.current = { roleId: role.id, control };
     setRoles(optimistic);
@@ -114,8 +116,9 @@ export function RoleOrderList({ spaceId, onOpen }: RoleOrderListProps) {
       // moved to and renumbers the rest, which is the order already shown;
       // space_access_changed brings the space's refreshed detail to every
       // member, this list included.
-      await getApiForOrigin(space._instanceOrigin ?? '').roles.update(spaceId, role.id, request);
+      await api.roles.update(spaceId, role.id, request);
     } catch (err) {
+      if (!current()) return;
       // Put the order back unless something else has replaced the roles
       // since; then the space's own state is the one to show.
       if (useSpaceStore.getState().roles === optimistic) setRoles(before);
@@ -123,7 +126,7 @@ export function RoleOrderList({ spaceId, onOpen }: RoleOrderListProps) {
       setAnnouncement('');
       setMoveError({ roleId: role.id, message: describeError(err) });
     } finally {
-      setMoving(false);
+      if (current()) setMoving(false);
     }
   };
 

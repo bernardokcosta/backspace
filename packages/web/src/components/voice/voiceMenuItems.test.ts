@@ -73,7 +73,6 @@ describe('buildVoiceModMenuItems role hierarchy', () => {
     return {
       id, username: id, displayName: null, avatar: null, banner: null, accentColor: null, avatarColor: null,
       bio: null, status: 'online' as const, customStatus: null, isAdmin: false, createdAt: 1,
-      homeInstance: null, homeUserId: null, replicatedInstances: [],
     };
   }
   function member(id: string, roles: ReturnType<typeof role>[]) {
@@ -87,7 +86,7 @@ describe('buildVoiceModMenuItems role hierarchy', () => {
       currentSpaceId: 'space-1',
       spaces: [{
         id: 'space-1', name: 'Space', icon: null, banner: null, avatarColor: null, ownerId: 'owner',
-        inviteCode: null, visibility: 'public', description: null, createdAt: 1, _instanceOrigin: '',
+        inviteCode: null, visibility: 'public', description: null, createdAt: 1,
       }],
       members: [
         member('me', [role('r-helper', 2)]),

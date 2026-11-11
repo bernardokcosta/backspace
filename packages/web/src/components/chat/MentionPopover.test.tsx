@@ -17,7 +17,6 @@ function makeUser(id: string, username: string, displayName: string | null): Use
   return {
     id, username, displayName, avatar: null, banner: null, accentColor: null, avatarColor: null,
     bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
-    homeInstance: null, homeUserId: null, replicatedInstances: [],
   };
 }
 
@@ -58,12 +57,12 @@ describe.each([
     expect(name.parentElement?.className).not.toMatch(/\bgap-/);
   });
 
-  it('names a user without a display name by the base of the username and shows the full username beside it', () => {
+  it('keeps a retained username whole without a duplicate second label', () => {
     useUIStore.setState({ isMobile: mobile });
     renderPopover([makeUser('zed', 'zed@orbit.example', null)]);
 
-    expect(screen.getByText('zed')).toBeInTheDocument();
-    expect(screen.getByText('@zed@orbit.example')).toBeInTheDocument();
+    expect(screen.getByText('zed@orbit.example')).toBeInTheDocument();
+    expect(screen.queryByText('@zed@orbit.example')).toBeNull();
   });
 
   it('shows no second line for a local user without a display name', () => {

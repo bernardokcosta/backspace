@@ -59,7 +59,6 @@ export function GeneralPanel() {
       <div className="text-xs text-txt-tertiary">{t('admin:general.description')}</div>
       <div>
         <div className="text-[11px] font-semibold text-txt-tertiary uppercase tracking-wider mb-1.5">{t('admin:general.instanceName.label')}</div>
-        <p className="text-xs text-txt-tertiary mb-2">{t('admin:general.instanceName.description')}</p>
         <div className="rounded-lg bg-white/[0.02] p-3.5">
           <input type="text" value={name} onChange={e => setName(e.target.value.slice(0, INSTANCE_NAME_MAX_LENGTH))}
             placeholder={t('common:appName')} aria-label={t('admin:general.instanceName.label')} className="input-standard w-full" />

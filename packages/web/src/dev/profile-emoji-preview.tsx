@@ -71,9 +71,6 @@ const BASE_USER: User = {
   customStatus: null,
   isAdmin: false,
   createdAt: Date.UTC(2026, 8, 23),
-  homeInstance: null,
-  homeUserId: null,
-  replicatedInstances: [],
 };
 
 const PROFILES: Record<ProfileName, User> = {
@@ -137,7 +134,6 @@ function Workbench({ view, user }: { view: View; user: User }) {
   return (
     <UserProfilePopout
       user={user}
-      origin=""
       onClose={() => undefined}
       anchor={{ top: 16, left: 8, right: 8, bottom: 16, width: 0, height: 0 }}
     />

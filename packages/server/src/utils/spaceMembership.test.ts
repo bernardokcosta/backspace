@@ -34,7 +34,7 @@ const OTHER_SPACE = 'sp-other';
 function seed(): void {
   const now = Date.now();
   const user = (id: string, isBot: number) => testDb.insert(schema.users).values({
-    id, username: id, passwordHash: 'x', homeUserId: id, homeInstance: null, createdAt: now, isBot,
+    id, username: id, passwordHash: 'x', createdAt: now, isBot,
   }).run();
   user('owner', 0); user('bot', 1); user('person', 0);
   for (const sp of [SPACE, OTHER_SPACE]) {

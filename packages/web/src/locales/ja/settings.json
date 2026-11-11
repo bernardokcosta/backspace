@@ -127,7 +127,6 @@
       "appearance": "外観",
       "voice": "音声 & 映像",
       "privacy": "プライバシー",
-      "connections": "接続",
       "keybinds": "キーバインド",
       "desktop": "デスクトップ",
       "instance": "インスタンス",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "マイアカウント",
-    "detached": {
-      "notice": "このアカウントはホームインスタンスから分離。",
-      "explanation": "{{homeInstance}} がリセットか利用不可のため、このアカウントは現在このインスタンスでローカル動作。プロフィールとパスワードはここで管理。",
-      "reattachHint": "{{homeInstance}} 上の {{username}} として再紐付け可能。プロフィールと在席はそこから再同期。",
-      "reattachButton": "{{homeInstance}} に再紐付け",
-      "reattachConfirm": "{{username}} として再紐付けを確認",
-      "reattaching": "再紐付け中…",
-      "reattachFailed": "再紐付け不可",
-      "reattached": "{{username}} と再リンク済み"
-    },
     "profile": {
       "sectionTitle": "プロフィールカスタマイズ",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "アカウント",
       "status": {
-        "label": "状態",
-        "homeUnavailable": "状態は {{host}} に保持。変更は {{host}} に接続。"
+        "label": "状態"
       },
       "customStatus": {
         "label": "カスタム状態",
@@ -243,10 +231,6 @@
         "passwordPlaceholder": "パスワードを入力",
         "submit": "マイアカウントを削除",
         "deleting": "削除中…"
-      },
-      "federation": {
-        "removing": "接続中インスタンスからあなたのアカウントを削除中…",
-        "deleteAnyway": "今すぐ削除"
       },
       "complete": {
         "title": "アカウントを削除",
@@ -309,14 +293,10 @@
       }
     }
   },
-  "connections": {
-    "title": "接続"
-  },
   "instance": {
     "tabs": {
       "general": "一般",
       "registration": "登録",
-      "federation": "連合",
       "streaming": "配信",
       "storage": "ストレージ",
       "users": "ユーザー",

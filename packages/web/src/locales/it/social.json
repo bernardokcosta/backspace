@@ -19,7 +19,6 @@
     "activity": "Per ora è tutto tranquillo... Quando i tuoi amici inizieranno un’attività, la mostreremo qui!"
   },
   "friend": {
-    "viaInstance": "tramite {{host}}",
     "message": "Messaggio",
     "remove": "Rimuovi amico"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "Trova persone",
-    "hint": "Cerca per nome utente oppure usa <handle>utente@istanza</handle> per aggiungere qualcuno direttamente.",
     "placeholder": "Cerca o aggiungi per nome utente…",
     "direct": "Invia richiesta di amicizia a <handle>{{handle}}</handle>",
     "sendRequest": "Invia richiesta",
@@ -101,6 +99,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "Apri brano"
-  },
-  "instanceNotConnected": "Non connesso a {{host}}. Riconnettiti e riprova."
+  }
 }

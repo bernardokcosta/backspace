@@ -57,7 +57,8 @@ test('all 25 complete catalogs and native surfaces use the current product name'
   assert.equal(languages.length, 25);
   for (const language of languages) {
     const folder = `packages/web/src/locales/${language}`;
-    assert.equal(fs.readdirSync(path.join(ROOT, folder)).filter(n => n.endsWith('.json')).length, 15);
+    assert.deepEqual(fs.readdirSync(path.join(ROOT, folder)).filter(n => n.endsWith('.json')).sort(),
+      ['admin', 'auth', 'chat', 'common', 'desktop', 'dm', 'errors', 'mobile', 'search', 'settings', 'social', 'spaces', 'uploads', 'voice'].map(name => `${name}.json`));
     assert.equal(json(`${folder}/common.json`).appName, 'Veyvox');
     // The actual Backspace keyboard key and retained code/env tokens are not branding.
     for (const name of fs.readdirSync(path.join(ROOT, folder))) {

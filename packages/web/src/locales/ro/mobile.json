@@ -6,7 +6,6 @@
   },
   "you": {
     "editProfile": "Editează profilul",
-    "homeInstance": "Instanță principală: {{domain}}",
     "logOutConfirm": "Sigur vrei să te deconectezi?"
   },
   "chat": {

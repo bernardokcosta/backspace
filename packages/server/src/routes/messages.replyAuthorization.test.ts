@@ -85,7 +85,7 @@ const LOUNGE = 'chan-lounge';
 const SECRET = 'chan-secret';
 const OTHER_SPACE_CHANNEL = 'chan-other-space';
 
-function seedUser(id: string, homeUserId: string | null = null, homeInstance: string | null = null): void {
+function seedUser(id: string): void {
   testDb.insert(schema.users).values({
     id,
     username: id,
@@ -95,8 +95,6 @@ function seedUser(id: string, homeUserId: string | null = null, homeInstance: st
     isAdmin: 0,
     isDeleted: 0,
     discoverable: 1,
-    homeInstance,
-    homeUserId,
     createdAt: NOW,
   }).run();
 }
@@ -188,7 +186,7 @@ describe('space-channel reply targets are confined to their own channel', () => 
     seedUser('attacker');
     // The victim is a federated identity so the rule is exercised against a
     // replicated user row, not only a plain local one.
-    seedUser('victim', 'remote-victim-1', 'https://remote.test');
+    seedUser('victim');
     seedUser('stranger');
 
     seedSpace(SPACE, 'owner', ['attacker', 'victim']);
@@ -321,7 +319,6 @@ describe('space-channel reply targets are confined to their own channel', () => 
         'attacker',
         'attacker',
         {} as never,
-        false,
       );
 
       const rows = rowsIn(GENERAL);
@@ -339,7 +336,6 @@ describe('space-channel reply targets are confined to their own channel', () => 
         'attacker',
         'attacker',
         {} as never,
-        false,
       );
 
       expect(rowsIn(GENERAL)).toHaveLength(0);
@@ -357,7 +353,6 @@ describe('space-channel reply targets are confined to their own channel', () => 
         'attacker',
         'attacker',
         {} as never,
-        false,
       );
 
       expect(rowsIn(GENERAL)).toHaveLength(0);
@@ -457,7 +452,6 @@ describe('space-channel reply targets are confined to their own channel', () => 
         'attacker',
         'attacker',
         {} as never,
-        false,
       );
 
       const poisonedCall = sendToChannel.mock.calls.find(
@@ -472,7 +466,6 @@ describe('space-channel reply targets are confined to their own channel', () => 
         'attacker',
         'attacker',
         {} as never,
-        false,
       );
 
       const cleanCall = sendToChannel.mock.calls.find(

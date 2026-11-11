@@ -1,61 +1,22 @@
 import type { FastifyInstance } from 'fastify';
 import { sendError, errorText } from '../utils/httpErrors';
 import { eq, or, and, inArray, isNull } from 'drizzle-orm';
-import { randomBytes } from 'node:crypto';
 import { getDb, schema } from '../db/index.js';
 import { authenticate, verifyPassword, hashPassword, signJwt } from '../utils/auth.js';
 import { connectionManager } from '../ws/handler.js';
-import type { UpdateUserRequest, VerifyPasswordRequest, VerifyPasswordResponse, ChangePasswordRequest, ChangePasswordResponse, DeleteAccountRequest, FederationCredentialRequest, FederationCredentialResponse, ReplicatedInstance, SpaceLayoutItem, SpaceFolder, FederationIdentityDeleteRequest, FederationIdentityDeleteResponse, FederationIdentityDeleteResult, FederationProfileUpdatePayload } from '@veyvox/shared';
+import type { UpdateUserRequest, VerifyPasswordRequest, VerifyPasswordResponse, ChangePasswordRequest, ChangePasswordResponse, DeleteAccountRequest, SpaceLayoutItem, SpaceFolder } from '@veyvox/shared';
 import { AVATAR_COLORS, isChosenUserStatus, type ChosenUserStatus } from '@veyvox/shared';
 import { PASSWORD_MIN_LENGTH, PROFILE_BIO_MAX_LENGTH } from '@veyvox/shared/src/constants.js';
 import { sanitizeUser } from '../utils/sanitize.js';
 import { applyChosenStatus } from '../ws/presence.js';
 import { presenceUpdateFor } from '../ws/presenceEvent.js';
-import { deleteUploadFile, deleteAttachmentByFilename } from '../utils/fileCleanup.js';
+import { deleteAttachmentByFilename, isOwnLooseUpload, isValidAssetUrl, normalizeAssetUrl,
+  getProfileReferencedFilenames, deleteUnreferencedUploadFiles } from '../utils/fileCleanup.js';
 import { tombstoneUser, collectDeletionBroadcastTargets, collectProfileBroadcastTargetIds } from '../utils/userDeletion.js';
-import { queueOutboxEvent, isFederationRelayEnabled, appendMutationLog } from '../utils/federationOutbox.js';
 import { generateSnowflake } from '../utils/snowflake.js';
-import { federationFetch } from '../utils/federationFetch.js';
 import { resizeProfileImage } from '../utils/thumbnail.js';
 import { config } from '../config.js';
-import { buildFederationHeaders, getOurOrigin, normalizeOriginForCompare, canonicalizeHomeInstance } from '../utils/federationAuth.js';
-import { extractDomain } from './federation.js';
-import { hasPendingBotRevocation } from '../utils/botRevocationQueue.js';
 import path from 'path';
-
-/**
- * Canonicalize a caller-supplied remote instance origin to the single storage
- * form `https://host[:port]` (lowercased, no path, no trailing slash) so that
- * `orbit.test`, `orbit.test/`, and `https://Orbit.test` all resolve to the same
- * credential row instead of minting three unrelated secrets for one instance.
- * Returns null when the value is not a usable http(s) origin.
- */
-export function canonicalRemoteOrigin(value: string): string | null {
-  const canonical = canonicalizeHomeInstance(value);
-  if (!canonical) return null;
-  if (canonical.length > 512) return null;
-  let url: URL;
-  try {
-    url = new URL(canonical);
-  } catch {
-    return null;
-  }
-  if (url.protocol !== 'https:' && url.protocol !== 'http:') return null;
-  // Same host charset the registration route enforces on `homeInstance`.
-  if (!/^[a-z0-9.-]+$/.test(url.hostname) || url.hostname.length > 253) return null;
-  return url.origin.toLowerCase();
-}
-
-/** Validates that a URL is a safe asset URL (relative upload path, bare filename, or http/https) */
-export function isValidAssetUrl(url: string | null | undefined): boolean {
-  if (!url || url.trim().length === 0) return true; // empty/null = clearing
-  const trimmed = url.trim();
-  if (trimmed.startsWith('/api/uploads/')) return true;
-  if (trimmed.startsWith('https://') || trimmed.startsWith('http://')) return true;
-  // Accept bare filenames (the existing convention) — no slashes, no traversal
-  if (!trimmed.includes('/') && !trimmed.includes('\\') && !trimmed.includes('..')) return true;
-  return false;
-}
 
 export async function userRoutes(app: FastifyInstance): Promise<void> {
   app.get('/api/users/@me', { preHandler: authenticate }, async (request, reply) => {
@@ -74,7 +35,7 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
     preHandler: authenticate,
     config: { rateLimit: { max: 10, timeWindow: '2 minutes' } },
   }, async (request, reply) => {
-    const { password } = request.body;
+    const { password } = request.body ?? {};
 
     if (!password || typeof password !== 'string') {
       return sendError(reply, 400, 'password_required');
@@ -96,7 +57,7 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
     preHandler: authenticate,
     config: { rateLimit: { max: 5, timeWindow: '15 minutes' } },
   }, async (request, reply) => {
-    const { currentPassword, newPassword } = request.body;
+    const { currentPassword, newPassword } = request.body ?? {};
 
     if (!newPassword || typeof newPassword !== 'string' || newPassword.length < PASSWORD_MIN_LENGTH) {
       return sendError(reply, 400, 'password_too_short', { min: PASSWORD_MIN_LENGTH });
@@ -108,26 +69,27 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
       return sendError(reply, 404, 'user_not_found');
     }
 
-    // Federated users (replicas on this instance) don't need currentPassword —
-    // their home instance already verified the password change, and JWT auth
-    // proves identity. EXCEPTION: detached accounts (federation_home_orphaned=1)
-    // have no home verifying anything — they follow the LOCAL rule (detach spec §4.4).
-    if (!user.homeInstance || user.federationHomeOrphaned === 1) {
-      // Local users must provide current password
-      if (!currentPassword || typeof currentPassword !== 'string') {
-        return sendError(reply, 400, 'password_required');
-      }
-      const valid = await verifyPassword(currentPassword, user.passwordHash);
-      if (!valid) {
-        return sendError(reply, 403, 'current_password_incorrect');
-      }
+    if (!currentPassword || typeof currentPassword !== 'string') {
+      return sendError(reply, 400, 'password_required');
+    }
+    const valid = await verifyPassword(currentPassword, user.passwordHash);
+    if (!valid) {
+      return sendError(reply, 403, 'current_password_incorrect');
     }
 
     const newHash = await hashPassword(newPassword);
-    db.update(schema.users).set({ passwordHash: newHash, passwordChangedAt: Date.now() }).where(eq(schema.users.id, request.userId)).run();
+    const passwordChangedAt = Math.max(Date.now(), (user.passwordChangedAt ?? 0) + 1);
+    // The async verification/hash work cannot overwrite a later reset or issue
+    // a new session after deletion. Compare the credential epoch atomically.
+    const changed = db.update(schema.users).set({ passwordHash: newHash, passwordChangedAt }).where(and(
+      eq(schema.users.id, request.userId), or(eq(schema.users.isDeleted, 0), isNull(schema.users.isDeleted)), eq(schema.users.passwordHash, user.passwordHash),
+      user.passwordChangedAt === null ? isNull(schema.users.passwordChangedAt) : eq(schema.users.passwordChangedAt, user.passwordChangedAt),
+    )).run();
+    if (changed.changes !== 1) return sendError(reply, 401, 'unauthorized');
 
     // Issue fresh JWT
-    const token = signJwt({ userId: user.id, username: user.username });
+    const token = signJwt({ userId: user.id, username: user.username, iat: passwordChangedAt / 1000 });
+    connectionManager.forceDisconnectUser(user.id);
     const response: ChangePasswordResponse = { token };
     return reply.code(200).send(response);
   });
@@ -137,7 +99,7 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
     preHandler: authenticate,
     config: { rateLimit: { max: 3, timeWindow: '15 minutes' } },
   }, async (request, reply) => {
-    const { password, username } = request.body;
+    const { password, username } = request.body ?? {};
 
     if (!username || typeof username !== 'string') {
       return sendError(reply, 400, 'username_confirmation_required');
@@ -154,20 +116,12 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
       return sendError(reply, 400, 'username_confirmation_mismatch');
     }
 
-    // Native users must verify password; non-detached federated users rely on
-    // JWT auth (their home instance already vouches for them). EXCEPTION:
-    // detached accounts (federation_home_orphaned = 1) are sovereign local
-    // accounts with no home verifying anything — they follow the LOCAL rule and
-    // must supply their local password to self-destruct, mirroring
-    // change-password (detach spec §4.4).
-    if (!user.homeInstance || user.federationHomeOrphaned === 1) {
-      if (!password || typeof password !== 'string') {
-        return sendError(reply, 400, 'password_required');
-      }
-      const valid = await verifyPassword(password, user.passwordHash);
-      if (!valid) {
-        return sendError(reply, 403, 'account_deletion_password_incorrect');
-      }
+    if (!password || typeof password !== 'string') {
+      return sendError(reply, 400, 'password_required');
+    }
+    const valid = await verifyPassword(password, user.passwordHash);
+    if (!valid) {
+      return sendError(reply, 403, 'account_deletion_password_incorrect');
     }
 
     // Check if user owns any spaces
@@ -192,9 +146,7 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
     const filesToDelete = tombstoneUser(request.userId);
 
     // Clean up files from disk after transaction commits
-    for (const filename of filesToDelete) {
-      deleteUploadFile(filename);
-    }
+    deleteUnreferencedUploadFiles(filesToDelete);
 
     // Broadcast member_left to each space
     for (const spaceId of memberSpaceIds) {
@@ -222,29 +174,16 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
   });
 
   app.patch<{ Body: UpdateUserRequest }>('/api/users/@me', { preHandler: authenticate }, async (request, reply) => {
-    const { displayName, avatar, banner, accentColor, avatarColor, bio, customStatus, status, replicatedInstances, homeUserId, profileUpdatedAt, discoverable, showActivity, developerMode } = request.body;
+    const { displayName, avatar, banner, accentColor, avatarColor, bio, customStatus, status, discoverable, showActivity, developerMode } = request.body ?? {};
     const db = getDb();
 
     const updateData: Record<string, string | null | undefined> = {};
 
-    // Fetch the current user row upfront — used for:
-    // 1. Write-protection guard (replicated users can't update durable fields)
-    // 2. Change detection (only relay if values actually differ)
+    // Fetch the verified local account before validating owner-only bot fields.
     const DURABLE_PROFILE_FIELDS = ['displayName', 'avatar', 'banner', 'accentColor', 'avatarColor', 'bio'] as const;
     const preUpdateUser = db.select().from(schema.users).where(eq(schema.users.id, request.userId)).get();
     if (!preUpdateUser) {
       return sendError(reply, 404, 'user_not_found');
-    }
-
-    // Write-protection: replicated users cannot update durable profile fields —
-    // these are managed by the home instance via S2S relay. EXCEPTION: detached
-    // accounts (federation_home_orphaned = 1) have no home instance anymore and
-    // manage their profile locally (detach spec §4.4).
-    if (preUpdateUser.homeInstance && preUpdateUser.federationHomeOrphaned !== 1) {
-      const hasDurableField = DURABLE_PROFILE_FIELDS.some(f => (request.body as Record<string, unknown>)[f] !== undefined);
-      if (hasDurableField) {
-        return sendError(reply, 403, 'profile_managed_by_home');
-      }
     }
 
     // A bot's profile belongs to its owner (PATCH /api/bots/:id). Its own token
@@ -268,39 +207,33 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
       }
     }
 
-    // Track old files for cleanup after update
-    let oldAvatar: string | null = null;
-    let oldBanner: string | null = null;
-    if (avatar !== undefined || banner !== undefined) {
-      const current = db.select({ avatar: schema.users.avatar, banner: schema.users.banner })
-        .from(schema.users).where(eq(schema.users.id, request.userId)).get();
-      oldAvatar = current?.avatar ?? null;
-      oldBanner = current?.banner ?? null;
-    }
+    const oldAvatar = normalizeAssetUrl(preUpdateUser.avatar);
+    const oldBanner = normalizeAssetUrl(preUpdateUser.banner);
 
     if (avatar !== undefined) {
       if (!isValidAssetUrl(avatar)) {
         return sendError(reply, 400, 'avatar_url_invalid');
       }
-      updateData.avatar = avatar;
-      // Normalize to bare filename — callers may include /api/uploads/ prefix
-      if (typeof updateData.avatar === 'string' && updateData.avatar.startsWith('/api/uploads/')) {
-        updateData.avatar = updateData.avatar.slice('/api/uploads/'.length);
-      }
+      updateData.avatar = normalizeAssetUrl(avatar);
     }
 
     if (banner !== undefined) {
       if (!isValidAssetUrl(banner)) {
         return sendError(reply, 400, 'banner_url_invalid');
       }
-      if (banner && typeof banner === 'string' && banner.trim().length > 0) {
-        updateData.banner = banner.trim();
-        // Normalize to bare filename — callers may include /api/uploads/ prefix
-        if (updateData.banner.startsWith('/api/uploads/')) {
-          updateData.banner = updateData.banner.slice('/api/uploads/'.length);
+      updateData.banner = normalizeAssetUrl(banner);
+    }
+
+    const newImages: Array<{ filename: string; kind: 'avatar' | 'banner' }> = [];
+    if (avatar !== undefined || banner !== undefined) {
+      const referenced = getProfileReferencedFilenames();
+      for (const field of ['avatar', 'banner'] as const) {
+        const filename = updateData[field], old = field === 'avatar' ? oldAvatar : oldBanner;
+        if (!filename || filename === old || filename.startsWith('http://') || filename.startsWith('https://')) continue;
+        if (!isOwnLooseUpload(filename, request.userId) || referenced.has(filename) || newImages.some(image => image.filename === filename)) {
+          return sendError(reply, 400, field === 'avatar' ? 'avatar_url_invalid' : 'banner_url_invalid');
         }
-      } else {
-        updateData.banner = null;
+        newImages.push({ filename, kind: field });
       }
     }
 
@@ -363,103 +296,6 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
       chosenStatus = status;
     }
 
-    if (replicatedInstances !== undefined) {
-      if (!Array.isArray(replicatedInstances)) {
-        return sendError(reply, 400, 'validation_failed', { field: 'replicatedInstances', reason: 'must be an array' });
-      }
-      if (replicatedInstances.length > 20) {
-        return sendError(reply, 400, 'validation_failed', { field: 'replicatedInstances', reason: 'at most 20 entries' });
-      }
-      const domainRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*$/;
-      for (const inst of replicatedInstances) {
-        if (!inst || typeof inst.username !== 'string' || inst.username.trim().length === 0) {
-          return sendError(reply, 400, 'validation_failed', { field: 'replicatedInstances.username', reason: 'must be a non-empty string' });
-        }
-        if (inst.username.length > 255) {
-          return sendError(reply, 400, 'validation_failed', { field: 'replicatedInstances.username', reason: 'at most 255 characters' });
-        }
-        if (typeof inst.origin !== 'string' && typeof inst.domain !== 'string') {
-          return sendError(reply, 400, 'validation_failed', { field: 'replicatedInstances', reason: 'each entry needs an origin or domain string' });
-        }
-        if (typeof inst.origin === 'string') {
-          if (inst.origin.length > 512) {
-            return sendError(reply, 400, 'validation_failed', { field: 'replicatedInstances.origin', reason: 'at most 512 characters' });
-          }
-          if (!inst.origin.startsWith('https://') && !inst.origin.startsWith('http://')) {
-            return sendError(reply, 400, 'validation_failed', { field: 'replicatedInstances.origin', reason: 'must start with https:// or http://' });
-          }
-        }
-        if (typeof inst.domain === 'string') {
-          if (inst.domain.length > 253) {
-            return sendError(reply, 400, 'validation_failed', { field: 'replicatedInstances.domain', reason: 'at most 253 characters' });
-          }
-          if (!domainRegex.test(inst.domain)) {
-            return sendError(reply, 400, 'validation_failed', { field: 'replicatedInstances.domain', reason: 'contains invalid characters' });
-          }
-        }
-      }
-      updateData.replicatedInstances = JSON.stringify(replicatedInstances);
-
-      // Bootstrap: if new remote origins appeared, push a profile_update to each new peer.
-      // preUpdateUser already has the full row including replicatedInstances and all profile fields.
-      if (isFederationRelayEnabled() && !preUpdateUser.homeInstance) {
-        const existingOrigins = new Set<string>(
-          preUpdateUser.replicatedInstances
-            ? (JSON.parse(preUpdateUser.replicatedInstances) as ReplicatedInstance[]).map(ri => ri.origin)
-            : [],
-        );
-        const newOrigins = replicatedInstances
-          .filter(ri => ri.origin && !existingOrigins.has(ri.origin))
-          .map(ri => ri.origin);
-
-        if (newOrigins.length > 0) {
-          const origin = getOurOrigin();
-          const profilePayload: FederationProfileUpdatePayload = {
-            homeUserId: preUpdateUser.id,
-            homeInstance: origin,
-            profileUpdatedAt: preUpdateUser.profileUpdatedAt ?? Date.now(),
-            username: preUpdateUser.username,
-            displayName: preUpdateUser.displayName,
-            avatar: preUpdateUser.avatar && !preUpdateUser.avatar.startsWith('http')
-              ? `${origin}/api/uploads/${preUpdateUser.avatar}`
-              : preUpdateUser.avatar,
-            banner: preUpdateUser.banner && !preUpdateUser.banner.startsWith('http')
-              ? `${origin}/api/uploads/${preUpdateUser.banner}`
-              : preUpdateUser.banner,
-            accentColor: preUpdateUser.accentColor,
-            avatarColor: preUpdateUser.avatarColor,
-            bio: preUpdateUser.bio,
-          };
-
-          appendMutationLog(
-            preUpdateUser.id,
-            preUpdateUser.id,
-            'profile_update',
-            JSON.stringify({ profileUpdate: profilePayload }),
-            'profile',
-          );
-          for (const targetOrigin of newOrigins) {
-            queueOutboxEvent(
-              preUpdateUser.id,
-              preUpdateUser.id,
-              'profile_update',
-              JSON.stringify({ profileUpdate: profilePayload }),
-              [targetOrigin],
-              'profile',
-            );
-          }
-        }
-      }
-    }
-
-    if (homeUserId !== undefined) {
-      // Only allow setting homeUserId for replicated users (has homeInstance)
-      const currentUser = db.select().from(schema.users).where(eq(schema.users.id, request.userId)).get();
-      if (currentUser?.homeInstance && typeof homeUserId === 'string' && homeUserId.length > 0) {
-        updateData.homeUserId = homeUserId;
-      }
-    }
-
     if (discoverable !== undefined) {
       if (typeof discoverable !== 'boolean') {
         return sendError(reply, 400, 'validation_failed', { field: 'discoverable', reason: 'must be a boolean' });
@@ -496,7 +332,7 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
       db.update(schema.users).set(updateData).where(eq(schema.users.id, request.userId)).run();
     }
     // Writes chosen_status (and the live status while connected), then tells
-    // local observers and peers.
+    // local observers.
     if (chosenStatus !== undefined) applyChosenStatus(request.userId, chosenStatus);
 
     // Update activity visibility cache and broadcast clear when toggled off
@@ -509,46 +345,21 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
         for (const uid of clearTargets) connectionManager.sendToUser(uid, clearPayload);
         connectionManager.sendToUser(request.userId, clearPayload);
 
-        // S2S: broadcast the cleared-activities snapshot to peers (see queueOutboxEvent).
-        void import('../utils/federationPresence.js').then(({ queuePresenceRelay }) => {
-          try {
-            queuePresenceRelay(
-              request.userId,
-              (connectionManager.getUserStatus(request.userId) ?? 'online') as 'online' | 'idle' | 'dnd' | 'offline',
-              [],
-            );
-          } catch (e) { console.warn('[users] queuePresenceRelay(showActivity-clear) failed', e); }
-        });
       }
     }
 
-    // Clean up old avatar/banner files that were replaced
-    if (avatar !== undefined && oldAvatar && oldAvatar !== (avatar || null) && !oldAvatar.startsWith('http')) {
-      deleteUploadFile(oldAvatar);
-      deleteAttachmentByFilename(oldAvatar);
+    // Claim uploads before any asynchronous resize: a message cannot claim the
+    // same attachment after its reference has moved to this native profile.
+    for (const image of newImages) deleteAttachmentByFilename(image.filename);
+    if (avatar !== undefined || banner !== undefined) {
+      const replaced: string[] = [];
+      for (const field of ['avatar', 'banner'] as const) {
+        const old = field === 'avatar' ? oldAvatar : oldBanner;
+        if (updateData[field] !== undefined && old && old !== updateData[field]) replaced.push(old);
+      }
+      deleteUnreferencedUploadFiles(replaced);
     }
-    if (banner !== undefined && oldBanner && oldBanner !== (updateData.banner ?? null) && !oldBanner.startsWith('http')) {
-      deleteUploadFile(oldBanner);
-      deleteAttachmentByFilename(oldBanner);
-    }
-    // Clean up attachment records for newly-set profile images — the reference
-    // now lives in the users table, so the attachment record is unnecessary
-    if (avatar && typeof avatar === 'string' && avatar.includes('/api/uploads/')) {
-      deleteAttachmentByFilename(avatar);
-    }
-    if (updateData.banner && typeof updateData.banner === 'string' && updateData.banner.includes('/api/uploads/')) {
-      deleteAttachmentByFilename(updateData.banner);
-    }
-
-    // Resize profile images to optimal dimensions (safety net for federation, API clients, etc.)
-    if (avatar && typeof avatar === 'string' && !avatar.startsWith('http')) {
-      const filePath = path.join(config.uploadDir, path.basename(avatar));
-      await resizeProfileImage(filePath, 'avatar');
-    }
-    if (updateData.banner && typeof updateData.banner === 'string' && !updateData.banner.startsWith('http')) {
-      const filePath = path.join(config.uploadDir, path.basename(updateData.banner));
-      await resizeProfileImage(filePath, 'banner');
-    }
+    for (const image of newImages) await resizeProfileImage(path.join(config.uploadDir, image.filename), image.kind);
 
     const updatedUser = db.select().from(schema.users).where(eq(schema.users.id, request.userId)).get();
     if (!updatedUser) {
@@ -558,443 +369,55 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
     const sanitized = sanitizeUser(updatedUser, true);
 
     // Developer Mode is private to the account: only its own sockets hear of it,
-    // so another device switches the Bots tab without a reload. Never relayed.
+    // so another device switches the Bots tab without a reload.
     if (developerMode !== undefined && !hasProfileChange) {
       connectionManager.sendToUser(sanitized.id, { type: 'user_updated' as const, user: sanitized });
     }
 
     // Broadcast user_updated for profile field changes
     if (hasProfileChange) {
-      const userUpdatedEvent = { type: 'user_updated' as const, user: sanitized };
       const targetUserIds = collectProfileBroadcastTargetIds(sanitized.id);
       targetUserIds.add(sanitized.id); // Include self (for other tabs/connections)
       for (const uid of targetUserIds) {
-        connectionManager.sendToUser(uid, userUpdatedEvent);
-      }
-    }
-
-    // S2S profile relay: queue profile_update to all peers when durable fields actually changed
-    if (hasDurableChange && !preUpdateUser.homeInstance && isFederationRelayEnabled()) {
-      // Compare pre-update row against post-update to detect actual value changes
-      const durableActuallyChanged = DURABLE_PROFILE_FIELDS.some(f =>
-        f in updateData && (updateData[f] ?? null) !== (preUpdateUser[f] ?? null)
-      );
-
-      if (durableActuallyChanged) {
-        const origin = getOurOrigin();
-        const profilePayload: FederationProfileUpdatePayload = {
-          homeUserId: updatedUser!.id,
-          homeInstance: origin,
-          profileUpdatedAt: updatedUser!.profileUpdatedAt ?? Date.now(),
-          username: updatedUser!.username,
-          displayName: updatedUser!.displayName,
-          avatar: updatedUser!.avatar && !updatedUser!.avatar.startsWith('http')
-            ? `${origin}/api/uploads/${updatedUser!.avatar}`
-            : updatedUser!.avatar,
-          banner: updatedUser!.banner && !updatedUser!.banner.startsWith('http')
-            ? `${origin}/api/uploads/${updatedUser!.banner}`
-            : updatedUser!.banner,
-          accentColor: updatedUser!.accentColor,
-          avatarColor: updatedUser!.avatarColor,
-          bio: updatedUser!.bio,
-        };
-
-        appendMutationLog(
-          updatedUser!.id,
-          updatedUser!.id,
-          'profile_update',
-          JSON.stringify({ profileUpdate: profilePayload }),
-          'profile',
-        );
-        queueOutboxEvent(
-          updatedUser!.id,    // entityId — user's ID (queue `profile:<id>`: a newer edit replaces a queued one)
-          updatedUser!.id,    // contextId — user-scoped
-          'profile_update',
-          JSON.stringify({ profileUpdate: profilePayload }),
-          undefined,          // targetPeerOrigins — broadcast to active and unreachable peers
-          'profile',          // contextType
-        );
+        connectionManager.sendToUser(uid, { type: 'user_updated', user: uid === sanitized.id ? sanitized : sanitizeUser(updatedUser) });
       }
     }
 
     return reply.code(200).send(sanitized);
   });
 
-  // GET /api/users/@me/federation-registry — retrieve persistent federation registry
-  app.get('/api/users/@me/federation-registry', { preHandler: authenticate }, async (request, reply) => {
-    const userId = request.userId;
-    const db = getDb();
-
-    const entries = db.select().from(schema.userFederationRegistry)
-      .where(eq(schema.userFederationRegistry.userId, userId))
-      .all();
-
-    const user = db.select({ federationRegistryUpdatedAt: schema.users.federationRegistryUpdatedAt })
-      .from(schema.users)
-      .where(eq(schema.users.id, userId))
-      .get();
-
-    return reply.code(200).send({
-      registry: entries.map((e) => ({
-        origin: e.origin,
-        label: e.label,
-        username: e.username,
-        remoteUserId: e.remoteUserId,
-        status: e.status,
-        addedAt: e.addedAt,
-        lastConnectedAt: e.lastConnectedAt,
-        disconnectedAt: e.disconnectedAt,
-        errorMessage: e.errorMessage,
-      })),
-      updatedAt: user?.federationRegistryUpdatedAt ?? 0,
-    });
-  });
-
-  // PUT /api/users/@me/federation-registry — replace federation registry (LWW)
-  app.put<{ Body: { registry: Array<{ origin: string; label?: string; username?: string; remoteUserId?: string; status: string; addedAt: number; lastConnectedAt?: number | null; disconnectedAt?: number | null; errorMessage?: string | null }>; updatedAt: number } }>(
-    '/api/users/@me/federation-registry', { preHandler: authenticate }, async (request, reply) => {
-    const userId = request.userId;
-    const { registry, updatedAt } = request.body;
-
-    if (!Array.isArray(registry)) {
-      return sendError(reply, 400, 'validation_failed', { field: 'registry', reason: 'must be an array' });
-    }
-    if (typeof updatedAt !== 'number' || updatedAt <= 0) {
-      return sendError(reply, 400, 'validation_failed', { field: 'updatedAt', reason: 'must be a positive number' });
-    }
-
-    // Size cap — prevent unbounded registry writes
-    if (registry.length > 100) {
-      return sendError(reply, 400, 'validation_failed', { field: 'registry', reason: 'at most 100 entries' });
-    }
-
-    // Duplicate origin check
-    const origins = registry.map(e => e.origin);
-    if (new Set(origins).size !== origins.length) {
-      return sendError(reply, 400, 'validation_failed', { field: 'registry', reason: 'duplicate origins' });
-    }
-
-    const validStatuses = ['connected', 'disconnected', 'unreachable', 'auth_expired'];
-    for (const entry of registry) {
-      if (!entry || typeof entry.origin !== 'string' || !entry.origin) {
-        return sendError(reply, 400, 'validation_failed', { field: 'registry.origin', reason: 'must be a string' });
-      }
-      if (!validStatuses.includes(entry.status)) {
-        return sendError(reply, 400, 'validation_failed', { field: 'registry.status', reason: `must be one of: ${validStatuses.join(', ')}` });
-      }
-      if (typeof entry.addedAt !== 'number') {
-        return sendError(reply, 400, 'validation_failed', { field: 'registry.addedAt', reason: 'must be a number' });
-      }
-    }
-
-    const db = getDb();
-
-    // LWW guard: reject if incoming timestamp is not newer than stored
-    const user = db.select({ federationRegistryUpdatedAt: schema.users.federationRegistryUpdatedAt })
-      .from(schema.users)
-      .where(eq(schema.users.id, userId))
-      .get();
-
-    const storedUpdatedAt = user?.federationRegistryUpdatedAt ?? 0;
-    if (updatedAt <= storedUpdatedAt) {
-      return sendError(reply, 409, 'registry_conflict');
-    }
-
-    // Atomic replace: delete existing, insert all incoming, update timestamp
-    db.transaction((tx) => {
-      tx.delete(schema.userFederationRegistry)
-        .where(eq(schema.userFederationRegistry.userId, userId))
-        .run();
-
-      if (registry.length > 0) {
-        tx.insert(schema.userFederationRegistry).values(
-          registry.map((e) => ({
-            userId,
-            origin: e.origin,
-            label: e.label ?? '',
-            username: e.username ?? '',
-            remoteUserId: e.remoteUserId ?? '',
-            status: e.status,
-            addedAt: e.addedAt,
-            lastConnectedAt: e.lastConnectedAt ?? null,
-            disconnectedAt: e.disconnectedAt ?? null,
-            errorMessage: e.errorMessage ?? null,
-          }))
-        ).run();
-      }
-
-      tx.update(schema.users)
-        .set({ federationRegistryUpdatedAt: updatedAt })
-        .where(eq(schema.users.id, userId))
-        .run();
-    });
-
-    return reply.code(200).send({ ok: true, updatedAt });
-  });
-
-  // POST /api/users/@me/federation-credential — issue (or re-read) the per-remote
-  // credential this account's client uses to register/log in on ANOTHER instance.
-  //
-  // Get-or-create with first-writer-wins semantics: the row is inserted with
-  // `onConflictDoNothing` and then re-read, so two clients racing for the same
-  // (user, origin) converge on one secret instead of overwriting each other and
-  // locking the loser out of the remote account.
-  //
-  // Only an account that is sovereign HERE may hold credentials here: a
-  // replicated federated account's credentials are issued by its own home
-  // instance, so that one secret exists per (user, remote) no matter which
-  // instance the user happens to be browsing. Detached accounts
-  // (`federationHomeOrphaned = 1`) have no home left to ask and follow the LOCAL
-  // rule, mirroring change-password and account deletion (detach spec §4.4).
-  app.post<{ Body: FederationCredentialRequest }>('/api/users/@me/federation-credential', {
-    preHandler: authenticate,
-  }, async (request, reply) => {
-    const { origin, markProvisioned } = request.body ?? {};
-
-    if (!origin || typeof origin !== 'string') {
-      return sendError(reply, 400, 'origin_required');
-    }
-    const target = canonicalRemoteOrigin(origin);
-    if (!target) {
-      return sendError(reply, 400, 'origin_invalid');
-    }
-    if (normalizeOriginForCompare(target) === normalizeOriginForCompare(getOurOrigin())) {
-      return sendError(reply, 400, 'federation_credential_remote_only');
-    }
-
-    const db = getDb();
-    const user = db.select().from(schema.users).where(eq(schema.users.id, request.userId)).get();
-    if (!user || user.isDeleted) {
-      return sendError(reply, 401, 'account_deleted');
-    }
-    if (user.homeInstance && user.federationHomeOrphaned !== 1) {
-      return sendError(reply, 409, 'federation_credential_home_only');
-    }
-    // A revoke of this bot is still waiting for that instance (it was away): the
-    // old account there would block a new registration, and the late revoke would
-    // take the new one down. See botRevocationQueue.ts.
-    if (user.isBot === 1 && hasPendingBotRevocation(user.id, target)) {
-      return sendError(reply, 409, 'bot_revocation_pending');
-    }
-
-    const now = Date.now();
-    db.insert(schema.userFederationCredentials)
-      .values({
-        userId: request.userId,
-        origin: target,
-        secret: randomBytes(32).toString('base64url'),
-        createdAt: now,
-        provisionedAt: markProvisioned === true ? now : null,
-      })
-      .onConflictDoNothing()
-      .run();
-
-    if (markProvisioned === true) {
-      db.update(schema.userFederationCredentials)
-        .set({ provisionedAt: now })
-        .where(and(
-          eq(schema.userFederationCredentials.userId, request.userId),
-          eq(schema.userFederationCredentials.origin, target),
-          isNull(schema.userFederationCredentials.provisionedAt),
-        ))
-        .run();
-    }
-
-    const row = db.select().from(schema.userFederationCredentials)
-      .where(and(
-        eq(schema.userFederationCredentials.userId, request.userId),
-        eq(schema.userFederationCredentials.origin, target),
-      ))
-      .get();
-    if (!row) {
-      return sendError(reply, 500, 'federation_credential_failed');
-    }
-
-    const response: FederationCredentialResponse = {
-      origin: row.origin,
-      secret: row.secret,
-      provisioned: row.provisionedAt !== null,
-    };
-    return reply.code(200).send(response);
-  });
-
-  // POST /api/users/@me/federation-identity/delete — request identity deletion on remote instances via S2S
-  app.post<{ Body: FederationIdentityDeleteRequest }>('/api/users/@me/federation-identity/delete', {
-    preHandler: authenticate,
-    config: { rateLimit: { max: 5, timeWindow: '15 minutes' } },
-  }, async (request, reply) => {
-    const { origins, mode } = request.body;
-
-    if (!mode || !['leave', 'soft', 'full'].includes(mode)) {
-      return sendError(reply, 400, 'validation_failed', { field: 'mode', reason: 'must be "leave", "soft" or "full"' });
-    }
-    if (!Array.isArray(origins) || origins.length === 0 || !origins.every(o => typeof o === 'string')) {
-      return sendError(reply, 400, 'validation_failed', { field: 'origins', reason: 'must be a non-empty array of strings' });
-    }
-
-    const db = getDb();
-    const ourOrigin = getOurOrigin();
-    const homeInstance = extractDomain(ourOrigin);
-
-    const results: Record<string, FederationIdentityDeleteResult> = {};
-
-    await Promise.all(origins.map(async (origin) => {
-      try {
-        // Leave mode: no S2S call, just clean up the registry entry
-        if (mode === 'leave') {
-          results[origin] = { success: true };
-        } else {
-          // Soft/full mode: S2S relay to remote instance
-          const peer = db
-            .select()
-            .from(schema.federationPeers)
-            .where(eq(schema.federationPeers.origin, origin))
-            .get();
-
-          if (!peer || peer.status !== 'active') {
-            results[origin] = { success: false, error: 'no_active_peer' };
-            return;
-          }
-
-          const body = JSON.stringify({
-            homeUserId: request.userId,
-            homeInstance,
-            mode,
-          });
-
-          const headers = buildFederationHeaders(body, peer.hmacSecret, ourOrigin);
-
-          const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 15_000);
-
-          try {
-            // 'approved': the block above refused anything without a
-            // matching federation_peers row in 'active'.
-            const response = await federationFetch(origin, '/api/federation/identity', {
-              method: 'DELETE',
-              headers,
-              body,
-              signal: controller.signal,
-            }, 'approved');
-
-            clearTimeout(timeout);
-
-            const data = await response.json() as Record<string, unknown>;
-
-            if (response.ok) {
-              results[origin] = { success: true };
-            } else if (data.error === 'owns_spaces') {
-              results[origin] = {
-                success: false,
-                error: 'owns_spaces',
-                ownedSpaces: data.ownedSpaces as { id: string; name: string }[],
-              };
-            } else {
-              results[origin] = {
-                success: false,
-                error: (data.error as string) || `HTTP ${response.status}`,
-              };
-            }
-          } catch (err) {
-            clearTimeout(timeout);
-            if (err instanceof Error && err.name === 'AbortError') {
-              results[origin] = { success: false, error: 'timeout' };
-            } else {
-              results[origin] = { success: false, error: 'unreachable' };
-            }
-          }
-        }
-
-        // On success, authoritatively remove the registry entry and bump LWW timestamp
-        if (results[origin]?.success) {
-          db.delete(schema.userFederationRegistry)
-            .where(and(
-              eq(schema.userFederationRegistry.userId, request.userId),
-              eq(schema.userFederationRegistry.origin, origin),
-            ))
-            .run();
-
-          // The remote account itself is gone in soft/full mode, so its credential
-          // is dead — drop it. In `leave` mode the remote account survives and
-          // keeps using this secret, so the row must stay or a later re-connect
-          // would mint a second secret and lock the user out of their own account.
-          if (mode !== 'leave') {
-            const canonical = canonicalRemoteOrigin(origin);
-            db.delete(schema.userFederationCredentials)
-              .where(and(
-                eq(schema.userFederationCredentials.userId, request.userId),
-                canonical && canonical !== origin
-                  ? or(
-                      eq(schema.userFederationCredentials.origin, origin),
-                      eq(schema.userFederationCredentials.origin, canonical),
-                    )
-                  : eq(schema.userFederationCredentials.origin, origin),
-              ))
-              .run();
-          }
-
-          db.update(schema.users)
-            .set({ federationRegistryUpdatedAt: Date.now() })
-            .where(eq(schema.users.id, request.userId))
-            .run();
-        }
-      } catch (err) {
-        results[origin] = {
-          success: false,
-          error: err instanceof Error ? err.message : 'Unknown error',
-        };
-      }
-    }));
-
-    // Remove successful origins from the user's replicatedInstances JSON column
-    const successfulOrigins = Object.entries(results)
-      .filter(([, r]) => r.success)
-      .map(([o]) => o);
-
-    if (successfulOrigins.length > 0) {
-      const user = db.select({ replicatedInstances: schema.users.replicatedInstances })
-        .from(schema.users)
-        .where(eq(schema.users.id, request.userId))
-        .get();
-
-      if (user?.replicatedInstances) {
-        const parsed: ReplicatedInstance[] = JSON.parse(user.replicatedInstances);
-        const filtered = parsed.filter(ri => !successfulOrigins.includes(ri.origin));
-        db.update(schema.users)
-          .set({ replicatedInstances: JSON.stringify(filtered) })
-          .where(eq(schema.users.id, request.userId))
-          .run();
-      }
-    }
-
-    const response: FederationIdentityDeleteResponse = { results };
-    return reply.code(200).send(response);
-  });
-
   // PUT /api/users/@me/space-layout — save sidebar layout (reorder, folders)
   app.put<{ Body: { items: SpaceLayoutItem[]; folders: Record<string, { name: string | null; color: string | null; spaceIds: string[] }>; updatedAt?: number } }>(
     '/api/users/@me/space-layout', { preHandler: authenticate }, async (request, reply) => {
-    const { items, folders, updatedAt: incomingTs } = request.body;
+    const { items, folders, updatedAt: incomingTs } = request.body ?? {};
     const userId = request.userId;
 
     if (!Array.isArray(items)) {
       return sendError(reply, 400, 'validation_failed', { field: 'items', reason: 'must be an array' });
     }
-    if (!folders || typeof folders !== 'object') {
+    if (!folders || typeof folders !== 'object' || Array.isArray(folders)) {
       return sendError(reply, 400, 'validation_failed', { field: 'folders', reason: 'must be an object' });
+    }
+    if (incomingTs !== undefined && (typeof incomingTs !== 'number' || !Number.isSafeInteger(incomingTs) || incomingTs < 0)) {
+      return sendError(reply, 400, 'validation_failed', { field: 'updatedAt', reason: 'must be a nonnegative safe integer' });
     }
 
     // Validate items
     for (const item of items) {
-      if (!item || (item.t !== 's' && item.t !== 'f') || typeof item.id !== 'string') {
+      if (!item || (item.t !== 's' && item.t !== 'f') || typeof item.id !== 'string' || !item.id) {
         return sendError(reply, 400, 'validation_failed', { field: 'items', reason: 'each item needs t ("s" or "f") and an id string' });
       }
     }
 
     // Validate folders
     for (const [key, folder] of Object.entries(folders)) {
-      if (!Array.isArray(folder.spaceIds)) {
+      if (!folder || typeof folder !== 'object' || Array.isArray(folder) || !Array.isArray(folder.spaceIds)
+          || folder.spaceIds.some(id => typeof id !== 'string' || !id)
+          || new Set(folder.spaceIds).size !== folder.spaceIds.length) {
         return sendError(reply, 400, 'validation_failed', { field: `folders.${key}.spaceIds`, reason: 'must be an array' });
+      }
+      if ((folder.name !== null && typeof folder.name !== 'string') || (folder.color !== null && typeof folder.color !== 'string')) {
+        return sendError(reply, 400, 'validation_failed', { field: `folders.${key}`, reason: 'name and color must be strings or null' });
       }
     }
 
@@ -1028,6 +451,22 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
         });
         return reply.code(200).send({ items: currentItems, folders: currentFolders, updatedAt: existingLayout.updatedAt });
       }
+    }
+
+    // Native layouts may only name the caller's memberships and owned folders.
+    // new:* is the sole creation path; client-chosen IDs are not imported.
+    const ownedFolderIds = new Set(db.select({ id: schema.spaceFolders.id }).from(schema.spaceFolders)
+      .where(eq(schema.spaceFolders.userId, userId)).all().map(folder => folder.id));
+    const memberSpaceIds = new Set(db.select({ id: schema.spaceMembers.spaceId }).from(schema.spaceMembers)
+      .where(eq(schema.spaceMembers.userId, userId)).all().map(member => member.id));
+    for (const [key, folder] of Object.entries(folders)) {
+      if ((!key.startsWith('new:') && !ownedFolderIds.has(key)) || key === 'new:'
+          || folder.spaceIds.some(id => !memberSpaceIds.has(id))) {
+        return sendError(reply, 400, 'validation_failed', { field: 'folders', reason: 'folder or space is not owned by this account' });
+      }
+    }
+    if (items.some(item => item.t === 's' ? !memberSpaceIds.has(item.id) : !Object.hasOwn(folders, item.id))) {
+      return sendError(reply, 400, 'validation_failed', { field: 'items', reason: 'contains an unavailable space or folder' });
     }
 
     // Resolve the effective timestamp for this write
@@ -1071,16 +510,6 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
             .set({ name: folder.name, color: folder.color })
             .where(and(eq(schema.spaceFolders.id, key), eq(schema.spaceFolders.userId, userId)))
             .run();
-        } else {
-          // Folder from a remote instance — create it locally with the original ID
-          tx.insert(schema.spaceFolders).values({
-            id: key,
-            userId,
-            name: folder.name,
-            color: folder.color,
-            position: 0,
-            createdAt: Date.now(),
-          }).run();
         }
 
         // Clear and re-insert folder members with position
@@ -1188,21 +617,13 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
     return reply.code(200).send(sanitizeUser(user));
   });
 
-  app.get<{ Params: { id: string }; Querystring: { homeUserId?: string } }>(
+  app.get<{ Params: { id: string } }>(
     '/api/users/:id/mutuals', { preHandler: authenticate }, async (request, reply) => {
     const { id: targetId } = request.params;
-    const homeUserId = request.query.homeUserId;
     const myId = request.userId;
     const db = getDb();
 
-    // Resolve target: try path ID first, then homeUserId fallback (federation)
-    let resolvedTargetId = targetId;
-    const directUser = db.select().from(schema.users).where(eq(schema.users.id, targetId)).get();
-    if (!directUser && homeUserId) {
-      const fallbackUser = db.select().from(schema.users)
-        .where(or(eq(schema.users.homeUserId, homeUserId), eq(schema.users.id, homeUserId))).get();
-      if (fallbackUser) resolvedTargetId = fallbackUser.id;
-    }
+    const resolvedTargetId = targetId;
 
     // Mutual friends: users who are friends with both me and the target
     const myFriendRows = db.select().from(schema.friends).where(

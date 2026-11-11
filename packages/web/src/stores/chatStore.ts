@@ -1,11 +1,9 @@
 import { create } from 'zustand';
 import type { MessageWithUser, PinWithMessage, Reaction, ReadState, User } from '@veyvox/shared';
 import { wsSend } from '../hooks/useWebSocket';
-import { HttpError } from '../api/client';
-import { isDmChannel, getChannelOrigin, getApiForOrigin, useSpaceStore } from './spaceStore';
-import { isMe, myRowForOrigin, useAuthStore } from './authStore';
-import { normalizeMessageAssets } from '../utils/assetUrls';
-import { updateIsAboutRowId, withUserUpdate, type IdentityFields } from '../utils/identity';
+import { api, HttpError } from '../api/client';
+import { isDmChannel, getChannelKind, useSpaceStore } from './spaceStore';
+import { useAuthStore } from './authStore';
 import { usePendingMessageStore } from './pendingMessageStore';
 import { useUIStore } from './uiStore';
 import { describeError } from '../i18n/errors';
@@ -13,6 +11,8 @@ import type { ScrollAnchor } from '../components/chat/scrollAnchor';
 
 const MAX_MESSAGES_PER_CHANNEL = 200;
 const pinLoads = new Map<string, object>();
+let sessionGeneration = 0;
+const typingTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
 // Page size of every history request: the newest page, older pages and newer
 // pages. A page shorter than this reached the end of history on its side.
@@ -96,8 +96,7 @@ function unconfirmedSends(previous: readonly MessageWithUser[] | undefined, page
   if (!previous) return [];
   const temps = previous.filter((m) => m.id.startsWith('temp_'));
   if (temps.length === 0) return temps;
-  const contents = new Set(page.map((m) => m.content || null));
-  return temps.filter((m) => !contents.has(m.content || null));
+  return temps.filter(temp => !page.some(message => message.userId === temp.userId && (message.content || null) === (temp.content || null)));
 }
 
 /**
@@ -160,7 +159,7 @@ const EVICT_TO_CHANNELS = 15;
 //   - `MessageList.handleScroll`'s load-more block can fire multiple times in
 //     a single fast-scroll burst before React commits the `isLoadingMore=true`
 //     state update, sharing one closure with `!isLoadingMore` still true.
-// Without dedup, each parallel call opens its own federated fetch — on a NAT
+// Without dedup, each parallel call opens its own native API fetch — on a NAT
 // hairpin'd LAN this means N hung TCP connections per channel mount, and the
 // pagination skeleton (driven by component-level `isLoadingMore`) sticks while
 // any of them are still waiting on the 30 s api-client timeout.
@@ -317,49 +316,23 @@ interface ChatState {
   clearTyping: (channelId: string, userId: string) => void;
   getMessages: (channelId: string) => MessageWithUser[];
   getTypingUsers: (channelId: string) => TypingUser[];
-  setReadStates: (readStates: ReadState[], channelLastMessageIds: ReadonlyMap<string, string>, originChannelIds?: ReadonlySet<string>) => void;
+  setReadStates: (readStates: ReadState[], channelLastMessageIds: ReadonlyMap<string, string>) => void;
   markChannelUnread: (channelId: string) => void;
   markUnread: (channelId: string, messageId: string) => void;
   ackChannel: (channelId: string) => void;
   onChannelAck: (channelId: string, messageId: string) => void;
   onMarkUnread: (channelId: string, messageId: string) => void;
   removeChannelStates: (channelIds: Set<string>) => void;
-  rekeyChannelState: (oldId: string, newId: string) => void;
-  /**
-   * Apply a `user_updated` row issued by `origin` to the authors it is about
-   * (`withUserUpdate`); each channel's rows are its origin's.
-   */
-  updateUserInMessages: (user: User, origin: string) => void;
-  /**
-   * Drop the typing entries of the deleted user's `user_updated` row (issued
-   * by `origin`): a typing entry keeps only a row id, so only the issuing
-   * instance's channels (`updateIsAboutRowId`). Each instance that holds a
-   * row of the person sends its own event for it.
-   */
-  clearTypingForDeletedUser: (user: IdentityFields, origin: string) => void;
+  updateUserInMessages: (user: User) => void;
+  clearTypingForDeletedUser: (userId: string) => void;
 }
 
-/** The client for the instance that owns `channelId`, and that instance's origin. */
-function channelClient(channelId: string) {
-  const origin = getChannelOrigin(channelId);
-  return { origin, client: getApiForOrigin(origin) };
-}
-
-/** Rewrite a remote origin's asset paths (avatars, attachments) to absolute URLs. */
-function normalizePage<T extends MessageWithUser>(messages: T[], origin: string): T[] {
-  if (origin) {
-    for (const msg of messages) normalizeMessageAssets(msg, origin);
-  }
-  return messages;
-}
-
-/** The channel's newest page, from the channel's origin. */
+/** The channel's newest native page. */
 async function fetchNewestPage(channelId: string): Promise<MessageWithUser[]> {
-  const { origin, client } = channelClient(channelId);
   const messages = isDmChannel(channelId)
-    ? await client.dm.messages(channelId, undefined, HISTORY_PAGE_LIMIT)
-    : await client.channels.messages(channelId, undefined, HISTORY_PAGE_LIMIT);
-  return normalizePage(messages as MessageWithUser[], origin);
+    ? await api.dm.messages(channelId, undefined, HISTORY_PAGE_LIMIT)
+    : await api.channels.messages(channelId, undefined, HISTORY_PAGE_LIMIT);
+  return messages as MessageWithUser[];
 }
 
 /**
@@ -417,8 +390,8 @@ function reactionKey(messageId: string, emoji: string): string {
 }
 
 /** Whether `reaction`, on a message of `channelId`, is the signed-in user's. */
-function isOwnReactionIn(channelId: string, reaction: Pick<Reaction, 'userId' | 'user'>): boolean {
-  return isMe(reaction.user ?? { id: reaction.userId }, getChannelOrigin(channelId));
+function isOwnReaction(reaction: Pick<Reaction, 'userId'>): boolean {
+  return reaction.userId === useAuthStore.getState().user?.id;
 }
 
 /** `inFlight` without `key`, or `inFlight` itself when it has no such entry. */
@@ -543,6 +516,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
   setEditingMessage: (messageId) => set({ editingMessageId: messageId }),
 
   clearAllMessages: () => {
+    sessionGeneration++;
+    inFlightLoads.clear(); inFlightLoadMores.clear(); inFlightLoadNewers.clear(); inFlightPresentReturns.clear();
+    for (const timer of typingTimers.values()) clearTimeout(timer);
+    typingTimers.clear();
     pinLoads.clear();
     set({
     messages: new Map(),
@@ -571,7 +548,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     if (!force && get().hasMore.has(channelId)) return true;
     // An unknown channel (no ready has listed it yet) waits: which instance
     // and endpoint to ask depend on what the channel is.
-    if (!isDmChannel(channelId) && !useSpaceStore.getState().channelOriginMap.has(channelId)) {
+    if (getChannelKind(channelId) === 'unknown') {
       if (get().loadStates.get(channelId)?.status !== 'waiting') {
         set((state) => ({ loadStates: withLoadState(state.loadStates, channelId, { status: 'waiting' }) }));
       }
@@ -585,15 +562,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
     // via the in-flight Promise. A force-reload scheduled after the entry was
     // replaced keeps its own entry (see `dedupe`).
     return dedupe(inFlightLoads, channelId, async () => {
+      const generation = sessionGeneration;
       set((state) => ({ loadStates: withLoadState(state.loadStates, channelId, { status: 'loading' }) }));
       try {
         const page = await fetchNewestPage(channelId);
+        if (generation !== sessionGeneration) return false;
         set((state) => ({
           ...newestPageState(state, channelId, page, false),
           loadStates: withLoadState(state.loadStates, channelId, null),
         }));
         return true;
       } catch (err) {
+        if (generation !== sessionGeneration) return false;
         set((state) => ({ loadStates: withLoadState(state.loadStates, channelId, { status: 'failed', error: err }) }));
         return false;
       }
@@ -603,8 +583,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
   returnToPresent: async (channelId: string) => {
     if (!get().detachedChannels.has(channelId)) return true;
     return dedupe(inFlightPresentReturns, channelId, async () => {
+      const generation = sessionGeneration;
       try {
         const page = await fetchNewestPage(channelId);
+        if (generation !== sessionGeneration) return false;
         // Another path attached the channel meanwhile (Jump to Present, a
         // reload): the cache is already the present.
         if (!get().detachedChannels.has(channelId)) return true;
@@ -629,16 +611,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
     // fire several times in one fast-scroll burst before React commits the
     // `isLoadingMore=true` setState — every call sees the same closure with
     // `!isLoadingMore` still true. Without dedup, each spawns its own
-    // federated fetch, and on a NAT hairpin'd LAN that means N hung TCP
+    // native API fetch, and on a NAT hairpin'd LAN that means N hung TCP
     // connections per scroll burst, each independently waiting on the 30 s
     // api-client timeout. Dedup collapses them to one, and every caller's
     // `await` resolves together.
     return dedupe(inFlightLoadMores, channelId, async () => {
+      const generation = sessionGeneration;
       try {
-        const { origin, client } = channelClient(channelId);
-        const olderMessages = normalizePage((isDmChannel(channelId)
-          ? await client.dm.messages(channelId, oldestMessage.id, HISTORY_PAGE_LIMIT)
-          : await client.channels.messages(channelId, oldestMessage.id, HISTORY_PAGE_LIMIT)) as MessageWithUser[], origin);
+        const olderMessages = (isDmChannel(channelId)
+          ? await api.dm.messages(channelId, oldestMessage.id, HISTORY_PAGE_LIMIT)
+          : await api.channels.messages(channelId, oldestMessage.id, HISTORY_PAGE_LIMIT)) as MessageWithUser[];
+        if (generation !== sessionGeneration) return false;
 
         set((state) => {
           const newMessages = new Map(state.messages);
@@ -661,14 +644,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
     if (cursor === null) return 'skipped';
 
     return dedupe(inFlightLoadNewers, channelId, async (): Promise<LoadNewerResult> => {
+      const generation = sessionGeneration;
       let messages: MessageWithUser[];
       let forward: boolean;
       try {
-        const { origin, client } = channelClient(channelId);
         const page = isDmChannel(channelId)
-          ? await client.dm.messagesAfter(channelId, cursor, HISTORY_PAGE_LIMIT)
-          : await client.channels.messagesAfter(channelId, cursor, HISTORY_PAGE_LIMIT);
-        messages = normalizePage(page.messages as MessageWithUser[], origin);
+          ? await api.dm.messagesAfter(channelId, cursor, HISTORY_PAGE_LIMIT)
+          : await api.channels.messagesAfter(channelId, cursor, HISTORY_PAGE_LIMIT);
+        if (generation !== sessionGeneration) return 'skipped';
+        messages = page.messages as MessageWithUser[];
         forward = page.forward;
       } catch (err) {
         console.error('Failed to load newer messages:', err);
@@ -712,14 +696,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   loadMessagesAround: async (channelId: string, messageId: string) => {
+    const generation = sessionGeneration;
     const isDm = isDmChannel(channelId);
-    if (!isDm && !useSpaceStore.getState().channelOriginMap.has(channelId)) return 'failed';
+    if (getChannelKind(channelId) === 'unknown') return 'failed';
     let messages: MessageWithUser[];
     try {
-      const { origin, client } = channelClient(channelId);
-      messages = normalizePage((isDm
-        ? await client.dm.messagesAround(channelId, messageId, MESSAGES_AROUND_LIMIT)
-        : await client.channels.messagesAround(channelId, messageId, MESSAGES_AROUND_LIMIT)) as MessageWithUser[], origin);
+      messages = (isDm
+        ? await api.dm.messagesAround(channelId, messageId, MESSAGES_AROUND_LIMIT)
+        : await api.channels.messagesAround(channelId, messageId, MESSAGES_AROUND_LIMIT)) as MessageWithUser[];
+      if (generation !== sessionGeneration) return 'failed';
     } catch (err) {
       // Any 404 here is the target: the channel itself is open in front of
       // the user. Older peers send the 404 without a code, so the status is
@@ -752,16 +737,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   sendMessage: async (channelId: string, content: string, attachmentIds?: string[]) => {
+    const generation = sessionGeneration;
     // Only this channel's reply: a target from another channel would be
     // refused by the server and the send rolled back.
     const replyTarget = get().replyTargets.get(channelId) ?? null;
     const replyToId = replyTarget?.id;
     const isDm = isDmChannel(channelId);
-    const origin = getChannelOrigin(channelId);
-    // The user's row as the channel's instance issues it: the optimistic
-    // message is checked against that origin (own message, edit, profile).
-    const myRow = myRowForOrigin(origin);
-    const client = getApiForOrigin(origin);
+    const myRow = useAuthStore.getState().user;
 
     // Sending from a window of older history goes back to the present, where
     // the message will appear.
@@ -782,17 +764,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
         attachments: [],
         embeds: [],
         reactions: [],
+        ...(isDm ? { dmChannelId: channelId } : {}),
         replyTo: replyTarget ?? undefined,
       };
-      if (isDm) {
-        (optimisticMessage as any).dmChannelId = channelId;
-      }
       // Add optimistic message immediately
       get().addMessage(channelId, optimisticMessage);
 
       // For DMs, update lastMessage on the DM channel so sidebar re-sorts
       if (isDm) {
-        useSpaceStore.getState().patchDmCopy(channelId, dm => ({
+        useSpaceStore.getState().patchDmChannel(channelId, dm => ({
           ...dm,
           lastMessage: { id: tempId, dmChannelId: channelId, userId: myRow.id, content, createdAt: Date.now() },
         }));
@@ -804,12 +784,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     try {
       if (isDm) {
-        await client.dm.sendMessage(channelId, { content, attachments: attachmentIds, replyToId });
+        await api.dm.sendMessage(channelId, { content, attachments: attachmentIds, replyToId });
       } else {
-        await client.channels.sendMessage(channelId, { content, attachments: attachmentIds, replyToId });
+        await api.channels.sendMessage(channelId, { content, attachments: attachmentIds, replyToId });
       }
       // Real message will arrive via WebSocket and replace the temp one
     } catch (error) {
+      if (generation !== sessionGeneration) throw error;
       // Roll back locally, but let the composer expose failure and retain the draft.
       get().removeMessage(tempId, channelId);
       if (replyTarget && shouldRestoreReplyTarget(error)) {
@@ -824,9 +805,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   editMessage: async (messageId: string, content: string, channelId: string) => {
+    const generation = sessionGeneration;
     const isDm = isDmChannel(channelId);
-    const origin = getChannelOrigin(channelId);
-    const client = getApiForOrigin(origin);
 
     // Optimistic: update content locally first
     const messages = get().messages.get(channelId);
@@ -836,12 +816,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
     try {
       if (isDm) {
-        await client.dm.updateMessage(messageId, { content });
+        await api.dm.updateMessage(messageId, { content });
       } else {
-        await client.messages.update(messageId, { content });
+        await api.messages.update(messageId, { content });
       }
       // Real update will arrive via WebSocket
     } catch (error) {
+      if (generation !== sessionGeneration) return;
       // Rollback: restore the original message, and say why the edit was
       // refused (a 1-on-1 whose partner was deleted, for one).
       if (originalMessage) {
@@ -852,9 +833,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   deleteMessage: async (messageId: string, channelId: string) => {
+    const generation = sessionGeneration;
     const isDm = isDmChannel(channelId);
-    const origin = getChannelOrigin(channelId);
-    const client = getApiForOrigin(origin);
 
     // Optimistic: remove locally first
     const messages = get().messages.get(channelId);
@@ -865,12 +845,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
     get().removeMessage(messageId, channelId);
     try {
       if (isDm) {
-        await client.dm.deleteMessage(messageId);
+        await api.dm.deleteMessage(messageId);
       } else {
-        await client.messages.delete(messageId);
+        await api.messages.delete(messageId);
       }
       // Real deletion will arrive via WebSocket (already removed locally)
     } catch (error) {
+      if (generation !== sessionGeneration) return;
       // A 404 says the message is already gone on the server: deleted from
       // another tab or device, or by a moderator, before this request got
       // there. The pin cascaded away with it, so the local removal stands
@@ -899,18 +880,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
   loadPins: async (channelId: string) => {
     const channel = useSpaceStore.getState().spaceChannelIndex.get(channelId);
     if (!channel || channel.type !== 'text') return;
-    const origin = channel.origin;
-    const client = getApiForOrigin(origin);
     // A logout/login while the GET is in flight must not repopulate the
     // board the session change just cleared (clearAllMessages above).
     const sessionUid = useAuthStore.getState().user?.id ?? null;
     const run = {};
     pinLoads.set(channelId, run);
     try {
-      const { pins } = await client.channels.pins(channelId);
+      const { pins } = await api.channels.pins(channelId);
       const current = useSpaceStore.getState().spaceChannelIndex.get(channelId);
       if (pinLoads.get(channelId) !== run || useAuthStore.getState().user?.id !== sessionUid
-          || current?.type !== 'text' || current.origin !== origin || current.spaceId !== channel.spaceId) return;
+          || current?.type !== 'text' || current.spaceId !== channel.spaceId) return;
       set((state) => {
         const next = new Map(state.pinnedByChannel);
         next.set(channelId, pins);
@@ -925,28 +904,30 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   pinMessage: async (messageId: string, channelId: string) => {
+    const generation = sessionGeneration;
     if (isDmChannel(channelId)) return;
-    const origin = getChannelOrigin(channelId);
-    const client = getApiForOrigin(origin);
     try {
-      const { pin } = await client.channels.pinMessage(channelId, messageId);
+      const { pin } = await api.channels.pinMessage(channelId, messageId);
+      if (generation !== sessionGeneration) return;
       // POST returns the bare pin (no body): insert, then refresh for the
       // hydrated preview row. The WS echo will merge as a no-op.
       get().applyPinEvent({ ...pin, message: null });
       await get().loadPins(channelId);
     } catch (error) {
+      if (generation !== sessionGeneration) return;
       useUIStore.getState().addToast(describeError(error), 'warning');
     }
   },
 
   unpinMessage: async (messageId: string, channelId: string) => {
+    const generation = sessionGeneration;
     if (isDmChannel(channelId)) return;
-    const origin = getChannelOrigin(channelId);
-    const client = getApiForOrigin(origin);
     try {
-      await client.channels.unpinMessage(channelId, messageId);
+      await api.channels.unpinMessage(channelId, messageId);
+      if (generation !== sessionGeneration) return;
       get().applyUnpinEvent(channelId, messageId);
     } catch (error) {
+      if (generation !== sessionGeneration) return;
       useUIStore.getState().addToast(describeError(error), 'warning');
     }
   },
@@ -979,18 +960,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const current = newMessages.get(channelId) ?? [];
       // Avoid duplicates
       if (current.find(m => m.id === normalizedMessage.id)) return state;
-      // Dedup against pendingMessageStore by (content, sortedAttachmentIds).
-      // No userId check — federation relays arrive with replicated user IDs.
+      // Only our own confirmed messages acknowledge a pending send.
       const sortedAttIds = (normalizedMessage.attachments ?? []).map((a) => a.id).sort();
-      usePendingMessageStore.getState().matchAndRemove(channelId, normalizedMessage.content ?? '', sortedAttIds);
-      // Remove any optimistic temp message with same content.
-      // Don't require userId match — for federated messages the home user ID
-      // differs from the replicated user ID, but content match is sufficient
-      // since temp messages are unique within the short optimistic window.
+      if (!normalizedMessage.id.startsWith('temp_') && normalizedMessage.userId === useAuthStore.getState().user?.id) {
+        usePendingMessageStore.getState().matchAndRemove(channelId, normalizedMessage.content ?? '', sortedAttIds);
+      }
+      // Replace an optimistic twin only for the same native author.
       // Normalize both sides: empty string and null are equivalent (server stores null for empty content).
       const filtered = current.filter(m => {
         if (!m.id.startsWith('temp_')) return true;
-        return (m.content || null) !== (normalizedMessage.content || null);
+        return m.userId !== normalizedMessage.userId || (m.content || null) !== (normalizedMessage.content || null);
       });
       let updated = [...filtered, normalizedMessage];
       // Cap per-channel messages to prevent memory growth
@@ -1010,23 +989,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const known = held ? [...current, ...held] : current;
       // Avoid duplicates
       if (known.find(m => m.id === normalizedMessage.id)) return state;
-      // Federation relay dedup: skip if this is a relay copy of a message we
-      // already have (sourceMessageId matches an existing ID), or if we already
-      // have the relay copy and the original is now arriving (existing
-      // sourceMessageId matches incoming ID).
-      if ('sourceMessageId' in normalizedMessage && normalizedMessage.sourceMessageId
-        && known.find(m => m.id === normalizedMessage.sourceMessageId)) return state;
-      if (known.find(m => 'sourceMessageId' in m && m.sourceMessageId === normalizedMessage.id)) return state;
-      // Dedup against pendingMessageStore by (content, sortedAttachmentIds).
-      // No userId check — federation relays arrive with replicated user IDs.
+      // Only our own confirmed messages acknowledge a pending send.
       const sortedAttIds = (normalizedMessage.attachments ?? []).map((a) => a.id).sort();
-      usePendingMessageStore.getState().matchAndRemove(channelId, normalizedMessage.content ?? '', sortedAttIds);
-      // Remove any optimistic temp message with same content (no userId check —
-      // federated messages arrive with a different replicated user ID).
+      if (!normalizedMessage.id.startsWith('temp_') && normalizedMessage.userId === useAuthStore.getState().user?.id) {
+        usePendingMessageStore.getState().matchAndRemove(channelId, normalizedMessage.content ?? '', sortedAttIds);
+      }
+      // Remove only the same native author's optimistic twin.
       // Normalize both sides: empty string and null are equivalent (server stores null for empty content).
       const filtered = current.filter(m => {
         if (!m.id.startsWith('temp_')) return true;
-        return (m.content || null) !== (normalizedMessage.content || null);
+        return m.userId !== normalizedMessage.userId || (m.content || null) !== (normalizedMessage.content || null);
       });
       const newMessages = new Map(state.messages);
       let detachedChannels = state.detachedChannels;
@@ -1063,7 +1035,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   updateMessage: (message: MessageWithUser) => {
     // DM messages have dmChannelId instead of channelId — check both
-    const channelKey = message.channelId || (message as any).dmChannelId;
+    const channelKey = message.channelId || ('dmChannelId' in message && typeof message.dmChannelId === 'string' ? message.dmChannelId : null);
     if (!channelKey) return;
     const normalizedMessage = { ...message, embeds: message.embeds ?? [] };
     set((state) => {
@@ -1130,7 +1102,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   hasOwnReaction: (messageId: string, emoji: string) => {
     const held = findHeldMessage(get(), messageId);
     if (!held) return false;
-    return (held.message.reactions ?? []).some(r => r.emoji === emoji && isOwnReactionIn(held.channelId, r));
+    return (held.message.reactions ?? []).some(r => r.emoji === emoji && isOwnReaction(r));
   },
 
   addReaction: (messageId: string, emoji: string) => {
@@ -1139,12 +1111,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const sentAt = get().reactionAddsInFlight.get(reactionKey(messageId, emoji));
     if (sentAt !== undefined && Date.now() - sentAt < REACTION_ADD_IN_FLIGHT_MS) return;
     if (get().hasOwnReaction(messageId, emoji)) return;
-    // Resolve the channel from our message cache so the UI doesn't need to pass it
-    const channelId = findHeldMessage(get(), messageId)?.channelId;
-    const origin = channelId ? getChannelOrigin(channelId) : '';
-    // An add the socket did not take (the origin is reconnecting, say) is
+    // An add the socket did not take (while reconnecting, for example) is
     // not in flight: the next tap sends it again.
-    if (!wsSend({ type: 'reaction_add', messageId, emoji }, origin)) return;
+    if (!wsSend({ type: 'reaction_add', messageId, emoji })) return;
     set((state) => {
       // Drop the entries that have timed out on the way: an add the server
       // refused is never answered, so nothing else would remove them.
@@ -1159,21 +1128,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   removeReaction: (messageId: string, emoji: string) => {
-    const channelId = findHeldMessage(get(), messageId)?.channelId;
-    const origin = channelId ? getChannelOrigin(channelId) : '';
     // The server applies the add before this removal, so the add's answer no
     // longer matters here.
     set((state) => {
       const reactionAddsInFlight = withoutInFlight(state.reactionAddsInFlight, reactionKey(messageId, emoji));
       return reactionAddsInFlight === state.reactionAddsInFlight ? state : { reactionAddsInFlight };
     });
-    wsSend({ type: 'reaction_remove', messageId, emoji }, origin);
+    wsSend({ type: 'reaction_remove', messageId, emoji });
   },
 
   onReactionAdded: (messageId: string, reaction: Reaction) => {
     set((state) => {
       const held = findHeldMessage(state, messageId);
-      const reactionAddsInFlight = held && isOwnReactionIn(held.channelId, reaction)
+      const reactionAddsInFlight = held && isOwnReaction(reaction)
         ? withoutInFlight(state.reactionAddsInFlight, reactionKey(messageId, reaction.emoji))
         : state.reactionAddsInFlight;
       const detachedChannels = mapHeldMessage(state.detachedChannels, messageId, (m) => withReaction(m, reaction));
@@ -1234,13 +1201,21 @@ export const useChatStore = create<ChatState>((set, get) => ({
       return { typingUsers: newTyping };
     });
 
-    // Auto-clear after 5 seconds
-    setTimeout(() => {
+    // One timer per user/channel, cancelled on refresh or session replacement.
+    const key = JSON.stringify([channelId, userId]);
+    const previous = typingTimers.get(key);
+    if (previous !== undefined) clearTimeout(previous);
+    typingTimers.set(key, setTimeout(() => {
+      typingTimers.delete(key);
       get().clearTyping(channelId, userId);
-    }, 5000);
+    }, 5000));
   },
 
   clearTyping: (channelId: string, userId: string) => {
+    const key = JSON.stringify([channelId, userId]);
+    const timer = typingTimers.get(key);
+    if (timer !== undefined) clearTimeout(timer);
+    typingTimers.delete(key);
     set((state) => {
       const newTyping = new Map(state.typingUsers);
       const current = newTyping.get(channelId);
@@ -1260,7 +1235,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     return users.filter(t => now - t.timestamp < 5000);
   },
 
-  setReadStates: (readStates: ReadState[], channelLastMessageIds: ReadonlyMap<string, string>, originChannelIds?: ReadonlySet<string>) => {
+  setReadStates: (readStates: ReadState[], channelLastMessageIds: ReadonlyMap<string, string>) => {
     // 1. Merge server read states into existing local state (preserves optimistic acks)
     const rsMap = new Map(get().readStates);
     for (const rs of readStates) {
@@ -1278,24 +1253,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
       }
     }
 
-    // 2. Rebuild unreadChannels ONLY for channels from this origin
-    //    Keep existing unread entries from other origins untouched,
-    //    but prune orphans that don't map to any known channel
+    // Rebuild unread state for the complete current-server snapshot.
     const currentChannelId = get().currentChannelId;
-    const { channelToSpaceMap, dmChannels: knownDms } = useSpaceStore.getState();
-    const knownDmIds = new Set(knownDms.map(dm => dm.id));
     const unread = new Set<string>();
-    for (const id of get().unreadChannels) {
-      if (!originChannelIds || !originChannelIds.has(id)) {
-        // Only preserve if the channel still maps to a known space or DM
-        if (channelToSpaceMap.has(id) || knownDmIds.has(id)) {
-          unread.add(id);
-        }
-      }
-    }
-
-    const channelsToCheck = originChannelIds ?? new Set(channelLastMessageIds.keys());
-    for (const channelId of channelsToCheck) {
+    for (const channelId of channelLastMessageIds.keys()) {
       if (channelId === currentChannelId) continue; // skip current channel (acked momentarily)
       const lastMsgId = channelLastMessageIds.get(channelId);
       if (!lastMsgId) continue; // empty channel
@@ -1343,9 +1304,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       return { readStates: newReadStates, unreadChannels: newUnread };
     });
 
-    // Send to the correct federated instance
-    const origin = getChannelOrigin(channelId);
-    wsSend({ type: 'mark_unread', channelId, messageId }, origin);
+    wsSend({ type: 'mark_unread', channelId, messageId });
   },
 
   ackChannel: (channelId: string) => {
@@ -1378,9 +1337,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       useSpaceStore.getState().resortDmChannels(channelId);
     }
 
-    // Send to the correct instance
-    const origin = getChannelOrigin(channelId);
-    wsSend({ type: 'channel_ack', channelId, messageId: ackedId }, origin);
+    wsSend({ type: 'channel_ack', channelId, messageId: ackedId });
   },
 
   onChannelAck: (channelId: string, messageId: string) => {
@@ -1436,67 +1393,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
     });
   },
 
-  rekeyChannelState: (oldId: string, newId: string) => {
-    set((state) => {
-      const copyDelete = <V,>(src: Map<string, V>): Map<string, V> => {
-        if (!src.has(oldId)) return src;
-        const next = new Map(src);
-        next.delete(oldId);
-        return next;
-      };
-
-      const messages = copyDelete(state.messages);
-      const typingUsers = copyDelete(state.typingUsers);
-      const hasMore = copyDelete(state.hasMore);
-      const readStates = copyDelete(state.readStates);
-      const channelAccessTimes = copyDelete(state.channelAccessTimes);
-      const scrollPositions = copyDelete(state.scrollPositions);
-      const loadStates = copyDelete(state.loadStates);
-      // The message cache is dropped for oldId and refetched under newId, so
-      // the new key starts attached to the present.
-      let detachedChannels = state.detachedChannels;
-      if (detachedChannels.has(oldId)) {
-        detachedChannels = new Map(detachedChannels);
-        detachedChannels.delete(oldId);
-      }
-
-      let unreadChannels = state.unreadChannels;
-      if (state.unreadChannels.has(oldId)) {
-        unreadChannels = new Set(state.unreadChannels);
-        unreadChannels.delete(oldId);
-        unreadChannels.add(newId);
-      }
-
-      const currentChannelId = state.currentChannelId === oldId ? newId : state.currentChannelId;
-
-      return {
-        messages,
-        typingUsers,
-        hasMore,
-        readStates,
-        channelAccessTimes,
-        scrollPositions,
-        loadStates,
-        detachedChannels,
-        unreadChannels,
-        currentChannelId,
-      };
-    });
-  },
-
-  updateUserInMessages: (user: User, origin: string) => {
+  updateUserInMessages: (user: User) => {
     set((state) => {
       const newMessages = new Map(state.messages);
       let changed = false;
       for (const [channelId, msgs] of newMessages) {
-        const channelOrigin = getChannelOrigin(channelId);
         let channelChanged = false;
         const updated = msgs.map(m => {
           if (!m.user) return m;
-          const author = withUserUpdate(m.user, channelOrigin, user, origin);
-          if (author === m.user) return m;
+          if (m.user.id !== user.id) return m;
           channelChanged = true;
-          return { ...m, user: author };
+          return { ...m, user: { ...m.user, ...user } };
         });
         if (channelChanged) { newMessages.set(channelId, updated); changed = true; }
       }
@@ -1504,13 +1411,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
     });
   },
 
-  clearTypingForDeletedUser: (user: IdentityFields, origin: string) => {
+  clearTypingForDeletedUser: (userId: string) => {
     set((state) => {
       const newTyping = new Map(state.typingUsers);
       let changed = false;
       for (const [channelId, users] of newTyping) {
-        const channelOrigin = getChannelOrigin(channelId);
-        const filtered = users.filter(t => !updateIsAboutRowId(t.userId, channelOrigin, user, origin));
+        const filtered = users.filter(t => t.userId !== userId);
         if (filtered.length !== users.length) {
           newTyping.set(channelId, filtered);
           changed = true;

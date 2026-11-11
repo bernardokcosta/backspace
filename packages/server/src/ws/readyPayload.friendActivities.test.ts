@@ -16,6 +16,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 type TestDb = ReturnType<typeof drizzle<typeof schema>>;
 
 let testDb: TestDb;
+let sqlite: Database.Database;
 
 vi.mock('../db/index.js', () => ({
   getDb: () => testDb,
@@ -39,13 +40,11 @@ type ReadyMessage = Extract<ServerEvent, { type: 'ready' }>;
 const now = 1_700_000_000_000;
 const playing: Activity[] = [{ type: 'playing', name: 'Factorio' }];
 
-function seedUser(id: string, fields: { homeInstance?: string; homeUserId?: string; customStatus?: string } = {}): void {
+function seedUser(id: string, fields: { username?: string; customStatus?: string } = {}): void {
   testDb.insert(schema.users).values({
     id,
-    username: fields.homeInstance ? `${id}@${fields.homeInstance}` : id,
+    username: fields.username ?? id,
     passwordHash: 'x',
-    homeUserId: fields.homeUserId ?? id,
-    homeInstance: fields.homeInstance ?? null,
     customStatus: fields.customStatus ?? null,
     status: 'online',
     createdAt: now,
@@ -57,20 +56,21 @@ function befriend(a: string, b: string): void {
 }
 
 beforeEach(() => {
-  const sqlite = new Database(':memory:');
+  vi.useFakeTimers(); sqlite = new Database(':memory:');
   testDb = drizzle(sqlite, { schema });
   applyMigrations(sqlite);
   // The viewer shares no space and no DM with any of the friends below.
   seedUser('viewer');
   seedUser('local-friend');
-  seedUser('stub-bob', { homeInstance: 'orbit.test', homeUserId: 'bob-home' });
+  seedUser('legacy-bob', { username: 'legacy@old.invalid' });
   seedUser('quiet-friend', { customStatus: 'brb' });
   befriend('viewer', 'local-friend');
-  befriend('stub-bob', 'viewer');
+  befriend('legacy-bob', 'viewer');
   befriend('viewer', 'quiet-friend');
 });
 
 afterEach(() => {
+  vi.clearAllTimers(); vi.useRealTimers(); sqlite.close();
   vi.restoreAllMocks();
 });
 
@@ -85,17 +85,17 @@ describe("ready payload: friends' activities (#340)", () => {
     connectionManager.setUserActivities('local-friend', playing);
     const ready = await readyFor('viewer');
     expect(ready.userActivities?.['local-friend']).toEqual(playing);
-    expect(ready.userActivityIdentities?.['local-friend']).toEqual({ homeUserId: null, homeInstance: null });
+    expect(ready).not.toHaveProperty('userActivityIdentities');
     connectionManager.clearUserActivities('local-friend');
   });
 
-  it("includes a remote friend's relayed activity, named by the friend's home identity", async () => {
+  it("keys a retained sovereign handle's activity by the stable local account id", async () => {
     const { connectionManager } = await import('./handler.js');
-    connectionManager.setUserActivities('stub-bob', playing);
+    connectionManager.setUserActivities('legacy-bob', playing);
     const ready = await readyFor('viewer');
-    expect(ready.userActivities?.['stub-bob']).toEqual(playing);
-    expect(ready.userActivityIdentities?.['stub-bob']).toEqual({ homeUserId: 'bob-home', homeInstance: 'orbit.test' });
-    connectionManager.clearUserActivities('stub-bob');
+    expect(ready.userActivities?.['legacy-bob']).toEqual(playing);
+    expect(ready).not.toHaveProperty('userActivityIdentities');
+    connectionManager.clearUserActivities('legacy-bob');
   });
 
   it("falls back to a friend's custom status, as for space and DM members", async () => {

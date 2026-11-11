@@ -1,27 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "远程实例",
-    "hostInstance": "主机实例",
-    "acceptDropped": "无法向 {{instance}} 确认您已接听，通话已终止。",
-    "rejectFailed": "无法通知 {{instances}} 您已拒接。呼叫方可能仍会短暂看到正在呼叫的提示。",
-    "endFailed": "无法通知 {{instances}} 您已挂断。远程参与者可能仍会看到通话，最长持续 60 秒。",
-    "hostUnreachable": "通话已结束：主机实例无法连接。",
-    "peeringLost": "通话已结束：此实例已不再与 {{instance}} 建立对等连接。",
-    "instanceUnreachable": "通话已结束：无法连接到 {{instance}}。",
-    "someUnreachable": "无法联系到部分参与者：{{instances}}。",
-    "multipleUnreachable_other": "无法连接到 {{count}} 个实例：{{instances}}。",
-    "callFailed": "无法发起通话。",
-    "manualApproval": "无法连接到 {{instance}}：此实例要求手动批准对等连接。",
-    "awaitingApproval": "正在等待 {{instance}} 的管理员批准您的实例。批准后即可通话。",
-    "transientFailure": "无法连接到 {{instance}}，请稍后重试。",
-    "voiceUnavailable": "此实例尚未配置语音功能。",
-    "noRecipient": "{{instance}} 无法呼叫任何人。",
-    "targetCallFailed": "无法向 {{instance}} 发起通话。"
-  },
-  "feedback": {
-    "relayDenied": "无法转发消息：对方实例拒绝了对等连接。请联系对方管理员。",
-    "awaitingPeering": "对方管理员批准对等连接请求后，消息即可送达。"
-  },
   "names": {
     "group": "群组",
     "directMessage": "私信",
@@ -156,11 +133,6 @@
     "notFound": "未找到会话。",
     "notGroup": "该会话没有群组信息。",
     "cancelEdit": "取消编辑",
-    "federated": "联邦群组",
     "memberCount_other": "{{count}} 名成员"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "此群组由 {{host}} 管理。请连接到该实例后再进行更改。",
-    "ownerNotListed": "{{host}} 尚未为您列出此群组。请稍后再试。"
   }
 }

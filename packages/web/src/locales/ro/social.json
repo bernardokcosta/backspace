@@ -19,7 +19,6 @@
     "activity": "Este liniște deocamdată... Când prietenii încep o activitate, o vom afișa aici!"
   },
   "friend": {
-    "viaInstance": "prin {{host}}",
     "message": "Mesaj",
     "remove": "Elimină prietenul"
   },
@@ -44,7 +43,6 @@
   },
   "add": {
     "title": "Găsește persoane",
-    "hint": "Caută după nume de utilizator sau folosește <handle>user@instance</handle> pentru a adăuga direct.",
     "placeholder": "Caută sau adaugă după nume de utilizator...",
     "direct": "Trimite cerere de prietenie către <handle>{{handle}}</handle>",
     "sendRequest": "Trimite cererea",
@@ -101,6 +99,5 @@
       "yandexmusic": "Yandex Music"
     },
     "openTrack": "Deschide piesa"
-  },
-  "instanceNotConnected": "Nu ești conectat la {{host}}. Conectează-te din nou și reîncearcă."
+  }
 }

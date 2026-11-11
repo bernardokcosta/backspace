@@ -1,10 +1,10 @@
 import type { MemberWithUser } from '@veyvox/shared';
 import { useSpaceStore } from './spaceStore';
 
-/** HTTP replies and socket broadcasts share the same space/instance boundary. */
-export function applySpaceMemberUpdate(origin: string, member: MemberWithUser): void {
+/** HTTP replies and socket broadcasts share the same native space boundary. */
+export function applySpaceMemberUpdate(member: MemberWithUser): void {
   const state = useSpaceStore.getState();
-  const space = state.spaces.find(s => s.id === member.spaceId && s._instanceOrigin === origin);
+  const space = state.spaces.find(s => s.id === member.spaceId);
   if (!space || state.currentSpaceId !== member.spaceId) return;
   useSpaceStore.setState({
     members: state.members.map(existing => existing.spaceId === member.spaceId && existing.userId === member.userId

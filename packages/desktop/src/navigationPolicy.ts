@@ -8,9 +8,9 @@
 // (a clicked link, `window.location` assignment, a meta-refresh) — never for
 // main-process `webContents.loadURL()`/`loadFile()` calls. That means the
 // app's own initial instance load, the file:// picker load, and
-// cross-instance switching (all done via loadURL/loadFile in main.ts) never
+// selected-server replacement (via loadURL/loadFile in main.ts) never
 // reach this policy. It still explicitly allows same-origin navigation, the
-// bundled picker, and known federation-peer origins — defense-in-depth
+// bundled picker — defense-in-depth
 // against a compromised or malicious renderer trying to hijack the
 // top-level frame — rather than denying unconditionally.
 
@@ -21,12 +21,10 @@ export interface NavigationPolicyInput {
   currentUrl: string | null;
   /** file:// URL of the bundled instance picker (pathToFileURL(getPickerPath()).href). */
   pickerFileUrl: string;
-  /** Federation peer + own-instance origins the renderer has reported as connected (main.ts's knownInstanceOrigins). */
-  knownInstanceOrigins: ReadonlySet<string>;
 }
 
 export function isNavigationAllowed(input: NavigationPolicyInput): boolean {
-  const { targetUrl, currentUrl, pickerFileUrl, knownInstanceOrigins } = input;
+  const { targetUrl, currentUrl, pickerFileUrl } = input;
 
   let target: URL;
   try {
@@ -34,6 +32,7 @@ export function isNavigationAllowed(input: NavigationPolicyInput): boolean {
   } catch {
     return false;
   }
+  if (target.username || target.password) return false;
 
   if (target.protocol === 'file:') {
     return target.href === pickerFileUrl;
@@ -52,5 +51,5 @@ export function isNavigationAllowed(input: NavigationPolicyInput): boolean {
     }
   }
 
-  return target.origin === currentOrigin || knownInstanceOrigins.has(target.origin);
+  return target.origin === currentOrigin;
 }

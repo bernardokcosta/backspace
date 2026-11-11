@@ -47,7 +47,7 @@ describe('teardownDmCall', () => {
     const disconnectFn = vi.fn().mockResolvedValue(undefined);
     useVoiceStore.setState({
       currentVoiceChannelId: null,
-      activeDmCall: { dmChannelId: 'dm-1', federatedCallId: null, callOrigin: null, livekit: null },
+      activeDmCall: { dmChannelId: 'dm-1' },
       disconnectFn,
     });
 
@@ -62,7 +62,7 @@ describe('teardownDmCall', () => {
     const disconnectFn = vi.fn().mockResolvedValue(undefined);
     useVoiceStore.setState({
       currentVoiceChannelId: 'space-voice-1',
-      incomingCall: { dmChannelId: 'dm-2', federatedCallId: 'fed-1', callOrigin: '', callerId: 'u9', callerName: 'Nine', livekit: null },
+      incomingCall: { dmChannelId: 'dm-2', callerId: 'u9', callerName: 'Nine' },
       outgoingCall: { dmChannelId: 'dm-3', withCamera: false },
       disconnectFn,
     });

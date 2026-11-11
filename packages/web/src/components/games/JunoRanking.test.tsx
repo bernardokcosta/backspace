@@ -10,16 +10,16 @@ const originalLoad = useJunoStore.getState().loadRanking;
 const load = vi.fn(async () => {});
 beforeEach(() => {
   vi.clearAllMocks(); useJunoStore.getState().reset();
-  useJunoStore.getState().bind({ accountId: 'a', selfId: 'a', origin: '', channelId: 'voice' }, true);
-  useSpaceStore.setState({ spaceChannelIndex: new Map([['voice', { spaceId: 'space', origin: '', type: 'voice' }]]) });
-  useJunoStore.setState({ loadRanking: load, ranking: { target: { accountId: 'a', selfId: 'a', origin: '', spaceId: 'space' },
+  useJunoStore.getState().bind({ userId: 'a', origin: window.location.origin, channelId: 'voice' }, true);
+  useSpaceStore.setState({ spaceChannelIndex: new Map([['voice', { spaceId: 'space', type: 'voice' }]]) });
+  useJunoStore.setState({ loadRanking: load, ranking: { target: { userId: 'a', origin: window.location.origin, spaceId: 'space' },
     page: junoRanking(), loading: false, error: null, unsupported: false } });
 });
 afterEach(() => useJunoStore.setState({ loadRanking: originalLoad }));
 describe('Juno space ranking screen', () => {
   it('loads the connected space, renders empty/self state, and returns without a mutation', async () => {
     const back = vi.fn(); render(<JunoRanking onBack={back} />);
-    expect(load).toHaveBeenCalledWith({ accountId: 'a', selfId: 'a', origin: '', spaceId: 'space' }, { limit: 25, offset: 0 });
+    expect(load).toHaveBeenCalledWith({ userId: 'a', origin: window.location.origin, spaceId: 'space' }, { limit: 25, offset: 0 });
     expect(screen.getByText(/no completed rounds yet/i)).toBeInTheDocument();
     expect(screen.getByText(/not ranked yet/i)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Back to table' })); expect(back).toHaveBeenCalledTimes(1);

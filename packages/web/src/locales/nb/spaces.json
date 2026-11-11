@@ -158,21 +158,6 @@
     "invitePlaceholder": "f.eks. abc123 eller https://instance.com/join/abc123",
     "submit": "Bli med i rom",
     "submitting": "Blir med…",
-    "connect": {
-      "intro": "Koble til <host>{{host}}</host> for å bli med i dette rommet.",
-      "passwordLabel": "Oppgi passordet ditt for å koble til",
-      "passwordPlaceholder": "Passordet til kontoen din",
-      "passwordNote": "Passordet ditt kontrolleres av hjeminstansen din og sendes aldri til {{host}}. Den instansen får en unik legitimasjon laget bare for den.",
-      "submit": "Koble til & bli med",
-      "submitting": "Kobler til…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "Brukernavnet ditt på denne instansen",
-      "passwordLabel": "Passord for denne instansen",
-      "passwordPlaceholder": "Passord på den eksterne instansen",
-      "submit": "Logg inn & bli med",
-      "submitting": "Logger inn…"
-    },
     "request": {
       "messagePlaceholder": "Hvorfor vil du bli med? (valgfritt)",
       "send": "Send forespørsel",
@@ -450,8 +435,6 @@
       "transferOwnership": "Overfør eierskap",
       "settings": "Rominnstillinger",
       "leave": "Forlat rom",
-      "reconnecting": "Kobler til igjen med {{instance}}…",
-      "remoteInstance": "ekstern instans",
       "leaveConfirm": {
         "title": "Forlat rom",
         "titleNamed": "Forlat {{name}}",

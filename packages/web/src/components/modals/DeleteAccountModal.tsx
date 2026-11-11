@@ -1,18 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../stores/authStore';
-import { useInstanceStore } from '../../stores/instanceStore';
 import { useSpaceStore } from '../../stores/spaceStore';
 import { api } from '../../api/client';
 import { describeError } from '../../i18n/errors';
-import { deleteAccountOnRemotes, type FederationOpResult } from '../../utils/federationOps';
 
 interface DeleteAccountModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-type Step = 'warning' | 'confirm' | 'federation' | 'complete';
+type Step = 'warning' | 'confirm' | 'complete';
 
 interface OwnedSpaceInfo {
   id: string;
@@ -23,82 +21,63 @@ interface OwnedSpaceInfo {
 }
 
 export function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps) {
+  const revision = useAuthStore(s => s.sessionRevision);
+  return isOpen ? <DeleteAccountContent key={revision} onClose={onClose} revision={revision} /> : null;
+}
+
+function DeleteAccountContent({ onClose, revision }: { onClose: () => void; revision: number }) {
   const { t } = useTranslation(['settings', 'common']);
   const user = useAuthStore((s) => s.user);
-  const instances = useInstanceStore((s) => s.instances);
   const spaces = useSpaceStore((s) => s.spaces);
 
   const [step, setStep] = useState<Step>('warning');
-  const [ownedSpaces, setOwnedSpaces] = useState<OwnedSpaceInfo[]>([]);
+  const [ownedSpaces, setOwnedSpaces] = useState<OwnedSpaceInfo[]>(() => spaces.filter(space => space.ownerId === user?.id)
+    .map(space => ({ id: space.id, name: space.name, members: [], action: 'none', transferTo: '' })));
+  const [ownedLoaded, setOwnedLoaded] = useState(ownedSpaces.length === 0);
   const [confirmUsername, setConfirmUsername] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [federationResults, setFederationResults] = useState<FederationOpResult[]>([]);
-  const [deletionComplete, setDeletionComplete] = useState(false);
+  const alive = useRef(true);
+  const writing = useRef(false);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const current = () => alive.current && revision === useAuthStore.getState().sessionRevision;
 
-  // Reset state when modal opens/closes
+  // Resolve the owned-space snapshot before offering account confirmation.
   useEffect(() => {
-    if (isOpen) {
-      setStep('warning');
-      setConfirmUsername('');
-      setConfirmPassword('');
-      setError('');
-      setIsLoading(false);
-      setFederationResults([]);
-      setDeletionComplete(false);
-
-      // Build owned spaces list and fetch members for each
-      if (user) {
-        const owned = spaces.filter(s => s.ownerId === user.id);
-        if (owned.length > 0) {
-          Promise.all(
-            owned.map(async (s) => {
-              try {
-                const members = await api.spaces.members(s.id);
-                return {
-                  id: s.id,
-                  name: s.name,
-                  members: members
-                    .filter(m => m.userId !== user.id)
-                    .map(m => ({
-                      userId: m.userId,
-                      username: m.user.username,
-                      displayName: m.user.displayName,
-                    })),
-                  action: 'none' as const,
-                  transferTo: '',
-                };
-              } catch {
-                return {
-                  id: s.id,
-                  name: s.name,
-                  members: [] as OwnedSpaceInfo['members'],
-                  action: 'none' as const,
-                  transferTo: '',
-                };
-              }
-            })
-          ).then(setOwnedSpaces);
+    let active = true;
+    if (user && ownedSpaces.length > 0) {
+      void Promise.all(ownedSpaces.map(async (s) => {
+        try {
+          const members = await api.spaces.members(s.id);
+          return { ...s, members: members.filter(member => member.userId !== user.id).map(member => ({
+            userId: member.userId, username: member.user.username, displayName: member.user.displayName,
+          })) };
+        } catch {
+          return s;
         }
-      }
+      })).then(rows => {
+        if (!active || revision !== useAuthStore.getState().sessionRevision) return;
+        setOwnedSpaces(rows); setOwnedLoaded(true);
+      });
     }
-  }, [isOpen, user]);
+    return () => { active = false; };
+  }, [user?.id, revision]);
 
   // Auto-redirect after deletion — must be before early return to maintain hooks order
   useEffect(() => {
-    if (deletionComplete && step === 'complete') {
+    if (step === 'complete') {
       const timer = setTimeout(() => {
-        localStorage.removeItem('backspace_token');
+        if (revision !== useAuthStore.getState().sessionRevision) return;
+        useAuthStore.getState().logout();
         window.location.href = '/login';
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [deletionComplete, step]);
+  }, [step, revision]);
 
-  if (!isOpen || !user) return null;
+  if (!user) return null;
 
-  const hasRemotes = instances.filter(i => i.status === 'connected').length > 0;
   const allOwnedHandled = ownedSpaces.every(s => s.action !== 'none');
 
   const handleSpaceAction = (spaceId: string, action: 'transfer' | 'delete') => {
@@ -114,27 +93,32 @@ export function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps)
   };
 
   const handleContinueFromWarning = async () => {
+    if (!current() || writing.current || !ownedLoaded || !allOwnedHandled || ownedSpaces.some(space => space.action === 'transfer' && !space.transferTo)) return;
+    writing.current = true;
     setError('');
     setIsLoading(true);
 
     try {
       // Process owned spaces
       for (const space of ownedSpaces) {
+        if (!current()) return;
         if (space.action === 'transfer' && space.transferTo) {
-          await api.spaces.transferOwnership(space.id, space.transferTo);
+          await useSpaceStore.getState().transferOwnership(space.id, space.transferTo);
         } else if (space.action === 'delete') {
-          await api.spaces.delete(space.id);
+          await useSpaceStore.getState().deleteSpace(space.id);
         }
       }
-      setStep('confirm');
+      if (current()) setStep('confirm');
     } catch (err) {
-      setError(err instanceof Error ? describeError(err) : t('settings:account.deletion.errors.spacesFailed'));
+      if (current()) setError(err instanceof Error ? describeError(err) : t('settings:account.deletion.errors.spacesFailed'));
     } finally {
-      setIsLoading(false);
+      writing.current = false;
+      if (current()) setIsLoading(false);
     }
   };
 
   const handleConfirmDelete = async () => {
+    if (!current() || writing.current || !confirmPassword) return;
     if (confirmUsername !== user.username) {
       setError(t('settings:account.deletion.errors.usernameMismatch'));
       return;
@@ -142,46 +126,18 @@ export function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps)
 
     setError('');
     setIsLoading(true);
+    writing.current = true;
 
     try {
-      if (hasRemotes) {
-        setStep('federation');
-        // Delete on remotes first
-        const results = await deleteAccountOnRemotes();
-        setFederationResults(results);
-        // Then delete home account
-        await api.users.deleteAccount({ password: confirmPassword, username: confirmUsername });
-        setDeletionComplete(true);
-        setStep('complete');
-      } else {
-        // No remotes — direct delete via API (don't clear auth state yet — let the modal show "complete")
-        await api.users.deleteAccount({ password: confirmPassword, username: confirmUsername });
-        setDeletionComplete(true);
-        setStep('complete');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? describeError(err) : t('settings:account.deletion.errors.deleteFailed'));
-      if (step === 'federation') {
-        // Stay on federation step so user can see results
-      } else {
-        setStep('confirm');
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDeleteAnyway = async () => {
-    setError('');
-    setIsLoading(true);
-    try {
+      // Keep the completion view until the existing delayed logout, but never
+      // let an earlier session's completion expire a replacement login.
       await api.users.deleteAccount({ password: confirmPassword, username: confirmUsername });
-      setDeletionComplete(true);
-      setStep('complete');
+      if (current()) setStep('complete');
     } catch (err) {
-      setError(err instanceof Error ? describeError(err) : t('settings:account.deletion.errors.deleteFailed'));
+      if (current()) setError(err instanceof Error ? describeError(err) : t('settings:account.deletion.errors.deleteFailed'));
     } finally {
-      setIsLoading(false);
+      writing.current = false;
+      if (current()) setIsLoading(false);
     }
   };
 
@@ -271,9 +227,9 @@ export function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps)
               )}
 
               <button
-                onClick={ownedSpaces.length > 0 ? handleContinueFromWarning : () => setStep('confirm')}
+                onClick={handleContinueFromWarning}
                 disabled={
-                  isLoading ||
+                  isLoading || !ownedLoaded ||
                   (ownedSpaces.length > 0 && (!allOwnedHandled || ownedSpaces.some(s => s.action === 'transfer' && !s.transferTo)))
                 }
                 className="w-full py-2 bg-accent-rose hover:bg-accent-rose/80 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -325,8 +281,9 @@ export function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps)
               )}
 
               <div className="flex gap-3">
-                <button
-                  onClick={() => { setStep('warning'); setError(''); }}
+                  <button
+                    type="button"
+                    onClick={() => { setStep('warning'); setError(''); }}
                   className="flex-1 py-2 bg-white/[0.06] hover:bg-white/[0.1] text-txt-secondary text-sm font-medium rounded-lg transition-colors"
                 >
                   {t('common:actions.back')}
@@ -342,55 +299,7 @@ export function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps)
             </form>
           )}
 
-          {/* Step 3: Federation Progress */}
-          {step === 'federation' && (
-            <>
-              <p className="text-sm text-txt-secondary">{t('settings:account.deletion.federation.removing')}</p>
-              <div className="space-y-2">
-                {instances.filter(i => i.status === 'connected').map(inst => {
-                  const result = federationResults.find(r => r.origin === inst.origin);
-                  return (
-                    <div key={inst.origin} className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/[0.03] border border-white/[0.04]">
-                      <span className="text-sm text-txt-primary">{inst.label || new URL(inst.origin).host}</span>
-                      {!result ? (
-                        <svg className="animate-spin w-4 h-4 text-txt-tertiary" viewBox="0 0 24 24" fill="none">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                        </svg>
-                      ) : result.success ? (
-                        <svg className="w-4 h-4 text-status-online" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      ) : (
-                        <div className="flex items-center gap-1.5">
-                          <svg className="w-4 h-4 text-txt-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                          <span className="text-xs text-txt-danger">{result.error}</span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {error && (
-                <div className="p-2 bg-accent-rose/10 border border-accent-rose/30 rounded text-txt-danger text-xs">{error}</div>
-              )}
-
-              {federationResults.length > 0 && !deletionComplete && (
-                <button
-                  onClick={handleDeleteAnyway}
-                  disabled={isLoading}
-                  className="w-full py-2 bg-accent-rose hover:bg-accent-rose/80 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
-                >
-                  {isLoading ? t('settings:account.deletion.confirm.deleting') : t('settings:account.deletion.federation.deleteAnyway')}
-                </button>
-              )}
-            </>
-          )}
-
-          {/* Step 4: Complete */}
+          {/* Step 3: Complete */}
           {step === 'complete' && (
             <div className="text-center py-6">
               <svg className="w-12 h-12 text-txt-tertiary mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

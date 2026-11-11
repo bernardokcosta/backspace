@@ -1,12 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { DEFAULT_SOUNDBOARD_SETTINGS, MAX_SOUNDBOARD_SECONDS, type SoundboardDocument } from '@veyvox/shared/src/soundboard';
-import { getApiForOrigin } from '../utils/crossStoreResolvers';
-import { getMyUserIdForOrigin, useAuthStore } from './authStore';
+import { useAuthStore } from './authStore';
 import { useSpaceStore } from './spaceStore';
 import { useVoiceStore } from './voiceStore';
 import { hasPermissionBit, PermissionBits } from '../utils/permissions';
-import { RateLimitError } from '../api/client';
+import { api, RateLimitError } from '../api/client';
 
 interface Entry { document?: SoundboardDocument; loading: boolean; error?: unknown }
 interface SoundboardState {
@@ -14,23 +13,23 @@ interface SoundboardState {
   entries: Record<string, Entry>;
   playback: Record<string, { pending: boolean; availableAt: number }>;
   setOpen: (open: boolean) => void;
-  load: (origin: string, spaceId: string) => Promise<void>;
-  play: (origin: string, spaceId: string, soundId: string, channelId: string) => Promise<void>;
+  load: (spaceId: string) => Promise<void>;
+  play: (spaceId: string, soundId: string, channelId: string) => Promise<void>;
   reset: () => void;
 }
 const runs = new Map<string, number>();
 let nextRun = 0;
-export const soundboardKey = (origin: string, spaceId: string) => JSON.stringify([useAuthStore.getState().user?.id, origin, spaceId]);
+export const soundboardKey = (spaceId: string) => JSON.stringify([useAuthStore.getState().user?.id, window.location.origin, spaceId]);
 
-export function canPlaySoundboard(origin: string, spaceId: string, channelId: string | undefined,
+export function canPlaySoundboard(spaceId: string, channelId: string | undefined,
   voice = useVoiceStore.getState()): boolean {
   if (!channelId || !voice.isLiveKitConnected || voice.voiceConnectionStatus !== 'connected'
       || voice.currentVoiceChannelId !== channelId || voice.isDeafened) return false;
   const space = useSpaceStore.getState();
   const channel = space.spaceChannelIndex.get(channelId);
-  const uid = getMyUserIdForOrigin(origin);
+  const uid = useAuthStore.getState().user?.id;
   const key = `${spaceId}:${uid}`;
-  return !!uid && channel?.type === 'voice' && channel.spaceId === spaceId && channel.origin === origin
+  return !!uid && channel?.type === 'voice' && channel.spaceId === spaceId
     && (['VIEW_CHANNEL', 'CONNECT', 'SPEAK'] as const).every(permission =>
       hasPermissionBit(space.channelPermissions.get(channelId), PermissionBits[permission]))
     && !voice.spaceMutedUserIds.has(key) && !voice.permissionMutedUserIds.has(key) && !voice.spaceDeafenedUserIds.has(key);
@@ -39,13 +38,13 @@ export function canPlaySoundboard(origin: string, spaceId: string, channelId: st
 export const useSoundboardStore = create<SoundboardState>((set, get) => ({
   open: false, entries: {}, playback: {},
   setOpen: (open) => set({ open }),
-  load: async (origin, spaceId) => {
-    const key = soundboardKey(origin, spaceId);
+  load: async spaceId => {
+    const key = soundboardKey(spaceId);
     const run = ++nextRun;
     runs.set(key, run);
     set(s => ({ entries: { ...s.entries, [key]: { ...s.entries[key], loading: true, error: undefined } } }));
     try {
-      const document = await getApiForOrigin(origin).soundboard.list(spaceId);
+      const document = await api.soundboard.list(spaceId);
       if (runs.get(key) !== run) return;
       // Older instances may still report a null cap or one above the product
       // ceiling. Clamp once at the store boundary so every reader below sees
@@ -66,22 +65,22 @@ export const useSoundboardStore = create<SoundboardState>((set, get) => ({
       set(s => ({ entries: { ...s.entries, [key]: { loading: false, error } } }));
     }
   },
-  play: async (origin, spaceId, soundId, channelId) => {
-    const key = soundboardKey(origin, spaceId);
+  play: async (spaceId, soundId, channelId) => {
+    const key = soundboardKey(spaceId);
     const previous = get().playback[key];
     const document = get().entries[key]?.document;
     const sound = document?.sounds.find(item => item.id === soundId);
     if (previous?.pending || (previous?.availableAt ?? 0) > Date.now()
-        || !canPlaySoundboard(origin, spaceId, channelId) || !document?.settings.enabled
+        || !canPlaySoundboard(spaceId, channelId) || !document?.settings.enabled
         || !sound || sound.durationSeconds > document.settings.maxDurationSeconds) return;
     const submission = { pending: true, availableAt: 0 };
     set(s => ({ playback: { ...s.playback, [key]: submission } }));
     let availableAt = 0;
     try {
-      await getApiForOrigin(origin).soundboard.play(spaceId, soundId, channelId);
+      await api.soundboard.play(spaceId, soundId, channelId);
       availableAt = Date.now() + 2000;
     } catch (error) {
-      if (get().playback[key] !== submission || soundboardKey(origin, spaceId) !== key) return;
+      if (get().playback[key] !== submission || soundboardKey(spaceId) !== key) return;
       if (error instanceof RateLimitError) {
         const seconds = Number.isFinite(error.retryAfter) ? Math.max(1, Math.min(60, error.retryAfter)) : 2;
         availableAt = Date.now() + seconds * 1000;

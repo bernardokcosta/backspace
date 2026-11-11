@@ -9,18 +9,18 @@ vi.mock('../../audio/AudioManager', () => ({
 
 import { api } from '../../api/client';
 import { useAuthStore } from '../../stores/authStore';
-import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../../stores/spaceStore';
 import { OwnerTitleHeading } from './OwnerTitleHeading';
 
-const space: TaggedSpace = {
+const space: SpaceWithMyRoles = {
   id: 'space', name: 'Space', icon: null, banner: null, avatarColor: null,
   ownerId: 'owner', ownerTitle: null, inviteCode: null, visibility: 'private',
-  description: null, createdAt: 1, _instanceOrigin: '',
+  description: null, createdAt: 1,
 };
 const user: User = {
   id: 'owner', username: 'owner', displayName: null, avatar: null, banner: null,
   accentColor: null, avatarColor: null, bio: null, status: 'online', customStatus: null,
-  isAdmin: false, createdAt: 1, homeInstance: null, homeUserId: null, replicatedInstances: [],
+  isAdmin: false, createdAt: 1,
 };
 
 function Heading() {
@@ -32,7 +32,7 @@ beforeEach(() => {
   vi.restoreAllMocks();
   useSpaceStore.getState().reset();
   useSpaceStore.setState({ spaces: [{ ...space }] });
-  useAuthStore.setState({ user, myRowIds: new Map() });
+  useAuthStore.setState({ user });
 });
 
 describe('owner title heading', () => {
@@ -46,7 +46,7 @@ describe('owner title heading', () => {
   });
 
   it('saves through the API and displays only the confirmed server response', async () => {
-    let confirm!: (value: TaggedSpace) => void;
+    let confirm!: (value: SpaceWithMyRoles) => void;
     const update = vi.spyOn(api.spaces, 'update').mockReturnValue(new Promise((resolve) => { confirm = resolve; }));
     render(<Heading />);
     await userEvent.click(screen.getByRole('button', { name: 'Edit owner title' }));
@@ -130,38 +130,34 @@ describe('owner title heading', () => {
     await waitFor(() => expect(screen.getByRole('heading', { name: 'Owner — 1' })).toBeInTheDocument());
   });
 
-  it('uses the owner’s ID on the remote host rather than their home account ID', () => {
-    const origin = 'https://peer.example';
-    useAuthStore.getState().recordMyRow(origin, 'remote-owner');
-    useSpaceStore.setState({ spaces: [{ ...space, ownerId: 'remote-owner', _instanceOrigin: origin }] });
+  it('uses the native owner ID even with a retained @ handle', () => {
+    useAuthStore.setState({ user: { ...user, username: 'owner@retained.test' } });
     render(<Heading />);
     expect(screen.getByRole('button', { name: 'Edit owner title' })).toBeInTheDocument();
   });
 
-  it('offers the editor once the remote host names the signed-in user, without a remount', async () => {
-    const origin = 'https://peer.example';
-    useSpaceStore.setState({ spaces: [{ ...space, ownerId: 'remote-owner', _instanceOrigin: origin }] });
+  it('reacts to an authoritative native ownership transfer without remounting', async () => {
+    useSpaceStore.setState({ spaces: [{ ...space, ownerId: 'other-owner' }] });
     render(<Heading />);
     expect(screen.queryByRole('button', { name: 'Edit owner title' })).not.toBeInTheDocument();
-    act(() => useAuthStore.getState().recordMyRow(origin, 'remote-owner'));
+    act(() => useSpaceStore.setState({ spaces: [{ ...space, ownerId: user.id }] }));
     expect(await screen.findByRole('button', { name: 'Edit owner title' })).toBeInTheDocument();
   });
 
-  it('shows the default heading and no editor for a host that does not send owner titles', () => {
-    // A 1.10.0 host omits the field and drops it from a PATCH without an error.
-    const olderHostSpace: Partial<TaggedSpace> = { ...space };
-    delete olderHostSpace.ownerTitle;
-    useSpaceStore.setState({ spaces: [olderHostSpace as TaggedSpace] });
+  it('uses the default heading when the optional title is absent without a peer-version gate', () => {
+    const untitled: SpaceWithMyRoles = { ...space };
+    delete untitled.ownerTitle;
+    useSpaceStore.setState({ spaces: [untitled] });
     render(<Heading />);
     expect(screen.getByRole('heading', { name: 'Owner — 1' })).toHaveClass('uppercase');
-    expect(screen.queryByRole('button', { name: 'Edit owner title' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Edit owner title' })).toBeInTheDocument();
   });
 
-  it.each(['', 'https://peer.example'])('retains the title from ready and newly joined space payloads at %s', (origin) => {
+  it('retains the native title from ready and newly joined space payloads', () => {
     const detail: SpaceWithChannelsAndMembers = { ...space, ownerTitle: '首席摸鱼官', channels: [], categories: [], members: [], roles: [], myPermissions: '0' };
-    useSpaceStore.getState().populateFromReady(origin, [detail]);
-    expect(useSpaceStore.getState().spaces.find((s) => s._instanceOrigin === origin)?.ownerTitle).toBe('首席摸鱼官');
-    useSpaceStore.getState().addSpaceFromReady(origin, { ...detail, id: 'joined', ownerTitle: 'Captain' });
+    useSpaceStore.getState().populateFromReady([detail]);
+    expect(useSpaceStore.getState().spaces.find((s) => s.id === space.id)?.ownerTitle).toBe('首席摸鱼官');
+    useSpaceStore.getState().addSpaceFromReady({ ...detail, id: 'joined', ownerTitle: 'Captain' });
     expect(useSpaceStore.getState().spaces.find((s) => s.id === 'joined')?.ownerTitle).toBe('Captain');
   });
 });

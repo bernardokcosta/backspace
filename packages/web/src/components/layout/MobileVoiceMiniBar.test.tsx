@@ -27,10 +27,10 @@ beforeEach(async () => {
   vi.clearAllMocks();
   useAuthStore.setState({ user: { id: 'me', username: 'me' } as User });
   useUIStore.setState({ mobileStack: [] });
-  useSpaceStore.setState({ dmChannels: [dm], channels: [], channelOriginMap: new Map() });
+  useSpaceStore.setState({ dmChannels: [dm], channels: [] });
   useVoiceStore.setState({
     currentVoiceChannelId: null,
-    activeDmCall: { dmChannelId: dm.id, federatedCallId: null, callOrigin: null, livekit: null },
+    activeDmCall: { dmChannelId: dm.id },
     participants: [{ userId: 'me' }, { userId: 'bob' }] as never,
     voiceUsers: new Map(),
     disconnectFn: null,
@@ -58,7 +58,7 @@ describe('MobileVoiceMiniBar during a DM call', () => {
   it('hangs the call up through the one hang-up path', () => {
     render(<MobileVoiceMiniBar />);
     fireEvent.click(screen.getByRole('button', { name: i18n.t('voice:mobileCall.disconnect') }));
-    expect(wsSend).toHaveBeenCalledWith({ type: 'dm_call_end', dmChannelId: dm.id, federatedCallId: null }, '');
+    expect(wsSend).toHaveBeenCalledWith({ type: 'dm_call_end', dmChannelId: dm.id });
     expect(useVoiceStore.getState().activeDmCall).toBeNull();
   });
 
@@ -77,14 +77,14 @@ describe('MobileVoiceMiniBar mute and deafen', () => {
     render(<MobileVoiceMiniBar />);
     fireEvent.click(screen.getByRole('button', { name: i18n.t('voice:controls.mute') }));
     expect(useVoiceStore.getState().isMuted).toBe(true);
-    expect(wsSend).toHaveBeenCalledWith(expect.objectContaining({ type: 'voice_status', isMuted: true }), '');
+    expect(wsSend).toHaveBeenCalledWith(expect.objectContaining({ type: 'voice_status', isMuted: true }));
   });
 
   it('tells the server when the user deafens', () => {
     useVoiceStore.setState({ isMuted: false, isDeafened: false });
     render(<MobileVoiceMiniBar />);
     fireEvent.click(screen.getByRole('button', { name: i18n.t('voice:controls.deafen') }));
-    expect(wsSend).toHaveBeenCalledWith(expect.objectContaining({ type: 'voice_status', isDeafened: true }), '');
+    expect(wsSend).toHaveBeenCalledWith(expect.objectContaining({ type: 'voice_status', isDeafened: true }));
   });
 
   it('leaves the mute alone while a moderator holds a space mute', () => {
@@ -93,10 +93,10 @@ describe('MobileVoiceMiniBar mute and deafen', () => {
       activeDmCall: null, currentVoiceChannelId: 'voice-1', isMuted: false,
       spaceMutedUserIds: new Set(['space-1:me']),
     });
-    useAuthStore.setState({ user: { id: 'me', username: 'me' } as User, myRowIds: new Map([['', 'me']]) });
+    useAuthStore.setState({ user: { id: 'me', username: 'me' } as User });
     render(<MobileVoiceMiniBar />);
     fireEvent.click(screen.getByRole('button', { name: i18n.t('voice:controls.mute') }));
     expect(useVoiceStore.getState().isMuted).toBe(false);
-    expect(wsSend).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'voice_status' }), expect.anything());
+    expect(wsSend).not.toHaveBeenCalled();
   });
 });

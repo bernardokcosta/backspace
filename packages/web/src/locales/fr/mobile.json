@@ -1,5 +1,16 @@
 {
-  "nav": { "spaces": "Espaces", "dms": "Messages privés", "you": "Toi" },
-  "you": { "editProfile": "Modifier le profil", "homeInstance": "Instance d’origine : {{domain}}", "logOutConfirm": "Veux-tu vraiment te déconnecter ?" },
-  "chat": { "openCall": "Ouvrir l’appel", "cancelCall": "Annuler l’appel", "unknownChannel": "canal" }
+  "nav": {
+    "spaces": "Espaces",
+    "dms": "Messages privés",
+    "you": "Toi"
+  },
+  "you": {
+    "editProfile": "Modifier le profil",
+    "logOutConfirm": "Veux-tu vraiment te déconnecter ?"
+  },
+  "chat": {
+    "openCall": "Ouvrir l’appel",
+    "cancelCall": "Annuler l’appel",
+    "unknownChannel": "canal"
+  }
 }

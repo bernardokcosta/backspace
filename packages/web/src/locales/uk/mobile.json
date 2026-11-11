@@ -6,7 +6,6 @@
   },
   "you": {
     "editProfile": "Редагувати профіль",
-    "homeInstance": "Домашня інстанція: {{domain}}",
     "logOutConfirm": "Ви впевнені, що хочете вийти?"
   },
   "chat": {

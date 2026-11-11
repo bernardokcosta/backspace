@@ -29,18 +29,14 @@ function makeUser(id: string, username: string, displayName: string | null): Use
     customStatus: null,
     isAdmin: false,
     createdAt: 1,
-    homeInstance: null,
-    homeUserId: null,
-    replicatedInstances: [],
   };
 }
 
-const ORBIT = 'https://orbit.example';
-const me = makeUser('me-home', 'alice', 'Alice');
+const me = makeUser('me-orbit', 'alice@retained.invalid', 'Alice');
 const meOnOrbit = makeUser('me-orbit', 'alice@home.example', 'Alice');
 const kaiOnOrbit = makeUser('kai-orbit', 'kai', 'Kai');
 
-// A DM pinned to a remote origin: every id in it is that origin's id.
+// Native DM member IDs match the authenticated account ID exactly.
 const remoteDm = {
   id: 'dm-r',
   ownerId: null,
@@ -72,21 +68,18 @@ function rowOf(message: MessageWithUser): HTMLElement {
 
 beforeEach(() => {
   useAuthStore.setState({ user: me });
-  useAuthStore.getState().recordMyRow(ORBIT, meOnOrbit.id);
   useSpaceStore.setState({
     dmChannels: [remoteDm],
-    channelOriginMap: new Map([[remoteDm.id, ORBIT]]),
   });
 });
 
 afterEach(() => {
   useAuthStore.setState({ user: null });
-  useSpaceStore.setState({ dmChannels: [], channelOriginMap: new Map() });
-  useAuthStore.setState({ myRowIds: new Map() });
+  useSpaceStore.setState({ dmChannels: [] });
 });
 
 describe('Message mention highlight (#332)', () => {
-  it("highlights a mention of my id on the DM's origin", () => {
+  it('highlights a mention of my native account ID', () => {
     const message = dmMessage(`hey <@${meOnOrbit.id}>`);
     render(<Message message={message} isCompact={false} isFirstInGroup previousMessageId={null} />);
     expect(rowOf(message).className).toContain('border-l-accent-amber');
@@ -94,8 +87,8 @@ describe('Message mention highlight (#332)', () => {
     expect(screen.getByText('@Alice')).toBeInTheDocument();
   });
 
-  it("does not highlight my home id in a DM on another origin (that id is someone else's there)", () => {
-    const message = dmMessage(`hey <@${me.id}>`);
+  it('does not highlight a different native account ID', () => {
+    const message = dmMessage('hey <@someone-else>');
     render(<Message message={message} isCompact={false} isFirstInGroup previousMessageId={null} />);
     expect(rowOf(message).className).not.toContain('border-l-accent-amber');
   });

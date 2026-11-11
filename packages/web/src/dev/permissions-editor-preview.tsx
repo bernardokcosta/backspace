@@ -33,7 +33,7 @@ import { createRoot } from 'react-dom/client';
 import type { Channel, ChannelCategory, MemberWithUser, Role, User } from '@veyvox/shared';
 import { ChannelSettingsModal } from '../components/modals/ChannelSettingsModal';
 import { CategorySettingsModal } from '../components/modals/CategorySettingsModal';
-import { useSpaceStore, type TaggedSpace } from '../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../stores/spaceStore';
 import { useUIStore } from '../stores/uiStore';
 import { ALL_PERMISSIONS, PermissionBits, permissionsToString } from '../utils/permissions';
 import { initI18n } from '../i18n';
@@ -50,7 +50,7 @@ const CATEGORY_ID = 'category-1';
 
 const CATEGORY: ChannelCategory = { id: CATEGORY_ID, spaceId: SPACE_ID, name: 'Staff only', position: 0, isPrivate: true, createdAt: 1 };
 
-const SPACE: TaggedSpace = {
+const SPACE: SpaceWithMyRoles = {
   id: SPACE_ID,
   name: 'Aether Drift',
   icon: null,
@@ -61,7 +61,6 @@ const SPACE: TaggedSpace = {
   visibility: 'public',
   description: '',
   createdAt: 1,
-  _instanceOrigin: '',
 };
 
 const CHANNEL: Channel = {
@@ -91,7 +90,6 @@ function user(id: string, username: string, displayName: string | null): User {
   return {
     id, username, displayName, avatar: null, banner: null, accentColor: null, avatarColor: null,
     bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
-    homeInstance: null, homeUserId: null, replicatedInstances: [],
   };
 }
 

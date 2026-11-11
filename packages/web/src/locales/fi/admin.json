@@ -4,7 +4,6 @@
     "description": "Määritä Veyvox-instanssisi. Nämä asetukset koskevat kaikkia käyttäjiä.",
     "instanceName": {
       "label": "Instanssin nimi",
-      "description": "Nimi, joka näkyy kirjautumissivulla ja federoiduille instansseille.",
       "counter": "{{length}}/{{max}}"
     },
     "gif": {
@@ -19,16 +18,10 @@
   },
   "registration": {
     "title": "Rekisteröinti",
-    "description": "Hallitse kuka voi luoda tilejä tällä instanssilla. Julkinen rekisteröinti kattaa paikalliset rekisteröinnit; federoitu rekisteröinti kattaa yhdistettyjen instanssien käyttäjät, jotka luovat tilin tänne.",
     "public": {
       "label": "Julkinen rekisteröinti",
       "toggleLabel": "Salli uudet paikalliset tilit",
       "toggleDescription": "Kuka tahansa voi luoda paikallisen tilin rekisteröintisivulla. Kun pois, uudet paikalliset tilit vain kutsulinkillä."
-    },
-    "federated": {
-      "label": "Federoitu rekisteröinti",
-      "toggleLabel": "Salli uudet federoidut tilit",
-      "toggleDescription": "Muiden instanssien käyttäjät voivat luoda federoidun tilin tänne yhteysasetuksistaan. Olemassa olevat federoidut tilit voivat aina kirjautua, tästä asetuksesta riippumatta."
     },
     "spaceCreation": {
       "label": "Tilojen luonti",
@@ -355,8 +348,6 @@
     "loadFailed": "Käyttäjien lataus epäonnistui",
     "empty": "Käyttäjiä ei löytynyt",
     "filters": {
-      "allInstances": "Kaikki instanssit",
-      "localOnly": "Vain paikalliset",
       "allRoles": "Kaikki roolit",
       "admin": "Ylläpitäjä",
       "nonAdmin": "Ei-ylläpitäjä",
@@ -376,9 +367,7 @@
     "actions": {
       "demote": "Poista ylläpitäjän oikeudet",
       "promote": "Anna ylläpitäjän oikeudet",
-      "federatedNoAdmin": "Federoidut käyttäjät eivät voi olla ylläpitäjiä",
       "resetPassword": "Nollaa salasana",
-      "federatedNoReset": "Federoidut käyttäjät kirjautuvat koti-instanssinsa kautta",
       "delete": "Poista käyttäjä",
       "selfDelete": "Käytä asetuksia oman tilisi poistamiseen"
     },
@@ -405,15 +394,7 @@
     "deleteDialog": {
       "title": "Poista käyttäjä",
       "description": "Poistetaanko <strong>{{username}}</strong> pysyvästi? Käyttäjä poistetaan kaikista tiloista, suorista viesteistä ja kaverilistoista. Tätä ei voi perua.",
-      "confirm": "Poista käyttäjä",
-      "blockBot": "Älä anna tämän botin rekisteröityä uudelleen",
-      "blockBotHint": "Kun sen koti-instanssi palaa, botti ei voi luoda tiliä täällä. Kumoa esto käyttäjälistan alta."
-    },
-    "blockedBots": {
-      "title": "Estetyt botit",
-      "description": "Muiden instanssien botit, jotka eivät saa rekisteröityä täällä. Kumoa botin esto salliaksesi pääsyn uudelleen.",
-      "blockedAt": "Estetty {{date}}",
-      "unblock": "Kumoa esto"
+      "confirm": "Poista käyttäjä"
     }
   },
   "mobile": {
@@ -421,7 +402,6 @@
     "sections": {
       "general": "Yleiset",
       "registration": "Rekisteröinti",
-      "federation": "Federointi",
       "streaming": "Striimaus",
       "storage": "Tallennus",
       "updates": "Päivitykset",

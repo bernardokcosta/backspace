@@ -9,17 +9,6 @@ vi.mock('../audio/AudioManager', () => ({
   },
 }));
 
-vi.mock('./instanceStore', () => ({
-  useInstanceStore: Object.assign(
-    (selector: (s: unknown) => unknown) => selector({ instances: [], _autoConnectDone: true }),
-    {
-      getState: () => ({ instances: [], _autoConnectDone: true }),
-      setState: vi.fn(),
-      subscribe: vi.fn(),
-    }
-  ),
-}));
-
 vi.mock('./authStore', () => ({
   useAuthStore: Object.assign(
     (selector: (s: unknown) => unknown) => selector({ user: null, token: null }),

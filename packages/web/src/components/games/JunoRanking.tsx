@@ -12,11 +12,11 @@ export function JunoRanking({ onBack }: { onBack: () => void }) {
   const loadRanking = useJunoStore(s => s.loadRanking);
   const creditedRound = useJunoStore(s => s.snapshot?.game?.scoreboard?.status === 'credited' ? s.snapshot.game.scoreboard.roundId : null);
   const spaceId = useSpaceStore(s => target ? s.spaceChannelIndex.get(target.channelId)?.spaceId : undefined);
-  const spaceName = useSpaceStore(s => s.spaces.find(sp => sp.id === spaceId && sp._instanceOrigin === target?.origin)?.name);
-  const scope = useMemo(() => target && spaceId ? { accountId: target.accountId, origin: target.origin, spaceId, selfId: target.selfId } : null,
+  const spaceName = useSpaceStore(s => s.spaces.find(sp => sp.id === spaceId)?.name);
+  const scope = useMemo(() => target && spaceId ? { userId: target.userId, origin: target.origin, spaceId } : null,
     [target, spaceId]);
-  const matches = !!scope && ranking.target?.accountId === scope.accountId && ranking.target.origin === scope.origin
-    && ranking.target.spaceId === scope.spaceId && ranking.target.selfId === scope.selfId;
+  const matches = !!scope && ranking.target?.userId === scope.userId && ranking.target.origin === scope.origin
+    && ranking.target.spaceId === scope.spaceId;
   const page = matches ? ranking.page : null;
   const [offset, setOffset] = useState(page?.offset ?? 0);
   useEffect(() => { if (scope) void loadRanking(scope, { limit: 25, offset }); }, [scope, offset, creditedRound, loadRanking]);
@@ -41,7 +41,7 @@ export function JunoRanking({ onBack }: { onBack: () => void }) {
           {page.entries.map(row => <li key={row.user.id} className={`juno-score-row${row.rank === 1 ? ' juno-first-place' : ''}`}>
             <span className="juno-place" aria-label={t('juno.rank')}><b>{formatNumber(row.rank)}</b></span>
             <JunoPlayerBadge person={{ userId: row.user.id, name: row.nickname ?? row.user.displayName ?? row.user.username, user: row.user, nickname: row.nickname }}
-              origin={scope?.origin ?? ''} spaceId={spaceId ?? ''} self={row.user.id === target?.selfId}
+              spaceId={spaceId ?? ''} self={row.user.id === target?.userId}
               detail={<>{t('juno.wins', { count: row.wins })} · {t('juno.rounds', { count: row.completedRounds })}</>} />
             <span className="juno-rank-xp"><strong>{formatNumber(row.totalXp)}</strong><small>{t('juno.totalXp')}</small></span>
           </li>)}

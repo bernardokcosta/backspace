@@ -22,8 +22,8 @@ vi.mock('./hwOverdrive', () => ({ activate: vi.fn(), deactivate: vi.fn() }));
 vi.mock('./voice', () => ({ broadcastVoiceStatus: vi.fn() }));
 vi.mock('../audio/AudioManager', () => ({ AudioManager: { getInstance: () => ({}) } }));
 vi.mock('./livekitInternals', () => ({ getPublisherPC: vi.fn(() => null), getMediaStreamTrack: vi.fn(() => null) }));
-vi.mock('./streamHostLimits', () => ({
-  getStreamHostLimits: () => ({
+vi.mock('../stores/settingsStore', () => ({
+  getStreamingLimits: () => ({
     minBitrateKbps: 500,
     maxBitrateKbps: 20_000,
     allowCustomBitrate: true,

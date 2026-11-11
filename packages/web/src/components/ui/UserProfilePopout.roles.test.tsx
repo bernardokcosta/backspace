@@ -9,9 +9,10 @@ vi.mock('../../audio/AudioManager', () => ({
     getInstance: vi.fn().mockReturnValue({ setOutputDevice: vi.fn(), setVolume: vi.fn() }),
   },
 }));
-vi.mock('../../utils/mutuals', () => ({
-  loadFederatedMutuals: vi.fn().mockResolvedValue({ mutualFriends: [], mutualSpaces: [] }),
-}));
+vi.mock('../../api/client', async original => {
+  const actual = await original<typeof import('../../api/client')>();
+  return { ...actual, api: { ...actual.api, users: { ...actual.api.users, getMutuals: vi.fn().mockResolvedValue({ mutualFriends: [], mutualSpaces: [] }) } } };
+});
 
 import { UserProfilePopout } from './UserProfilePopout';
 import { useSpaceStore, type TaggedSpace } from '../../stores/spaceStore';
@@ -30,13 +31,11 @@ function role(id: string, name: string, position: number): Role {
   return { id, spaceId: SPACE_ID, name, color: '#c4b5fd', position, createdAt: 1 };
 }
 
-// A member whose home is another instance: the space's instance knows them by
-// a local replicated id, which is the id the member row and the context carry.
+// An offline native member; the account's exact username is display data.
 const MIRA: User = {
   id: 'local-mira', username: 'mira@orbit.example', displayName: 'Mira', avatar: null, banner: null,
   accentColor: null, avatarColor: null, bio: null, status: 'offline', customStatus: null,
-  isAdmin: false, createdAt: 1, homeInstance: 'orbit.example', homeUserId: 'home-mira',
-  replicatedInstances: [],
+  isAdmin: false, createdAt: 1,
 };
 
 const MEMBER: MemberWithUser = {

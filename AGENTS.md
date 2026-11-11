@@ -20,9 +20,8 @@ pnpm --filter @veyvox/desktop build:ts      # desktop is NOT part of pnpm build;
 pnpm lint                     # eslint flat config, --max-warnings 0
 pnpm lint:prune               # run after FIXING a suppressed violation (see below)
 
-pnpm -r test                                          # all suites (includes 2-instance federation e2e, ~+1 min, no Docker needed)
+pnpm -r test                                          # all suites, including disposable native/upgrade e2e
 pnpm --filter @veyvox/server test -- <file|pattern>  # single server test
-pnpm --filter @veyvox/server test:federation-e2e     # federation e2e only
 pnpm --filter @veyvox/web test -- <file|pattern>     # single web test
 ```
 
@@ -52,11 +51,11 @@ scripts/          — one-off Node tooling (bump-version, check-i18n, gen-icons)
 
 ## Rules
 
-- **Federation-aware, always.** Never assume a single global user ID. Resolve the per-instance identity (`homeUserId`+`homeInstance`, `resolveLocalUser`/`resolveOrCreateReplicatedUser`) for ID comparisons, permission checks, and remote calls. Client side: route via origin (`getChannelOrigin`/`getApiForOrigin`), never hardcode one API base. See `federation.md` + `client-federation.md`.
+- **One selected server, native IDs.** Use the authenticated native account ID for comparisons, permissions and calls, and the existing primary API/socket. Current-server metadata scopes caches/transfers/drafts, never alternate credentials. Preserve exact legacy usernames; do not infer identity from `@` or revive peer routing. See `client-federation.md`.
 - **TypeScript strict, no `any`. Complete implementations only** — no placeholders, TODO stubs, or partial components. Match surrounding patterns; don't introduce new ones.
 - **No new dependencies without justification.** Must be permissive (MIT/ISC/Apache-2.0/BSD) or weak-copyleft only at arm's length. Never strong copyleft (GPL/AGPL) or SSPL/BUSL/non-commercial — incompatible with `AGPL-3.0-only`.
-- **Architectural changes need a design note first** (a short issue laying out problem, approach, and alternatives): new global mechanisms, framework deps/platforms, DB schema, REST/WS contracts, federation protocol, permission model, preload bridge, or anything spanning >2 subsystems.
-- **Update `docs/systems/*.md` in the same PR when you change** schema, API routes, WS events, federation, permissions, voice, design system, or localization. Never for plain UI/logic fixes.
+- **Architectural changes need a design note first** (a short issue laying out problem, approach, and alternatives): new global mechanisms, framework deps/platforms, DB schema, REST/WS contracts, permission model, preload bridge, or anything spanning >2 subsystems.
+- **Update `docs/systems/*.md` in the same PR when you change** schema, API routes, WS events, permissions, voice, design system, or localization. Never for plain UI/logic fixes.
 - **Design system "Aether Drift"** (`docs/systems/design-system.md`): floating elements use glass (`.glass*`), never `bg-surface-elevated`; form inputs use `.input-standard` / `.input-search` / `.input-embedded` / `.input-danger` (no resting borders); brand primary `#7c6cf6`.
 - **PR-ready means**: `pnpm build` + both dev servers start clean + affected tests pass + `pnpm lint` exits 0 + spec updated + you ran the thing (screenshot/recording for packaging or UI changes).
 

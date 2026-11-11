@@ -49,9 +49,6 @@ function makeUser(overrides: Partial<User> = {}): User {
     customStatus: null,
     isAdmin: false,
     createdAt: 0,
-    homeInstance: null,
-    homeUserId: null,
-    replicatedInstances: [],
     ...overrides,
   };
 }
@@ -71,7 +68,6 @@ function renderRow(props: Partial<Parameters<typeof DmMemberRow>[0]> = {}) {
     <>
       <DmMemberRow
         member={member}
-        origin={props.origin ?? ''}
         isOwner={props.isOwner ?? false}
         isSelf={props.isSelf ?? false}
         callerIsOwner={props.callerIsOwner ?? false}
@@ -167,16 +163,16 @@ describe('DmMemberRow — menu visibility', () => {
 });
 
 describe('DmMemberRow — visual markers', () => {
-  it('renders the federation globe + @domain subtitle for federated members', () => {
-    const federated = makeUser({
+  it('keeps a retained handle whole without a globe or domain subtitle', () => {
+    const retained = makeUser({
       id: 'u-fed',
       username: 'bob@orbit.example',
-      homeInstance: 'orbit.example',
+      displayName: null,
     });
-    const { container } = renderRow({ member: federated });
-    expect(container.querySelector('[data-federation-globe]')).toBeTruthy();
-    // Subtitle "@orbit.example"
-    expect(container.textContent).toContain('@orbit.example');
+    const { container } = renderRow({ member: retained });
+    expect(container.querySelector('[data-federation-globe]')).toBeNull();
+    expect(screen.getByText('bob@orbit.example')).toBeInTheDocument();
+    expect(screen.queryByText('@orbit.example')).toBeNull();
   });
 
   it('shows a display name that contains "@" in full, without a globe', () => {
@@ -296,7 +292,6 @@ describe('DmMemberRow — profile popout anchoring', () => {
     // own coordinates once it knows how tall it is (see UserProfilePopout).
     expect(openUserProfileMock).toHaveBeenCalledWith(
       expect.objectContaining({ id: member.id }),
-      '',
       rect,
       'left',
     );

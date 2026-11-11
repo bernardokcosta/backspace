@@ -3,25 +3,15 @@ import type { InstanceStreamingLimits, InstanceAdminSettings, InstanceUpdateStat
 import { api } from '../api/client';
 import { describeError } from '../i18n/errors';
 import { EMPTY_ACK, readUpdateAck, writeUpdateAck, pendingUpdateVersion, type UpdateAck } from '../utils/updateAck';
-import { getApiForOrigin } from '../utils/crossStoreResolvers';
 import { invalidateHomeInstanceInfo } from '../hooks/useHomeInstanceInfo';
 
 interface SettingsState {
-  /** Home's streaming document. Also carries home's discovery flags. */
+  /** Current instance streaming document and discovery flags. */
   streamingLimits: InstanceStreamingLimits | null;
-  /**
-   * Streaming documents of other instances, keyed by origin. A voice channel in
-   * a federated space streams through that instance's LiveKit, so its limits
-   * are the ones a screen share there obeys. Filled by
-   * `fetchStreamingLimitsFor` when a voice connection to that origin starts.
-   */
-  streamingLimitsByOrigin: Record<string, InstanceStreamingLimits>;
   instanceSettings: InstanceAdminSettings | null;
   isAdmin: boolean;
   gifEnabled: boolean;
   fetchStreamingLimits: () => Promise<void>;
-  /** Fetch a remote instance's streaming document; `''` is a no-op (home has its own field). */
-  fetchStreamingLimitsFor: (origin: string) => Promise<void>;
   updateStreamingLimits: (limits: Partial<InstanceStreamingLimits>) => Promise<void>;
   fetchInstanceSettings: () => Promise<void>;
   updateInstanceSettings: (data: Partial<InstanceAdminSettings>) => Promise<void>;
@@ -52,31 +42,9 @@ export const DEFAULT_STREAMING_LIMITS: InstanceStreamingLimits = {
   allowCustomBitrate: true,
 };
 
-/**
- * The streaming document of the instance at `origin` (`''` = home), or null
- * while it is not known. Readers that state a fact to the user use this and
- * treat null as unknown.
- */
-export function selectStreamingLimits(
-  state: Pick<SettingsState, 'streamingLimits' | 'streamingLimitsByOrigin'>,
-  origin: string,
-): InstanceStreamingLimits | null {
-  if (!origin) return state.streamingLimits;
-  return state.streamingLimitsByOrigin[origin] ?? null;
-}
-
-/**
- * The limits of the instance at `origin`, with the defaults standing in while
- * its document is unknown.
- *
- * This is the one place a default may be substituted: a screen share has to
- * pick a bitrate whatever the server said. Everything that states a fact to
- * the user, or offers to change one, reads `selectStreamingLimits` and treats
- * null as unknown. An unknown remote falls back to the defaults, never to
- * home's document, which says nothing about another instance.
- */
-export function getStreamingLimits(origin: string): InstanceStreamingLimits {
-  return selectStreamingLimits(useSettingsStore.getState(), origin) ?? DEFAULT_STREAMING_LIMITS;
+/** Numeric media defaults while the current instance's policy is not yet loaded. */
+export function getStreamingLimits(): InstanceStreamingLimits {
+  return useSettingsStore.getState().streamingLimits ?? DEFAULT_STREAMING_LIMITS;
 }
 
 /**
@@ -92,10 +60,10 @@ export const UPDATE_STATUS_REFRESH_MS = 6 * 60 * 60 * 1000;
 let updateStatusTimer: ReturnType<typeof setTimeout> | null = null;
 /** Coalesces concurrent callers (WS ready and a panel mount) into one request. */
 let updateStatusInFlight: Promise<void> | null = null;
+let sessionGeneration = 0;
 
 export const useSettingsStore = create<SettingsState>((set) => ({
   streamingLimits: null,
-  streamingLimitsByOrigin: {},
   instanceSettings: null,
   isAdmin: false,
   gifEnabled: false,
@@ -106,20 +74,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       set({ streamingLimits: limits });
     } catch (err) {
       // Keep an unknown document unknown. Screen-share configuration uses
-      // getStreamingLimits(origin) when it needs numeric defaults at read time.
+      // getStreamingLimits() when it needs numeric defaults at read time.
       console.warn('[Settings] Failed to fetch streaming limits:', err);
-    }
-  },
-
-  fetchStreamingLimitsFor: async (origin: string) => {
-    if (!origin) return;
-    try {
-      const limits = await getApiForOrigin(origin).settings.getStreaming();
-      set((state) => ({ streamingLimitsByOrigin: { ...state.streamingLimitsByOrigin, [origin]: limits } }));
-    } catch (err) {
-      // A document this instance sent earlier is still its policy, so a failed
-      // refresh keeps it rather than dropping to the defaults.
-      console.warn(`[Settings] Failed to fetch streaming limits from ${origin}:`, err);
     }
   },
 
@@ -179,6 +135,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
    * timer alive regardless of how many callers there are.
    */
   fetchUpdateStatus: async (refresh = false) => {
+    const generation = sessionGeneration;
     // Deliberately NOT gated on `isAdmin` here. That flag is set only by the
     // WebSocket `ready` handler, so a panel rendered before `ready` lands (or
     // during a reconnect) would be permanently stuck on an empty error state
@@ -197,20 +154,23 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     updateStatusInFlight = (async () => {
       try {
         const result = await api.admin.updateStatus(refresh);
+        if (generation !== sessionGeneration) return;
         set({
           updateStatus: result,
           updateAck: readUpdateAck(localStorage, useSettingsStore.getState().updateAckUserId),
           updateStatusError: '',
         });
       } catch (err) {
-        set({ updateStatusError: describeError(err) });
+        if (generation === sessionGeneration) set({ updateStatusError: describeError(err) });
       } finally {
-        set({ updateStatusLoading: false });
-        updateStatusInFlight = null;
-        if (updateStatusTimer !== null) clearTimeout(updateStatusTimer);
-        updateStatusTimer = setTimeout(() => {
-          void useSettingsStore.getState().fetchUpdateStatus();
-        }, UPDATE_STATUS_REFRESH_MS);
+        if (generation === sessionGeneration) {
+          set({ updateStatusLoading: false });
+          updateStatusInFlight = null;
+          if (updateStatusTimer !== null) clearTimeout(updateStatusTimer);
+          updateStatusTimer = setTimeout(() => {
+            void useSettingsStore.getState().fetchUpdateStatus();
+          }, UPDATE_STATUS_REFRESH_MS);
+        }
       }
     })();
 
@@ -264,6 +224,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
    * this instead, keeping the import direction one-way.
    */
   resetUpdateState: () => {
+    sessionGeneration++; updateStatusInFlight = null;
     useSettingsStore.getState().stopUpdateStatusRefresh();
     set({
       isAdmin: false,

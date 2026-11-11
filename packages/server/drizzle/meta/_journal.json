@@ -344,6 +344,20 @@
       "when": 1793900727944,
       "tag": "0048_nasty_kinsey_walden",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "6",
+      "when": 1794353296483,
+      "tag": "0049_standalone_core",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "6",
+      "when": 1794415320285,
+      "tag": "0050_standalone_cleanup",
+      "breakpoints": true
     }
   ]
 }

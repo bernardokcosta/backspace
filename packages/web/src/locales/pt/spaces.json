@@ -159,21 +159,6 @@
     "invitePlaceholder": "ex.: abc123 ou https://instancia.com/join/abc123",
     "submit": "Entrar no espaço",
     "submitting": "Entrando...",
-    "connect": {
-      "intro": "Conecte-se a <host>{{host}}</host> para entrar neste espaço.",
-      "passwordLabel": "Digite sua senha para conectar",
-      "passwordPlaceholder": "A senha da sua conta",
-      "passwordNote": "Sua senha é verificada pela sua instância de origem e nunca é enviada para {{host}}. Essa instância recebe uma credencial única, gerada só para ela.",
-      "submit": "Conectar e entrar",
-      "submitting": "Conectando..."
-    },
-    "fallback": {
-      "usernamePlaceholder": "Seu nome de usuário nesta instância",
-      "passwordLabel": "Senha desta instância",
-      "passwordPlaceholder": "Senha na instância remota",
-      "submit": "Entrar e participar",
-      "submitting": "Entrando..."
-    },
     "request": {
       "messagePlaceholder": "Por que você quer entrar? (opcional)",
       "send": "Enviar solicitação",
@@ -455,12 +440,10 @@
       "transferOwnership": "Transferir propriedade",
       "settings": "Configurações do espaço",
       "leave": "Sair do espaço",
-      "reconnecting": "Reconectando a {{instance}}…",
-      "remoteInstance": "instância remota",
       "leaveConfirm": {
         "title": "Sair do espaço",
         "titleNamed": "Sair de {{name}}",
-          "description": "Tem certeza de que deseja sair deste espaço? Você precisará de um convite para entrar de novo."
+        "description": "Tem certeza de que deseja sair deste espaço? Você precisará de um convite para entrar de novo."
       },
       "left": "Você saiu do espaço",
       "leaveFailed": "Falha ao sair do espaço",

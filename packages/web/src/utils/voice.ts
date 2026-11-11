@@ -1,10 +1,10 @@
 import { useVoiceStore } from '../stores/voiceStore';
-import { getChannelOrigin, getMyUserIdForOrigin, useSpaceStore } from '../stores/spaceStore';
+import { useSpaceStore } from '../stores/spaceStore';
+import { useAuthStore } from '../stores/authStore';
 import { wsSend } from '../hooks/useWebSocket';
 import { AudioManager } from '../audio/AudioManager';
 import { useUIStore } from '../stores/uiStore';
 import i18n from '../i18n';
-import { dmCallOrigin, sendDmCallEnd, voiceSessionOrigin } from './dmCall';
 
 // ---------------------------------------------------------------------------
 // Effective-state helpers — single source of truth for broadcasts
@@ -13,11 +13,8 @@ import { dmCallOrigin, sendDmCallEnd, voiceSessionOrigin } from './dmCall';
 /**
  * Compute effective mute/deafen by merging user intent with server enforcement,
  * then broadcast the effective voice_status over the WebSocket.
- *
- * @param overrideOrigin  Pass explicitly when called from a WS handler that
- *                        knows the origin. Omit to derive from currentVoiceChannelId.
  */
-export function broadcastVoiceStatus(overrideOrigin?: string): void {
+export function broadcastVoiceStatus(): void {
   const vs = useVoiceStore.getState();
   const {
     isMuted, isDeafened, isCameraOn, isScreenSharing, currentVoiceChannelId,
@@ -25,8 +22,7 @@ export function broadcastVoiceStatus(overrideOrigin?: string): void {
   } = vs;
   if (!currentVoiceChannelId && !activeDmCall) return;
 
-  const origin = overrideOrigin ?? voiceSessionOrigin(vs);
-  const myId = getMyUserIdForOrigin(origin);
+  const myId = useAuthStore.getState().user?.id;
   const spaceId = currentVoiceChannelId
     ? useSpaceStore.getState().channelToSpaceMap.get(currentVoiceChannelId)
     : null;
@@ -35,7 +31,7 @@ export function broadcastVoiceStatus(overrideOrigin?: string): void {
   const effectiveMuted = isMuted || spaceMutedUserIds.has(spaceKey);
   const effectiveDeafened = isDeafened || spaceDeafenedUserIds.has(spaceKey);
 
-  wsSend({ type: 'voice_status', isMuted: effectiveMuted, isDeafened: effectiveDeafened, isCameraOn, isScreenSharing }, origin);
+  wsSend({ type: 'voice_status', isMuted: effectiveMuted, isDeafened: effectiveDeafened, isCameraOn, isScreenSharing });
 }
 
 /**
@@ -47,8 +43,7 @@ export function broadcastDeafenViaLiveKit(): void {
   const { isDeafened, currentVoiceChannelId, spaceDeafenedUserIds } = vs;
   if (!currentVoiceChannelId) return;
 
-  const origin = getChannelOrigin(currentVoiceChannelId);
-  const myId = getMyUserIdForOrigin(origin);
+  const myId = useAuthStore.getState().user?.id;
   const spaceId = useSpaceStore.getState().channelToSpaceMap.get(currentVoiceChannelId);
   const spaceKey = (spaceId && myId) ? `${spaceId}:${myId}` : '';
   const effectiveDeafened = isDeafened || spaceDeafenedUserIds.has(spaceKey);
@@ -83,9 +78,6 @@ export function broadcastDeafenViaLiveKit(): void {
  * still points at the old space channel, the DM call's participants get mapped
  * onto it and the local user appears to still be sitting in the space channel.
  *
- * When the channel is on another instance than the call goes through, that
- * instance is sent `voice_leave`: nothing else tells it the user left.
- *
  * Clears `currentVoiceChannelId` directly (not via `setCurrentVoiceChannel`,
  * which would also wipe the `activeDmCall` the caller/acceptor just set) and
  * optimistically removes self from the old channel's `voiceUsers` so the
@@ -93,16 +85,10 @@ export function broadcastDeafenViaLiveKit(): void {
  * broadcast.
  */
 export function clearSpaceVoiceForDmCall(): void {
-  const { currentVoiceChannelId, removeVoiceUser, activeDmCall } = useVoiceStore.getState();
+  const { currentVoiceChannelId, removeVoiceUser } = useVoiceStore.getState();
   if (!currentVoiceChannelId) return;
 
-  const origin = getChannelOrigin(currentVoiceChannelId);
-  // The instance the call goes through takes the user out of its own voice
-  // channel when it sees the call. The channel's instance hears nothing of a
-  // call that goes through another one, so it is told here, or it keeps the
-  // user in the channel until their socket to it closes.
-  if (activeDmCall && dmCallOrigin(activeDmCall) !== origin) wsSend({ type: 'voice_leave' }, origin);
-  const myId = getMyUserIdForOrigin(origin);
+  const myId = useAuthStore.getState().user?.id;
   if (myId) removeVoiceUser(currentVoiceChannelId, myId);
 
   useVoiceStore.setState({ currentVoiceChannelId: null });
@@ -159,10 +145,7 @@ export function preArmMicrophone(): void {
 // ---------------------------------------------------------------------------
 
 /**
- * Centralized voice channel join that handles cross-instance cleanup.
- * When switching from a channel on Instance A to one on Instance B,
- * this sends an explicit voice_leave to Instance A first so it
- * broadcasts a leave event and the client cleans up stale voice state.
+ * Centralized native voice join; the server seats the user in exactly one room.
  *
  * **iOS user-gesture discipline.** `getUserMedia({audio:…})` is fired
  * synchronously here (before any await crosses the gesture boundary) so
@@ -209,37 +192,17 @@ export function joinVoiceChannel(
   // back into the channel the user never meant to leave.
   if (currentVoiceChannelId === channelId && voiceConnectionStatus !== 'disconnected') return;
 
-  const newOrigin = getChannelOrigin(channelId);
-
-  // A DM call held through another instance is left there: the channel's
-  // instance takes the user out of a call only when the call goes through
-  // it (its voice_join does). `voice_leave` leaves the call the way joining
-  // voice there would; a call still ringing is cancelled.
-  {
-    const { activeDmCall, outgoingCall, setOutgoingCall } = useVoiceStore.getState();
-    if (activeDmCall && dmCallOrigin(activeDmCall) !== newOrigin) {
-      wsSend({ type: 'voice_leave' }, dmCallOrigin(activeDmCall));
-    }
-    if (outgoingCall && getChannelOrigin(outgoingCall.dmChannelId) !== newOrigin) {
-      sendDmCallEnd({ dmChannelId: outgoingCall.dmChannelId, federatedCallId: null, callOrigin: null });
-      setOutgoingCall(null);
-    }
-  }
-
-  // Leave old instance if switching cross-origin
+  // The server's voice_join also ends/replaces this user's old DM call.
   if (currentVoiceChannelId) {
-    const oldOrigin = getChannelOrigin(currentVoiceChannelId);
-    if (oldOrigin !== newOrigin) {
-      wsSend({ type: 'voice_leave' }, oldOrigin);
-    }
-    // Optimistic: immediately remove self from old channel (using origin-aware ID)
-    const myOldId = getMyUserIdForOrigin(oldOrigin);
+    const myOldId = useAuthStore.getState().user?.id;
     if (myOldId) removeVoiceUser(currentVoiceChannelId, myOldId);
   }
 
   setCurrentVoiceChannel(channelId);
-  // Optimistic: immediately show self in new channel (using origin-aware ID)
-  const myNewId = getMyUserIdForOrigin(newOrigin);
+  // The sole server replaces the call on voice_join; stop its local outgoing
+  // ring immediately rather than waiting for the previous call's end echo.
+  useVoiceStore.getState().setOutgoingCall(null);
+  const myNewId = useAuthStore.getState().user?.id;
   if (myNewId) addVoiceUser(channelId, myNewId);
 
   // Pre-arm the microphone INSIDE the user-gesture context, before

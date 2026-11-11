@@ -30,25 +30,13 @@ export function ensureDefaults(db: Database.Database): void {
     console.log(`[defaults] Generated Snowflake worker ID: ${workerId}`);
   }
 
-  // 2b. Ensure a persistent instance epoch (incarnation UUID) exists. A fresh
-  // DB mints a new one — this is the discriminator for detecting resets.
-  // The id=1 row is guaranteed by step 1's INSERT OR IGNORE above.
-  const epochRow = db.prepare('SELECT instance_id FROM instance_settings WHERE id = 1').get() as
-    { instance_id: string | null } | undefined;
-  if (!epochRow || epochRow.instance_id === null) {
-    const instanceId = crypto.randomUUID();
-    const res = db.prepare('UPDATE instance_settings SET instance_id = ? WHERE id = 1').run(instanceId);
-    if (res.changes !== 1) throw new Error('ensureDefaults: instance_settings id=1 row missing — cannot mint epoch');
-    console.log('[defaults] Generated instance epoch');
-  }
-
-  // 2c. Ensure installed_at is set. Existing databases get the oldest local
+  // 2b. Ensure installed_at is set. Existing databases get the oldest local
   // account's creation time, a fresh one gets now. Never overwritten.
   const installedRow = db.prepare('SELECT installed_at FROM instance_settings WHERE id = 1').get() as
     { installed_at: number | null } | undefined;
   if (!installedRow || installedRow.installed_at === null) {
     const oldest = db.prepare(
-      'SELECT created_at FROM users WHERE home_instance IS NULL AND (is_deleted IS NULL OR is_deleted = 0) ORDER BY created_at ASC LIMIT 1',
+      'SELECT created_at FROM users WHERE is_deleted IS NULL OR is_deleted = 0 ORDER BY created_at ASC LIMIT 1',
     ).get() as { created_at: number } | undefined;
     const installedAt = oldest?.created_at ?? Date.now();
     db.prepare('UPDATE instance_settings SET installed_at = ? WHERE id = 1').run(installedAt);
@@ -124,8 +112,11 @@ export function healSkippedStickerSizeMigration(db: Database.Database, migration
   if (!entry) return;
   const recorded = db.prepare('SELECT 1 FROM __drizzle_migrations WHERE created_at = ?');
   if (recorded.get(entry.when)) return;
-  // Refuse to jump over any older pending migration.
-  if (journal.entries.some(e => e.when < entry.when && !recorded.get(e.when))) {
+  // Earliest journal rows may be absent in supported pre-squash histories.
+  // Only timestamps beyond the recorded frontier are pending; never fabricate
+  // the missing prefix to make this known partial-release repair work.
+  const latest = db.prepare('SELECT MAX(created_at) AS latest FROM __drizzle_migrations').get() as { latest: number | null };
+  if (journal.entries.some(e => e.when < entry.when && e.when > (latest.latest ?? -1))) {
     throw new Error('Cannot recover sticker migration before earlier migrations are applied');
   }
   const column = cols.find(c => c.name === 'max_sticker_size_bytes')!;

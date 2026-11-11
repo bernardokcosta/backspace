@@ -50,25 +50,6 @@ vi.mock('../ws/handler.js', () => ({
   },
 }));
 
-vi.mock('../utils/federationOutbox.js', async () => {
-  const actual = await vi.importActual<typeof import('../utils/federationOutbox.js')>('../utils/federationOutbox.js');
-  return {
-    ...actual,
-    isFederationRelayEnabled: () => false,
-    queueDmCloseRelay: vi.fn(),
-    queueDmRelay: vi.fn(),
-    queueOutboxEvent: vi.fn(),
-    queueReadStateRelay: vi.fn(),
-    sendTypingRelay: vi.fn(),
-    appendMutationLog: vi.fn(),
-  };
-});
-
-vi.mock('../utils/federationAuth.js', async (importActual) => {
-  const actual = await importActual<typeof import('../utils/federationAuth.js')>();
-  return { ...actual, getOurOrigin: () => 'https://local.test' };
-});
-
 vi.mock('../utils/embedResolver.js', async (importActual) => {
   const actual = await importActual<typeof import('../utils/embedResolver.js')>();
   return {
@@ -98,7 +79,7 @@ const SECRET = 'chan-secret';
 const DM = 'dm-1';
 const OTHER_DM = 'dm-2';
 
-function seedUser(id: string, homeUserId: string | null = null, homeInstance: string | null = null): void {
+function seedUser(id: string): void {
   testDb.insert(schema.users).values({
     id,
     username: id,
@@ -108,8 +89,6 @@ function seedUser(id: string, homeUserId: string | null = null, homeInstance: st
     isAdmin: 0,
     isDeleted: 0,
     discoverable: 1,
-    homeInstance,
-    homeUserId,
     createdAt: NOW,
   }).run();
 }
@@ -157,7 +136,6 @@ function seedDm(id: string, memberIds: string[]): void {
   testDb.insert(schema.dmChannels).values({
     id,
     ownerId: null,
-    federatedId: null,
     createdAt: NOW,
     metadataUpdatedAt: 0,
   }).run();
@@ -215,7 +193,7 @@ async function buildApp(): Promise<FastifyInstance> {
 interface PageMessage {
   id: string;
   content: string;
-  user: { id: string; homeInstance: string | null };
+  user: { id: string };
   replyTo: { id: string } | null;
   reactions: { emoji: string }[];
   attachments: { originalName: string }[];
@@ -247,7 +225,7 @@ beforeEach(async () => {
   seedUser('owner');
   seedUser('reader');
   // A replicated identity, so hydration is exercised against a federated user row.
-  seedUser('remote-author', 'remote-user-1', 'https://remote.test');
+  seedUser('remote-author');
   seedUser('outsider');
   seedSpaceWithChannels();
   seedDm(DM, ['reader', 'remote-author']);
@@ -346,7 +324,7 @@ describe('GET /api/channels/:id/messages with after', () => {
     expect(forward.body).toEqual(backward.body);
     const [message] = forward.body as PageMessage[];
     expect(message!.user.id).toBe('remote-author');
-    expect(message!.user.homeInstance).toBe('https://remote.test');
+    expect(message!.user).not.toHaveProperty('homeInstance');
     expect(message!.replyTo?.id).toBe(ids[0]);
     expect(message!.reactions.map(r => r.emoji)).toEqual(['wave']);
     expect(message!.attachments.map(a => a.originalName)).toEqual(['picture.png']);
@@ -449,14 +427,12 @@ describe('GET /api/dm/:id/messages with after', () => {
     expect(forward.ids).toEqual([replyId]);
     expect(forward.body).toEqual(backward.body);
     const [message] = forward.body as PageMessage[];
-    expect(message!.user.homeInstance).toBe('https://remote.test');
+    expect(message!.user).not.toHaveProperty('homeInstance');
     expect(message!.replyTo?.id).toBe(ids[0]);
     expect(message!.reactions.map(r => r.emoji)).toEqual(['ok']);
   });
 
-  it('pages a relayed message by its local id, not by the sender\'s createdAt', async () => {
-    // A relayed message keeps the sender's createdAt but gets a local id on
-    // arrival, so it can carry a later id than a message it predates.
+  it('pages native messages by numeric id even when timestamps are out of order', async () => {
     const [cursor, local] = seedDmMessages(DM, 2);
     const relayedId = generateSnowflake();
     testDb.insert(schema.dmMessages).values({
@@ -466,8 +442,6 @@ describe('GET /api/dm/:id/messages with after', () => {
       replyToId: null,
       content: 'delivered late',
       type: 'user',
-      sourceInstance: 'https://remote.test',
-      sourceMessageId: 'remote-msg-1',
       createdAt: NOW - 100,
     }).run();
 

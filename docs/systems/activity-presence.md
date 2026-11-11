@@ -13,7 +13,7 @@ Source files:
 - `packages/web/src/components/modals/settingsPanels/PrivacyPanel.tsx` — showActivity toggle UI
 - `packages/server/src/ws/handler.ts` — ConnectionManager (in-memory activity state, rate limiting, disconnect cleanup)
 - `packages/server/src/ws/events.ts` — handlePresenceUpdate, handleActivityUpdate, validateActivities
-- `packages/server/src/utils/presenceBoot.ts` — boot-time reset of orphaned `users.status` rows (federation-safe)
+- `packages/server/src/utils/presenceBoot.ts` — boot-time reset of stale native `users.status` rows
 - `packages/server/src/routes/users.ts` — REST showActivity toggle with server-side activity clear
 - `packages/desktop/src/activityDetector.ts` — Process polling, dictionary + local-source matching, the IPC activity overlay (boundary: see Desktop section)
 - `packages/desktop/src/steamGames.ts` — Steam source: library manifests → install dirs (see desktop.md)
@@ -78,7 +78,7 @@ interface Activity {
 
 ### Server-Side Validation (`ws/presenceEvent.ts:validateActivities()`)
 
-The server validates every incoming `activity_update` payload, and the activities of every relayed S2S `presence_update` (when they fail, `processPresenceUpdateEvent` applies the status and leaves the kept activities unchanged). One function for both, so an activity a sender accepts is one every receiver accepts:
+The server validates every incoming native `activity_update` payload before publishing it:
 
 1. Must be an array with at most `MAX_ACTIVITIES_PER_USER` items
 2. Each item must be an object with a valid `type` (one of: `custom`, `playing`, `listening`, `watching`, `streaming`)
@@ -140,42 +140,21 @@ Two columns (see database.md):
 
 The rules live in `utils/presenceStatus.ts` (pure) and `ws/presence.ts`:
 
-- **On connect:** WebSocket auth (`ws/handler.ts`, after `authenticated = true`) writes `status = statusOnConnect(row)` and publishes the same value in the `ready` payload's `user`, the local `presence_update` broadcast and the S2S relay. For a row that owns its choice (native or detached, see below) that is `chosen_status`. For a replicated row it is what "Replica presence" below shows on connect; the replicated row's own `chosen_status` is never used. The REST `/api/auth/login` route does **not** set status — login alone does not imply a live socket; the WS handshake is the single source of truth.
-- **On manual change:** REST `PATCH /api/users/@me { status }` and the WS `presence_update` client event both call `applyChosenStatus`. It writes `chosen_status` (only on rows that own their choice) and, while the user is connected, `status`, the in-memory `userStatuses` cache, a `presence_update` to friends, DM and space co-members and the user's own sessions, and an S2S relay. Without a connection only `chosen_status` changes. `'offline'` is rejected (`status_invalid` over REST, an error event over WS).
-- **On disconnect:** After 5s grace period (`ws/handler.ts:finalizeDisconnect`), a row that owns its status is set to `'offline'`. A replicated row follows "Replica presence" below. `chosen_status` is untouched either way.
-- **On boot:** Server resets stale `status` rows for non-deleted accounts that own their status (native or detached; see "Boot Reset" below). `chosen_status` is untouched.
-
-### Replica presence (`ws/replicaPresence.ts`)
-
-This is the one statement of the rule. A replicated row (one that does not own its status) shows its home instance's presence, and `ws/replicaPresence.ts` is the only code that writes its `status`; the call sites below go through it.
-
-- **The projection** is what the home last reported to this process: a relayed `presence_update` (`processPresenceUpdateEvent`), the status in the profile snapshot a stub is created with (`resolveOrCreateReplicatedUser`), and `'offline'` when the peering with the home ends (`markPeerStubsOffline`). Each goes through `projectReplicaStatus`. The projection is kept in memory only, and a projection of `'offline'` and none at all are the same state. The status a row shows is never taken as a projection: after a restart it may be the `'online'` a session here left behind.
-- **Shown status** (`replicaLiveStatus` in `utils/presenceStatus.ts`): the projection, except that while a session of the user is here (open, or in its 5s grace) a projection of `'offline'` shows `'online'`. A peer deactivation therefore leaves a user with a session here shown online until that session ends.
-- **Connect** (`showReplicaStatusOnConnect`, from `ConnectionManager.publishConnectStatus`): the known projection, else the status the row shows now, with `'offline'` read as `'online'`. Nothing is recorded.
-- **The user's own choice while connected here** (`showReplicaChoice`, from `applyChosenStatus`): shown until the home's next projection or the end of the last session here. It is not recorded and not relayed; the home owns the choice.
-- **Last disconnect** (`showReplicaStatusOnDisconnect`): the row returns to the known projection, else to `'offline'` as a native row does. Local users are told only when that differs from what they saw, relayed activities are kept unless the result is `'offline'`, and nothing is relayed.
-- **Rows that own their status** (native, detached) are refused by every function and keep their own rules, so a peer deactivation does not touch a detached row.
-- **Why memory only:** without a projection the row falls back to `'offline'`. After a restart that can show a user offline here whose home still has them online, until the home's next relay; that was the behaviour before #325. Taking the shown status as the projection instead could leave a user online for good once nothing from the home would correct it (the home deactivated, or its real presence offline).
+- **On connect:** WebSocket auth writes `status = statusOnConnect(row)` from the retained `chosen_status`, then publishes the same native account/status in `ready` and `presence_update`. REST login alone does not mark a user connected.
+- **On manual change:** REST `PATCH /api/users/@me { status }` and the WS `presence_update` client event call `applyChosenStatus`. It persists `chosen_status`; while connected it also updates live status, the in-memory cache and the native profile audience/own sessions. Without a connection only the chosen value changes. `offline` is not a valid choice.
+- **On disconnect:** After the existing 5s grace (`finalizeDisconnect`), set live status to `offline` and clear activities; retain the chosen status.
+- **On boot:** Reset stale non-deleted native live statuses to `offline`, leaving chosen values unchanged.
 
 ### The client's copy of the user's own status
 
-This is the one statement of the rule; `utils/selfStatus.ts`, `utils/alerts.ts` and sounds.md point here.
-
-**Who owns the choice.** An account owns its chosen status when it is native or detached (`ownsChosenStatus` in `@veyvox/shared`: `!homeInstance || federationHomeOrphaned`), the same authority rule as profile edits and credential issuance. A detached account is homed on the instance that holds it (`federation.md`, "Detached accounts are homed here"), so its row has no `homeInstance` and `!homeInstance` alone decides; the flag still counts for a row served by an instance that predates #310. Its status is relayed to peers like a native user's, under `<local id>@<this instance>` (`queuePresenceRelay`, `snapshotPresenceForPeer`), so its friends and DM partners on other instances see it. The server stores and reads `chosen_status` only on such rows (`statusOnConnect`, `applyChosenStatus`, the `0018` backfill).
-
-**Where the client reads it.** `statusAuthority(authStore.user)` names the owner:
-- `session`: the page's own account owns the choice. Its status is `authStore.user.status`, written only from the page's own socket (`ready`, `user_updated`, and a `presence_update` about that account, which is how a change on another device arrives).
-- `trueHome`: the page's account is a replicated row, e.g. `erin@nova` signed in directly on orbit. The page instance's view of her is a projection that falls back to `'online'`, so it is ignored. The choice is `authStore.trueHomeStatus`, written only from the true home's secondary connection (its `ready`, `user_updated` and `presence_update` about the user's row there, id `homeUserId`).
-
-**Before the true home reports, and while it cannot.** Every report from the true home is also kept in `localStorage` under `backspace_true_home_status:<home host>:<home user id>` as `{ status, reportedAt }`, keyed by the home account rather than the page's row. `initSession` and `loadUser` start `trueHomeStatus` from that kept value when it is at most 24 hours old (`TRUE_HOME_STATUS_MAX_AGE_MS`, `seedTrueHomeStatus`); an older value, or one kept by an earlier version without its report time, is ignored and the choice is unknown until the true home reports. The age limit also holds while the page stays open: starting from a kept report schedules a clear of `trueHomeStatus` for the moment the report passes the maximum age, so a value loaded at 23 hours stands in for one more hour, not for the page's lifetime. The true home's first report in the page replaces the kept value and cancels that clear, as do signing out and a new sign-in (`loadUser` never overwrites a value already in the page). The evidence, in order: the true home's live report always wins; else a kept report younger than the maximum age; else unknown. The page instance's replicated row is never evidence. The age limit is why a Do Not Disturb kept from days ago does not keep alerts and rings silent after the user changed it on another device while their home is unreachable (#325). Without it, `trueHomeStatus` was null from page load until the home connection's `ready`, and forever when the home was unreachable at page load, so Do Not Disturb did not hold in that window. Nothing is kept for a `session` owner. The value can be stale: a change made on another device while this one was closed shows only once the home connection is up. While the home connection is down, `trueHomeStatus` keeps the last value the true home reported in this page and is not cleared; only a value started from a kept report expires. That is deliberate: the last known choice is a better guess for the alert gate than none, and the true home is the only place that can say otherwise. When this device never received a report for the account (and storage is empty or unreadable), the choice stays unknown until the home connection is up; closing that gap would need the page instance to carry the home's choice, which the protocol does not do.
-
-`ownStatusReport` applies exactly this for every `ready`, `user_updated` and `presence_update`, whatever the origin; anything else (other users, another instance's view of the user, `'offline'`) is ignored. `selectMyChosenStatus` in `authStore.ts` is the only read: the alert gate (sounds.md, "Do Not Disturb"), the ringing loop, the settings panel and the status dots that show the user's own status all use it.
-
-**Showing it.** A status dot that depicts the signed-in user draws `useShownStatus(subject, origin, status)` (`hooks/useShownStatus.ts`): the chosen status once known when `subject`, as `origin` issued it, is the user (`isMine`, client-federation.md section 5), otherwise `status` as given. It is used by the user area at the bottom of the channel sidebar, the profile card and the profile modal, so on a replicated session they show Do Not Disturb when the true home says so even while the page instance's view says online. Member rosters (member list, group DM roster, space member settings) still draw the instance's view, which is what other members of that instance see.
-
-**Where a change goes.** `authStore.updateProfile({ status })` sends the status to the owner: the page's instance for `session`, the true home's API for `trueHome` (refused with `settings:account.details.status.homeUnavailable` while that connection is down, never written to the page's instance).
-
-**Re-sending to remotes.** On a remote instance's `ready`, a `session` owner re-sends its status as a `presence_update` when the remote's view differs, because a remote that saw the client disconnect falls back to `'online'`. Only when the remote account is this user's federated identity (`isMyFederatedIdentity`: its home host and home user id name the user's home account, the check `ensureRemoteCredential` uses); never from a `trueHome` session, and never to a separate account that happens to be signed in on that remote.
+Every retained account owns its native chosen status. `authStore.user` receives
+the current socket's own `ready`, user update and presence events; identity
+comparisons use the account ID. `selectMyChosenStatus` is the shared read for
+Do Not Disturb, ringing, settings and self-status display. `useShownStatus`
+substitutes that choice only for the current native user; other roster rows keep
+their published status. `authStore.updateProfile({ status })` writes through the
+primary API. There is no secondary status authority, old-host cache or resend to
+peer sessions. Logout/replacement invalidates old reports.
 
 ### Boot Reset (`utils/presenceBoot.ts`)
 
@@ -183,20 +162,20 @@ This is the one statement of the rule; `utils/selfStatus.ts`, `utils/alerts.ts` 
 
 `resetStalePresenceOnBoot()` runs once during server boot in `index.ts`, after `getDb()`/`seedDatabase()` and before WebSocket route registration. It sets `status = 'offline'` on every row that passes three guards:
 
-1. **The account owns its status** (`ownsChosenStatus`: native, or detached from a reset home). Such a row's live `status` is this instance's WebSocket state, so it is stale after a restart. A replicated row (home instance elsewhere, not detached) has its status projected to us by the home instance via S2S `presence_update` relay events (see `federation.md` §10 — Presence Sync) and is not touched on our boot. On peer deactivation, `markPeerStubsOffline` projects `offline` for those rows ("Replica presence"); on peer (re)activation, the home instance re-emits a fresh snapshot for relationship-related online natives.
+1. **Native live state belongs to this process.** No retained account's presence is projected from another server.
 2. **`is_deleted = 0`** — tombstoned users are excluded from presence broadcasts already; their stored status is left alone as a maintenance courtesy (no behavioral effect either way, but avoids silent rewrites).
 3. **`status != 'offline'`** — keeps the operation a no-op once steady-state is reached; `changes` is logged only when non-zero.
 
-The candidate rows (guards 2 and 3) are selected in SQL and filtered with `ownsChosenStatus` in code, so the boot reset uses the same rule as `statusOnConnect` and `applyChosenStatus` rather than a copy of it.
+The candidate rows (guards 2 and 3) are selected in SQL. No provenance lookup or remote projection is consulted.
 
 Because the in-memory `ConnectionManager` is empty at boot by construction, no live connection can be misrepresented by this reset.
 
 ### Connect/Disconnect Flow
 
-1. **Server boot** → `resetStalePresenceOnBoot()` flips any non-deleted `online`/`idle`/`dnd` row that owns its status (native or detached) to `offline`. Replicated rows untouched.
-2. **Auth succeeds** → `status` set to the connect status (`chosen_status` for an account that owns its choice) in DB → local `presence_update` broadcast to friends + DM members + space co-members via `collectProfileBroadcastTargetIds` → S2S `presence_update` queued to all active peers via `queuePresenceRelay` (mirrors profile_update fanout).
+1. **Server boot** → `resetStalePresenceOnBoot()` flips non-deleted live statuses to `offline`, retaining chosen values.
+2. **Auth succeeds** → `status` set from `chosen_status` in DB → native `presence_update` to friends + DM members + space co-members via `collectProfileBroadcastTargetIds`.
 3. **Last socket closes** → 5-second grace period (`scheduleDisconnect`) to allow tab refresh/reconnect.
-4. **Grace period expires** → `finalizeDisconnect`: for a row that owns its status, sets DB status to `'offline'`, clears in-memory activities, broadcasts local `presence_update` to friends/DM/space co-members, queues S2S `presence_update` to peers. A replicated row follows "Replica presence" above.
+4. **Grace period expires** → `finalizeDisconnect` sets live status to `offline`, clears in-memory activities and broadcasts to the native profile audience.
 5. **Reconnect during grace** → `cancelDisconnect` prevents offline broadcast; new connection proceeds normally.
 
 ### Presence Broadcast Scope
@@ -211,9 +190,7 @@ Every emitter builds the event with `presenceUpdateFor` / `presenceUpdateEvent` 
 | `activity_update` | `handleActivityUpdate` (`ws/events.ts`) | yes |
 | `showActivity` turned off | `PATCH /api/users/@me` (`routes/users.ts`), `activities: []` | yes |
 | Connect | WS auth (`ws/handler.ts`) | no |
-| Disconnect after the grace period | `finalizeDisconnect` (`ws/handler.ts`), `offline` with `activities: []`; for a replicated row what "Replica presence" returns it to, only when it differs from what was shown | no (none left) |
-| Relayed S2S presence about a replicated user | `processPresenceUpdateEvent` (`routes/federation/events/dmState.ts`) | no |
-| Peer deactivated | `markPeerStubsOffline` (`utils/federationPresence.ts`), for each of the peer's replicated rows the status "Replica presence" shows for an `offline` projection | no |
+| Disconnect after the grace period | `finalizeDisconnect` (`ws/handler.ts`), `offline` with `activities: []` | no (none left) |
 
 The one targeted send is the friendship snapshot (`sendPresenceSnapshot`, below): the new friend only.
 
@@ -221,7 +198,7 @@ The one targeted send is the friendship snapshot (`sendPresenceSnapshot`, below)
 
 ## Activity Lifecycle
 
-Activities are **ephemeral** — stored only in server memory (`ConnectionManager.userActivities: Map<string, Activity[]>`), never persisted to the database. A connected user's entry is cleared on disconnect. A replicated user's entry holds the activities their home instance last relayed (S2S `presence_update`); a relay with an `activities` list replaces it (`[]` clears), an `offline` relay clears it, and a relay without the field (a peer that predates always sending it) leaves it unchanged; it is also cleared when the home peer is deactivated (`markPeerStubsOffline`).
+Activities are **ephemeral** — stored only in server memory (`ConnectionManager.userActivities: Map<string, Activity[]>`), never persisted to the database. The publishing socket/account owns the entry; disconnect or disabling activity sharing clears it. No remote server projects activities into this map.
 
 ### Data Flow: Detection to Display
 
@@ -242,7 +219,7 @@ Desktop Process Scanner (15s poll)
 
 | Map | Key | Value | Lifecycle |
 |-----|-----|-------|-----------|
-| `userActivities` | userId | `Activity[]` | Native/connected row: set on `activity_update`, cleared on disconnect or `showActivity=false`. Replicated row: set from each relayed `presence_update`, cleared by a `[]` or `offline` relay or peer deactivation; a relay without the field leaves it |
+| `userActivities` | userId | `Activity[]` | Native account: set on validated `activity_update`, cleared on publisher disconnect or `showActivity=false` |
 | `userShowActivity` | userId | boolean | Cached from DB at auth, updated via REST `PATCH /users/me` |
 | `userStatuses` | userId | string | Cached from DB at auth, updated on `presence_update` |
 | `lastActivityUpdate` | userId | timestamp (ms) | Used for 3s rate limiting |
@@ -264,26 +241,25 @@ The server rate limit is a hard gate: updates arriving within 3s of the last acc
 
 ### Ready Payload — Initial Activity Snapshot
 
-On WebSocket auth, `buildReadyPayload()` constructs a `userActivities` map for all visible users: space members, DM members and **friends** (a friend may share neither a space nor a DM with the user). Keys are this instance's row ids. Next to it, `userActivityIdentities` maps each of those keys to the row's `{ homeUserId, homeInstance }` (both null for a native row), so the client can key the entry by the person's home identity (see "Keying" below). For a replicated friend the entry is the activity their home last relayed.
+On WebSocket auth, `buildReadyPayload()` constructs a `userActivities` map for visible native users: space members, DM members and **friends** (a friend may share neither a space nor a DM with the user). Keys are native account IDs, with no companion projected-identity map.
 
-`snapshotActivities(live, customStatus)` (`ws/presenceEvent.ts`) picks each entry: the user's live or relayed activities, else a synthetic `custom` activity from `customStatus`. The friendship snapshot (below) uses the same function.
+`snapshotActivities(live, customStatus)` (`ws/presenceEvent.ts`) picks each entry: the user's live activities, else a synthetic `custom` activity from `customStatus`. The friendship snapshot (below) uses the same function.
 
 This synthetic injection only occurs in snapshots (ready, friendship), not in live `presence_update` broadcasts.
 
 ### Friendship Snapshot
 
-Presence events fire only on change, so a friend who was already in a game when the friendship formed would show no activity until it changed. When a friendship row is created, `exchangeFriendPresence(a, b)` (`ws/presence.ts`) runs once, at the step that inserted the row: the local `PATCH /api/social/requests/:id` accept, or on the requester's home whichever of the relayed `friend_request_update` (accepted) and `friend_add` formed it (the other then finds the friendship and does nothing). A refused `friend_add` sends nothing. It is best effort and never fails the friendship or its relay:
+Presence events fire only on change, so a friend who was already in a game when the friendship formed would otherwise show no activity until it changed. When native request acceptance inserts the friendship, `exchangeFriendPresence(a, b)` (`ws/presence.ts`) provides a best-effort current snapshot without changing the transaction's success:
 
 1. sends each side's sessions a `presence_update` about the other with its current status and snapshot activities (`sendPresenceSnapshot`; an offline subject reports none);
-2. for each **native** side whose new friend is replicated, queues a targeted S2S `presence_update` (status + activities) to the friend's home (`snapshotPresenceForFriend`, `utils/federationPresence.ts`). The friend's home had no row for the native when the activity started, so it dropped that relay; this gives it the current state, which it keeps and forwards to the friend.
 
 ### Reconnect Re-Push
 
 After receiving a `ready` event, the client performs two re-push operations (`useWebSocket.ts:217-236`):
 
-1. **Electron re-query:** If running in desktop and this is the home connection, calls `window.backspace.getCurrentActivity()` and pushes the result. This handles sleep/wake scenarios where the process scanner didn't fire a change event.
+1. **Electron re-query:** On desktop, calls the existing bridge's `getCurrentActivity()` and pushes the result. This handles sleep/wake scenarios where the process scanner did not fire a change event.
 
-2. **Multi-instance fan-out:** Reads `myActivities` from the activity store and sends `activity_update` to the newly connected instance via `wsSend(event, origin)`. This ensures remote instances have the user's current activities in their in-memory store immediately.
+2. **Native re-push:** Republishes effective activities through the current socket, scoped to its account/session generation. There is no secondary connection fan-out.
 
 ---
 
@@ -348,7 +324,7 @@ The player has a say over the games shown as playing (Settings → Privacy, unde
 - **Order.** The player's priority order of games, by name key (↑/↓ buttons or dragging a row by its left handle in settings (the row is the drag source, as in `RoleOrderList`, and only a press on the handle arms it; while dragging, the window's `dragover`/`drop` pick the row nearest to the pointer's height, so a game can be pulled just up or down without aiming at a row); HTML5 drag-and-drop does not work on touch screens, where the buttons remain). Games the order does not list come after the listed ones. The first game sent is what the member and friend lists and the profile popout lead with. The full profile (`ProfileGamesList`) lists every game with its icon (`assets.largeImage`, http(s) only), time and details. A game without an icon, or whose icon failed to load, gets a drawn placeholder so the names stay aligned; it is never cached or uploaded, and the lookup is tried again on the next launch (misses live in memory only).
 - **Rename.** A detected game can be shown under another name, remembered by detected name (case-insensitive, at most 200, oldest dropped). Applies to `playing` activities only.
 
-Order in `pushActivities`: detected → name-only manual games added → hidden games dropped → player's order → cut to five → icon lookup (by the name the machine knows) → renames → send. A hidden or reordered game is matched by its detected name, a rename never changes it. Both choices live in this client's `localStorage` (`backspace_game_overrides`), not on the server: the server and federation see an ordinary `playing` activity, and nothing changes in the wire format. They are per browser/desktop profile and are cleared on sign-in and sign-out.
+Order in `pushActivities`: detected → manual games → hidden-game removal → player ordering → five-game cap → icon lookup by detected name → renames → send. Hidden/reordered games match detected names, never renamed labels. Overrides stay in profile-local `backspace_game_overrides`, cleared on sign-in/out; the native server sees ordinary `playing` activities with no wire change.
 
 ### Game icons
 
@@ -422,13 +398,12 @@ interface ActivityState {
 
 ### Keying
 
-Every instance delivers presence under its own row id: the viewer's home names a remote friend by its replicated row, the friend's home by the native row, a third instance by its own replicated row. One person must land on one key, whichever delivered it, or the friends views and member lists disagree (#340).
-
-- **Key:** `userKey(subject, origin)`, the person's home identity, the one keying rule for people on the client (client-federation.md section 5). `userViews` uses the same key, so `updateMemberPresence` finds a person's cached view directly.
-- **Writers:** the `presence_update` handler builds the subject with `presenceSubjectOf(event, origin)` and the ready handler with `readyActivityEntries(event)` (`utils/presenceSubject.ts`). `socialStore.updateFriendPresence(subject, origin, status)` matches friends by the same key, and `spaceStore.updateMemberPresence(subject, origin, status)` matches roster rows (each keyed with its space's `_instanceOrigin`) and the `userViews` entry under the same key.
-- **Readers:** `activitiesFor(map, user, origin)` (`stores/activityStore.ts`). FriendsPage and ActivityPanel pass the friend and its `_instanceOrigin`; MemberSidebar and MobileMembersScreen pass `member.user` and the space's `_instanceOrigin`. Nothing looks an entry up by a raw id.
-- **Older servers.** A server without the identity fields sends only its row id. `presenceSubjectOf` then takes the identity from a row the client already holds for that (id, origin): a friend, a member of the loaded space from that origin, a DM member from that origin, or a member that origin's last `ready` listed in any of its spaces (`originRows`); an unknown id is taken as native to the delivering instance. `readyActivityEntries` without `userActivityIdentities` takes it from the space and DM members of the same payload. Without `originRows`, a member of a space that is not open was keyed as native on live updates, so the end of a game landed on another key than the ready snapshot's and the game stayed.
-- **Limit:** a native user of the page's instance is keyed by the hostname of `window.location.host`, and a replicated row of that user elsewhere by its `homeInstance` (the hostname of the instance's `DOMAIN`). `userKey` compares hosts without the port (client-federation.md §5, "One hostname, one identity host"), so the two agree whenever the page is opened at `DOMAIN`'s hostname, on any port, the Vite dev server included. They do not when the page is opened by a LAN IP or another host alias. Then that user's deliveries through their own home and through a peer land on two keys; deliveries through the home still reach the friends views.
+Presence, activity and canonical user views are keyed by native account ID.
+The current socket's `presence_update` and `ready.userActivities` update those
+same keys in social/member/activity stores; readers use the same native ID.
+No hostname comparison, projected identity, per-origin roster fallback or
+old-server identity compatibility lookup remains. Session reset clears cached
+views and invalidates old asynchronous activity work.
 
 ### Module-Level State
 
@@ -542,10 +517,10 @@ See websocket.md for full wire format. Summary of activity-related events:
 
 | Event | Fields | Scope |
 |-------|--------|-------|
-| `presence_update` | `userId, status, activities?, homeUserId?, homeInstance?` | Friends + DM co-members + space co-members + self |
+| `presence_update` | `userId, status, activities?` | Friends + DM co-members + space co-members + self |
 
-Note: `activities` absent means unchanged; an empty array clears. A relayed presence about a replicated user always carries it. `homeUserId`/`homeInstance` name the subject row's federated identity (null for a native row); every emitter builds the event with `presenceUpdateFor`/`presenceUpdateEvent` (`ws/presenceEvent.ts`). Both `presence_update` (status change) and `activity_update` (activity change) result in outbound `presence_update` events to clients — the server coalesces them into a single event type.
+Note: `activities` absent means unchanged; an empty array clears. Every emitter builds native account events with `presenceUpdateFor`/`presenceUpdateEvent` (`ws/presenceEvent.ts`). Both status and activity changes result in outbound `presence_update` events to authorized clients.
 
 ### Ready Payload
 
-The `ready` event includes `userActivities: Record<userId, Activity[]>` containing activities for all visible users (space members + DM members + friends), with synthetic `custom` activities injected for users with `customStatus` but no ephemeral activities, and `userActivityIdentities: Record<userId, { homeUserId, homeInstance }>` for the same keys.
+The `ready` event includes `userActivities: Record<userId, Activity[]>` for visible native users (space members + DM members + friends), with synthetic `custom` activities for users with a custom status but no ephemeral activities.

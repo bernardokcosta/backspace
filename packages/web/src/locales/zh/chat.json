@@ -60,14 +60,12 @@
       "group": {
         "intro": "这是您群聊会话的起点。",
         "owner": "群主：<owner>@{{name}}</owner>",
-        "federatedNotice": "消息存储在您及接收者的主实例上，未采用端到端加密。",
         "openSettings": "打开群组设置",
         "leave": "退出群组"
       },
       "dm": {
         "fallbackName": "私信",
         "intro": "这是您与 <strong>@{{name}}</strong> 私信历史的起点。",
-        "federatedNotice": "消息存储在您及接收者的主实例上，未采用端到端加密。",
         "removeFriend": "删除好友"
       }
     }
@@ -130,14 +128,6 @@
     },
     "audio": {
       "unsupportedBrowser": "您的浏览器不支持播放该音频。"
-    },
-    "federation": {
-      "remoteNamed": "托管于 {{sender}} 的实例。下载以保留本地副本。",
-      "remoteUnknown": "托管于发送者的实例。下载以保留本地副本。",
-      "partialGeneric": "部分接收者无法在本地缓存此文件。",
-      "partialInstance": "{{username}} 的实例（限制：{{limit}}）",
-      "partialList": "文件无法在 {{instances}} 上缓存。他们仍可从您的实例查看。",
-      "listPair": "{{first}} 和 {{second}}"
     }
   },
   "gif": {
@@ -259,7 +249,6 @@
     "stickersCount_one": "{{count}} 个表情",
     "stickersCount_other": "{{count}} 个表情",
     "noPacks": "暂无表情包",
-    "replicaBadge": "联邦同步",
     "viewPack": "查看表情包",
     "saveDraft": "保存草稿",
     "packCreated": "表情包创建成功",
@@ -276,8 +265,6 @@
     "rejectedSuccess": "已驳回该表情包",
     "reviewNotes": "驳回理由",
     "creator": "创作者",
-    "sourceInstance": "所属实例",
-    "localInstance": "本地实例",
     "viewStickers": "查看表情",
     "pendingReviewHint": "管理员审核中，通过后将显示在“探索表情”页面。"
   },

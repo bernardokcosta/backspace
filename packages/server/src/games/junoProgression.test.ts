@@ -17,17 +17,17 @@ describe('durable Juno progression', () => {
     expect(fixture.db.select().from(schema.junoRoundParticipants).all()).toEqual([]);
     expect(fixture.db.select().from(schema.junoPlayerStats).all()).toEqual([]);
   });
-  it('deduplicates authorized pending recipients only after validating frozen awards', () => {
+  it('credits original native participants even if obsolete redirect data is supplied', () => {
     const input = { ...settlement(), recipientIds: new Map([['a', 'b']]) };
     const result = settleJunoRound(input, fixture.db);
-    expect(result.standings.find(row => row.userId === 'b')).toMatchObject({ place: 1, xp: 120 });
-    expect(result.standings.some(row => row.userId === 'a')).toBe(false);
+    expect(result.standings.find(row => row.userId === 'a')).toMatchObject({ place: 1, xp: 120 });
+    expect(result.standings.find(row => row.userId === 'b')).toMatchObject({ place: 2, xp: 80 });
     expect(fixture.db.select().from(schema.junoPlayerStats).where(eq(schema.junoPlayerStats.userId, 'b')).get())
-      .toMatchObject({ totalXp: 120, wins: 1, completedRounds: 1 });
-    // Other places stay frozen, even after two participant identities consolidate.
+      .toMatchObject({ totalXp: 80, wins: 0, completedRounds: 1 });
+    // Every participant retains their own frozen award across retries.
     expect(result.standings.find(row => row.userId === 'd')).toMatchObject({ place: 4, xp: 20 });
     for (let i = 0; i < 100; i++) settleJunoRound(input, fixture.db);
-    expect(fixture.db.select().from(schema.junoPlayerStats).where(eq(schema.junoPlayerStats.userId, 'b')).get()?.totalXp).toBe(120);
+    expect(fixture.db.select().from(schema.junoPlayerStats).where(eq(schema.junoPlayerStats.userId, 'b')).get()?.totalXp).toBe(80);
   });
   it('keeps abandoned starters after ranked finishers without awarding counters', () => {
     const input = settlement();

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Modal } from '../ui/Modal';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useUIStore } from '../../stores/uiStore';
-import { useSpaceStore, getApiForOrigin } from '../../stores/spaceStore';
+import { useSpaceStore } from '../../stores/spaceStore';
+import { useAuthStore } from '../../stores/authStore';
 import { PermissionBits, hasPermissionBit, isHiddenFromEveryone } from '../../utils/permissions';
 import { InlineNameEditor } from '../ui/InlineNameEditor';
 import { PermissionsEditor } from '../ui/PermissionsEditor';
@@ -139,13 +140,20 @@ function OverviewTab({
 // ─── Main Modal ─────────────────────────────────────────────────────────────────
 
 export function ChannelSettingsModal() {
+  const revision = useAuthStore(s => s.sessionRevision);
+  const active = useUIStore(s => s.activeModal === 'channelSettings');
+  const channelId = useUIStore(s => s.modalData.channelId as string | undefined);
+  const spaceId = useSpaceStore(s => s.currentSpaceId);
+  return active ? <ChannelSettingsContent key={JSON.stringify([revision, spaceId, channelId])} revision={revision} /> : null;
+}
+
+function ChannelSettingsContent({ revision }: { revision: number }) {
   const { t } = useTranslation(['spaces', 'common']);
   const activeModal = useUIStore((s) => s.activeModal);
   const modalData = useUIStore((s) => s.modalData);
   const closeModal = useUIStore((s) => s.closeModal);
   const currentSpaceId = useSpaceStore((s) => s.currentSpaceId);
   const channels = useSpaceStore((s) => s.channels);
-  const spaces = useSpaceStore((s) => s.spaces);
   const spacePermissions = useSpaceStore((s) => s.spacePermissions);
   const channelPermissions = useSpaceStore((s) => s.channelPermissions);
 
@@ -165,20 +173,15 @@ export function ChannelSettingsModal() {
   const canManageChannels = hasPermissionBit(channelId ? channelPermissions.get(channelId) : undefined, PermissionBits.MANAGE_CHANNELS);
   const canManageRoles = hasPermissionBit(currentSpaceId ? spacePermissions.get(currentSpaceId) : undefined, PermissionBits.MANAGE_ROLES);
 
-  // Reset state when modal closes
-  useEffect(() => {
-    if (!isOpen) {
-      setShowDeleteConfirm(false);
-      setIsDeleting(false);
-      setTab('overview');
-    }
-  }, [isOpen]);
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const current = () => alive.current && revision === useAuthStore.getState().sessionRevision
+    && useUIStore.getState().activeModal === 'channelSettings' && useUIStore.getState().modalData === modalData;
 
   // One list of this channel's overrides for the whole dialog: the Overview
   // derives privacy from it and the Permissions tab edits it, so neither
   // shows a copy the other has made stale.
-  const space = spaces.find(s => s.id === currentSpaceId);
-  const entityOverrides = useEntityOverrides('channel', isOpen ? channelId : undefined, space, canManageRoles);
+  const entityOverrides = useEntityOverrides('channel', isOpen ? channelId : undefined, canManageRoles);
   const isPrivate = currentSpaceId ? isHiddenFromEveryone(entityOverrides.overrides, currentSpaceId) : false;
   const isFetching = !entityOverrides.loaded;
   const shownError = error || entityOverrides.error;
@@ -186,6 +189,7 @@ export function ChannelSettingsModal() {
   if (!isOpen || !channel || !channelId || !currentSpaceId) return null;
 
   const handleToggle = async () => {
+    if (!current()) return;
     setError('');
     setIsLoading(true);
     try {
@@ -193,41 +197,41 @@ export function ChannelSettingsModal() {
       // other @everyone bit on this channel stays (#327, #365).
       await entityOverrides.setBits('role', currentSpaceId, PermissionBits.VIEW_CHANNEL, isPrivate ? 'neutral' : 'deny');
     } catch (err) {
-      setError(describeError(err));
+      if (current()) setError(describeError(err));
     } finally {
-      setIsLoading(false);
+      if (current()) setIsLoading(false);
     }
   };
 
   const handleDeleteChannel = async () => {
-    if (!channelId || !currentSpaceId) return;
+    if (!current() || isDeleting) return;
     setIsDeleting(true);
     try {
-      const channelApi = getApiForOrigin(space?._instanceOrigin ?? '');
-      await channelApi.channels.delete(channelId);
-      closeModal();
+      await useSpaceStore.getState().deleteChannel(channelId);
+      if (current()) closeModal();
     } catch (err) {
-      setError(describeError(err));
-      setIsDeleting(false);
+      if (current()) { setError(describeError(err)); setIsDeleting(false); }
     }
   };
 
   const handleRenameChannel = async (name: string): Promise<void> => {
+    if (!current()) return;
     setError('');
     try {
       await useSpaceStore.getState().updateChannel(channelId, { name });
     } catch (err) {
-      setError(describeError(err));
+      if (current()) setError(describeError(err));
       throw err;
     }
   };
 
   const handleSaveTopic = async (topic: string | null): Promise<void> => {
+    if (!current()) return;
     setError('');
     try {
       await useSpaceStore.getState().updateChannel(channelId, { topic });
     } catch (err) {
-      setError(describeError(err));
+      if (current()) setError(describeError(err));
       throw err;
     }
   };

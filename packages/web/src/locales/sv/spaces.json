@@ -158,21 +158,6 @@
     "invitePlaceholder": "t.ex. abc123 eller https://instance.com/join/abc123",
     "submit": "Gå med i rum",
     "submitting": "Går med…",
-    "connect": {
-      "intro": "Anslut till <host>{{host}}</host> för att gå med i detta rum.",
-      "passwordLabel": "Ange ditt lösenord för att ansluta",
-      "passwordPlaceholder": "Ditt kontolösenord",
-      "passwordNote": "Ditt lösenord kontrolleras av din hemmainstans och skickas aldrig till {{host}}. Den instansen får en unik autentiseringsuppgift skapad bara för den.",
-      "submit": "Anslut & gå med",
-      "submitting": "Ansluter…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "Ditt användarnamn på denna instans",
-      "passwordLabel": "Lösenord för denna instans",
-      "passwordPlaceholder": "Lösenord på den externa instansen",
-      "submit": "Logga in & gå med",
-      "submitting": "Loggar in…"
-    },
     "request": {
       "messagePlaceholder": "Varför vill du gå med? (valfritt)",
       "send": "Skicka förfrågan",
@@ -450,8 +435,6 @@
       "transferOwnership": "Överför ägarskap",
       "settings": "Rumsinställningar",
       "leave": "Lämna rum",
-      "reconnecting": "Återansluter till {{instance}}…",
-      "remoteInstance": "extern instans",
       "leaveConfirm": {
         "title": "Lämna rum",
         "titleNamed": "Lämna {{name}}",

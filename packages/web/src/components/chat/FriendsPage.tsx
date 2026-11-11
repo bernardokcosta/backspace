@@ -1,16 +1,14 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { User } from '@veyvox/shared';
-import { friendEntryOf, isIncomingRequest, isOutgoingRequest, pendingRequestWith, useSocialStore, type TaggedFriend, type TaggedFriendRequest, type TaggedUser } from '../../stores/socialStore';
+import type { User, Friend, FriendRequest, DiscoverUser } from '@veyvox/shared';
+import { isIncomingRequest, isOutgoingRequest, useSocialStore } from '../../stores/socialStore';
 import { useAuthStore } from '../../stores/authStore';
-import { useDiscoverStore, type TaggedDiscoverUser } from '../../stores/discoverStore';
+import { useDiscoverStore } from '../../stores/discoverStore';
 import { useTranslation, Trans } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { describeError } from '../../i18n/errors';
-import { useInstanceStore } from '../../stores/instanceStore';
 import { useUIStore } from '../../stores/uiStore';
 import { useContextMenuStore } from '../../stores/contextMenuStore';
-import { useFederationStore } from '../../stores/federationStore';
 import { Avatar } from '../ui/Avatar';
 import { MemberListToggleButton } from '../layout/MemberListToggleButton';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
@@ -19,10 +17,10 @@ import { Mascot } from '../ui/Mascot';
 import { useActivityStore, activitiesFor } from '../../stores/activityStore';
 import { ActivityCard, hasRichActivity, getActivityAccentClass } from '../ui/ActivityCard';
 import { getPrimaryActivity } from '@veyvox/shared/src/activities.js';
-import { parseFederatedUsername, isFederationGlobeApplicable, userDisplayName, type IdentityFields } from '../../utils/identity';
+import { userDisplayName } from '../../utils/identity';
 import { openDirectMessage } from '../../utils/openDirectMessage';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
-import { friendRequestTarget } from '../../utils/friendRequestTarget';
+import { getFriendshipStatus } from '../../utils/friendshipStatus';
 import { replaceEmojiShortcodes, useEmojiShortcodeNames } from '../../utils/emojiShortcodes';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { presenceLabel } from '../../i18n/presence';
@@ -40,16 +38,16 @@ function ActivityFriendItem({
   onMobileClick,
   onDmClick,
 }: {
-  friend: TaggedFriend;
+  friend: Friend;
   isOffline: boolean;
   activities: import('@veyvox/shared').Activity[];
   isRichActivity: boolean;
   accentClass: string;
   mobile?: boolean;
-  onMobileClick: (friend: TaggedFriend) => void;
-  onDmClick: (person: IdentityFields, origin: string) => void;
+  onMobileClick: (friend: Friend) => void;
+  onDmClick: (userId: string) => void;
 }) {
-  const canonical = useCanonicalUserView(friend as unknown as User, friend._instanceOrigin);
+  const canonical = useCanonicalUserView(friend);
   const friendDisplayName = userDisplayName(canonical);
 
   const rowClass = isRichActivity
@@ -62,7 +60,7 @@ function ActivityFriendItem({
         if (mobile) {
           onMobileClick(friend);
         } else {
-          onDmClick(friend, friend._instanceOrigin);
+          onDmClick(friend.id);
         }
       }}
       className={rowClass}
@@ -73,14 +71,11 @@ function ActivityFriendItem({
         size={36}
         status={isOffline ? 'offline' : canonical.status}
         className={isOffline ? 'opacity-60' : undefined}
-        userId={canonical.homeUserId ?? canonical.id}
+        userId={canonical.id}
         avatarColor={canonical.avatarColor}
       />
       <div className="flex-1 min-w-0">
         <span className={`text-sm leading-[1.2] font-medium truncate ${isOffline ? 'text-txt-tertiary' : 'text-txt-primary'}`}>{friendDisplayName}</span>
-        {!isOffline && isFederationGlobeApplicable(canonical) && (
-          <div className="text-[10px] leading-[1.3] text-txt-tertiary truncate opacity-60">@{parseFederatedUsername(canonical.username).domain}</div>
-        )}
         {!isOffline && (
           <ActivityCard
             activities={activities}
@@ -109,22 +104,16 @@ interface FriendsPageProps {
 }
 
 export function FriendsPage({ mobile }: FriendsPageProps) {
+  const revision = useAuthStore(s => s.sessionRevision);
+  return <FriendsContent key={revision} mobile={mobile} revision={revision} />;
+}
+
+function FriendsContent({ mobile, revision }: FriendsPageProps & { revision: number }) {
   const { t } = useTranslation(['social', 'common']);
   const [activeTab, setActiveTab] = useState<Tab>('online');
-  const [pendingUnfriend, setPendingUnfriend] = useState<{ friend: TaggedFriend; name: string } | null>(null);
+  const [pendingUnfriend, setPendingUnfriend] = useState<{ friend: Friend; name: string } | null>(null);
   const navigate = useNavigate();
   const addToast = useUIStore((s) => s.addToast);
-
-  // If the user clicked "Retry your friend request" in the Connections panel
-  // and we just navigated here, the federation store carries the original
-  // target. Switching to the Add tab makes the AddFriendTab mount, which then
-  // consumes the prefill into its query input. We only check on mount — the
-  // store value is one-shot (cleared by AddFriendTab on consume).
-  useEffect(() => {
-    if (useFederationStore.getState().pendingFriendAddPrefill) {
-      setActiveTab('add');
-    }
-  }, []);
 
   const {
     friends,
@@ -149,13 +138,14 @@ export function FriendsPage({ mobile }: FriendsPageProps) {
   const pendingIncoming = requests.filter(r => r.status === 'pending' && isIncomingRequest(r));
   const pendingOutgoing = requests.filter(r => r.status === 'pending' && isOutgoingRequest(r));
 
-  const handleOpenDm = async (person: IdentityFields, origin: string) => {
+  const handleOpenDm = async (userId: string) => {
     try {
-      const rowId = await openDirectMessage(person, origin);
+      const rowId = await openDirectMessage(userId);
+      if (revision !== useAuthStore.getState().sessionRevision) return;
       useUIStore.getState().setShowDms(true);
       navigate(`/channels/@me/${rowId}`);
     } catch (err) {
-      addToast(t('social:sendMessage.failed', { reason: describeError(err) }), 'warning');
+      if (revision === useAuthStore.getState().sessionRevision) addToast(t('social:sendMessage.failed', { reason: describeError(err) }), 'warning');
     }
   };
 
@@ -183,7 +173,7 @@ export function FriendsPage({ mobile }: FriendsPageProps) {
             ) : (
               <>
                 {onlineFriends.map(friend => (
-                  <FriendItem key={`${friend.id}:${friend._instanceOrigin}`} friend={friend} onRemove={() => setPendingUnfriend({ friend, name: userDisplayName(friend) })} onDm={() => handleOpenDm(friend, friend._instanceOrigin)} />
+                  <FriendItem key={friend.id} friend={friend} onRemove={() => setPendingUnfriend({ friend, name: userDisplayName(friend) })} onDm={() => handleOpenDm(friend.id)} />
                 ))}
               </>
             )}
@@ -203,7 +193,7 @@ export function FriendsPage({ mobile }: FriendsPageProps) {
             ) : (
               <>
                 {friends.map(friend => (
-                  <FriendItem key={`${friend.id}:${friend._instanceOrigin}`} friend={friend} onRemove={() => setPendingUnfriend({ friend, name: userDisplayName(friend) })} onDm={() => handleOpenDm(friend, friend._instanceOrigin)} />
+                  <FriendItem key={friend.id} friend={friend} onRemove={() => setPendingUnfriend({ friend, name: userDisplayName(friend) })} onDm={() => handleOpenDm(friend.id)} />
                 ))}
               </>
             )}
@@ -224,19 +214,19 @@ export function FriendsPage({ mobile }: FriendsPageProps) {
               <>
                 {pendingIncoming.map(req => (
                   <RequestItem
-                    key={`${req.id}:${req._instanceOrigin}`}
+                    key={req.id}
                     request={req}
                     type="incoming"
-                    onAccept={() => updateFriendRequest(req.id, req._instanceOrigin, 'accepted')}
-                    onDecline={() => updateFriendRequest(req.id, req._instanceOrigin, 'declined')}
+                    onAccept={() => updateFriendRequest(req.id, 'accepted')}
+                    onDecline={() => updateFriendRequest(req.id, 'declined')}
                   />
                 ))}
                 {pendingOutgoing.map(req => (
                   <RequestItem
-                    key={`${req.id}:${req._instanceOrigin}`}
+                    key={req.id}
                     request={req}
                     type="outgoing"
-                    onCancel={() => cancelFriendRequest(req.id, req._instanceOrigin)}
+                    onCancel={() => cancelFriendRequest(req.id)}
                   />
                 ))}
               </>
@@ -250,15 +240,15 @@ export function FriendsPage({ mobile }: FriendsPageProps) {
           />
         );
       case 'activity': {
-        const activeFriends: TaggedFriend[] = [];
-        const idleFriends: TaggedFriend[] = [];
-        const offlineActivityFriends: TaggedFriend[] = [];
+        const activeFriends: Friend[] = [];
+        const idleFriends: Friend[] = [];
+        const offlineActivityFriends: Friend[] = [];
         for (const f of friends) {
           if (f.status === 'offline') {
             offlineActivityFriends.push(f);
             continue;
           }
-          const acts = activitiesFor(userActivities, f, f._instanceOrigin);
+          const acts = activitiesFor(userActivities, f.id);
           const primary = getPrimaryActivity(acts);
           if (primary && primary.type !== 'custom') {
             activeFriends.push(f);
@@ -267,8 +257,8 @@ export function FriendsPage({ mobile }: FriendsPageProps) {
           }
         }
 
-        const renderActivityFriend = (friend: TaggedFriend, isOffline = false) => {
-          const activities = activitiesFor(userActivities, friend, friend._instanceOrigin);
+        const renderActivityFriend = (friend: Friend, isOffline = false) => {
+          const activities = activitiesFor(userActivities, friend.id);
           const isRichActivity = !isOffline && hasRichActivity(activities);
           const primary = getPrimaryActivity(activities);
           const accentClass = primary ? getActivityAccentClass(primary.type) : '';
@@ -281,7 +271,7 @@ export function FriendsPage({ mobile }: FriendsPageProps) {
               isRichActivity={isRichActivity}
               accentClass={accentClass}
               mobile={mobile}
-              onMobileClick={(person) => pushMobileScreen('user-profile', { userId: person.id, origin: person._instanceOrigin })}
+              onMobileClick={(person) => pushMobileScreen('user-profile', { userId: person.id })}
               onDmClick={handleOpenDm}
             />
           );
@@ -410,8 +400,8 @@ export function FriendsPage({ mobile }: FriendsPageProps) {
         onClose={() => setPendingUnfriend(null)}
         onConfirm={async () => {
           if (pendingUnfriend) {
-            await removeFriend(pendingUnfriend.friend, pendingUnfriend.friend._instanceOrigin);
-            setPendingUnfriend(null);
+            await removeFriend(pendingUnfriend.friend.id);
+            if (revision === useAuthStore.getState().sessionRevision) setPendingUnfriend(null);
           }
         }}
         title={t('social:removeFriend.title')}
@@ -428,7 +418,7 @@ export function FriendsPage({ mobile }: FriendsPageProps) {
 function AddFriendTab({
   onOpenDm,
 }: {
-  onOpenDm: (person: IdentityFields, origin: string) => void;
+  onOpenDm: (userId: string) => void;
 }) {
   const { t } = useTranslation(['social', 'common']);
   const searchUsers = useSocialStore((s) => s.searchUsers);
@@ -436,7 +426,7 @@ function AddFriendTab({
   const friends = useSocialStore((s) => s.friends);
   const requests = useSocialStore((s) => s.requests);
   const currentUser = useAuthStore((s) => s.user);
-  const instances = useInstanceStore((s) => s.instances);
+  const revision = useAuthStore(s => s.sessionRevision);
   const addToast = useUIStore((s) => s.addToast);
 
   const discoverUsers = useDiscoverStore((s) => s.users);
@@ -444,14 +434,8 @@ function AddFriendTab({
   const fetchDiscoverUsers = useDiscoverStore((s) => s.fetchUsers);
   const updateRelationship = useDiscoverStore((s) => s.updateRelationship);
 
-  const [query, setQuery] = useState(() => {
-    // Consume the federation store's pending friend-add prefill at mount so
-    // a Retry click in the Connections panel lands here with the original
-    // target already in the input. The consume call clears the store value
-    // so subsequent mounts (e.g. tab switching) start empty.
-    return useFederationStore.getState().consumePendingFriendAddPrefill() ?? '';
-  });
-  const [rawSearchResults, setRawSearchResults] = useState<TaggedUser[]>([]);
+  const [query, setQuery] = useState('');
+  const [rawSearchResults, setRawSearchResults] = useState<User[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [directAddLoading, setDirectAddLoading] = useState(false);
 
@@ -471,78 +455,58 @@ function AddFriendTab({
     setSearchLoading(true);
     const timer = setTimeout(async () => {
       const results = await searchUsers(query.trim());
-      if (isActive) {
+      if (isActive && revision === useAuthStore.getState().sessionRevision) {
         setRawSearchResults(results);
         setSearchLoading(false);
       }
     }, 300);
     return () => { isActive = false; clearTimeout(timer); };
-  }, [query, searchUsers]);
-
-  // Self-exclusion set
-  const selfIds = useMemo(() => {
-    const ids = new Set<string>();
-    if (currentUser?.id) ids.add(`${currentUser.id}:`);
-    for (const inst of instances) {
-      if (inst.user?.id) ids.add(`${inst.user.id}:${inst.origin}`);
-    }
-    return ids;
-  }, [currentUser?.id, instances]);
+  }, [query, revision, searchUsers]);
 
   const isSearchMode = query.trim().length > 0;
 
-  // Enrich search results with friend/request status at render time. A
-  // result and a list entry are the same person when their `userKey`s match,
-  // whichever instance's row each is shown by. A pending request's id is good
-  // only on the instance that holds it, so a card with a request is shown by
-  // that request's row of the person.
-  const enrichedSearchResults: TaggedDiscoverUser[] = useMemo(() => {
+  // Reuse the native graph lookup used by profiles and member menus.
+  const enrichedSearchResults: DiscoverUser[] = useMemo(() => {
     if (!isSearchMode) return [];
     return rawSearchResults
-      .filter(u => !selfIds.has(`${u.id}:${u._instanceOrigin}`))
+      .filter(u => u.id !== currentUser?.id)
       .map(user => {
-        if (friendEntryOf(friends, user, user._instanceOrigin)) {
+        const friendship = getFriendshipStatus({ viewedUser: user, selfUserId: currentUser?.id, friends, requests });
+        if (friendship.state === 'friends') {
           return { ...user, relationship: 'friends' as const, mutualFriendCount: 0, mutualSpaceCount: 0 };
         }
-        const pending = pendingRequestWith(requests, user, user._instanceOrigin);
-        if (pending?.user && (isOutgoingRequest(pending) || isIncomingRequest(pending))) {
-          const shownBy = pending._instanceOrigin === user._instanceOrigin
-            ? user
-            : { ...pending.user, _instanceOrigin: pending._instanceOrigin };
+        if (friendship.state === 'outbound_pending' || friendship.state === 'inbound_pending') {
           return {
-            ...shownBy,
-            relationship: isOutgoingRequest(pending) ? 'outbound_pending' as const : 'inbound_pending' as const,
-            requestId: pending.id,
+            ...user,
+            relationship: friendship.state,
+            requestId: friendship.request.id,
             mutualFriendCount: 0,
             mutualSpaceCount: 0,
           };
         }
         return { ...user, relationship: 'none' as const, mutualFriendCount: 0, mutualSpaceCount: 0 };
       });
-  }, [rawSearchResults, friends, requests, selfIds, isSearchMode]);
+  }, [rawSearchResults, friends, requests, currentUser?.id, isSearchMode]);
 
   const trimmedQuery = query.trim();
   const directAt = trimmedQuery.lastIndexOf('@');
   // Allow bare handle (no @) or @ at non-edge position; hide @, @bob, bob@.
   const showDirectAdd = trimmedQuery.length > 0
     && (directAt === -1 || (directAt > 0 && directAt < trimmedQuery.length - 1));
-  // Bare handle gets the home host appended for display only — submission
-  // still uses the raw trimmed query.
-  const directAddDisplay = directAt === -1
-    ? `${trimmedQuery}@${window.location.host}`
-    : trimmedQuery;
+  const directAddDisplay = trimmedQuery;
 
   // Direct Add handler
   const handleDirectAdd = async () => {
     setDirectAddLoading(true);
     try {
       await sendFriendRequest({ username: query.trim() });
+      if (revision !== useAuthStore.getState().sessionRevision) return;
       addToast(t('social:request.sent'), 'success');
       setQuery('');
     } catch (err) {
-      addToast(describeError(err), 'warning');
+      if (revision === useAuthStore.getState().sessionRevision) addToast(describeError(err), 'warning');
     } finally {
-      setDirectAddLoading(false);
+      if (revision === useAuthStore.getState().sessionRevision) setDirectAddLoading(false);
     }
   };
 
@@ -566,13 +530,6 @@ function AddFriendTab({
           </svg>
           <h2 className="text-base font-bold text-txt-primary">{t('social:add.title')}</h2>
         </div>
-        <p className="text-sm text-txt-tertiary mb-4">
-          <Trans
-            t={t}
-            i18nKey="social:add.hint"
-            components={{ handle: <span className="font-medium text-txt-secondary" /> }}
-          />
-        </p>
 
         {/* Unified search input */}
         <div className="relative mb-4">
@@ -647,7 +604,7 @@ function AddFriendTab({
             {isSearchMode
               ? enrichedSearchResults.map((user) => (
                   <UserDiscoverCard
-                    key={`${user.id}:${user._instanceOrigin}`}
+                    key={user.id}
                     user={user}
                     onOpenDm={onOpenDm}
                     onRelationshipChange={noopRelationshipChange}
@@ -655,7 +612,7 @@ function AddFriendTab({
                 ))
               : discoverUsers.map((user) => (
                   <UserDiscoverCard
-                    key={`${user.id}:${user._instanceOrigin}`}
+                    key={user.id}
                     user={user}
                     onOpenDm={onOpenDm}
                     onRelationshipChange={updateRelationship}
@@ -677,9 +634,9 @@ function UserDiscoverCard({
   onOpenDm,
   onRelationshipChange,
 }: {
-  user: TaggedDiscoverUser;
-  onOpenDm: (person: IdentityFields, origin: string) => void;
-  onRelationshipChange: (userId: string, origin: string, relationship: TaggedDiscoverUser['relationship'], requestId?: string) => void;
+  user: DiscoverUser;
+  onOpenDm: (userId: string) => void;
+  onRelationshipChange: (userId: string, relationship: DiscoverUser['relationship'], requestId?: string) => void;
 }) {
   useEmojiShortcodeNames();
   const { t } = useTranslation(['social', 'common']);
@@ -691,10 +648,9 @@ function UserDiscoverCard({
   const [error, setError] = useState('');
 
   const displayName = userDisplayName(user);
-  const gradient = getAvatarGradient(user.homeUserId ?? user.id, displayName, user.avatarColor);
-  const originLabel = user._instanceOrigin
-    ? (() => { try { return new URL(user._instanceOrigin).host; } catch { return user._instanceOrigin; } })()
-    : null;
+  const gradient = getAvatarGradient(user.id, displayName, user.avatarColor);
+  const revision = useAuthStore(s => s.sessionRevision);
+  const current = () => revision === useAuthStore.getState().sessionRevision;
 
   const avatarUrl = user.avatar
     ? (user.avatar.startsWith('http') || user.avatar.startsWith('/') ? user.avatar : `/api/uploads/${user.avatar}`)
@@ -707,12 +663,12 @@ function UserDiscoverCard({
     setActionLoading(true);
     setError('');
     try {
-      const requestId = await sendFriendRequest(friendRequestTarget(user, user._instanceOrigin));
-      onRelationshipChange(user.id, user._instanceOrigin, 'outbound_pending', requestId);
+      const requestId = await sendFriendRequest({ username: user.username });
+      if (current()) onRelationshipChange(user.id, 'outbound_pending', requestId);
     } catch (err) {
-      setError(describeError(err));
+      if (current()) setError(describeError(err));
     } finally {
-      setActionLoading(false);
+      if (current()) setActionLoading(false);
     }
   };
 
@@ -721,12 +677,12 @@ function UserDiscoverCard({
     setActionLoading(true);
     setError('');
     try {
-      await updateFriendRequest(user.requestId, user._instanceOrigin, 'accepted', user);
-      onRelationshipChange(user.id, user._instanceOrigin, 'friends');
+      await updateFriendRequest(user.requestId, 'accepted');
+      if (current()) onRelationshipChange(user.id, 'friends');
     } catch (err) {
-      setError(describeError(err));
+      if (current()) setError(describeError(err));
     } finally {
-      setActionLoading(false);
+      if (current()) setActionLoading(false);
     }
   };
 
@@ -735,12 +691,12 @@ function UserDiscoverCard({
     setActionLoading(true);
     setError('');
     try {
-      await updateFriendRequest(user.requestId, user._instanceOrigin, 'declined', user);
-      onRelationshipChange(user.id, user._instanceOrigin, 'none');
+      await updateFriendRequest(user.requestId, 'declined');
+      if (current()) onRelationshipChange(user.id, 'none');
     } catch (err) {
-      setError(describeError(err));
+      if (current()) setError(describeError(err));
     } finally {
-      setActionLoading(false);
+      if (current()) setActionLoading(false);
     }
   };
 
@@ -749,21 +705,21 @@ function UserDiscoverCard({
     setActionLoading(true);
     setError('');
     try {
-      await cancelFriendRequest(user.requestId, user._instanceOrigin, user);
-      onRelationshipChange(user.id, user._instanceOrigin, 'none');
+      await cancelFriendRequest(user.requestId);
+      if (current()) onRelationshipChange(user.id, 'none');
     } catch (err) {
-      setError(describeError(err));
+      if (current()) setError(describeError(err));
     } finally {
-      setActionLoading(false);
+      if (current()) setActionLoading(false);
     }
   };
 
   const handleOpenProfile = () => {
-    openModal('userProfile', { userId: user.id, user, origin: user._instanceOrigin });
+    openModal('userProfile', { userId: user.id, user });
   };
 
   const handleMessage = () => {
-    onOpenDm(user, user._instanceOrigin);
+    onOpenDm(user.id);
   };
 
   return (
@@ -779,16 +735,6 @@ function UserDiscoverCard({
           className="absolute bottom-0 inset-x-0 h-12"
           style={{ background: 'linear-gradient(to top, rgba(20,20,26,0.9), transparent)' }}
         />
-        {originLabel && (
-          <div className="absolute top-2 right-2 z-[2]">
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold backdrop-blur-sm bg-black/30 text-txt-secondary">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className="opacity-60">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-              </svg>
-              {originLabel}
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Overlapping avatar */}
@@ -912,12 +858,11 @@ function TabButton({ children, active, onClick }: { children: React.ReactNode, a
   );
 }
 
-function FriendItem({ friend, onRemove, onDm }: { friend: TaggedFriend, onRemove: () => void, onDm: () => void }) {
+function FriendItem({ friend, onRemove, onDm }: { friend: Friend, onRemove: () => void, onDm: () => void }) {
   const { t } = useTranslation(['social', 'common', 'spaces']);
   const openContextMenu = useContextMenuStore((s) => s.open);
   const openModal = useUIStore((s) => s.openModal);
-  const canonical = useCanonicalUserView(friend as unknown as User, friend._instanceOrigin);
-  const instanceLabel = friend._instanceOrigin ? (() => { try { return new URL(friend._instanceOrigin).host; } catch { return friend._instanceOrigin; } })() : '';
+  const canonical = useCanonicalUserView(friend);
   const friendDisplayName = userDisplayName(canonical);
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -940,7 +885,7 @@ function FriendItem({ friend, onRemove, onDm }: { friend: TaggedFriend, onRemove
       onContextMenu={handleContextMenu}
       className="flex items-center justify-between px-3 h-[62px] rounded-[8px] hover:bg-interactive-hover group transition-colors border-t border-interactive-muted mx-2">
       <div className="flex items-center gap-3">
-        <Avatar src={canonical.avatar} name={friendDisplayName} size={32} status={canonical.status} userId={canonical.homeUserId ?? canonical.id} avatarColor={canonical.avatarColor} />
+        <Avatar src={canonical.avatar} name={friendDisplayName} size={32} status={canonical.status} userId={canonical.id} avatarColor={canonical.avatarColor} />
         <div className="flex flex-col leading-tight">
           <div className="flex items-center gap-1.5">
             <span className="text-txt-primary font-semibold text-[15px]">{friendDisplayName}</span>
@@ -949,9 +894,6 @@ function FriendItem({ friend, onRemove, onDm }: { friend: TaggedFriend, onRemove
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-[12px] text-txt-tertiary font-medium">{presenceLabel(t, friend.status)}</span>
-            {instanceLabel && (
-              <span className="text-[11px] text-txt-tertiary/60 font-medium">{t('social:friend.viaInstance', { host: instanceLabel })}</span>
-            )}
           </div>
         </div>
       </div>
@@ -980,7 +922,7 @@ function FriendItem({ friend, onRemove, onDm }: { friend: TaggedFriend, onRemove
 }
 
 function RequestItem({ request, type, onAccept, onDecline, onCancel }: {
-  request: TaggedFriendRequest;
+  request: FriendRequest;
   type: 'incoming' | 'outgoing';
   onAccept?: () => void;
   onDecline?: () => void;
@@ -988,17 +930,16 @@ function RequestItem({ request, type, onAccept, onDecline, onCancel }: {
 }) {
   const { t } = useTranslation(['social', 'common']);
   const rawUser = request.user;
-  const _FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false, replicatedInstances: [] } as unknown as User;
-  const canonicalUser = useCanonicalUserView((rawUser as unknown as User | null) ?? _FALLBACK_USER, request._instanceOrigin);
+  const _FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false } as User;
+  const canonicalUser = useCanonicalUserView(rawUser ?? _FALLBACK_USER);
   const user = rawUser ? canonicalUser : null;
   if (!user) return null;
-  const instanceLabel = request._instanceOrigin ? (() => { try { return new URL(request._instanceOrigin).host; } catch { return request._instanceOrigin; } })() : '';
   const reqDisplayName = userDisplayName(user);
 
   return (
     <div className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-interactive-hover group transition-colors border-t border-interactive-muted mx-2">
       <div className="flex items-center gap-3">
-        <Avatar src={user.avatar} name={reqDisplayName} size={32} status={user.status as any} userId={user.homeUserId ?? user.id} avatarColor={user.avatarColor} />
+        <Avatar src={user.avatar} name={reqDisplayName} size={32} status={user.status} userId={user.id} avatarColor={user.avatarColor} />
         <div className="flex flex-col">
           <div className="flex items-center gap-1.5">
             <span className="text-txt-primary font-bold text-sm">{reqDisplayName}</span>
@@ -1006,9 +947,6 @@ function RequestItem({ request, type, onAccept, onDecline, onCancel }: {
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-txt-tertiary">{type === 'incoming' ? t('social:request.incoming') : t('social:request.outgoing')}</span>
-            {instanceLabel && (
-              <span className="text-[11px] text-txt-tertiary/60 font-medium">{t('social:friend.viaInstance', { host: instanceLabel })}</span>
-            )}
           </div>
         </div>
       </div>

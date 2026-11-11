@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
@@ -13,7 +13,7 @@ import { signJwt } from '../utils/auth.js';
 
 /**
  * PATCH /api/bots/:id { bio, activity }: the bot's "About" and its stored
- * status. The status is part of the profile (relayed with it) and replaces the
+ * status. The status is part of the native profile and replaces the
  * bot's live activity at once, but only when the status itself changed.
  */
 
@@ -40,10 +40,6 @@ const applyStoredBotActivity = vi.fn();
 vi.mock('../ws/presence.js', () => ({
   applyStoredBotActivity: (...args: unknown[]) => applyStoredBotActivity(...args),
 }));
-const queueProfileUpdateRelay = vi.fn();
-vi.mock('../utils/profileRelay.js', () => ({
-  queueProfileUpdateRelay: (...args: unknown[]) => queueProfileUpdateRelay(...args),
-}));
 
 function applyMigrations(db: Database.Database): void {
   const dir = path.resolve(__dirname, '../../drizzle');
@@ -69,20 +65,19 @@ beforeEach(async () => {
     { id: 'bot-1', username: 'radio_bot', displayName: 'Radio_bot', passwordHash: '!bot', isBot: 1, botOwnerId: 'owner', createdAt: 1 },
   ]).run();
   applyStoredBotActivity.mockReset();
-  queueProfileUpdateRelay.mockReset();
   const { botRoutes } = await import('./bots.js');
   app = Fastify({ logger: false });
   await app.register(botRoutes);
   await app.ready();
 });
+afterEach(async () => { await app.close(); sqlite.close(); });
 
 describe('the "About" of a bot', () => {
-  it('is stored trimmed, relayed with the profile and listed', async () => {
+  it('is stored trimmed, broadcast locally and listed', async () => {
     const res = await patch({ bio: '  Plays radio in voice. /play to start.  ' });
     expect(res.statusCode).toBe(200);
     expect((res.json() as { bot: BotSummary }).bot.bio).toBe('Plays radio in voice. /play to start.');
     expect(stored().bio).toBe('Plays radio in voice. /play to start.');
-    expect(queueProfileUpdateRelay).toHaveBeenCalledTimes(1);
 
     const list = await app.inject({ method: 'GET', url: '/api/bots', headers: owner() });
     expect((list.json() as { bots: BotSummary[] }).bots[0]?.bio).toBe('Plays radio in voice. /play to start.');
@@ -114,7 +109,6 @@ describe('the stored status of a bot', () => {
     expect((res.json() as { bot: BotSummary }).bot.activity).toEqual({ type: 'listening', name: 'lofi radio' });
     expect(JSON.parse(stored().botActivity ?? 'null')).toEqual({ type: 'listening', name: 'lofi radio' });
     expect(applyStoredBotActivity).toHaveBeenCalledWith('bot-1', { type: 'listening', name: 'lofi radio' });
-    expect(queueProfileUpdateRelay).toHaveBeenCalledTimes(1);
   });
 
   it('is applied again only when it changes', async () => {

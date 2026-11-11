@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Channel, MemberWithUser, Role, SpaceWithChannelsAndMembers, User } from '@veyvox/shared';
+import { cleanup, renderHook } from '@testing-library/react';
+import { installSocketHarness, TestWebSocket } from '../test/socketHarness';
 
 // jsdom has no AudioWorkletNode; the handler's imports reach the voice stack.
 vi.mock('../audio/AudioManager', () => ({
@@ -13,38 +15,8 @@ vi.mock('../audio/AudioManager', () => ({
 }));
 vi.mock('../hooks/useMascotAnimation', () => ({ useMascotAnimation: vi.fn() }));
 
-/** A socket the real handler talks to; the test plays the server through `deliver`. */
-class FakeWebSocket {
-  static readonly CONNECTING = 0;
-  static readonly OPEN = 1;
-  static readonly CLOSING = 2;
-  static readonly CLOSED = 3;
-  static all: FakeWebSocket[] = [];
-  readyState = FakeWebSocket.CONNECTING;
-  onopen: (() => void) | null = null;
-  onmessage: ((e: { data: string }) => void) | null = null;
-  onclose: (() => void) | null = null;
-  onerror: (() => void) | null = null;
-  constructor(public url: string) { FakeWebSocket.all.push(this); }
-  send(): void {}
-  close(): void { this.readyState = FakeWebSocket.CLOSED; }
-  open(): void { this.readyState = FakeWebSocket.OPEN; this.onopen?.(); }
-  deliver(event: Record<string, unknown>): void {
-    this.onmessage?.({ data: JSON.stringify(event) });
-  }
-}
-
-class InertWorker {
-  onmessage: (() => void) | null = null;
-  postMessage(): void {}
-  terminate(): void {}
-}
-
-vi.stubGlobal('WebSocket', FakeWebSocket);
-vi.stubGlobal('Worker', InertWorker);
-vi.stubGlobal('URL', Object.assign(URL, { createObjectURL: () => 'blob:heartbeat', revokeObjectURL: () => {} }));
-
-const { connectInstance, disconnectInstance } = await import('./useWebSocket');
+const { useWebSocket } = await import('./useWebSocket');
+const { useAuthStore } = await import('../stores/authStore');
 const { useSpaceStore } = await import('../stores/spaceStore');
 const { useChatStore } = await import('../stores/chatStore');
 const { useUIStore } = await import('../stores/uiStore');
@@ -52,7 +24,7 @@ const { api } = await import('../api/client');
 const { initI18n } = await import('../i18n');
 const i18n = (await import('../i18n')).default;
 
-type TaggedSpace = import('../stores/spaceStore').TaggedSpace;
+type SpaceWithMyRoles = import('../stores/spaceStore').SpaceWithMyRoles;
 
 // #374: a change to the space's roles arrives as `space_access_changed`. The
 // client refetches that space's detail without the loading skeleton and
@@ -63,11 +35,11 @@ type TaggedSpace = import('../stores/spaceStore').TaggedSpace;
 const SPACE_ID = 'sp';
 const OTHER_ID = 'sp-other';
 
-function space(id: string): TaggedSpace {
+function space(id: string): SpaceWithMyRoles {
   return {
     id, name: `Space ${id}`, icon: null, banner: null, avatarColor: 'lavender', ownerId: 'owner',
     inviteCode: null, visibility: 'public', description: '', createdAt: 1,
-    _instanceOrigin: '',
+    ownerTitle: null,
   };
 }
 
@@ -82,8 +54,7 @@ function role(id: string, position: number, spaceId = SPACE_ID): Role {
 function user(id: string): User {
   return {
     id, username: id, displayName: null, avatar: null, banner: null, accentColor: null, avatarColor: null,
-    bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1, homeInstance: null, homeUserId: null,
-    replicatedInstances: [],
+    bio: null, status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
   };
 }
 
@@ -100,11 +71,9 @@ function detail(id: string, channels: Channel[], roles: Role[], members: MemberW
   };
 }
 
-const opened: string[] = [];
-function homeSocket(): FakeWebSocket {
-  connectInstance('', 'token-home');
-  opened.push('');
-  const ws = FakeWebSocket.all.at(-1)!;
+function homeSocket(): TestWebSocket {
+  renderHook(() => useWebSocket());
+  const ws = TestWebSocket.all.at(-1)!;
   ws.open();
   return ws;
 }
@@ -113,7 +82,7 @@ const cachedMessages = [{ id: 'm1' }] as unknown as ReturnType<typeof useChatSto
 
 beforeEach(async () => {
   await initI18n();
-  FakeWebSocket.all = [];
+  installSocketHarness(); useSpaceStore.getState().reset(); useAuthStore.setState({ token: 'native-token', user: user('me') });
   vi.spyOn(console, 'error').mockImplementation(() => {});
   vi.spyOn(console, 'warn').mockImplementation(() => {});
   vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -129,7 +98,7 @@ beforeEach(async () => {
     spacePermissions: new Map([[SPACE_ID, '1026'], [OTHER_ID, '1026']]),
     channelPermissions: new Map([['general', '1026'], ['staff', '1026']]),
     channelToSpaceMap: new Map([['general', SPACE_ID], ['staff', SPACE_ID], ['other-general', OTHER_ID]]),
-    channelOriginMap: new Map([['general', ''], ['staff', ''], ['other-general', '']]),
+    spaceChannelIndex: new Map([['general', { spaceId: SPACE_ID, type: 'text' }], ['staff', { spaceId: SPACE_ID, type: 'text' }], ['other-general', { spaceId: OTHER_ID, type: 'text' }]]),
   });
   useChatStore.setState({
     currentChannelId: 'staff',
@@ -138,7 +107,7 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
-  for (const origin of opened.splice(0)) disconnectInstance(origin);
+  cleanup(); useAuthStore.setState({ token: null }); vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
@@ -200,13 +169,13 @@ describe('space_access_changed (#374)', () => {
 
     await vi.waitFor(() => expect(useSpaceStore.getState().channelToSpaceMap.get('other-secret')).toBe(OTHER_ID));
     const state = useSpaceStore.getState();
-    expect(state.channelOriginMap.get('other-secret')).toBe('');
+    expect(state.spaceChannelIndex.get('other-secret')).toEqual({ spaceId: OTHER_ID, type: 'text' });
     expect(state.channelPermissions.get('other-secret')).toBe('1026');
     expect(state.channelToSpaceMap.has('other-general')).toBe(false);
     expect(state.channels.map((c) => c.id)).toEqual(['general', 'staff']);
   });
 
-  it('ignores a space this client does not have from that origin', () => {
+  it('ignores a space outside the native membership list', () => {
     const get = vi.spyOn(api.spaces, 'get');
     homeSocket().deliver({ type: 'space_access_changed', spaceId: 'unknown' });
     expect(get).not.toHaveBeenCalled();

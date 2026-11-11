@@ -61,14 +61,12 @@
       "group": {
         "intro": "Tämä on ryhmäkeskustelusi alku.",
         "owner": "Omistaja: <owner>@{{name}}</owner>",
-        "federatedNotice": "Viestit tallennetaan koti-instanssiisi ja vastaanottajien koti-instansseihin. Niissä ei ole päästä-päähän-salausta.",
         "openSettings": "Avaa ryhmäasetukset",
         "leave": "Poistu ryhmästä"
       },
       "dm": {
         "fallbackName": "Suora viesti",
         "intro": "Tämä on suoraviestihistoriasi alku käyttäjän <strong>@{{name}}</strong> kanssa.",
-        "federatedNotice": "Viestit tallennetaan koti-instanssiisi ja vastaanottajan koti-instanssiin. Niissä ei ole päästä-päähän-salausta.",
         "removeFriend": "Poista kaveri"
       }
     }
@@ -133,14 +131,6 @@
     },
     "audio": {
       "unsupportedBrowser": "Selaimesi ei tue äänentoistoa."
-    },
-    "federation": {
-      "remoteNamed": "Isännöity lähettäjän {{sender}} instanssilla. Lataa pitääksesi paikallisen kopion.",
-      "remoteUnknown": "Isännöity lähettäjän instanssilla. Lataa pitääksesi paikallisen kopion.",
-      "partialGeneric": "Jotkin vastaanottajat eivät voi tallentaa tätä tiedostoa paikallisesti.",
-      "partialInstance": "Käyttäjän {{username}} instanssi (raja: {{limit}})",
-      "partialList": "Tiedostoa ei voitu tallentaa kohteisiin {{instances}}. He voivat silti tarkastella sitä sinun kauttasi.",
-      "listPair": "{{first}} ja {{second}}"
     }
   },
   "gif": {
@@ -267,7 +257,6 @@
     "stickersCount_one": "{{count}} tarra",
     "stickersCount_other": "{{count}} tarraa",
     "noPacks": "Tarrapaketteja ei löytynyt",
-    "replicaBadge": "Federoitu",
     "viewPack": "Näytä paketti",
     "saveDraft": "Tallenna luonnoksena",
     "packCreated": "Paketti luotu",
@@ -284,8 +273,6 @@
     "rejectedSuccess": "Tarrapaketti hylätty",
     "reviewNotes": "Hylkäyssyy",
     "creator": "Tekijä",
-    "sourceInstance": "Instanssi",
-    "localInstance": "Paikallinen instanssi",
     "viewStickers": "Näytä tarrat",
     "pendingReviewHint": "Ylläpitäjän tarkistettavana; näkyy Selaa-kohdassa hyväksynnän jälkeen"
   },

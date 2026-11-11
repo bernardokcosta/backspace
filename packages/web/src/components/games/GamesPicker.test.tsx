@@ -18,7 +18,7 @@ vi.mock('../../utils/voiceActions', () => ({
   handleScreenShareAction: vi.fn(), handleDisconnectAction: vi.fn(),
 }));
 
-const target = { accountId: 'account', selfId: 'remote-row', origin: 'https://remote.test', channelId: 'voice' };
+const target = { userId: 'account', origin: window.location.origin, channelId: 'voice' };
 const command = vi.fn(async () => {});
 const originalCommand = useJunoStore.getState().command;
 beforeEach(() => {
@@ -27,11 +27,11 @@ beforeEach(() => {
   useJunoStore.setState({ command });
   useAuthStore.setState({ user: { id: 'account', username: 'ada', displayName: 'Ada', avatar: null, banner: null,
     accentColor: null, avatarColor: null, bio: null, status: 'online', customStatus: null, isAdmin: false,
-    createdAt: 1, homeInstance: null, homeUserId: null, replicatedInstances: [] } });
+    createdAt: 1 } });
   useVoiceStore.setState({ currentVoiceChannelId: 'voice', activeDmCall: null, isLiveKitConnected: true,
     voiceConnectionStatus: 'connected', focusedParticipantId: 'camera', isMuted: false, isDeafened: false,
     isCameraOn: false, isScreenSharing: false, spaceMutedUserIds: new Set(), spaceDeafenedUserIds: new Set() });
-  useSpaceStore.setState({ spaceChannelIndex: new Map([['voice', { spaceId: 'remote-space', origin: target.origin, type: 'voice' }]]) });
+  useSpaceStore.setState({ spaceChannelIndex: new Map([['voice', { spaceId: 'space', type: 'voice' }]]) });
   useUIStore.setState({ activeModal: null, modalData: {}, isMobile: false, mobileStack: [], voiceFullscreen: false });
 });
 afterEach(() => { cleanup(); useJunoStore.setState({ command: originalCommand }); });
@@ -62,7 +62,7 @@ describe('shared Games picker', () => {
   it('opens the connected channel, not the text channel being viewed, only after choosing Juno', async () => {
     mount(); await userEvent.click(screen.getByRole('button', { name: 'Games' }));
     await userEvent.click(screen.getByRole('button', { name: 'Open Juno' }));
-    expect(screen.getByTestId('route')).toHaveTextContent('/channels/remote-space/voice');
+    expect(screen.getByTestId('route')).toHaveTextContent('/channels/space/voice');
     expect(useJunoStore.getState().open).toBe(true);
     expect(useVoiceStore.getState().focusedParticipantId).toBeNull();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument(); expect(command).not.toHaveBeenCalled();
@@ -78,7 +78,7 @@ describe('shared Games picker', () => {
     act(() => {
       if (reason === 'room') useVoiceStore.setState({ currentVoiceChannelId: 'elsewhere' });
       if (reason === 'account') useAuthStore.setState({ user: null });
-      if (reason === 'origin') useSpaceStore.setState({ spaceChannelIndex: new Map([['voice', { spaceId: 'remote-space', origin: 'https://other.test', type: 'voice' }]]) });
+      if (reason === 'origin') useJunoStore.getState().bind({ ...target, origin: 'https://previous.test' }, true);
       if (reason === 'connection') useJunoStore.getState().bind(target, false);
     });
     expect(await screen.findByTestId('route')).toHaveTextContent('/channels/another/text');

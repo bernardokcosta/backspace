@@ -127,7 +127,6 @@
       "appearance": "Udseende",
       "voice": "Stemme & video",
       "privacy": "Privatliv",
-      "connections": "Forbindelser",
       "keybinds": "Tastebindinger",
       "desktop": "Computer",
       "instance": "Instans",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "Min konto",
-    "detached": {
-      "notice": "Denne konto er frakoblet sin hjemmeinstans.",
-      "explanation": "{{homeInstance}} blev nulstillet eller er ikke længere tilgængelig, så denne konto fungerer nu lokalt på denne instans. Din profil og adgangskode styres her.",
-      "reattachHint": "Som {{username}} på {{homeInstance}} kan du koble denne konto igen. Profil og tilstedeværelse synkroniseres derfra igen.",
-      "reattachButton": "Kobl igen til {{homeInstance}}",
-      "reattachConfirm": "Bekræft genkobling som {{username}}",
-      "reattaching": "Kobler igen…",
-      "reattachFailed": "Genkobling mislykkedes",
-      "reattached": "Konto koblet igen med {{username}}"
-    },
     "profile": {
       "sectionTitle": "Profiltilpasning",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "Konto",
       "status": {
-        "label": "Status",
-        "homeUnavailable": "Din status holdes på {{host}}. Forbind til {{host}} for at ændre den."
+        "label": "Status"
       },
       "customStatus": {
         "label": "Brugerdefineret status",
@@ -244,10 +232,6 @@
         "passwordPlaceholder": "Angiv din adgangskode",
         "submit": "Slet min konto",
         "deleting": "Sletter…"
-      },
-      "federation": {
-        "removing": "Fjerner din konto fra forbundne instanser…",
-        "deleteAnyway": "Slet konto nu"
       },
       "complete": {
         "title": "Konto slettet",
@@ -310,14 +294,10 @@
       }
     }
   },
-  "connections": {
-    "title": "Forbindelser"
-  },
   "instance": {
     "tabs": {
       "general": "Generelt",
       "registration": "Registrering",
-      "federation": "Føderation",
       "streaming": "Streaming",
       "storage": "Lagring",
       "users": "Brugere",

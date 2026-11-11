@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useTransferStore, type Transfer } from '../../stores/transferStore';
+import { isCurrentTransfer, useTransferStore, type Transfer } from '../../stores/transferStore';
+import { useAuthStore } from '../../stores/authStore';
 import { useFormatters } from '../../i18n/formatters';
 
 export function TransferIndicator() {
@@ -10,9 +11,10 @@ export function TransferIndicator() {
   // changes when transfers are added/removed/updated, so useMemo recomputes only
   // when needed.
   const transfersMap = useTransferStore((s) => s.transfers);
+  const user = useAuthStore(s => s.user);
   const visible = useMemo(
-    () => Array.from(transfersMap.values()).filter((t) => t.tray),
-    [transfersMap],
+    () => user ? Array.from(transfersMap.values()).filter((t) => t.tray && isCurrentTransfer(t)) : [],
+    [transfersMap, user],
   );
 
   const pause = useTransferStore((s) => s.pauseUpload);

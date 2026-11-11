@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { persist, type PersistStorage, type StorageValue } from 'zustand/middleware';
 import type { MessageWithUser, Attachment } from '@veyvox/shared';
-import { useTransferStore } from './transferStore';
+import { isCurrentTransfer, useTransferStore } from './transferStore';
+import { useAuthStore } from './authStore';
 
 export type PendingBubbleState = 'sending' | 'failed';
 
@@ -15,6 +16,9 @@ export interface PendingBubble {
   state: PendingBubbleState;
   tusExpiresAt: number;
   retryCount: number;
+  /** Captured native scope. Optional only for preserved pre-upgrade data. */
+  origin?: string;
+  uploaderUserId?: string;
 }
 
 interface PendingMessageStoreState {
@@ -23,7 +27,7 @@ interface PendingMessageStoreState {
 
 interface PendingMessageStoreActions {
   append: (b: PendingBubble) => void;
-  removeByClientId: (channelId: string, clientId: string) => void;
+  removeByClientId: (channelId: string, clientId: string, delivered?: PendingBubble) => void;
   markFailed: (clientId: string) => void;
   markSending: (clientId: string) => void;
   bumpRetry: (clientId: string) => void;
@@ -40,12 +44,29 @@ interface PendingMessageStoreActions {
 
 type PendingMessageStore = PendingMessageStoreState & PendingMessageStoreActions;
 
+/** Never adopt unowned text-only legacy data into whichever account signs in. */
+export function isCurrentPendingBubble(bubble: PendingBubble): boolean {
+  const userId = useAuthStore.getState().user?.id;
+  if (!userId || (bubble.origin && bubble.origin !== window.location.origin)) return false;
+  if (bubble.uploaderUserId) return bubble.uploaderUserId === userId;
+  return bubble.transferIds.length > 0 && bubble.transferIds.every(id => {
+    const transfer = useTransferStore.getState().get(id);
+    return !!transfer && isCurrentTransfer(transfer);
+  });
+}
+
+function samePendingScope(a: PendingBubble, b: PendingBubble): boolean {
+  return a.origin === b.origin && a.uploaderUserId === b.uploaderUserId && a.createdAtLocal === b.createdAtLocal
+    && a.content === b.content && a.replyToId === b.replyToId && a.transferIds.length === b.transferIds.length
+    && a.transferIds.every((id, index) => id === b.transferIds[index]);
+}
+
 function findBubble(
   map: Map<string, PendingBubble[]>,
   clientId: string,
 ): { ch: string; bubble: PendingBubble } | null {
   for (const [ch, list] of map) {
-    const b = list.find((x) => x.clientId === clientId);
+    const b = list.find((x) => x.clientId === clientId && isCurrentPendingBubble(x));
     if (b) return { ch, bubble: b };
   }
   return null;
@@ -62,7 +83,7 @@ function setBubble(
   const list = next.get(found.ch) ?? [];
   next.set(
     found.ch,
-    list.map((b) => (b.clientId === clientId ? mut(b) : b)),
+    list.map((b) => (b === found.bubble ? mut(b) : b)),
   );
   return next;
 }
@@ -71,9 +92,9 @@ function setBubble(
 // Mirrors composerStore's mapAwareStorage; only the `bubbles` slice is persisted.
 const mapAwareStorage: PersistStorage<Pick<PendingMessageStoreState, 'bubbles'>> = {
   getItem: (name) => {
-    const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(name) : null;
-    if (!raw) return null;
     try {
+      const raw = localStorage.getItem(name);
+      if (!raw) return null;
       const parsed = JSON.parse(raw) as {
         state: { bubbles: [string, PendingBubble[]][] };
         version?: number;
@@ -89,17 +110,16 @@ const mapAwareStorage: PersistStorage<Pick<PendingMessageStoreState, 'bubbles'>>
     }
   },
   setItem: (name, value) => {
-    if (typeof localStorage === 'undefined') return;
-    const entries = Array.from(value.state.bubbles.entries());
-    const payload = JSON.stringify({ state: { bubbles: entries }, version: value.version });
     try {
+      const entries = Array.from(value.state.bubbles.entries());
+      const payload = JSON.stringify({ state: { bubbles: entries }, version: value.version });
       localStorage.setItem(name, payload);
     } catch (err) {
       console.warn(`[pendingMessageStore] persist failed:`, err);
     }
   },
   removeItem: (name) => {
-    if (typeof localStorage !== 'undefined') localStorage.removeItem(name);
+    try { localStorage.removeItem(name); } catch { /* In-memory work is preserved. */ }
   },
 };
 
@@ -111,18 +131,19 @@ export const usePendingMessageStore = create<PendingMessageStore>()(
       append: (b) =>
         set((s) => {
           const next = new Map(s.bubbles);
-          next.set(b.channelId, [...(next.get(b.channelId) ?? []), b]);
+          next.set(b.channelId, [...(next.get(b.channelId) ?? []), { ...b,
+            origin: window.location.origin, uploaderUserId: useAuthStore.getState().user?.id }]);
           return { bubbles: next };
         }),
 
-      removeByClientId: (channelId, clientId) =>
+      removeByClientId: (channelId, clientId, delivered) =>
         set((s) => {
           const list = s.bubbles.get(channelId);
           if (!list) return s;
           const next = new Map(s.bubbles);
           next.set(
             channelId,
-            list.filter((b) => b.clientId !== clientId),
+            list.filter((b) => b.clientId !== clientId || (delivered ? !samePendingScope(b, delivered) : !isCurrentPendingBubble(b))),
           );
           return { bubbles: next };
         }),
@@ -142,7 +163,7 @@ export const usePendingMessageStore = create<PendingMessageStore>()(
           bubbles: setBubble(s.bubbles, clientId, (b) => ({ ...b, retryCount: b.retryCount + 1 })),
         })),
 
-      listForChannel: (channelId) => get().bubbles.get(channelId) ?? [],
+      listForChannel: (channelId) => (get().bubbles.get(channelId) ?? []).filter(isCurrentPendingBubble),
 
       matchAndRemove: (channelId, content, sortedAttachmentIds) => {
         const list = get().bubbles.get(channelId);
@@ -150,6 +171,7 @@ export const usePendingMessageStore = create<PendingMessageStore>()(
         const transfers = useTransferStore.getState().transfers;
         const target = [...sortedAttachmentIds].sort();
         const matches = list
+          .filter(isCurrentPendingBubble)
           .filter((b) => b.content === content)
           .filter((b) => {
             const ids = b.transferIds
@@ -173,7 +195,7 @@ export const usePendingMessageStore = create<PendingMessageStore>()(
         for (const [ch, list] of map) {
           const surviving: PendingBubble[] = [];
           for (const b of list) {
-            if (b.tusExpiresAt < now) {
+            if (isCurrentPendingBubble(b) && b.tusExpiresAt < now) {
               dropped.push(b);
               mutated = true;
             } else {
@@ -192,10 +214,10 @@ export const usePendingMessageStore = create<PendingMessageStore>()(
         const ready: PendingBubble[] = [];
         for (const list of get().bubbles.values()) {
           for (const b of list) {
-            if (b.state !== 'sending') continue;
+            if (b.state !== 'sending' || !isCurrentPendingBubble(b)) continue;
             const allDone = b.transferIds.every((tid) => {
               const t = transfers.get(tid);
-              return t?.state === 'completed' && !!t.attachmentId;
+              return t?.state === 'completed' && !!t.attachmentId && isCurrentTransfer(t);
             });
             if (allDone) ready.push(b);
           }
@@ -208,11 +230,11 @@ export const usePendingMessageStore = create<PendingMessageStore>()(
         const out: PendingBubble[] = [];
         for (const list of get().bubbles.values()) {
           for (const b of list) {
-            if (b.state !== 'failed') continue;
+            if (b.state !== 'failed' || !isCurrentPendingBubble(b)) continue;
             if (b.retryCount > 0) continue;
             const allDone = b.transferIds.every((tid) => {
               const t = transfers.get(tid);
-              return t?.state === 'completed' && !!t.attachmentId;
+              return t?.state === 'completed' && !!t.attachmentId && isCurrentTransfer(t);
             });
             if (allDone) out.push(b);
           }

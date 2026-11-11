@@ -1,28 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "instans remote",
-    "hostInstance": "instans host",
-    "acceptDropped": "Tidak dapat mengonfirmasi penerimaan Anda dengan {{instance}} — panggilan terputus.",
-    "rejectFailed": "Tidak dapat memberi tahu {{instances}} bahwa Anda menolak. Penelepon mungkin masih melihat Anda berdering sebentar.",
-    "endFailed": "Tidak dapat memberi tahu {{instances}} bahwa Anda menutup. Peserta remote mungkin melihat panggilan hingga 60 detik.",
-    "hostUnreachable": "Panggilan berakhir — instans host tidak dapat dijangkau.",
-    "peeringLost": "Panggilan berakhir — instans ini tidak lagi dipeering dengan {{instance}}.",
-    "instanceUnreachable": "Panggilan berakhir — {{instance}} tidak dapat dijangkau.",
-    "someUnreachable": "Beberapa peserta tidak dapat dijangkau: {{instances}}.",
-    "multipleUnreachable_one": "Tidak dapat menjangkau {{count}} instans: {{instances}}.",
-    "multipleUnreachable_other": "Tidak dapat menjangkau {{count}} instans: {{instances}}.",
-    "callFailed": "Panggilan tidak dapat dilakukan.",
-    "manualApproval": "Tidak dapat menjangkau {{instance}} — instans ini memerlukan persetujuan peering manual.",
-    "awaitingApproval": "Menunggu admin {{instance}} menyetujui instans Anda. Panggilan berfungsi setelah disetujui.",
-    "transientFailure": "Tidak dapat menjangkau {{instance}}. Coba sebentar lagi.",
-    "voiceUnavailable": "Voice tidak dikonfigurasi di instans ini.",
-    "noRecipient": "{{instance}} tidak menelepon siapa pun.",
-    "targetCallFailed": "Panggilan ke {{instance}} tidak dapat dilakukan."
-  },
-  "feedback": {
-    "relayDenied": "Tidak dapat meneruskan pesan — server mereka menolak peering. Hubungi admin mereka.",
-    "awaitingPeering": "Pesan akan terkirim setelah admin mereka menyetujui permintaan peering."
-  },
   "names": {
     "group": "Grup",
     "directMessage": "Pesan Langsung",
@@ -162,12 +138,7 @@
     "notFound": "Percakapan tidak ditemukan.",
     "notGroup": "Percakapan ini tidak punya info grup.",
     "cancelEdit": "Batalkan edit",
-    "federated": "Grup federasi",
     "memberCount_one": "{{count}} anggota",
     "memberCount_other": "{{count}} anggota"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "Grup ini dikelola di {{host}}. Hubungkan ke instans itu untuk mengubahnya.",
-    "ownerNotListed": "{{host}} belum mencantumkan grup ini untuk Anda. Coba sebentar lagi."
   }
 }

@@ -1,49 +1,40 @@
 import { eq } from 'drizzle-orm';
 import type { WebSocket } from 'ws';
-import { ownsChosenStatus, type Activity, type BotActivity, type ChosenUserStatus, type UserStatus } from '@veyvox/shared';
+import { type Activity, type BotActivity, type ChosenUserStatus, type UserStatus } from '@veyvox/shared';
 import { getDb, schema } from '../db/index.js';
 import { connectionManager } from './handler.js';
 import { collectProfileBroadcastTargetIds } from '../utils/userDeletion.js';
 import { presenceUpdateEvent, presenceUpdateFor, snapshotActivities } from './presenceEvent.js';
-import { showReplicaChoice } from './replicaPresence.js';
 import { botActivityAsLive } from '../utils/botActivity.js';
 
 /**
  * The one path for a user changing their own status, shared by REST
  * `PATCH /api/users/@me` and the WS `presence_update` client event.
  *
- * - A row that owns its choice (native or detached, `ownsChosenStatus`): writes
- *   `chosen_status`, so the choice survives disconnects, restarts and the boot
- *   presence reset.
- * - Replicated row: the choice belongs to the home instance, so only the live
- *   `status` moves, until the home's next projection or the end of the last
- *   session here (`showReplicaChoice`). `chosen_status` on a replicated row is
- *   never written here and never read anywhere.
+ * - Writes `chosen_status`, so the choice survives disconnects, restarts and
+ *   the boot presence reset.
  * - Live `status` follows only while the user has a connection: 'offline'
  *   keeps meaning "no connection". Without one, nobody is told anything; the
  *   next socket auth publishes the choice (utils/presenceStatus.ts).
  * - While connected: updates the in-memory status cache (later activity
  *   broadcasts read it), tells friends, DM and space co-members and the user's
- *   own other sessions, and relays to peers (a no-op for replicated rows).
+ *   own other sessions.
  */
 export function applyChosenStatus(userId: string, status: ChosenUserStatus): void {
   const db = getDb();
   const row = db
-    .select({ homeInstance: schema.users.homeInstance, federationHomeOrphaned: schema.users.federationHomeOrphaned })
+    .select({ id: schema.users.id })
     .from(schema.users)
     .where(eq(schema.users.id, userId))
     .get();
   if (!row) return;
 
-  const ownsChoice = ownsChosenStatus(row);
   const connected = connectionManager.isUserOnline(userId);
 
-  if (ownsChoice && connected) {
+  if (connected) {
     db.update(schema.users).set({ chosenStatus: status, status }).where(eq(schema.users.id, userId)).run();
-  } else if (ownsChoice) {
+  } else {
     db.update(schema.users).set({ chosenStatus: status }).where(eq(schema.users.id, userId)).run();
-  } else if (connected) {
-    showReplicaChoice(userId, status);
   }
 
   if (!connected) return;
@@ -54,15 +45,12 @@ export function applyChosenStatus(userId: string, status: ChosenUserStatus): voi
   for (const uid of collectProfileBroadcastTargetIds(userId)) connectionManager.sendToUser(uid, payload);
   connectionManager.sendToUser(userId, payload);
 
-  void import('../utils/federationPresence.js').then(({ queuePresenceRelay }) => {
-    try { queuePresenceRelay(userId, status, activities); } catch (e) { console.warn('[presence] queuePresenceRelay(chosen) failed', e); }
-  });
 }
 
 /**
  * Make `activities` the live activity set of a connected user and tell everyone
  * who sees their presence: friends, DM and space co-members, the user's own
- * sessions, and peers (a no-op for a replicated row, whose home projects it).
+ * sessions.
  * The caller has validated the list. The one publisher for the WS
  * `activity_update` and for a bot's stored status (`applyStoredBotActivity`).
  */
@@ -76,14 +64,10 @@ export function publishActivities(userId: string, activities: Activity[], ws?: W
   for (const uid of collectProfileBroadcastTargetIds(userId)) connectionManager.sendToUser(uid, payload);
   connectionManager.sendToUser(userId, payload);
 
-  void import('../utils/federationPresence.js').then(({ queuePresenceRelay }) => {
-    try { queuePresenceRelay(userId, status, published); } catch (e) { console.warn('[presence] queuePresenceRelay(activity) failed', e); }
-  });
 }
 
 /**
- * A bot's stored status changed here: the owner saved it on the bot's home, or
- * the home's copy reached a host's federated account of the bot. While the bot
+ * A bot's owner changed its stored activity. While the bot
  * is connected to this instance and shows activities, the new status replaces
  * its live activity at once, also one the bot code set (null clears it). An
  * offline bot shows no activity; the stored value applies at its next
@@ -97,7 +81,7 @@ export function applyStoredBotActivity(userId: string, activity: BotActivity | n
 
 /**
  * Send `recipientId`'s sessions the current presence of `subjectId`: status and
- * the activity snapshot (live or relayed activities, else the custom status),
+ * the activity snapshot (live activities, else the custom status),
  * as the ready payload would report them. An offline subject reports no
  * activities.
  */
@@ -105,8 +89,6 @@ export function sendPresenceSnapshot(recipientId: string, subjectId: string): vo
   const subject = getDb()
     .select({
       id: schema.users.id,
-      homeUserId: schema.users.homeUserId,
-      homeInstance: schema.users.homeInstance,
       status: schema.users.status,
       customStatus: schema.users.customStatus,
     })
@@ -127,26 +109,12 @@ export function sendPresenceSnapshot(recipientId: string, subjectId: string): vo
  * game when the friendship formed would show none until it changed (#340).
  *
  * - Each side's sessions get the other's current presence.
- * - For each native side whose new friend is replicated, the friend's home is
- *   sent the native's current presence, so it can keep the activities and tell
- *   the friend (`snapshotPresenceForFriend`).
  */
 export function exchangeFriendPresence(userIdA: string, userIdB: string): void {
-  // Best effort: the friendship is already committed and its own relay still
-  // has to go out, so nothing here may throw into the caller.
+  // Best effort: the friendship is already committed.
   try {
     sendPresenceSnapshot(userIdA, userIdB);
     sendPresenceSnapshot(userIdB, userIdA);
-    const activitiesA = connectionManager.getUserActivities(userIdA);
-    const activitiesB = connectionManager.getUserActivities(userIdB);
-    // Imported lazily: federationPresence reaches the federation routes, which
-    // import the WS handler that imports this module.
-    void import('../utils/federationPresence.js')
-      .then(({ snapshotPresenceForFriend }) => {
-        snapshotPresenceForFriend(userIdA, userIdB, activitiesA);
-        snapshotPresenceForFriend(userIdB, userIdA, activitiesB);
-      })
-      .catch((e: unknown) => { console.warn('[presence] snapshotPresenceForFriend failed', e); });
   } catch (e) {
     console.warn('[presence] exchangeFriendPresence failed', e);
   }

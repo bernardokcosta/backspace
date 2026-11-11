@@ -27,8 +27,7 @@ type ModalType =
 
 /**
  * The space member a profile was opened for: the space, and that member's user
- * id on the space's instance (a federated member's local replicated id there,
- * not their home id). Surfaces that know they are showing a space member pass
+ * native account ID. Surfaces that know they are showing a space member pass
  * it so the profile can show the member's roles; everywhere else leaves it out.
  */
 export interface ProfileMemberContext {
@@ -73,8 +72,6 @@ interface UIState {
   imagePreviewUrl: string | null;
   userProfilePopout: {
     user: User | null;
-    /** The instance that issued `user` ('' = the page's own). */
-    origin: string;
     /** Rect of the element the card was opened from. The card places itself off
      *  this rect once it knows its own measured size — callers never compute
      *  coordinates, so no surface can drift by re-anchoring to itself. */
@@ -93,11 +90,8 @@ interface UIState {
   setShowDms: (show: boolean) => void;
   openImagePreview: (url: string) => void;
   closeImagePreview: () => void;
-  /**
-   * Show `user`'s profile: `origin` is the instance that issued the row, which
-   * every lookup and request the profile makes goes to or is keyed by.
-   */
-  openUserProfile: (user: User, origin: string, anchor: AnchorRect, placement?: Placement, member?: ProfileMemberContext) => void;
+  /** Show a native profile anchored to its trigger, with optional space roles. */
+  openUserProfile: (user: User, anchor: AnchorRect, placement?: Placement, member?: ProfileMemberContext) => void;
   closeUserProfile: () => void;
   addToast: (message: string, type?: 'info' | 'warning' | 'success', duration?: number, action?: ToastAction) => void;
   removeToast: (id: string) => void;
@@ -120,11 +114,6 @@ interface UIState {
   pushMobileScreen: (screen: string, params?: Record<string, string>) => void;
   popMobileScreen: () => void;
 
-  // Federation approval-count badge (surfaced by MobileInstancePanel; kept fresh
-  // by the FederationPanel via `onApprovalCountChange` whenever an admin
-  // approves/denies a request from inside the panel)
-  federationApprovalCount: number;
-  setFederationApprovalCount: (count: number) => void;
 }
 
 /**
@@ -157,7 +146,6 @@ export const useUIStore = create<UIState>()(
       imagePreviewUrl: null,
       userProfilePopout: {
         user: null,
-        origin: '',
         anchor: null,
         placement: 'right',
         member: null,
@@ -192,10 +180,10 @@ export const useUIStore = create<UIState>()(
       openImagePreview: (url) => set({ activeModal: 'imagePreview', imagePreviewUrl: url }),
       closeImagePreview: () => set({ activeModal: null, imagePreviewUrl: null }),
 
-      openUserProfile: (user, origin, anchor, placement = 'right', member) => {
+      openUserProfile: (user, anchor, placement = 'right', member) => {
         if (get().isMobile) {
           // On mobile, push a full-screen user profile instead of a positioned popout
-          const params: Record<string, string> = { userId: user.id, origin };
+          const params: Record<string, string> = { userId: user.id };
           if (member) {
             params.spaceId = member.spaceId;
             params.memberUserId = member.userId;
@@ -205,11 +193,11 @@ export const useUIStore = create<UIState>()(
           }));
           history.pushState({ mobileScreen: 'user-profile' }, '');
         } else {
-          set({ userProfilePopout: { user, origin, anchor, placement, member: member ?? null } });
+          set({ userProfilePopout: { user, anchor, placement, member: member ?? null } });
         }
       },
       closeUserProfile: () => set({
-        userProfilePopout: { user: null, origin: '', anchor: null, placement: 'right', member: null }
+        userProfilePopout: { user: null, anchor: null, placement: 'right', member: null }
       }),
 
       addToast: (message, type = 'info', duration = 5000, action) => {
@@ -263,8 +251,6 @@ export const useUIStore = create<UIState>()(
         // The MobileShell popstate handler manages this — see Task 5.
       },
 
-      federationApprovalCount: 0,
-      setFederationApprovalCount: (count) => set({ federationApprovalCount: count }),
     }),
     {
       name: 'backspace-ui-settings',

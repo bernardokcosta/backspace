@@ -11,7 +11,7 @@ import { createFixedWindowLimit } from '../utils/fixedWindowLimit.js';
 import { sendRateLimit } from '../utils/rateLimits.js';
 import { connectionManager } from '../ws/handler.js';
 import { JunoRooms, JunoError } from '../games/juno.js';
-import { JUNO_ACCOUNT_MERGED_EVENT, hydrateJunoSnapshot, readJunoRanking, settleJunoRound } from '../games/junoProgression.js';
+import { hydrateJunoSnapshot, readJunoRanking, settleJunoRound } from '../games/junoProgression.js';
 
 type Params = { channelId: string };
 type MemoryQuery = { memory?: string };
@@ -73,10 +73,8 @@ export async function junoRoutes(app: FastifyInstance): Promise<void> {
       if (channel) connectionManager.sendToChannel(channel.spaceId, channelId, { type: 'juno_updated', channelId });
     },
   });
-  const remapRecipient = (sourceId: string, targetId: string) => rooms.remapPendingRecipient(sourceId, targetId);
-  app.server.on(JUNO_ACCOUNT_MERGED_EVENT, remapRecipient);
   const timer = setInterval(() => rooms.tick(), 1_000); timer.unref();
-  app.addHook('onClose', async () => { clearInterval(timer); app.server.off(JUNO_ACCOUNT_MERGED_EVENT, remapRecipient); rooms.dispose(); });
+  app.addHook('onClose', async () => { clearInterval(timer); rooms.dispose(); });
   const root = '/api/channels/:channelId/juno';
   app.get<{ Params: { spaceId: string }; Querystring: { limit?: number; offset?: number } }>('/api/spaces/:spaceId/juno/ranking', {
     preHandler: authenticate,

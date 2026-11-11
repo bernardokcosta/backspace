@@ -39,7 +39,7 @@ function user(id: string): User {
   return {
     id, username: id, displayName: id.charAt(0).toUpperCase() + id.slice(1), avatar: null, banner: null,
     accentColor: null, avatarColor: null, bio: null, status: 'online', customStatus: null, isAdmin: false,
-    createdAt: 1, homeInstance: null, homeUserId: null, replicatedInstances: [],
+    createdAt: 1,
   };
 }
 function member(id: string, roles: Role[]): MemberWithUser {

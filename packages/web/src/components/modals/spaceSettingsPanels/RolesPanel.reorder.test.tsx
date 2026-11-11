@@ -11,11 +11,10 @@ vi.mock('../../../audio/AudioManager', () => ({
 }));
 
 import { RolesPanel } from './RolesPanel';
-import { useSpaceStore, type TaggedSpace } from '../../../stores/spaceStore';
+import { useSpaceStore, type SpaceWithMyRoles } from '../../../stores/spaceStore';
 import { useAuthStore } from '../../../stores/authStore';
 import { useUIStore } from '../../../stores/uiStore';
-import { api, HttpError, type VeyvoxApiClient } from '../../../api/client';
-import { setApiForOriginResolver } from '../../../utils/crossStoreResolvers';
+import { api, HttpError } from '../../../api/client';
 import { PermissionBits, permissionsToString } from '../../../utils/permissions';
 
 // Reordering roles in Space Settings > Roles (permissions.md, "Role
@@ -23,12 +22,11 @@ import { PermissionBits, permissionsToString } from '../../../utils/permissions'
 // optimistic move and its rollback, and the instance the move goes to.
 
 const SPACE_ID = 'space-1';
-const ORBIT = 'https://orbit.example';
 
-function space(origin: string): TaggedSpace {
+function space(): SpaceWithMyRoles {
   return {
     id: SPACE_ID, name: 'Space', icon: null, banner: null, avatarColor: null, ownerId: 'owner',
-    inviteCode: null, visibility: 'public', description: null, createdAt: 1, _instanceOrigin: origin,
+    inviteCode: null, visibility: 'public', description: null, createdAt: 1,
   };
 }
 
@@ -47,8 +45,7 @@ const ROLES = [ADMINS, MODS, REGULARS, GUESTS, EVERYONE];
 function user(id: string): User {
   return {
     id, username: id, displayName: id, avatar: null, banner: null, accentColor: null, avatarColor: null, bio: null,
-    status: 'online', customStatus: null, isAdmin: false, createdAt: 1, homeInstance: null, homeUserId: null,
-    replicatedInstances: [],
+    status: 'online', customStatus: null, isAdmin: false, createdAt: 1,
   };
 }
 function member(id: string, roles: Role[]): MemberWithUser {
@@ -57,10 +54,10 @@ function member(id: string, roles: Role[]): MemberWithUser {
 
 const loadSpaceDetail = vi.fn(async () => undefined);
 
-function seed(viewerId: string, origin = ''): void {
+function seed(viewerId: string): void {
   useAuthStore.setState({ user: user(viewerId) });
   useSpaceStore.setState({
-    spaces: [space(origin)],
+    spaces: [space()],
     currentSpaceId: SPACE_ID,
     roles: ROLES,
     members: [
@@ -300,27 +297,27 @@ describe('moving a role', () => {
   });
 });
 
-describe('a space on another instance', () => {
-  it('ranks the viewer by their id there and sends the move to that instance', async () => {
-    // Home id "moderator" is not a member of the orbit space; the replicated
-    // user "moderator-local" is, and holds Moderators there.
-    seed('moderator', ORBIT);
+describe('native role move identity', () => {
+  it('ranks the viewer by native ID and uses the current API for the move', async () => {
+    seed('moderator-local');
     useSpaceStore.setState({
       members: [member('owner', []), member('moderator-local', [MODS]), member('regular', [REGULARS])],
     });
-    useAuthStore.getState().recordMyRow(ORBIT, 'moderator-local');
-    const remoteUpdate = vi.fn(async () => ({ ...GUESTS, position: 2 }));
-    const remote = { roles: { update: remoteUpdate } } as unknown as VeyvoxApiClient;
-    const homeUpdate = vi.spyOn(api.roles, 'update');
-    setApiForOriginResolver((origin) => (origin === ORBIT ? remote : api));
+    const update = vi.spyOn(api.roles, 'update').mockResolvedValue({ ...GUESTS, position: 2 });
 
     render(<RolesPanel spaceId={SPACE_ID} />);
     expect(screen.queryByRole('button', { name: 'Move Moderators' })).toBeNull();
 
     await userEvent.click(screen.getByRole('button', { name: 'Move Guests up' }));
 
-    expect(remoteUpdate).toHaveBeenCalledWith(SPACE_ID, 'r-guest', { position: 2, above: 'r-regular' });
-    expect(homeUpdate).not.toHaveBeenCalled();
+    expect(update).toHaveBeenCalledExactlyOnceWith(SPACE_ID, 'r-guest', { position: 2, above: 'r-regular' });
+  });
+  it('does not reload or roll back replacement-session roles after an old move fails', async () => {
+    seed('owner'); const pending = deferred<Role>(); vi.spyOn(api.roles, 'update').mockReturnValueOnce(pending.promise);
+    render(<RolesPanel spaceId={SPACE_ID} />); await userEvent.click(screen.getByRole('button', { name: 'Move Guests up' }));
+    act(() => { useAuthStore.setState(s => ({ sessionRevision: s.sessionRevision + 1 })); useSpaceStore.setState({ roles: ROLES }); });
+    await act(async () => pending.reject(new Error('Old rejection')));
+    expect(loadSpaceDetail).not.toHaveBeenCalled(); expect(screen.queryByText('Old rejection')).toBeNull(); expect(useSpaceStore.getState().roles).toBe(ROLES);
   });
 });
 

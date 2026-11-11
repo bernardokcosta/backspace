@@ -1,32 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "النسخة البعيدة",
-    "hostInstance": "النسخة المضيفة",
-    "acceptDropped": "تعذّر تأكيد قبولك لدى {{instance}} — انقطعت المكالمة.",
-    "rejectFailed": "تعذّر إبلاغ {{instances}} أنك رفضت. قد يراك المتصل يرن لفترة وجيزة.",
-    "endFailed": "تعذّر إبلاغ {{instances}} أنك أنهيت. قد يرى المشاركون البعيدون المكالمة حتى 60 ثانية.",
-    "hostUnreachable": "انتهت المكالمة — أصبحت النسخة المضيفة غير قابلة للوصول.",
-    "peeringLost": "انتهت المكالمة — لم تعد هذه النسخة مترابطة مع {{instance}}.",
-    "instanceUnreachable": "انتهت المكالمة — أصبحت {{instance}} غير قابلة للوصول.",
-    "someUnreachable": "تعذّر الوصول إلى بعض المشاركين: {{instances}}.",
-    "multipleUnreachable_zero": "تعذّر الوصول إلى أي نسخة ({{count}}): {{instances}}.",
-    "multipleUnreachable_one": "تعذّر الوصول إلى نسخة {{count}}: {{instances}}.",
-    "multipleUnreachable_two": "تعذّر الوصول إلى نسختين ({{count}}): {{instances}}.",
-    "multipleUnreachable_few": "تعذّر الوصول إلى {{count}} نسخ: {{instances}}.",
-    "multipleUnreachable_many": "تعذّر الوصول إلى {{count}} نسخة: {{instances}}.",
-    "multipleUnreachable_other": "تعذّر الوصول إلى {{count}} نسخة: {{instances}}.",
-    "callFailed": "تعذّر إجراء المكالمة.",
-    "manualApproval": "تعذّر الوصول إلى {{instance}} — تتطلب هذه النسخة موافقة ترابط يدوية.",
-    "awaitingApproval": "في انتظار موافقة مسؤول {{instance}} على نسختك. ستعمل المكالمات بعد الموافقة.",
-    "transientFailure": "تعذّر الوصول إلى {{instance}}. حاول بعد لحظات.",
-    "voiceUnavailable": "الصوت غير معدّ في هذه النسخة.",
-    "noRecipient": "لم تتصل {{instance}} بأحد.",
-    "targetCallFailed": "تعذّر الاتصال بـ {{instance}}."
-  },
-  "feedback": {
-    "relayDenied": "تعذّر ترحيل الرسائل — رفض خادمهم الترابط. اتصل بمسؤولهم.",
-    "awaitingPeering": "ستُسلَّم الرسائل عندما يوافق مسؤولهم على طلب الترابط."
-  },
   "names": {
     "group": "مجموعة",
     "directMessage": "رسالة مباشرة",
@@ -186,16 +158,11 @@
     "notFound": "لم يتم العثور على المحادثة.",
     "notGroup": "لا معلومات مجموعة لهذه المحادثة.",
     "cancelEdit": "إلغاء التعديل",
-    "federated": "مجموعة مفدرلة",
     "memberCount_zero": "لا أعضاء ({{count}})",
     "memberCount_one": "عضو {{count}}",
     "memberCount_two": "عضوان ({{count}})",
     "memberCount_few": "{{count}} أعضاء",
     "memberCount_many": "{{count}} عضوًا",
     "memberCount_other": "{{count}} عضو"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "تُدار هذه المجموعة على {{host}}. اتصل بتلك النسخة لتغييرها.",
-    "ownerNotListed": "لا تُظهر {{host}} هذه المجموعة لك بعد. حاول بعد لحظات."
   }
 }

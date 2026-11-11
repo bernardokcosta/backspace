@@ -1,154 +1,626 @@
 {
   "soundboardTab": "Boîte à sons",
   "create": {
-    "title": "Créer un espace", "icon": { "upload": "Importer", "previewAlt": "Aperçu de l’icône", "colorLabel": "Couleur de l’icône", "cropTitle": "Recadrer l’icône de l’espace", "uploadFailed": "Impossible d’importer l’icône" },
-    "name": { "label": "Nom de l’espace", "placeholder": "Mon super espace", "required": "Le nom de l’espace est obligatoire" }, "visibilityLabel": "Visibilité",
-    "description": { "label": "Description", "placeholder": "Une courte description de ton espace…", "counter": "{{length}}/{{max}}" }, "submit": "Créer", "submitting": "Création…"
+    "title": "Créer un espace",
+    "icon": {
+      "upload": "Importer",
+      "previewAlt": "Aperçu de l’icône",
+      "colorLabel": "Couleur de l’icône",
+      "cropTitle": "Recadrer l’icône de l’espace",
+      "uploadFailed": "Impossible d’importer l’icône"
+    },
+    "name": {
+      "label": "Nom de l’espace",
+      "placeholder": "Mon super espace",
+      "required": "Le nom de l’espace est obligatoire"
+    },
+    "visibilityLabel": "Visibilité",
+    "description": {
+      "label": "Description",
+      "placeholder": "Une courte description de ton espace…",
+      "counter": "{{length}}/{{max}}"
+    },
+    "submit": "Créer",
+    "submitting": "Création…"
   },
   "channel": {
     "create": {
-      "title": "Créer un canal", "typeLabel": "Type de canal", "types": { "text": { "name": "Texte", "description": "Envoyer des messages, images et fichiers" }, "voice": { "name": "Vocal", "description": "Discuter en voix et en vidéo" } },
-      "nameLabel": "Nom du canal", "namePlaceholder": "nouveau-canal", "topicLabel": "Sujet (facultatif)", "topicPlaceholder": "De quoi parle ce canal ?", "categoryLabel": "Catégorie", "noCategory": "Sans catégorie",
-      "nameRequired": "Le nom du canal est obligatoire", "noSpaceSelected": "Aucun espace sélectionné", "submit": "Créer le canal", "submitting": "Création…"
+      "title": "Créer un canal",
+      "typeLabel": "Type de canal",
+      "types": {
+        "text": {
+          "name": "Texte",
+          "description": "Envoyer des messages, images et fichiers"
+        },
+        "voice": {
+          "name": "Vocal",
+          "description": "Discuter en voix et en vidéo"
+        }
+      },
+      "nameLabel": "Nom du canal",
+      "namePlaceholder": "nouveau-canal",
+      "topicLabel": "Sujet (facultatif)",
+      "topicPlaceholder": "De quoi parle ce canal ?",
+      "categoryLabel": "Catégorie",
+      "noCategory": "Sans catégorie",
+      "nameRequired": "Le nom du canal est obligatoire",
+      "noSpaceSelected": "Aucun espace sélectionné",
+      "submit": "Créer le canal",
+      "submitting": "Création…"
     },
     "settings": {
-      "title": "Paramètres du canal", "rename": "Renommer le canal", "nameLabel": "Nom du canal", "channelLabel": "Canal",
-      "topic": { "label": "Sujet", "placeholder": "De quoi parle ce canal ?", "hint": "Affiché dans l’en-tête du canal. Tout le monde peut y ouvrir le texte complet.", "counter": "{{used}}/{{max}}", "tooLong": "Réduis le sujet à {{max}} caractères maximum pour l’enregistrer.", "empty": "Aucun sujet défini.", "reset": "Abandonner les modifications" },
+      "title": "Paramètres du canal",
+      "rename": "Renommer le canal",
+      "nameLabel": "Nom du canal",
+      "channelLabel": "Canal",
+      "topic": {
+        "label": "Sujet",
+        "placeholder": "De quoi parle ce canal ?",
+        "hint": "Affiché dans l’en-tête du canal. Tout le monde peut y ouvrir le texte complet.",
+        "counter": "{{used}}/{{max}}",
+        "tooLong": "Réduis le sujet à {{max}} caractères maximum pour l’enregistrer.",
+        "empty": "Aucun sujet défini.",
+        "reset": "Abandonner les modifications"
+      },
       "private": {
-        "label": "Canal privé", "description": "Seuls les membres et rôles sélectionnés pourront voir ce canal.",
+        "label": "Canal privé",
+        "description": "Seuls les membres et rôles sélectionnés pourront voir ce canal.",
         "note": "Ce canal est masqué pour les membres sans accès explicite. Les utilisateurs avec la permission Administrateur et les propriétaires de l’espace peuvent toujours voir tous les canaux.",
         "unhideOnSave": "Enregistrer rendra ce canal visible par tous les membres."
-      }, "deleteButton": "Supprimer le canal"
+      },
+      "deleteButton": "Supprimer le canal"
     },
     "delete": {
-      "title": "Supprimer #{{name}} ?", "description": "<strong>#{{name}}</strong> et tous ses messages seront définitivement supprimés. Cette action est irréversible.",
-      "descriptionVoice": "<strong>#{{name}}</strong> et tous ses messages seront définitivement supprimés. Les utilisateurs présents dans ce canal vocal seront déconnectés. Cette action est irréversible.", "confirm": "Supprimer le canal"
+      "title": "Supprimer #{{name}} ?",
+      "description": "<strong>#{{name}}</strong> et tous ses messages seront définitivement supprimés. Cette action est irréversible.",
+      "descriptionVoice": "<strong>#{{name}}</strong> et tous ses messages seront définitivement supprimés. Les utilisateurs présents dans ce canal vocal seront déconnectés. Cette action est irréversible.",
+      "confirm": "Supprimer le canal"
     }
   },
   "category": {
-    "create": { "title": "Créer une catégorie", "nameLabel": "Nom de la catégorie", "namePlaceholder": "nouvelle-catégorie", "nameRequired": "Le nom de la catégorie est obligatoire", "noSpaceSelected": "Aucun espace sélectionné", "submit": "Créer la catégorie", "submitting": "Création…" },
+    "create": {
+      "title": "Créer une catégorie",
+      "nameLabel": "Nom de la catégorie",
+      "namePlaceholder": "nouvelle-catégorie",
+      "nameRequired": "Le nom de la catégorie est obligatoire",
+      "noSpaceSelected": "Aucun espace sélectionné",
+      "submit": "Créer la catégorie",
+      "submitting": "Création…"
+    },
     "settings": {
-      "title": "Paramètres de la catégorie", "rename": "Renommer la catégorie", "nameLabel": "Nom de la catégorie", "categoryLabel": "Catégorie",
-      "private": { "label": "Catégorie privée", "description": "Seuls les membres et rôles sélectionnés pourront voir les canaux de cette catégorie.", "note": "Cette catégorie est masquée pour les membres sans accès explicite. Ses canaux héritent de cette restriction, sauf s’ils la remplacent explicitement.", "unhideOnSave": "Enregistrer rendra cette catégorie visible par tous les membres, y compris ses canaux qui n’ont pas leur propre restriction de visibilité." },
+      "title": "Paramètres de la catégorie",
+      "rename": "Renommer la catégorie",
+      "nameLabel": "Nom de la catégorie",
+      "categoryLabel": "Catégorie",
+      "private": {
+        "label": "Catégorie privée",
+        "description": "Seuls les membres et rôles sélectionnés pourront voir les canaux de cette catégorie.",
+        "note": "Cette catégorie est masquée pour les membres sans accès explicite. Ses canaux héritent de cette restriction, sauf s’ils la remplacent explicitement.",
+        "unhideOnSave": "Enregistrer rendra cette catégorie visible par tous les membres, y compris ses canaux qui n’ont pas leur propre restriction de visibilité."
+      },
       "deleteButton": "Supprimer la catégorie"
     },
-    "delete": { "title": "Supprimer « {{name}} » ?", "description": "La catégorie <strong>{{name}}</strong> sera définitivement supprimée. Ses canaux seront déplacés au premier niveau. Cette action est irréversible.", "confirm": "Supprimer la catégorie" }
+    "delete": {
+      "title": "Supprimer « {{name}} » ?",
+      "description": "La catégorie <strong>{{name}}</strong> sera définitivement supprimée. Ses canaux seront déplacés au premier niveau. Cette action est irréversible.",
+      "confirm": "Supprimer la catégorie"
+    }
   },
   "invite": {
-    "title": "Inviter des amis", "intro": "Envoie une invitation à tes amis ou partage un lien.",
+    "title": "Inviter des amis",
+    "intro": "Envoie une invitation à tes amis ou partage un lien.",
     "introRequest": "Envoie une invitation à tes amis ou partage un lien. Les personnes qui l’ouvrent demandent l’accès ; une personne chargée de la gestion de l’espace approuve chaque demande.",
-    "searchPlaceholder": "Rechercher des amis…", "noMatches": "Aucun ami ne correspond à ta recherche", "noFriends": "Pas encore d’amis", "alreadyMember": "Déjà dans l’espace", "removeSelected": "Retirer {{name}}", "selectFriends": "Sélectionner des amis",
-    "send_one": "Envoyer {{count}} invitation", "send_many": "Envoyer {{count}} invitations", "send_other": "Envoyer {{count}} invitations", "sending": "Envoi…", "retryFailed": "Réessayer les invitations en échec", "status": { "sent": "✓ Envoyée", "failed": "✗ {{reason}}" },
-    "shareLink": "Ou partager un lien", "generating": "Génération…", "generateFailed": "Impossible de générer le lien d’invitation",
-    "failure": { "inviteInvalid": "Le lien d’invitation n’est plus valide", "notAFriend": "Cette personne n’est pas dans tes amis", "userNotFound": "Utilisateur introuvable", "alreadyMember": "Déjà membre", "upstream": "Impossible de vérifier l’invitation, réessaie", "cannotInviteSelf": "Tu ne peux pas t’inviter toi-même", "invalidBody": "Requête invalide", "invalidTarget": "Destinataire invalide", "unreachable": "Impossible de joindre ton instance", "serverError": "Envoi impossible (erreur du serveur)" }
-  },
-  "inviteFriend": { "title": "Inviter {{name}} dans un espace", "intro": "Choisis un de tes espaces pour envoyer une invitation.", "noSpaces": "Tu ne fais encore partie d’aucun espace", "contextMenu": "Inviter dans un espace" },
-  "join": {
-    "validation": { "required": "Le code d’invitation est obligatoire", "invalidLink": "Lien d’invitation invalide", "linkFormat": "Lien d’invitation invalide. Format attendu : https://instance/join/CODE", "qualifiedFormat": "Format d’invitation invalide. Format attendu : CODE@domain", "invalidDomain": "Domaine invalide dans l’invitation" },
-    "title": "Rejoindre un espace", "invitePlaceholder": "par ex. abc123 ou https://instance.com/join/abc123", "submit": "Rejoindre l’espace", "submitting": "Accès à l’espace…",
-    "connect": {
-      "intro": "Connecte-toi à <host>{{host}}</host> pour rejoindre cet espace.", "passwordLabel": "Saisis ton mot de passe pour te connecter", "passwordPlaceholder": "Le mot de passe de ton compte",
-      "passwordNote": "Ton mot de passe est vérifié par ton instance d’origine et n’est jamais envoyé à {{host}}. Cette instance reçoit un identifiant d’authentification unique généré uniquement pour elle.",
-      "submit": "Se connecter et rejoindre", "submitting": "Connexion…"
+    "searchPlaceholder": "Rechercher des amis…",
+    "noMatches": "Aucun ami ne correspond à ta recherche",
+    "noFriends": "Pas encore d’amis",
+    "alreadyMember": "Déjà dans l’espace",
+    "removeSelected": "Retirer {{name}}",
+    "selectFriends": "Sélectionner des amis",
+    "send_one": "Envoyer {{count}} invitation",
+    "send_many": "Envoyer {{count}} invitations",
+    "send_other": "Envoyer {{count}} invitations",
+    "sending": "Envoi…",
+    "retryFailed": "Réessayer les invitations en échec",
+    "status": {
+      "sent": "✓ Envoyée",
+      "failed": "✗ {{reason}}"
     },
-    "fallback": { "usernamePlaceholder": "Ton nom d’utilisateur sur cette instance", "passwordLabel": "Mot de passe de cette instance", "passwordPlaceholder": "Mot de passe sur l’instance distante", "submit": "Se connecter et rejoindre", "submitting": "Connexion…" },
+    "shareLink": "Ou partager un lien",
+    "generating": "Génération…",
+    "generateFailed": "Impossible de générer le lien d’invitation",
+    "failure": {
+      "inviteInvalid": "Le lien d’invitation n’est plus valide",
+      "notAFriend": "Cette personne n’est pas dans tes amis",
+      "userNotFound": "Utilisateur introuvable",
+      "alreadyMember": "Déjà membre",
+      "upstream": "Impossible de vérifier l’invitation, réessaie",
+      "cannotInviteSelf": "Tu ne peux pas t’inviter toi-même",
+      "invalidBody": "Requête invalide",
+      "invalidTarget": "Destinataire invalide",
+      "unreachable": "Impossible de joindre ton instance",
+      "serverError": "Envoi impossible (erreur du serveur)"
+    }
+  },
+  "inviteFriend": {
+    "title": "Inviter {{name}} dans un espace",
+    "intro": "Choisis un de tes espaces pour envoyer une invitation.",
+    "noSpaces": "Tu ne fais encore partie d’aucun espace",
+    "contextMenu": "Inviter dans un espace"
+  },
+  "join": {
+    "validation": {
+      "required": "Le code d’invitation est obligatoire",
+      "invalidLink": "Lien d’invitation invalide",
+      "linkFormat": "Lien d’invitation invalide. Format attendu : https://instance/join/CODE",
+      "qualifiedFormat": "Format d’invitation invalide. Format attendu : CODE@domain",
+      "invalidDomain": "Domaine invalide dans l’invitation"
+    },
+    "title": "Rejoindre un espace",
+    "invitePlaceholder": "par ex. abc123 ou https://instance.com/join/abc123",
+    "submit": "Rejoindre l’espace",
+    "submitting": "Accès à l’espace…",
     "request": {
-      "messagePlaceholder": "Pourquoi veux-tu rejoindre cet espace ? (facultatif)", "send": "Envoyer la demande", "sending": "Envoi…", "notice": "Cet espace accepte les demandes d’accès. Envoie-en une ; une personne chargée de sa gestion l’examinera.", "messageLabel": "Message joint à ta demande",
-      "sent": "Demande envoyée. Une personne chargée de la gestion de l’espace l’examinera ; l’espace apparaîtra dans ta liste après son approbation.", "pending": "Tu as déjà demandé à rejoindre cet espace. Ta demande est en attente d’examen."
+      "messagePlaceholder": "Pourquoi veux-tu rejoindre cet espace ? (facultatif)",
+      "send": "Envoyer la demande",
+      "sending": "Envoi…",
+      "notice": "Cet espace accepte les demandes d’accès. Envoie-en une ; une personne chargée de sa gestion l’examinera.",
+      "messageLabel": "Message joint à ta demande",
+      "sent": "Demande envoyée. Une personne chargée de la gestion de l’espace l’examinera ; l’espace apparaîtra dans ta liste après son approbation.",
+      "pending": "Tu as déjà demandé à rejoindre cet espace. Ta demande est en attente d’examen."
     }
   },
   "settings": {
-    "title": "Paramètres de l’espace", "backAria": "Retour au menu des paramètres de l’espace", "nav": { "general": "Général", "management": "Gestion", "tabs": { "overview": "Vue d’ensemble", "roles": "Rôles", "bans": "Bannissements" } }, "discardChanges": "Abandonner",
-    "overview": {
-      "identity": "Identité de l’espace", "iconLabel": "Icône de l’espace", "iconAlt": "Icône de l’espace", "colorLabel": "Couleur de l’icône", "bannerLabel": "Bannière de l’espace", "bannerAlt": "Bannière de l’espace", "uploadBanner": "Importer une bannière (16:9)", "removeBanner": "Retirer la bannière", "nameLabel": "Nom de l’espace",
-      "iconUploadFailed": "Impossible d’importer l’icône", "bannerUploadFailed": "Impossible d’importer la bannière", "cropIconTitle": "Recadrer l’icône de l’espace", "cropBannerTitle": "Recadrer la bannière de l’espace",
-      "transfer": { "description": "Transfère la propriété à un autre membre. Tu deviendras un membre ordinaire.", "prompt": "Transférer la propriété à <strong>{{name}}</strong> ?", "button": "Transférer la propriété", "confirm": "Transférer", "transferring": "Transfert…", "success": "Propriété transférée à {{name}}", "failed": "Impossible de transférer la propriété" },
-      "delete": { "description": "Supprime définitivement cet espace et toutes ses données. Cette action est irréversible.", "button": "Supprimer l’espace", "confirmAgain": "Clique à nouveau pour confirmer la suppression", "failed": "Impossible de supprimer l’espace" }
-    },
-    "access": {
-      "title": "Accès et description", "visibility": {
-        "label": "Visibilité", "hint": "Contrôle comment les personnes invitées rejoignent cet espace.",
-        "options": { "private": { "label": "Privé", "description": "Seules les personnes avec un lien d’invitation peuvent rejoindre" }, "request": { "label": "Sur demande", "description": "Une invitation mène à une demande qu’un responsable doit approuver" }, "public": { "label": "Public", "description": "Les personnes invitées peuvent rejoindre immédiatement" } }
-      },
-      "description": { "label": "Description", "hint": "Un court résumé affiché avec les invitations à cet espace.", "placeholder": "Une courte description de cet espace…", "counter": "{{length}}/{{max}}" },
-      "requests": { "title": "Demandes d’accès en attente", "empty": "Aucune demande d’accès en attente", "actionFailed": "Échec de l’action" }
-    },
-    "members": {
-      "description": "Gère les membres de cet espace. Clique sur un membre pour modifier ses rôles.", "listHeading": "Membres ({{total}})", "owner": "Propriétaire", "noRoles": "Aucun rôle", "ban": "Bannir", "kick": "Exclure",
-      "confirm": { "banTitle": "Bannir {{name}}", "kickTitle": "Exclure {{name}}", "banDescription": "Cette personne sera bannie de cet espace jusqu’à la levée de son bannissement.", "kickDescription": "Cette personne pourra revenir avec un lien d’invitation." },
-      "updateRolesFailed": "Impossible de modifier les rôles", "kickFailed": "Impossible d’exclure le membre", "banFailed": "Impossible de bannir le membre", "rolesAboveYou": "Les rôles de rang égal ou supérieur à ton rôle le plus élevé sont verrouillés.", "rolesUnheld": "Tu ne peux pas attribuer de rôles avec des permissions que tu n’as pas.", "rolesManagedByBot": "Le rôle propre à un bot reste réservé à ce bot.",
-      "botInvite": {
-        "warning": "Le bot devient membre de cet espace et reçoit les messages et événements de tous les canaux auxquels ses permissions donnent accès. N’ajoute que des bots de confiance.", "owner": "Propriétaire : @{{owner}}", "button": "Ajouter un bot", "title": "Ajouter un bot", "searchPlaceholder": "Rechercher des bots par nom…", "searching": "Recherche…", "noResults": "Aucun bot trouvé", "add": "Ajouter", "adding": "Ajout…", "permissionsTitle": "Permissions de {{name}}",
-        "permissionsIntro": "Le bot demande ces permissions. Elles sont attribuées à un rôle nommé d’après le bot ; décoche celles que tu ne veux pas accorder.", "permissionsUnheld": "Tu ne peux pas accorder des permissions que tu n’as pas.", "permissionsNone": "Aucune permission cochée : le bot rejoint sans rôle.", "back": "Retour"
+    "title": "Paramètres de l’espace",
+    "backAria": "Retour au menu des paramètres de l’espace",
+    "nav": {
+      "general": "Général",
+      "management": "Gestion",
+      "tabs": {
+        "overview": "Vue d’ensemble",
+        "roles": "Rôles",
+        "bans": "Bannissements"
       }
     },
-    "afk": { "title": "Canal AFK", "channelLabel": "Déplacer les membres inactifs vers", "disabled": "Désactivé", "timeoutLabel": "Après une inactivité de", "minutes": "min", "hint": "Les membres sans activité vocale pendant la durée choisie sont automatiquement déplacés dans ce canal vocal." }
+    "discardChanges": "Abandonner",
+    "overview": {
+      "identity": "Identité de l’espace",
+      "iconLabel": "Icône de l’espace",
+      "iconAlt": "Icône de l’espace",
+      "colorLabel": "Couleur de l’icône",
+      "bannerLabel": "Bannière de l’espace",
+      "bannerAlt": "Bannière de l’espace",
+      "uploadBanner": "Importer une bannière (16:9)",
+      "removeBanner": "Retirer la bannière",
+      "nameLabel": "Nom de l’espace",
+      "iconUploadFailed": "Impossible d’importer l’icône",
+      "bannerUploadFailed": "Impossible d’importer la bannière",
+      "cropIconTitle": "Recadrer l’icône de l’espace",
+      "cropBannerTitle": "Recadrer la bannière de l’espace",
+      "transfer": {
+        "description": "Transfère la propriété à un autre membre. Tu deviendras un membre ordinaire.",
+        "prompt": "Transférer la propriété à <strong>{{name}}</strong> ?",
+        "button": "Transférer la propriété",
+        "confirm": "Transférer",
+        "transferring": "Transfert…",
+        "success": "Propriété transférée à {{name}}",
+        "failed": "Impossible de transférer la propriété"
+      },
+      "delete": {
+        "description": "Supprime définitivement cet espace et toutes ses données. Cette action est irréversible.",
+        "button": "Supprimer l’espace",
+        "confirmAgain": "Clique à nouveau pour confirmer la suppression",
+        "failed": "Impossible de supprimer l’espace"
+      }
+    },
+    "access": {
+      "title": "Accès et description",
+      "visibility": {
+        "label": "Visibilité",
+        "hint": "Contrôle comment les personnes invitées rejoignent cet espace.",
+        "options": {
+          "private": {
+            "label": "Privé",
+            "description": "Seules les personnes avec un lien d’invitation peuvent rejoindre"
+          },
+          "request": {
+            "label": "Sur demande",
+            "description": "Une invitation mène à une demande qu’un responsable doit approuver"
+          },
+          "public": {
+            "label": "Public",
+            "description": "Les personnes invitées peuvent rejoindre immédiatement"
+          }
+        }
+      },
+      "description": {
+        "label": "Description",
+        "hint": "Un court résumé affiché avec les invitations à cet espace.",
+        "placeholder": "Une courte description de cet espace…",
+        "counter": "{{length}}/{{max}}"
+      },
+      "requests": {
+        "title": "Demandes d’accès en attente",
+        "empty": "Aucune demande d’accès en attente",
+        "actionFailed": "Échec de l’action"
+      }
+    },
+    "members": {
+      "description": "Gère les membres de cet espace. Clique sur un membre pour modifier ses rôles.",
+      "listHeading": "Membres ({{total}})",
+      "owner": "Propriétaire",
+      "noRoles": "Aucun rôle",
+      "ban": "Bannir",
+      "kick": "Exclure",
+      "confirm": {
+        "banTitle": "Bannir {{name}}",
+        "kickTitle": "Exclure {{name}}",
+        "banDescription": "Cette personne sera bannie de cet espace jusqu’à la levée de son bannissement.",
+        "kickDescription": "Cette personne pourra revenir avec un lien d’invitation."
+      },
+      "updateRolesFailed": "Impossible de modifier les rôles",
+      "kickFailed": "Impossible d’exclure le membre",
+      "banFailed": "Impossible de bannir le membre",
+      "rolesAboveYou": "Les rôles de rang égal ou supérieur à ton rôle le plus élevé sont verrouillés.",
+      "rolesUnheld": "Tu ne peux pas attribuer de rôles avec des permissions que tu n’as pas.",
+      "rolesManagedByBot": "Le rôle propre à un bot reste réservé à ce bot.",
+      "botInvite": {
+        "warning": "Le bot devient membre de cet espace et reçoit les messages et événements de tous les canaux auxquels ses permissions donnent accès. N’ajoute que des bots de confiance.",
+        "owner": "Propriétaire : @{{owner}}",
+        "button": "Ajouter un bot",
+        "title": "Ajouter un bot",
+        "searchPlaceholder": "Rechercher des bots par nom…",
+        "searching": "Recherche…",
+        "noResults": "Aucun bot trouvé",
+        "add": "Ajouter",
+        "adding": "Ajout…",
+        "permissionsTitle": "Permissions de {{name}}",
+        "permissionsIntro": "Le bot demande ces permissions. Elles sont attribuées à un rôle nommé d’après le bot ; décoche celles que tu ne veux pas accorder.",
+        "permissionsUnheld": "Tu ne peux pas accorder des permissions que tu n’as pas.",
+        "permissionsNone": "Aucune permission cochée : le bot rejoint sans rôle.",
+        "back": "Retour"
+      }
+    },
+    "afk": {
+      "title": "Canal AFK",
+      "channelLabel": "Déplacer les membres inactifs vers",
+      "disabled": "Désactivé",
+      "timeoutLabel": "Après une inactivité de",
+      "minutes": "min",
+      "hint": "Les membres sans activité vocale pendant la durée choisie sont automatiquement déplacés dans ce canal vocal."
+    }
   },
-  "bans": { "title": "Bannissements", "description": "Les utilisateurs bannis ne peuvent pas rejoindre cet espace avant la levée de leur bannissement.", "loading": "Chargement des bannissements…", "empty": "Aucun utilisateur banni", "listHeading": "Bannissements ({{total}})", "bannedBy": "Banni par {{moderator}} le {{date}}", "bannedByWithReason": "Banni par {{moderator}} le {{date}} : {{reason}}", "unban": "Lever le bannissement", "loadFailed": "Impossible de charger les bannissements", "unbanFailed": "Impossible de lever le bannissement" },
+  "bans": {
+    "title": "Bannissements",
+    "description": "Les utilisateurs bannis ne peuvent pas rejoindre cet espace avant la levée de leur bannissement.",
+    "loading": "Chargement des bannissements…",
+    "empty": "Aucun utilisateur banni",
+    "listHeading": "Bannissements ({{total}})",
+    "bannedBy": "Banni par {{moderator}} le {{date}}",
+    "bannedByWithReason": "Banni par {{moderator}} le {{date}} : {{reason}}",
+    "unban": "Lever le bannissement",
+    "loadFailed": "Impossible de charger les bannissements",
+    "unbanFailed": "Impossible de lever le bannissement"
+  },
   "roles": {
-    "title": "Rôles", "create": "Créer un rôle", "creating": "Création…", "listHeading": "Rôles", "description": "Les rôles définissent les permissions des membres.", "hierarchyHint": "Les rôles en haut de la liste sont supérieurs à ceux situés en dessous.", "defaultName": "nouveau rôle", "copyName": "Copie de {{name}}", "backToList": "Retour aux rôles", "created": "Rôle créé. Personnalise-le ci-dessous.",
+    "title": "Rôles",
+    "create": "Créer un rôle",
+    "creating": "Création…",
+    "listHeading": "Rôles",
+    "description": "Les rôles définissent les permissions des membres.",
+    "hierarchyHint": "Les rôles en haut de la liste sont supérieurs à ceux situés en dessous.",
+    "defaultName": "nouveau rôle",
+    "copyName": "Copie de {{name}}",
+    "backToList": "Retour aux rôles",
+    "created": "Rôle créé. Personnalise-le ci-dessous.",
     "aboveYou": "Ce rôle est de rang égal ou supérieur à ton rôle le plus élevé. Tu peux le consulter, mais pas le modifier.",
     "managedByBot": "Ce rôle est géré par un bot et est supprimé quand le bot quitte l’espace. Il ne peut pas être attribué à d’autres utilisateurs ni supprimé manuellement. Ses permissions peuvent être modifiées.",
-    "reorder": { "handle": "Déplacer {{name}}", "handleHint": "Fais glisser ou utilise les flèches haut et bas", "up": "Monter {{name}}", "down": "Descendre {{name}}", "locked": "{{name}} est de rang égal ou supérieur à ton rôle le plus élevé", "moved": "{{name}} déplacé à la position {{position}} sur {{total}}" },
-    "identity": "Identité", "nameLabel": "Nom du rôle", "colorLabel": "Couleur du rôle", "nameEmpty": "Le nom du rôle ne peut pas être vide", "nameDuplicate": "Un rôle porte déjà ce nom", "groups": { "general": "Général", "text": "Texte", "voice": "Vocal" },
-    "saved": "Rôle enregistré", "copy": "Copier le rôle", "copying": "Copie…", "delete": "Supprimer le rôle", "deleting": "Suppression…", "confirmDelete": "Confirmer ?", "createFailed": "Impossible de créer le rôle", "saveFailed": "Impossible d’enregistrer le rôle", "deleteFailed": "Impossible de supprimer le rôle", "copyFailed": "Impossible de copier le rôle",
-    "unheldLocked": "Tu ne peux activer ou désactiver que les permissions que tu possèdes. Les autres sont verrouillées.", "unheldPermission": "Tu ne possèdes pas cette permission", "copyUnheld": "Ce rôle a des permissions que tu n’as pas ; tu ne peux pas le copier.", "copyDeleteUnheld": "Ce rôle a des permissions que tu n’as pas ; tu ne peux pas le copier ou le supprimer."
-  },
-  "memberRoles": { "title": "Modifier les rôles de {{name}}", "viewProfile": "Voir le profil", "affectsAll": "Les changements de permissions s’appliquent à tous les membres ayant ce rôle.", "selectRole": "Sélectionne un rôle pour modifier ses permissions.", "saved": "Modifications enregistrées" },
-  "permissions": {
-    "title": "Permissions", "names": {
-      "administrator": "Administrateur", "viewChannel": "Voir les canaux", "manageChannels": "Gérer les canaux", "manageRoles": "Gérer les rôles", "manageSpace": "Gérer l’espace", "createInvite": "Créer une invitation", "kickMembers": "Exclure des membres", "banMembers": "Bannir des membres", "sendMessages": "Envoyer des messages", "manageMessages": "Gérer les messages", "attachFiles": "Joindre des fichiers", "readMessageHistory": "Lire l’historique des messages", "addReactions": "Ajouter des réactions", "connect": "Se connecter", "speak": "Parler", "muteMembers": "Couper le micro des membres", "deafenMembers": "Désactiver l’audio des membres", "moveMembers": "Déplacer des membres", "stream": "Diffuser", "disconnectMembers": "Déconnecter des membres", "mentionEveryone": "Mentionner @everyone, @here et les rôles"
+    "reorder": {
+      "handle": "Déplacer {{name}}",
+      "handleHint": "Fais glisser ou utilise les flèches haut et bas",
+      "up": "Monter {{name}}",
+      "down": "Descendre {{name}}",
+      "locked": "{{name}} est de rang égal ou supérieur à ton rôle le plus élevé",
+      "moved": "{{name}} déplacé à la position {{position}} sur {{total}}"
     },
-    "tristate": { "deny": "Refuser", "neutral": "Neutre (hériter)", "allow": "Autoriser" }, "overrideCount_one": "{{count}} dérogation", "overrideCount_many": "{{count}} dérogations", "overrideCount_other": "{{count}} dérogations",
-    "removeOverride": "Retirer la dérogation", "removeOverrideFor": "Retirer la dérogation de {{name}}", "removeOverrideHint": "Sans elle, les permissions générales de l’espace s’appliquent ici.", "noRoleOverrides": "Aucune dérogation de rôle. Chaque rôle utilise ici ses permissions générales de l’espace.", "noMemberOverrides": "Aucune dérogation de membre.", "roleOverrides": "Dérogations des rôles", "memberOverrides": "Dérogations des membres", "addRole": "Ajouter un rôle", "addMember": "Ajouter un membre", "noMoreRoles": "Aucun autre rôle à ajouter", "loadFailed": "Impossible de charger les dérogations", "saveFailed": "Impossible d’enregistrer les dérogations",
-    "partialFailure_one": "Impossible d’enregistrer {{count}} dérogation", "partialFailure_many": "Impossible d’enregistrer {{count}} dérogations", "partialFailure_other": "Impossible d’enregistrer {{count}} dérogations",
-    "unheldLocked": "Tu ne peux activer ou désactiver que les permissions que tu possèdes. Les autres sont verrouillées.", "unheldPermission": "Tu ne possèdes pas cette permission", "removeUnheld": "Cette dérogation définit des permissions que tu n’as pas. Seule une personne qui les possède peut la retirer.", "removeUnheldShort": "Seule une personne ayant ces permissions peut la retirer",
-    "aboveYouRole": "Ce rôle est de rang égal ou supérieur à ton rôle le plus élevé. Tu peux consulter sa dérogation, mais pas la modifier ou la retirer.", "aboveYouMember": "Ce membre est de rang égal ou supérieur au tien. Tu peux consulter sa dérogation, mais pas la modifier ou la retirer.", "aboveYouShort": "Rang égal ou supérieur à ton rôle le plus élevé"
+    "identity": "Identité",
+    "nameLabel": "Nom du rôle",
+    "colorLabel": "Couleur du rôle",
+    "nameEmpty": "Le nom du rôle ne peut pas être vide",
+    "nameDuplicate": "Un rôle porte déjà ce nom",
+    "groups": {
+      "general": "Général",
+      "text": "Texte",
+      "voice": "Vocal"
+    },
+    "saved": "Rôle enregistré",
+    "copy": "Copier le rôle",
+    "copying": "Copie…",
+    "delete": "Supprimer le rôle",
+    "deleting": "Suppression…",
+    "confirmDelete": "Confirmer ?",
+    "createFailed": "Impossible de créer le rôle",
+    "saveFailed": "Impossible d’enregistrer le rôle",
+    "deleteFailed": "Impossible de supprimer le rôle",
+    "copyFailed": "Impossible de copier le rôle",
+    "unheldLocked": "Tu ne peux activer ou désactiver que les permissions que tu possèdes. Les autres sont verrouillées.",
+    "unheldPermission": "Tu ne possèdes pas cette permission",
+    "copyUnheld": "Ce rôle a des permissions que tu n’as pas ; tu ne peux pas le copier.",
+    "copyDeleteUnheld": "Ce rôle a des permissions que tu n’as pas ; tu ne peux pas le copier ou le supprimer."
+  },
+  "memberRoles": {
+    "title": "Modifier les rôles de {{name}}",
+    "viewProfile": "Voir le profil",
+    "affectsAll": "Les changements de permissions s’appliquent à tous les membres ayant ce rôle.",
+    "selectRole": "Sélectionne un rôle pour modifier ses permissions.",
+    "saved": "Modifications enregistrées"
+  },
+  "permissions": {
+    "title": "Permissions",
+    "names": {
+      "administrator": "Administrateur",
+      "viewChannel": "Voir les canaux",
+      "manageChannels": "Gérer les canaux",
+      "manageRoles": "Gérer les rôles",
+      "manageSpace": "Gérer l’espace",
+      "createInvite": "Créer une invitation",
+      "kickMembers": "Exclure des membres",
+      "banMembers": "Bannir des membres",
+      "sendMessages": "Envoyer des messages",
+      "manageMessages": "Gérer les messages",
+      "attachFiles": "Joindre des fichiers",
+      "readMessageHistory": "Lire l’historique des messages",
+      "addReactions": "Ajouter des réactions",
+      "connect": "Se connecter",
+      "speak": "Parler",
+      "muteMembers": "Couper le micro des membres",
+      "deafenMembers": "Désactiver l’audio des membres",
+      "moveMembers": "Déplacer des membres",
+      "stream": "Diffuser",
+      "disconnectMembers": "Déconnecter des membres",
+      "mentionEveryone": "Mentionner @everyone, @here et les rôles"
+    },
+    "tristate": {
+      "deny": "Refuser",
+      "neutral": "Neutre (hériter)",
+      "allow": "Autoriser"
+    },
+    "overrideCount_one": "{{count}} dérogation",
+    "overrideCount_many": "{{count}} dérogations",
+    "overrideCount_other": "{{count}} dérogations",
+    "removeOverride": "Retirer la dérogation",
+    "removeOverrideFor": "Retirer la dérogation de {{name}}",
+    "removeOverrideHint": "Sans elle, les permissions générales de l’espace s’appliquent ici.",
+    "noRoleOverrides": "Aucune dérogation de rôle. Chaque rôle utilise ici ses permissions générales de l’espace.",
+    "noMemberOverrides": "Aucune dérogation de membre.",
+    "roleOverrides": "Dérogations des rôles",
+    "memberOverrides": "Dérogations des membres",
+    "addRole": "Ajouter un rôle",
+    "addMember": "Ajouter un membre",
+    "noMoreRoles": "Aucun autre rôle à ajouter",
+    "loadFailed": "Impossible de charger les dérogations",
+    "saveFailed": "Impossible d’enregistrer les dérogations",
+    "partialFailure_one": "Impossible d’enregistrer {{count}} dérogation",
+    "partialFailure_many": "Impossible d’enregistrer {{count}} dérogations",
+    "partialFailure_other": "Impossible d’enregistrer {{count}} dérogations",
+    "unheldLocked": "Tu ne peux activer ou désactiver que les permissions que tu possèdes. Les autres sont verrouillées.",
+    "unheldPermission": "Tu ne possèdes pas cette permission",
+    "removeUnheld": "Cette dérogation définit des permissions que tu n’as pas. Seule une personne qui les possède peut la retirer.",
+    "removeUnheldShort": "Seule une personne ayant ces permissions peut la retirer",
+    "aboveYouRole": "Ce rôle est de rang égal ou supérieur à ton rôle le plus élevé. Tu peux consulter sa dérogation, mais pas la modifier ou la retirer.",
+    "aboveYouMember": "Ce membre est de rang égal ou supérieur au tien. Tu peux consulter sa dérogation, mais pas la modifier ou la retirer.",
+    "aboveYouShort": "Rang égal ou supérieur à ton rôle le plus élevé"
   },
   "sidebar": {
-    "directMessages": "Messages privés", "addSpace": "Ajouter un espace", "joinSpace": "Rejoindre un espace",
+    "directMessages": "Messages privés",
+    "addSpace": "Ajouter un espace",
+    "joinSpace": "Rejoindre un espace",
     "folder": {
-      "tooltip_one": "Dossier ({{count}})", "tooltip_many": "Dossier ({{count}})", "tooltip_other": "Dossier ({{count}})", "spaceCount_one": "{{count}} espace", "spaceCount_many": "{{count}} espaces", "spaceCount_other": "{{count}} espaces",
-      "unnamed": "Dossier sans nom", "rename": "Renommer le dossier", "color": "Couleur du dossier", "create": "Créer un dossier", "moveTo": "Déplacer vers un dossier", "removeFrom": "Retirer du dossier", "ungroup": "Dissocier", "created": "Dossier créé", "moved": "Déplacé dans le dossier", "removed": "Retiré du dossier", "ungrouped": "Dossier dissocié"
+      "tooltip_one": "Dossier ({{count}})",
+      "tooltip_many": "Dossier ({{count}})",
+      "tooltip_other": "Dossier ({{count}})",
+      "spaceCount_one": "{{count}} espace",
+      "spaceCount_many": "{{count}} espaces",
+      "spaceCount_other": "{{count}} espaces",
+      "unnamed": "Dossier sans nom",
+      "rename": "Renommer le dossier",
+      "color": "Couleur du dossier",
+      "create": "Créer un dossier",
+      "moveTo": "Déplacer vers un dossier",
+      "removeFrom": "Retirer du dossier",
+      "ungroup": "Dissocier",
+      "created": "Dossier créé",
+      "moved": "Déplacé dans le dossier",
+      "removed": "Retiré du dossier",
+      "ungrouped": "Dossier dissocié"
     },
     "space": {
-      "inviteCopied": "Lien d’invitation copié dans le presse-papiers", "inviteCopiedRequest": "Lien d’invitation copié. Les personnes qui l’ouvrent peuvent demander l’accès.", "inviteFailed": "Impossible de générer l’invitation", "transferOwnership": "Transférer la propriété", "settings": "Paramètres de l’espace", "leave": "Quitter l’espace", "reconnecting": "Reconnexion à {{instance}}…", "remoteInstance": "instance distante",
-      "leaveConfirm": { "title": "Quitter l’espace", "titleNamed": "Quitter {{name}}", "description": "Veux-tu vraiment quitter cet espace ? Une invitation sera nécessaire pour le rejoindre à nouveau." }, "left": "Tu as quitté l’espace", "leaveFailed": "Impossible de quitter l’espace",
-      "unreadMessages_one": "{{count}} message non lu", "unreadMessages_many": "{{count}} messages non lus", "unreadMessages_other": "{{count}} messages non lus", "unreadMessagesOver99": "Plus de 99 messages non lus"
+      "inviteCopied": "Lien d’invitation copié dans le presse-papiers",
+      "inviteCopiedRequest": "Lien d’invitation copié. Les personnes qui l’ouvrent peuvent demander l’accès.",
+      "inviteFailed": "Impossible de générer l’invitation",
+      "transferOwnership": "Transférer la propriété",
+      "settings": "Paramètres de l’espace",
+      "leave": "Quitter l’espace",
+      "leaveConfirm": {
+        "title": "Quitter l’espace",
+        "titleNamed": "Quitter {{name}}",
+        "description": "Veux-tu vraiment quitter cet espace ? Une invitation sera nécessaire pour le rejoindre à nouveau."
+      },
+      "left": "Tu as quitté l’espace",
+      "leaveFailed": "Impossible de quitter l’espace",
+      "unreadMessages_one": "{{count}} message non lu",
+      "unreadMessages_many": "{{count}} messages non lus",
+      "unreadMessages_other": "{{count}} messages non lus",
+      "unreadMessagesOver99": "Plus de 99 messages non lus"
     },
-    "dmList": { "newDm": "Nouveau message privé", "empty": "Aucune conversation pour le moment.", "leaveGroup": "Quitter le groupe", "leaveGroupConfirm": { "title": "Quitter le groupe privé", "description": "Veux-tu vraiment quitter ? Tu ne pourras revenir que si quelqu’un t’ajoute à nouveau." } },
+    "dmList": {
+      "newDm": "Nouveau message privé",
+      "empty": "Aucune conversation pour le moment.",
+      "leaveGroup": "Quitter le groupe",
+      "leaveGroupConfirm": {
+        "title": "Quitter le groupe privé",
+        "description": "Veux-tu vraiment quitter ? Tu ne pourras revenir que si quelqu’un t’ajoute à nouveau."
+      }
+    },
     "userArea": {
-      "inputDevice": "Périphérique d’entrée", "outputDevice": "Périphérique de sortie", "inputDevices": "Périphériques d’entrée", "outputDevices": "Périphériques de sortie", "inputVolume": "Volume d’entrée", "outputVolume": "Volume de sortie", "systemDefault": "Par défaut du système", "microphonePermission": "L’autorisation du micro est nécessaire.", "audioPermission": "L’autorisation audio est nécessaire.", "enable": "Activer", "voiceSettings": "Paramètres vocaux",
-      "mute": "Couper le micro", "unmute": "Activer le micro", "deafen": "Désactiver l’audio", "undeafen": "Activer l’audio", "spaceMuted": "Micro coupé dans l’espace", "spaceDeafened": "Audio désactivé dans l’espace", "permissionMuted": "Micro coupé (sans permission de parler)"
+      "inputDevice": "Périphérique d’entrée",
+      "outputDevice": "Périphérique de sortie",
+      "inputDevices": "Périphériques d’entrée",
+      "outputDevices": "Périphériques de sortie",
+      "inputVolume": "Volume d’entrée",
+      "outputVolume": "Volume de sortie",
+      "systemDefault": "Par défaut du système",
+      "microphonePermission": "L’autorisation du micro est nécessaire.",
+      "audioPermission": "L’autorisation audio est nécessaire.",
+      "enable": "Activer",
+      "voiceSettings": "Paramètres vocaux",
+      "mute": "Couper le micro",
+      "unmute": "Activer le micro",
+      "deafen": "Désactiver l’audio",
+      "undeafen": "Activer l’audio",
+      "spaceMuted": "Micro coupé dans l’espace",
+      "spaceDeafened": "Audio désactivé dans l’espace",
+      "permissionMuted": "Micro coupé (sans permission de parler)"
     },
-    "dmUnreadMessages_one": "{{count}} message privé non lu", "dmUnreadMessages_many": "{{count}} messages privés non lus", "dmUnreadMessages_other": "{{count}} messages privés non lus", "dmUnreadMessagesOver99": "Plus de 99 messages privés non lus"
+    "dmUnreadMessages_one": "{{count}} message privé non lu",
+    "dmUnreadMessages_many": "{{count}} messages privés non lus",
+    "dmUnreadMessages_other": "{{count}} messages privés non lus",
+    "dmUnreadMessagesOver99": "Plus de 99 messages privés non lus"
   },
   "channels": {
-    "resizeHandle": "Redimensionner la liste des canaux", "loading": "Chargement des canaux", "create": "Créer un canal", "createCategory": "Créer une catégorie", "settings": "Paramètres du canal", "categorySettings": "Paramètres de la catégorie", "delete": "Supprimer le canal", "deleteCategory": "Supprimer la catégorie", "emptyCategory": "Aucun canal", "empty": "Aucun canal pour le moment.",
-    "deleteConfirm": { "title": "Supprimer le canal", "description": "Veux-tu vraiment continuer ? Le canal et tous ses messages seront définitivement supprimés." },
-    "deleteCategoryConfirm": { "title": "Supprimer la catégorie", "description": "Veux-tu vraiment supprimer cette catégorie ? Ses canaux seront déplacés hors des catégories ; aucun canal ne sera supprimé." },
-    "deleted": "Canal supprimé", "deleteFailed": "Impossible de supprimer le canal", "categoryDeleted": "Catégorie supprimée", "categoryDeleteFailed": "Impossible de supprimer la catégorie"
+    "resizeHandle": "Redimensionner la liste des canaux",
+    "loading": "Chargement des canaux",
+    "create": "Créer un canal",
+    "createCategory": "Créer une catégorie",
+    "settings": "Paramètres du canal",
+    "categorySettings": "Paramètres de la catégorie",
+    "delete": "Supprimer le canal",
+    "deleteCategory": "Supprimer la catégorie",
+    "emptyCategory": "Aucun canal",
+    "empty": "Aucun canal pour le moment.",
+    "deleteConfirm": {
+      "title": "Supprimer le canal",
+      "description": "Veux-tu vraiment continuer ? Le canal et tous ses messages seront définitivement supprimés."
+    },
+    "deleteCategoryConfirm": {
+      "title": "Supprimer la catégorie",
+      "description": "Veux-tu vraiment supprimer cette catégorie ? Ses canaux seront déplacés hors des catégories ; aucun canal ne sera supprimé."
+    },
+    "deleted": "Canal supprimé",
+    "deleteFailed": "Impossible de supprimer le canal",
+    "categoryDeleted": "Catégorie supprimée",
+    "categoryDeleteFailed": "Impossible de supprimer la catégorie"
   },
   "members": {
-    "titleWithCount_one": "Membres — {{count}}", "titleWithCount_many": "Membres — {{count}}", "titleWithCount_other": "Membres — {{count}}", "loading": "Chargement des membres", "resizeHandle": "Redimensionner la liste des membres", "groups": { "owner": "Propriétaire" },
-    "ownerTitle": { "edit": "Modifier le titre du propriétaire", "label": "Titre du propriétaire", "hint": "Visible par tous les membres de cet espace. Utilise de 1 à {{max}} caractères ; cela ne change pas les permissions.", "reset": "Rétablir le titre par défaut" },
-    "menu": { "profile": "Voir le profil", "nickname": "Changer le surnom dans l’espace…", "roles": "Rôles" },
-    "nickname": { "title": "Changer le surnom dans l’espace", "label": "Surnom dans l’espace", "descriptionSelf": "S’applique uniquement dans cet espace. Le nom de ton compte et tes surnoms dans les autres espaces ne changent pas. Laisse vide pour afficher le nom de ton compte.", "descriptionOther": "S’applique uniquement dans cet espace. Le nom du compte de {{name}} ne change pas. Laisse vide pour afficher le nom du compte.", "reset": "Rétablir le nom du compte", "shownAs": "Surnom dans cet espace : {{nickname}}" }
+    "titleWithCount_one": "Membres — {{count}}",
+    "titleWithCount_many": "Membres — {{count}}",
+    "titleWithCount_other": "Membres — {{count}}",
+    "loading": "Chargement des membres",
+    "resizeHandle": "Redimensionner la liste des membres",
+    "groups": {
+      "owner": "Propriétaire"
+    },
+    "ownerTitle": {
+      "edit": "Modifier le titre du propriétaire",
+      "label": "Titre du propriétaire",
+      "hint": "Visible par tous les membres de cet espace. Utilise de 1 à {{max}} caractères ; cela ne change pas les permissions.",
+      "reset": "Rétablir le titre par défaut"
+    },
+    "menu": {
+      "profile": "Voir le profil",
+      "nickname": "Changer le surnom dans l’espace…",
+      "roles": "Rôles"
+    },
+    "nickname": {
+      "title": "Changer le surnom dans l’espace",
+      "label": "Surnom dans l’espace",
+      "descriptionSelf": "S’applique uniquement dans cet espace. Le nom de ton compte et tes surnoms dans les autres espaces ne changent pas. Laisse vide pour afficher le nom de ton compte.",
+      "descriptionOther": "S’applique uniquement dans cet espace. Le nom du compte de {{name}} ne change pas. Laisse vide pour afficher le nom du compte.",
+      "reset": "Rétablir le nom du compte",
+      "shownAs": "Surnom dans cet espace : {{nickname}}"
+    }
   },
-  "mobile": { "addSheet": { "createSpace": "Créer un espace", "joinSpace": "Rejoindre un espace" }, "muteUser": "Rendre l’utilisateur muet" },
+  "mobile": {
+    "addSheet": {
+      "createSpace": "Créer un espace",
+      "joinSpace": "Rejoindre un espace"
+    },
+    "muteUser": "Rendre l’utilisateur muet"
+  },
   "main": {
-    "selectChannel": "Sélectionne un canal", "selectChannelHint": "Sélectionne un canal textuel ou vocal pour commencer", "notificationSettings": "Paramètres de notification", "topic": { "show": "Afficher le sujet complet", "dialogTitle": "#{{name}}" },
-    "voice": { "connectionFailed": "Échec de la connexion", "connected": "Connecté", "connecting": "Connexion…", "participants_one": "{{count}} connecté", "participants_many": "{{count}} connectés", "participants_other": "{{count}} connectés", "inCall_one": "{{count}} en appel", "inCall_many": "{{count}} en appel", "inCall_other": "{{count}} en appel", "empty": "Personne n’est dans ce canal vocal pour le moment.", "join": "Rejoindre le vocal" },
-    "dm": { "fallbackName": "Message privé", "composerPlaceholder": "Message pour {{target}}", "calling": "Appel de {{name}}…", "groupSettings": "Paramètres du groupe", "openGroupSettings": "Ouvrir les paramètres du groupe", "memberCount_one": "({{count}} membre)", "memberCount_many": "({{count}} membres)", "memberCount_other": "({{count}} membres)", "startVoiceCall": "Démarrer un appel vocal", "joinCall": "Rejoindre l’appel", "startVideoCall": "Démarrer un appel vidéo", "addFriends": "Ajouter des amis à la conversation privée" }
+    "selectChannel": "Sélectionne un canal",
+    "selectChannelHint": "Sélectionne un canal textuel ou vocal pour commencer",
+    "notificationSettings": "Paramètres de notification",
+    "topic": {
+      "show": "Afficher le sujet complet",
+      "dialogTitle": "#{{name}}"
+    },
+    "voice": {
+      "connectionFailed": "Échec de la connexion",
+      "connected": "Connecté",
+      "connecting": "Connexion…",
+      "participants_one": "{{count}} connecté",
+      "participants_many": "{{count}} connectés",
+      "participants_other": "{{count}} connectés",
+      "inCall_one": "{{count}} en appel",
+      "inCall_many": "{{count}} en appel",
+      "inCall_other": "{{count}} en appel",
+      "empty": "Personne n’est dans ce canal vocal pour le moment.",
+      "join": "Rejoindre le vocal"
+    },
+    "dm": {
+      "fallbackName": "Message privé",
+      "composerPlaceholder": "Message pour {{target}}",
+      "calling": "Appel de {{name}}…",
+      "groupSettings": "Paramètres du groupe",
+      "openGroupSettings": "Ouvrir les paramètres du groupe",
+      "memberCount_one": "({{count}} membre)",
+      "memberCount_many": "({{count}} membres)",
+      "memberCount_other": "({{count}} membres)",
+      "startVoiceCall": "Démarrer un appel vocal",
+      "joinCall": "Rejoindre l’appel",
+      "startVideoCall": "Démarrer un appel vidéo",
+      "addFriends": "Ajouter des amis à la conversation privée"
+    }
   },
   "ownership": {
-    "title": "Transférer la propriété", "description": "Choisis le membre qui deviendra propriétaire de <name>{{name}}</name>", "confirmQuestion": "Transférer la propriété de <name>{{space}}</name> à <name>{{member}}</name> ?", "regularMember": "Tu deviendras un membre ordinaire.", "transferring": "Transfert…", "confirm": "Transférer", "loading": "Chargement des membres…", "success": "Propriété transférée à {{name}}", "failed": "Impossible de transférer la propriété"
+    "title": "Transférer la propriété",
+    "description": "Choisis le membre qui deviendra propriétaire de <name>{{name}}</name>",
+    "confirmQuestion": "Transférer la propriété de <name>{{space}}</name> à <name>{{member}}</name> ?",
+    "regularMember": "Tu deviendras un membre ordinaire.",
+    "transferring": "Transfert…",
+    "confirm": "Transférer",
+    "loading": "Chargement des membres…",
+    "success": "Propriété transférée à {{name}}",
+    "failed": "Impossible de transférer la propriété"
   },
   "notifications": {
-    "open": "Paramètres de notification", "channelTitle": "Notifications de #{{channel}}", "spaceTitle": "Notifications de {{space}}", "levelHeading": "Me notifier pour",
-    "level": { "all": "Tous les messages", "mentions": "Uniquement les @mentions", "nothing": "Rien", "inherit": "Défaut de l’espace ({{level}})" },
-    "dmNote": "Les messages privés déclenchent toujours une notification.", "muteHeading": "Mettre en sourdine", "mute": { "oneHour": "Pendant 1 heure", "eightHours": "Pendant 8 heures", "oneDay": "Pendant 24 heures", "indefinite": "Jusqu’à la réactivation des notifications" },
-    "unmute": "Réactiver les notifications", "mutedUntil": "En sourdine jusqu’à {{time}}", "mutedIndefinitely": "En sourdine jusqu’à la réactivation", "spaceMuted": "Cet espace est en sourdine, ses canaux le sont donc aussi.", "mutedIndicator": "En sourdine", "saveFailed": "Impossible d’enregistrer les paramètres de notification",
-    "suppressEveryone": "Ignorer @everyone et @here", "suppressRoles": "Ignorer les mentions de rôles", "massHeading": "Mentions de groupe", "massNote": "@here atteint les mêmes membres que @everyone. Les mentions directes de ton nom déclenchent toujours une notification."
+    "open": "Paramètres de notification",
+    "channelTitle": "Notifications de #{{channel}}",
+    "spaceTitle": "Notifications de {{space}}",
+    "levelHeading": "Me notifier pour",
+    "level": {
+      "all": "Tous les messages",
+      "mentions": "Uniquement les @mentions",
+      "nothing": "Rien",
+      "inherit": "Défaut de l’espace ({{level}})"
+    },
+    "dmNote": "Les messages privés déclenchent toujours une notification.",
+    "muteHeading": "Mettre en sourdine",
+    "mute": {
+      "oneHour": "Pendant 1 heure",
+      "eightHours": "Pendant 8 heures",
+      "oneDay": "Pendant 24 heures",
+      "indefinite": "Jusqu’à la réactivation des notifications"
+    },
+    "unmute": "Réactiver les notifications",
+    "mutedUntil": "En sourdine jusqu’à {{time}}",
+    "mutedIndefinitely": "En sourdine jusqu’à la réactivation",
+    "spaceMuted": "Cet espace est en sourdine, ses canaux le sont donc aussi.",
+    "mutedIndicator": "En sourdine",
+    "saveFailed": "Impossible d’enregistrer les paramètres de notification",
+    "suppressEveryone": "Ignorer @everyone et @here",
+    "suppressRoles": "Ignorer les mentions de rôles",
+    "massHeading": "Mentions de groupe",
+    "massNote": "@here atteint les mêmes membres que @everyone. Les mentions directes de ton nom déclenchent toujours une notification."
   }
 }

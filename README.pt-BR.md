@@ -7,7 +7,7 @@
 
 **Comunicação para sua comunidade, na infraestrutura que você controla.**
 
-Chat · voz · vídeo · compartilhamento de tela · federação · minijogos
+Chat · voz · vídeo · compartilhamento de tela · minijogos
 
 [Downloads](https://github.com/bernardokcosta/veyvox/releases) · [Documentação](docs/systems/) · [Problemas](https://github.com/bernardokcosta/veyvox/issues) · [Segurança](SECURITY.md)
 
@@ -15,8 +15,8 @@ Chat · voz · vídeo · compartilhamento de tela · federação · minijogos
 
 Veyvox é uma plataforma de comunicação auto-hospedada e mantida de forma
 independente, derivada do [Backspace](https://github.com/TheZwiss/backspace).
-Reúne espaços e canais, conversas privadas e voz/vídeo opcionais, com federação
-entre instâncias independentes. Consulte [package.json](package.json) para ver a
+Reúne espaços e canais, conversas privadas e voz/vídeo opcionais em um servidor
+selecionado, com contas nativas. Consulte [package.json](package.json) para ver a
 versão do código-fonte;
 baixe apenas as compilações presentes nas releases publicadas.
 
@@ -36,7 +36,6 @@ baixe apenas as compilações presentes nas releases publicadas.
 - **Chat e organização:** espaços, canais, cargos e permissões específicas; Markdown, respostas, reações, anexos, busca e indicadores de mensagens não lidas.
 - **Conversas privadas:** amigos, mensagens diretas e DMs em grupo; chamadas opcionais de voz/vídeo.
 - **Voz, vídeo e compartilhamento de tela:** integração opcional com LiveKit, controles de qualidade, volume por pessoa/transmissão, push-to-talk e supressão de ruído. A disponibilidade depende do servidor, sistema, navegador e hardware.
-- **Federação:** conecte instâncias independentes para os recursos compatíveis de amizade, mensagens, chamadas e presença; contas e permissões continuam vinculadas às respectivas instâncias.
 - **Minijogos e soundboard:** jogue minijogos como Juno nos canais de voz dos espaços e use atalhos pessoais para sons.
 - **25 idiomas de interface:** seleção automática pelo sistema ou escolha manual, incluindo português brasileiro e árabe com escrita RTL.
 - **Web, computador e celular:** cliente web responsivo, aplicativo Electron para computador e PWA instalável no celular.

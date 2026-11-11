@@ -127,7 +127,6 @@
       "appearance": "Tampilan",
       "voice": "Suara & Video",
       "privacy": "Privasi",
-      "connections": "Koneksi",
       "keybinds": "Keybind",
       "desktop": "Desktop",
       "instance": "Instans",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "Akun Saya",
-    "detached": {
-      "notice": "Akun ini terlepas dari instans utamanya.",
-      "explanation": "{{homeInstance}} diatur ulang atau tak lagi tersedia, jadi akun ini kini berjalan lokal di instans ini. Profil dan kata sandi Anda dikelola di sini.",
-      "reattachHint": "Sebagai {{username}} di {{homeInstance}}, Anda dapat menaut ulang akun ini. Profil dan kehadiran akan disinkron dari sana lagi.",
-      "reattachButton": "Taut Ulang ke {{homeInstance}}",
-      "reattachConfirm": "Konfirmasi taut ulang sebagai {{username}}",
-      "reattaching": "Menaut ulang…",
-      "reattachFailed": "Taut ulang gagal",
-      "reattached": "Akun ditaut ulang dengan {{username}}"
-    },
     "profile": {
       "sectionTitle": "Kustomisasi Profil",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "Akun",
       "status": {
-        "label": "Status",
-        "homeUnavailable": "Status Anda disimpan di {{host}}. Hubungkan ke {{host}} untuk mengubahnya."
+        "label": "Status"
       },
       "customStatus": {
         "label": "Status Kustom",
@@ -244,10 +232,6 @@
         "passwordPlaceholder": "Masukkan kata sandi Anda",
         "submit": "Hapus Akun Saya",
         "deleting": "Menghapus…"
-      },
-      "federation": {
-        "removing": "Menghapus akun Anda dari instans terhubung…",
-        "deleteAnyway": "Hapus Akun Kini"
       },
       "complete": {
         "title": "Akun dihapus",
@@ -310,14 +294,10 @@
       }
     }
   },
-  "connections": {
-    "title": "Koneksi"
-  },
   "instance": {
     "tabs": {
       "general": "Umum",
       "registration": "Pendaftaran",
-      "federation": "Federasi",
       "streaming": "Streaming",
       "storage": "Penyimpanan",
       "users": "Pengguna",

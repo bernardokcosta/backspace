@@ -12,29 +12,29 @@ import type { User } from '@veyvox/shared';
 import { SoundboardController } from './SoundboardController';
 
 const api = vi.hoisted(() => ({ list: vi.fn(), play: vi.fn(), remove: vi.fn() }));
-vi.mock('../../utils/crossStoreResolvers', async importOriginal => ({
-  ...await importOriginal<typeof import('../../utils/crossStoreResolvers')>(), getApiForOrigin: () => ({ soundboard: api }),
+vi.mock('../../api/client', async importOriginal => ({
+  ...await importOriginal<typeof import('../../api/client')>(), api: { soundboard: api },
 }));
 vi.mock('../../audio/AudioManager', () => ({ AudioManager: { getInstance: () => ({}) } }));
 vi.mock('../../audio/soundboardPlayback', () => ({ receiveSoundboardPlay: vi.fn(), stopSoundboardPlayback: vi.fn(), updateSoundboardVolume: vi.fn() }));
-const clip = { id: '1', spaceId: 'space', uploaderId: 'remote-me', name: 'Victory', emoji: '🔊', filename: '1.wav', durationSeconds: 1, createdAt: 1 };
+const clip = { id: '1', spaceId: 'space', uploaderId: 'me', name: 'Victory', emoji: '🔊', filename: '1.wav', durationSeconds: 1, createdAt: 1 };
 
 beforeEach(() => {
   vi.clearAllMocks(); useSoundboardStore.getState().reset();
-  useAuthStore.setState({ user: { id: 'home-me' } as User, myRowIds: new Map([['https://remote.test', 'remote-me']]) });
+  useAuthStore.setState({ user: { id: 'me' } as User });
   useSpaceStore.setState({ spacePermissions: new Map([['space', permissionsToString(PermissionBits.ATTACH_FILES)]]),
     channelPermissions: new Map([['voice', permissionsToString(PermissionBits.SPEAK | PermissionBits.CONNECT | PermissionBits.VIEW_CHANNEL)]]),
-    spaceChannelIndex: new Map([['voice', { spaceId: 'space', origin: 'https://remote.test', type: 'voice' }]]),
-    channelOriginMap: new Map([['voice', 'https://remote.test']]), channelToSpaceMap: new Map([['voice', 'space']]) });
+    spaceChannelIndex: new Map([['voice', { spaceId: 'space', type: 'voice' }]]),
+    channelToSpaceMap: new Map([['voice', 'space']]) });
   useVoiceStore.setState({ ...useVoiceStore.getInitialState(), currentVoiceChannelId: 'voice', isLiveKitConnected: true, voiceConnectionStatus: 'connected' });
   useSoundboardPreferences.setState({ shortcuts: {} }); useKeybindStore.setState({ keybinds: [] });
   api.list.mockResolvedValue({ settings: DEFAULT_SOUNDBOARD_SETTINGS, sounds: [clip] });
   api.play.mockResolvedValue({ success: true }); api.remove.mockResolvedValue({ success: true });
 });
 
-const renderLibrary = () => render(<SoundboardLibrary origin="https://remote.test" spaceId="space" channelId="voice" />);
+const renderLibrary = () => render(<SoundboardLibrary spaceId="space" channelId="voice" />);
 describe('soundboard library UX and gating', () => {
-  it('routes play to the space host and searches without mutating the catalog', async () => {
+  it('plays through the current API and searches without mutating the catalog', async () => {
     renderLibrary(); fireEvent.click(await screen.findByRole('button', { name: 'Play Victory' }));
     await waitFor(() => expect(api.play).toHaveBeenCalledWith('space', '1', 'voice'));
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'missing' } });
@@ -43,10 +43,10 @@ describe('soundboard library UX and gating', () => {
   it('routes a shortcut and button through the same in-flight playback lock', async () => {
     let finish!: () => void;
     api.play.mockReturnValueOnce(new Promise<void>(resolve => { finish = resolve; }));
-    const prefix = `${soundboardKey('https://remote.test', 'space')}:`;
+    const prefix = `${soundboardKey('space')}:`;
     useSoundboardPreferences.getState().setShortcut(prefix + clip.id,
       { code: 'F13', ctrl: false, alt: false, shift: false, meta: false, label: 'F13' });
-    render(<><SoundboardController /><SoundboardLibrary origin="https://remote.test" spaceId="space" channelId="voice" /></>);
+    render(<><SoundboardController /><SoundboardLibrary spaceId="space" channelId="voice" /></>);
     const button = await screen.findByRole('button', { name: 'Play Victory' });
     fireEvent.click(button);
     fireEvent.keyDown(document.body, { key: 'F13', code: 'F13' });
@@ -56,7 +56,7 @@ describe('soundboard library UX and gating', () => {
     expect(button).toBeDisabled();
   });
   it('blocks permission-muted or disconnected playback before making a doomed request', async () => {
-    useVoiceStore.setState({ permissionMutedUserIds: new Set(['space:remote-me']) });
+    useVoiceStore.setState({ permissionMutedUserIds: new Set(['space:me']) });
     renderLibrary();
     const button = await screen.findByRole('button', { name: 'Play Victory' });
     expect(button).toBeDisabled();
@@ -65,7 +65,7 @@ describe('soundboard library UX and gating', () => {
     expect(api.play).not.toHaveBeenCalled();
   });
   it('blocks playback for server mute and clips exceeding a lowered cap', async () => {
-    useVoiceStore.setState({ spaceMutedUserIds: new Set(['space:remote-me']) });
+    useVoiceStore.setState({ spaceMutedUserIds: new Set(['space:me']) });
     api.list.mockResolvedValue({ settings: { ...DEFAULT_SOUNDBOARD_SETTINGS, maxDurationSeconds: 0.5 }, sounds: [clip] });
     renderLibrary(); expect(await screen.findByRole('button', { name: 'Play Victory' })).toBeDisabled();
     expect(screen.getByText('Exceeds the current duration limit')).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe('soundboard library UX and gating', () => {
     renderLibrary(); await screen.findByRole('button', { name: 'Play Victory' });
     expect(screen.queryByRole('button', { name: 'Add sound' })).not.toBeInTheDocument();
   });
-  it('allows the uploader identified by their remote row to confirm deletion', async () => {
+  it('allows the native uploader to confirm deletion', async () => {
     renderLibrary(); fireEvent.click(await screen.findByRole('button', { name: 'Delete' }));
     expect(api.remove).not.toHaveBeenCalled();
     fireEvent.click(screen.getAllByRole('button', { name: 'Delete' }).at(-1)!);
@@ -84,13 +84,13 @@ describe('soundboard library UX and gating', () => {
   it('captures and clears an individual personal shortcut', async () => {
     renderLibrary(); const input = await screen.findByRole('textbox', { name: 'Shortcut for Victory' });
     fireEvent.focus(input); fireEvent.keyDown(input, { key: 'k', code: 'KeyK', ctrlKey: true });
-    expect(useSoundboardPreferences.getState().shortcuts[`${soundboardKey('https://remote.test', 'space')}:1`]?.label).toBe('Ctrl + K');
+    expect(useSoundboardPreferences.getState().shortcuts[`${soundboardKey('space')}:1`]?.label).toBe('Ctrl + K');
     fireEvent.click(screen.getByRole('button', { name: 'Clear shortcut' }));
     expect(useSoundboardPreferences.getState().shortcuts).toEqual({});
   });
   it('allows reusing a shortcut after another client deletes its sound', async () => {
     const removed = { ...clip, id: '2', name: 'Removed' };
-    const prefix = `${soundboardKey('https://remote.test', 'space')}:`;
+    const prefix = `${soundboardKey('space')}:`;
     const shortcut = { code: 'F13', ctrl: false, alt: false, shift: false, meta: false, label: 'F13' };
     useSoundboardPreferences.getState().setShortcut(prefix + removed.id, shortcut);
     api.list.mockResolvedValue({ settings: DEFAULT_SOUNDBOARD_SETTINGS, sounds: [clip, removed] });
@@ -102,7 +102,7 @@ describe('soundboard library UX and gating', () => {
 
     // The websocket refresh updates the catalog, but does not remove this device's preferences.
     api.list.mockResolvedValue({ settings: DEFAULT_SOUNDBOARD_SETTINGS, sounds: [clip] });
-    await act(async () => { await useSoundboardStore.getState().load('https://remote.test', 'space'); });
+    await act(async () => { await useSoundboardStore.getState().load('space'); });
     expect(screen.queryByRole('textbox', { name: 'Shortcut for Removed' })).not.toBeInTheDocument();
     expect(useSoundboardPreferences.getState().shortcuts[prefix + removed.id]).toEqual(shortcut);
     fireEvent.focus(input); fireEvent.keyDown(input, { key: 'F13', code: 'F13' });

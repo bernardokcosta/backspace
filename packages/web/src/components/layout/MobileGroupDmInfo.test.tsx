@@ -147,9 +147,6 @@ function makeUser(overrides: Partial<User> = {}): User {
     customStatus: null,
     isAdmin: false,
     createdAt: 0,
-    homeInstance: null,
-    homeUserId: null,
-    replicatedInstances: [],
     ...overrides,
   };
 }
@@ -157,7 +154,6 @@ function makeUser(overrides: Partial<User> = {}): User {
 function makeGroupDm(overrides: Partial<DmChannel> = {}): DmChannel {
   return {
     id: 'dm-1',
-    federatedId: null,
     ownerId: 'user-self', // viewer is owner by default
     ownerHomeUserId: null,
     ownerHomeInstance: null,

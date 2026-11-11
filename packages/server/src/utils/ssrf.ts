@@ -1,98 +1,122 @@
 import dns from 'dns';
+import { isIP } from 'node:net';
 import { classifyAddress } from './ipClass.js';
+import { requestPinned, type PinnedAddress } from './safeFetchTransport.js';
 
-/**
- * True for any address that is not safely routable on the public internet.
- *
- * Kept as a named export with its original signature: four modules import it
- * and `spaceInviteSnapshot.test.ts` mocks it by name. The classification moved
- * to ipClass.ts; this is the adapter.
- */
-export function isPrivateIp(ip: string): boolean {
-  return classifyAddress(ip) !== 'public';
+export function isPrivateIp(ip: string): boolean { return classifyAddress(ip) !== 'public'; }
+const MAX_REDIRECTS = 5, TIMEOUT_MS = 5_000;
+const REDIRECTS = new Set([301, 302, 303, 307, 308]);
+
+function aborted(signal: AbortSignal): Error {
+  return signal.reason instanceof Error ? signal.reason : new Error('External request aborted');
 }
 
-/**
- * Validate that a URL is safe for outbound fetch (not private/internal).
- * Throws on invalid scheme, DNS failure, or private IP resolution.
- */
-export async function validateExternalUrl(url: string): Promise<void> {
-  let parsed: URL;
-  try {
-    parsed = new URL(url);
-  } catch {
-    throw new Error('Invalid URL');
-  }
-
-  if (!['http:', 'https:'].includes(parsed.protocol)) {
-    throw new Error('Invalid URL scheme');
-  }
-
-  // URL.hostname keeps the square brackets around an IPv6 literal, and
-  // dns.lookup('[::1]') fails ENOTFOUND. That produced the right refusal for
-  // the wrong reason and made every legitimate IPv6 literal unreachable.
-  // Strip them and let the classifier decide.
-  const hostname = parsed.hostname.replace(/^\[|\]$/g, '');
-
-  let address: string;
-  try {
-    const result = await dns.promises.lookup(hostname);
-    address = result.address;
-  } catch {
-    throw new Error('DNS lookup failed');
-  }
-
-  if (isPrivateIp(address)) {
-    throw new Error('Private IP not allowed');
-  }
+/** dns.lookup itself cannot be canceled; never connect when its answer is late. */
+async function during<T>(work: Promise<T>, signal: AbortSignal): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const abort = () => reject(aborted(signal));
+    signal.addEventListener('abort', abort, { once: true });
+    work.then(resolve, reject).finally(() => signal.removeEventListener('abort', abort));
+    if (signal.aborted) abort();
+  });
 }
 
-const MAX_REDIRECTS = 5;
-
-/**
- * Reconstruct a URL string that has just passed `validateExternalUrl` from its
- * 16-bit code units. The runtime string is identical (`===`), while static
- * taint analysis (CodeQL `js/request-forgery`) recognizes the validation
- * boundary as a sanitizer barrier instead of flagging `fetch()` inside `safeFetch`.
- */
-function toValidatedFetchUrl(validatedUrl: string): string {
-  const codes: number[] = [];
-  for (let i = 0; i < validatedUrl.length; i++) {
-    codes.push(validatedUrl.charCodeAt(i) & 0xffff);
-  }
-  return String.fromCharCode(...codes);
-}
-
-/**
- * SSRF-safe fetch. Validates the target URL and re-validates the destination of
- * every redirect hop before following it, so a hostile server cannot 30x-redirect
- * an outbound request to an internal address (loopback, link-local, RFC1918).
- *
- * Use this instead of bare `fetch()` for any request to a user- or peer-supplied
- * URL. Redirects are followed manually (Node/undici exposes the 3xx + Location
- * with `redirect: 'manual'`), capped at MAX_REDIRECTS.
- *
- * Residual: validateExternalUrl resolves DNS, then fetch resolves again — a
- * narrow DNS-rebinding TOCTOU window remains. Pinning the resolved IP at connect
- * time would close it but requires a custom dispatcher; the redirect re-check
- * here closes the practical, attacker-controlled bypass.
- */
-export async function safeFetch(url: string, init: RequestInit = {}): Promise<Response> {
-  let currentUrl = url;
-  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
-    await validateExternalUrl(currentUrl);
-    const validatedUrl = toValidatedFetchUrl(currentUrl);
-    const response = await fetch(validatedUrl, { ...init, redirect: 'manual' });
-
-    if (response.status >= 300 && response.status < 400) {
-      const location = response.headers.get('location');
-      if (!location) return response; // 3xx without a target — hand back as-is
-      // Resolve relative redirects against the current URL, then loop to re-validate.
-      currentUrl = new URL(location, currentUrl).toString();
-      continue;
+async function destination(value: string, signal: AbortSignal): Promise<{ url: URL; address: PinnedAddress }> {
+  if (signal.aborted) throw aborted(signal);
+  let url: URL;
+  try { url = new URL(value); } catch { throw new Error('Invalid URL'); }
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') throw new Error('Invalid URL scheme');
+  if (url.username || url.password) throw new Error('URL credentials not allowed');
+  const hostname = url.hostname.replace(/^\[|\]$/g, '');
+  const literal = isIP(hostname);
+  const answers = literal ? [{ address: hostname, family: literal }] : await during(dns.promises.lookup(hostname, { all: true }), signal);
+  if (!answers.length) throw new Error('DNS lookup failed');
+  for (const answer of answers) {
+    if ((answer.family !== 4 && answer.family !== 6) || isIP(answer.address) !== answer.family || isPrivateIp(answer.address)) {
+      throw new Error('Private IP not allowed');
     }
-
-    return response;
   }
-  throw new Error('Too many redirects');
+  if (signal.aborted) throw aborted(signal);
+  const first = answers[0]!;
+  return { url, address: { address: first.address, family: first.family as 4 | 6 } };
+}
+
+/** Validation alone is not connection authority; safeFetch also pins its result. */
+export async function validateExternalUrl(url: string): Promise<void> {
+  const controller = new AbortController(), timeout = setTimeout(() => controller.abort(new Error('External request timed out')), TIMEOUT_MS);
+  try { await destination(url, controller.signal); } finally { clearTimeout(timeout); }
+}
+
+function requestOptions(init: RequestInit): { method: 'GET' | 'HEAD'; headers: Headers } {
+  for (const key of Object.keys(init)) if (!['method', 'headers', 'signal'].includes(key)) throw new Error('Unsupported external request option');
+  const method = init.method?.toUpperCase() ?? 'GET';
+  if (method !== 'GET' && method !== 'HEAD') throw new Error('Unsupported external request method');
+  const headers = new Headers(init.headers);
+  for (const name of ['host', 'connection', 'content-length', 'transfer-encoding', 'upgrade', 'proxy-authorization', 'proxy-connection']) {
+    if (headers.has(name)) throw new Error('Unsupported external request header');
+  }
+  return { method, headers };
+}
+
+/** One 5s lifetime across DNS, redirects, headers and the final streaming body. */
+export async function safeFetch(value: string, init: RequestInit = {}): Promise<Response> {
+  const { method, headers: initialHeaders } = requestOptions(init);
+  const controller = new AbortController(), signal = controller.signal;
+  const abort = () => controller.abort(init.signal?.reason);
+  init.signal?.addEventListener('abort', abort, { once: true });
+  if (init.signal?.aborted) abort();
+  const timeout = setTimeout(() => controller.abort(new Error('External request timed out')), TIMEOUT_MS);
+  const cleanup = () => { clearTimeout(timeout); init.signal?.removeEventListener('abort', abort); };
+  let current = value, headers = initialHeaders;
+  try {
+    for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+      const target = await destination(current, signal);
+      const response = await during(requestPinned(target.url, target.address, { method, headers, signal }), signal);
+      const location = response.headers.get('location');
+      if (REDIRECTS.has(response.status) && location) {
+        await response.body?.cancel();
+        if (hop === MAX_REDIRECTS) throw new Error('Too many redirects');
+        const next = new URL(location, target.url);
+        if (next.origin !== target.url.origin) {
+          // Only public static preview vocabulary crosses an origin boundary.
+          const forwarded = new Headers();
+          for (const name of ['accept', 'accept-language', 'accept-encoding', 'user-agent', 'range']) {
+            const header = headers.get(name); if (header !== null) forwarded.set(name, header);
+          }
+          headers = forwarded;
+        }
+        current = next.href; continue;
+      }
+      if (!response.body) { cleanup(); return response; }
+      const reader = response.body.getReader();
+      let finished = false;
+      const finish = () => {
+        if (finished) return; finished = true;
+        signal.removeEventListener('abort', abortBody); cleanup();
+      };
+      let abortBody: () => void;
+      const body = new ReadableStream<Uint8Array>({
+        start(stream) {
+          abortBody = () => {
+            if (finished) return; stream.error(aborted(signal));
+            void reader.cancel().catch(() => {}).finally(() => reader.releaseLock()); finish();
+          };
+          signal.addEventListener('abort', abortBody, { once: true });
+          if (signal.aborted) abortBody();
+        },
+        async pull(stream) {
+          try {
+            const chunk = await reader.read(); if (finished) return;
+            if (chunk.done) { stream.close(); finish(); reader.releaseLock(); }
+            else stream.enqueue(chunk.value);
+          } catch (error) { if (!finished) { stream.error(error); finish(); reader.releaseLock(); } }
+        },
+        async cancel(reason) { finish(); await reader.cancel(reason); reader.releaseLock(); },
+      }, { highWaterMark: 0 });
+      const result = new Response(body, { status: response.status, statusText: response.statusText, headers: response.headers });
+      Object.defineProperties(result, { url: { value: target.url.href }, redirected: { value: hop > 0 } });
+      return result;
+    }
+    throw new Error('Too many redirects');
+  } catch (error) { controller.abort(error); cleanup(); throw error; }
 }

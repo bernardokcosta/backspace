@@ -4,13 +4,14 @@ import { Avatar } from '../../ui/Avatar';
 import { BotBadge } from '../../ui/BotBadge';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
 import { AddBotModal } from '../AddBotModal';
-import { useSpaceStore, getApiForOrigin } from '../../../stores/spaceStore';
-import { parseFederatedUsername, isFederationGlobeApplicable, userDisplayName } from '../../../utils/identity';
-import { useSpaceOrigin } from '../../../hooks/useSpaceOrigin';
+import { useSpaceStore } from '../../../stores/spaceStore';
+import { useAuthStore } from '../../../stores/authStore';
+import { userDisplayName } from '../../../utils/identity';
+import { api } from '../../../api/client';
+import { applySpaceMemberUpdate } from '../../../stores/spaceMemberUpdates';
 import { useCanonicalUserView } from '../../../utils/userViewLookup';
 import { hasPermissionBit, PermissionBits, stringToPermissions } from '../../../utils/permissions';
 import {
-  myUserIdInSpace,
   viewerCanActOn,
   viewerCanEditMemberRoles,
   viewerCanManageRoleAt,
@@ -72,7 +73,7 @@ function MembersPanelRow({
   onPendingAction: (action: { type: 'kick' | 'ban'; userId: string; displayName: string }) => void;
 }) {
   const { t } = useTranslation(['spaces', 'common']);
-  const canonical = useCanonicalUserView(member.user, useSpaceOrigin(member.spaceId));
+  const canonical = useCanonicalUserView(member.user);
   const isOwner = member.userId === ownerId;
   const displayName = userDisplayName(canonical);
 
@@ -118,9 +119,6 @@ function MembersPanelRow({
             <div className="text-sm font-medium truncate">
               {displayName}
               {member.user.isBot && <BotBadge className="ml-1.5" />}
-              {isFederationGlobeApplicable(canonical) && (
-                <span className="ml-1 text-[10px] text-txt-tertiary opacity-60">@{parseFederatedUsername(canonical.username).domain}</span>
-              )}
             </div>
             <div className="flex items-center gap-1 flex-wrap">
               {isOwner && (
@@ -240,18 +238,21 @@ interface MembersPanelProps {
 }
 
 export function MembersPanel({ spaceId }: MembersPanelProps) {
+  const revision = useAuthStore(s => s.sessionRevision);
+  return <MembersContent key={`${revision}:${spaceId}`} spaceId={spaceId} revision={revision} />;
+}
+
+function MembersContent({ spaceId, revision }: MembersPanelProps & { revision: number }) {
   const { t } = useTranslation(['spaces', 'common']);
   const f = useFormatters();
   const spaces = useSpaceStore((s) => s.spaces);
   const members = useSpaceStore((s) => s.members);
   const roles = useSpaceStore((s) => s.roles);
   const loadSpaceDetail = useSpaceStore((s) => s.loadSpaceDetail);
-  const setMembers = useSpaceStore((s) => s.setMembers);
   const spacePermissions = useSpaceStore((s) => s.spacePermissions);
   const heldPermissions = useViewerHeldPermissions(spaceId);
 
   const space = spaces.find((s) => s.id === spaceId);
-  const spaceApi = getApiForOrigin(space?._instanceOrigin ?? '');
   const myPerms = spacePermissions.get(spaceId);
   const canKick = hasPermissionBit(myPerms, PermissionBits.KICK_MEMBERS);
   const canBan = hasPermissionBit(myPerms, PermissionBits.BAN_MEMBERS);
@@ -262,6 +263,8 @@ export function MembersPanel({ spaceId }: MembersPanelProps) {
   const [error, setError] = useState('');
   const [pendingAction, setPendingAction] = useState<{ type: 'kick' | 'ban'; userId: string; displayName: string } | null>(null);
   const [showAddBot, setShowAddBot] = useState(false);
+  const myUserId = useAuthStore(s => s.user?.id);
+  const current = () => revision === useAuthStore.getState().sessionRevision && useSpaceStore.getState().currentSpaceId === spaceId;
 
   // Assignable roles: exclude @everyone (where role.id === spaceId)
   const assignableRoles = roles.filter((r) => r.id !== spaceId);
@@ -271,7 +274,6 @@ export function MembersPanel({ spaceId }: MembersPanelProps) {
   // Role hierarchy (permissions.md): the viewer moderates members ranked below
   // them and hands out roles below their own top role. Ids are the viewer's
   // and the members' ids on the space's instance.
-  const myUserId = myUserIdInSpace(space);
   const manageableRoleIds = new Set(
     assignableRoles.filter((r) => viewerCanManageRoleAt(space, members, r.position)).map((r) => r.id),
   );
@@ -296,10 +298,11 @@ export function MembersPanel({ spaceId }: MembersPanelProps) {
     const roleIds = pendingRoleChanges.get(userId);
     if (!roleIds) return;
     try {
-      const updated = await spaceApi.spaces.updateMember(spaceId, userId, { roleIds: Array.from(roleIds) });
+      const updated = await api.spaces.updateMember(spaceId, userId, { roleIds: Array.from(roleIds) });
+      if (!current()) return;
       // The row shows the saved roles at once; space_access_changed
       // refreshes the rest of the space for every member.
-      setMembers(useSpaceStore.getState().members.map((m) => (m.userId === userId ? { ...m, roles: updated.roles } : m)));
+      applySpaceMemberUpdate(updated);
       setPendingRoleChanges((prev) => {
         const next = new Map(prev);
         next.delete(userId);
@@ -307,7 +310,7 @@ export function MembersPanel({ spaceId }: MembersPanelProps) {
       });
       setExpandedMemberId(null);
     } catch (err) {
-      setError(describeError(err));
+      if (current()) setError(describeError(err));
     }
   };
 
@@ -321,19 +324,19 @@ export function MembersPanel({ spaceId }: MembersPanelProps) {
 
   const handleKick = async (userId: string) => {
     try {
-      await spaceApi.spaces.removeMember(spaceId, userId);
-      await loadSpaceDetail(spaceId);
+      await api.spaces.removeMember(spaceId, userId);
+      if (current()) await loadSpaceDetail(spaceId);
     } catch (err) {
-      setError(describeError(err));
+      if (current()) setError(describeError(err));
     }
   };
 
   const handleBan = async (userId: string) => {
     try {
-      await spaceApi.spaces.ban(spaceId, userId);
-      await loadSpaceDetail(spaceId);
+      await api.spaces.ban(spaceId, userId);
+      if (current()) await loadSpaceDetail(spaceId);
     } catch (err) {
-      setError(describeError(err));
+      if (current()) setError(describeError(err));
     }
   };
 
@@ -394,7 +397,6 @@ export function MembersPanel({ spaceId }: MembersPanelProps) {
       <AddBotModal
         isOpen={showAddBot}
         onClose={() => setShowAddBot(false)}
-        origin={space?._instanceOrigin ?? ''}
         spaceId={spaceId}
         onAdded={() => { void loadSpaceDetail(spaceId); }}
       />
@@ -408,7 +410,7 @@ export function MembersPanel({ spaceId }: MembersPanelProps) {
           } else {
             await handleBan(pendingAction.userId);
           }
-          setPendingAction(null);
+          if (current()) setPendingAction(null);
         }}
         title={
           pendingAction?.type === 'ban'

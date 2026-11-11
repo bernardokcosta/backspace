@@ -103,7 +103,7 @@ function seedMessage(content = 'before'): string {
 }
 async function ws(event: Record<string, unknown>): Promise<void> {
   const { handleClientEvent } = await import('../ws/events.js');
-  handleClientEvent(event, 'member', 'member', {} as never, false);
+  handleClientEvent(event, 'member', 'member', {} as never);
 }
 
 describe('mass mention authorization across transports and edits', () => {

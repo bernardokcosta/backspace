@@ -12,7 +12,7 @@ export const AVATAR_COLORS = ['mint', 'sky', 'lavender', 'coral', 'rose', 'teal'
 export type AvatarColor = (typeof AVATAR_COLORS)[number];
 
 export interface User {
-  /** Bot account (no password login). Optional: older servers and relay stubs omit it. */
+  /** Bot account (no password login). */
   isBot?: boolean;
   id: string;
   username: string;
@@ -29,42 +29,9 @@ export interface User {
   discoverable?: boolean;
   profileUpdatedAt?: number;
   createdAt: number;
-  homeInstance: string | null;
-  homeUserId: string | null;
-  replicatedInstances: ReplicatedInstance[];
   showActivity?: boolean;
   /** Self-view only: Developer Mode is on, which shows the Bots tab in settings. Stored with the account, so every device agrees. */
   developerMode?: boolean;
-  /** Self-view only: this federated account's home instance was reset/lost — it now operates as a sovereign local account (detach spec). */
-  federationHomeOrphaned?: boolean;
-  /**
-   * Self-view only: the home instance a detached account was federated from
-   * before it was detached, or null. A detached account is homed on the
-   * instance that holds it (`homeInstance` and `homeUserId` are null), so this
-   * is the only place its former home is still named; re-attach needs it.
-   * Read it through {@link detachedHomeOf}.
-   */
-  detachedHomeInstance?: string | null;
-}
-
-export interface ReplicatedInstance {
-  origin: string;   // Full URL with protocol, e.g. "https://orbit.ddns.net"
-  username: string;
-  domain?: string;  // Legacy field — kept for backward compat with existing data
-}
-
-export type FederationRegistryStatus = 'connected' | 'disconnected' | 'unreachable' | 'auth_expired';
-
-export interface FederationRegistryEntry {
-  origin: string;
-  label: string;
-  username: string;
-  remoteUserId: string;
-  status: FederationRegistryStatus;
-  addedAt: number;
-  lastConnectedAt: number | null;
-  disconnectedAt: number | null;
-  errorMessage: string | null;
 }
 
 export type UserStatus = 'online' | 'idle' | 'dnd' | 'offline';
@@ -75,50 +42,6 @@ export const CHOSEN_USER_STATUSES: readonly ChosenUserStatus[] = ['online', 'idl
 
 export function isChosenUserStatus(value: unknown): value is ChosenUserStatus {
   return typeof value === 'string' && (CHOSEN_USER_STATUSES as readonly string[]).includes(value);
-}
-
-/** Whether an account row carries the detached flag (integer on the server row, boolean on the client `User`). */
-function isDetached(account: { federationHomeOrphaned?: number | boolean | null }): boolean {
-  return account.federationHomeOrphaned === 1 || account.federationHomeOrphaned === true;
-}
-
-/**
- * Whether an account owns its chosen status, so its own row is where the choice
- * is stored and read (`users.chosen_status`). True for an account homed on the
- * instance that holds the row: a native account, and a detached one (its home
- * instance was reset, so it is homed here now); false for a replicated
- * account, whose choice lives on its home instance. The same authority rule
- * the server applies to profile edits and credential issuance.
- *
- * Since #310 a detached row carries no `homeInstance` (federation.md,
- * "Detached accounts are homed here"), so `!homeInstance` alone decides for
- * rows from this version. The detached flag still counts on its own for a row
- * served by an instance that predates that rewrite, where a detached account
- * kept its former home in `homeInstance`.
- *
- * Accepts the server row (integer flag) and the client `User` (boolean flag).
- * activity-presence.md, "DB Persistence".
- */
-export function ownsChosenStatus(account: {
-  homeInstance?: string | null;
-  federationHomeOrphaned?: number | boolean | null;
-}): boolean {
-  return !account.homeInstance || isDetached(account);
-}
-
-/**
- * The home instance a detached account was federated from, or null when the
- * account is not detached. Rows from this version name it in
- * `detachedHomeInstance`; a row served by an instance that predates #310 kept
- * it in `homeInstance`, which is read as the fallback.
- */
-export function detachedHomeOf(account: {
-  homeInstance?: string | null;
-  detachedHomeInstance?: string | null;
-  federationHomeOrphaned?: number | boolean | null;
-}): string | null {
-  if (!isDetached(account)) return null;
-  return account.detachedHomeInstance || account.homeInstance || null;
 }
 
 export interface UserWithPassword extends User {
@@ -506,8 +429,6 @@ export interface Attachment {
    * optimistic unknown case, also covered by the client's onError fallback).
    */
   playable?: boolean | null;
-  federationStatus?: string | null;
-  federationMeta?: string | null;
   createdAt: number;
 }
 
@@ -536,16 +457,11 @@ export interface Embed {
 // ─── Active Call Types ───────────────────────────────────────────────────────
 
 export interface ActiveCallInfo {
-  dmChannelId: string | null;
-  federatedCallId?: string;
+  dmChannelId: string;
   callerId: string;
   participants: string[];
   startedAt: number;
   state: 'ringing' | 'active';
-  // Federation fields (present only for federated calls on remote instances)
-  federatedCallHost?: string;
-  livekitUrl?: string;
-  livekitToken?: string;  // this user's LiveKit token (server filters per-user at payload assembly)
 }
 
 // ─── DM Types ───────────────────────────────────────────────────────────────
@@ -573,11 +489,7 @@ export interface DmLastMessagePreview {
  */
 export interface DmChannel {
   id: string;
-  /** The conversation key: `null` only for a group no other instance holds. */
-  federatedId: string | null;
   ownerId: string | null;
-  ownerHomeUserId: string | null;
-  ownerHomeInstance: string | null;
   createdAt: number;
   members: User[];
   lastMessage: DmLastMessagePreview | DmMessageWithUser | null;
@@ -597,9 +509,6 @@ export interface DmMessage {
   channelId?: string;
   replyToId?: string | null;
   editedAt?: number | null;
-  // Federation relay identity
-  sourceMessageId?: string | null;
-  sourceInstance?: string | null;
 }
 
 export interface DmMessageWithUser extends DmMessage {
@@ -649,37 +558,6 @@ export interface Activity {
 
 // ─── WebSocket Event Types ──────────────────────────────────────────────────
 
-export type DmCallUndeliverableReason =
-  | 'peer_rejected'
-  | 'peer_awaiting_approval'
-  | 'peer_transient_failure'
-  | 'livekit_unavailable'
-  | 'no_recipient'
-  // The peer accepts no name this instance could give the call's caller (a
-  // federated account here whose home is a third instance), so its members
-  // cannot be rung through this instance (federation.md, "Who a call relay
-  // names").
-  | 'identity_not_accepted';
-
-/**
- * A person's federated identity on the wire: their home user id and the
- * instance that homes them. Compared by home user id and instance host,
- * never by a local row id.
- */
-export interface FederatedIdentity {
-  homeUserId: string;
-  homeInstance: string;
-}
-
-export type DmCallPhase = 'start' | 'accept' | 'reject' | 'end' | 'host_unreachable';
-
-export interface DmCallUndeliverableFailure {
-  reason: DmCallUndeliverableReason;
-  peerOrigin?: string;
-  peerLabel?: string;
-  affectedUserIds?: string[];
-}
-
 // Client → Server Events
 export type ClientEvent =
   | { type: 'auth'; token: string; client?: ClientKind }
@@ -700,9 +578,9 @@ export type ClientEvent =
   | { type: 'channel_ack'; channelId: string; messageId: string }
   | { type: 'mark_unread'; channelId: string; messageId: string }
   | { type: 'dm_call_start'; dmChannelId: string }
-  | { type: 'dm_call_accept'; dmChannelId: string | null; federatedCallId?: string | null }
-  | { type: 'dm_call_reject'; dmChannelId: string | null; federatedCallId?: string | null }
-  | { type: 'dm_call_end'; dmChannelId: string | null; federatedCallId?: string | null }
+  | { type: 'dm_call_accept'; dmChannelId: string }
+  | { type: 'dm_call_reject'; dmChannelId: string }
+  | { type: 'dm_call_end'; dmChannelId: string }
   | { type: 'voice_status'; isMuted: boolean; isDeafened: boolean; isCameraOn: boolean; isScreenSharing: boolean }
   | { type: 'voice_space_mute'; userId: string; muted: boolean; /** For a bot seat: the channel whose seat is meant. */ channelId?: string }
   | { type: 'voice_space_deafen'; userId: string; deafened: boolean; /** For a bot seat: the channel whose seat is meant. */ channelId?: string }
@@ -711,24 +589,12 @@ export type ClientEvent =
   | { type: 'activity_update'; activities: Activity[] }
   | { type: 'ping' };
 
-/**
- * Who a presence snapshot is about, beyond the delivering instance's local row
- * id: the row's `homeUserId` and `homeInstance`, both null for a user native to
- * the delivering instance. The client keys activities by the federated identity
- * this names (see activityStore), so every instance's view of one person lands
- * on one key. Absent on servers that predate the fields.
- */
-export interface PresenceIdentity {
-  homeUserId: string | null;
-  homeInstance: string | null;
-}
-
 // Server → Client Events
 export type ServerEvent =
   | { type: 'soundboard_updated'; spaceId: string }
   | { type: 'soundboard_play'; channelId: string; spaceId: string; sound: import('./soundboard.js').SoundboardSound }
   | { type: 'channel_poke'; message: MessageWithUser }
-  | { type: 'ready'; user: User; spaces: SpaceWithChannelsAndMembers[]; dmChannels: DmChannel[]; folders?: SpaceFolder[]; spaceLayout?: SpaceLayoutItem[] | null; layoutUpdatedAt?: number; voiceStates?: Record<string, string[]>; voiceChannelElapsedSeconds?: Record<string, number>; voiceUserStates?: Record<string, { isMuted: boolean; isDeafened: boolean; isCameraOn: boolean; isScreenSharing: boolean }>; supportsPoke?: boolean; supportsJuno?: boolean; unreadCounts?: Record<string, number>; readStates?: ReadState[]; activeCalls?: ActiveCallInfo[]; spaceVoiceStates?: Record<string, { spaceMuted: boolean; spaceDeafened: boolean }>; userActivities?: Record<string, Activity[]>; userActivityIdentities?: Record<string, PresenceIdentity>; rejectedPeerOrigins?: string[]; awaitingApprovalPeerOrigins?: string[]; activePeerOrigins?: string[]; pendingApprovalCount?: number }
+  | { type: 'ready'; user: User; spaces: SpaceWithChannelsAndMembers[]; dmChannels: DmChannel[]; folders?: SpaceFolder[]; spaceLayout?: SpaceLayoutItem[] | null; layoutUpdatedAt?: number; voiceStates?: Record<string, string[]>; voiceChannelElapsedSeconds?: Record<string, number>; voiceUserStates?: Record<string, { isMuted: boolean; isDeafened: boolean; isCameraOn: boolean; isScreenSharing: boolean }>; supportsPoke?: boolean; supportsJuno?: boolean; unreadCounts?: Record<string, number>; readStates?: ReadState[]; activeCalls?: ActiveCallInfo[]; spaceVoiceStates?: Record<string, { spaceMuted: boolean; spaceDeafened: boolean; permissionMuted?: boolean }>; userActivities?: Record<string, Activity[]> }
   | { type: 'juno_updated'; channelId: string }
   | { type: 'channel_unread_count'; counts: Record<string, number> }
   | { type: 'message_created'; message: MessageWithUser }
@@ -739,7 +605,7 @@ export type ServerEvent =
   | { type: 'message_pinned'; channelId: string; messageId: string; pinnedById: string | null }
   | { type: 'message_unpinned'; channelId: string; messageId: string }
   | { type: 'typing'; channelId: string; userId: string; username: string }
-  | ({ type: 'presence_update'; userId: string; status: string; activities?: Activity[] } & Partial<PresenceIdentity>)
+  | { type: 'presence_update'; userId: string; status: string; activities?: Activity[] }
   | { type: 'voice_state_update'; channelId: string; userId: string; action: 'join' | 'leave'; channelElapsedSeconds?: number }
   | { type: 'member_joined'; spaceId: string; member: MemberWithUser }
   | { type: 'member_updated'; spaceId: string; member: MemberWithUser }
@@ -754,16 +620,11 @@ export type ServerEvent =
   | { type: 'channel_ack'; channelId: string; messageId: string }
   | { type: 'friend_request_received'; request: FriendRequest }
   | { type: 'friend_request_accepted'; friend: Friend; requestId: string }
-  | { type: 'dm_call_incoming'; dmChannelId: string | null; federatedCallId?: string; callerId: string; callerName: string; livekitUrl?: string; livekitToken?: string; callOrigin?: string }
-  // `answeredBy` names the member whose answer this is, by federated
-  // identity, so only that person's other sessions stop ringing. Absent from
-  // servers up to 1.9.0.
-  | { type: 'dm_call_accepted'; dmChannelId: string | null; federatedCallId?: string; answeredBy?: FederatedIdentity }
-  // `dmChannelId` is null and `federatedCallId` set when the instance holds a
-  // federated call with no local copy of the DM (Path B, voice.md).
-  | { type: 'dm_call_rejected'; dmChannelId: string | null; federatedCallId?: string }
-  | { type: 'dm_call_ended'; dmChannelId: string | null; federatedCallId?: string }
-  | { type: 'dm_call_undeliverable'; dmChannelId: string | null; federatedCallId: string; terminal: boolean; phase: DmCallPhase; failures: DmCallUndeliverableFailure[] }
+  | { type: 'dm_call_incoming'; dmChannelId: string; callerId: string; callerName: string }
+  // Only the authenticated answerer's other sessions stop ringing.
+  | { type: 'dm_call_accepted'; dmChannelId: string; answeredByUserId: string }
+  | { type: 'dm_call_rejected'; dmChannelId: string }
+  | { type: 'dm_call_ended'; dmChannelId: string }
   | { type: 'voice_status_update'; userId: string; channelId: string; isMuted: boolean; isDeafened: boolean; isCameraOn: boolean; isScreenSharing: boolean }
   | { type: 'space_voice_state'; spaceId: string; voiceStates: Record<string, string[]>; voiceChannelElapsedSeconds: Record<string, number>; voiceUserStates: Record<string, { isMuted: boolean; isDeafened: boolean; isCameraOn: boolean; isScreenSharing: boolean }>; spaceVoiceStates: Record<string, { spaceMuted: boolean; spaceDeafened: boolean; permissionMuted: boolean }> }
   | { type: 'dm_channel_created'; dmChannel: DmChannel }
@@ -775,7 +636,6 @@ export type ServerEvent =
   | { type: 'friend_request_cancelled'; requestId: string; userId: string }
   | { type: 'friend_request_declined'; requestId: string; userId: string }
   | { type: 'friend_request_sent'; request: FriendRequest }
-  | { type: 'friend_request_relay_failed'; requestId: string; reason: 'user_not_found' | 'peer_rejected'; message: string; targetHandle: string }
   | { type: 'channel_created'; channel: Channel; spaceId: string }
   | { type: 'channel_updated'; channel: Channel; spaceId: string }
   | { type: 'channel_deleted'; channelId: string; spaceId: string }
@@ -802,27 +662,10 @@ export type ServerEvent =
   | { type: 'mark_unread'; channelId: string; messageId: string }
   | { type: 'embeds_resolved'; messageId: string; channelId: string; embeds: Embed[] }
   | { type: 'dm_embeds_resolved'; messageId: string; dmChannelId: string; embeds: Embed[] }
-  | { type: 'federation_file_rejected'; messageId: string; dmChannelId: string; attachmentId: string; affectedUsers: Array<{ userId: string; username: string; limit: number }> }
-  | { type: 'federation_peer_rejected'; peerOrigin: string; peerLabel?: string; reason: string; reasonCode?: FederationPeerStatusReason; affectedContexts: Array<{ contextType: 'dm' | 'friend'; contextId: string; contextLabel: string }> }
-  | { type: 'federation_peer_active'; peerOrigin: string }
-  | { type: 'federation_peers_changed' }
-  | { type: 'federation_peer_reset_detected'; origin: string }
-  | { type: 'federation_approval_request_received'; origin: string; instanceName?: string }
-  | { type: 'peering_subscription_changed' }
-  | { type: 'peering_notification_received'; kind: PeeringNotificationKind }
   | {
       type: 'dm_owner_updated';
       dmChannelId: string;
       newOwnerId: string;
-      // Federation routing fields. Required for the client to keep
-      // `dmChannel.ownerHomeInstance` in sync after a transfer — otherwise
-      // owner-only API calls (`updateMetadata`, `kickMember`, `transferOwnership`)
-      // continue to route through the previous owner's home instance via
-      // `getOwnerInstanceForDm` until the user reconnects and receives a fresh
-      // `ready` payload. Always populated on new emissions; tolerated as
-      // optional for receivers connected to an older sender.
-      newOwnerHomeUserId?: string | null;
-      newOwnerHomeInstance?: string | null;
     }
   | { type: 'pong' }
   // `code` is set where the refusal has a stable ErrorCode (e.g. a voice
@@ -845,11 +688,7 @@ export interface RegisterRequest {
   password: string;
   displayName?: string;
   avatarColor?: string;
-  homeInstance?: string;
-  homeUserId?: string;
   inviteToken?: string;
-  /** Cross-instance bots: one-time attach-proof minted by the bot's home instance. */
-  botProof?: string;
 }
 
 export interface LoginRequest {
@@ -909,9 +748,6 @@ export interface UpdateUserRequest {
   bio?: string;
   customStatus?: string;
   status?: ChosenUserStatus;
-  replicatedInstances?: ReplicatedInstance[];
-  homeUserId?: string;
-  profileUpdatedAt?: number;
   discoverable?: boolean;
   showActivity?: boolean;
   developerMode?: boolean;
@@ -947,38 +783,24 @@ export interface LiveKitTokenResponse {
 }
 
 export interface CreateDmRequest {
-  userId?: string;
-  homeUserId?: string;
-  homeInstance?: string;
+  userId: string;
 }
 
 export interface AddDmMemberRequest {
-  userId?: string;
-  homeUserId?: string;
-  homeInstance?: string;
+  userId: string;
 }
 
 /**
  * Body of POST /api/dm/:id/transfer.
  *
- * Accepts either a local user id (`newOwnerId`) or a federated identity
- * (`homeUserId` + `homeInstance`). Federated identification mirrors
- * `AddDmMemberRequest` and is required when the caller only knows the
- * target's home identity — typical for federated members surfaced through
- * the client's `userViews` cache, where `id` is the home id and not the
- * owner instance's local replicated id. When both are supplied, the
- * federated args take precedence (strictly more specific).
+ * The authenticated owner names another existing local group member.
  */
 export interface TransferOwnershipRequest {
-  newOwnerId?: string;
-  homeUserId?: string;
-  homeInstance?: string;
+  newOwnerId: string;
 }
 
 export interface GroupDmUserIdentity {
   id: string;
-  homeUserId?: string | null;
-  homeInstance?: string | null;
 }
 
 export interface CreateGroupDmRequest {
@@ -995,11 +817,11 @@ export interface CreateDmMessageRequest {
 // ─── Space Invite via DM ────────────────────────────────────────────────────
 
 export interface SpaceInviteRequest {
-  /** Caller-supplied target friend identity. Either local userId, or remote (homeUserId+homeInstance). */
-  target: { userId: string } | { homeUserId: string; homeInstance: string };
-  /** Space identifier on the space's home instance. */
+  /** Existing friend on the current instance. */
+  target: { userId: string };
+  /** Local space identifier. */
   spaceId: string;
-  /** Space's home instance origin. Empty string for the caller's home. */
+  /** Current instance origin, or empty. A foreign host is refused, not stripped. */
   spaceInstanceOrigin: string;
   /** Per-space invite code (already issued; client passes whatever it has loaded). */
   inviteCode: string;
@@ -1062,8 +884,6 @@ export interface Friend {
   customStatus: string | null;
   createdAt: number;
   addedAt: number;
-  homeUserId: string | null;
-  homeInstance: string | null;
   isBot?: boolean;
 }
 
@@ -1078,8 +898,6 @@ export interface DiscoverUser {
   status: UserStatus;
   customStatus: string | null;
   createdAt: number;
-  homeInstance: string | null;
-  homeUserId: string | null;
   mutualFriendCount: number;
   mutualSpaceCount: number;
   relationship: 'none' | 'friends' | 'outbound_pending' | 'inbound_pending';
@@ -1098,21 +916,9 @@ export interface FriendRequest {
   user?: User; // The other user (if it's an incoming request, the sender; if outgoing, the recipient)
 }
 
-/**
- * Body of `POST /api/social/requests`. The target is named one of two ways:
- *
- * - By federated identity (`homeUserId` + `homeInstance`), when the client
- *   already holds the user. Takes precedence over `username`; both fields are
- *   required together. `homeInstance` is a bare domain or a full origin.
- * - By `username`, for a handle the user typed (`name` or `name@domain`).
- *
- * Clients that send an identity also send `username`: a server that predates
- * the identity fields ignores them and reads `username`.
- */
+/** Exact username of an existing account on the current instance. */
 export interface SendFriendRequest {
-  username?: string;
-  homeUserId?: string;
-  homeInstance?: string;
+  username: string;
 }
 
 export interface UpdateFriendRequest {
@@ -1135,16 +941,11 @@ export interface GifResult {
 export interface InstanceAdminSettings {
   instanceName: string;
   registrationOpen: boolean;
-  federatedRegistrationOpen: boolean;
   spaceCreationOpen: boolean;
   gifApiKey?: string;
   gifEnabled?: boolean;
   maxUploadSizeMb: number;
   maxStickerSizeMb: number;
-  federationRelayEnabled: boolean;
-  federationRelayTtlDays: number;
-  defaultAutoRotateIntervalDays: number;
-  autoAcceptPeering: boolean;
 }
 
 export interface InstanceStreamingLimits {
@@ -1159,18 +960,13 @@ export interface InstanceStreamingLimits {
   allowCustomBitrate: boolean;
 }
 
-// ─── Federation Types ──────────────────────────────────────────────────────
+// ─── Current Instance Info ─────────────────────────────────────────────────
 
 export interface InstanceInfoResponse {
   name: string;
   version: string;
   registrationOpen: boolean;
-  federatedRegistrationOpen: boolean;
   spaceCreationOpen: boolean;
-  // Persistent per-instance epoch (incarnation UUID). Minted by ensureDefaults on
-  // first boot and stable across restarts; changes only on a wipe/re-provision.
-  // Peers use it to detect that a remote has been re-provisioned (self-healing).
-  instanceId: string;
   // AGPL-3.0 § 13 network-use source offer: URL to the Corresponding Source of
   // the version this instance is running (operator-configurable via
   // BACKSPACE_SOURCE_URL so forks point at their own source).
@@ -1226,7 +1022,7 @@ export interface VerifyPasswordResponse {
 }
 
 export interface ChangePasswordRequest {
-  currentPassword?: string;  // Required on home, optional for federated users
+  currentPassword: string;
   newPassword: string;
 }
 
@@ -1237,45 +1033,6 @@ export interface ChangePasswordResponse {
 export interface DeleteAccountRequest {
   password: string;
   username: string;  // Must match — confirmation safeguard
-}
-
-// ─── Per-Remote Federation Credentials ───────────────────────────────────
-// The credential the client uses to register/log in as this user on ANOTHER
-// instance. Issued and stored by the user's HOME instance only, so it stays
-// identical across devices and browsing sessions. Never the home password.
-
-export interface FederationCredentialRequest {
-  origin: string;            // Remote instance origin, e.g. 'https://orbit.example'
-  markProvisioned?: boolean; // Record that the remote account now uses this secret
-}
-
-export interface FederationCredentialResponse {
-  origin: string;
-  secret: string;
-  provisioned: boolean;      // True once the remote account is known to use `secret`
-}
-
-// ─── Federation Identity Delete Types ────────────────────────────────────
-
-export interface FederationIdentityDeleteRequest {
-  origins: string[];
-  mode: 'leave' | 'soft' | 'full';
-}
-
-export interface FederationIdentityDeleteResult {
-  success: boolean;
-  error?: string;
-  ownedSpaces?: { id: string; name: string }[];
-}
-
-export interface FederationIdentityDeleteResponse {
-  results: Record<string, FederationIdentityDeleteResult>;
-}
-
-export interface FederationIdentityDeleteS2SRequest {
-  homeUserId: string;
-  homeInstance: string;
-  mode: 'soft' | 'full';
 }
 
 // ─── Storage Management Types ─────────────────────────────────────────────
@@ -1330,7 +1087,6 @@ export interface AdminUser {
   status: string;
   isAdmin: boolean;
   isDeleted: boolean;
-  homeInstance: string | null;
   createdAt: number;
 }
 
@@ -1341,641 +1097,8 @@ export interface AdminUserListResponse {
   pageSize: number;
 }
 
-/**
- * A bot of another instance this instance refuses to register again: the
- * admin deleted its account here with "block". Keyed by the bot's home domain
- * and its id there, which a bot proof carries.
- */
-export interface AdminBlockedBot {
-  homeInstance: string;
-  homeUserId: string;
-  /** The bot's username here when it was blocked (`name@home`). */
-  username: string;
-  blockedBy: string | null;
-  createdAt: number;
-}
-
 export interface AdminResetPasswordResponse {
   temporaryPassword: string;
-}
-
-// ─── Federation Relay Types ──────────────────────────────────────────────────
-
-export interface FederationRelayParticipant {
-  homeUserId: string;
-  homeInstance: string;
-  profile?: FederationRelayProfileSnapshot;
-}
-
-export interface FederationRelayEvent {
-  eventType: 'create' | 'update' | 'delete' | 'reaction_add' | 'reaction_remove'
-    | 'member_add' | 'member_remove' | 'ownership_transfer' | 'group_metadata_update'
-    | 'friend_request_create' | 'friend_request_update' | 'friend_request_cancel'
-    | 'friend_add' | 'friend_remove' | 'file_rejected'
-    | 'dm_call_start' | 'dm_call_accept' | 'dm_call_reject' | 'dm_call_end'
-    | 'dm_typing_start' | 'dm_typing_stop'
-    | 'profile_update' | 'presence_update'
-    | 'read_state_update'
-    | 'dm_close' | 'dm_reopen';
-  contextType?: 'dm' | 'friend' | 'profile';
-  dmChannelId?: string;
-  messageId: string;
-  federatedId?: string;
-  encryptionVersion: 0;
-  timestamp: number;
-  participants?: FederationRelayParticipant[];
-  message?: {
-    userId: string;
-    homeUserId: string;
-    homeInstance: string;
-    type?: 'user' | 'system';
-    content: string | null;
-    /** The sender's local id of the replied-to message. Meaningless to a receiver, which never adopts it; see `replyTo`. */
-    replyToId: string | null;
-    /**
-     * The replied-to message in coordinates every instance shares. Optional:
-     * absent from older senders and on messages that are not replies. The
-     * receiver resolves it inside the conversation the message lands in and
-     * stores no reply target when it does not resolve there.
-     */
-    replyTo?: FederationMessageRef | null;
-    /**
-     * The users the content's `<@id>` tokens name, each as the sender's id
-     * with the federated identity it stands for. Optional: absent from older
-     * senders, from system messages and from content that mentions nobody.
-     * The receiver rewrites each token to its own row for that identity; see
-     * `FederationMentionRef`.
-     */
-    mentions?: FederationMentionRef[];
-    editedAt: number | null;
-    createdAt: number;
-    attachments?: FederationRelayAttachment[];
-  };
-  reactions?: FederationRelayReaction[];
-  reaction?: FederationRelayReaction;
-  /**
-   * `update` / `delete`: the message being changed and who is changing it.
-   * Optional: older senders omit it and are matched by `messageId` alone. See
-   * `FederationMessageTarget` for how a receiver applies it.
-   */
-  target?: FederationMessageTarget;
-  membership?: FederationMembershipPayload;
-  ownership?: FederationOwnershipPayload;
-  group?: FederationGroupPayload;
-  friendship?: FederationFriendshipPayload;
-  // file_rejected event fields
-  attachmentId?: string;
-  sourceFilename?: string;
-  rejectionReason?: string;
-  rejectionLimit?: number;
-  affectedUserIds?: string[];
-  /**
-   * `file_rejected`: the same users as `affectedUserIds`, each with the
-   * instance that homes them, so the receiver matches the whole identity.
-   * Optional: absent from older senders, whose bare ids are matched only when
-   * exactly one local user carries that home user id.
-   */
-  affectedUsers?: Array<{ homeUserId: string; homeInstance: string }>;
-  call?: FederationCallPayload;
-  typing?: {
-    homeUserId: string;
-    homeInstance: string;
-    username: string;
-  };
-  metadata?: FederationGroupMetadataPayload;
-  profileUpdate?: FederationProfileUpdatePayload;
-  presenceUpdate?: FederationPresenceUpdatePayload;
-  readState?: {
-    user: { homeUserId: string; homeInstance: string };
-    messageRef: { sourceInstance: string; sourceMessageId: string };
-  };
-  dmCloseReopen?: {
-    homeUserId: string;
-    homeInstance: string;
-  };
-}
-
-export interface FederationCallPayload {
-  livekitUrl?: string;
-  tokens?: Record<string, string>;  // homeUserId → LiveKit token
-  /**
-   * The same tokens with each holder's federated identity. Optional: older
-   * senders omit it, and every key of `tokens` is then a user homed on the
-   * receiving instance. A receiver gives a token only to the local user its
-   * identity resolves to; a home user id alone is unique only where issued.
-   */
-  memberTokens?: Array<{ homeUserId: string; homeInstance: string; token: string }>;
-  caller?: { homeUserId: string; homeInstance: string; displayName: string };
-  acceptor?: { homeUserId: string; homeInstance: string };
-  rejector?: { homeUserId: string; homeInstance: string };
-  endedBy?: { homeUserId: string; homeInstance: string };
-  participants?: FederationRelayParticipant[];  // All DM members for Path B identity matching
-  /**
-   * Group call rules, per member (voice.md, "Group calls across instances").
-   * On `dm_call_start` the host says it applies them: a member's end or
-   * decline removes only that member, and the host relays `dm_call_end` to
-   * every peer once the call is over. On `dm_call_accept` from an instance
-   * holding the call's entry: it relays this member's leave, also when they
-   * just go away, so the host seats them. On `dm_call_end` /
-   * `dm_call_reject` from that instance: only this member left or declined,
-   * and the sender keeps the call for its other members. Senders up to 1.8.0
-   * omit it; their acceptors are not seated, and their ends and declines end
-   * the call for all of the sender's members.
-   */
-  perMember?: boolean;
-  /**
-   * On `dm_call_accept`: the member who answered. `acceptor` names a user the
-   * receiving peer accepts from the sender, which is the caller when the
-   * member who answered is homed on a third instance; this names the member
-   * themselves. It authorizes nothing: it only tells the receiver whose other
-   * sessions stop ringing. Senders up to 1.9.0 omit it, and `acceptor` is
-   * then the best answer there is.
-   */
-  answeredBy?: FederatedIdentity;
-}
-
-export interface FederationMembershipPayload {
-  user: FederationRelayParticipant;
-  addedBy?: FederationRelayParticipant;
-  removedBy?: FederationRelayParticipant;
-  reason?: 'kick' | 'leave';
-}
-
-export interface FederationOwnershipPayload {
-  newOwner: FederationRelayParticipant;
-  previousOwner: FederationRelayParticipant;
-}
-
-export interface FederationGroupPayload {
-  owner: FederationRelayParticipant;
-  members: FederationRelayParticipant[];
-  // Group metadata snapshot — used by bootstrap path on a fresh peer.
-  // Mirrors current owner-instance values at the moment of the member_add event.
-  name: string | null;
-  icon: string | null;            // absolute URL
-  metadataUpdatedAt: number;
-}
-
-export interface FederationGroupMetadataPayload {
-  name: string | null;     // explicit null = cleared
-  icon: string | null;     // absolute URL on the wire; null = cleared
-  metadataUpdatedAt: number;
-  actor: FederationRelayParticipant; // == owner by authority invariant; used for system-message rendering
-}
-
-export interface FederationRelayProfileSnapshot {
-  username?: string | null;
-  displayName?: string | null;
-  avatar?: string | null;
-  avatarColor?: string | null;
-  banner?: string | null;
-  bio?: string | null;
-  // Current presence at the moment the snapshot was built. Optional for
-  // backwards compatibility with peers that pre-date the field. Receivers use
-  // this to seed the stub's status at creation time, so a freshly-friended
-  // remote user shows their actual current state instead of defaulting to
-  // 'offline' until the next presence_update arrives. presence_update is
-  // ephemeral and fires only on transitions, so without this field an
-  // already-online remote stays stuck at 'offline' on the receiver until they
-  // next change status.
-  status?: 'online' | 'idle' | 'dnd' | 'offline' | null;
-  /**
-   * The user is tombstoned on the instance that built this snapshot.
-   * Receivers must not create a new stub for this identity; internal
-   * '!deleted:<id>' usernames are never shipped (dead-incarnation spec §3.3).
-   */
-  deleted?: boolean | null;
-  /**
-   * The user is a bot account of the instance that built this snapshot. Only
-   * the home sends it, about its own users; a receiver takes it only when the
-   * sender is the row's home instance, and never clears the flag.
-   */
-  isBot?: boolean | null;
-}
-
-export interface FederationProfileUpdatePayload {
-  homeUserId: string;
-  homeInstance: string;
-  profileUpdatedAt: number;
-  // Home user's canonical username (without @domain suffix). Receivers apply
-  // `displayName ?? username` so stubs whose home user has no displayName show
-  // the real handle instead of getting clobbered to null. Username itself is
-  // immutable on the home instance — receivers do NOT rewrite the stub's
-  // username column on profile_update.
-  username: string;
-  displayName: string | null;
-  avatar: string | null;
-  banner: string | null;
-  accentColor: string | null;
-  avatarColor: string | null;
-  bio: string | null;
-  /**
-   * A bot's stored status (bots only, from homes that know it; null = none).
-   * Absent means the home did not say, and the receiver keeps what it stores.
-   */
-  botActivity?: BotActivity | null;
-  /** A bot's requested space permissions (decimal bitmask; bots only, same rules as `botActivity`). */
-  botRequestedPermissions?: string | null;
-}
-
-/**
- * Presence projection from a home instance to peers. Carries the user's current
- * online status and (optionally) rich activities. Outbox-only on the wire — never
- * written to federation_mutation_log; presence is ephemeral and stale replays on
- * peer activation are wrong (the activation hook re-emits a fresh snapshot).
- */
-export interface FederationPresenceUpdatePayload {
-  homeUserId: string;
-  homeInstance: string;
-  status: 'online' | 'idle' | 'dnd' | 'offline';
-  activities?: Activity[];
-  ts: number; // emitter clock; receiver may use for last-write-wins
-}
-
-export interface FederationFriendshipPayload {
-  from: FederationRelayParticipant;
-  to: FederationRelayParticipant;
-  fromProfile?: FederationRelayProfileSnapshot;
-  toProfile?: FederationRelayProfileSnapshot;
-  status?: 'pending' | 'accepted' | 'declined';
-  createdAt: number;
-}
-
-/**
- * A DM message named across instances. Every instance holds its own copy of a
- * federated message under its own local id, so a reference that crosses
- * instances uses the id the message has on the instance it was created on,
- * together with that instance's origin (as its `getOurOrigin()` reports it).
- */
-export interface FederationMessageRef {
-  messageId: string;
-  messageHomeInstance: string;
-}
-
-/**
- * One user a relayed message's content mentions.
- *
- * A `<@id>` token carries an id issued by the instance the content was written
- * on, which names nobody on another instance. `id` is that id as it appears in
- * the relayed content; `homeUserId` + `homeInstance` is the federated identity
- * of the user it names there. A receiver resolves the identity to its own row
- * and rewrites `<@id>` to that row's id before storing the content, and keeps
- * the token as written when it holds no row for the identity.
- */
-export interface FederationMentionRef {
-  id: string;
-  homeUserId: string;
-  homeInstance: string;
-}
-
-/**
- * The message an `update` or `delete` relay changes.
- *
- * `messageId` on the event is the sender's local id, which only identifies the
- * message when the sender created it. A receiver given a target instead
- * resolves `message` inside its copy of the conversation `federatedId`, and
- * applies the change only when `actor` is that message's author, compared as
- * federated identities, and `actor` passes the relay attribution check. The
- * rule is written out in docs/systems/dm-system.md, "Relayed edits and
- * deletes".
- */
-export interface FederationMessageTarget {
-  message: FederationMessageRef;
-  /** The conversation's `federatedId` (1-on-1 and group alike). */
-  federatedId: string;
-  /** The user editing or deleting, as a federated identity. */
-  actor: { homeUserId: string; homeInstance: string };
-}
-
-export interface FederationRelayReaction {
-  messageId?: string;
-  messageHomeInstance?: string;
-  userId: string;
-  homeUserId: string;
-  homeInstance: string;
-  emoji: string;
-  createdAt: number;
-}
-
-export interface FederationRelayAttachment {
-  id: string;
-  filename: string;
-  originalName: string;
-  mimetype: string;
-  size: number;
-  width?: number;
-  height?: number;
-  duration?: number;
-  // Web-playability computed by the origin instance (see Attachment.playable).
-  // Propagated so the receiving instance need not re-probe the codec.
-  playable?: boolean | null;
-  thumbnailFilename?: string;
-  sourceUrl: string;
-}
-
-export interface FederationRelayRequest {
-  version: 1;
-  sourceInstance: string;
-  // Sender's persistent epoch (incarnation UUID). Optional for wire compatibility
-  // with peers that predate epoch self-healing; when present, the receiver can
-  // detect that the source instance has been re-provisioned.
-  sourceInstanceId?: string;
-  /**
-   * Relay behaviours the sender implements beyond plain v1. Optional for wire
-   * compatibility: a receiver treats a missing or malformed list as empty and
-   * answers with v1 behaviour only. See `FederationRelayCapability`.
-   */
-  capabilities?: FederationRelayCapability[];
-  events: FederationRelayEvent[];
-}
-
-/**
- * A relay behaviour a sender opts into by listing it in
- * `FederationRelayRequest.capabilities`. Each one gates something the receiver
- * would otherwise not send, so an older sender is never handed an answer it was
- * not built to handle.
- *
- * - `attribution_unproven`: the sender retries an event rejected with the
- *   reason `attribution_unproven` on its normal backoff, until the outbox TTL.
- *   A receiver may then use that reason for a homeward claim whose proof it
- *   does not hold yet; for any other sender it answers the same case with the
- *   terminal `attribution_mismatch`.
- */
-export type FederationRelayCapability = 'attribution_unproven';
-
-export interface FederationEpochResponse {
-  instanceId: string;
-}
-
-export interface FederationRelayResponse {
-  accepted: string[];
-  rejected: Array<{ messageId: string; reason: string }>;
-  /**
-   * Third classification (additive, v1.x): events that were processed cleanly
-   * but had no reachable recipient. Distinct from `rejected` (data/protocol
-   * refusal). Currently used only for `dm_call_start` — other event types
-   * keep accepted/rejected semantics unchanged. Omitted when empty for
-   * wire-size hygiene and byte-identical responses in the typical case.
-   */
-  undeliverable?: Array<{ messageId: string; reason: string }>;
-  maxUploadSize: number;
-}
-
-export interface FederationSyncRequest {
-  sinceTimestamp: number;
-  /**
-   * Keyset tiebreak: with it, the server returns the log rows after the row
-   * `(sinceTimestamp, afterId)` in `(mutated_at, id)` order, so rows sharing a
-   * millisecond across a page boundary are all served. Older servers ignore it
-   * and return rows with `mutated_at > sinceTimestamp`.
-   */
-  afterId?: string;
-  dmChannelId?: string;
-  federatedId?: string;
-  contextType?: 'dm' | 'friend' | 'profile';
-  limit: number;
-}
-
-export interface FederationSyncResponse {
-  events: FederationRelayEvent[];
-  hasMore: boolean;
-  checkpoint: number;
-  /**
-   * The id of the last log row the page covered (before any filtering), to be
-   * sent back as `afterId` with `sinceTimestamp: checkpoint`. Absent from older
-   * servers, whose next page has to start at `checkpoint - 1`.
-   */
-  checkpointId?: string;
-}
-
-// Detached-account re-attach (re-attach spec §3.1–3.2).
-// Minted on the home instance D for a logged-in native user.
-export interface AttachProofResponse {
-  token: string;
-}
-
-// Body of POST /api/users/@me/reattach on the peer R — the one-time proof token
-// minted by the home instance, verified with D over signed S2S.
-export interface ReattachRequest {
-  token: string;
-}
-
-// Success response of POST /api/users/@me/reattach — the re-bound self-view.
-export interface ReattachResponse {
-  success: true;
-  user: User;
-}
-
-export interface FederationUserLookupRequest {
-  username: string;
-}
-
-export interface FederationUserLookupProfile {
-  displayName: string | null;
-  avatar: string | null;
-  avatarColor: AvatarColor | null;
-  banner: string | null;
-  bio: string | null;
-  // Carried so the requester can seed the stub's status at creation time.
-  // Optional for backwards compat with peers that pre-date the field.
-  status?: 'online' | 'idle' | 'dnd' | 'offline' | null;
-  // `/users/by-home-id` only, from homes that send it: the profile's version
-  // (the value `profile_update` carries; a never-edited profile is at its
-  // account's creation time) and the accent colour, so the answer can be
-  // applied like a `profile_update`. Absent from older homes.
-  profileUpdatedAt?: number | null;
-  accentColor?: string | null;
-  /** A bot account of the answering home (sent only when true, by homes that know bots). */
-  isBot?: boolean | null;
-  /** A bot's stored status, as `FederationProfileUpdatePayload.botActivity`. */
-  botActivity?: BotActivity | null;
-  /** A bot's requested space permissions, as `FederationProfileUpdatePayload.botRequestedPermissions`. */
-  botRequestedPermissions?: string | null;
-}
-
-export type FederationUserLookupResponse =
-  | { found: true; user: { homeUserId: string; username: string; profile: FederationUserLookupProfile } }
-  | { found: false; code: 'user_not_found' };
-
-export interface FederationPeer {
-  id: string;
-  origin: string;
-  instanceName: string | null;
-  status: 'pending' | 'active' | 'unreachable' | 'revoked' | 'rejected' | 'awaiting_approval' | 'needs_attention';
-  lastSeenAt: number | null;
-  lastFailureAt: number | null;
-  consecutiveFailures: number;
-  consecutiveAuthFailures: number;
-  lastSyncedAt: number;
-  autoRotateIntervalDays: number;
-  secretRotatedAt: number | null;
-  rotationInProgress: boolean;
-  createdAt: number;
-  statusReason: FederationPeerStatusReason | null;
-}
-
-// ─── Reset-cleanup admin surface (instance-epoch self-healing §6.4) ──────────
-
-/**
- * A real (non-stub) account whose home instance was reset — quarantined via
- * `federation_home_orphaned = 1`. Surfaced to the admin "Reset cleanup" UI with
- * enough context (owned spaces, membership/message counts) to decide Keep or
- * Remove.
- */
-export interface FederationOrphanedAccount {
-  id: string;
-  username: string; // preserved original handle (detach spec); legacy rows may carry '!orphaned:{uid}@domain'
-  displayName: string | null;
-  avatarColor: string | null;
-  ownedSpaces: { id: string; name: string }[];
-  spaceMemberCount: number; // # of spaces they're a member of
-  messageCount: number; // # of space messages they authored
-}
-
-/**
- * A durable row from the `federation_reset_events` journal, augmented with the
- * origin's current orphaned real accounts for admin disposition.
- */
-export interface FederationResetEvent {
-  origin: string;
-  deadEpoch: string;
-  newEpoch: string | null;
-  detectedAt: number;
-  resolvedAt: number | null;
-  acknowledgedAt: number | null;
-  stubCount: number;
-  orphanedAccountCount: number;
-  orphanedAccounts: FederationOrphanedAccount[];
-}
-
-export interface FederationResetEventsResponse {
-  events: FederationResetEvent[];
-}
-
-// ─── Outbound peering gate ──────────────────────────────────────────────────
-
-/**
- * Why a user-initiated federation action triggered the outbound peering gate.
- * Recorded on `peer_approval_subscribers.trigger_reason` so admins can see
- * the human-readable cause and the user can recover their original action
- * after approval. Persisted as a string column with this exact set of values.
- *
- * `instance_connect`: the user opened a session on the remote instance
- * (connect, explicit login, token resume, or app start), and the client asked
- * its home instance to peer so DMs written there can be relayed home.
- */
-export type PeeringTriggerReason = 'friend_add' | 'space_join' | 'direct_message' | 'instance_connect';
-
-/**
- * The trigger reasons a client may state in `POST /api/federation/peer/ensure`.
- * The server refuses any other value with `validation_failed`, and derives the
- * target itself for each one. `friend_add` is deliberately absent: friend-add
- * peers server-side with a target it has checked, so a client stating it
- * could only put a friend request the admin cannot verify into the queue.
- */
-export const PEER_ENSURE_REASONS = ['instance_connect'] as const satisfies readonly PeeringTriggerReason[];
-export type PeerEnsureReason = (typeof PEER_ENSURE_REASONS)[number];
-
-/**
- * Body of `POST /api/federation/peer/ensure`. `reason` is optional for clients
- * that predate it; the server reads a missing reason as `instance_connect`,
- * the only thing those clients called the endpoint for.
- */
-export interface PeerEnsureRequest {
-  remoteOrigin: string;
-  reason?: PeerEnsureReason;
-}
-
-/**
- * Caller intent passed into `ensurePeered()`. The gate (when
- * `autoAcceptPeering=0` and no peer row exists) branches on `kind`:
- *   - 'user_action': queue an outbound approval request and surface
- *     `admin_required` to the caller so the user sees a clear pending state.
- *   - 'system': skip queueing; surface `admin_required` so the calling
- *     subsystem (e.g. background relay) can fail loudly without spamming
- *     admin queues with rows nobody asked for.
- *
- * `target` is the human-readable target identifier the user acted on
- * (e.g. `username@instance.example` for friend_add, the space invite code
- * for space_join, the federated DM channel id for direct_message, the remote
- * origin for instance_connect).
- */
-export type EnsurePeeredCallerIntent =
-  | { kind: 'user_action'; userId: string; reason: PeeringTriggerReason; target: string }
-  | { kind: 'system' };
-
-/**
- * Terminal-state notification kinds delivered to subscribers when the
- * outbound queue resolves. 'expired' is delivered by the storage janitor
- * before it deletes an unresolved outbound queue row past `expiresAt`.
- */
-export type PeeringNotificationKind = 'approved' | 'denied' | 'expired';
-
-/**
- * Per-user pending row joined from `peer_approval_subscribers` to its parent
- * `peer_approval_requests`. Returned from
- * `GET /api/federation/peering-subscriptions`. Used to render the user's own
- * "waiting on admin" surface so they remember which actions are blocked.
- */
-export interface PeeringSubscription {
-  id: string;
-  requestId: string;
-  peerOrigin: string;
-  peerInstanceName: string | null;
-  triggerReason: PeeringTriggerReason;
-  triggerTarget: string;
-  createdAt: number;
-}
-
-/**
- * Terminal-state notification row returned from
- * `GET /api/federation/peering-notifications`. Persists until the user
- * explicitly reads (sets `readAt`) or the janitor cleans up read rows
- * older than the retention window.
- */
-export interface PeeringNotification {
-  id: string;
-  kind: PeeringNotificationKind;
-  peerOrigin: string;
-  triggerReason: PeeringTriggerReason;
-  triggerTarget: string;
-  createdAt: number;
-  readAt: number | null;
-}
-
-/**
- * Subscriber summary embedded in the admin-facing approval request response
- * for outbound rows. Lets the admin see which users are waiting on each
- * outbound request without a separate fetch.
- */
-export interface ApprovalRequestSubscriberSummary {
-  userId: string;
-  username: string;
-  triggerReason: PeeringTriggerReason;
-  triggerTarget: string;
-}
-
-/**
- * Admin-facing approval request row returned from
- * `GET /api/federation/approval-requests`. Inbound rows are remote
- * instances asking to peer with us; outbound rows are local users asking
- * us to peer with a remote instance. Outbound rows include `subscribers`
- * so the admin can see who is waiting.
- */
-export interface ApprovalRequest {
-  id: string;
-  direction: 'inbound' | 'outbound';
-  origin: string;
-  instanceName: string | null;
-  requestedAt: number;
-  expiresAt: number;
-  /**
-   * Subscriber summaries — present (and possibly empty array) only when
-   * `direction === 'outbound'`. ABSENT (`undefined`) when `direction === 'inbound'`.
-   * Inbound rows have no per-action context; the field is omitted from the server
-   * response, not set to `[]`.
-   */
-  subscribers?: ApprovalRequestSubscriberSummary[];
 }
 
 // ─── Invite Links ──────────────────────────────────────────────────────────
@@ -2368,33 +1491,3 @@ export interface ChatCommandsResponse {
 
 export type { DmSystemEvent } from './dmSystemEvents.js';
 export type { ChannelSystemEvent } from './channelSystemEvents.js';
-
-// ─── Federation peer state (docs/systems/federation.md, "Peer state") ────────
-
-/** Every value `federation_peers.status` takes. */
-export type FederationPeerStatus =
-  | 'pending'
-  | 'awaiting_approval'
-  | 'active'
-  | 'unreachable'
-  | 'needs_attention'
-  | 'rejected'
-  | 'revoked';
-
-/** Why a peer is in `needs_attention`. */
-export type FederationNeedsAttentionReason = 'auth_failures' | 'peer_reset_detected' | 'repeer_incomplete';
-
-/**
- * Why a peer is `rejected`. `denied_by_local_admin` is our own refusal; every
- * other value is the remote refusing us, or holding an older peering with us
- * that its admin has to reset (`stale_peering_on_remote`).
- */
-export type FederationRejectedReason =
-  | 'denied_by_local_admin'
-  | 'denied_by_remote'
-  | 'revoked_by_remote'
-  | 'expired_on_remote'
-  | 'stale_peering_on_remote';
-
-/** `federation_peers.status_reason`: set for `needs_attention` and `rejected`, null otherwise. */
-export type FederationPeerStatusReason = FederationNeedsAttentionReason | FederationRejectedReason;

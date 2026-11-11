@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { recordDiagnostic } from '../utils/diagnostics';
+import { cleanup, renderHook } from '@testing-library/react';
+import { installSocketHarness, TestWebSocket } from '../test/socketHarness';
 
 vi.mock('../utils/diagnostics', () => ({ recordDiagnostic: vi.fn() }));
 
@@ -15,38 +17,8 @@ vi.mock('../audio/AudioManager', () => ({
 }));
 vi.mock('../hooks/useMascotAnimation', () => ({ useMascotAnimation: vi.fn() }));
 
-/** A socket the real handler talks to; the test plays the server through `deliver`. */
-class FakeWebSocket {
-  static readonly CONNECTING = 0;
-  static readonly OPEN = 1;
-  static readonly CLOSING = 2;
-  static readonly CLOSED = 3;
-  static all: FakeWebSocket[] = [];
-  readyState = FakeWebSocket.CONNECTING;
-  onopen: (() => void) | null = null;
-  onmessage: ((e: { data: string }) => void) | null = null;
-  onclose: (() => void) | null = null;
-  onerror: (() => void) | null = null;
-  constructor(public url: string) { FakeWebSocket.all.push(this); }
-  send(): void {}
-  close(): void { this.readyState = FakeWebSocket.CLOSED; }
-  open(): void { this.readyState = FakeWebSocket.OPEN; this.onopen?.(); }
-  deliver(event: Record<string, unknown>): void {
-    this.onmessage?.({ data: JSON.stringify(event) });
-  }
-}
-
-class InertWorker {
-  onmessage: (() => void) | null = null;
-  postMessage(): void {}
-  terminate(): void {}
-}
-
-vi.stubGlobal('WebSocket', FakeWebSocket);
-vi.stubGlobal('Worker', InertWorker);
-vi.stubGlobal('URL', Object.assign(URL, { createObjectURL: () => 'blob:heartbeat', revokeObjectURL: () => {} }));
-
-const { connectInstance, disconnectInstance } = await import('./useWebSocket');
+const { useWebSocket } = await import('./useWebSocket');
+const { useAuthStore } = await import('../stores/authStore');
 const { useUIStore } = await import('../stores/uiStore');
 const { initI18n } = await import('../i18n');
 const i18n = (await import('../i18n')).default;
@@ -55,11 +27,9 @@ const i18n = (await import('../i18n')).default;
 // and `details` where the code's text has placeholders. The client shows it
 // as a toast in the user's language with the placeholders filled.
 
-const opened: string[] = [];
-function homeSocket(): FakeWebSocket {
-  connectInstance('', 'token-home');
-  opened.push('');
-  const ws = FakeWebSocket.all.at(-1)!;
+function homeSocket(): TestWebSocket {
+  renderHook(() => useWebSocket());
+  const ws = TestWebSocket.all.at(-1)!;
   ws.open();
   return ws;
 }
@@ -67,7 +37,7 @@ function homeSocket(): FakeWebSocket {
 beforeEach(async () => {
   vi.clearAllMocks();
   await initI18n();
-  FakeWebSocket.all = [];
+  installSocketHarness(); useAuthStore.setState({ token: 'native-token' });
   vi.spyOn(console, 'error').mockImplementation(() => {});
   vi.spyOn(console, 'warn').mockImplementation(() => {});
   vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -75,7 +45,7 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
-  for (const origin of opened.splice(0)) disconnectInstance(origin);
+  cleanup(); useAuthStore.setState({ token: null }); vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 

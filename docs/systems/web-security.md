@@ -21,12 +21,16 @@ Source files:
 
 ## 1. What the policy is for
 
-Veyvox renders arbitrary user content and federates with instances it
-discovers at runtime. A message can carry a link to any site on the web, and the
-embed pipeline pulls that site's preview image. A user can connect to a peer
-instance whose origin nobody knew about at build time. So `img-src`, `media-src`
-and `connect-src` cannot be constrained to a host list without breaking the
-product. They list schemes instead of hosts.
+Veyvox renders arbitrary user content. Messages can link to any public site and
+use external media; the selected server may have independently configured LiveKit.
+These retained media/voice consumers are distinct from the retired federation
+connections. The scheme-based media/connect allowances do not authorize forwarding
+application credentials to those origins.
+
+Server-side previews use the separate [SSRF boundary](embeds.md#3-ssrf-protection):
+all-address validation, connection-time pins, normal TLS identity checks, capped
+redirects, one body-inclusive deadline and bounded wire/decoded streams. This does
+not grant private-network fetch access merely because a browser can display media.
 
 That is a trade, not a gap waiting to be closed. Do not open a task to "tighten
 img-src". The directives that carry the weight here are the ones that stop
@@ -156,10 +160,9 @@ completely. The app policy will not be merged in.
 | `Strict-Transport-Security` | Caddy | `max-age=31536000; includeSubDomains` | The app never sends it. |
 | `Access-Control-*` | app (`@fastify/cors`) | see section 6 | |
 
-**CORP is `cross-origin` on purpose.** helmet's default is `same-origin`.
-Federation loads avatars and attachments from peer instances with plain `<img>`
-and `<video>` tags, and `same-origin` blocks every one of them. This is not a
-knob to turn back.
+**CORP remains `cross-origin`.** Native public media/assets may be embedded by
+external clients; retirement does not change their read policy. This header is
+not authorization: private routes must independently enforce native permissions.
 
 **HSTS belongs to the TLS terminator.** Only the terminator knows HTTPS is
 genuinely in play. An app that emitted HSTS would be wrong on a plain-HTTP LAN
@@ -192,33 +195,15 @@ the code. Read all of it before changing `@fastify/cors` options.
 which reflects whatever `Origin` the request carried, including `null`.
 `credentials` is not set, so `Access-Control-Allow-Credentials` is never sent.
 `allowedHeaders` and `exposedHeaders` carry the `Tus-*` and `Upload-*` headers
-that federated resumable uploads need on a cross-origin preflight.
+that a separately hosted native client needs on a cross-origin preflight.
 `exposedHeaders` also carries `X-Backspace-Paging`, the header a client on
-another instance reads to tell whether a message history request honoured
-`after` (api.md, "Message history paging"); unexposed, every remote forward
-page would read as an older server's newest page.
+another origin reads to tell whether a message history request honoured
+`after` (api.md, "Message history paging").
 
-**Why the origin has to stay reflected.** Client federation has a browser on
-instance A talk directly to instance B before any server-to-server peering
-exists. The ordering, in `packages/web/src/stores/instanceStore.ts`:
-
-1. `probeInstance` (line 348) calls `tempClient.instance.info()` (line 365) against B with an unauthenticated client, to show the user what they are about to join.
-2. `connectToRemote` (line 370) builds a temp client for B and, for a remote target, calls `tempClient.auth.register()` (line 430) with the namespaced `username@homeinstance`, falling back to `tempClient.auth.login()` (line 453) if that account already exists. For a target that is the user's own home instance it calls `tempClient.auth.login()` directly (line 401).
-3. It calls `tempClient.instance.info()` again (line 476) to finish building the connection record.
-4. It opens the WebSocket to B with `connectInstance(origin, response.token)` (line 511).
-5. Only after all of that does it call `api.federation.ensurePeered({ remoteOrigin: origin })` (line 518), and that call goes to the browser's own home server, not to B.
-
-At the moment the browser registers and logs in against B, B has no peer row
-for A. An origin allowlist backed by the peer registry rejects the entire
-onboarding flow.
-
-It is also not merely a startup race that settles. `ensurePeered` can return
-`admin_required` or `rejected` (see `docs/systems/client-federation.md`,
-"Peering-status taxonomy"). An admin can decline server-to-server peering
-permanently while that browser connection is expected to keep working
-indefinitely: the user stays logged in to B, reads channels and sends messages
-there. There is no later point at which the registry becomes a correct source
-of truth for which browsers may talk to this instance.
+**Retained native-client access.** Server selection and separately hosted native
+clients can contact one selected server. No peer registry, linked-account signup,
+alternate token resolver or peering handshake remains. CORS remains reflected
+without credentials; retirement does not invent an origin-approval mechanism.
 
 **Why reflecting is safe here.** A reflected origin is dangerous when it is
 paired with an ambient credential, because the browser then attaches that
@@ -230,8 +215,8 @@ no ambient credential to ride on:
 - Auth is a bearer token read from `localStorage` (`packages/web/src/stores/authStore.ts:42`) and attached explicitly by our own client (`packages/web/src/api/client.ts:348`). No `fetch` in the web package sets a `credentials` mode.
 
 A cross-origin page cannot obtain that token and the browser will not attach it
-for the page. So restricting `Access-Control-Allow-Origin` would buy nothing and
-would cost federation.
+for the page. CORS does not replace authentication or permissions, and cannot
+protect a bearer token already stolen by a compromised renderer.
 
 **What was removed.** `credentials: true` used to be set. It granted nothing,
 because there was no credential to grant, and it was the half of the
@@ -249,6 +234,12 @@ introduced, the fix is not to update the test. The whole posture in this
 section has to be revisited first, because the reasoning above no longer holds.
 
 ## 7. Rollout
+
+The observations and original rollout criteria below are **historical September
+2026 evidence**, not current federation support or fresh 1.17.2 acceptance.
+Federation has since been retired. Current native acceptance is recorded in
+`docs/superpowers/reports/2026-11-10-standalone-validation.md`; external previews,
+uploads, LiveKit media and RNNoise/WASM still need their own actual coverage.
 
 The policy shipped as `Content-Security-Policy-Report-Only` from the start and
 was flipped to `Content-Security-Policy` on 2026-09-03, after the observation
@@ -367,7 +358,7 @@ report sink do not always agree: the listener attaches at document start and can
 miss a violation that fires during very early parsing, while the sink still
 receives the report. Check both.
 
-### Federation
+### Historical federation coverage limitation
 
 Not exercised, and deliberately not set up. A cross-instance conversation loads
 peer avatars and attachments over plain `<img>` and `<video>`, which

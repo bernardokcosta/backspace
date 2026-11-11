@@ -1,301 +1,68 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { act } from '@testing-library/react';
-import type { Activity, MemberWithUser, ServerEvent, User } from '@veyvox/shared';
-
-// jsdom has no AudioWorkletNode; the handler's imports reach the voice stack.
-vi.mock('../audio/AudioManager', () => ({
-  AudioManager: {
-    getInstance: vi.fn().mockReturnValue({
-      setOutputDevice: vi.fn(),
-      setVolume: vi.fn(),
-      playSound: vi.fn(() => Promise.resolve(null)),
-    }),
-  },
-}));
-vi.mock('../hooks/useMascotAnimation', () => ({ useMascotAnimation: vi.fn() }));
-
-/**
- * A socket the real handler talks to. The test plays each server by feeding
- * events through `onmessage`.
- */
-class FakeWebSocket {
-  static readonly CONNECTING = 0;
-  static readonly OPEN = 1;
-  static readonly CLOSING = 2;
-  static readonly CLOSED = 3;
-  static all: FakeWebSocket[] = [];
-  readyState = FakeWebSocket.CONNECTING;
-  onopen: (() => void) | null = null;
-  onmessage: ((e: { data: string }) => void) | null = null;
-  onclose: (() => void) | null = null;
-  onerror: (() => void) | null = null;
-  constructor(public url: string) { FakeWebSocket.all.push(this); }
-  send(): void {}
-  close(): void { this.readyState = FakeWebSocket.CLOSED; }
-  open(): void { this.readyState = FakeWebSocket.OPEN; this.onopen?.(); }
-  deliver(event: Record<string, unknown>): void {
-    act(() => { this.onmessage?.({ data: JSON.stringify(event) }); });
-  }
-}
-
-class InertWorker {
-  onmessage: (() => void) | null = null;
-  postMessage(): void {}
-  terminate(): void {}
-}
-
-vi.stubGlobal('WebSocket', FakeWebSocket);
-vi.stubGlobal('Worker', InertWorker);
-vi.stubGlobal('URL', Object.assign(URL, { createObjectURL: () => 'blob:heartbeat', revokeObjectURL: () => {} }));
-
-const { connectInstance, disconnectInstance } = await import('./useWebSocket');
-const { useSocialStore } = await import('../stores/socialStore');
-const { useSpaceStore } = await import('../stores/spaceStore');
-const { useActivityStore } = await import('../stores/activityStore');
-const { useUIStore } = await import('../stores/uiStore');
-const { activitiesFor } = await import('../stores/activityStore');
-
-type TaggedFriend = import('../stores/socialStore').TaggedFriend;
-type TaggedSpace = import('../stores/spaceStore').TaggedSpace;
-
-// #346. The viewer's home is the page's instance. Bob is native on orbit
-// (id bob-home); the home keeps a replicated row for him (id stub-a).
-const ORBIT = 'https://orbit.test';
-const NOVA = 'https://nova.test';
+import { act, cleanup, renderHook } from '@testing-library/react';
+import type { Activity, MemberWithUser, User } from '@veyvox/shared';
+vi.mock('../audio/AudioManager', () => ({ AudioManager: { getInstance: () => ({}) } }));
+import { useWebSocket } from './useWebSocket';
+import { useAuthStore } from '../stores/authStore';
+import { useSpaceStore } from '../stores/spaceStore';
+import { activitiesFor, useActivityStore } from '../stores/activityStore';
+import { useSocialStore } from '../stores/socialStore';
+import { useSettingsStore } from '../stores/settingsStore';
+import { useNotificationSettingsStore } from '../stores/notificationSettingsStore';
+import { junoUser } from '../components/games/junoTestFixtures';
+import { installSocketHarness, TestWebSocket } from '../test/socketHarness';
+const kai = junoUser('kai'), zed = junoUser('zed');
+const member = (spaceId: string, user: User): MemberWithUser => ({ spaceId, userId: user.id, nickname: null, joinedAt: 1, user, roles: [] });
 const playing: Activity[] = [{ type: 'playing', name: 'Factorio' }];
-
-const bobStubFriend: TaggedFriend = {
-  id: 'stub-a', username: 'bob@orbit.test', displayName: 'Bob', avatar: null, banner: null,
-  accentColor: null, avatarColor: null, bio: null, status: 'offline', customStatus: null,
-  createdAt: 0, addedAt: 0, homeUserId: 'bob-home', homeInstance: 'orbit.test', _instanceOrigin: '',
-};
-
-function user(fields: Partial<User> & Pick<User, 'id'>): User {
-  return {
-    username: fields.id, displayName: null, avatar: null, banner: null, accentColor: null,
-    avatarColor: null, bio: null, status: 'online', customStatus: null, isAdmin: false,
-    createdAt: 1, homeInstance: null, homeUserId: null, replicatedInstances: [],
-    ...fields,
-  } as User;
-}
-
-function space(id: string, origin: string): TaggedSpace {
-  return {
-    id, name: `Space ${id}`, icon: null, banner: null, avatarColor: 'lavender', ownerId: 'someone',
-    inviteCode: null, visibility: 'public', description: '', createdAt: 1,
-    _instanceOrigin: origin,
-  };
-}
-
-function member(spaceId: string, u: User): MemberWithUser {
-  return { spaceId, userId: u.id, nickname: null, joinedAt: 1, user: u, roles: [] };
-}
-
-/** Shows one space whose member list holds `u`, delivered by `origin`. */
-function showSpace(origin: string, u: User): void {
-  useSpaceStore.setState({
-    spaces: [space('sp', origin)],
-    currentSpaceId: 'sp',
-    loadingSpaceId: null,
-    members: [member('sp', u)],
-  });
-}
-
-function ready(extra: Record<string, unknown>): Record<string, unknown> {
-  return {
-    type: 'ready',
-    user: user({ id: 'viewer', username: 'viewer' }),
-    spaces: [], dmChannels: [], folders: [], spaceLayout: null, layoutUpdatedAt: null,
-    voiceStates: {}, voiceChannelElapsedSeconds: {}, voiceUserStates: {}, spaceVoiceStates: {},
-    readStates: [], activeCalls: [], userActivities: {},
-    rejectedPeerOrigins: [], awaitingApprovalPeerOrigins: [], activePeerOrigins: [], pendingApprovalCount: 0,
-    ...extra,
-  } satisfies Partial<Record<keyof Extract<ServerEvent, { type: 'ready' }> | 'type', unknown>>;
-}
-
-const opened: string[] = [];
-function socketFor(origin: string): FakeWebSocket {
-  connectInstance(origin, `token-${origin || 'home'}`);
-  opened.push(origin);
-  const ws = FakeWebSocket.all.at(-1)!;
-  ws.open();
-  return ws;
-}
-
 beforeEach(() => {
-  FakeWebSocket.all = [];
-  vi.spyOn(console, 'error').mockImplementation(() => {});
-  vi.spyOn(console, 'warn').mockImplementation(() => {});
-  vi.spyOn(console, 'log').mockImplementation(() => {});
-  useActivityStore.getState().reset();
-  useSocialStore.setState({
-    friends: [bobStubFriend], requests: [],
-    loadFriends: vi.fn(async () => {}), loadRequests: vi.fn(async () => {}),
-  });
-  useSpaceStore.setState({ spaces: [], currentSpaceId: null, members: [], loadingSpaceId: null, userViews: new Map() });
-  useUIStore.setState({ isMobile: false, memberListOpen: true });
+  installSocketHarness(); useAuthStore.setState({ token: 'native-token', user: junoUser('me') });
+  useSpaceStore.getState().reset(); useSpaceStore.setState({ currentSpaceId: 'sp', members: [member('sp', kai)] }); useActivityStore.getState().reset();
+  for (const name of ['loadFriends', 'loadRequests'] as const) vi.spyOn(useSocialStore.getState(), name).mockResolvedValue(undefined);
+  for (const name of ['fetchStreamingLimits', 'fetchGifEnabled'] as const) vi.spyOn(useSettingsStore.getState(), name).mockResolvedValue(undefined);
+  vi.spyOn(useNotificationSettingsStore.getState(), 'load').mockResolvedValue(undefined);
 });
-
-afterEach(() => {
-  for (const origin of opened.splice(0)) disconnectInstance(origin);
-  vi.restoreAllMocks();
-});
-
-
-function statusOf(userId: string): string | undefined {
-  return useSpaceStore.getState().members.find(m => m.userId === userId)?.user.status;
-}
-
-describe('#346: member_joined / member_left touch only the loaded roster', () => {
-  const kai = user({ id: 'kai', displayName: 'Kai' });
-  const zed = user({ id: 'zed', displayName: 'Zed' });
-
-  it("adds a member who joined the loaded space", () => {
-    showSpace('', kai);
-    const home = socketFor('');
-    home.deliver({ type: 'member_joined', spaceId: 'sp', member: member('sp', zed) });
-    expect(useSpaceStore.getState().members.map(m => m.userId)).toEqual(['kai', 'zed']);
+afterEach(() => { cleanup(); useAuthStore.setState({ token: null }); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+function open(): TestWebSocket { renderHook(() => useWebSocket()); const ws = TestWebSocket.all[0]!; act(() => ws.open()); return ws; }
+const ready = () => ({ type: 'ready', user: junoUser('me'), spaces: [], dmChannels: [], folders: [], readStates: [], activeCalls: [], userActivities: {} });
+describe('native roster resolution', () => {
+  it('adds a member who joins the loaded space', () => {
+    open().deliver({ type: 'member_joined', spaceId: 'sp', member: member('sp', zed) });
+    expect(useSpaceStore.getState().members.map(row => row.userId)).toEqual(['kai', 'zed']);
   });
-
-  it('leaves the loaded roster alone when someone joins another space', () => {
-    showSpace('', kai);
-    const home = socketFor('');
-    home.deliver({ type: 'member_joined', spaceId: 'other', member: member('other', zed) });
-    expect(useSpaceStore.getState().members.map(m => m.userId)).toEqual(['kai']);
+  it('keeps the loaded roster unchanged when someone joins another space', () => {
+    open().deliver({ type: 'member_joined', spaceId: 'other', member: member('other', zed) });
+    expect(useSpaceStore.getState().members.map(row => row.userId)).toEqual(['kai']);
   });
-
-  it('leaves the loaded roster alone when someone leaves another space', () => {
-    showSpace('', kai);
-    const home = socketFor('');
-    home.deliver({ type: 'member_left', spaceId: 'other', userId: 'kai' });
-    expect(useSpaceStore.getState().members.map(m => m.userId)).toEqual(['kai']);
+  it('keeps the loaded roster unchanged when someone leaves another space', () => {
+    open().deliver({ type: 'member_left', spaceId: 'other', userId: kai.id });
+    expect(useSpaceStore.getState().members.map(row => row.userId)).toEqual(['kai']);
   });
-
-  it('removes a member who left the loaded space', () => {
-    showSpace('', kai);
-    const home = socketFor('');
-    home.deliver({ type: 'member_left', spaceId: 'sp', userId: 'kai' });
-    expect(useSpaceStore.getState().members).toEqual([]);
+  it('removes a member who leaves the loaded space', () => {
+    open().deliver({ type: 'member_left', spaceId: 'sp', userId: kai.id }); expect(useSpaceStore.getState().members).toEqual([]);
   });
-
-  it('ignores an event for a space of the same id on another instance', () => {
-    showSpace('', kai);
-    const nova = socketFor(NOVA);
-    nova.deliver({ type: 'member_joined', spaceId: 'sp', member: member('sp', zed) });
-    nova.deliver({ type: 'member_left', spaceId: 'sp', userId: 'kai' });
-    expect(useSpaceStore.getState().members.map(m => m.userId)).toEqual(['kai']);
+  it('updates the exact native member presence and its cached profile', () => {
+    useSpaceStore.getState().upsertUserView(kai); open().deliver({ type: 'presence_update', userId: kai.id, status: 'dnd' });
+    expect(useSpaceStore.getState().members[0]?.user.status).toBe('dnd'); expect(useSpaceStore.getState().userViews.get(kai.id)?.user.status).toBe('dnd');
+  });
+  it('does not merge presence for a different native ID sharing a retained handle', () => {
+    useSpaceStore.getState().upsertUserView(kai); open().deliver({ type: 'presence_update', userId: 'different-kai', status: 'offline' });
+    expect(useSpaceStore.getState().members[0]?.user).toEqual(kai); expect(useSpaceStore.getState().userViews.get(kai.id)?.user).toEqual(kai);
+  });
+  it('ignores an earlier session roster delivery even if the next session has equal IDs', () => {
+    const old = open(); act(() => useAuthStore.setState(state => ({ sessionRevision: state.sessionRevision + 1 })));
+    old.deliver({ type: 'member_left', spaceId: 'sp', userId: kai.id }); expect(useSpaceStore.getState().members.map(row => row.userId)).toEqual(['kai']);
   });
 });
-
-describe('#346: member status follows the person, not a raw id', () => {
-  it("leaves a member alone when another instance reports a same-id user of its own", () => {
-    showSpace('', user({ id: 'carol', displayName: 'Carol', status: 'idle' }));
-    const nova = socketFor(NOVA);
-    nova.deliver({ type: 'presence_update', userId: 'carol', status: 'online', homeUserId: null, homeInstance: null });
-    expect(statusOf('carol')).toBe('idle');
+describe('native activity snapshots', () => {
+  it('replaces all activities on ready, including friends without an open space', () => {
+    const ws = open(); ws.deliver({ type: 'presence_update', userId: zed.id, status: 'online', activities: playing });
+    expect(activitiesFor(useActivityStore.getState().userActivities, zed.id)).toEqual(playing);
+    ws.deliver(ready()); expect(activitiesFor(useActivityStore.getState().userActivities, zed.id)).toEqual([]);
   });
-
-  it("updates a replicated member from their own home's report", () => {
-    const stubRow = user({ id: 'stub-a', displayName: 'Bob', status: 'offline', homeUserId: 'bob-home', homeInstance: 'orbit.test' });
-    showSpace('', stubRow);
-    const orbit = socketFor(ORBIT);
-    orbit.deliver({ type: 'presence_update', userId: 'bob-home', status: 'online', homeUserId: null, homeInstance: null });
-    expect(statusOf('stub-a')).toBe('online');
-  });
-
-  it('updates the member the report names on the space\'s own instance', () => {
-    showSpace(NOVA, user({ id: 'dana', displayName: 'Dana', status: 'offline' }));
-    const nova = socketFor(NOVA);
-    nova.deliver({ type: 'presence_update', userId: 'dana', status: 'dnd', homeUserId: null, homeInstance: null });
-    expect(statusOf('dana')).toBe('dnd');
-  });
-
-  it("leaves another instance's same-id user's cached view alone", () => {
-    const carol = user({ id: 'carol', displayName: 'Carol', status: 'idle' });
-    useSpaceStore.getState().upsertUserView(carol, '');
-    const nova = socketFor(NOVA);
-    nova.deliver({ type: 'presence_update', userId: 'carol', status: 'online', homeUserId: null, homeInstance: null });
-    const views = [...useSpaceStore.getState().userViews.values()].map(v => v.user);
-    expect(views.find(u => u.id === 'carol')?.status).toBe('idle');
-  });
-});
-
-describe("#346: an instance's activities are replaced when it reconnects", () => {
-  const bobSubject = { id: 'stub-a', homeUserId: 'bob-home', homeInstance: 'orbit.test' };
-
-  it("drops what an instance reported when its next ready no longer lists it", () => {
-    const nova = socketFor(NOVA);
-    nova.deliver({
-      type: 'presence_update', userId: 'bob-on-nova', status: 'online', activities: playing,
-      homeUserId: 'bob-home', homeInstance: 'orbit.test',
-    });
-    expect(activitiesFor(useActivityStore.getState().userActivities, bobSubject, '')).toEqual(playing);
-
-    nova.deliver(ready({ userActivities: {}, userActivityIdentities: {} }));
-
-    expect(activitiesFor(useActivityStore.getState().userActivities, bobSubject, '')).toEqual([]);
-  });
-
-  it("keeps what another instance reported last", () => {
-    const home = socketFor('');
-    const nova = socketFor(NOVA);
-    home.deliver({
-      type: 'presence_update', userId: 'stub-a', status: 'online', activities: playing,
-      homeUserId: 'bob-home', homeInstance: 'orbit.test',
-    });
-
-    nova.deliver(ready({ userActivities: {}, userActivityIdentities: {} }));
-
-    expect(activitiesFor(useActivityStore.getState().userActivities, bobSubject, '')).toEqual(playing);
-  });
-
-  it("clears a third-instance member's game on an older server even when their space is not open", () => {
-    // Carol lives on carol.test. Older nova keeps a replicated row for her in
-    // a space the viewer is in but not looking at, and sends no identity fields.
-    const carolOnNova = user({ id: 'carol-on-nova', username: 'carol@carol.test', displayName: 'Carol', homeUserId: 'carol-home', homeInstance: 'carol.test' });
-    const carolSubject = { id: 'carol-home', homeUserId: 'carol-home', homeInstance: 'carol.test' };
-    const nova = socketFor(NOVA);
-    nova.deliver(ready({
-      spaces: [{ ...space('nova-sp', ''), channels: [], categories: [], roles: [], members: [member('nova-sp', carolOnNova)] }],
-      userActivities: { 'carol-on-nova': playing },
-    }));
-    expect(activitiesFor(useActivityStore.getState().userActivities, carolSubject, '')).toEqual(playing);
-
-    nova.deliver({ type: 'presence_update', userId: 'carol-on-nova', status: 'online', activities: [] });
-
-    expect(activitiesFor(useActivityStore.getState().userActivities, carolSubject, '')).toEqual([]);
-  });
-
-  // An older server's ready snapshot covered only space and DM members; a
-  // friend it reports on only through live presence is outside it.
-  it("keeps a friend's game an older server reported live when its ready does not cover friends", () => {
-    const dave = { ...bobStubFriend, id: 'dave', username: 'dave', displayName: 'Dave', homeUserId: null, homeInstance: null, _instanceOrigin: NOVA };
-    useSocialStore.setState({ friends: [dave] });
-    const daveSubject = { id: 'dave', homeUserId: null, homeInstance: null };
-    const nova = socketFor(NOVA);
-    nova.deliver({ type: 'presence_update', userId: 'dave', status: 'online', activities: playing });
-    expect(activitiesFor(useActivityStore.getState().userActivities, daveSubject, NOVA)).toEqual(playing);
-
-    nova.deliver(ready({ userActivities: {} }));
-
-    expect(activitiesFor(useActivityStore.getState().userActivities, daveSubject, NOVA)).toEqual(playing);
-  });
-
-  it("drops a member's game an older server reported when its ready lists the member without one", () => {
-    const erin = user({ id: 'erin', displayName: 'Erin' });
-    const nova = socketFor(NOVA);
-    nova.deliver(ready({
-      spaces: [{ ...space('nova-sp', ''), channels: [], categories: [], roles: [], members: [member('nova-sp', erin)] }],
-      userActivities: {},
-    }));
-    nova.deliver({ type: 'presence_update', userId: 'erin', status: 'online', activities: playing });
-    expect(activitiesFor(useActivityStore.getState().userActivities, erin, NOVA)).toEqual(playing);
-
-    nova.deliver(ready({
-      spaces: [{ ...space('nova-sp', ''), channels: [], categories: [], roles: [], members: [member('nova-sp', erin)] }],
-      userActivities: {},
-    }));
-
-    expect(activitiesFor(useActivityStore.getState().userActivities, erin, NOVA)).toEqual([]);
+  it('clears only the named native user when a live report has no activities', () => {
+    const ws = open(); for (const userId of [kai.id, zed.id]) ws.deliver({ type: 'presence_update', userId, status: 'online', activities: playing });
+    ws.deliver({ type: 'presence_update', userId: zed.id, status: 'online', activities: [] });
+    expect(activitiesFor(useActivityStore.getState().userActivities, zed.id)).toEqual([]);
+    expect(activitiesFor(useActivityStore.getState().userActivities, kai.id)).toEqual(playing);
   });
 });

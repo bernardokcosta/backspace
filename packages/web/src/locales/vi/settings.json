@@ -127,7 +127,6 @@
       "appearance": "Giao diện",
       "voice": "Thoại & Video",
       "privacy": "Riêng tư",
-      "connections": "Kết nối",
       "keybinds": "Phím tắt",
       "desktop": "Máy tính",
       "instance": "Máy chủ",
@@ -142,16 +141,6 @@
   },
   "account": {
     "title": "Tài khoản của tôi",
-    "detached": {
-      "notice": "Tài khoản này tách khỏi máy chủ chính.",
-      "explanation": "{{homeInstance}} đã đặt lại hoặc không còn khả dụng, nên tài khoản này giờ chạy cục bộ trên máy chủ này. Hồ sơ và mật khẩu của bạn quản lý ở đây.",
-      "reattachHint": "Với tên {{username}} trên {{homeInstance}}, bạn gắn lại được tài khoản này. Hồ sơ và hiện diện lại đồng bộ từ đó.",
-      "reattachButton": "Gắn lại tới {{homeInstance}}",
-      "reattachConfirm": "Xác nhận gắn lại với tên {{username}}",
-      "reattaching": "Đang gắn lại…",
-      "reattachFailed": "Gắn lại thất bại",
-      "reattached": "Đã gắn lại tài khoản với {{username}}"
-    },
     "profile": {
       "sectionTitle": "Tùy chỉnh hồ sơ",
       "avatar": {
@@ -183,8 +172,7 @@
     "details": {
       "sectionTitle": "Tài khoản",
       "status": {
-        "label": "Trạng thái",
-        "homeUnavailable": "Trạng thái của bạn giữ trên {{host}}. Hãy kết nối tới {{host}} để đổi."
+        "label": "Trạng thái"
       },
       "customStatus": {
         "label": "Trạng thái tùy chỉnh",
@@ -244,10 +232,6 @@
         "passwordPlaceholder": "Nhập mật khẩu của bạn",
         "submit": "Xóa tài khoản của tôi",
         "deleting": "Đang xóa…"
-      },
-      "federation": {
-        "removing": "Đang gỡ tài khoản của bạn khỏi máy chủ đã kết nối…",
-        "deleteAnyway": "Xóa tài khoản ngay"
       },
       "complete": {
         "title": "Đã xóa tài khoản",
@@ -310,14 +294,10 @@
       }
     }
   },
-  "connections": {
-    "title": "Kết nối"
-  },
   "instance": {
     "tabs": {
       "general": "Chung",
       "registration": "Đăng ký",
-      "federation": "Liên hợp",
       "streaming": "Phát trực tiếp",
       "storage": "Lưu trữ",
       "users": "Người dùng",

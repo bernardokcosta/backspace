@@ -8,8 +8,7 @@ import { useUIStore } from '../../stores/uiStore';
 import { Avatar } from '../ui/Avatar';
 import { ActivityCard, hasRichActivity, getActivityAccentClass } from '../ui/ActivityCard';
 import { getPrimaryActivity } from '@veyvox/shared/src/activities.js';
-import { parseFederatedUsername, isFederationGlobeApplicable, spaceMemberName } from '../../utils/identity';
-import { useSpaceOrigin } from '../../hooks/useSpaceOrigin';
+import { spaceMemberName } from '../../utils/identity';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 import { MobileScreenHeader } from './MobileScreenHeader';
 import { OwnerTitleHeading } from './OwnerTitleHeading';
@@ -33,8 +32,7 @@ function MobileMemberRow({
   accentClass: string;
   onClickMember: (member: MemberWithUser) => void;
 }) {
-  const origin = useSpaceOrigin(member.spaceId);
-  const canonical = useCanonicalUserView(member.user, origin);
+  const canonical = useCanonicalUserView(member.user);
   const displayName = spaceMemberName(member, canonical);
 
   const rowClass = isRichActivity
@@ -61,9 +59,6 @@ function MobileMemberRow({
         >
           {displayName}
         </span>
-        {!isOffline && isFederationGlobeApplicable(canonical) && (
-          <div className="text-[10px] leading-[1.3] text-txt-tertiary truncate opacity-60">@{parseFederatedUsername(canonical.username).domain}</div>
-        )}
         {!isOffline && (
           <ActivityCard
             activities={activities}
@@ -91,7 +86,6 @@ export function MobileMembersScreen({ params }: MobileMembersScreenProps) {
 
   const spaceId = params?.spaceId || currentSpaceId;
   const space = spaces.find(s => s.id === spaceId);
-  const spaceOrigin = space?._instanceOrigin ?? '';
   const ownerId = space?.ownerId;
 
   // Mirror desktop MemberSidebar's `showMemberSkeleton`: gate the skeleton
@@ -109,8 +103,7 @@ export function MobileMembersScreen({ params }: MobileMembersScreenProps) {
   };
 
   const handleMemberClick = (member: MemberWithUser) => {
-    const origin = useSpaceStore.getState().spaces.find(s => s.id === member.spaceId)?._instanceOrigin ?? '';
-    pushMobileScreen('user-profile', { userId: member.userId, origin, spaceId: member.spaceId, memberUserId: member.userId });
+    pushMobileScreen('user-profile', { userId: member.userId, spaceId: member.spaceId, memberUserId: member.userId });
   };
 
   const groupHeading = (kind: MemberGroupKind, label: string | null): string => {
@@ -123,7 +116,7 @@ export function MobileMembersScreen({ params }: MobileMembersScreenProps) {
     // Roles do not depend on presence: an offline member keeps their colour,
     // dimmed with the rest of the row.
     const colorStyle = getMemberColor(member);
-    const activities = activitiesFor(userActivities, member.user, spaceOrigin);
+    const activities = activitiesFor(userActivities, member.userId);
     const isRichActivity = !isOffline && hasRichActivity(activities);
     const primary = getPrimaryActivity(activities);
     const accentClass = primary ? getActivityAccentClass(primary.type) : '';

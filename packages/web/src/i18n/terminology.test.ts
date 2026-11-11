@@ -18,9 +18,6 @@ import zhAuth from '../locales/zh/auth.json';
 import zhDm from '../locales/zh/dm.json';
 import ptDm from '../locales/pt/dm.json';
 import ptSocial from '../locales/pt/social.json';
-import ruFederation from '../locales/ru/federation.json';
-import zhFederation from '../locales/zh/federation.json';
-import ruDm from '../locales/ru/dm.json';
 import enErrors from '../locales/en/errors.json';
 import ptErrors from '../locales/pt/errors.json';
 import deErrors from '../locales/de/errors.json';
@@ -82,12 +79,8 @@ describe('contextual product terminology', () => {
   it('distinguishes an exhausted invitation limit from extending its expiry in Russian', () => {
     expect(ruAuth.register.invite.exhausted).toContain('увеличить лимит');
   });
-  it('describes a target-specific credential naturally while retaining the Chinese password warning', () => {
-    expect(zhAuth.join.connect.passwordNote).toBe('您的密码由主实例验证，绝不会发送给 {{host}}。该实例会收到专门为它生成的独立凭据。');
-  });
   it('keeps general Chinese DM copy in the existing respectful register', () => {
-    for (const value of [zhDm.callDelivery.acceptDropped, zhDm.callDelivery.rejectFailed, zhDm.callDelivery.endFailed,
-      zhDm.callDelivery.awaitingApproval, zhDm.addMember.yourBots, zhDm.ownerActions.ownerNotListed]) {
+    for (const value of [zhDm.addMember.yourBots]) {
       expect(value).not.toContain('你');
       expect(value).toContain('您');
     }
@@ -98,25 +91,9 @@ describe('contextual product terminology', () => {
   it('describes discovery availability naturally in Portuguese', () => {
     expect(ptSocial.add.noDiscoverable).toBe('Ainda não há perfis disponíveis para descoberta. Convide pessoas para participar!');
   });
-  it('retains the established Russian server term for a Veyvox deployment', () => {
-    for (const value of [ruFederation.validation.selfInstance, ruFederation.validation.alreadyConnected,
-      ruFederation.validation.connectHomeFirst, ruFederation.validation.authenticationFailed,
-      ruDm.callDelivery.remoteInstance, ruDm.callDelivery.hostInstance, ruDm.callDelivery.voiceUnavailable]) expect(value).toContain('сервер');
-    expect(ruFederation.admin.peer.rotateEvery_one).toBe('Раз в {{count}} день');
-  });
-  it('retains respectful Chinese federation copy and exact re-peer navigation labels', () => {
-    for (const value of [zhFederation.validation.selfInstance, zhFederation.validation.notLoggedIn,
-      zhFederation.validation.connectHomeFirst, zhFederation.feedback.pendingRequests_other,
-      zhFederation.feedback.requestApproved, zhFederation.feedback.requestDenied, zhFederation.feedback.requestExpired]) {
-      expect(value).not.toContain('你');
-      expect(value).toContain('您');
-    }
-    expect(zhFederation.connections.add.passwordHint).toBe(zhAuth.join.connect.passwordNote);
-    expect(zhFederation.admin.peer.reasonDetail.peer_reset_detected).toContain(zhFederation.admin.resetCleanup.repeer);
-  });
   it('uses the same Latin username alphabet in wire-error copy as the input validation', () => {
     for (const catalog of [enErrors, ptErrors, deErrors, ruErrors, zhErrors]) {
-      for (const key of ['username_invalid', 'username_characters_invalid', 'username_local_part_invalid', 'bot_name_invalid'] as const) {
+      for (const key of ['username_invalid', 'username_characters_invalid', 'bot_name_invalid'] as const) {
         expect(catalog[key]).toContain('a–z');
         expect(catalog[key]).toContain('0–9');
       }
@@ -127,11 +104,8 @@ describe('contextual product terminology', () => {
     expect(deErrors.soundboard_disabled).toContain('Space');
     expect(deErrors.soundboard_disabled).toContain('Soundboard');
   });
-  it('distinguishes remote from local instances and uses the real Russian request tab', () => {
+  it('uses the real Russian request tab in native refusal copy', () => {
     expect(ruErrors.incoming_request_exists).toContain(ruSocial.tabs.pending);
-    expect(ruErrors.PEER_REVOKED).toContain('Удалённый сервер');
-    expect(deErrors.PEER_REVOKED).toContain('andere Instanz');
-    expect(ruErrors.PEER_HANDSHAKE_IN_PROGRESS).not.toContain('через минуту');
   });
   it('describes file retention age and stale upload sessions rather than a person or only cancelled uploads', () => {
     expect(enErrors.cleanup_age_invalid).toContain('retention period');
@@ -150,16 +124,12 @@ describe('contextual product terminology', () => {
     expect(deErrors.space_visibility_invalid).toContain('Beitritt auf Anfrage');
     expect(ruErrors.space_visibility_invalid).toContain('По запросу');
   });
-  it('keeps bot instance terminology and managed-role lifecycle explicit', () => {
-    for (const key of ['bots_native_only', 'bot_home_not_peered', 'bot_revocation_pending', 'bot_blocked', 'bot_block_not_federated'] as const) expect(ruErrors[key]).toContain('сервер');
+  it('keeps the native managed-role lifecycle explicit', () => {
     expect(enErrors.role_managed_by_bot).toContain('removed with it');
     expect(ptErrors.role_managed_by_bot).toContain('gerenciado');
     expect(deErrors.role_managed_by_bot).toContain('entfernt');
     expect(ruErrors.role_managed_by_bot).toContain('удаляется');
     expect(zhErrors.role_managed_by_bot).toContain('身份组');
-  });
-  it('distinguishes detached identities from a merely disconnected German session', () => {
-    expect(deSettings.account.detached.notice).toContain('abgekoppelt');
   });
   it('names the actual Russian people-discovery heading and retains respectful Chinese settings prose', () => {
     expect(ruSettings.privacy.discovery.description).toContain(ruSocial.add.discover);
@@ -215,7 +185,6 @@ describe('contextual product terminology', () => {
     expect(ruAdmin.invites.reinstateModal.descriptionLapsed).not.toContain('Срок действия');
     expect(zhAdmin.invites.redemptions.title).toContain('使用记录');
     expect(zhAdmin.invites.row.viewRedemptions).toContain('使用记录');
-    expect(deAdmin.registration.description).toContain('Erstellung lokaler Konten');
   });
   it('describes dangling attachment records and retention durations, not pending jobs', () => {
     expect(ptAdmin.storage.overview.danglingRecords).toBe('Registros sem mensagem');
@@ -227,20 +196,13 @@ describe('contextual product terminology', () => {
   it('uses clear rate-limit and disabled-lookup copy, and consistent native instance terms', () => {
     expect(ptAdmin.updates.rateLimited.title).toBe('Limite de consultas do GitHub atingido');
     expect(zhAdmin.updates.noLookups).toBe('不执行检查');
-    expect(ruAdmin.users.deleteDialog.blockBotHint).toContain('сервер');
-    expect(ruAdmin.users.blockedBots.description).toContain('сервер');
-    expect(deAdmin.users.deleteDialog.blockBotHint).toContain('Heimatinstanz');
   });
-  it('identifies both home instances in Portuguese DM storage notices and describes recent messages naturally', () => {
-    expect(ptChat.list.welcome.dm.federatedNotice).toContain('sua instância de origem');
-    expect(ptChat.list.welcome.group.federatedNotice).toContain('sua instância de origem');
+  it('describes recent messages naturally in Portuguese', () => {
     expect(ptChat.list.jumpToPresent).toBe('Ir para as mensagens recentes');
   });
   it('avoids a refused-subcommand reference and gender placeholders in Russian system copy', () => {
     expect(ruChat.commands.subcommandRefused).toContain('Выберите подкоманду из списка');
     expect(ruChat.poke.received).toBe('{{actor}} толкает {{target}}');
-    expect(ruChat.stickers.sourceInstance).toBe('Сервер');
-    expect(ruChat.stickers.localInstance).toBe('Локальный сервер');
   });
   it('keeps ephemeral Chinese messages in the respectful chat register', () => {
     expect(zhChat.ephemeral.onlyYou).toContain('您');
@@ -262,10 +224,9 @@ describe('contextual product terminology', () => {
     expect(enSpaces.invite.retryFailed).toBe('Retry failed invites');
     expect(ruSpaces.invite.retryFailed).toContain('приглашения');
   });
-  it('keeps Chinese invitation copy and credential boundaries consistent with auth', () => {
+  it('keeps Chinese native invitation copy respectful', () => {
     expect(zhSpaces.inviteFriend.intro).not.toContain('你');
     expect(zhSpaces.inviteFriend.noSpaces).not.toContain('你');
-    expect(zhSpaces.join.connect.passwordNote).toBe(zhAuth.join.connect.passwordNote);
     expect(deSpaces.soundboardTab).toBe('Soundboard');
   });
   it('keeps bot invitation warnings scoped to the Space and uses consistent managed-role terms', () => {

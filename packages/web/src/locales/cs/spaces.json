@@ -160,21 +160,6 @@
     "invitePlaceholder": "např. abc123 či https://instance.com/join/abc123",
     "submit": "Vstoupit do prostoru",
     "submitting": "Vstupování…",
-    "connect": {
-      "intro": "Připoj se k <host>{{host}}</host> pro vstup do tohoto prostoru.",
-      "passwordLabel": "Zadej heslo pro připojení",
-      "passwordPlaceholder": "Heslo tvého účtu",
-      "passwordNote": "Heslo ověřuje domovská instance a nikdy se neposílá do {{host}}. Ta instance dostane jedinečné pověření vytvořené jen pro ni.",
-      "submit": "Připojit a vstoupit",
-      "submitting": "Připojování…"
-    },
-    "fallback": {
-      "usernamePlaceholder": "Tvé uživatelské jméno na této instanci",
-      "passwordLabel": "Heslo k této instanci",
-      "passwordPlaceholder": "Heslo na vzdálené instanci",
-      "submit": "Přihlásit a vstoupit",
-      "submitting": "Přihlašování…"
-    },
     "request": {
       "messagePlaceholder": "Proč se chceš přidat? (volitelné)",
       "send": "Poslat žádost",
@@ -460,8 +445,6 @@
       "transferOwnership": "Předat vlastnictví",
       "settings": "Nastavení prostoru",
       "leave": "Opustit prostor",
-      "reconnecting": "Nové připojování k {{instance}}…",
-      "remoteInstance": "vzdálená instance",
       "leaveConfirm": {
         "title": "Opustit prostor",
         "titleNamed": "Opustit {{name}}",

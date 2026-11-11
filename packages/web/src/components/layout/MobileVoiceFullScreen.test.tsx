@@ -83,7 +83,6 @@ function makeParticipant(overrides: Partial<any>): any {
     identity: '1:alice',
     userId: '1',
     username: 'alice',
-    homeUserId: null,
     isMuted: false,
     isDeafened: false,
     isCameraOn: false,
@@ -131,7 +130,6 @@ beforeEach(() => {
   } as any);
   useAuthStore.setState({
     user: { id: '1', username: 'alice', displayName: 'Alice' },
-    myRowIds: new Map(),
   } as any);
 });
 
@@ -342,53 +340,48 @@ describe('MobileVoiceFullScreen mute and deafen', () => {
 });
 
 describe('MobileVoiceFullScreen DM call title', () => {
-  const ORBIT = 'https://orbit.example';
-
-  function inDmCall(members: { id: string; username: string; displayName: string; homeInstance?: string; homeUserId?: string }[], origin: string) {
+  function inDmCall(members: { id: string; username: string; displayName: string }[]) {
     // A DM call has no voice channel: the call is the client's activeDmCall.
     useVoiceStore.setState({
       currentVoiceChannelId: null,
-      activeDmCall: { dmChannelId: 'dm-1', federatedCallId: null, callOrigin: null, livekit: null },
+      activeDmCall: { dmChannelId: 'dm-1' },
     });
     useSpaceStore.setState({
       dmChannels: [{ id: 'dm-1', ownerId: null, members } as unknown as DmChannel],
-      channelOriginMap: new Map([['dm-1', origin]]),
     });
   }
 
-  it('names the other members of a DM pinned to another instance, not the user', () => {
-    // orbit knows the user as o-7; orbit's own Bob has the id the session row has.
-    useAuthStore.setState({ myRowIds: new Map([[ORBIT, 'o-7']]) });
+  it('excludes the exact native self ID even with a retained handle', () => {
     inDmCall([
-      { id: 'o-7', username: 'alice@nova.example', displayName: 'Alice', homeInstance: 'nova.example', homeUserId: '1' },
-      { id: '1', username: 'bob', displayName: 'Bob' },
-    ], ORBIT);
+      { id: '1', username: 'alice@retained.test', displayName: 'Alice' },
+      { id: '2', username: 'bob', displayName: 'Bob' },
+    ]);
     renderScreen();
     expect(screen.getByText('Bob')).toBeInTheDocument();
     expect(screen.queryByText('Alice')).not.toBeInTheDocument();
   });
 
-  it('names a call by its conversation when the instance that rang it has no copy', () => {
+  it('does not use an unrelated native conversation when the active DM is absent', () => {
     useVoiceStore.setState({
       currentVoiceChannelId: null,
-      activeDmCall: { dmChannelId: null, federatedCallId: 'key-1', callOrigin: ORBIT, livekit: null },
+      activeDmCall: { dmChannelId: 'dm-missing' },
     });
     useSpaceStore.setState({
-      dmChannels: [{ id: 'dm-copy', federatedId: 'key-1', ownerId: null, members: [
+      dmChannels: [{ id: 'other-dm', ownerId: null, members: [
         { id: '1', username: 'alice', displayName: 'Alice' },
         { id: '2', username: 'bob', displayName: 'Bob' },
       ] } as unknown as DmChannel],
-      channelOriginMap: new Map([['dm-copy', '']]),
     });
     renderScreen();
-    expect(screen.getByText('Bob')).toBeInTheDocument();
+    expect(screen.getByText('DM Call')).toBeInTheDocument();
+    expect(screen.queryByText('Bob')).toBeNull();
   });
 
   it('names the other member of a DM on the page instance', () => {
     inDmCall([
       { id: '1', username: 'alice', displayName: 'Alice' },
       { id: '2', username: 'bob', displayName: 'Bob' },
-    ], '');
+    ]);
     renderScreen();
     expect(screen.getByText('Bob')).toBeInTheDocument();
     expect(screen.queryByText('Alice')).not.toBeInTheDocument();

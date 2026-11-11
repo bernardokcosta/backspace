@@ -5,6 +5,7 @@ Source files:
 - `packages/server/src/utils/embedResolver.ts` — URL extraction, embed resolution pipeline, DB persistence, batch fetching
 - `packages/server/src/utils/metadataFetcher.ts` — OpenGraph/HTML metadata scraping with Cheerio
 - `packages/server/src/utils/ssrf.ts` — SSRF protection (URL validation, DNS resolution, per-hop redirect re-validation)
+- `packages/server/src/utils/safeFetchTransport.ts` — private pinned Node HTTP(S) adapter and bounded streaming decompression
 - `packages/server/src/utils/ipClass.ts` (address classification: parses an IPv4, IPv6 or IPv4-mapped IPv6 address and reports which range it falls in)
 - `packages/web/src/components/chat/EmbedRenderer.tsx` — Client-side embed routing by type
 - `packages/web/src/components/chat/embeds/GenericEmbed.tsx` — Generic link preview card
@@ -140,19 +141,27 @@ Invalid URLs (fail `new URL()` parsing): same as fallthrough.
 
 `ssrf.ts:validateExternalUrl()` and `ssrf.ts:safeFetch()`
 
-All outbound fetches to user- or peer-supplied URLs go through `safeFetch()`, which validates the target with `validateExternalUrl()` (below) and re-validates the destination of every redirect hop. `validateExternalUrl()` throws on any violation.
+Native metadata and image probes use `safeFetch()`. The public
+`validateExternalUrl()` remains a validation-only seam; only `safeFetch` passes its
+validated destination to the private adapter. No approved-peer/private-network
+bypass, global fetch re-resolution or code-unit taint reconstruction remains.
 
 ### Validation Steps
 
 1. **URL parsing** — `new URL(url)` must succeed
 2. **Scheme check** — only `http:` and `https:` allowed
-3. **DNS resolution** — `dns.promises.lookup(hostname)` resolves hostname to IP
-4. **Private IP check** — `isPrivateIp(address)` rejects anything that is not a publicly routable address
+3. **Credentials/DNS** — embedded username/password is refused. Hostnames resolve
+   with `dns.promises.lookup(hostname, { all: true })`; IP literals are classified
+   directly without DNS.
+4. **Address check** — every returned A/AAAA address must have a valid matching
+   family and be publicly routable. Mixed unsafe answer sets are refused.
+5. **Connection pin** — the first validated address alone is returned by the
+   socket's custom lookup, with `autoSelectFamily: false` and `agent: false`.
+   The logical hostname/port remains the Host and TLS certificate identity/SNI;
+   default certificate verification is never disabled.
 
-Step 3 resolves `URL.hostname` with the square brackets around an IPv6 literal
-stripped first, because `dns.lookup` does not accept them. That is also what
-makes an IPv6-literal URL usable: with the brackets attached, resolution always
-failed and the URL was refused for the wrong reason.
+Literal IPv6 brackets are stripped for classification and connection identity,
+not handed to a DNS resolver. Valid public IPv4/IPv6 literals remain supported.
 
 ### Blocked IP Ranges
 
@@ -198,9 +207,27 @@ worse than none at all, because callers read `public` as permission.
 
 ### Redirect Handling
 
-Outbound fetches use `safeFetch()` (`ssrf.ts`), which follows redirects **manually** (`redirect: 'manual'`) and runs `validateExternalUrl()` against every hop's destination before following it, capped at 5 redirects. A redirect from a public host to a private/internal address (loopback, link-local, RFC1918) is therefore blocked, closing the redirect-based SSRF bypass. Callers — `fetchUrlMetadata`, `probeRemoteImageDimensions`, and `fetchSpaceInviteSnapshot` — all route through `safeFetch` rather than calling `validateExternalUrl` + `fetch` separately.
+`safeFetch()` follows 301/302/303/307/308 redirects manually, at most five.
+Every prior body is canceled before validating the next URL/address. Cross-origin
+redirects forward only public preview headers (Accept, Accept-Language,
+Accept-Encoding, User-Agent and Range), never authorization, cookies or API-key
+headers. Foreign space invites no longer fetch snapshots: they are refused.
 
-**Residual:** `validateExternalUrl` resolves DNS and `fetch` resolves again, leaving a narrow DNS-rebinding TOCTOU window. Closing it fully requires pinning the resolved IP at connect time via a custom dispatcher; the redirect re-validation closes the practical, attacker-controlled bypass.
+One 5,000ms default lifetime covers resolution, all redirects, headers and body;
+caller abort remains effective throughout. The private adapter allows GET/HEAD
+only. Unsupported request options, bodies and host/connection override headers
+are refused, not silently ignored. Response streaming preserves backpressure;
+gzip, zlib-deflate and Brotli have independent **512,000-byte wire and decoded
+caps**. Invalid encoding/status, abort, byte overflow or body cancellation closes
+the source/decoder/request, rather than leaving a socket running. Decoded responses
+omit their stale Content-Encoding/Content-Length; HEAD/204/205/304 have no body.
+
+The socket is pinned; subsequent DNS changes cannot select another destination.
+All-address validation deliberately refuses mixed public/private DNS sets, and a
+connection failure on the selected pin does not fall back to an unvalidated one.
+Tests substitute only the private connector for disposable loopback recorders;
+there is no production allow-private switch. TLS option/hostname preservation and
+certificate-error propagation are tested; this is not an OS trust-store test.
 
 ---
 
@@ -214,7 +241,9 @@ Outbound fetches use `safeFetch()` (`ssrf.ts`), which follows redirects **manual
 2. Request sent with `User-Agent: BackspaceBot/1.0`, 5-second timeout via `AbortController`
 3. **Content-Type detection** — if response is `image/*`, `video/*`, or `audio/*`, returns early with `contentType` field set (no HTML parsing)
 4. **Size guard** — rejects responses with `Content-Length > 512KB`
-5. **Stream-read with hard limit** — reads body via `ReadableStream`, stops at 512KB even for chunked (unknown-length) responses
+5. **Stream-read with hard limit** — accepts at most 512,000 complete decoded
+   bytes; overflow returns `null`, not a partially parsed preview. The 5s controller
+   stays active through consumption. Every early return cancels its body/reader.
 6. **HTML parsing** via Cheerio
 
 ### Metadata Extraction
@@ -322,7 +351,10 @@ Used for direct image URLs where dimensions are unknown (not provided by OG tags
 1. **SSRF-validated fetch** — `safeFetch(url)` validates the URL and every redirect hop; a block throws and is caught to return `null`
 2. **Range request** — fetches first 32KB (`PROBE_BYTES = 32_768`) with header `Range: bytes=0-32767`
 3. **Timeout** — 3-second abort (`PROBE_TIMEOUT_MS = 3_000`)
-4. **Graceful body read** — reads up to `PROBE_BYTES` via `ReadableStream`, then aggressively cancels the connection via `reader.cancel()`
+4. **Graceful body read** — copies at most `PROBE_BYTES` before retention/Sharp,
+   including when the server ignores Range and emits one oversized chunk, then
+   cancels/releases the reader. The 3s controller covers headers and body; rejected
+   responses are canceled too.
 5. **Dimension extraction** — passes buffer to `sharp(buffer).metadata()`, returns `{width, height}` if both are positive integers
 
 ### Headers
@@ -360,7 +392,7 @@ If no embeds were resolved (all URLs skipped or failed), no event is broadcast.
 `useWebSocket.ts` handles both events by patching the message in `useChatStore`:
 1. Finds the message array for the channel/DM
 2. Maps over messages, replacing the `embeds` array for the matching `messageId`
-3. For federated contexts (`!isHome`): resolves relative image URLs via `resolveAssetUrl(embed.image, origin)`
+3. Resolves native asset URLs against the selected server; no per-message peer origin or alternate credentials are used.
 
 ---
 

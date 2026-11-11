@@ -18,7 +18,6 @@ vi.mock('../../stores/spaceStore', () => ({
       channelToSpaceMap: new Map([['channel-a', 'space-a'], ['channel-b', 'space-b']]),
       channelOriginMap: new Map(),
     }),
-  getApiForOrigin: vi.fn(),
   getMyUserIdForOrigin: vi.fn(),
 }));
 vi.mock('../../stores/authStore', () => ({

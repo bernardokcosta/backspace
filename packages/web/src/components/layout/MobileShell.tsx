@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import { useUIStore } from '../../stores/uiStore';
 import { useVoiceStore } from '../../stores/voiceStore';
@@ -28,31 +27,11 @@ import {
   GeneralPanel,
   UpdatesPanel,
   RegistrationPanel,
-  FederationPanel,
   StreamingPanel,
   StoragePanel,
   UsersPanel,
   SettingsPanelSuspense,
 } from '../modals/lazySettingsPanels';
-
-/**
- * Wrapper for the Federation sub-panel that forwards FederationPanel's
- * approval-count callback into the shared uiStore slot read by
- * MobileInstancePanel — this keeps the badge live while the admin is inside
- * the panel approving/denying requests.
- */
-function MobileFederationPanelWrapper() {
-  const { t } = useTranslation('settings');
-  const setApprovalCount = useUIStore((s) => s.setFederationApprovalCount);
-  return (
-    <div className="flex flex-col h-full bg-surface-base">
-      <MobileScreenHeader title={t('instance.tabs.federation')} rightActions={<TransferIndicator />} />
-      <div className="flex-1 overflow-y-auto p-4">
-        <SettingsPanelSuspense><FederationPanel onApprovalCountChange={setApprovalCount} /></SettingsPanelSuspense>
-      </div>
-    </div>
-  );
-}
 
 export const mobileScreenMap: Readonly<Record<string, (params?: Record<string, string>) => React.ReactNode>> = {
   'channel-chat': (params) => <MobileChatScreen params={params} />,
@@ -62,7 +41,6 @@ export const mobileScreenMap: Readonly<Record<string, (params?: Record<string, s
   'settings-appearance': () => <MobileSettingsScreen initialPanel="appearance" />,
   'settings-voice': () => <MobileSettingsScreen initialPanel="voice" />,
   'settings-privacy': () => <MobileSettingsScreen initialPanel="privacy" />,
-  'settings-connections': () => <MobileSettingsScreen initialPanel="connections" />,
   'settings-keybinds': () => <MobileSettingsScreen initialPanel="keybinds" />,
   'settings-desktop': () => <MobileSettingsScreen initialPanel="desktop" />,
   'settings-developer': () => <MobileSettingsScreen initialPanel="developer" />,
@@ -80,7 +58,6 @@ export const mobileScreenMap: Readonly<Record<string, (params?: Record<string, s
       <div className="flex-1 overflow-y-auto p-4"><SettingsPanelSuspense><RegistrationPanel /></SettingsPanelSuspense></div>
     </div>
   ),
-  'settings-instance-federation': () => <MobileFederationPanelWrapper />,
   'settings-instance-streaming': () => (
     <div className="flex flex-col h-full bg-surface-base">
       <MobileScreenHeader title={i18n.t('settings:instance.tabs.streaming')} rightActions={<TransferIndicator />} />

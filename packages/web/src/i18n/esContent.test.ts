@@ -5,7 +5,6 @@ import chat from '../locales/es/chat.json';
 import common from '../locales/es/common.json';
 import dm from '../locales/es/dm.json';
 import errors from '../locales/es/errors.json';
-import federation from '../locales/es/federation.json';
 import settings from '../locales/es/settings.json';
 import social from '../locales/es/social.json';
 import spaces from '../locales/es/spaces.json';
@@ -18,14 +17,6 @@ describe('Spanish contextual content', () => {
     expect(admin.storage.stale.description).toContain('DELETE');
   });
 
-  it('uses count-neutral cleanup labels for interpolated singular or plural noun phrases', () => {
-    const summary = federation.admin.resetCleanup.eventSummary;
-    expect(summary).toContain('Limpieza automática: {{identities}}');
-    expect(summary).toContain('desvinculación de cuentas con contenido local: {{accounts}}');
-    expect(summary).not.toContain('se han limpiado automáticamente {{identities}}');
-    expect(summary).toContain('conservan el acceso con su contraseña actual');
-  });
-
   it('uses plural agreement when deleting a channel together with all its messages', () => {
     for (const value of [spaces.channel.delete.description, spaces.channel.delete.descriptionVoice,
       spaces.channels.deleteConfirm.description]) expect(value).toContain('Se eliminarán');
@@ -34,14 +25,6 @@ describe('Spanish contextual content', () => {
   it('names the notification action without an ambiguous plural pronoun', () => {
     expect(spaces.notifications.mute.indefinite).toBe('Hasta reactivar notificaciones');
     expect(spaces.notifications.unmute).toBe('Reactivar notificaciones');
-  });
-
-  it('shares password-isolation warnings across all three connection surfaces', () => {
-    expect(auth.join.connect.passwordNote).toBe(spaces.join.connect.passwordNote);
-    expect(auth.join.connect.passwordNote).toBe(federation.connections.add.passwordHint);
-    expect(auth.join.connect.passwordNote).toContain('nunca la envía a {{host}}');
-    expect(chat.list.welcome.dm.federatedNotice).toContain('No están cifrados de extremo a extremo');
-    expect(chat.list.welcome.group.federatedNotice).toContain('No están cifrados de extremo a extremo');
   });
 
   it('uses software bot names and explicit Latin account-name alphabets', () => {

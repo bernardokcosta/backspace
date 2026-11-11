@@ -1,8 +1,8 @@
 # Juno: native voice games
 
 Juno is an original, self-hosted 2–4 player shedding-card game for **space voice
-channels**. It works in client-federated spaces through the hosting instance's
-existing authenticated connection. DMs and platform bot accounts are not supported.
+channels**. It uses the selected native server's authenticated connection.
+DMs and platform bot accounts are not supported.
 The host can add built-in computer opponents for practice. Active tables
 are ephemeral; completed-round XP is durable and belongs to its hosting space.
 Supplied original artwork is served locally; no external game/image service or
@@ -105,18 +105,11 @@ XP combines all channels in one space, never other spaces/instances. Channel
 deletion sets the history channel FK to null; space deletion cascades history and
 totals. Leaving/kicking hides the member without deleting their progression;
 rejoining the same account restores visibility. `tombstoneUser` explicitly erases
-personal stats/participant rows, retaining the nonpersonal round key. Authorized
-reattachment merges existing awards once per round (higher award if both rows
-participated), rebuilds totals, then deletes the source stub in the same existing
-transaction. Detachment retains the host user id and therefore its progression.
-
-If credit is still pending during an authorized reattachment, the committed merge
-emits `juno:account-merged` **only on the application's HTTP-server emitter**, not
-on WebSocket or S2S. The existing Juno route redirects that round's private award
-recipients after commit; original places/counts remain frozen. Retries consolidate
-two merged starters into their higher award with one counter increment, while
-still excluding an erased target. Rolled-back merges redirect nothing. This never
-transfers a live seat/private hand; the listener is removed with the room owner.
+personal stats/participant rows, retaining the nonpersonal round key. Native
+accounts keep their original IDs and progression through the standalone upgrade.
+The retired identity-merge transaction, event listener and pending-award redirects
+are removed. Each frozen starter receives only their own award; retries retain
+the original winner and placements and never recreate erased accounts.
 
 `GET /api/spaces/:spaceId/juno/ranking?limit=25&offset=0` requires a current human,
 non-deleted, non-banned member, not voice presence. Limit is 1–50; offset is an
@@ -378,9 +371,9 @@ victory/XP stability, receipt-anchored countdowns and older hosts.
 `test/juno-e2e.test.ts` boots the actual server against unique temporary storage,
 opens five authenticated WS voice sessions, and plays a complete four-player
 round with a spectator while checking private-hand isolation, then a second voice
-channel, restart durability and independent space. The progression federation
-suite verifies host-issued identities and separate instance totals. SQLite suites
-cover rollback/retry, duplicate credits, paging/ties, erasure, merges and upgrades.
+channel, restart durability and independent space. Native progression suites
+verify authenticated identities and separate space totals. SQLite suites cover
+rollback/retry, duplicate credits, paging/ties, erasure and upgrades.
 It tests real game
 HTTP/WS and signaling, **not** LiveKit media or a four-device call. Browser visual
 checks use the actual React table with controlled fixture state; they are not

@@ -16,17 +16,16 @@ import {
   DisconnectReason,
   TrackEvent,
 } from 'livekit-client';
-import { getApiForOrigin, getChannelOrigin, getMyUserIdForOrigin, useSpaceStore } from '../stores/spaceStore';
-import { homeIdentityOf } from '../utils/identity';
-import { refreshStreamHostLimits, useStreamHostLimits } from '../utils/streamHostLimits';
+import { api } from '../api/client';
+import { useSpaceStore } from '../stores/spaceStore';
+import { useSettingsStore } from '../stores/settingsStore';
 import { wsSend } from './useWebSocket';
 import { useVoiceStore, type VoiceConnectionQuality } from '../stores/voiceStore';
-import { myRowForOrigin } from '../stores/authStore';
+import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
 import type { User } from '@veyvox/shared';
 import { broadcastVoiceStatus, clearSpaceVoiceForDmCall } from '../utils/voice';
 import { consumeIntentionalCameraOff, markIntentionalCameraOff } from '../utils/voiceActions';
-import { dmCallChannelId, dmCallOrigin, dmCallRoomKey, voiceSessionOrigin } from '../utils/dmCall';
 import { AudioManager } from '../audio/AudioManager';
 import { SpeakingDetector } from '../audio/SpeakingDetector';
 import {
@@ -96,7 +95,6 @@ export interface ParticipantInfo {
   identity: string;
   userId: string;
   username: string;
-  homeUserId: string | null;
   isMuted: boolean;
   isDeafened: boolean;
   isCameraOn: boolean;
@@ -185,33 +183,12 @@ export function parseIdentity(identity: string): { userId: string; username: str
 }
 
 /**
- * The userId this client knows a LiveKit participant by. In a federated DM call
- * the identity carries the member's home id, which is resolved to the DM
- * member's local id; otherwise it is the identity's own id. `updateParticipants`
- * lists participants under it, and stream state (`watchingStreams`, stream
- * volume and mute) is keyed by it, since `StreamTile` watches by the listed id.
- * Reads only the DM membership, never the participant list, so it still
- * resolves while a participant who is leaving has already been dropped from it.
- */
-function resolveParticipantUserId(identity: string): string {
-  const rawId = parseIdentity(identity).userId;
-  const activeDmCall = useVoiceStore.getState().activeDmCall;
-  if (!activeDmCall) return rawId;
-  const dmId = dmCallChannelId(activeDmCall);
-  const dmChannel = dmId ? useSpaceStore.getState().dmChannels.find((d) => d.id === dmId) : undefined;
-  // The identity names the member by their row id here or by their home id.
-  const origin = dmId ? getChannelOrigin(dmId) : dmCallOrigin(activeDmCall);
-  const match = dmChannel?.members.find((m) => m.id === rawId || homeIdentityOf(m, origin)?.userId === rawId);
-  return match?.id ?? rawId;
-}
-
-/**
  * A remote screen share ended. When this viewer was watching it, the share is
  * remembered for a while with its volume and mute (`StreamResumeMemory`), in
  * case a full reconnect ended it.
  */
 function rememberWatchedShare(memory: StreamResumeMemory, identity: string): void {
-  const userId = resolveParticipantUserId(identity);
+  const userId = parseIdentity(identity).userId;
   const state = useVoiceStore.getState();
   if (!state.watchingStreams.has(userId)) return;
   memory.rememberEnded(identity, { volume: state.streamVolumes.get(userId), muted: state.streamMutes.get(userId) });
@@ -224,7 +201,7 @@ function rememberWatchedShare(memory: StreamResumeMemory, identity: string): voi
  * dropped it there). No cue plays here: nobody clicked anything.
  */
 function resumeRemoteStream(room: Room, identity: string, stream: RememberedStream): void {
-  const userId = resolveParticipantUserId(identity);
+  const userId = parseIdentity(identity).userId;
   const state = useVoiceStore.getState();
   state.watchStream(userId);
   if (stream.volume !== undefined) state.setStreamVolume(userId, stream.volume);
@@ -247,7 +224,7 @@ function resumeIfPublished(room: Room, memory: StreamResumeMemory, identity: str
 
 /** A remote screen share ended: drop the watch and the per-stream audio settings. */
 function endRemoteStream(identity: string): void {
-  const userId = resolveParticipantUserId(identity);
+  const userId = parseIdentity(identity).userId;
   const state = useVoiceStore.getState();
   state.unwatchStream(userId);
   state.clearStreamVolume(userId);
@@ -324,7 +301,7 @@ export function useLiveKit() {
   const screenShareConfig = useVoiceStore((s) => s.screenShareConfig);
   // The host's limits shape the effective config, so a document that arrives
   // after the share started must reach the running encoder too.
-  const { limits: streamHostLimits } = useStreamHostLimits();
+  const streamingLimits = useSettingsStore(state => state.streamingLimits);
   const voiceUserStates = useVoiceStore((s) => s.voiceUserStates);
   const spaceMutedUserIds = useVoiceStore((s) => s.spaceMutedUserIds);
   const spaceDeafenedUserIds = useVoiceStore((s) => s.spaceDeafenedUserIds);
@@ -359,25 +336,21 @@ export function useLiveKit() {
     const processParticipant = (p: Participant, isLocal: boolean) => {
       if (!p.identity) return;
       const { username } = parseIdentity(p.identity);
-      const userId = resolveParticipantUserId(p.identity);
+      const userId = parseIdentity(p.identity).userId;
 
       const memberMatch = useSpaceStore.getState().members.find(m => m.userId === userId);
       let cachedUser: User | null;
-      let homeUserId: string | null;
 
       if (memberMatch) {
         // Fresh data available — use and update cache
         cachedUser = memberMatch.user as User;
-        homeUserId = memberMatch.user.homeUserId ?? null;
       } else if (isLocal) {
-        // Local user safety net: the user's row as the instance hosting the
-        // call issues it, the origin `useVoiceParticipantMeta` reads it with.
-        cachedUser = myRowForOrigin(voiceSessionOrigin(useVoiceStore.getState()));
-        homeUserId = cachedUser?.homeUserId ?? null;
+        cachedUser = useAuthStore.getState().user;
       } else {
         // Space switched — carry forward from previous cycle
-        cachedUser = prevCacheMap.get(p.identity) ?? null;
-        homeUserId = cachedUser?.homeUserId ?? null;
+        const state = useSpaceStore.getState();
+        cachedUser = state.dmChannels.find(dm => dm.id === useVoiceStore.getState().activeDmCall?.dmChannelId)?.members.find(member => member.id === userId)
+          ?? prevCacheMap.get(p.identity) ?? null;
       }
       let audioTrack: MediaStreamTrack | null = null;
       let videoTrack: MediaStreamTrack | null = null;
@@ -416,8 +389,7 @@ export function useLiveKit() {
         // Compute effective state: user intent || server enforcement
         const vs = useVoiceStore.getState();
         const cvId = vs.currentVoiceChannelId;
-        const localOrigin = cvId ? getChannelOrigin(cvId) : '';
-        const localMyId = cvId ? getMyUserIdForOrigin(localOrigin) : undefined;
+        const localMyId = useAuthStore.getState().user?.id;
         const localSpaceId = cvId ? useSpaceStore.getState().channelToSpaceMap.get(cvId) : null;
         const localKey = (localSpaceId && localMyId) ? `${localSpaceId}:${localMyId}` : '';
         isPartMuted = vs.isMuted || vs.spaceMutedUserIds.has(localKey) || vs.permissionMutedUserIds.has(localKey);
@@ -431,7 +403,6 @@ export function useLiveKit() {
         identity: p.identity,
         userId,
         username,
-        homeUserId,
         cachedUser,
         isMuted: isPartMuted,
         isDeafened: isPartDeafened,
@@ -522,8 +493,7 @@ export function useLiveKit() {
     // Compute effective mute/deafen: user intent || server enforcement
     const vs = useVoiceStore.getState();
     const cvId = vs.currentVoiceChannelId;
-    const effOrigin = cvId ? getChannelOrigin(cvId) : '';
-    const effMyId = cvId ? getMyUserIdForOrigin(effOrigin) : undefined;
+    const effMyId = useAuthStore.getState().user?.id;
     const effSpaceId = cvId ? useSpaceStore.getState().channelToSpaceMap.get(cvId) : null;
     const effKey = (effSpaceId && effMyId) ? `${effSpaceId}:${effMyId}` : '';
     const effectiveMuted = isMuted || spaceMutedUserIds.has(effKey) || permissionMutedUserIds.has(effKey);
@@ -740,9 +710,8 @@ export function useLiveKit() {
     // Register voice state with the WS server after LiveKit connects (not for DM calls)
     const registerWithServer = () => {
       if (isDm) return;
-      const origin = getChannelOrigin(channelId);
-      wsSend({ type: 'voice_join', channelId }, origin);
-      broadcastVoiceStatus(origin);
+      wsSend({ type: 'voice_join', channelId });
+      broadcastVoiceStatus();
     };
     const gen = ++_connectGeneration;
 
@@ -813,35 +782,10 @@ export function useLiveKit() {
     if (gen !== _connectGeneration) return;
     
     try {
-      let token: string;
-      let url: string;
-      // The instance that issues the token hosts the LiveKit room, so its
-      // streaming limits are the ones a screen share here obeys. Null when the
-      // token was relayed from a host this client has no session with.
-      let hostOrigin: string | null;
-
-      // A call hosted on another instance connects with the credentials its
-      // ring brought, once, and only for the call they came with.
-      const { activeDmCall } = useVoiceStore.getState();
-      const credentials = isDm && activeDmCall && dmCallRoomKey(activeDmCall) === channelId
-        ? activeDmCall.livekit
-        : null;
-      if (activeDmCall && credentials) {
-        token = credentials.token;
-        url = credentials.url;
-        hostOrigin = null;
-        useVoiceStore.setState({ activeDmCall: { ...activeDmCall, livekit: null } });
-      } else {
-        hostOrigin = getChannelOrigin(channelId);
-        const client = getApiForOrigin(hostOrigin);
-        const resp = isDm ? await client.livekit.dmToken(channelId) : await client.livekit.token(channelId);
-        token = resp.token;
-        url = resp.url;
-      }
+      // Media endpoint may be independently hosted; its private credentials
+      // are issued only by the authenticated current-server API.
+      const { token, url } = isDm ? await api.livekit.dmToken(channelId) : await api.livekit.token(channelId);
       if (gen !== _connectGeneration) return;
-      useVoiceStore.setState({ livekitHostOrigin: hostOrigin });
-      // Refreshed per join; home's document arrives with every home `ready`.
-      if (hostOrigin) void refreshStreamHostLimits(hostOrigin);
       const newRoom = new Room({ adaptiveStream: true, dynacast: true, publishDefaults: { videoCodec: 'h264', simulcast: true } });
       roomRef.current = newRoom;
       // This room's own tracker. Its handlers use it directly, and act only
@@ -868,8 +812,7 @@ export function useLiveKit() {
         // Notify new participant of our effective deafen state
         const vsConn = useVoiceStore.getState();
         const cvIdConn = vsConn.currentVoiceChannelId;
-        const connOrigin = cvIdConn ? getChannelOrigin(cvIdConn) : '';
-        const connMyId = cvIdConn ? getMyUserIdForOrigin(connOrigin) : undefined;
+        const connMyId = useAuthStore.getState().user?.id;
         const connSpaceId = cvIdConn ? useSpaceStore.getState().channelToSpaceMap.get(cvIdConn) : null;
         const connKey = (connSpaceId && connMyId) ? `${connSpaceId}:${connMyId}` : '';
         const effDeaf = vsConn.isDeafened || vsConn.spaceDeafenedUserIds.has(connKey);
@@ -1007,14 +950,14 @@ export function useLiveKit() {
           // Stream tracks follow the watch state, and the watch click only
           // subscribed what was published then. System Audio can be turned on
           // mid-stream, so audio arriving for a stream being watched joins it.
-          if (useVoiceStore.getState().watchingStreams.has(resolveParticipantUserId(participant.identity))) {
+          if (useVoiceStore.getState().watchingStreams.has(parseIdentity(participant.identity).userId)) {
             publication.setSubscribed(true);
           }
         } else if (republish.completeWithPublication(participant.identity)) {
           // The new track of an announced republish: a viewer who was watching
           // keeps watching without clicking Watch again. Its audio, published
           // after the video, is picked up by the branch above.
-          if (useVoiceStore.getState().watchingStreams.has(resolveParticipantUserId(participant.identity))) {
+          if (useVoiceStore.getState().watchingStreams.has(parseIdentity(participant.identity).userId)) {
             publication.setSubscribed(true);
           }
         } else {
@@ -1026,7 +969,7 @@ export function useLiveKit() {
             // A sidebar Assistir that set `watchingStreams` before the share
             // was published (join in flight): subscribe + ping now so one
             // click is enough. No cue here; it played at the click.
-            const watcherUserId = resolveParticipantUserId(participant.identity);
+            const watcherUserId = parseIdentity(participant.identity).userId;
             if (useVoiceStore.getState().watchingStreams.has(watcherUserId)) {
               publication.setSubscribed(true);
               newRoom.localParticipant
@@ -1181,7 +1124,7 @@ export function useLiveKit() {
             (pub as RemoteTrackPublication).setSubscribed(true);
             return;
           }
-          const watcherUserId = resolveParticipantUserId(rp.identity);
+          const watcherUserId = parseIdentity(rp.identity).userId;
           if (useVoiceStore.getState().watchingStreams.has(watcherUserId)) {
             (pub as RemoteTrackPublication).setSubscribed(true);
             if (pub.source === Track.Source.ScreenShare) {
@@ -1296,7 +1239,7 @@ export function useLiveKit() {
     };
     _activeTrackUpdate = _activeTrackUpdate.then(updateActiveTracks).catch(() => {});
     return () => { superseded = true; };
-  }, [room, screenShareConfig, streamHostLimits, isScreenSharing, isCameraOn]);
+  }, [room, screenShareConfig, streamingLimits, isScreenSharing, isCameraOn]);
 
   useEffect(() => {
     return () => {

@@ -11,10 +11,8 @@ import {
 // with the same comparison the routes enforce; this module only reads the
 // facts it compares from the database.
 //
-// Every id here is a user id on THIS instance. A moderator whose home is
-// another instance acts through their local replicated user (the id their
-// session authenticates as), and targets are named by their local id too, so
-// both sides of the comparison resolve against this instance's member rows.
+// Both the authenticated moderator and target use native account IDs;
+// comparisons resolve against this server's member rows.
 
 /** Where `userId` stands in `spaceId`'s role hierarchy. */
 export function getHierarchyStanding(spaceId: string, userId: string): HierarchyStanding {

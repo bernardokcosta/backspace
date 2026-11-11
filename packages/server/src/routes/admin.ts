@@ -1,17 +1,16 @@
 import type { FastifyInstance } from 'fastify';
 import crypto from 'crypto';
-import { eq, like, or, and, ne, sql, isNull, isNotNull, gte, lte, asc, desc } from 'drizzle-orm';
+import { eq, like, or, and, sql, gte, lte, asc, desc } from 'drizzle-orm';
 import { authenticate, requireAdmin, hashPassword } from '../utils/auth.js';
 import { getStorageStats, getOrphanedFiles, cleanupStorage, cleanupOldMedia, cleanupStaleTusSessions } from '../utils/storageJanitor.js';
 import { getDb, schema } from '../db/index.js';
 import { connectionManager } from '../ws/handler.js';
 import { checkVoicePermissions } from '../ws/events.js';
 import { tombstoneUser, collectDeletionBroadcastTargets } from '../utils/userDeletion.js';
-import { deleteUploadFile } from '../utils/fileCleanup.js';
+import { deleteUnreferencedUploadFiles } from '../utils/fileCleanup.js';
 import { sanitizeUser } from '../utils/sanitize.js';
 import { sendError, ERROR_MESSAGES } from '../utils/httpErrors.js';
-import type { AdminUser, AdminUserListResponse, AdminResetPasswordResponse, AdminBlockedBot } from '@veyvox/shared';
-import { extractDomain } from './federation.js';
+import type { AdminUser, AdminUserListResponse, AdminResetPasswordResponse } from '@veyvox/shared';
 
 function reasonOf(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
@@ -28,7 +27,6 @@ function toAdminUser(row: typeof schema.users.$inferSelect): AdminUser {
     isAdmin: row.isAdmin === 1,
     isBot: row.isBot === 1,
     isDeleted: row.isDeleted === 1,
-    homeInstance: row.homeInstance,
     createdAt: row.createdAt,
   };
 }
@@ -111,7 +109,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
   // ─── User Management ────────────────────────────────────────────────────
 
   // GET /api/admin/users — paginated user list with search
-  app.get<{ Querystring: { q?: string; page?: string; pageSize?: string; showDeleted?: string; homeInstance?: string; role?: string; joinedAfter?: string; joinedBefore?: string; sort?: string } }>(
+  app.get<{ Querystring: { q?: string; page?: string; pageSize?: string; showDeleted?: string; role?: string; joinedAfter?: string; joinedBefore?: string; sort?: string } }>(
     '/api/admin/users',
     { preHandler: [authenticate, requireAdmin] },
     async (request, reply) => {
@@ -131,14 +129,6 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
           like(schema.users.username, pattern),
           like(schema.users.displayName, pattern),
         )!);
-      }
-
-      // Instance filter
-      const homeInstanceFilter = request.query.homeInstance;
-      if (homeInstanceFilter === 'local') {
-        conditions.push(isNull(schema.users.homeInstance));
-      } else if (homeInstanceFilter) {
-        conditions.push(eq(schema.users.homeInstance, homeInstanceFilter));
       }
 
       // Role filter
@@ -200,17 +190,6 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
-  // GET /api/admin/users/instances — distinct home instance domains
-  app.get('/api/admin/users/instances', { preHandler: [authenticate, requireAdmin] }, async (_request, reply) => {
-    const db = getDb();
-    const rows = db.selectDistinct({ homeInstance: schema.users.homeInstance })
-      .from(schema.users)
-      .where(isNotNull(schema.users.homeInstance))
-      .all();
-    const instances = rows.map(r => r.homeInstance).filter(Boolean) as string[];
-    return reply.code(200).send({ instances });
-  });
-
   // PATCH /api/admin/users/:id/role — promote/demote admin
   app.patch<{ Params: { id: string }; Body: { isAdmin: boolean } }>(
     '/api/admin/users/:id/role',
@@ -230,11 +209,6 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
       }
       if (target.isDeleted === 1) {
         return sendError(reply, 400, 'deleted_user_role_change');
-      }
-
-      // Promote: block federated users
-      if (isAdmin && target.homeInstance) {
-        return sendError(reply, 403, 'federated_user_cannot_be_admin');
       }
 
       // Demote: prevent removing the last admin
@@ -293,9 +267,6 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
       if (target.isDeleted === 1) {
         return sendError(reply, 400, 'deleted_user_password_reset');
       }
-      if (target.homeInstance) {
-        return sendError(reply, 400, 'federated_user_password_managed_by_home');
-      }
 
       const temporaryPassword = crypto.randomBytes(12).toString('base64url');
       const hash = await hashPassword(temporaryPassword);
@@ -314,15 +285,11 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // DELETE /api/admin/users/:id — tombstone a user account.
-  // `?blockBot=1` on a bot of another instance also refuses its bot proof from
-  // now on, so it cannot register here again when its home comes back
-  // (bots.md, "Blocking a bot of another instance").
-  app.delete<{ Params: { id: string }; Querystring: { blockBot?: string } }>(
+  app.delete<{ Params: { id: string } }>(
     '/api/admin/users/:id',
     { preHandler: [authenticate, requireAdmin] },
     async (request, reply) => {
       const { id: targetId } = request.params;
-      const blockBot = request.query.blockBot === '1' || request.query.blockBot === 'true';
       const db = getDb();
 
       if (targetId === request.userId) {
@@ -353,28 +320,11 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         });
       }
 
-      if (blockBot && (target.isBot !== 1 || !target.homeInstance || !target.homeUserId)) {
-        return sendError(reply, 400, 'bot_block_not_federated');
-      }
-
-      // Before the tombstone: it renames the account and the block keeps the name.
-      if (blockBot) {
-        db.insert(schema.blockedBots).values({
-          homeInstance: extractDomain(target.homeInstance!).toLowerCase(),
-          homeUserId: target.homeUserId!,
-          username: target.username,
-          blockedBy: request.userId,
-          createdAt: Date.now(),
-        }).onConflictDoNothing().run();
-      }
-
       // Collect broadcast targets BEFORE tombstone deletes DB rows
       const { memberSpaceIds, targetUserIds } = collectDeletionBroadcastTargets(targetId);
 
       const filesToDelete = tombstoneUser(targetId);
-      for (const filename of filesToDelete) {
-        deleteUploadFile(filename);
-      }
+      deleteUnreferencedUploadFiles(filesToDelete);
 
       // Broadcast member_left to each space
       for (const spaceId of memberSpaceIds) {
@@ -401,121 +351,4 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
-  // GET /api/admin/blocked-bots — bots of other instances refused at registration
-  app.get('/api/admin/blocked-bots', { preHandler: [authenticate, requireAdmin] }, async (_request, reply) => {
-    const bots: AdminBlockedBot[] = getDb().select().from(schema.blockedBots)
-      .orderBy(desc(schema.blockedBots.createdAt))
-      .all();
-    return reply.send({ bots });
-  });
-
-  // DELETE /api/admin/blocked-bots/:homeInstance/:homeUserId — the bot may register again
-  app.delete<{ Params: { homeInstance: string; homeUserId: string } }>(
-    '/api/admin/blocked-bots/:homeInstance/:homeUserId',
-    { preHandler: [authenticate, requireAdmin] },
-    async (request, reply) => {
-      const { homeInstance, homeUserId } = request.params;
-      const removed = getDb().delete(schema.blockedBots).where(and(
-        eq(schema.blockedBots.homeInstance, homeInstance.toLowerCase()),
-        eq(schema.blockedBots.homeUserId, homeUserId),
-      )).run().changes;
-      if (removed === 0) return sendError(reply, 404, 'blocked_bot_not_found');
-      return reply.send({ success: true });
-    },
-  );
-
-  // Test-only: seed federation_peers row directly. STRICTLY gated by NODE_ENV='test'
-  // AND ENABLE_TEST_ROUTES='1'. Returns 404 in any other configuration. Used by
-  // the two-instance integration harness to wire up matching HMAC secrets between
-  // home and remote without running the multi-step approval flow.
-  app.post<{ Body: { origin: string; hmacSecret: string; status?: string; instanceName?: string } }>(
-    '/api/admin/test/seed-peer',
-    async (request, reply) => {
-      if (process.env.NODE_ENV !== 'test' || process.env.ENABLE_TEST_ROUTES !== '1') {
-        return reply.code(404).send({ error: 'Not Found', statusCode: 404 });
-      }
-      const { origin, hmacSecret, status, instanceName } = request.body;
-      if (typeof origin !== 'string' || !origin.startsWith('http')) {
-        return reply.code(400).send({ error: 'origin must be an http(s) URL', statusCode: 400 });
-      }
-      if (typeof hmacSecret !== 'string' || hmacSecret.length < 32) {
-        return reply.code(400).send({ error: 'hmacSecret must be a string ≥32 chars', statusCode: 400 });
-      }
-      const validStatuses = new Set(['active', 'pending', 'awaiting_approval', 'rejected', 'revoked', 'needs_attention', 'unreachable', 'accepted']);
-      if (status !== undefined && !validStatuses.has(status)) {
-        return reply.code(400).send({ error: `status must be one of ${[...validStatuses].join(', ')}`, statusCode: 400 });
-      }
-      const db = getDb();
-      const id = crypto.randomUUID();
-      db.insert(schema.federationPeers)
-        .values({
-          id,
-          origin,
-          instanceName: instanceName ?? null,
-          hmacSecret,
-          status: status ?? 'active',
-          consecutiveFailures: 0,
-          consecutiveAuthFailures: 0,
-          lastSyncedAt: 0,
-          nonceSupported: 1,
-          autoRotateIntervalDays: 90,
-          createdAt: Date.now(),
-        })
-        .onConflictDoUpdate({
-          target: schema.federationPeers.origin,
-          set: { hmacSecret, status: status ?? 'active', instanceName: instanceName ?? null },
-        })
-        .run();
-      return reply.code(200).send({ ok: true, id });
-    },
-  );
-
-  // Test-only: one pass of the bot revocation retries (utils/botRevocationQueue.ts)
-  // at the clock `at` (default now), and what it did. Gated exactly like
-  // seed-peer above. The worker ticks every 5 minutes; the bot revocation e2e
-  // suite runs a pass when the test says, with a clock past the row's next
-  // attempt.
-  app.post<{ Body: { at?: number } }>(
-    '/api/admin/test/bot-revocations/run',
-    async (request, reply) => {
-      if (process.env.NODE_ENV !== 'test' || process.env.ENABLE_TEST_ROUTES !== '1') {
-        return reply.code(404).send({ error: 'Not Found', statusCode: 404 });
-      }
-      const at = request.body?.at;
-      if (at !== undefined && (typeof at !== 'number' || !Number.isFinite(at))) {
-        return reply.code(400).send({ error: 'at must be a number', statusCode: 400 });
-      }
-      const { runBotRevocationRetries } = await import('../utils/botRevocationQueue.js');
-      return reply.code(200).send(await runBotRevocationRetries(at ?? Date.now()));
-    },
-  );
-
-  // Test-only: run one pull from a peer now, then the retry tick, and return
-  // what the pull did. Gated exactly like seed-peer above. The two-instance
-  // e2e suites use it so a pull happens when the test says, not on the
-  // periodic timer.
-  app.post<{ Body: { peerOrigin: string; contexts?: string[]; retryAt?: number } }>(
-    '/api/admin/test/federation/resync',
-    async (request, reply) => {
-      if (process.env.NODE_ENV !== 'test' || process.env.ENABLE_TEST_ROUTES !== '1') {
-        return reply.code(404).send({ error: 'Not Found', statusCode: 404 });
-      }
-      const { peerOrigin, contexts, retryAt } = request.body ?? {};
-      if (typeof peerOrigin !== 'string') {
-        return reply.code(400).send({ error: 'peerOrigin is required', statusCode: 400 });
-      }
-      const { ALL_SYNC_CONTEXTS, processSyncRetryTick, syncPeerMutationLog } = await import('../utils/federationSync.js');
-      const wanted = Array.isArray(contexts)
-        ? ALL_SYNC_CONTEXTS.filter(context => contexts.includes(context))
-        : ALL_SYNC_CONTEXTS;
-      const peer = getDb().select({ id: schema.federationPeers.id })
-        .from(schema.federationPeers)
-        .where(eq(schema.federationPeers.origin, peerOrigin))
-        .get();
-      if (!peer) return reply.code(404).send({ error: 'No such peer', statusCode: 404 });
-      const result = await syncPeerMutationLog(peer.id, 'manual', wanted);
-      const retried = await processSyncRetryTick(typeof retryAt === 'number' ? retryAt : Date.now());
-      return reply.code(200).send({ result, retried });
-    },
-  );
 }

@@ -1,28 +1,4 @@
 {
-  "callDelivery": {
-    "remoteInstance": "de externe instantie",
-    "hostInstance": "de hostinstantie",
-    "acceptDropped": "Kon je acceptatie niet bevestigen bij {{instance}} — het gesprek is weggevallen.",
-    "rejectFailed": "Kon {{instances}} niet laten weten dat je weigerde. De beller ziet je mogelijk kort als rinkelend.",
-    "endFailed": "Kon {{instances}} niet laten weten dat je ophing. Externe deelnemers zien het gesprek mogelijk tot 60 seconden.",
-    "hostUnreachable": "Gesprek beëindigd — hostinstantie onbereikbaar.",
-    "peeringLost": "Gesprek beëindigd — deze instantie is niet meer gekoppeld met {{instance}}.",
-    "instanceUnreachable": "Gesprek beëindigd — {{instance}} is onbereikbaar geworden.",
-    "someUnreachable": "Sommige deelnemers waren onbereikbaar: {{instances}}.",
-    "multipleUnreachable_one": "Kon {{count}} instantie niet bereiken: {{instances}}.",
-    "multipleUnreachable_other": "Kon {{count}} instanties niet bereiken: {{instances}}.",
-    "callFailed": "Gesprek kon niet worden gestart.",
-    "manualApproval": "Kan {{instance}} niet bereiken — deze instantie vereist handmatige goedkeuring voor koppeling.",
-    "awaitingApproval": "Wachten tot de beheerder van {{instance}} je instantie goedkeurt. Gesprekken werken na goedkeuring.",
-    "transientFailure": "Kon {{instance}} niet bereiken. Probeer het zo opnieuw.",
-    "voiceUnavailable": "Voice is niet ingesteld op deze instantie.",
-    "noRecipient": "{{instance}} kon niemand bellen.",
-    "targetCallFailed": "Gesprek naar {{instance}} kon niet worden gestart."
-  },
-  "feedback": {
-    "relayDenied": "Kan berichten niet doorsturen — hun server weigerde koppeling. Neem contact op met hun beheerder.",
-    "awaitingPeering": "Berichten worden afgeleverd zodra hun beheerder het koppelverzoek goedkeurt."
-  },
   "names": {
     "group": "Groep",
     "directMessage": "Privébericht",
@@ -162,12 +138,7 @@
     "notFound": "Gesprek niet gevonden.",
     "notGroup": "Dit gesprek heeft geen groepsinfo.",
     "cancelEdit": "Bewerken annuleren",
-    "federated": "Gefedereerde groep",
     "memberCount_one": "{{count}} lid",
     "memberCount_other": "{{count}} leden"
-  },
-  "ownerActions": {
-    "ownerNotConnected": "Deze groep wordt beheerd op {{host}}. Maak verbinding met die instantie om dit te wijzigen.",
-    "ownerNotListed": "{{host}} vermeldt deze groep nog niet voor je. Probeer het zo opnieuw."
   }
 }

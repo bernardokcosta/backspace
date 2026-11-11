@@ -1,14 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { soundboardWavDuration } from '@veyvox/shared/src/soundboard';
 import { SoundboardUpload } from './SoundboardUpload';
+import { useAuthStore } from '../../stores/authStore';
 
 const mocks = vi.hoisted(() => ({ decode: vi.fn(), upload: vi.fn(), start: vi.fn() }));
 vi.mock('../../audio/AudioManager', () => ({ AudioManager: { getInstance: () => ({
   ensureContext: () => ({ decodeAudioData: mocks.decode, createBufferSource: () => ({ connect: vi.fn(), disconnect: vi.fn(), stop: vi.fn(), start: mocks.start }) }),
   resumeContext: async () => {}, getMasterOutput: () => ({}),
 }) } }));
-vi.mock('../../utils/crossStoreResolvers', () => ({ getApiForOrigin: () => ({ soundboard: { upload: mocks.upload } }) }));
+vi.mock('../../api/client', async original => ({ ...await original<typeof import('../../api/client')>(), api: { soundboard: { upload: mocks.upload } } }));
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -26,7 +27,7 @@ afterEach(() => vi.unstubAllGlobals());
 describe('soundboard crop boundary UX', () => {
   it.each([[6.01, 16.01, 10], [0.5, 0.6, 0.1]])('previews and uploads selection %s → %s', async (start, end, duration) => {
     const done = vi.fn();
-    render(<SoundboardUpload origin="https://remote.test" spaceId="space" maxDuration={10} onDone={done} onCancel={vi.fn()} />);
+    render(<SoundboardUpload spaceId="space" maxDuration={10} onDone={done} onCancel={vi.fn()} />);
     const file = new File(['source'], 'Victory.wav', { type: 'audio/wav' });
     Object.defineProperty(file, 'arrayBuffer', { value: async () => new ArrayBuffer(0) });
     fireEvent.change(screen.getByLabelText('Choose audio'), { target: { files: [file] } });
@@ -49,7 +50,7 @@ describe('soundboard crop boundary UX', () => {
 
 describe('soundboard drag selection and limits UX', () => {
   const pickFile = async (maxDuration = 30) => {
-    render(<SoundboardUpload origin="https://remote.test" spaceId="space" maxDuration={maxDuration} onDone={vi.fn()} onCancel={vi.fn()} />);
+    render(<SoundboardUpload spaceId="space" maxDuration={maxDuration} onDone={vi.fn()} onCancel={vi.fn()} />);
     const file = new File(['source'], 'Victory.wav', { type: 'audio/wav' });
     Object.defineProperty(file, 'arrayBuffer', { value: async () => new ArrayBuffer(0) });
     fireEvent.change(screen.getByLabelText('Choose audio'), { target: { files: [file] } });
@@ -107,5 +108,19 @@ describe('soundboard drag selection and limits UX', () => {
     await pickFile();
     expect(screen.getByText('00:00')).toBeInTheDocument();
     expect(screen.getByText('00:20')).toBeInTheDocument();
+  });
+  it('never uploads an old selection when encoding completes in a replacement session', async () => {
+    let finish!: (value: { getChannelData: () => Float32Array }) => void;
+    const rendering = vi.fn(() => new Promise<{ getChannelData: () => Float32Array }>(resolve => { finish = resolve; }));
+    vi.stubGlobal('OfflineAudioContext', class {
+      destination = {};
+      createBufferSource() { return { connect: vi.fn(), start: vi.fn() }; }
+      startRendering = rendering;
+    });
+    await pickFile(); fireEvent.click(screen.getByRole('button', { name: 'Add sound' }));
+    await waitFor(() => expect(rendering).toHaveBeenCalledOnce());
+    act(() => useAuthStore.setState(state => ({ sessionRevision: state.sessionRevision + 1 })));
+    await act(async () => finish({ getChannelData: () => new Float32Array(48000) }));
+    expect(mocks.upload).not.toHaveBeenCalled();
   });
 });

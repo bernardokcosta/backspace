@@ -159,21 +159,6 @@
     "invitePlaceholder": "ad es. abc123 o https://istanza.com/join/abc123",
     "submit": "Entra nello spazio",
     "submitting": "Ingresso...",
-    "connect": {
-      "intro": "Collegati a <host>{{host}}</host> per entrare in questo spazio.",
-      "passwordLabel": "Inserisci la tua password per collegarti",
-      "passwordPlaceholder": "La password del tuo account",
-      "passwordNote": "La tua password viene verificata dalla tua istanza principale e non viene mai inviata a {{host}}. Quell’istanza riceve una credenziale unica generata solo per lei.",
-      "submit": "Collega ed entra",
-      "submitting": "Collegamento..."
-    },
-    "fallback": {
-      "usernamePlaceholder": "Il tuo nome utente su questa istanza",
-      "passwordLabel": "Password per questa istanza",
-      "passwordPlaceholder": "Password sull’istanza remota",
-      "submit": "Accedi ed entra",
-      "submitting": "Accesso in corso..."
-    },
     "request": {
       "messagePlaceholder": "Perché vuoi entrare? (facoltativo)",
       "send": "Invia richiesta",
@@ -455,8 +440,6 @@
       "transferOwnership": "Trasferisci proprietà",
       "settings": "Impostazioni dello spazio",
       "leave": "Esci dallo spazio",
-      "reconnecting": "Riconnessione a {{instance}}…",
-      "remoteInstance": "istanza remota",
       "leaveConfirm": {
         "title": "Esci dallo spazio",
         "titleNamed": "Esci da {{name}}",

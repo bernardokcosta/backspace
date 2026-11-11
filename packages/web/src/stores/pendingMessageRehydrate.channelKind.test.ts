@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
 import type { Channel, DmChannel } from '@veyvox/shared';
 
 vi.mock('../audio/AudioManager', () => ({
@@ -9,30 +9,22 @@ vi.mock('../audio/AudioManager', () => ({
 
 const dmSend = vi.fn();
 const channelSend = vi.fn();
-vi.mock('../utils/crossStoreResolvers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../utils/crossStoreResolvers')>()),
-  getApiForOrigin: () => ({
+vi.mock('../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../api/client')>()),
+  api: {
     dm: { sendMessageReceipt: (...args: unknown[]) => dmSend(...args) },
     channels: { sendMessageReceipt: (...args: unknown[]) => channelSend(...args) },
-  }),
+  },
 }));
 
-// The remote instances as the orchestrator sees them: auto-connect is done
-// and none is configured, so the home ready is the last one to wait for.
-vi.mock('./instanceStore', () => ({
-  useInstanceStore: Object.assign(
-    (selector: (s: unknown) => unknown) => selector({ instances: [], _autoConnectDone: true }),
-    {
-      getState: () => ({ instances: [], _autoConnectDone: true }),
-      setState: vi.fn(),
-      subscribe: vi.fn(() => () => {}),
-    },
-  ),
-}));
-
-import { startPendingMessageOrchestrator, notePendingOriginReady } from './pendingMessageRehydrate';
+import { startPendingMessageOrchestrator, notePendingReady } from './pendingMessageRehydrate';
 import { usePendingMessageStore, type PendingBubble } from './pendingMessageStore';
 import { useSpaceStore } from './spaceStore';
+import { useAuthStore } from './authStore';
+import { junoUser } from '../components/games/junoTestFixtures';
+let stop: (() => void) | undefined;
+beforeEach(() => { useAuthStore.setState({ user: junoUser('native') }); usePendingMessageStore.setState({ bubbles: new Map() }); });
+afterEach(() => { stop?.(); stop = undefined; });
 
 // A bubble restored at boot can belong to a channel the client does not know
 // yet: no ready has listed it. Which endpoint and which instance it goes to
@@ -45,7 +37,7 @@ function bubble(clientId: string, channelId: string): PendingBubble {
   };
 }
 
-const DM: DmChannel = { id: 'dm-1', federatedId: null, createdAt: 1, members: [] };
+const DM: DmChannel = { id: 'dm-1', ownerId: null, name: null, icon: null, createdAt: 1, members: [] };
 const C1: Channel = { id: 'c1', spaceId: 's1', name: 'c1', type: 'text', topic: null, position: 0, categoryId: null, createdAt: 1, myPermissions: '1' };
 
 async function settle(): Promise<void> {
@@ -59,12 +51,12 @@ describe('deferred sends wait until the channel is known', () => {
     useSpaceStore.getState().reset();
     usePendingMessageStore.getState().append(bubble('b-dm', DM.id));
 
-    startPendingMessageOrchestrator();
+    stop = startPendingMessageOrchestrator();
     await settle();
     expect(dmSend).not.toHaveBeenCalled();
     expect(channelSend).not.toHaveBeenCalled();
 
-    useSpaceStore.getState().populateFromReady('', [], [], [DM]);
+    useSpaceStore.getState().populateFromReady([], [], [DM]);
     await settle();
     expect(dmSend).toHaveBeenCalledTimes(1);
     expect(dmSend.mock.calls[0]?.[0]).toBe(DM.id);
@@ -74,23 +66,24 @@ describe('deferred sends wait until the channel is known', () => {
     await settle();
     expect(channelSend).not.toHaveBeenCalled();
 
-    useSpaceStore.getState().upsertChannel(C1, 's1', '');
+    useSpaceStore.getState().upsertChannel(C1, 's1');
     await settle();
     expect(channelSend).toHaveBeenCalledTimes(1);
     expect(channelSend.mock.calls[0]?.[0]).toBe(C1.id);
     expect(dmSend).toHaveBeenCalledTimes(1);
   });
 
-  it('fails a bubble whose channel is still unknown once every instance has delivered its ready', async () => {
+  it('fails a bubble whose channel is still unknown once the current server has delivered ready', async () => {
     dmSend.mockClear();
     channelSend.mockClear();
     usePendingMessageStore.getState().append(bubble('b-gone', 'gone'));
+    stop = startPendingMessageOrchestrator();
     await settle();
     expect(channelSend).not.toHaveBeenCalled();
 
     // The home ready lists neither the channel nor a DM of that id.
-    useSpaceStore.getState().populateFromReady('', [], [], [DM]);
-    notePendingOriginReady('');
+    useSpaceStore.getState().populateFromReady([], [], [DM]);
+    notePendingReady();
     await settle();
 
     const gone = usePendingMessageStore.getState().bubbles.get('gone')?.[0];

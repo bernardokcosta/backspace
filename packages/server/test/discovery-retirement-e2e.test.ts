@@ -8,12 +8,12 @@ import { randomBytes } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
-import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
+import { buildOldDatabase } from '../src/testing/standaloneUpgrade.js';
 import { hashSync } from 'bcryptjs';
 import { beforeAll, afterAll, describe, expect, it, vi } from 'vitest';
 import * as schema from '../src/db/schema.js';
 import { PermissionBits } from '@veyvox/shared/src/permissions.js';
-import { spawnInstance, readInstanceLog, type SpawnedInstance } from './helpers/twoInstanceHarness.js';
+import { spawnInstance, readInstanceLog, stopInstance, type SpawnedInstance } from './helpers/instanceHarness.js';
 import { registerLocal, type TestUser } from './helpers/testUsers.js';
 import { connectWs } from './helpers/wsListener.js';
 
@@ -28,27 +28,28 @@ let owner: TestUser;
 let visitor: TestUser;
 const traffic: string[] = [];
 const oldError = JSON.stringify({ at: 42, status: 'network' });
-const legacySettings = {
-  discovery_enabled: 1, directory_enabled: 1, directory_browse_enabled: 1,
-  directory_dirty: 1, directory_last_ping_at: 123, directory_last_error: oldError, support_card_enabled: 0,
-};
+const nativeSettings = { worker_id: 1, registration_open: 1 };
 
 function seedLegacy(dbPath: string): void {
   const sqlite = new Database(dbPath);
   try {
     const db = drizzle(sqlite, { schema });
-    migrate(db, { migrationsFolder: path.join(serverDir, 'drizzle') });
-    db.insert(schema.instanceSettings).values({ id: 1, instanceId: '123e4567-e89b-12d3-a456-426614174000',
+    // Seed the exact generated post-core/pre-cleanup boundary, not the latest
+    // native schema with re-invented historical columns.
+    buildOldDatabase(sqlite, { through: 50 });
+    db.insert(schema.instanceSettings).values({ id: 1,
       workerId: 1, instanceName: 'Legacy-enabled fixture', registrationOpen: 1,
-      discoveryEnabled: 1, directoryEnabled: 1, directoryBrowseEnabled: 1, directoryDirty: 1,
-      directoryLastPingAt: 123, directoryLastError: oldError, supportCardEnabled: false, updatedAt: 1 }).run();
+      updatedAt: 1 }).run();
+    sqlite.prepare(`UPDATE instance_settings SET discovery_enabled=1,directory_enabled=1,directory_browse_enabled=1,
+      directory_dirty=1,directory_last_ping_at=123,directory_last_error=?,support_card_enabled=0`).run(oldError);
     db.insert(schema.users).values([
       { id: 'legacy-owner', username: 'legacy_owner', passwordHash: hashSync('fixture-password', 4), isAdmin: 1, createdAt: 1 },
-      { id: 'legacy-remote', username: 'remote_user', passwordHash: 'unused', homeInstance: 'remote.example', homeUserId: 'remote-id', createdAt: 1 },
+      { id: 'legacy-remote', username: 'retained@old.invalid', passwordHash: 'synthetic-local-credential', createdAt: 1 },
     ]).run();
     for (const [id, visibility] of [['legacy-space', 'public'], ['request-space', 'request']] as const) {
       db.insert(schema.spaces).values({ id, name: id, ownerId: 'legacy-owner', inviteCode: `invite-${id}`,
-        visibility, directoryListed: 1, description: 'Retained description', createdAt: 1 }).run();
+        visibility, description: 'Retained description', createdAt: 1 }).run();
+      sqlite.prepare('UPDATE spaces SET directory_listed=1 WHERE id=?').run(id);
       db.insert(schema.spaceMembers).values({ spaceId: id, userId: 'legacy-owner', joinedAt: 1 }).run();
       db.insert(schema.channels).values({ id: `${id}-channel`, spaceId: id, name: 'welcome', type: 'text', createdAt: 1 }).run();
       db.insert(schema.roles).values({ id, spaceId: id, name: '@everyone',
@@ -58,11 +59,14 @@ function seedLegacy(dbPath: string): void {
   } finally { sqlite.close(); }
 }
 
-function storedLegacy() {
+function storedNative() {
   const sqlite = new Database(instance.dbPath, { readonly: true });
   try {
-    return sqlite.prepare(`SELECT discovery_enabled, directory_enabled, directory_browse_enabled,
-      directory_dirty, directory_last_ping_at, directory_last_error, support_card_enabled FROM instance_settings WHERE id=1`).get();
+    const columns = sqlite.pragma('table_info(instance_settings)') as Array<{ name: string }>;
+    for (const name of ['discovery_enabled', 'directory_enabled', 'directory_browse_enabled', 'directory_dirty', 'support_card_enabled']) {
+      expect(columns.map(column => column.name)).not.toContain(name);
+    }
+    return sqlite.prepare('SELECT worker_id,registration_open FROM instance_settings WHERE id=1').get();
   } finally { sqlite.close(); }
 }
 
@@ -87,7 +91,7 @@ beforeAll(async () => {
   const dbPath = path.join(runDir, 'legacy.db'); seedLegacy(dbPath);
   instance = await spawnInstance({ domain: 'retirement.test.local', dbPath, storagePath: path.join(runDir, 'uploads'),
     jwtSecret: randomBytes(32).toString('hex'), logPath: path.join(runDir, 'server.log'),
-    publicOriginAsTransport: true, environment: { DIRECTORY_ENDPOINT: hubUrl, TELEMETRY_ENDPOINT: hubUrl } });
+    environment: { DIRECTORY_ENDPOINT: hubUrl, TELEMETRY_ENDPOINT: hubUrl } });
   const login = await fetch(`${instance.origin}/api/auth/login`, { method: 'POST',
     headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: 'legacy_owner', password: 'fixture-password' }) });
   expect(login.status).toBe(200);
@@ -97,16 +101,13 @@ beforeAll(async () => {
   await mkdir(path.join(runDir, 'fresh-uploads'));
   fresh = await spawnInstance({ domain: 'fresh-retirement.test.local', dbPath: path.join(runDir, 'fresh.db'),
     storagePath: path.join(runDir, 'fresh-uploads'), jwtSecret: randomBytes(32).toString('hex'),
-    logPath: path.join(runDir, 'fresh.log'), publicOriginAsTransport: true,
+    logPath: path.join(runDir, 'fresh.log'),
     environment: { DIRECTORY_ENDPOINT: hubUrl, TELEMETRY_ENDPOINT: hubUrl } });
 }, 90_000);
 
 afterAll(async () => {
   for (const child of [instance, fresh]) {
-    if (child?.proc.exitCode === null && child.proc.signalCode === null) {
-      const exited = new Promise<void>(resolve => child.proc.once('exit', () => resolve()));
-      child.proc.kill('SIGTERM'); await exited;
-    }
+    if (child) await stopInstance(child);
   }
   if (hub) await new Promise<void>(resolve => hub.close(() => resolve()));
   if (runDir) await rm(runDir, { recursive: true, force: true }); // This suite's fixture only.
@@ -134,7 +135,7 @@ describe('discovery retirement on the real server with legacy-enabled data', () 
     expect(await spa.text()).toContain('<!DOCTYPE html>');
   });
 
-  it('omits retired wire fields and ignores legacy PATCH keys without mutating their old values', async () => {
+  it('omits retired wire fields and ignores legacy PATCH keys without recreating columns or changing native values', async () => {
     const retired = ['discoveryEnabled', 'directoryEnabled', 'directoryBrowseEnabled', 'directoryConfigured',
       'directoryAvailable', 'directoryDirty', 'directoryLastPingAt', 'directoryLastError', 'directoryListedSpaceCount', 'supportCardEnabled'];
     for (const url of ['/api/instance/info', '/api/settings/instance', '/api/settings/streaming']) {
@@ -147,7 +148,7 @@ describe('discovery retirement on the real server with legacy-enabled data', () 
       expect(res.status, url).toBe(200);
       const body = await res.json(); for (const key of retired) expect(body).not.toHaveProperty(key);
     }
-    expect(storedLegacy()).toEqual(legacySettings);
+    expect(storedNative()).toEqual(nativeSettings);
     const ws = await connectWs(instance.origin, owner.token);
     try {
       const ready = await ws.waitForEvent('ready');
@@ -177,7 +178,7 @@ describe('discovery retirement on the real server with legacy-enabled data', () 
     } finally { ws.close(); }
     const sqlite = new Database(instance.dbPath, { readonly: true });
     try {
-      expect(sqlite.prepare('SELECT directory_listed FROM spaces WHERE id = ?').get('legacy-space')).toEqual({ directory_listed: 1 });
+      expect((sqlite.pragma('table_info(spaces)') as Array<{ name: string }>).map(column => column.name)).not.toContain('directory_listed');
       expect(sqlite.prepare('SELECT user_id FROM space_members WHERE space_id = ? AND user_id = ?').get('legacy-space', 'legacy-remote')).toEqual({ user_id: 'legacy-remote' });
       expect(sqlite.pragma('integrity_check', { simple: true })).toBe('ok');
     } finally { sqlite.close(); }
@@ -190,7 +191,7 @@ describe('discovery retirement on the real server with legacy-enabled data', () 
     expect(traffic).toEqual([]);
     expect(await readInstanceLog(instance)).not.toContain('[directory]');
     expect(await readInstanceLog(fresh)).not.toContain('[directory]');
-    expect(storedLegacy()).toEqual(legacySettings);
+    expect(storedNative()).toEqual(nativeSettings);
   });
 
   it('boots and migrates a fresh database with the same inert legacy environment', async () => {
@@ -199,9 +200,8 @@ describe('discovery retirement on the real server with legacy-enabled data', () 
     const sqlite = new Database(fresh.dbPath, { readonly: true });
     try {
       expect(sqlite.pragma('integrity_check', { simple: true })).toBe('ok');
-      expect(sqlite.prepare('SELECT discovery_enabled, directory_enabled, directory_browse_enabled, directory_dirty, support_card_enabled FROM instance_settings WHERE id=1').get()).toEqual({
-        discovery_enabled: 1, directory_enabled: 0, directory_browse_enabled: 1, directory_dirty: 0, support_card_enabled: 1,
-      });
+      const columns = (sqlite.pragma('table_info(instance_settings)') as Array<{ name: string }>).map(column => column.name);
+      for (const name of ['discovery_enabled', 'directory_enabled', 'directory_browse_enabled', 'directory_dirty', 'support_card_enabled']) expect(columns).not.toContain(name);
     } finally { sqlite.close(); }
     expect(traffic).toEqual([]);
   });

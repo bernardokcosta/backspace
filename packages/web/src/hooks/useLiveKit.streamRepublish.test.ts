@@ -32,7 +32,7 @@ const mocks = vi.hoisted(() => ({
   space: {
     channelToSpaceMap: new Map<string, string>(),
     members: [] as unknown[],
-    dmChannels: [] as { id: string; members: { id: string; homeUserId?: string }[] }[],
+    dmChannels: [] as { id: string; members: { id: string }[] }[],
   },
 }));
 vi.mock('livekit-client', async importOriginal => {
@@ -50,10 +50,9 @@ vi.mock('./useWebSocket', () => ({ wsSend: vi.fn() }));
 vi.mock('../utils/voice', () => ({ broadcastVoiceStatus: vi.fn(), clearSpaceVoiceForDmCall: vi.fn() }));
 vi.mock('../utils/hwOverdrive', () => ({ activate: vi.fn(), deactivate: vi.fn() }));
 vi.mock('../stores/spaceStore', () => ({
-  getApiForOrigin: () => ({ livekit: { token: mocks.token, dmToken: mocks.token } }),
-  getChannelOrigin: () => '', getMyUserIdForOrigin: () => 'me',
   useSpaceStore: { getState: () => mocks.space },
 }));
+vi.mock('../api/client', async original => ({ ...await original<typeof import('../api/client')>(), api: { livekit: { token: mocks.token, dmToken: mocks.token } } }));
 
 const SHARER = 'bob:Bob';
 
@@ -349,11 +348,9 @@ describe('a sharer that does not announce the republish (older client)', () => {
   });
 });
 
-describe('federated DM call: the stream is keyed by the local id of the sharer', () => {
-  // updateParticipants resolves a federated member's LiveKit identity (their
-  // home id) to the DM member's local id, and StreamTile watches by that id.
+describe('native DM call: stream watches keep the native sharer ID', () => {
   beforeEach(() => {
-    mocks.space.dmChannels = [{ id: 'dm', members: [{ id: 'local-bob', homeUserId: 'bob', homeInstance: 'b.example' }] }];
+    mocks.space.dmChannels = [{ id: 'dm', members: [{ id: 'bob' }] }];
     useVoiceStore.setState({ activeDmCall: { dmChannelId: 'dm' } as never });
   });
 
@@ -361,15 +358,15 @@ describe('federated DM call: the stream is keyed by the local id of the sharer',
     const room = await connectedRoom();
     const sharer = makeSharer(room);
     const first = publish(room, sharer, 'TR_1');
-    expect(useVoiceStore.getState().participants.find((p) => p.identity === SHARER)?.userId).toBe('local-bob');
-    useVoiceStore.getState().watchStream('local-bob');
+    expect(useVoiceStore.getState().participants.find((p) => p.identity === SHARER)?.userId).toBe('bob');
+    useVoiceStore.getState().watchStream('bob');
 
     announceRepublish(room, sharer);
     unpublish(room, sharer, first);
     const second = publish(room, sharer, 'TR_2');
 
     expect(second.setSubscribed).toHaveBeenCalledWith(true);
-    expect(useVoiceStore.getState().watchingStreams.has('local-bob')).toBe(true);
+    expect(useVoiceStore.getState().watchingStreams.has('bob')).toBe(true);
   });
 
   it('leaves no watch behind when the sharer leaves mid-share', async () => {
@@ -377,11 +374,11 @@ describe('federated DM call: the stream is keyed by the local id of the sharer',
     const sharer = makeSharer(room);
     addMicrophone(sharer);
     publish(room, sharer, 'TR_1');
-    useVoiceStore.getState().watchStream('local-bob');
+    useVoiceStore.getState().watchStream('bob');
 
     leave(room, sharer);
 
-    expect(useVoiceStore.getState().watchingStreams.has('local-bob')).toBe(false);
+    expect(useVoiceStore.getState().watchingStreams.has('bob')).toBe(false);
   });
 
   it('leaves no watch behind when the sharer leaves between a republish\'s tracks', async () => {
@@ -389,24 +386,24 @@ describe('federated DM call: the stream is keyed by the local id of the sharer',
     const sharer = makeSharer(room);
     addMicrophone(sharer);
     const first = publish(room, sharer, 'TR_1');
-    useVoiceStore.getState().watchStream('local-bob');
+    useVoiceStore.getState().watchStream('bob');
 
     announceRepublish(room, sharer);
     unpublish(room, sharer, first);
     leave(room, sharer);
 
-    expect(useVoiceStore.getState().watchingStreams.has('local-bob')).toBe(false);
+    expect(useVoiceStore.getState().watchingStreams.has('bob')).toBe(false);
   });
 
   it('ends the watch the tile started under the local id when the share ends', async () => {
     const room = await connectedRoom();
     const sharer = makeSharer(room);
     const first = publish(room, sharer, 'TR_1');
-    useVoiceStore.getState().watchStream('local-bob');
+    useVoiceStore.getState().watchStream('bob');
 
     unpublish(room, sharer, first);
 
-    expect(useVoiceStore.getState().watchingStreams.has('local-bob')).toBe(false);
+    expect(useVoiceStore.getState().watchingStreams.has('bob')).toBe(false);
   });
 });
 
@@ -768,7 +765,7 @@ describe('the sharer\'s own side across a republish', () => {
     it('a federated DM call: hears a viewer whose client knows it by another id', async () => {
       // The identity carries the home id; each client lists the member under
       // its own local id, so the viewer's `target` means nothing here.
-      mocks.space.dmChannels = [{ id: 'dm', members: [{ id: 'me', homeUserId: 'me-home' }] }];
+      mocks.space.dmChannels = [{ id: 'dm', members: [{ id: 'me' }] }];
       useVoiceStore.setState({ activeDmCall: { dmChannelId: 'dm' } as never });
       const room = await sharing('me-home:Me');
 

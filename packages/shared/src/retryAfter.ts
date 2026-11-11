@@ -4,7 +4,7 @@ export function isRateLimitScope(value: unknown): value is RateLimitScope {
   return value === 'http' || value === 'action' || value === 'resource' || value === 'transport';
 }
 
-/** Retry metadata is untrusted, including when sent by an older federated peer. */
+/** Retry metadata from a server is untrusted. */
 export function parseRetryAfterSeconds(
   body: unknown,
   header: string | null,

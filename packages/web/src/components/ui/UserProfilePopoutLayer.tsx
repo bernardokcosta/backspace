@@ -26,7 +26,6 @@ export function UserProfilePopoutLayer() {
       />
       <UserProfilePopout
         user={popout.user}
-        origin={popout.origin}
         onClose={closeUserProfile}
         anchor={popout.anchor}
         placement={popout.placement}

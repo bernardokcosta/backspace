@@ -7,9 +7,8 @@ import { useSocialStore } from '../../stores/socialStore';
 import { useTransferStore } from '../../stores/transferStore';
 import { waitForTransferAttachment } from '../../utils/waitForTransfer';
 import { api } from '../../api/client';
-import { kickFromGroupDm, transferGroupDmOwnership, updateGroupDmMetadata } from '../../utils/groupDmOwnerActions';
-import { isMine, parseFederatedUsername, isFederationGlobeApplicable, userKey } from '../../utils/identity';
-import { useDmViewer } from '../../hooks/useDmViewer';
+import { userDisplayName } from '../../utils/identity';
+import { useAuthStore } from '../../stores/authStore';
 import { useVisualViewportInset } from '../../hooks/useVisualViewportInset';
 import { AvatarStack } from '../ui/AvatarStack';
 import { ImageCropModal } from '../ui/ImageCropModal';
@@ -20,31 +19,10 @@ import { DmMemberRow, type DmMemberRowAction } from './DmMemberRow';
 const MAX_NAME_LENGTH = 50;
 const MAX_GROUP_MEMBERS = 10;
 
-/**
- * Iconography for the federation globe shown next to the group name on mobile.
- * No tooltip on mobile — the dedicated info screen surfaces federation
- * identity via the per-member rows, so the global indicator is intentionally
- * decorative here.
- */
-function GroupGlobeIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className="text-txt-tertiary/80 flex-shrink-0"
-      aria-hidden="true"
-    >
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-    </svg>
-  );
-}
-
 /** Sort helper — alphabetical by display-name fallback, lower-cased. */
 function sortByDisplayName(a: User, b: User): number {
-  const aName = (a.displayName ?? parseFederatedUsername(a.username).baseName).toLowerCase();
-  const bName = (b.displayName ?? parseFederatedUsername(b.username).baseName).toLowerCase();
+  const aName = userDisplayName(a).toLowerCase();
+  const bName = userDisplayName(b).toLowerCase();
   return aName.localeCompare(bName);
 }
 
@@ -79,7 +57,7 @@ export function MobileGroupDmInfo({ params }: MobileGroupDmInfoProps) {
     () => dmChannels.find((dm) => dm.id === channelId) ?? null,
     [dmChannels, channelId],
   );
-  const viewer = useDmViewer(dmChannel?.id);
+  const selfId = useAuthStore(s => s.user?.id);
 
   // ── Inline edit state ──────────────────────────────────────────────────
   type IconState =
@@ -155,12 +133,12 @@ export function MobileGroupDmInfo({ params }: MobileGroupDmInfoProps) {
     );
   }
 
-  const isOwner = isMine({ id: dmChannel.ownerId }, viewer.origin, viewer.self);
+  const isOwner = dmChannel.ownerId === selfId;
 
-  const otherMembers: User[] = dmChannel.members.filter((m) => !isMine(m, viewer.origin, viewer.self));
+  const otherMembers: User[] = dmChannel.members.filter(m => m.id !== selfId);
 
   const fallbackName = otherMembers
-    .map((m) => m.displayName ?? parseFederatedUsername(m.username).baseName)
+    .map(userDisplayName)
     .join(', ');
 
   const displayName = dmChannel.name && dmChannel.name.length > 0 ? dmChannel.name : fallbackName || t('dm:names.groupFallback');
@@ -178,11 +156,6 @@ export function MobileGroupDmInfo({ params }: MobileGroupDmInfoProps) {
         ? null
         : (dmChannel.icon ?? null);
 
-  // Show the global federation globe next to the group name when any member
-  // (besides self) is federated. Mobile intentionally omits the tooltip —
-  // per-member rows below carry the federation identity explicitly.
-  const hasFederatedMember = otherMembers.some((m) => isFederationGlobeApplicable(m));
-
   // Member buckets — owner first, then online/offline alphabetically.
   const ownerMember = dmChannel.members.find((m) => m.id === dmChannel.ownerId) ?? null;
   const nonOwnerMembers = dmChannel.members.filter((m) => m.id !== dmChannel.ownerId);
@@ -196,10 +169,9 @@ export function MobileGroupDmInfo({ params }: MobileGroupDmInfoProps) {
   const memberCount = dmChannel.members.length;
   const canAddMembers = memberCount < MAX_GROUP_MEMBERS;
 
-  // Friend lookup by person (`userKey`), each row with its own origin.
+  // Friend and DM roster rows share native account IDs.
   const isFriendOfCaller = (m: User): boolean => {
-    const key = userKey(m, viewer.origin);
-    return friends.some((f) => userKey(f, f._instanceOrigin) === key);
+    return friends.some(f => f.id === m.id);
   };
 
   // ── Icon handlers ──────────────────────────────────────────────────────
@@ -268,7 +240,7 @@ export function MobileGroupDmInfo({ params }: MobileGroupDmInfoProps) {
         body.icon = filename;
       }
 
-      await updateGroupDmMetadata(channelId, body);
+      await api.dm.updateMetadata(channelId, body);
       // Reset state and exit edit mode. The WS `dm_channel_updated` event
       // will refresh `dmChannels` in-place.
       setIconState((prev) => {
@@ -308,7 +280,7 @@ export function MobileGroupDmInfo({ params }: MobileGroupDmInfoProps) {
     if (action === 'profile') {
       // DmMemberRow normally opens the profile itself. Fallback path —
       // push the mobile user-profile screen directly.
-      pushMobileScreen('user-profile', { userId: member.id, origin: viewer.origin });
+      pushMobileScreen('user-profile', { userId: member.id });
       return;
     }
     if (action === 'kick') {
@@ -321,7 +293,7 @@ export function MobileGroupDmInfo({ params }: MobileGroupDmInfoProps) {
     }
     if (action === 'remove-friend') {
       try {
-        await useSocialStore.getState().removeFriend(member, viewer.origin);
+        await useSocialStore.getState().removeFriend(member.id);
       } catch (err) {
         addToast(
           err instanceof Error ? err.message : t('dm:removeFriend.failed'),
@@ -336,9 +308,9 @@ export function MobileGroupDmInfo({ params }: MobileGroupDmInfoProps) {
     if (!pendingKick || !channelId) return;
     setSubmittingMemberAction(true);
     try {
-      await kickFromGroupDm(channelId, pendingKick);
+      await api.dm.kickMember(channelId, pendingKick.id);
       addToast(
-        t('dm:kick.success', { name: pendingKick.displayName ?? parseFederatedUsername(pendingKick.username).baseName }),
+        t('dm:kick.success', { name: userDisplayName(pendingKick) }),
         'success',
         3000,
       );
@@ -358,9 +330,9 @@ export function MobileGroupDmInfo({ params }: MobileGroupDmInfoProps) {
     if (!pendingTransfer || !channelId) return;
     setSubmittingMemberAction(true);
     try {
-      await transferGroupDmOwnership(channelId, pendingTransfer);
+      await api.dm.transferOwnership(channelId, { newOwnerId: pendingTransfer.id });
       addToast(
-        t('dm:transfer.success', { name: pendingTransfer.displayName ?? parseFederatedUsername(pendingTransfer.username).baseName }),
+        t('dm:transfer.success', { name: userDisplayName(pendingTransfer) }),
         'success',
         3000,
       );
@@ -382,8 +354,7 @@ export function MobileGroupDmInfo({ params }: MobileGroupDmInfoProps) {
       key={member.id}
       member={member}
       isOwner={ownerFlag}
-      isSelf={isMine(member, viewer.origin, viewer.self)}
-      origin={viewer.origin}
+      isSelf={member.id === selfId}
       callerIsOwner={isOwner}
       isFriend={isFriendOfCaller(member)}
       showKebab
@@ -435,7 +406,6 @@ export function MobileGroupDmInfo({ params }: MobileGroupDmInfoProps) {
             >
               <AvatarStack
                 members={otherMembers}
-                origin={viewer.origin}
                 size={80}
                 border="chat"
                 iconUrl={previewIconUrl}
@@ -490,11 +460,6 @@ export function MobileGroupDmInfo({ params }: MobileGroupDmInfoProps) {
               >
                 {displayName}
               </h1>
-              {hasFederatedMember && (
-                <span data-mobile-group-globe className="inline-flex" aria-label={t('dm:groupInfo.federated')}>
-                  <GroupGlobeIcon />
-                </span>
-              )}
             </div>
           )}
 
@@ -644,7 +609,7 @@ export function MobileGroupDmInfo({ params }: MobileGroupDmInfoProps) {
         title={t('dm:kick.title')}
         description={
           pendingKick
-            ? t('dm:kick.description', { name: pendingKick.displayName ?? parseFederatedUsername(pendingKick.username).baseName })
+            ? t('dm:kick.description', { name: userDisplayName(pendingKick) })
             : ''
         }
         confirmLabel={t('common:actions.remove')}
@@ -659,7 +624,7 @@ export function MobileGroupDmInfo({ params }: MobileGroupDmInfoProps) {
         title={t('dm:transfer.title')}
         description={
           pendingTransfer
-            ? t('dm:transfer.description', { name: pendingTransfer.displayName ?? parseFederatedUsername(pendingTransfer.username).baseName })
+            ? t('dm:transfer.description', { name: userDisplayName(pendingTransfer) })
             : ''
         }
         confirmLabel={t('dm:transfer.confirm')}

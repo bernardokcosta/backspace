@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, primaryKey, foreignKey, real, unique, index, uniqueIndex, check } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, primaryKey, foreignKey, real, index, uniqueIndex, check } from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
 
 export const users = sqliteTable('users', {
@@ -12,16 +12,10 @@ export const users = sqliteTable('users', {
   /**
    * The status the user picked ('online' | 'idle' | 'dnd'). Survives disconnects
    * and restarts; published as `status` when a connection authenticates.
-   * Meaningful only on rows that own their choice (native or detached,
-   * `ownsChosenStatus` in @veyvox/shared): a replicated row's copy is never
-   * read or written.
    */
   chosenStatus: text('chosen_status').notNull().default('online'),
   customStatus: text('custom_status'),
   isAdmin: integer('is_admin').default(0),
-  homeInstance: text('home_instance'),
-  homeUserId: text('home_user_id'),
-  replicatedInstances: text('replicated_instances').default('[]'),
   banner: text('banner'),
   accentColor: text('accent_color'),
   avatarColor: text('avatar_color'),
@@ -31,58 +25,28 @@ export const users = sqliteTable('users', {
   profileUpdatedAt: integer('profile_updated_at'),
   passwordChangedAt: integer('password_changed_at'),
   showActivity: integer('show_activity').notNull().default(1),
-  /** 1 = the account turned Developer Mode on: shows the Bots tab in its settings. Self-view only, never relayed. */
+  /** 1 = the account turned Developer Mode on: shows the Bots tab in its settings. Self-view only. */
   developerMode: integer('developer_mode').notNull().default(0),
-  federationRegistryUpdatedAt: integer('federation_registry_updated_at').default(0),
-  federationHealPending: integer('federation_heal_pending').default(0),
-  federationHomeOrphaned: integer('federation_home_orphaned').default(0),
   /** 1 = bot account: no password login, authenticates with an owner-issued token. */
   isBot: integer('is_bot').notNull().default(0),
   /** users.id of the human who created the bot. No FK: tombstoneUser keeps the row. */
   botOwnerId: text('bot_owner_id'),
   /**
    * A bot's stored status, JSON `{ type, name }` (`BotActivity`), or null. Set
-   * by the owner on the bot's home; a host's federated account of the bot
-   * holds the home's copy (`profile_update`, by-home-id answers). Applied as
+   * by the owner. Applied as
    * the bot's live activity when it connects (ws/botActivity.ts).
    */
   botActivity: text('bot_activity'),
   /**
    * A bot's requested space permissions: a permission bitmask as a canonical
-   * decimal string, null or '0' for none. Set by the owner on the bot's home;
-   * a host's federated account of the bot holds the home's copy. A manager
+   * decimal string, null or '0' for none. Set by the owner. A manager
    * adding the bot to a space grants any subset of it through the bot's
    * managed role (`roles.managed_bot_id`).
    */
   botRequestedPermissions: text('bot_requested_permissions'),
-  /**
-   * The identity a detached account (`federation_home_orphaned = 1`) had before
-   * it was detached: its former home instance and its id there. Detaching
-   * moves `home_instance`/`home_user_id` here and clears them, so the row is
-   * homed on this instance and presents itself to peers as one of its users
-   * (federation.md, "Detached accounts are homed here"). Read only to resolve
-   * a reference to the former identity back to this row (`resolveRelayActor`),
-   * for re-attach, and for the reset-cleanup admin listing. Kept on a
-   * tombstone; cleared by re-attach.
-   */
-  detachedHomeInstance: text('detached_home_instance'),
-  detachedHomeUserId: text('detached_home_user_id'),
-  /** Legacy telemetry activity columns, inert; retained unchanged for rollback. */
-  lastActiveDay: text('last_active_day'),
-  lastClient: text('last_client'),
   createdAt: integer('created_at').notNull(),
 }, (table) => ({
-  /**
-   * Every federated identity lookup starts with `home_user_id = ?`
-   * (`resolveRelayActor`, `resolveLocalUser`, the relay mention lists).
-   * Single column on purpose: a home user id matches about one row, and most
-   * pair lookups compare `home_instance` normalized or in code, where a
-   * composite's second column cannot be used.
-   */
-  homeUserIdx: index('idx_users_home_user_id').on(table.homeUserId),
   botOwnerIdx: index('idx_users_bot_owner_id').on(table.botOwnerId),
-  /** `resolveRelayActor` matches a former (detached) identity in the same query as `home_user_id`. */
-  detachedHomeUserIdx: index('idx_users_detached_home_user_id').on(table.detachedHomeUserId),
 }));
 
 export const spaces = sqliteTable('spaces', {
@@ -95,8 +59,6 @@ export const spaces = sqliteTable('spaces', {
   ownerTitle: text('owner_title'),
   inviteCode: text('invite_code').unique(),
   visibility: text('visibility').default('private'),
-  /** Legacy directory flag, inert since 1.15.2; retained for data/rollback compatibility. */
-  directoryListed: integer('directory_listed').notNull().default(0),
   description: text('description'),
   afkChannelId: text('afk_channel_id'),
   afkTimeoutSeconds: integer('afk_timeout_seconds').notNull().default(300),
@@ -242,9 +204,6 @@ export const attachments = sqliteTable('attachments', {
   // browser <video>, 0 = known-undecodable (e.g. HEVC .mov), NULL = unknown
   // (codec unprobed / non-video). Drives the client's download fallback.
   playable: integer('playable', { mode: 'boolean' }),
-  sourceUrl: text('source_url'),
-  federationStatus: text('federation_status'),
-  federationMeta: text('federation_meta'),
   createdAt: integer('created_at').notNull(),
 }, (table) => ({
   messageIdx: index('idx_attachments_message_id').on(table.messageId),
@@ -274,29 +233,23 @@ export const embeds = sqliteTable('embeds', {
 export const dmChannels = sqliteTable('dm_channels', {
   id: text('id').primaryKey(),
   ownerId: text('owner_id'),
-  federatedId: text('federated_id'),
-  ownerHomeUserId: text('owner_home_user_id'),
-  ownerHomeInstance: text('owner_home_instance'),
+  /** Private uniqueness key for the two local participants; never serialized. */
+  pairKey: text('pair_key'),
   deletedAt: integer('deleted_at'),
   createdAt: integer('created_at').notNull(),
   name: text('name'),
   icon: text('icon'),
   metadataUpdatedAt: integer('metadata_updated_at').default(0).notNull(),
 }, (table) => ({
-  federatedIdx: uniqueIndex('idx_dm_federated')
-    .on(table.federatedId)
-    .where(sql`federated_id IS NOT NULL`),
+  pairIdx: uniqueIndex('idx_dm_pair_key')
+    .on(table.pairKey)
+    .where(sql`pair_key IS NOT NULL`),
 }));
 
 export const dmMembers = sqliteTable('dm_members', {
   dmChannelId: text('dm_channel_id').notNull().references(() => dmChannels.id, { onDelete: 'cascade' }),
   userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   closed: integer('closed').default(0),
-  // When `closed` last took its current value, for last-writer-wins against a
-  // relayed dm_close / dm_reopen: the member's own action or the membership's
-  // start (local clock), or the relayed event's timestamp. Written only through
-  // utils/dmMemberClosed.ts.
-  closedChangedAt: integer('closed_changed_at').notNull().default(0),
 }, (table) => ({
   pk: primaryKey({ columns: [table.dmChannelId, table.userId] }),
   userIdx: index('idx_dm_members_user_id').on(table.userId),
@@ -310,9 +263,6 @@ export const dmMessages = sqliteTable('dm_messages', {
   content: text('content'),
   type: text('type').notNull().default('user'),
   editedAt: integer('edited_at'),
-  sourceInstance: text('source_instance'),
-  sourceMessageId: text('source_message_id'),
-  encryptionVersion: integer('encryption_version').default(0),
   createdAt: integer('created_at').notNull(),
 }, (table) => ({
   replyToFk: foreignKey({
@@ -323,9 +273,6 @@ export const dmMessages = sqliteTable('dm_messages', {
   userIdx: index('idx_dm_messages_user_id').on(table.userId),
   // Unread counts, as idx_messages_channel_unread above.
   unreadIdx: index('idx_dm_messages_channel_unread').on(table.dmChannelId, sql`CAST(id AS INTEGER)`, table.userId),
-  sourceUniqueIdx: uniqueIndex('idx_dm_messages_source_unique')
-    .on(table.sourceInstance, table.sourceMessageId)
-    .where(sql`source_instance IS NOT NULL`),
 }));
 
 export const friends = sqliteTable('friends', {
@@ -344,11 +291,9 @@ export const friendRequests = sqliteTable('friend_requests', {
   toId: text('to_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   status: text('status').default('pending'), // 'pending', 'accepted', 'declined'
   createdAt: integer('created_at').notNull(),
-  relayMessageId: text('relay_message_id'),  // entityId of the originating relay event; null for local-only requests. Used by the rollback hook in federationRollback.ts to find rows for deletion when a federated friend_request_create is permanently rejected.
 }, (table) => ({
   toIdx: index('idx_friend_requests_to_id').on(table.toId),
   fromIdx: index('idx_friend_requests_from_id').on(table.fromId),
-  relayMessageIdx: index('idx_friend_requests_relay_message_id').on(table.relayMessageId),
 }));
 
 export const reactions = sqliteTable('reactions', {
@@ -438,9 +383,7 @@ export const readStates = sqliteTable('read_states', {
 
 /**
  * A user's notification setting for a space (`channel_id` NULL) or for one
- * channel of it. Lives on the instance that hosts the space and is keyed by
- * the user's row here (for a federated member, their account on this
- * instance). `level` NULL is "not chosen": the channel inherits the space,
+ * channel of it. Keyed by the user's local row. `level` NULL is "not chosen": the channel inherits the space,
  * the space uses the default. `muted` with `muted_until` NULL lasts until
  * lifted. A row with no choice left is deleted, not kept.
  * See docs/systems/sounds.md ("Notification settings").
@@ -477,7 +420,7 @@ export const spaceFolders = sqliteTable('space_folders', {
 
 export const spaceFolderMembers = sqliteTable('space_folder_members', {
   folderId: text('folder_id').notNull().references(() => spaceFolders.id, { onDelete: 'cascade' }),
-  spaceId: text('space_id').notNull(), // No FK — federated space IDs don't exist locally
+  spaceId: text('space_id').notNull(),
   position: integer('position').default(0),
 }, (table) => ({
   pk: primaryKey({ columns: [table.folderId, table.spaceId] }),
@@ -493,9 +436,6 @@ export const instanceSettings = sqliteTable('instance_settings', {
   id: integer('id').primaryKey().default(1),
   instanceName: text('instance_name').default('Backspace'),
   workerId: integer('worker_id'),
-  instanceId: text('instance_id'),
-  /** Legacy space-discovery setting, inert since 1.15.2. */
-  discoveryEnabled: integer('discovery_enabled').notNull().default(1),
   maxBitrateKbps: integer('max_bitrate_kbps').notNull().default(20000),
   minBitrateKbps: integer('min_bitrate_kbps').notNull().default(500),
   bitrateStepKbps: integer('bitrate_step_kbps').notNull().default(500),
@@ -504,43 +444,16 @@ export const instanceSettings = sqliteTable('instance_settings', {
   maxResolution: integer('max_resolution').notNull().default(1080),
   maxFramerate: integer('max_framerate').notNull().default(60),
   registrationOpen: integer('registration_open'),  // null = use env var default, 0/1 = explicit
-  federatedRegistrationOpen: integer('federated_registration_open').notNull().default(1),
   spaceCreationOpen: integer('space_creation_open').notNull().default(1),
   gifApiKey: text('gif_api_key'),
   bitrateMatrixOverrides: text('bitrate_matrix_overrides'),
   allowCustomBitrate: integer('allow_custom_bitrate').notNull().default(1),
   maxUploadSizeBytes: integer('max_upload_size_bytes'),
   maxStickerSizeBytes: integer('max_sticker_size_bytes'),
-  federationRelayEnabled: integer('federation_relay_enabled').notNull().default(1),
-  federationRelayTtlDays: integer('federation_relay_ttl_days').notNull().default(30),
-  defaultAutoRotateIntervalDays: integer('default_auto_rotate_interval_days').notNull().default(90),
-  autoAcceptPeering: integer('auto_accept_peering').notNull().default(1),
-  /** Legacy telemetry settings/state, inert; no runtime reads/writes. */
-  telemetryEnabled: integer('telemetry_enabled'),
-  telemetryId: text('telemetry_id'),
-  telemetryLastDay: text('telemetry_last_day'),
-  telemetryLastError: text('telemetry_last_error'),
-  telemetryDeclinedVersion: text('telemetry_declined_version'),
-  /** Legacy directory settings/state, inert since 1.15.2; no runtime reads/writes. */
-  directoryEnabled: integer('directory_enabled').notNull().default(0),
-  directoryDirty: integer('directory_dirty').notNull().default(0),
-  directoryLastPingAt: integer('directory_last_ping_at'),
-  directoryLastError: text('directory_last_error'),
-  directoryBrowseEnabled: integer('directory_browse_enabled').notNull().default(1),
-  /** Legacy hub setting, inert since 1.15.2; retained unchanged for rollback. */
-  supportCardEnabled: integer('support_card_enabled', { mode: 'boolean' }).notNull().default(true),
   /** First-boot timestamp (ms); backfilled by ensureDefaults, so non-null after boot. */
   installedAt: integer('installed_at'),
-  /**
-   * When this instance began recording applied relay events in
-   * `federation_applied_events` (ms): the upgrade that ran migration 0022.
-   * Null on an instance that recorded them from its first boot. A friend
-   * event applied before it cannot be recognized, so the pull never reads a
-   * peer's friend events from before it (utils/federationSync.ts).
-   */
-  ledgerStartedAt: integer('ledger_started_at'),
   updatedAt: integer('updated_at').notNull(),
-});
+}, table => ({ singleton: check('instance_settings_singleton', sql`${table.id} = 1`) }));
 
 export const bans = sqliteTable('bans', {
   spaceId: text('space_id').notNull().references(() => spaces.id, { onDelete: 'cascade' }),
@@ -577,310 +490,6 @@ export const voiceRestrictions = sqliteTable('voice_restrictions', {
   spaceIdx: index('idx_voice_restrictions_space_id').on(table.spaceId),
 }));
 
-export const federationPeers = sqliteTable('federation_peers', {
-  id: text('id').primaryKey(),
-  origin: text('origin').notNull().unique(),
-  instanceName: text('instance_name'),
-  hmacSecret: text('hmac_secret').notNull(),
-  status: text('status').notNull().default('active'),
-  // Who caused this row to exist. Only 'admin' is proof that a local admin
-  // deliberately authorized peering with this origin, which is what the
-  // inbound /peer/accept gate consults when autoAcceptPeering = 0:
-  //   'admin'  — POST /peer/initiate, or an approval/denial decision in
-  //              routes/federation/handlers/approvals.ts.
-  //   'auto'   — created by local traffic without an admin decision: the
-  //              outbox placeholder, or ensurePeered() auto-peering.
-  //   'remote' — created by an inbound /peer/accept from the remote itself.
-  // Rows that predate this column read as 'auto' (fail closed): a stale
-  // pending row cannot stand in for an admin decision.
-  initiatedBy: text('initiated_by', { enum: ['admin', 'auto', 'remote'] }).notNull().default('auto'),
-  lastSeenAt: integer('last_seen_at'),
-  lastFailureAt: integer('last_failure_at'),
-  consecutiveFailures: integer('consecutive_failures').notNull().default(0),
-  consecutiveAuthFailures: integer('consecutive_auth_failures').notNull().default(0),
-  lastProbeAt: integer('last_probe_at'),
-  probeAttempts: integer('probe_attempts').notNull().default(0),
-  lastSyncedAt: integer('last_synced_at').default(0),
-  remoteMaxUploadSize: integer('remote_max_upload_size'),
-  nonceSupported: integer('nonce_supported').notNull().default(0),
-  pendingHmacSecret: text('pending_hmac_secret'),
-  secretRotationAt: integer('secret_rotation_at'),
-  secretRotatedAt: integer('secret_rotated_at'),
-  autoRotateIntervalDays: integer('auto_rotate_interval_days').notNull().default(90),
-  createdAt: integer('created_at').notNull(),
-  approvalToken: text('approval_token'),
-  peerInstanceId: text('peer_instance_id'),
-  observedPeerInstanceId: text('observed_peer_instance_id'),
-  // Why the row is in its status, for the statuses that carry a reason
-  // (needs_attention, rejected); NULL for every other status. Written only by
-  // utils/federationPeerState.ts. See docs/systems/federation.md, "Peer state".
-  statusReason: text('status_reason'),
-});
-
-// Pull-sync position per peer and context ('dm' | 'friend' | 'profile'): the
-// peer's mutation-log row last consumed, in the PEER's clock (`mutated_at`)
-// with its row id as the tiebreak. `peerEpoch` is the peer's instance id the
-// cursor was taken against; a different epoch restarts the cursor at 0.
-// See utils/federationSync.ts.
-export const federationSyncCursors = sqliteTable('federation_sync_cursors', {
-  peerId: text('peer_id').notNull().references(() => federationPeers.id, { onDelete: 'cascade' }),
-  contextType: text('context_type').notNull(),
-  cursorTs: integer('cursor_ts').notNull().default(0),
-  cursorId: text('cursor_id'),
-  peerEpoch: text('peer_epoch'),
-  lastPulledAt: integer('last_pulled_at'),
-}, (table) => ({
-  pk: primaryKey({ columns: [table.peerId, table.contextType] }),
-}));
-
-// Pulled events a receiver refused for a reason that can pass later, kept
-// with the whole event and replayed locally in the peer's order within each
-// subject (`subjectKey`, the unit utils/federationSync.ts orders pulled events
-// in). A subject with a row here holds its later pulled events behind it.
-// One row per distinct event: `eventHash` is the sha256 of the event's
-// canonical JSON, so a re-read of a kept event adds nothing and two events
-// that share a type, message and millisecond (two reactions, two rejected
-// attachments) are both kept.
-export const federationSyncRetry = sqliteTable('federation_sync_retry', {
-  id: text('id').primaryKey(),
-  peerId: text('peer_id').notNull().references(() => federationPeers.id, { onDelete: 'cascade' }),
-  contextType: text('context_type').notNull(),
-  subjectKey: text('subject_key').notNull(),
-  eventType: text('event_type').notNull(),
-  messageId: text('message_id').notNull(),
-  eventTs: integer('event_ts').notNull(),
-  eventHash: text('event_hash').notNull(),
-  eventJson: text('event_json').notNull(),
-  lastReason: text('last_reason').notNull(),
-  attempts: integer('attempts').notNull().default(1),
-  firstFailedAt: integer('first_failed_at').notNull(),
-  nextRetryAt: integer('next_retry_at').notNull(),
-}, (table) => ({
-  eventIdx: uniqueIndex('idx_sync_retry_event').on(table.peerId, table.eventHash),
-  subjectIdx: index('idx_sync_retry_subject').on(table.peerId, table.subjectKey),
-  orderIdx: index('idx_sync_retry_order').on(table.peerId, table.eventTs),
-}));
-
-// Relay events this instance has applied (or a tombstone standing for one),
-// for events whose processors cannot tell a second delivery from state alone:
-// friend events, and the delete of a message not held here, which answers a
-// later create of it as a duplicate. Keyed by the normalized origin the event
-// is attributed to. Swept by the janitor after 100 days, longer than the
-// 90-day mutation log the pull reads.
-export const federationAppliedEvents = sqliteTable('federation_applied_events', {
-  sourceOrigin: text('source_origin').notNull(),
-  eventKey: text('event_key').notNull(),
-  appliedAt: integer('applied_at').notNull(),
-}, (table) => ({
-  pk: primaryKey({ columns: [table.sourceOrigin, table.eventKey] }),
-  appliedAtIdx: index('idx_applied_events_applied_at').on(table.appliedAt),
-}));
-
-// The last applied change per federated subject: a group member (the group's
-// federatedId + the member's identity) or a friend pair (both identities).
-// Relayed member and friend events apply last-writer-wins against it, on the
-// live relay and the pull alike; local changes record it too. `changedAt` is
-// the change's own timestamp (the relayed event's, or local time for a change
-// made here); `recordedAt` is the local time of the write, for the sweep.
-// Written only through utils/federationSubjectClock.ts.
-export const federationSubjectClocks = sqliteTable('federation_subject_clocks', {
-  subjectKey: text('subject_key').primaryKey(),
-  changedAt: integer('changed_at').notNull(),
-  recordedAt: integer('recorded_at').notNull(),
-}, (table) => ({
-  recordedAtIdx: index('idx_subject_clocks_recorded_at').on(table.recordedAt),
-}));
-
-// Records a detected federated-peer reset (same origin, new instance epoch).
-// One row per origin; upserted when a live epoch change is observed, resolved
-// once stale replicated identities are healed.
-export const federationResetEvents = sqliteTable('federation_reset_events', {
-  origin: text('origin').primaryKey(),
-  deadEpoch: text('dead_epoch').notNull(),
-  newEpoch: text('new_epoch'),
-  detectedAt: integer('detected_at').notNull(),
-  resolvedAt: integer('resolved_at'),
-  stubCount: integer('stub_count').notNull().default(0),
-  orphanedAccountCount: integer('orphaned_account_count').notNull().default(0),
-  acknowledgedAt: integer('acknowledged_at'),
-});
-
-// One-time proof tokens for detached-account re-attach (re-attach spec §3.1).
-// Minted by POST /api/auth/attach-proof for a logged-in native user, verified
-// once by a peer via POST /api/federation/verify-attach-proof. Expired/used
-// rows are deleted opportunistically on each mint.
-export const federationAttachProofs = sqliteTable('federation_attach_proofs', {
-  token: text('token').primaryKey(),
-  homeUserId: text('home_user_id').notNull(),
-  targetDomain: text('target_domain').notNull(),
-  createdAt: integer('created_at').notNull(),
-  expiresAt: integer('expires_at').notNull(),
-  usedAt: integer('used_at'),
-});
-
-// SQL-level CHECK constraint enforces (direction='inbound' → hmac_secret NOT NULL).
-// See packages/server/drizzle/0003_brave_inhumans.sql. drizzle-kit cannot represent
-// CHECK constraints in its snapshot, so any future migration that recreates this
-// table MUST re-add the CHECK clause by hand. The snapshot WILL silently drop it
-// otherwise.
-export const peerApprovalRequests = sqliteTable('peer_approval_requests', {
-  id: text('id').primaryKey(),
-  origin: text('origin').notNull(),
-  direction: text('direction', { enum: ['inbound', 'outbound'] }).notNull().default('inbound'),
-  instanceName: text('instance_name'),
-  hmacSecret: text('hmac_secret'),
-  requestedAt: integer('requested_at').notNull(),
-  expiresAt: integer('expires_at').notNull(),
-  approvalToken: text('approval_token'),
-}, (table) => ({
-  uniqOriginDirection: unique().on(table.origin, table.direction),
-}));
-
-export const peerApprovalSubscribers = sqliteTable('peer_approval_subscribers', {
-  id: text('id').primaryKey(),
-  requestId: text('request_id').notNull().references(() => peerApprovalRequests.id, { onDelete: 'cascade' }),
-  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  triggerReason: text('trigger_reason').notNull(),
-  triggerTarget: text('trigger_target').notNull(),
-  createdAt: integer('created_at').notNull(),
-}, (table) => ({
-  uniqSubscription: unique().on(table.requestId, table.userId, table.triggerReason, table.triggerTarget),
-  userIdx: index('idx_peer_approval_subscribers_user_id').on(table.userId),
-}));
-
-export const peerApprovalNotifications = sqliteTable('peer_approval_notifications', {
-  id: text('id').primaryKey(),
-  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  kind: text('kind', { enum: ['approved', 'denied', 'expired'] }).notNull(),
-  peerOrigin: text('peer_origin').notNull(),
-  triggerReason: text('trigger_reason').notNull(),
-  triggerTarget: text('trigger_target').notNull(),
-  createdAt: integer('created_at').notNull(),
-  readAt: integer('read_at'),
-}, (table) => ({
-  userIdx: index('idx_peer_approval_notifications_user_id').on(table.userId),
-}));
-
-export const federationOutbox = sqliteTable('federation_outbox', {
-  id: text('id').primaryKey(),
-  peerId: text('peer_id').notNull().references(() => federationPeers.id, { onDelete: 'cascade' }),
-  contextId: text('context_id').notNull(),
-  /** The id the peer knows the event by (the relay event's `messageId`). */
-  entityId: text('entity_id').notNull(),
-  /**
-   * The queue the row belongs to: the events of one entity, sent one at a
-   * time in order and folded only by the rules in federationOutboxQueue.ts.
-   * Derived there from the event (`outboxQueueKey`). Null only on rows queued
-   * before the column existed, until the boot backfill fills it.
-   */
-  queueKey: text('queue_key'),
-  contextType: text('context_type').notNull().default('dm'),
-  eventType: text('event_type').notNull(),
-  payload: text('payload').notNull(),
-  encryptionVersion: integer('encryption_version').default(0),
-  attempts: integer('attempts').default(0),
-  nextRetryAt: integer('next_retry_at').notNull(),
-  expiresAt: integer('expires_at').notNull(),
-  createdAt: integer('created_at').notNull(),
-  /**
-   * When some path first possibly handed this event to the peer: the worker
-   * putting it on the wire, or the peer pulling `/sync`. Null: the peer
-   * cannot have it. Never cleared.
-   */
-  offeredAt: integer('offered_at'),
-}, (table) => ({
-  queueIdx: index('idx_outbox_queue').on(table.peerId, table.queueKey, table.createdAt),
-  retryIdx: index('idx_outbox_retry').on(table.nextRetryAt),
-}));
-
-export const federationFileQueue = sqliteTable('federation_file_queue', {
-  id: text('id').primaryKey(),
-  peerOrigin: text('peer_origin').notNull(),
-  dmMessageId: text('dm_message_id').notNull(),
-  sourceUrl: text('source_url').notNull(),
-  targetFilename: text('target_filename'),
-  originalName: text('original_name').notNull(),
-  mimetype: text('mimetype').notNull(),
-  size: integer('size').notNull(),
-  status: text('status').notNull().default('pending'),
-  rejectionReason: text('rejection_reason'),
-  attempts: integer('attempts').default(0),
-  nextRetryAt: integer('next_retry_at').notNull(),
-  expiresAt: integer('expires_at').notNull(),
-  createdAt: integer('created_at').notNull(),
-});
-
-export const federationMutationLog = sqliteTable('federation_mutation_log', {
-  id: text('id').primaryKey(),
-  entityId: text('entity_id').notNull(),
-  contextId: text('context_id').notNull(),
-  contextType: text('context_type').notNull().default('dm'),
-  mutationType: text('mutation_type').notNull(),
-  mutatedAt: integer('mutated_at').notNull(),
-  payload: text('payload'),
-}, (table) => ({
-  timeIdx: index('idx_mutation_log_time').on(table.mutatedAt),
-}));
-
-export const userFederationRegistry = sqliteTable('user_federation_registry', {
-  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  origin: text('origin').notNull(),
-  label: text('label').notNull().default(''),
-  username: text('username').notNull().default(''),
-  remoteUserId: text('remote_user_id').notNull().default(''),
-  status: text('status').notNull().default('connected'),
-  addedAt: integer('added_at').notNull(),
-  lastConnectedAt: integer('last_connected_at'),
-  disconnectedAt: integer('disconnected_at'),
-  errorMessage: text('error_message'),
-}, (table) => ({
-  pk: primaryKey({ columns: [table.userId, table.origin] }),
-}));
-
-// Per-remote credential this user's client presents when registering or logging
-// in as itself on ANOTHER instance. Home-instance-only state: the row is written
-// and read exclusively by the account's own home instance, is never federated,
-// and never leaves the home server except to the account's authenticated client.
-//
-// Why it exists: the client used to reuse the account's home password verbatim
-// for every remote it connected to, handing a reusable home credential to every
-// remote operator. Each remote now gets its own high-entropy secret with no
-// relationship to the home password or to any other remote's secret.
-//
-// `provisionedAt` is the migration marker: NULL means the remote account may
-// still be carrying a credential this instance did not issue (a pre-existing
-// connection), so the client rotates it the next time it holds a live session
-// there. Set once the remote account is known to use `secret`.
-export const userFederationCredentials = sqliteTable('user_federation_credentials', {
-  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  origin: text('origin').notNull(),
-  secret: text('secret').notNull(),
-  createdAt: integer('created_at').notNull(),
-  provisionedAt: integer('provisioned_at'),
-}, (table) => ({
-  pk: primaryKey({ columns: [table.userId, table.origin] }),
-}));
-
-/**
- * A revoke of a bot's federated account that an instance has not accepted yet
- * (it was away). One row per (bot, origin); the background worker retries until
- * it lands, is refused for good, or 7 days pass, then deletes the row. No FK:
- * a deleted bot's tombstone must not take the row away.
- */
-export const botRevocations = sqliteTable('bot_revocations', {
-  botId: text('bot_id').notNull(),
-  origin: text('origin').notNull(),
-  /** 'soft' (token regenerated) or 'full' (bot deleted). */
-  mode: text('mode').notNull(),
-  attempts: integer('attempts').notNull().default(0),
-  lastError: text('last_error'),
-  createdAt: integer('created_at').notNull(),
-  nextAttemptAt: integer('next_attempt_at').notNull(),
-}, (table) => ({
-  pk: primaryKey({ columns: [table.botId, table.origin] }),
-  dueIdx: index('idx_bot_revocations_next_attempt_at').on(table.nextAttemptAt),
-}));
-
 /**
  * A bot's access tokens: `bsb_<id>.<secret>`, shown once. Only the SHA-256 of
  * the secret is stored, so a copy of the database yields no usable token. A
@@ -914,19 +523,6 @@ export const botSeatRestrictions = sqliteTable('bot_seat_restrictions', {
 }, (table) => ({
   pk: primaryKey({ columns: [table.channelId, table.botId, table.restrictionType] }),
   botIdx: index('idx_bot_seat_restrictions_bot_id').on(table.botId),
-}));
-
-// A bot of another instance the admin deleted with "block": its bot proof is
-// refused at registration (403 bot_blocked) until the admin unblocks it.
-// home_instance is the home's domain as extractDomain(...).toLowerCase() gives it.
-export const blockedBots = sqliteTable('blocked_bots', {
-  homeInstance: text('home_instance').notNull(),
-  homeUserId: text('home_user_id').notNull(),
-  username: text('username').notNull(),
-  blockedBy: text('blocked_by').references(() => users.id),
-  createdAt: integer('created_at').notNull(),
-}, (table) => ({
-  pk: primaryKey({ columns: [table.homeInstance, table.homeUserId] }),
 }));
 
 export const inviteLinks = sqliteTable('invite_links', {
@@ -1010,21 +606,16 @@ export const stickerPacks = sqliteTable('sticker_packs', {
   creatorId: text('creator_id').references(() => users.id, { onDelete: 'set null' }),
   creatorName: text('creator_name'),
   coverAssetId: text('cover_asset_id').references(() => stickerAssets.id, { onDelete: 'set null' }),
-  originType: text('origin_type').notNull().default('source'),
-  sourceInstance: text('source_instance'),
-  sourcePackId: text('source_pack_id'),
   currentVersion: integer('current_version').notNull().default(1),
   status: text('status').notNull().default('draft'),
   reviewNotes: text('review_notes'),
   reviewedBy: text('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
   reviewedAt: integer('reviewed_at'),
-  syncedAt: integer('synced_at'),
   createdAt: integer('created_at').notNull(),
   updatedAt: integer('updated_at').notNull(),
 }, (table) => ({
   statusIdx: index('idx_sticker_packs_status').on(table.status),
   creatorIdx: index('idx_sticker_packs_creator').on(table.creatorId),
-  sourceIdx: index('idx_sticker_packs_source').on(table.sourceInstance, table.sourcePackId),
 }));
 
 export const stickerPackVersions = sqliteTable('sticker_pack_versions', {
@@ -1067,16 +658,6 @@ export const userInstalledPacks = sqliteTable('user_installed_packs', {
   userIdx: index('idx_user_installed_packs_user').on(table.userId),
 }));
 
-export const stickerPeerPolicies = sqliteTable('sticker_peer_policies', {
-  id: text('id').primaryKey(),
-  peerOrigin: text('peer_origin').notNull().unique(),
-  policy: text('policy').notNull().default('allow'),
-  autoSync: integer('auto_sync').notNull().default(0),
-  createdAt: integer('created_at').notNull(),
-  updatedAt: integer('updated_at').notNull(),
-}, (table) => ({
-  peerOriginIdx: index('idx_sticker_peer_policies_peer').on(table.peerOrigin),
-}));
 // Game icon assets: content-addressed WebP the desktop client extracted from
 // the player's own machine and uploaded so an activity can carry an icon URL
 // the uploader's own instance hosts. No third-party CDN is ever contacted.

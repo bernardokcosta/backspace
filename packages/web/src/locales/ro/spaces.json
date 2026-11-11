@@ -159,21 +159,6 @@
     "invitePlaceholder": "de ex. abc123 sau https://instance.com/join/abc123",
     "submit": "Alătură-te spațiului",
     "submitting": "Se alătură...",
-    "connect": {
-      "intro": "Conectează-te la <host>{{host}}</host> pentru a te alătura acestui spațiu.",
-      "passwordLabel": "Introdu parola pentru a te conecta",
-      "passwordPlaceholder": "Parola contului tău",
-      "passwordNote": "Parola ta este verificată de instanța ta principală și nu este trimisă niciodată către {{host}}. Acea instanță primește o acreditare unică, generată exclusiv pentru ea.",
-      "submit": "Conectează-te și alătură-te",
-      "submitting": "Se conectează..."
-    },
-    "fallback": {
-      "usernamePlaceholder": "Numele tău de utilizator pe această instanță",
-      "passwordLabel": "Parola pentru această instanță",
-      "passwordPlaceholder": "Parola pe instanța la distanță",
-      "submit": "Autentifică-te și alătură-te",
-      "submitting": "Se autentifică..."
-    },
     "request": {
       "messagePlaceholder": "De ce vrei să te alături? (opțional)",
       "send": "Trimite cererea",
@@ -455,8 +440,6 @@
       "transferOwnership": "Transferă proprietatea",
       "settings": "Setările spațiului",
       "leave": "Părăsește spațiul",
-      "reconnecting": "Se reconectează la {{instance}}…",
-      "remoteInstance": "instanță la distanță",
       "leaveConfirm": {
         "title": "Părăsește spațiul",
         "titleNamed": "Părăsește {{name}}",

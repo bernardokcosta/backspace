@@ -6,7 +6,6 @@
   },
   "you": {
     "editProfile": "Redigera profil",
-    "homeInstance": "Hemmainstans: {{domain}}",
     "logOutConfirm": "Är du säker på att du vill logga ut?"
   },
   "chat": {

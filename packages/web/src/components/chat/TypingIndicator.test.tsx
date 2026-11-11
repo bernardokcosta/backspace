@@ -30,15 +30,12 @@ function makeUser(id: string, username: string, displayName: string | null): Use
     customStatus: null,
     isAdmin: false,
     createdAt: 1,
-    homeInstance: null,
-    homeUserId: null,
-    replicatedInstances: [],
   };
 }
 
 const me = makeUser('me', 'alice', 'Alice');
 const kai = makeUser('kai', 'kai', 'Kai');
-// A replicated stub whose username is still in the id shape.
+// A native retained handle whose display name is available in the roster.
 const stub = makeUser('stub', '1234567890123456789@friend.example', 'Quinn');
 const dm = { id: 'dm-1', ownerId: null, createdAt: 1, members: [me, kai, stub], lastMessage: null } as unknown as DmChannel;
 
@@ -64,8 +61,7 @@ beforeEach(() => {
 afterEach(async () => {
   useAuthStore.setState({ user: null });
   useChatStore.setState({ typingUsers: new Map() });
-  useSpaceStore.setState({ dmChannels: [], members: [], channelToSpaceMap: new Map(), channelOriginMap: new Map() });
-  useAuthStore.setState({ myRowIds: new Map() });
+  useSpaceStore.setState({ dmChannels: [], members: [], channelToSpaceMap: new Map() });
   await setLanguage('en');
 });
 
@@ -116,10 +112,10 @@ describe('TypingIndicator', () => {
     expect(screen.getByTitle(family.displayName!)).toHaveTextContent(family.displayName!);
   });
 
-  it("falls back to the base of the wire username when the typer is not in the channel's roster", () => {
+  it("falls back to the complete wire username when the typer is not in the channel's roster", () => {
     typing(dm.id, [['ghost', 'ghost@far.example']]);
     render(<TypingIndicator channelId={dm.id} />);
-    expect(typingLine().textContent).toBe('ghost is typing');
+    expect(typingLine().textContent).toBe('ghost@far.example is typing');
   });
 
   it("resolves a space channel's typer through that space's roster", () => {
@@ -137,27 +133,18 @@ describe('TypingIndicator', () => {
     expect(typingLine().textContent).toBe('Kai und Quinn schreiben');
   });
 
-  describe("leaves out the viewer by the viewer's id on the channel's instance", () => {
-    const ORBIT = 'https://orbit.example';
-    const meOnOrbit = makeUser('me-orbit', 'alice@home.example', 'Alice');
-    // Orbit issued this row an id that happens to equal the viewer's home id.
-    const sameIdOnOrbit = makeUser(me.id, 'mira', 'Mira');
-    const orbitDm = { id: 'dm-orbit', ownerId: null, createdAt: 1, members: [meOnOrbit, sameIdOnOrbit], lastMessage: null } as unknown as DmChannel;
-
-    beforeEach(() => {
-      useAuthStore.getState().recordMyRow(ORBIT, meOnOrbit.id);
-      useSpaceStore.setState({ dmChannels: [orbitDm], channelOriginMap: new Map([[orbitDm.id, ORBIT]]) });
-    });
-
-    it("hides the viewer's own typing on a channel another instance serves", () => {
-      typing(orbitDm.id, [[meOnOrbit.id, meOnOrbit.username]]);
-      render(<TypingIndicator channelId={orbitDm.id} />);
+  describe('excludes only the authenticated native self ID', () => {
+    it('hides the viewer own typing', () => {
+      typing(dm.id, [[me.id, me.username]]);
+      render(<TypingIndicator channelId={dm.id} />);
       expect(document.querySelector('[data-typing-line]')).toBeNull();
     });
 
-    it("shows someone else there whose id equals the viewer's home id", () => {
-      typing(orbitDm.id, [[sameIdOnOrbit.id, sameIdOnOrbit.username]]);
-      render(<TypingIndicator channelId={orbitDm.id} />);
+    it('shows a distinct native account even when the usernames are equal', () => {
+      const other = { ...me, id: 'another', displayName: 'Mira' };
+      useSpaceStore.setState({ dmChannels: [{ ...dm, members: [me, other] }] });
+      typing(dm.id, [[other.id, other.username]]);
+      render(<TypingIndicator channelId={dm.id} />);
       expect(typingLine().textContent).toBe('Mira is typing');
     });
   });

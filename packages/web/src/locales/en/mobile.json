@@ -6,7 +6,6 @@
   },
   "you": {
     "editProfile": "Edit Profile",
-    "homeInstance": "Home instance: {{domain}}",
     "logOutConfirm": "Are you sure you want to log out?"
   },
   "chat": {

@@ -40,7 +40,6 @@ import { useAuth } from '../../hooks/useAuth';
 import { useDelayedLoading } from '../../hooks/useDelayedLoading';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { useAfkVoiceMove } from '../../hooks/useAfkVoiceMove';
-import { useFederationToasts } from '../../hooks/useFederationToasts';
 import { useLiveKit } from '../../hooks/useLiveKit';
 import { useKeybinds } from '../../hooks/useKeybinds';
 import { useDeepLinkHandler } from '../../platform/deepLink';
@@ -271,8 +270,6 @@ export function AppLayout() {
   // AFK voice moves: watches local voice activity and moves idle members.
   useAfkVoiceMove();
 
-  // Federation toast notifications for remote instance connection state changes
-  useFederationToasts();
 
   // Keybinds handler
   useKeybinds();
@@ -516,9 +513,6 @@ export function AppLayout() {
 
       <UserProfilePopoutLayer />
 
-      {/* Federation toasts render through ToastContainer below (raised by the
-          useFederationToasts() hook above); this also mounts the instance
-          update toast. */}
       <InstanceUpdateToast />
       <MediaSetupHint />
       <ToastContainer />

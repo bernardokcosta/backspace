@@ -64,9 +64,6 @@ function person(id: string, username: string, displayName: string | null, avatar
     customStatus: null,
     isAdmin: false,
     createdAt: 1,
-    homeInstance: null,
-    homeUserId: null,
-    replicatedInstances: [],
   } as User;
 }
 
@@ -78,10 +75,7 @@ const LONG = person('long', 'maximiliane', 'Maximiliane von Hohenzollern-Sigmari
 function dmWith(id: string, members: User[], ownerId: string | null): DmChannel {
   return {
     id,
-    federatedId: id,
     ownerId,
-    ownerHomeUserId: null,
-    ownerHomeInstance: null,
     createdAt: 1,
     members: [ME, ...members],
     lastMessage: null,
@@ -137,7 +131,6 @@ function seedStores(state: CallState, dm: DmChannel, partner: User): void {
     channels: [],
     spaces: [],
     currentSpaceId: null,
-    channelOriginMap: new Map([[dm.id, '']]),
   });
   useChatStore.setState({
     currentChannelId: dm.id,
@@ -150,10 +143,10 @@ function seedStores(state: CallState, dm: DmChannel, partner: User): void {
   useVoiceStore.setState({
     outgoingCall: ringing ? { dmChannelId: dm.id, withCamera: false } : null,
     incomingCall: state === 'incoming'
-      ? { dmChannelId: dm.id, federatedCallId: null, callOrigin: null, callerId: ALICE.id, callerName: 'Alice', livekit: null }
+      ? { dmChannelId: dm.id, callerId: ALICE.id, callerName: 'Alice' }
       : null,
-    activeDmCall: state === 'in-call' ? { dmChannelId: dm.id, federatedCallId: null, callOrigin: null, livekit: null }
-      : state === 'busy' ? { dmChannelId: 'dm-other', federatedCallId: null, callOrigin: null, livekit: null } : null,
+    activeDmCall: state === 'in-call' ? { dmChannelId: dm.id }
+      : state === 'busy' ? { dmChannelId: 'dm-other' } : null,
   });
 }
 

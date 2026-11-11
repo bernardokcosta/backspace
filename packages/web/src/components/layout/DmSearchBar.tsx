@@ -6,10 +6,11 @@ import { useNavigate } from 'react-router-dom';
 import type { User, DmChannel } from '@veyvox/shared';
 import { Avatar } from '../ui/Avatar';
 import { useSpaceStore } from '../../stores/spaceStore';
-import { useSelfIdentity } from '../../stores/authStore';
+import { useAuthStore } from '../../stores/authStore';
 import { useUIStore } from '../../stores/uiStore';
 import { api } from '../../api/client';
-import { isMine, parseFederatedUsername, userKey } from '../../utils/identity';
+import { userDisplayName } from '../../utils/identity';
+import { formatDmHeaderName } from '../../utils/dmFormatters';
 import { openDirectMessage } from '../../utils/openDirectMessage';
 import { useCanonicalUserView } from '../../utils/userViewLookup';
 import { useFloatingPosition } from '../../hooks/useFloatingPosition';
@@ -19,9 +20,9 @@ import { useFloatingPosition } from '../../hooks/useFloatingPosition';
  * Extracted as a component so useCanonicalUserView is called per-slot (hooks
  * must not be called inside a variable-length .map()).
  */
-function DmSearchGroupAvatarSlot({ member, origin, index }: { member: User; origin: string; index: number }) {
-  const canonical = useCanonicalUserView(member, origin);
-  const displayName = canonical.displayName ?? parseFederatedUsername(canonical.username).baseName;
+function DmSearchGroupAvatarSlot({ member, index }: { member: User; index: number }) {
+  const canonical = useCanonicalUserView(member);
+  const displayName = userDisplayName(canonical);
   return (
     <div
       className="absolute rounded-full overflow-hidden border-[1.5px] border-surface-channel"
@@ -32,7 +33,7 @@ function DmSearchGroupAvatarSlot({ member, origin, index }: { member: User; orig
         zIndex: 2 - index,
       }}
     >
-      <Avatar src={canonical.avatar} name={displayName} size={18} userId={canonical.homeUserId ?? canonical.id} user={canonical} />
+      <Avatar src={canonical.avatar} name={displayName} size={18} userId={canonical.id} user={canonical} />
     </div>
   );
 }
@@ -49,7 +50,7 @@ function DmSearchUserRow({ user, isSelected, selectedRef, onClick }: {
   selectedRef?: React.Ref<HTMLDivElement>;
   onClick: () => void;
 }) {
-  const canonical = useCanonicalUserView(user, '');
+  const canonical = useCanonicalUserView(user);
   const displayName = canonical.displayName ?? canonical.username;
   return (
     <div
@@ -63,8 +64,8 @@ function DmSearchUserRow({ user, isSelected, selectedRef, onClick }: {
         src={canonical.avatar}
         name={displayName}
         size={24}
-        status={canonical.status as 'online' | 'idle' | 'dnd' | 'offline' | undefined}
-        userId={canonical.homeUserId ?? canonical.id}
+        status={canonical.status}
+        userId={canonical.id}
       />
       <div className="flex-1 min-w-0 flex items-center gap-1.5">
         <span className="text-[14px] text-txt-primary truncate">
@@ -96,8 +97,8 @@ function DmSearchDmRow({ item, isSelected, selectedRef, onClick }: {
   const rawPartner = !item.isGroup ? (item.otherMembers[0] ?? null) : null;
   // Call the hook unconditionally — pass a stable fallback (empty User shape)
   // for group DMs so hooks are always called the same number of times.
-  const FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false, replicatedInstances: [] } as unknown as User;
-  const canonicalPartner = useCanonicalUserView(rawPartner ?? FALLBACK_USER, item.origin);
+  const FALLBACK_USER = { id: '', username: '', createdAt: 0, isAdmin: false } as User;
+  const canonicalPartner = useCanonicalUserView(rawPartner ?? FALLBACK_USER);
   const partner = rawPartner ? canonicalPartner : null;
 
   return (
@@ -111,20 +112,20 @@ function DmSearchDmRow({ item, isSelected, selectedRef, onClick }: {
       {item.isGroup ? (
         <div className="relative w-6 h-6 flex-shrink-0">
           {item.otherMembers.slice(0, 2).map((m, idx) => (
-            <DmSearchGroupAvatarSlot key={m.id} member={m} origin={item.origin} index={idx} />
+            <DmSearchGroupAvatarSlot key={m.id} member={m} index={idx} />
           ))}
         </div>
       ) : (
         <Avatar
           src={partner?.avatar}
-          name={partner?.displayName ?? parseFederatedUsername(partner?.username ?? '').baseName}
+          name={partner ? userDisplayName(partner) : ''}
           size={24}
-          status={partner?.status as 'online' | 'idle' | 'dnd' | 'offline' | undefined}
-          userId={partner?.homeUserId ?? partner?.id}
+          status={partner?.status}
+          userId={partner?.id}
           user={partner ?? undefined}
         />
       )}
-      <span className="text-[14px] text-txt-primary truncate">{item.displayName}</span>
+      <span className="text-[14px] text-txt-primary truncate">{partner ? userDisplayName(partner) : item.displayName}</span>
     </div>
   );
 }
@@ -135,8 +136,6 @@ const SEARCH_DEBOUNCE = 300;
 interface DmItem {
   type: 'dm';
   dm: DmChannel;
-  /** The instance that issued the DM's member rows. */
-  origin: string;
   displayName: string;
   otherMembers: DmChannel['members'];
   isGroup: boolean;
@@ -150,6 +149,11 @@ interface UserItem {
 type ResultItem = DmItem | UserItem;
 
 export function DmSearchBar() {
+  const revision = useAuthStore(s => s.sessionRevision);
+  return <DmSearchContent key={revision} revision={revision} />;
+}
+
+function DmSearchContent({ revision }: { revision: number }) {
   const { t } = useTranslation(['dm', 'common']);
   const [active, setActive] = useState(false);
   const [query, setQuery] = useState('');
@@ -159,15 +163,13 @@ export function DmSearchBar() {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const dmChannels = useSpaceStore((s) => s.dmChannels);
-  const channelOriginMap = useSpaceStore((s) => s.channelOriginMap);
-  const self = useSelfIdentity();
+  const selfId = useAuthStore(s => s.user?.id ?? null);
   const navigate = useNavigate();
 
   const anchorRef = useRef<HTMLDivElement>(null);
   const floatingRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const selectedRef = useRef<HTMLDivElement>(null);
-  const searchTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const { style } = useFloatingPosition(anchorRef, floatingRef, {
     placement: 'bottom',
@@ -180,16 +182,11 @@ export function DmSearchBar() {
     const q = query.toLowerCase().trim();
     return dmChannels
       .map((dm): DmItem | null => {
-        const origin = channelOriginMap.get(dm.id) ?? '';
-        const otherMembers = dm.members.filter(m => !isMine(m, origin, self));
+        const otherMembers = dm.members.filter(m => m.id !== selfId);
         const isGroup = !!dm.ownerId;
         if (otherMembers.length === 0 && !isGroup) return null;
-        const displayName = isGroup
-          ? (otherMembers.length > 0
-            ? otherMembers.map(m => m.displayName ?? parseFederatedUsername(m.username).baseName).join(', ')
-            : t('dm:names.emptyGroup'))
-          : otherMembers[0]?.displayName ?? otherMembers[0]?.username ?? '';
-        return { type: 'dm', dm, origin, displayName, otherMembers, isGroup };
+        const displayName = formatDmHeaderName(dm, selfId);
+        return { type: 'dm', dm, displayName, otherMembers, isGroup };
       })
       .filter((item): item is DmItem => {
         if (!item) return false;
@@ -202,22 +199,20 @@ export function DmSearchBar() {
         );
       })
       .slice(0, MAX_RECENT);
-  }, [dmChannels, channelOriginMap, query, self, t]);
+  }, [dmChannels, query, selfId]);
 
-  // De-duplicate user results against shown 1-on-1 DMs: the same person
-  // (`userKey`), whichever instance's row each side holds. Results come from
-  // the page's own instance.
+  // Native pair membership, not usernames, determines duplicate search results.
   const filteredUserResults = useMemo((): UserItem[] => {
     const dmPeople = new Set<string>();
     for (const item of dmItems) {
       if (!item.isGroup && item.otherMembers.length === 1) {
-        dmPeople.add(userKey(item.otherMembers[0]!, item.origin));
+        dmPeople.add(item.otherMembers[0]!.id);
       }
     }
     return userResults
-      .filter(u => !isMine(u, '', self) && !dmPeople.has(userKey(u, '')))
+      .filter(u => u.id !== selfId && !dmPeople.has(u.id))
       .map(u => ({ type: 'user' as const, user: u }));
-  }, [userResults, dmItems, self]);
+  }, [userResults, dmItems, selfId]);
 
   // Flat unified list
   const allItems = useMemo((): ResultItem[] => {
@@ -236,26 +231,29 @@ export function DmSearchBar() {
 
   // Debounced user search
   useEffect(() => {
-    if (searchTimer.current) clearTimeout(searchTimer.current);
+    let alive = true;
+    const current = () => alive && revision === useAuthStore.getState().sessionRevision;
     const trimmed = query.trim();
-    if (trimmed.length < 2) {
+    setUserResults([]);
+    if (!active || trimmed.length < 2) {
       setUserResults([]);
       setIsSearching(false);
       return;
     }
     setIsSearching(true);
-    searchTimer.current = setTimeout(async () => {
+    const timer = setTimeout(async () => {
+      if (!current()) return;
       try {
         const users = await api.social.search(trimmed);
-        setUserResults(users);
+        if (current()) setUserResults(users);
       } catch {
-        setUserResults([]);
+        if (current()) setUserResults([]);
       } finally {
-        setIsSearching(false);
+        if (current()) setIsSearching(false);
       }
     }, SEARCH_DEBOUNCE);
-    return () => { if (searchTimer.current) clearTimeout(searchTimer.current); };
-  }, [query]);
+    return () => { alive = false; clearTimeout(timer); };
+  }, [active, query, revision]);
 
   // Click outside handler
   useEffect(() => {
@@ -288,6 +286,7 @@ export function DmSearchBar() {
   }, []);
 
   const selectItem = useCallback(async (item: ResultItem) => {
+    if (revision !== useAuthStore.getState().sessionRevision) return;
     setError('');
     if (item.type === 'dm') {
       close();
@@ -295,15 +294,16 @@ export function DmSearchBar() {
       navigate(`/channels/@me/${item.dm.id}`);
     } else {
       try {
-        const rowId = await openDirectMessage(item.user, '');
+        const rowId = await openDirectMessage(item.user.id);
+        if (revision !== useAuthStore.getState().sessionRevision) return;
         close();
         useUIStore.getState().setShowDms(true);
         navigate(`/channels/@me/${rowId}`);
       } catch (err) {
-        setError((err as Error).message || t('dm:search.createFailed'));
+        if (revision === useAuthStore.getState().sessionRevision) setError((err as Error).message || t('dm:search.createFailed'));
       }
     }
-  }, [close, navigate, t]);
+  }, [close, navigate, revision, t]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {

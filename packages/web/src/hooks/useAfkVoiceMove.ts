@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { useSpaceStore, getChannelOrigin, getMyUserIdForOrigin } from '../stores/spaceStore';
+import { useSpaceStore } from '../stores/spaceStore';
+import { useAuthStore } from '../stores/authStore';
 import { useVoiceStore } from '../stores/voiceStore';
 import { joinVoiceChannel } from '../utils/voice';
 import { afkTimeoutMs, resolveAfkTarget, shouldAfkMove, type AfkChannelLike } from '../utils/afkMove';
@@ -29,7 +30,7 @@ export function useAfkVoiceMove(): void {
       }
       const channelId = s.currentVoiceChannelId;
       if (channelId) {
-        const selfId = getMyUserIdForOrigin(getChannelOrigin(channelId));
+        const selfId = useAuthStore.getState().user?.id;
         if (selfId && s.speakingUserIds.has(selfId)) lastActivity.current = Date.now();
       }
     });
@@ -43,7 +44,7 @@ export function useAfkVoiceMove(): void {
       // long utterance looks like silence to the subscriber above. Recheck
       // the live set here: while the user is speaking the clock restarts,
       // and when they stop it restarts from ~the last heard tick.
-      const selfId = getMyUserIdForOrigin(getChannelOrigin(channelId));
+      const selfId = useAuthStore.getState().user?.id;
       if (selfId && v.speakingUserIds.has(selfId)) {
         lastActivity.current = Date.now();
         return;
@@ -54,11 +55,10 @@ export function useAfkVoiceMove(): void {
       if (!space) return;
       // `spaces.channels` holds the open space only: a voice session in A
       // while browsing B must still find A's AFK channel. The global index
-      // covers every visible space channel on every origin.
-      const origin = space._instanceOrigin ?? '';
+      // covers every visible native space channel.
       const known: AfkChannelLike[] = [];
       for (const [id, entry] of spaces.spaceChannelIndex) {
-        if (entry.spaceId === space.id && entry.origin === origin) known.push({ id, type: entry.type });
+        if (entry.spaceId === space.id) known.push({ id, type: entry.type });
       }
       const target = resolveAfkTarget(space, known);
       if (!target) return;

@@ -158,21 +158,6 @@
     "invitePlaceholder": "e.g. abc123 or https://instance.com/join/abc123",
     "submit": "Join Space",
     "submitting": "Joining...",
-    "connect": {
-      "intro": "Connect to <host>{{host}}</host> to join this space.",
-      "passwordLabel": "Enter your password to connect",
-      "passwordPlaceholder": "Your account password",
-      "passwordNote": "Your password is checked by your home instance and is never sent to {{host}}. That instance gets a unique credential generated for it alone.",
-      "submit": "Connect & Join",
-      "submitting": "Connecting..."
-    },
-    "fallback": {
-      "usernamePlaceholder": "Your username on this instance",
-      "passwordLabel": "Password for this instance",
-      "passwordPlaceholder": "Password on the remote instance",
-      "submit": "Login & Join",
-      "submitting": "Logging in..."
-    },
     "request": {
       "messagePlaceholder": "Why do you want to join? (optional)",
       "send": "Send Request",
@@ -450,12 +435,10 @@
       "transferOwnership": "Transfer Ownership",
       "settings": "Space Settings",
       "leave": "Leave Space",
-      "reconnecting": "Reconnecting to {{instance}}…",
-      "remoteInstance": "remote instance",
       "leaveConfirm": {
         "title": "Leave Space",
         "titleNamed": "Leave {{name}}",
-          "description": "Are you sure you want to leave this space? You'll need an invite to rejoin."
+        "description": "Are you sure you want to leave this space? You'll need an invite to rejoin."
       },
       "left": "Left space",
       "leaveFailed": "Failed to leave space",

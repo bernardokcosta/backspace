@@ -3,23 +3,23 @@ import type { Reaction, User } from '@veyvox/shared';
 import i18n from '../../i18n';
 import { setLanguage } from '../../i18n';
 import { formatters } from '../../i18n/formatters';
-import { reactionSentence, summarizeReactors } from './reactionSummary';
+import { isOwnReaction, reactionSentence, summarizeReactors } from './reactionSummary';
 
-function user(id: string, username: string, displayName: string | null = null, homeInstance: string | null = null): User {
-  return { id, username, displayName, avatar: null, createdAt: 1, homeInstance } as unknown as User;
+function user(id: string, username: string, displayName: string | null = null): User {
+  return { id, username, displayName, avatar: null, createdAt: 1 } as User;
 }
 
 const ME = user('me', 'jannis', 'Jannis');
 const MIRA = user('mira', 'mira', 'Mira');
 const OSKAR = user('oskar', 'oskar');
-const TOVE = user('tove-local', 'tove@orbit.example', null, 'orbit.example');
+const TOVE = user('tove-local', 'tove@orbit.example');
 
 function reaction(reactor: User | undefined, userId: string, at: number, emoji = '🎉'): Reaction {
   return { id: `r-${userId}-${at}`, messageId: 'm1', userId, emoji, createdAt: at, user: reactor };
 }
 
-const isMe = (r: Reaction) => r.userId === ME.id;
-const nameOf = (r: Reaction) => r.user?.displayName ?? r.user?.username.split('@')[0] ?? 'Unknown';
+const isMe = (r: Reaction) => isOwnReaction(r, ME.id);
+const nameOf = (r: Reaction) => r.user?.displayName ?? r.user?.username ?? 'Unknown';
 
 function sentence(reactions: Reaction[]): string {
   return reactionSentence(summarizeReactors(reactions, isMe, nameOf), i18n.t, formatters).text;
@@ -89,8 +89,8 @@ describe('reactionSentence (en)', () => {
       .toBe('Mira, person0, person1, and 1 other reacted');
   });
 
-  it('a remote user is named by display name or the name part of the handle', () => {
-    expect(sentence([reaction(TOVE, TOVE.id, 1)])).toBe('tove reacted');
+  it('a native user is named by display name or their complete retained handle', () => {
+    expect(sentence([reaction(TOVE, TOVE.id, 1)])).toBe('tove@orbit.example reacted');
   });
 
   it('marks where the names are in the sentence', () => {

@@ -42,6 +42,11 @@ capture, mute, RNNoise or LiveKit state. See [juno.md](juno.md) for settlement a
 retention rules.
 
 1. Client sends `voice_join { channelId }` via WS
+
+Selecting a native voice channel also clears any local outgoing DM ring
+immediately. The sole server's `voice_join` replaces the old call; no alternate
+origin leave/end is dispatched, and a delayed end echo cannot disconnect the new
+space session.
 2. Server checks CONNECT permission, enforces one-room-per-user
 3. Server loads voice restrictions from DB (space mute/deafen)
 4. Server broadcasts `voice_state_update { action: 'join', channelElapsedSeconds }` to space. `channelElapsedSeconds` is the whole occupied duration computed by the server, so client/server clock skew cannot change the channel timer; the client advances it from receipt time on one shared, visibility-aware one-second beat. The duration survives participant joins and reconnect grace, and resets when the last participant leaves.
@@ -133,8 +138,7 @@ A call's rules depend on its conversation. A 1-on-1 call ends when either side
 ends or declines it. A group call is shared: members come and go, and it ends
 only when nobody is left in it. The room records which kind it is when it is
 created (`DmRoomMeta.group`, from `isGroupConversation` in
-`utils/dmConversation.ts`: every DM row that may not be a 1-on-1, so an owned
-row or a row with a UUID key).
+`utils/dmConversation.ts`: a group has a non-null native owner ID).
 
 | Event | 1-on-1 | Group | State |
 |-------|--------|-------|-------|
@@ -149,34 +153,20 @@ Ends go through `ConnectionManager.endDmRoom`, which unbinds the voice
 sessions, sends a `voice_state_update` leave for each participant still
 seated, then the end event. A ringing call its caller leaves behind by
 starting another call or joining a voice channel ends the same way, through
-`endRingingCallsPlacedBy`, and its end is relayed to the peers. A leave the
-ConnectionManager makes itself (voice-session grace, account deletion, a
-relayed seat moving a member out of another room) goes through
+`endRingingCallsPlacedBy`. A leave the ConnectionManager makes itself
+(voice-session grace, account deletion or movement to another native room) goes through
 `leaveCurrentRoomAnnounced`, which tells the room's viewers and ends a DM call
 it leaves empty. The group
 rules live in `leaveGroupDmCall` and `declineGroupDmCall` on the
-ConnectionManager, used by both the local handlers (`ws/events.ts`) and the
-relayed ones (`routes/federation/events/calls.ts`).
+ConnectionManager, used by the native handlers (`ws/events.ts`).
 
 **Starting a call in a DM that has one.** `dm_call_start` in a DM whose call
 is hosted here joins that call for a member who is not in it (the same path as
 `dm_call_accept`), so two members pressing call at once end up in one call. A
 member already in it (a participant, or the caller of a call still ringing,
 from another tab) gets `error { code: 'dm_call_in_progress', dmChannelId }` on
-the sending socket only. So does any member while the DM's call hosted on
-another instance is live: a second call here would split the conversation, and
-the host minted the room tokens when its call started, so a late join through
-this instance is not possible. The client clears its calling state on that
-refusal. That call counts as live while its record here still rings (the
-host's end or the 60 s ring timeout ends that), or while a member here is in
-it (`FederatedCallEntry.joinedUserIds`). The starter's own place in it counts
-only while another of their sessions holds it: the socket that starts a call
-holds none, and a place no voice session holds any more is gone, so the
-starter leaves it first (`leaveJoinedFederatedCall`). Any other record is one
-the host's end never replaced (a 1.8.0 host ends a call on a voice-session
-grace or a voice channel join without telling its peers, and a relay can be
-lost). It is dropped, and the start goes on. This holds for 1-on-1 and group
-calls alike.
+the sending socket only. The client clears its calling state on refusal.
+Native calls have one server-owned room and no remote entry or second signaling path.
 
 **Client.** The DM header call button (desktop `MainContent`, mobile
 `MobileChatScreen`) becomes a join button when the DM's instance reports
@@ -186,7 +176,7 @@ people in its call (`voiceUsers` for the DM id, `isDmCallRunning`).
 has nobody seated, so the button still reads start there; the server turns that
 start into a join. `dm_call_accepted`, `dm_call_ended` and `dm_call_rejected`
 change the client's call state only when they name the call it holds
-(`dmCallEventIsOurs`: the DM id, or the conversation key through the DM list).
+(`dmCallEventIsOurs`, comparing the native DM ID).
 Every member of a DM hears each accept (late joins included) and the call's
 end, and a member calling another DM, in another call, or in a voice channel
 must stay where it is.
@@ -198,143 +188,37 @@ A refused `dm_call_accept` carries a code too, on the sending socket only:
 incoming modal) leaves it again on `dm_call_not_found` or `not_dm_member`.
 
 **Edge cases:**
-- Starting a new call, or joining a voice channel, ends any other call the same caller still rings, and the end is relayed to the peers (`endRingingCallsPlacedBy`; the voice join seats the user first, so the end does not unbind the new session)
+- Starting a new call or joining a voice channel ends any other call the same caller still rings (`endRingingCallsPlacedBy`; the voice join seats the user first, so the end does not unbind the new session)
 - Socket close during ringing → auto-cleanup
-- Socket close during ringing also relays the end to the peers
-- Participants drop to 0 in active state → room destroyed, also when the last one leaves through a voice-session grace expiry, by joining another room, or through account deletion (`forceDisconnectUser`), and the end is relayed to the peers (the ring-timeout fan-out hook covers the ConnectionManager's own ends)
+- Participants drop to 0 in active state → room destroyed, also after the last participant's grace expiry, room change or account deletion (`forceDisconnectUser`)
 - `ready` does not report a ringing group call to a member who declined it, so a reload within the ring does not ring them again
 
 ---
 
-## Federated DM Calls
+## Native Call Credentials and Client Lifecycle
 
-DM calls work across federated instances. The caller's instance hosts the LiveKit room; remote clients connect to it directly. Call signaling is relayed to ALL active federation peers via synchronous HTTP POST (not the outbox worker). This ensures calls ring on every instance where a participant is connected, even if the DM is local-only on the caller's instance.
+Call signaling uses the current native socket and `dmChannelId`. Both one-on-one
+and group calls have one server-owned room; there is no second relay path,
+late-bound conversation, peer sentinel or credential-bearing incoming event.
 
-### Universal Relay
+Only authenticated REST `POST /api/livekit/token` issues media credentials after
+native DM membership/space permission checks. DM rooms are named
+`dm-${dmChannelId}`; participant identity is `${userId}:${username}` from the
+authenticated account, not caller-supplied identity/room fields. The private pair
+key never becomes a room credential or client-visible routing reference.
 
-All `dm_call_*` signaling events (`start`, `accept`, `reject`, `end`) are relayed to every active federation peer in parallel. Each `sendCallRelay` call has a 10-second HTTP timeout. This bypasses the outbox worker — call signaling is latency-sensitive.
-
-**Auto-peering at send time.** If the target origin has no active peer record, `sendCallRelay` races an `ensurePeered` handshake against a 3 s deadline (`CALL_PEERING_TIMEOUT_MS`). On success the relay POSTs normally; on timeout it returns `peer_transient_failure` without aborting the background handshake, so a subsequent attempt typically succeeds. Typing (`sendTypingRelay`) passes `peeringTimeoutMs: 0` — the POST is skipped for non-active peers and a warm-up `ensurePeered` runs in the background.
-
-**Call relay failure surface.** Every `dm_call_{start,accept,reject,end}` relay is failure-aware. On failure the originating server emits a `dm_call_undeliverable` event with a `phase` discriminator identifying which action failed. Client copy is phase-specific; state rollback depends on the phase.
-
-| `phase` | `terminal` | Emitted when | Client action |
-|---------|------------|--------------|---------------|
-| `start` | true | No plausible recipient after targeted-peer fan-out; ring room destroyed. | Clear `outgoingCall`, disconnect LK, warning toast. |
-| `start` | false | Some targeted peers failed but reachable recipients remain; ring continues. | Keep state; info toast. |
-| `accept` | true | Acceptor's B→host relay failed; optimistic state is rolled back on B. | Clear `activeDmCall` + `incomingCall`, disconnect LK, warning toast. |
-| `accept` | false | Host → peer fan-out of accept failed; local host call continues. | No state change; info toast. |
-| `reject` | false | Rejector's relay to host failed OR host's fan-out after a local reject failed; state already cleared. | No state change; info toast. |
-| `end` | false | Ender's relay to host failed OR host's fan-out after a local end failed; state already cleared. | No state change; info toast. |
-| `host_unreachable` | true | A FederatedCallEntry's `federatedCallHost` peer transitions out of `active`, OR the 30s sentinel detects a non-active host for an existing entry. | Clear `activeDmCall` + `incomingCall`, disconnect LK, warning toast (*"Call ended — {label} became unreachable."*). |
-| `no_recipient` | true | Remote returned 200 but had no reachable recipient (Path A: all members offline; Path B: zero participant matches). Caller fast-fails within the relay round-trip; ring room destroyed. | Clear `outgoingCall`, disconnect LK, warning toast (*"{peerLabel} couldn't ring anyone."*). Folds into multi-failure info copy when not the sole failure. |
-
-A `start` failure with the reason `identity_not_accepted` was never sent: the caller is a federated account here whose home is a third instance, which that peer does not accept from this instance (federation.md, "Who a call relay names"). It is terminal or not like any other start failure, and its toast is the generic *"Call to {peerLabel} could not be placed."*. An `accept` relay to the host fails the same way, terminal, when the host would accept no name for the member.
-
-**Accept-rollback semantics.** `handleDmCallAccept` Path 2 transitions the `FederatedCallEntry` to active and broadcasts `dm_call_accepted` optimistically so the acceptor's UI flips immediately. If the B→host relay fails, the server clears the entry, fans `dm_call_undeliverable { phase: 'accept', terminal: true }` out to all ringed users on B (via `sendToFederatedCallUsers`), and the client tears its call state back down.
-
-**Reject / end are optimistic.** Local state is cleared before the relay is awaited because the user's intent is to terminate. If the relay fails, the originator receives an informational `dm_call_undeliverable { terminal: false }` so they know remote peers may briefly display stale state; no local rollback.
-
-**Group calls across instances.** The group rules above hold on both sides
-when both run this version. `FederationCallPayload.perMember` says so on the
-wire: the host sets it on a group call's `dm_call_start` ("I apply the group
-rules and relay the end to every peer"), and an entry holder sets it on a
-group member's relayed `dm_call_accept` ("I will tell you when this member
-leaves, also when they just go away"), `dm_call_end` and `dm_call_reject`
-("only this member left or declined; I keep the call for my other members").
-Peers up to 1.8.0 never send it.
-
-- *Host.* A relayed `dm_call_accept` of a group call that carries `perMember` seats the remote member in the room under their local row (`DmRoomMeta.remoteParticipants` records the peer that relayed them), so the room is not empty while they are in it and voice states list them. A seat they hold in another room here is left first, and told (`leaveCurrentRoomAnnounced`), so that room cannot stay active and empty. An accept without `perMember` (a 1.8.0 peer, or any 1-on-1) seats nobody: such a sender does not relay a member's leave when they close the tab, so the call ends with its last seated participant, as in 1.8.0. A relayed `dm_call_end` with `perMember` takes that member out and ends the call only when they were the last one in; a relayed `dm_call_reject` with `perMember` only records the decline. Either one from a member who is not in the call changes nothing. When a group call ends, `dm_call_end` goes to every peer that homes a member, the sender too, since its other members may still be ringing. Every relay the host signs names, per peer, a user that peer accepts (`callRelayActor` in `utils/callFanout.ts`): the member whose action it was when they are homed on the host or on that peer, the caller otherwise, and nothing is sent to a peer that accepts neither. A peer refuses an actor homed on a third instance, so a relayed accept or 1-on-1 end passed on to the other peers names the caller, not the remote member who acted; the accept says who answered in `answeredBy`. The start follows the same rule, so a federated account here whose home is a third instance cannot ring members on other peers (federation.md, "Who a call relay names"). When a peer leaves `active`, `onPeerDeactivated` calls `dropRemoteCallParticipants`, which takes that peer's members out of the calls hosted here and ends a call it leaves empty.
-- *Entry holder.* `FederatedCallEntry.group` is set only for a group call whose `dm_call_start` carried `perMember`. `handleDmCallAccept` Path 2 records the acceptor in `FederatedCallEntry.joinedUserIds` (any call) and binds their voice session to the accepting socket (`setVoiceWs`); a `voice_status` from a new socket rebinds it after a reconnect. Before that the acceptor leaves the voice room they hold here and any other call hosted on a peer. Path 2 `dm_call_end` from a joined member drops them and relays the end with `perMember`; from anyone else it is ignored and nothing is relayed. Path 2 `dm_call_reject` from a member not in the call removes them from `ringedUserIds`, sends `dm_call_rejected` to that member only and relays the decline with `perMember`. In both cases the entry stays for its other members until the host's own `dm_call_end` says the call is over.
-- *A member who goes away.* A joined member also leaves without hanging up: their voice session is gone past the reconnect grace (a closed tab, a reload, a lost network), they join a voice channel or another call here, they send `voice_leave` here (the client does when it joins voice on another instance), or their account is deleted. `leaveJoinedFederatedCall` (registered as `setFederatedCallLeaveHook` for the ConnectionManager's own cases) takes them out of `joinedUserIds`. In a group call it relays `dm_call_end` with `perMember`, so the host drops their seat and ends the call with its last participant. In any other call (a 1-on-1, or a group call from a 1.8.0 host) nothing is relayed, as in 1.8.0, where only a hang-up ends such a call: the member only stops counting as in the call here, which is what lets a later start through (see "Starting a call in a DM that has one").
-
-How a 1.8.0 peer and this version meet:
-
-| Case | What happens |
-|------|--------------|
-| Host here, a member on a 1.8.0 peer joins | The 1.8.0 accept has no `perMember`, so the member is not seated, as with a 1.8.0 host. The call ends with its last seated participant; voice states do not list them. |
-| Host here, a member on a 1.8.0 peer hangs up | The 1.8.0 peer ends the call for all its own members and relays the end without `perMember`. Its members were never seated, so members here and on other peers stay in. (A seat that peer relayed in with `perMember` before, if any, is taken out, and a call that leaves empty ends.) |
-| Host here, a member on a 1.8.0 peer declines | The 1.8.0 peer stops the ring for all its members and relays the decline without `perMember`. The host records the decline; the call goes on. A ringing call ends on its 60 s timeout unless someone answers. |
-| Host here, call ends | The end reaches a 1.8.0 peer as before; it ends the call for its members. |
-| Host on a 1.8.0 peer, members here | The `dm_call_start` has no `perMember`, so the entry here keeps the 1.8.0 rules: a member's end or decline ends the call for every member here and is relayed, without `perMember` on the accept, end or decline. The 1.8.0 host ends the whole call on it, as it always did. A member who goes away without hanging up only leaves the entry here; nothing is relayed. |
-| Accepts in either direction | A 1.8.0 host does not seat remote acceptors. A host here seats only an acceptor of a group call whose accept carries `perMember`, which only this version sends. |
-
-**Ring-timeout fan-out.** When the host's 60 s ringing timeout fires without an accept, `dm_call_end` is fanned out to all remote peers so stranded Path-A/B ringees on other instances exit their ring state instead of lingering. Registered via `connectionManager.setRingTimeoutFanoutHook` from the WS events module. The same hook (`fanOutCallEnd`) relays the other ends the host makes on its own: a ringing caller's socket closing, the last participant's voice grace running out, account deletion, a peer's participants dropped by `dropRemoteCallParticipants`, a relayed seat that empties another call, and a group call ended by a relayed end or decline.
-
-**Remaining edge.** A remote participant's leave reaches the host only through a relayed `dm_call_end`, sent on a hang-up or when their entry holder sees them go (above). If that relay fails while the peer stays `active`, the host keeps them seated and the group call does not end when everyone else leaves; it ends when the peer stops being active or the server restarts. The other direction: if the host's final `dm_call_end` does not reach an entry holder, its entry no longer refuses a start once nobody there is in the call, and it is dropped once its 60 s ring window has closed (`dropFederatedCallIfIdle`). When a non-host participant ends an active 1-on-1 call and the relay to the host fails, the host's `activeDmCall` marker lingers until manual end: LK `ParticipantDisconnected` tears down the voice UI but does not clear the DM-call marker on the host side. This is the caller-side mirror of the remote-participant problem and is not covered by the Remote-Participant Host Unreachable Eviction mechanism above (which only reasons about FederatedCallEntry state). Tracked separately.
-
-### Remote-Participant Host Unreachable Eviction
-
-When a FederatedCallEntry's `federatedCallHost` becomes unreachable (peer status transitions to `unreachable`, `needs_attention`, `rejected`, or `revoked`), the entry owner evicts the stranded state and notifies its local ringed users with `dm_call_undeliverable { phase: 'host_unreachable', terminal: true }`. Two signals drive the eviction:
-
-1. **Fast path (`onPeerDeactivated` hook):** every peer-status transition out of `active` invokes `ConnectionManager.evictFederatedCallsForHost(peerOrigin, ...)`. Call sites are listed in the `onPeerDeactivated` docstring (audit via `grep onPeerDeactivated(`).
-2. **Backstop (30s sentinel):** `runFederatedCallSentinelTick` in `federationWorker.ts` iterates active entries, looks up each distinct `federatedCallHost`'s current peer status, and evicts non-active matches.
-
-Typical eviction latency is ~90s (time for outbox traffic to fail the unreachable threshold + one sentinel tick). Worst case on an idle instance with no outbox traffic is ~15.5min (health-check cadence + sentinel).
-
-Covers the ringing and active states on the remote-participant side. The caller-side mirror — host's own `activeDmCall` lingering when its LK room empties silently — is a separate, documented out-of-scope edge.
-
-### Dual-Path Processing
-
-When a peer instance receives a call relay, it uses one of two delivery paths:
-
-| Path | Condition | Delivery |
-|------|-----------|----------|
-| **A** | DM exists on the receiving instance | Look up `dm_members` for the local `dmChannelId` and deliver to connected members |
-| **B** | DM does not exist on the receiving instance | Match participants by `homeUserId + homeInstance` identity against connected WebSocket users |
-
-Path B enables calls to ring for federated users even when no local DM channel has been created yet (e.g., first contact via a federated call).
-
-### FederatedCallEntry
-
-The in-memory call state (`FederatedCallEntry`) is keyed by `federatedId` (not `dmChannelId`):
-
-- `dmChannelId` is **nullable** — null for Path B scenarios where no local DM channel exists
-- `ringedUserIds` tracks all users who were notified of the incoming call, used for end-call cleanup. A group decliner is removed from it
-- `joinedUserIds` tracks the local users in the call through this instance, each with their voice session bound here; in a group call only they can end their part of it, and while it is non-empty (or the call still rings) a start in the DM is refused
-- `group` is set at creation when the conversation is a group (from the local row, or from the key's shape when there is none, Path B) and the host's `dm_call_start` carried `perMember`
-- The 60 s ring window set at creation keeps running after the first accept: members here who were rung may still answer until it closes. A call still ringing then ends; an answered one with nobody here in it is dropped silently, at once if that happens after the window (`leaveFederatedCallEntry` / `dropFederatedCallIfIdle`). Silent, because a member in the call through another instance must not be told it ended
-- `callerId`, `callerHomeUserId`, `callerHomeInstance` identify the caller across instances
-
-### Late-Bind dmChannelId
-
-When the relayed first message creates a local 1-on-1 copy (`findOrCreateOneOnOne`, then `lateBindFederatedCall` in `processCreateEvent`) during an active federated call (e.g., the first message arrives while a call is ringing), it binds the `dmChannelId` on the existing `FederatedCallEntry`. This transitions the call from Path B to Path A delivery without interrupting the call.
-
-### Token Generation & Room Identity
-
-**Token generation:** `generateFederatedCallToken(federatedId, homeUserId, displayName)` in `routes/livekit.ts` issues 5-minute tokens scoped to the `federatedId` room (not the local `dmChannelId`). Grants full DM permissions (mic, camera, screen share, subscribe, data channel).
-
-**Token audience (`sendFederatedCallStart`, `ws/events.ts`).** These tokens are bearer credentials for the call room, so each `dm_call_start` relay is built per recipient and carries tokens **only for the DM members that recipient homes**. Consequences:
-
-- A DM whose members are all local produces **no relay at all** — the function returns before any token is minted. Peers never learn that a purely local call happened.
-- Only instances that home a DM member are contacted. An active peer with no party to the DM receives nothing.
-- The caller's own token is never relayed (the caller joins via `POST /api/livekit/token`; both inbound paths in `routes/federation/events/calls.ts` skip the caller anyway), and no peer receives a token minted for a member homed on a different instance.
-- On the receiving side, both Path A and Path B skip a local member for whom the host sent no token instead of dispatching a `dm_call_incoming` with an unusable token. A local member homed on a third instance — a client-federation connection — is rung by their own home instance, which is the one the host minted their token for.
-- `participants` stays the complete roster: it is non-secret and Path B needs it for identity matching.
-
-**LiveKit URL:** The relay sends `config.livekit.url` (e.g., `wss://nova.ddns.net/livekit`). Must be `wss://`, not `https://` — the LiveKit SDK requires a WebSocket URL.
-
-**Token endpoint:** `POST /api/livekit/token` uses `federatedId` as the room name when the DM channel has a `federatedId` set, ensuring both instances join the same LiveKit room.
-
-**Identity format:**
-- Federated calls: `${homeUserId}:${displayName}` — stable across all instances
-- Local calls: `${userId}:${username}` — unchanged
-
-**Client identity resolution:** For federated calls, the client splits the LiveKit participant identity on `:` and matches `homeUserId` against the DM member list (which stores `homeUserId` for all members). This resolves the correct display name and avatar regardless of which instance the participant is on.
-
-### Client-Side Call Routing
-
-**Each call slot carries its own reference (`DmCallRef`, `stores/voiceStore.ts`).** `incomingCall` and `activeDmCall` hold `dmChannelId` (the conversation's id on the instance the call goes through, null only when that instance has no copy, Path B), `federatedCallId` (the call's key) and `callOrigin`; a ring also holds its LiveKit credentials (`livekit`) until the connect uses them once. `outgoingCall` is always hosted on the conversation's own instance. A ring that arrives during a call therefore never changes where the call's hang-up goes or which token a Retry uses. `dmChannelId` never holds the key: `utils/dmCall.ts` derives the origin (`dmCallOrigin`), the id LiveKit connects under (`dmCallRoomKey`, the key for Path B) and the conversation the client can open (`dmCallChannelId`, the copy another connection has under the key, used by "return to call", the DM headers and the mobile call screens through `useActiveDmCall`).
-
-**`callOrigin`:** Set to the WS origin that delivered the `dm_call_incoming` event (the home instance), NOT the call host URL. Null means the conversation's own origin. Accept/reject/end route through this WS. The home instance's server finds the `FederatedCallEntry` and relays to the host via S2S HTTP. This is reliable regardless of whether the client has a multi-instance WS to the host. `sendDmCallEnd` is the one place a client ends a call; every hang-up goes through `handleDisconnectAction`.
+Each incoming/active/outgoing slot carries the native DM ID. The primary API
+and current socket own accept/reject/end and connection; stale slot fields cannot
+select another endpoint, token or identity. `sendDmCallEnd` and
+`handleDisconnectAction` retain the common hang-up path.
 
 **Accepting (`acceptIncomingDmCall`):** Sets `activeDmCall` from the ring and clears `incomingCall` directly in the click handler. It does not wait for the server's `dm_call_accepted` response (races with `connectFn`'s async AudioContext resume). Starting, joining and accepting a call arm the microphone inside the tap (`preArmMicrophone`, see "Microphone pre-arm"). The desktop video button starts or joins the same call and turns the camera on once LiveKit has connected (`turnCameraOnInDmCall`).
 
 **`dm_call_accepted` enters the call only for the caller** (the session with `outgoingCall`, when the event names that call). An acceptor entered it in the click. Being LiveKit-connected says nothing: a session sitting in a voice channel while the call was answered on another device stays out.
 
-**Who answered.** The server names the member who answered in `dm_call_accepted.answeredBy`, by federated identity (`userRelayIdentity` for a member here; the relayed `answeredBy`, or `acceptor` from a 1.9.0 peer, for a member elsewhere). The client clears `incomingCall`, and with it the ringtone, only when the event names the ringing call and the member who answered is the signed-in user (`acceptStopsRing`, `isMyIdentity`: home user id and home host). In a group call another member's answer therefore leaves the ring on, so this member can still join until the ring window closes; the user's own answer on another session stops it. An event without `answeredBy` (a server up to 1.9.0) stops it as before.
+**Who answered.** `dm_call_accepted.answeredByUserId` is the authenticated native account ID. Clients stop their ring only when the event identifies their ringing DM and their account answered. Another member's group acceptance does not stop this user's ring, while acceptance in the user's other session does. Incoming payloads cannot supply the acceptance actor.
 
-**One call at a time across instances.** Joining a voice channel on another instance than the DM call goes through sends `voice_leave` to the call's instance (which leaves the call there as a voice join would) and cancels a call still ringing there; entering a DM call sends `voice_leave` to a voice channel on another instance than the call's (`clearSpaceVoiceForDmCall`). On the same instance the server's own `voice_join` / `dm_call_accept` does it. A `ready` from an origin that reports no call tears down only a call that goes through that origin.
+**One native call at a time.** The current server's voice/call handlers leave the previous room when joining another. Client state clears the mutually exclusive space/DM slot; a stale socket/session cannot tear down a newer connection.
 
 **Passive ready handler:** On page refresh/restart, the ready payload includes active calls but the client does NOT auto-connect to LiveKit. Users must re-accept. This prevents identity slot wars when the same user has multiple sessions.
 
@@ -342,11 +226,13 @@ When the relayed first message creates a local 1-on-1 copy (`findOrCreateOneOnOn
 
 **Caller connect guard.** In `dm_call_accepted`, the caller connects to the DM room gated on `wasOutgoingCall` (only the initiating session ever sets `outgoingCall`) — **not** on `!isLiveKitConnected`. A caller already sitting in a space voice channel is LiveKit-connected; gating on that would skip the DM connect and strand them in the space channel. `connect()` de-dupes an already-connected same room, so `wasOutgoingCall` alone is sufficient.
 
-**DM-call teardown never disconnects a space connection (`teardownDmCall`).** The `dm_call_ended` / `dm_call_rejected` / terminal `dm_call_undeliverable` handlers all route through `teardownDmCall()` (`useWebSocket.ts`), which clears the call UI/federation state and tears down LiveKit **only when `currentVoiceChannelId` is null**. `disconnectFn()` tears down whatever room is active, and a space channel and a DM call are mutually exclusive (`setCurrentVoiceChannel` clears `activeDmCall`). The load-bearing case: when the **last** participant in a DM call joins a space voice channel, their post-connect `voice_join` empties the server-side DM room, so `broadcastRoomLeave` (`events.ts`) broadcasts `dm_call_ended` back to every DM member — including them. Without the guard, that echo would `disconnectFn()` the space room they just connected to, stranding the UI on "Connecting…" until a manual rejoin. The first participant to leave is unaffected (room still occupied → no `dm_call_ended`). Regression test: `hooks/teardownDmCall.test.ts`.
+**DM-call teardown never disconnects a space connection (`teardownDmCall`).** Native call end/rejection clears the DM UI and tears down LiveKit **only when `currentVoiceChannelId` is null**. Space/DM slots are mutually exclusive. If the last DM participant joins a space room, the old DM's end echo must not disconnect the new space room. Regression: `hooks/teardownDmCall.test.ts`.
 
-### SoundController Federation Awareness
+### Native SoundController Identity
 
-A participant id is the call's instance's row id, or, in a federated call while the DM is not resolved (when `activeDmCall` is cleared during disconnect), the LiveKit identity's home user id. `SoundController`'s `isSelf(id)` accepts both: the id the call's instance gave the user (`getMyUserIdForOrigin` of `voiceSessionOrigin`: the voice channel's origin, or the DM call's `dmCallOrigin`; `''` when there is no call, so the session row's `id` counts only when there is no call or the call is on the page's instance) and the user's home identity id (`homeIdentityOf(user, '').userId`). Without either, the user's own join and leave would play the sounds for someone else's. The identity rule is client-federation.md §5.
+Sound self-checks use the authenticated native account ID, including during
+teardown. The local user's own join/leave must not play another participant's cue;
+there is no home-identity fallback or per-origin self lookup.
 
 **Disconnect teardown:** `roomRef` is set to `null` before calling `destroyRoom()`. This prevents `ParticipantDisconnected` events (fired during teardown) from triggering `updateParticipants`, which would cause `user_leave` sounds for departing participants alongside the disconnect sound.
 
@@ -568,7 +454,7 @@ acceptance gates are documented in [desktop.md](desktop.md),
 - `allowCustomBitrate` toggle
 - `bitrateMatrixOverrides` (JSON sparse overrides)
 
-**Whose limits apply.** The instance that issued the LiveKit token, not the user's home: its SFU carries the stream and its admin set the caps. `useLiveKit.connect` records that origin in `voiceStore.livekitHostOrigin` when it fetches the token (`getApiForOrigin(getChannelOrigin(channelId))`, for space channels and DM calls alike; `''` = home) and asks that instance for its document with `settingsStore.fetchStreamingLimitsFor(origin)` on every join. A token relayed through S2S for a federated DM call hosted elsewhere records `null`: the client holds no session there, so the defaults apply. `utils/streamHostLimits.ts` resolves the recorded origin: `getStreamHostLimits()` feeds `buildScreenShareOptions` and `resolveNativeOverdrive`, and `useStreamHostLimits()` feeds `StreamQualityControls`, `StreamTile`'s quality label and the live-settings effect in `useLiveKit`, whose dependencies include the limits so a document that arrives after the share started is applied to the running encoder. Home's document stays in `settingsStore.streamingLimits` (it also carries home's discovery flags); others live in `settingsStore.streamingLimitsByOrigin`. A failed refresh keeps the last document that host sent; an origin that never answered falls back to the defaults, never to home's document. `StreamHostSubtitle` shows "Limits set by <host>" under the Stream Settings title (popover and setup drawer) when the host is not home, and the custom-bitrate line names the host.
+**Whose limits apply.** The selected native server's `settingsStore.streamingLimits` governs the connected room. The existing primary API refreshes this one document; quality controls, labels, `buildScreenShareOptions`, native overdrive and the `useLiveKit` live-settings effect read it. A late refresh applies to the encoder without rewriting saved preferences. No secondary host-limit cache, credential resolver or relayed-token fallback remains.
 
 **Effective config, never written back.** `effectiveScreenShareConfig(config, limits)` (`utils/screenShare.ts`, pure) fits the saved config to the host's limits at use time: nearest allowed height (a disallowed `'native'` becomes the highest allowed height, and only-native allowed gives `'native'`), nearest allowed frame rate, and the custom bitrate dropped where not allowed or clamped to the range. An empty allowlist leaves its value alone. `buildScreenShareOptions`, `resolveNativeOverdrive`, the highlighted pills and the stream tile label all use it. Nothing writes the fitted values into `screenShareConfig`: the saved choice is the user's, so a strict host (or a stricter home policy) caps this stream without lowering the next one. Only a click in the controls saves.
 
@@ -651,7 +537,7 @@ The sharer sends `stream_resume` from `settleScreenShareAfterReconnect` when its
 
 Mixed versions: an older sharer sends neither signal, so its viewers forget the share after the window and only their own full reconnect inside it resumes the watch. An older viewer ignores both and loses the share as before. A viewer that stopped watching is not remembered, and a new share started without a reconnect is never watched unasked.
 
-Stream state for a remote sharer is keyed by `resolveParticipantUserId(identity)`, the same function `updateParticipants` lists participants under and so the id `StreamTile` watches by. In a federated DM call it resolves the home id in the LiveKit identity to the DM member's local id. It reads the DM membership, not the participant list, because a sharer who leaves is dropped from that list by the first `TrackUnpublished` of the teardown, before the screen share's own removal and `ParticipantDisconnected` arrive.
+Stream state uses the native account ID from the LiveKit participant identity, consistently with `updateParticipants` and `StreamTile`. It does not project a foreign ID through DM membership. Track-unpublish/disconnect ordering must still release the share even after the participant leaves the displayed list.
 
 `StreamQualityControls` is the shared quality panel (resolution, frame rate, content mode, codec, bitrate, system audio; it shows the effective config and saves only on click); `ScreenShareSetup` and `ScreenShareSettingsPopover` both render it.
 
@@ -936,5 +822,5 @@ The `<video>` element is set up identically to `VideoSection` for iOS Safari com
 ### Architectural asymmetry: mic republishes, camera switches
 Mic publishes the output of a Web Audio graph (RNNoise, gain, AEC) — `LocalParticipant.switchActiveDevice` cannot operate on it because the published track is a `MediaStreamAudioDestinationNode.stream`'s track, not a raw mic track. Mic device changes therefore unpublish/republish via `AudioManager.getFreshTrack()`. Camera publishes the raw `getUserMedia` track and uses `switchActiveDevice` for in-place swaps. **Do not unify.**
 
-### Federation
-No federation work. The LK room is at the host instance; remote peers connect to it directly. `switchActiveDevice` is room-internal and works regardless of where the room lives.
+### Room-local device switching
+`switchActiveDevice` stays inside the connected LiveKit room. It neither changes the selected server/account nor creates another signaling or credential path.
