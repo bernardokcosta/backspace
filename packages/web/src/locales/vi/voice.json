@@ -12,6 +12,14 @@
     "joinedOtherSession": "Voice ngắt — tham gia từ phiên khác"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Choáng váng",
+      "instruction": "Choáng váng trong lượt này: 50% khả năng đánh nhầm lá hoặc chọn nhầm màu đổi màu.",
+      "affected": "{{name}} đang choáng váng.",
+      "miss": "{{name}} đánh nhầm và rút {{amount}} lá. Các lá vẫn nằm trong tay.",
+      "colorChanged": "{{name}} chọn màu khác khi đang choáng váng.",
+      "rules": "Một lá hiếm có thể đánh lên mọi màu hoặc ký hiệu mà không đổi màu hiện tại. Người kế tiếp choáng váng một lượt: lá thường có 50% khả năng đánh lỗi, cả hai lá vẫn trong tay, rút hai lá rồi qua lượt. Lá đổi màu thay vào đó có 50% khả năng chọn một trong ba màu khác mà không chịu hình phạt thêm này. Hiệu ứng kết thúc sau lượt đó."
+    },
     "guide": {
       "subtitle": "Học bàn, đọc bài, đi nước của bạn.",
       "contents": "Mục lục hướng dẫn",

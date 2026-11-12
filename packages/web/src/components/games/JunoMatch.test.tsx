@@ -13,6 +13,33 @@ beforeEach(() => {
   useJunoStore.setState({ snapshot: { revision: 1, game: junoGame('playing') }, observedAt: Date.now(), command });
 });
 describe('Juno cosmic interactive match', () => {
+  it('plays Entorpecido without a color picker and uses its supplied card art', async () => {
+    const game = junoGame('playing'); game.hand = [{ id: 'intoxicated', face: 'intoxicated', color: null }];
+    useJunoStore.setState({ snapshot: { revision: 2, game } }); const { container } = render(<JunoMatch />);
+    const button = screen.getByRole('button', { name: /play.*intoxicated/i });
+    expect(button).toBeEnabled(); expect(container.querySelector('.juno-hand img')).toHaveAttribute('src', '/games/juno/cards/intoxicated.webp');
+    await userEvent.click(button);
+    expect(command).toHaveBeenCalledWith({ type: 'play', cardId: 'intoxicated', announce: false });
+    expect(screen.queryByRole('button', { name: 'Green' })).not.toBeInTheDocument();
+  });
+  it('distorts only the victim table, keeps real hand/actions readable, and clears on confirmed end', () => {
+    const game = junoGame('playing'); game.intoxication = { id: 'intoxication', targetUserId: 'a' };
+    useJunoStore.setState({ snapshot: { revision: 2, game } }); const { container } = render(<JunoMatch />);
+    expect(container.querySelector('.juno-intoxicated-active .juno-intoxicated-haze')).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'Your hand' })).toHaveAccessibleDescription(/50%/);
+    expect(container.querySelectorAll('.juno-hand img')).toHaveLength(2);
+    expect(screen.getByRole('button', { name: 'Draw pile' })).toBeEnabled();
+    act(() => useJunoStore.setState({ snapshot: { revision: 3, game: { ...game, intoxication: undefined } } }));
+    expect(container.querySelector('.juno-intoxicated-active,.juno-intoxicated-haze')).toBeNull();
+  });
+  it('marks an affected opponent without distorting another viewer or a spectator', () => {
+    const game = junoGame('playing'); game.intoxication = { id: 'intoxication', targetUserId: 'b' };
+    useJunoStore.setState({ snapshot: { revision: 2, game } }); const { container } = render(<JunoMatch />);
+    expect(container.querySelector('.juno-seat-intoxicated')).toBeInTheDocument();
+    expect(container.querySelector('.juno-intoxicated-active,.juno-intoxicated-haze')).toBeNull();
+    act(() => useJunoStore.setState({ target: { userId: 'watcher', origin: window.location.origin, channelId: 'voice' }, snapshot: { revision: 3, game: { ...game, hand: [] } } }));
+    expect(container.querySelector('.juno-intoxicated-active,.juno-intoxicated-haze')).toBeNull();
+  });
   it('masks the victim without front URLs, color labels, legal highlights or a wildcard picker', async () => {
     const game = junoGame('playing'); game.hand = []; game.color = null; game.topCard = null;
     game.memoryEnabled = true; game.memoryCurse = { id: 'curse', targetUserId: 'a' };

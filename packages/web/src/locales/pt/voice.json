@@ -12,6 +12,14 @@
     "joinedOtherSession": "A conexão de voz foi encerrada porque você entrou por outra sessão"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Entorpecido",
+      "instruction": "Entorpecido nesta jogada: 50% de chance de errar a carta ou a cor do coringa.",
+      "affected": "{{name}} está entorpecido.",
+      "miss": "{{name}} errou a jogada e comprou {{amount}}. As cartas continuam na mão.",
+      "colorChanged": "{{name}} escolheu outra cor sob o efeito do entorpecimento.",
+      "rules": "Uma carta rara, jogável sobre qualquer cor ou símbolo sem alterar a cor atual. O próximo jogador fica entorpecido por uma jogada: há 50% de chance de errar uma carta comum, manter as duas cartas na mão, comprar duas e passar. Com um coringa, há 50% de chance de escolher uma das outras três cores, sem essa punição extra. O efeito termina após a jogada."
+    },
     "guide": {
       "subtitle": "Conheça a mesa, entenda as cartas e prepare a próxima jogada.", "contents": "Sumário do guia",
       "sections": { "start": "Para começar", "turn": "Sua vez", "special": "Cartas de ação", "juno": "Diga JUNO", "memory": "Cartas especiais", "score": "Resultado e XP", "table": "Ao redor da mesa" },

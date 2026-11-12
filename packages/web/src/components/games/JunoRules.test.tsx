@@ -24,6 +24,17 @@ function geometry(guide: HTMLElement) {
 }
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 describe('illustrated Juno rules', () => {
+  it('teaches the supplied Entorpecido only when the host supports it', async () => {
+    const { guide, rerender } = await open({ game: { ...game, intoxicatedEnabled: true }, supportsIntoxicated: true });
+    expect(guide.querySelector('img[src="/games/juno/cards/intoxicated.webp"]')).toBeInTheDocument();
+    expect(guide).toHaveTextContent(/50%.*one turn|one turn.*50%/i);
+    rerender(<div className="juno-table"><div className="juno-header"><JunoRules game={game} supportsIntoxicated={false} /></div></div>);
+    expect(guide.querySelector('img[src="/games/juno/cards/intoxicated.webp"]')).toBeNull();
+  });
+  it('does not imply Entorpecido is in a frozen mixed-client round just because the host supports it', async () => {
+    const { guide } = await open({ game: { ...game, intoxicatedEnabled: false }, supportsIntoxicated: true });
+    expect(guide.querySelector('img[src="/games/juno/cards/intoxicated.webp"]')).toBeNull();
+  });
   it('does not render or request teaching illustrations before help is opened', () => {
     const { container } = render(<JunoRules game={game} />);
     expect(container.querySelector('img')).toBeNull(); expect(screen.queryByRole('region')).toBeNull();

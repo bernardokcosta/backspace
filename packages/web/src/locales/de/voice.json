@@ -12,6 +12,14 @@
     "joinedOtherSession": "Sprachverbindung getrennt: Du bist über eine andere Sitzung beigetreten"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Benommen",
+      "instruction": "Für diesen Zug benommen: 50% Risiko einer falschen Karte oder Jokerfarbe.",
+      "affected": "{{name}} ist benommen.",
+      "miss": "{{name}} hat sich verspielt und {{amount}} gezogen. Die Karten bleiben auf der Hand.",
+      "colorChanged": "{{name}} hat benommen eine andere Farbe gewählt.",
+      "rules": "Eine seltene Karte, die auf jede Farbe oder jedes Symbol passt, ohne die Farbe zu ändern. Der nächste Spieler ist einen Zug lang benommen: Eine normale Karte schlägt mit 50% Wahrscheinlichkeit fehl; beide Karten bleiben auf der Hand, zwei werden gezogen und der Zug endet. Bei einem Joker wird stattdessen mit 50% Wahrscheinlichkeit eine der drei anderen Farben gewählt, ohne diese Zusatzstrafe. Danach endet der Effekt."
+    },
     "guide": {
       "subtitle": "Lerne den Tisch kennen, verstehe die Karten und plane deinen nächsten Zug.", "contents": "Inhaltsverzeichnis",
       "sections": { "start": "Der Einstieg", "turn": "Dein Zug", "special": "Aktionskarten", "juno": "JUNO ansagen", "memory": "Spezialkarten", "score": "Ergebnis und XP", "table": "Rund um den Tisch" },

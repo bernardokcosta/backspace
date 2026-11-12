@@ -17,16 +17,29 @@ limit. State GETs have a separate bounded 600/minute/address route budget for
 live-update fanout and fallback polling; this does not relax POST, account, auth,
 voice or permission gates. Full rules, payloads and lifetime limits: [juno.md](juno.md).
 
-Optional `?memory=1` on state/command URLs declares rare-card support; root
-`supportsMemory` advertises host support. Only exact `1` is valid, unknown/duplicate
-query keys are refused, and GET variants share one read budget. The lobby enables
-a frozen 109-card `memoryEnabled` round only for fully capable human cohorts;
-otherwise it remains 108. Unsupported enhanced-round reads/commands return 409
+Optional `?memory=1` declares memory support; `intoxicated=1` additionally declares
+Entorpecido support and requires `memory=1`. Root `supportsMemory` and
+`supportsIntoxicated` advertise host support. Only exact `1` is valid;
+unknown/duplicate query keys are refused and GET variants share one read budget.
+The lobby freezes 108 classic cards, 109 with memory, or 110 with both rare cards,
+according to all seated humans' declarations (`memoryEnabled`/`intoxicatedEnabled`).
+Unsupported enhanced-round reads/commands return 409
 `juno_update_required` without a snapshot (existing `leave` is still allowed).
 During `memoryCurse: {id,targetUserId}`, only the victim receives `hand: []`,
 `maskedHand: {id}[]` and null `topCard`, `color`, `drawnCardId`. A blind attempt
 uses ordinary `play/cardId`; no new endpoint/event. `memory_miss` confirms only
 actor/id/actual draw amount, never the attempted card. Ranking URLs are unchanged.
+
+`intoxication: {id,targetUserId}` lasts for the next player's turn. Valid ordinary
+plays have a server-rolled 50% miss: retain cards, draw up to two and pass;
+`lastMove.type: intoxicated_miss` exposes actor/id/actual amount only. Optional
+`misplayedCard` is included solely in the actor's private response, never other
+players' or spectators' views. Wild/+4 plays instead have a 50% chance to select
+one of the three other colors (`intoxicatedColor: true`), with no extra draw-two
+penalty and unchanged +4 legality/effects. No new command, endpoint or WS event.
+Clients may retry only the initial GET capability probe as memory-only on exact
+400 `invalid_body`, remembering the result in their existing scoped snapshot;
+mutations are never replayed for compatibility.
 
 Game people include current sanitized user/nickname data. Optional `scoreboard`
 adds immutable final places/counts/XP and `pending|credited|unranked` status; clients

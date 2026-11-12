@@ -1,5 +1,5 @@
 import { and, asc, desc, eq, gt, inArray, notExists, sql } from 'drizzle-orm';
-import type { JunoPerson, JunoRankingPage, JunoScoreboard, JunoSnapshot, JunoStanding, JunoView } from '@veyvox/shared/src/juno.js';
+import { JUNO_MAX_DECK_SIZE, type JunoPerson, type JunoRankingPage, type JunoScoreboard, type JunoSnapshot, type JunoStanding, type JunoView } from '@veyvox/shared/src/juno.js';
 import { getDb, schema, type DB, type DBHandle } from '../db/index.js';
 import { buildJunoStandings } from './junoStandings.js';
 import { sanitizeUser } from '../utils/sanitize.js';
@@ -53,7 +53,7 @@ export function settleJunoRound(input: JunoSettlement, database?: DB): JunoScore
     for (const row of computed) {
       const proposed = input.standings.find(p => p.userId === row.userId)!;
       if (row.place !== proposed.place || row.xp !== proposed.xp || row.outcome !== proposed.outcome
-        || row.cardCount !== null && (!Number.isInteger(row.cardCount) || row.cardCount < 0 || row.cardCount > 108)) throw new Error('Invalid Juno award');
+        || row.cardCount !== null && (!Number.isInteger(row.cardCount) || row.cardCount < 0 || row.cardCount > JUNO_MAX_DECK_SIZE)) throw new Error('Invalid Juno award');
     }
     const channel = input.channelId ? tx.select().from(schema.channels).where(eq(schema.channels.id, input.channelId)).get() : undefined;
     if (channel && channel.spaceId !== input.spaceId) throw new Error('Juno channel belongs to another space');

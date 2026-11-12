@@ -43,7 +43,7 @@ function JunoTableContent() {
       <div className="juno-header-brand"><img className="juno-header-logo" src={JUNO_ASSETS.logo} alt={t('juno.name')} />
         {game?.practice && <span className="juno-practice" title={t('juno.practiceHint')}>{t('juno.practice')}</span>}</div>
       <div className="juno-header-actions">
-        <JunoRules key={context} game={game ?? null} supportsMemory={snapshot?.supportsMemory} />
+        <JunoRules key={context} game={game ?? null} supportsMemory={snapshot?.supportsMemory} supportsIntoxicated={snapshot?.supportsIntoxicated} />
         {!rankingOpen && game && game.phase !== 'lobby' && <button type="button" className="juno-icon-button glass" aria-label={t('juno.rankingTitle')} title={t('juno.rankingTitle')} onClick={() => setRankingContext(context)}>
           <svg className="juno-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M4 20V12h4v8m2 0V4h4v16m2 0v-8h4v8M3 20h18" /></svg></button>}
         <button ref={settingsTrigger} type="button" className="juno-icon-button juno-settings-button glass" aria-label={t('juno.settings.title')} title={t('juno.settings.title')} onClick={() => setSettingsTarget(target)}>

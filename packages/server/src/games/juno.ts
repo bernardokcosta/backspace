@@ -12,7 +12,7 @@ function shuffle<T>(cards: T[]): void {
     const j = randomInt(i + 1); [cards[i], cards[j]] = [cards[j]!, cards[i]!];
   }
 }
-export function createJunoDeck(memory = false): JunoCard[] {
+export function createJunoDeck(memory = false, intoxicated = false): JunoCard[] {
   const cards: JunoCard[] = [];
   const add = (color: JunoColor | null, face: JunoCard['face']) => cards.push({ id: randomUUID(), color, face });
   for (const color of JUNO_COLORS) {
@@ -23,6 +23,7 @@ export function createJunoDeck(memory = false): JunoCard[] {
   }
   for (let i = 0; i < 4; i++) { add(null, 'wild'); add(null, 'draw4'); }
   if (memory) add(null, 'memory');
+  if (intoxicated) add(null, 'intoxicated');
   return cards;
 }
 interface Player extends JunoPerson { hand: JunoCard[]; announced: boolean }
@@ -42,15 +43,17 @@ export interface JunoRound {
   reportWindows: { id: string; targetUserId: string; deadline: number }[];
   memoryEnabled?: boolean;
   memoryCurse?: { id: string; targetUserId: string };
+  intoxicatedEnabled?: boolean;
+  intoxication?: { id: string; targetUserId: string };
 }
-export function startRound(people: JunoPerson[], now: number, memory = false): JunoRound {
-  const deck = createJunoDeck(memory); shuffle(deck);
+export function startRound(people: JunoPerson[], now: number, memory = false, intoxicated = false): JunoRound {
+  const deck = createJunoDeck(memory, intoxicated); shuffle(deck);
   const players = people.map(person => ({ ...person, hand: deck.splice(0, 7), announced: false }));
   const first = deck.findIndex(card => /^\d$/.test(card.face));
   const top = deck.splice(first, 1)[0]!;
   return { players, drawPile: deck, discard: [top], color: top.color!, direction: 1, turn: 0,
     drawnCardId: null, deadline: now + JUNO_TURN_MS, winnerId: null, result: null,
-    lastMove: { type: 'start', userId: players[0]!.userId }, blockedTurns: 0, reportWindows: [], memoryEnabled: memory };
+    lastMove: { type: 'start', userId: players[0]!.userId }, blockedTurns: 0, reportWindows: [], memoryEnabled: memory, intoxicatedEnabled: intoxicated };
 }
 function pruneReports(round: JunoRound, now: number): boolean {
   const before = round.reportWindows.length;
@@ -62,6 +65,7 @@ function nextIndex(round: JunoRound, steps = 1): number {
   return ((round.turn + round.direction * steps) % round.players.length + round.players.length) % round.players.length;
 }
 function advance(round: JunoRound, now: number, steps = 1): void {
+  if (round.intoxication?.targetUserId === round.players[round.turn]?.userId) round.intoxication = undefined;
   round.turn = nextIndex(round, steps); round.drawnCardId = null; round.deadline = now + JUNO_TURN_MS;
 }
 function drawCards(round: JunoRound, player: Player, amount: number): JunoCard[] {
@@ -79,10 +83,10 @@ function drawCards(round: JunoRound, player: Player, amount: number): JunoCard[]
   }
   return drawn;
 }
-function missMemory(round: JunoRound, player: Player, now: number, type: 'memory_miss' | 'timeout'): void {
+function missSpecialTurn(round: JunoRound, player: Player, now: number, type: 'memory_miss' | 'intoxicated_miss' | 'timeout', misplayedCard?: JunoCard): void {
   round.memoryCurse = undefined;
   const amount = drawCards(round, player, 2).length;
-  round.lastMove = { type, userId: player.userId, amount };
+  round.lastMove = { type, userId: player.userId, amount, ...(misplayedCard ? { misplayedCard: { ...misplayedCard } } : {}) };
   advance(round, now); pruneReports(round, now);
 }
 export function actInRound(round: JunoRound, userId: string, action: JunoAction, now: number): void {
@@ -129,12 +133,25 @@ export function actInRound(round: JunoRound, userId: string, action: JunoAction,
   const card = player.hand[index];
   if (!card || (round.drawnCardId && card.id !== round.drawnCardId)) refuse('juno_invalid_move');
   const legal = canPlayJuno(card, player.hand, top, round.color);
-  if (blind && !legal) { missMemory(round, player, now, 'memory_miss'); return; }
-  if (!legal || (card.color === null && card.face !== 'memory' && !blind
+  if (blind && !legal) { missSpecialTurn(round, player, now, 'memory_miss'); return; }
+  if (!legal || (card.color === null && card.face !== 'memory' && card.face !== 'intoxicated' && !blind
       && (!action.color || !JUNO_COLORS.includes(action.color)))) refuse('juno_invalid_move');
+  let chosenColor = blind ? round.color : action.color;
+  let intoxicatedColor = false;
+  if (round.intoxication?.targetUserId === userId && randomInt(2) === 0) {
+    if (card.face === 'wild' || card.face === 'draw4') {
+      const alternatives = JUNO_COLORS.filter(color => color !== chosenColor);
+      chosenColor = alternatives[randomInt(alternatives.length)]!;
+      intoxicatedColor = true;
+    } else {
+      const alternatives = player.hand.filter(other => other.id !== card.id);
+      missSpecialTurn(round, player, now, 'intoxicated_miss', alternatives.length ? alternatives[randomInt(alternatives.length)] : undefined);
+      return;
+    }
+  }
   if (blind) round.memoryCurse = undefined;
   player.hand.splice(index, 1); round.discard.push(card);
-  if (card.face !== 'memory') round.color = card.color ?? (blind ? round.color : action.color!);
+  if (card.face !== 'memory' && card.face !== 'intoxicated') round.color = card.color ?? chosenColor!;
   round.blockedTurns = 0;
   player.announced = player.hand.length === 1 && (action.announce === true || player.announced);
   round.reportWindows = round.reportWindows.filter(w => w.targetUserId !== userId);
@@ -147,7 +164,7 @@ export function actInRound(round: JunoRound, userId: string, action: JunoAction,
   if (card.face === 'draw2' || card.face === 'draw4') {
     drawCards(round, round.players[nextIndex(round)]!, card.face === 'draw2' ? 2 : 4); steps = 2;
   }
-  round.lastMove = { type: 'play', userId, card: { ...card }, announced: player.announced };
+  round.lastMove = { type: 'play', userId, card: { ...card }, announced: player.announced, ...(intoxicatedColor ? { intoxicatedColor: true } : {}) };
   if (player.hand.length === 0) { round.winnerId = userId; round.result = 'emptyHand'; }
   advance(round, now, steps);
   if (card.face === 'memory') {
@@ -155,7 +172,12 @@ export function actInRound(round: JunoRound, userId: string, action: JunoAction,
     round.lastMove = { ...round.lastMove, id, targetUserId };
     if (!round.result) round.memoryCurse = { id, targetUserId };
   }
-  if (round.result) round.memoryCurse = undefined;
+  if (card.face === 'intoxicated') {
+    const id = randomUUID(), targetUserId = round.players[round.turn]!.userId;
+    round.lastMove = { ...round.lastMove, id, targetUserId };
+    if (!round.result) round.intoxication = { id, targetUserId };
+  }
+  if (round.result) { round.memoryCurse = undefined; round.intoxication = undefined; }
   pruneReports(round, now);
 }
 
@@ -166,6 +188,7 @@ interface Table {
   settlement?: JunoSettlement; scoreboard?: JunoScoreboard; retryAt: number;
   botTurn?: { userId: string; drawnCardId: string | null; due: number };
   memoryClients: Set<string>;
+  intoxicatedClients: Set<string>;
 }
 interface RoomOptions {
   present: (channelId: string, userId: string) => boolean;
@@ -190,7 +213,7 @@ export class JunoRooms {
   }
   private complete(channelId: string, table: Table): void {
     const round = table.round;
-    if (round?.result) { round.reportWindows = []; round.memoryCurse = undefined; }
+    if (round?.result) { round.reportWindows = []; round.memoryCurse = undefined; round.intoxication = undefined; }
     if (round?.result && table.starters.some(p => p.computer)) {
       if (!table.scoreboard) table.scoreboard = { roundId: table.id, status: 'unranked',
         standings: buildJunoStandings(table.starters, round.players.map(p => ({ userId: p.userId, cardCount: p.hand.length })), round.winnerId, round.result)
@@ -216,7 +239,9 @@ export class JunoRooms {
   private remove(channelId: string, table: Table, userId: string): void {
     table.people = table.people.filter(person => person.userId !== userId);
     table.memoryClients.delete(userId);
+    table.intoxicatedClients.delete(userId);
     if (table.round?.memoryCurse?.targetUserId === userId) table.round.memoryCurse = undefined;
+    if (table.round?.intoxication?.targetUserId === userId) table.round.intoxication = undefined;
     if (!table.people.some(person => !person.computer)) {
       if (table.scoreboard?.status === 'pending') { this.changed(channelId, table); return; }
       this.tables.delete(channelId); this.changed(channelId); return;
@@ -265,7 +290,7 @@ export class JunoRooms {
     if (now >= round.deadline) {
       const player = round.players[round.turn]!;
       if (round.memoryCurse?.targetUserId === player.userId) {
-        missMemory(round, player, now, 'timeout');
+        missSpecialTurn(round, player, now, 'timeout');
       } else {
         const drawn = round.drawnCardId ? [] : drawCards(round, player, 1);
         if (!round.drawnCardId && !drawn.length) {
@@ -294,18 +319,26 @@ export class JunoRooms {
   }
   tick(): void { for (const channelId of this.tables.keys()) this.settle(channelId); }
   dispose(): void { this.tables.clear(); }
-  read(channelId: string, userId: string, supportsMemory = false): JunoSnapshot {
+  read(channelId: string, userId: string, supportsMemory = false, supportsIntoxicated = false): JunoSnapshot {
     this.settle(channelId);
     const table = this.tables.get(channelId);
-    if (!table) return { revision: this.revision, game: null, supportsMemory: true };
+    if (!table) return { revision: this.revision, game: null, supportsMemory: true, supportsIntoxicated: true };
     const round = table.round;
     if (round?.memoryEnabled && !supportsMemory) refuse('juno_update_required');
+    if (round?.intoxicatedEnabled && !supportsIntoxicated) refuse('juno_update_required');
     if (!round && table.people.some(person => person.userId === userId && !person.computer)) {
       if (supportsMemory) table.memoryClients.add(userId); else table.memoryClients.delete(userId);
+      if (supportsIntoxicated) table.intoxicatedClients.add(userId); else table.intoxicatedClients.delete(userId);
     }
     const self = table.people.some(person => person.userId === userId && !person.computer) ? round?.players.find(person => person.userId === userId) : undefined;
     const blind = !!self && round?.memoryCurse?.targetUserId === userId;
-    return { revision: table.revision, supportsMemory: true, game: {
+    let lastMove: JunoMove | null = null;
+    if (round?.lastMove) {
+      const { misplayedCard, ...publicMove } = round.lastMove;
+      lastMove = { ...publicMove, ...(publicMove.card ? { card: { ...publicMove.card } } : {}),
+        ...(self && !blind && publicMove.userId === userId && misplayedCard ? { misplayedCard: { ...misplayedCard } } : {}) };
+    }
+    return { revision: table.revision, supportsMemory: true, supportsIntoxicated: true, game: {
       id: table.id, phase: !round ? 'lobby' : round.result ? 'finished' : 'playing', hostId: table.hostId,
       players: table.people.map(person => {
         const player = round?.players.find(p => p.userId === person.userId);
@@ -318,16 +351,18 @@ export class JunoRooms {
       drawnCardId: self && !blind && round?.players[round.turn]?.userId === userId ? round.drawnCardId : null,
       remainingMs: round && !round.result ? Math.max(0, round.deadline - this.now()) : 0,
       winnerId: round?.winnerId ?? null, result: round?.result ?? null,
-      lastMove: round?.lastMove ? { ...round.lastMove, ...(round.lastMove.card ? { card: { ...round.lastMove.card } } : {}) } : null,
+      lastMove,
       supportsBots: true, supportsAnnounce: true, practice: (round ? table.starters : table.people).some(p => !!p.computer),
       supportsReports: true, reportOpportunities: round?.reportWindows.map(window => ({ id: window.id,
         targetUserId: window.targetUserId, remainingMs: Math.max(0, window.deadline - this.now()) })) ?? [],
       memoryEnabled: round?.memoryEnabled ?? false,
       ...(round?.memoryCurse ? { memoryCurse: { ...round.memoryCurse } } : {}),
+      intoxicatedEnabled: round?.intoxicatedEnabled ?? false,
+      ...(round?.intoxication ? { intoxication: { ...round.intoxication } } : {}),
       ...(table.scoreboard ? { scoreboard: { ...table.scoreboard, standings: table.scoreboard.standings.map(p => ({ ...p })) } } : {}),
     } };
   }
-  command(channelId: string, person: JunoPerson, command: JunoCommand, supportsMemory = false): JunoSnapshot {
+  command(channelId: string, person: JunoPerson, command: JunoCommand, supportsMemory = false, supportsIntoxicated = false): JunoSnapshot {
     this.settle(channelId);
     let table = this.tables.get(channelId);
     if (person.computer || table?.people.some(p => p.userId === person.userId && p.computer)) refuse('juno_player_required');
@@ -337,10 +372,11 @@ export class JunoRooms {
       table = { id: randomUUID(), hostId: person.userId, people: [{ ...person }], round: null,
         revision: 0, createdAt: this.now(), updatedAt: this.now(),
         spaceId: this.options.spaceIdForChannel?.(channelId) ?? null, starters: [], retryAt: 0,
-        memoryClients: new Set(supportsMemory ? [person.userId] : []) };
-      this.tables.set(channelId, table); this.changed(channelId, table); return this.read(channelId, person.userId, supportsMemory);
+        memoryClients: new Set(supportsMemory ? [person.userId] : []), intoxicatedClients: new Set(supportsIntoxicated ? [person.userId] : []) };
+      this.tables.set(channelId, table); this.changed(channelId, table); return this.read(channelId, person.userId, supportsMemory, supportsIntoxicated);
     }
     if (table?.round?.memoryEnabled && !supportsMemory && command.type !== 'leave') refuse('juno_update_required');
+    if (table?.round?.intoxicatedEnabled && !supportsIntoxicated && command.type !== 'leave') refuse('juno_update_required');
     if (!table || command.gameId !== table.id || command.revision !== table.revision) refuse('juno_stale');
     const seated = table.people.some(p => p.userId === person.userId);
     if (command.type === 'join') {
@@ -364,8 +400,8 @@ export class JunoRooms {
     } else if (command.type === 'leave') {
       if (!seated) refuse('juno_player_required');
       this.remove(channelId, table, person.userId);
-      return !supportsMemory && table.round?.memoryEnabled
-        ? { revision: this.revision, game: null, supportsMemory: true } : this.read(channelId, person.userId, supportsMemory);
+      return (!supportsMemory && table.round?.memoryEnabled) || (!supportsIntoxicated && table.round?.intoxicatedEnabled)
+        ? { revision: this.revision, game: null, supportsMemory: true, supportsIntoxicated: true } : this.read(channelId, person.userId, supportsMemory, supportsIntoxicated);
     } else {
       if (!seated) refuse('juno_player_required');
       if (command.type === 'start' || command.type === 'rematch') {
@@ -375,10 +411,14 @@ export class JunoRooms {
           table.id = randomUUID(); table.round = null; table.people = [{ ...person }]; table.createdAt = this.now();
           table.starters = []; table.settlement = undefined; table.scoreboard = undefined; table.retryAt = 0; table.botTurn = undefined;
           table.memoryClients = new Set(supportsMemory ? [person.userId] : []);
+          table.intoxicatedClients = new Set(supportsIntoxicated ? [person.userId] : []);
         } else {
           if (table.round || table.people.length < 2) refuse('juno_need_players');
           if (supportsMemory) table.memoryClients.add(person.userId); else table.memoryClients.delete(person.userId);
-          table.round = startRound(table.people, this.now(), table.people.every(p => p.computer || table!.memoryClients.has(p.userId))); table.createdAt = this.now();
+          if (supportsIntoxicated) table.intoxicatedClients.add(person.userId); else table.intoxicatedClients.delete(person.userId);
+          const memory = table.people.every(p => p.computer || table!.memoryClients.has(p.userId));
+          const intoxicated = memory && table.people.every(p => p.computer || table!.intoxicatedClients.has(p.userId));
+          table.round = startRound(table.people, this.now(), memory, intoxicated); table.createdAt = this.now();
           table.starters = table.people.map(p => ({ userId: p.userId, name: p.name, ...(p.computer ? { computer: p.computer } : {}) }));
         }
       } else {
@@ -387,6 +427,6 @@ export class JunoRooms {
       }
     }
     this.complete(channelId, table);
-    this.changed(channelId, table); return this.read(channelId, person.userId, supportsMemory);
+    this.changed(channelId, table); return this.read(channelId, person.userId, supportsMemory, supportsIntoxicated);
   }
 }

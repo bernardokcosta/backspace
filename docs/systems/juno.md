@@ -13,8 +13,8 @@ new dependency is used.
 - `packages/shared/src/juno.ts`: public cards, command/snapshot contracts and
   legal-card highlighting helper. It contains no hidden match state.
 - `packages/server/src/games/juno.ts`: authoritative rules and ephemeral rooms.
-- `junoStandings.ts` / `junoProgression.ts`: pure placements, atomic XP awards,
-  ranking, current sanitized profiles and proof-authorized account merges.
+- `junoStandings.ts` / `junoProgression.ts`: pure placements, atomic native XP
+  awards, ranking and current sanitized profiles.
 - `packages/server/src/routes/juno.ts`: authenticated transport, limits, audience
   and one-second lifecycle sweep; disposed on Fastify close.
 - `packages/web/src/stores/junoStore.ts`: account/origin/channel-scoped state,
@@ -25,7 +25,7 @@ new dependency is used.
   volume preferences. `JunoLocale` scopes existing catalogs to Juno; `JunoSettings`
   reuses the shared modal. `JunoMusic` and `audio/junoMusic.ts` own focused-only
   streamed music on the existing output bus.
-- `packages/web/public/games/juno/`: 55 distinct fronts, one back and separate
+- `packages/web/public/games/juno/`: 56 distinct fronts, one back and separate
   cosmic UI assets; hashes/source entries in `manifest.json`, provenance in README.
 
 ## Rules
@@ -81,6 +81,36 @@ it without transferring it; ending/expiring the round also clears it. A last-car
 memory play wins normally without cursing a finished round. Cursed computers
 choose a fair random opaque slot; their selector cannot receive faces or color.
 Practice/XP/settlement rules are unchanged.
+
+### Rare Entorpecido card (1.17.13)
+
+Fully capable cohorts use 110 cards: classic 108, one memory and one colorless
+`intoxicated`. Like memory, it plays over any color/face without choosing or
+changing the color, cannot be the initial discard, and affects the next player
+in the current direction. `intoxication: {id,targetUserId}` lasts for that turn
+only. Announce/report and a playable draw retain it; a play, pass, turn-ending
+draw, timeout, departure or result clears it, including a two-player skip that
+immediately gives the same player a fresh turn. Final-card victory applies no
+status to a finished round.
+
+The server validates ordinary ownership/legality/color/revision before crypto RNG.
+On a valid non-wild play, 50% resolves normally and 50% chooses a different owned
+card as a failed attempt: no discard/effect/win, original cards stay in hand,
+draw up to two and pass once. A one-card hand can still miss without inventing an
+alternative. Public `intoxicated_miss` contains actor/id/actual amount; only its
+actor's view may include `misplayedCard`. Other humans, computers and spectators
+never receive that private face. With wild/+4, 50% instead picks uniformly from
+the three colors other than the selected one (`intoxicatedColor: true`); there is no
+extra draw-two punishment, and +4 legality/normal penalties remain intact.
+Malformed/stale/unowned/out-of-turn attempts never become rerolls or penalties.
+Computers use the same engine, their existing fair selector and practice rules.
+
+Only the affected viewer gets mild scoped haze/chromatic fringe and a readable
+one-turn 50% status. Card fronts remain visible and click targets do not move.
+Reduced motion keeps static status/color feedback without drift or blur. The
+confirmed miss may show the other card only to its owner, not flying into the
+public discard. Supplied complete artwork/audio remain local and unchanged in
+content; derived WebP/Vorbis hashes are in the existing asset manifest.
 
 ## Space XP and ranking
 
@@ -142,16 +172,18 @@ Human people include current sanitized profiles and space nicknames, not demo id
 Spectators receive `hand: []`. Neither the
 draw order nor opponent hands are serialized. Cards use opaque random ids.
 
-State/command clients declare `?memory=1`; only this optional query is accepted,
-with exact value `1` (duplicates/unknown keys are invalid). Snapshots advertise
-root `supportsMemory: true`. Seated humans refresh their declaration in the lobby;
+State/command clients declare `?memory=1`, optionally with `intoxicated=1` (which
+requires memory). Both accept only exact `1`; duplicates/unknown keys are invalid.
+Snapshots advertise root `supportsMemory`/`supportsIntoxicated: true`.
+Seated humans refresh their declarations in the lobby;
 at start every human must support it to freeze `memoryEnabled: true`. Computers
-support it internally. Mixed/legacy cohorts keep the unchanged 108-card deck;
+support them internally. `intoxicatedEnabled` additionally requires every human
+to declare the new capability. Mixed cohorts use the supported 108/109-card deck;
 later declarations cannot change an active deck. Rematch creates a fresh lobby.
 Older hosts ignore the query; ranking URLs are unchanged. GET query variants
 share the same existing 600/minute/address read budget.
 
-Enhanced-round viewers without support receive 409 `juno_update_required` with
+Enhanced-round viewers missing any enabled support receive 409 `juno_update_required` with
 no view, even if omitting the query or spectating. Normal authentication/access
 gates run before compatibility. Existing `leave` remains allowed. A masked
 viewer receives `hand: []`, `maskedHand: {id}[]` in stable hand order and null
@@ -159,6 +191,11 @@ viewer receives `hand: []`, `maskedHand: {id}[]` in stable hand order and null
 computer hands are never returned. Client update-required errors clear cached
 private state, and old unmasked reads cannot replace a newer masked revision.
 The rule does not erase previously seen cards or prevent memory/collusion.
+
+The new client probes GET with both flags and may fall back once to memory-only
+on exact 400 `invalid_body` from an old host, within the same auth/session boundary.
+Later polls and POSTs use confirmed support from the existing scoped snapshot;
+reconnect/scope reset renegotiates. Compatibility never retries a mutation.
 
 POST accepts `{type:'create'}` or a command with `gameId` and expected `revision`:
 `join`, `leave`, `start`, `rematch`, `draw`, `pass`, `announce`, `addBot`, `removeBot`
@@ -285,7 +322,8 @@ draw/pass are disabled/hidden. A brief violet/cyan arrival settles into static
 fog, with no geometry changes; reduced motion skips arrival. Confirmed misses
 show localized actual-amount feedback without exposing the selected card.
 `JunoSounds`, owned once by `JunoSession` even while minimized, plays the supplied
-16 neon effects and original `juno_memory.ogg` for confirmed moves (see sounds.md).
+16 neon effects and supplied `juno_memory.ogg`/`juno_intoxicated.ogg` for confirmed
+moves (see sounds.md).
 It reuses the existing effects slider/global SFX gain and output device; local
 selection/button/error/turn cues never alter commands or notify opponents. Initial
 reads, same-id polls and reconnect do not replay history; victory/defeat apply

@@ -12,6 +12,14 @@
     "joinedOtherSession": "Se ha desconectado la voz porque has entrado desde otra sesión"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Aturdido",
+      "instruction": "Aturdido este turno: 50% de probabilidad de equivocarte de carta o color del comodín.",
+      "affected": "{{name}} está bajo el efecto de aturdimiento.",
+      "miss": "{{name}} falló y robó {{amount}}. Las cartas siguen en su mano.",
+      "colorChanged": "{{name}} eligió otro color bajo el efecto de aturdimiento.",
+      "rules": "Una carta rara que se puede jugar sobre cualquier color o símbolo sin cambiar el color. El siguiente jugador queda aturdido un turno: una carta normal tiene un 50% de probabilidad de fallar, conservar ambas cartas, robar dos y pasar. Un comodín tiene en cambio un 50% de probabilidad de elegir uno de los otros tres colores, sin esa penalización extra. El efecto termina tras el turno."
+    },
     "guide": {
       "subtitle": "Conoce la mesa, descubre las cartas y prepara tu próxima jugada.",
       "contents": "Contenido de la guía",

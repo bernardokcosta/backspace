@@ -17,6 +17,19 @@ function deferred<T>() {
 beforeEach(() => { vi.clearAllMocks(); api.get.mockReset(); api.command.mockReset(); api.ranking.mockReset(); useJunoStore.getState().reset(); useJunoStore.getState().bind(target, true); });
 afterEach(() => { useJunoStore.getState().reset(); vi.useRealTimers(); });
 describe('Juno session state', () => {
+  it('uses confirmed scoped capability for later reads and commands, and renegotiates on reconnect', async () => {
+    api.get.mockResolvedValueOnce({ revision: 1, game: null }).mockResolvedValueOnce({ revision: 2, game: null });
+    await useJunoStore.getState().load(); await useJunoStore.getState().load();
+    expect(api.get).toHaveBeenNthCalledWith(1, 'voice', true); expect(api.get).toHaveBeenNthCalledWith(2, 'voice', false);
+    api.command.mockResolvedValueOnce({ revision: 3, game: null }); await useJunoStore.getState().command({ type: 'create' });
+    expect(api.command).toHaveBeenCalledWith('voice', { type: 'create' }, false);
+    api.get.mockResolvedValueOnce({ revision: 4, game: null, supportsIntoxicated: true });
+    useJunoStore.getState().setSupported(true); await useJunoStore.getState().load();
+    expect(api.get).toHaveBeenLastCalledWith('voice', true);
+    api.command.mockResolvedValueOnce({ revision: 5, game: null, supportsIntoxicated: true });
+    await useJunoStore.getState().command({ type: 'create' });
+    expect(api.command).toHaveBeenLastCalledWith('voice', { type: 'create' }, true);
+  });
   it('has one capability flag and refuses a stale foreign-server binding instead of forwarding current credentials', async () => {
     expect(useJunoStore.getState()).not.toHaveProperty('hosts');
     useJunoStore.getState().bind({ ...target, origin: 'https://previous.invalid' }, true);
@@ -28,7 +41,7 @@ describe('Juno session state', () => {
     const load = useJunoStore.getState().load();
     useJunoStore.getState().bind({ ...target, channelId: 'another' }, true);
     response.resolve(snapshot(10)); await load;
-    expect(api.get).toHaveBeenCalledWith('voice');
+    expect(api.get).toHaveBeenCalledWith('voice', true);
     expect(useJunoStore.getState().snapshot).toBeNull();
   });
   it('coalesces concurrent reads and ignores older revisions', async () => {
@@ -73,7 +86,7 @@ describe('Juno session state', () => {
     api.get.mockResolvedValueOnce({ revision: 5, game: { ...game, reportOpportunities: [] } });
     await useJunoStore.getState().command({ type: 'report', targetUserId: 'host-opponent', opportunityId: 'miss-1' });
     expect(api.command).toHaveBeenCalledTimes(1);
-    expect(api.command).toHaveBeenCalledWith('voice', { type: 'report', targetUserId: 'host-opponent', opportunityId: 'miss-1', gameId: game.id, revision: 4 });
+    expect(api.command).toHaveBeenCalledWith('voice', { type: 'report', targetUserId: 'host-opponent', opportunityId: 'miss-1', gameId: game.id, revision: 4 }, false);
     expect(api.get).toHaveBeenCalledTimes(1); expect(useJunoStore.getState().snapshot?.revision).toBe(5);
     expect(useJunoStore.getState().snapshot?.game?.reportOpportunities).toEqual([]);
     expect(useJunoStore.getState().pending).toBe(false);

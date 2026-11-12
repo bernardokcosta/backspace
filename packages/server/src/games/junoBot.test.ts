@@ -5,6 +5,10 @@ import { JunoRooms } from './juno.js';
 
 const red: JunoCard = { id: 'red', color: 'coral', face: '3' };
 describe('fair Juno computers', () => {
+  it('plays the universal Entorpecido card without choosing a new active color', () => {
+    const rare: JunoCard = { id: 'rare', color: null, face: 'intoxicated' };
+    expect(chooseJunoBotAction([rare], red, 'coral', null)).toEqual({ type: 'play', cardId: 'rare', announce: true });
+  });
   it('chooses from only its own hand, respects drawn-only play and selects a legal wild color', () => {
     const wild: JunoCard = { id: 'wild', color: null, face: 'wild' };
     const blue: JunoCard = { id: 'blue', color: 'sky', face: '8' };

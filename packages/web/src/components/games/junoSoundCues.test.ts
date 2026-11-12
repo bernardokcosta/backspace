@@ -8,7 +8,7 @@ function play(face: JunoFace): JunoView {
   return { ...previous(), remainingMs: 45_000, lastMove: { id: 'new', type: 'play', userId: 'b', card: { id: 'card', color: null, face } } };
 }
 describe('Juno neon cue selection', () => {
-  it.each([['8', 'play'], ['draw2', 'draw2'], ['draw4', 'draw4'], ['reverse', 'reverse'], ['skip', 'skip'], ['wild', 'wild'], ['memory', 'memory']] as const)
+  it.each([['8', 'play'], ['draw2', 'draw2'], ['draw4', 'draw4'], ['reverse', 'reverse'], ['skip', 'skip'], ['wild', 'wild'], ['memory', 'memory'], ['intoxicated', 'intoxicated']] as const)
     ('selects %s without layering an ordinary play', (face, cue) => {
       expect(junoMoveSounds(previous(), play(face), 'a')).toEqual([cue]);
     });
@@ -48,12 +48,12 @@ describe('Juno neon cue selection', () => {
       expect(junoMoveSounds(previous(), { ...next, lastMove: { id: type, type, userId: 'b', amount: 2 } }, 'a')).toEqual([cue]);
     }
   });
-  it.each(['draw', 'memory_miss'] as const)('rejects stale %s that advanced the turn, including its turn alert', type => {
+  it.each(['draw', 'memory_miss', 'intoxicated_miss'] as const)('rejects stale %s that advanced the turn, including its turn alert', type => {
     const next = { ...previous(), remainingMs: 10_000, currentPlayerId: 'a', lastMove: { id: 'old', type, userId: 'b', amount: 2 } };
     expect(junoMoveSounds(previous(), next, 'a')).toEqual([]);
     expect(junoMoveSounds(previous(), next, 'b')).toEqual([]);
     expect(junoMoveSounds(previous(), { ...next, remainingMs: 45_000 }, 'a')).toEqual(['draw', 'turn']);
-    expect(junoMoveSounds(previous(), { ...next, remainingMs: 45_000 }, 'b')).toEqual([type === 'memory_miss' ? 'invalid' : 'draw']);
+    expect(junoMoveSounds(previous(), { ...next, remainingMs: 45_000 }, 'b')).toEqual([type === 'draw' ? 'draw' : 'invalid']);
   });
   it('detects an advanced draw from its actor even when intervening moves were missed', () => {
     const before = { ...previous(), currentPlayerId: 'a' };
@@ -68,10 +68,11 @@ describe('Juno neon cue selection', () => {
     expect(junoMoveSounds(next, next, 'a')).toEqual([]);
     expect(junoMoveSounds(previous(), { ...next, winnerId: null }, 'a')).toEqual([]);
   });
-  it('has exactly 16 pack files plus the preserved memory cue with bounded gains/lanes', () => {
-    expect(Object.keys(JUNO_SOUNDS)).toHaveLength(17);
+  it('has exactly 16 pack files plus two supplied rare-card cues with bounded gains/lanes', () => {
+    expect(Object.keys(JUNO_SOUNDS)).toHaveLength(18);
     expect(JUNO_SOUNDS.memory).toMatchObject({ sound: 'juno_memory', gain: 1 });
+    expect(JUNO_SOUNDS.intoxicated).toMatchObject({ sound: 'juno_intoxicated', gain: 1 });
     expect(JUNO_SOUNDS.button).toMatchObject({ sound: 'juno/botao', gain: .35, lane: 'interface' });
-    expect(new Set(Object.values(JUNO_SOUNDS).map(cue => cue.sound)).size).toBe(17);
+    expect(new Set(Object.values(JUNO_SOUNDS).map(cue => cue.sound)).size).toBe(18);
   });
 });

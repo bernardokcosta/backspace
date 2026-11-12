@@ -53,10 +53,11 @@ export function JunoSounds({ target, connected }: { target: JunoTarget | null; c
         await manager.resumeContext();
         if (!valid() || lanes.get(lane) !== attempt || Date.now() - started > 3_000) return;
         let sound: string = definition.sound;
-        if (name === 'memory') {
+        if (name === 'memory' || name === 'intoxicated') {
           const preferences = useJunoPreferences.getState();
           const language = preferences.language === 'auto' ? appI18n.resolvedLanguage ?? appI18n.language : preferences.language;
-          sound = JUNO_DUBBINGS[resolveJunoDubbing(preferences.dubbingLanguage, language)].memorySound;
+          const edition = JUNO_DUBBINGS[resolveJunoDubbing(preferences.dubbingLanguage, language)];
+          sound = name === 'memory' ? edition.memorySound : edition.intoxicatedSound;
         }
         const buffer = await manager.loadSound(sound);
         if (!valid() || lanes.get(lane) !== attempt || Date.now() - started > 3_000 || !buffer) return;

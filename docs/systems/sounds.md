@@ -59,8 +59,9 @@ limiter, but have an independent panel volume and voice-scoped lifecycle.
 | `stream_user_left.ogg` | (a) a viewer stopped watching **my** stream; (b) **I** stopped watching someone's stream | streamer **and** the acting viewer | (a) streamer-side: `streamWatchers[own LiveKit identity]` loses a watcher identity (suppressed for the whole set when self-stream-end fires — see Mechanism Notes). (b) viewer-side: local feedback played by `handleViewerWatchToggle(_, false)` on the explicit "Stop Watching" action. |
 | `message.ogg` | new chat message arrived | self | The message is a `message` alert (see "Which messages alert" below). User can flip `messageSoundAllChannels` to fire on every channel. Alert: withheld on Do Not Disturb (see below). |
 | `juno_memory.ogg` | confirmed rare memory-card play | supported clients following the voice table, including spectators | `JunoSession` owns one `JunoSounds`; a new confirmed memory `lastMove.id` plays the user-supplied 2.79s clip through AudioManager/SFX output only. |
+| `juno_intoxicated.ogg` | confirmed rare Entorpecido play | supported table followers, including spectators | Same session owner/bus/dubbing and confirmed-id guards; complete user-supplied 2.294542s stereo 24kHz clip, Vorbis-encoded without normalization/content edits. |
 
-The memory cue is not a message/notification alert and is never published to
+The two supplied rare-card cues are not message/notification alerts and are never published to
 LiveKit or microphone capture. It obeys existing SFX volume, self deafen and
 space deafen for the host-issued identity (microphone mute does not suppress
 local playback). Seen ids are consumed even while silent. Mount/initial read,
@@ -88,7 +89,7 @@ Every file below is under `public/sounds/juno/`, unchanged from the supplied pac
 | `denuncia_martelo.ogg` | Confirmed positive-amount report; all followers |
 | `seu_turno.ogg` | Transition to the local seated player's turn, including first turn |
 | `vitoria.ogg`, `derrota.ogg` | Live playing→finished transition with a winner, for seated players only |
-| `jogada_invalida.ogg` | New `juno_invalid_move` refusal or own confirmed memory miss, local only |
+| `jogada_invalida.ogg` | New `juno_invalid_move` refusal or own confirmed memory/intoxicated miss, local only |
 | `botao.ogg`, `selecionar_carta.ogg` | Enabled button/summary click or hand-card selection, local only |
 
 The table's capture handler also covers keyboard-generated clicks and its React
@@ -111,6 +112,13 @@ is no longer the current player (an unplayable/empty draw advances the turn).
 Announce/report and playable draws retain the deadline, so new confirmed ids are
 their trigger even late in a turn; the wire contract has no independent move
 timestamp. All loads still expire after 3s.
+
+Entorpecido uses the same gain 1/real pt-BR edition as memory. An ordinary
+`intoxicated_miss` reuses local invalid feedback for its actor and draw feedback
+for other followers, respecting actual draw amount; it resets the turn and uses
+the same freshness cutoff. A wrong-color wild remains the ordinary wild cue,
+without an additional penalty sound. Initial reads/polls/reconnect/silence never
+replay the 2.29s clip. No new audio bus, dependency or voice publication.
 Every lane and pending load obeys local/global SFX zero, self/space deafen,
 account/origin/channel identity, voice disconnection and owner cleanup. Failures
 never reject gameplay. Music and microphone/publication routing are unchanged.

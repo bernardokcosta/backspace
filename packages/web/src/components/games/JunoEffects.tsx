@@ -4,12 +4,14 @@ import type { JunoMove } from '@veyvox/shared/src/juno';
 import { JunoCard } from './JunoCard';
 import { JUNO_ASSETS } from './junoAssets';
 import { layoutPixels } from '../../platform/interfaceScale';
+import { useFormatters } from '../../i18n/formatters';
 
 interface ReportAnchor { left: number; top: number; width: number; height: number }
 
 /** Only new confirmed moves animate. Mounting, polls and reconnects never replay. */
-export function JunoEffects({ move, position, name }: { move: JunoMove | null; position: string; name: string }) {
+export function JunoEffects({ move, position, name, viewerId }: { move: JunoMove | null; position: string; name: string; viewerId?: string }) {
   const { t } = useTranslation('voice');
+  const { formatNumber } = useFormatters();
   const layer = useRef<HTMLDivElement>(null);
   const seen = useRef(move?.id);
   const [cue, setCue] = useState<{ id: string; move: JunoMove; position: string; name: string; fromX: number; fromY: number; report: ReportAnchor } | null>(null);
@@ -17,7 +19,7 @@ export function JunoEffects({ move, position, name }: { move: JunoMove | null; p
   useEffect(() => {
     if (!id || id === seen.current) return;
     seen.current = id;
-    if (!move || !['play', 'draw', 'announce', 'timeout', 'report', 'memory_miss'].includes(move.type)) return;
+    if (!move || !['play', 'draw', 'announce', 'timeout', 'report', 'memory_miss', 'intoxicated_miss'].includes(move.type)) return;
     const box = layer.current?.getBoundingClientRect();
     const avatar = layer.current?.parentElement?.querySelector(`[data-seat="${position}"] .juno-avatar-frame`)?.getBoundingClientRect();
     const anchor = layer.current?.parentElement?.querySelector(`[data-seat="${position}"] .juno-report-anchor`)?.getBoundingClientRect();
@@ -39,10 +41,15 @@ export function JunoEffects({ move, position, name }: { move: JunoMove | null; p
   const symbol = special === 'draw2' ? '+2' : special === 'draw4' ? '+4' : special === 'reverse' ? '↺' : special === 'skip' ? '⊘' : null;
   return <div ref={layer} className="juno-effects" aria-hidden="true" style={cue ? { '--from-x': `${cue.fromX}px`, '--from-y': `${cue.fromY}px` } as CSSProperties : undefined}>{cue && (cue.move.type === 'report'
     ? (cue.move.amount ?? 0) > 0 && <ReportImpact key={cue.id} id={cue.id} position={cue.position} anchor={cue.report} />
-    : cue.move.type === 'memory_miss' ? <div key={cue.id} className="juno-effect-memory-miss">{t('juno.memory.miss', { name: cue.name, amount: cue.move.amount ?? 0 })}</div> : <>
+    : cue.move.type === 'memory_miss' ? <div key={cue.id} className="juno-effect-memory-miss">{t('juno.memory.miss', { name: cue.name, amount: cue.move.amount ?? 0 })}</div>
+    : cue.move.type === 'intoxicated_miss' ? <div key={cue.id} className="juno-effect-intoxicated-miss glass">
+      {cue.move.userId === viewerId && cue.move.misplayedCard && <div className="juno-intoxicated-wrong-card"><JunoCard card={cue.move.misplayedCard} /></div>}
+      <span>{t('juno.intoxicated.miss', { name: cue.name, amount: formatNumber(cue.move.amount ?? 0) })}</span>
+    </div> : <>
     {cue.move.card && <div key={`${cue.move.id}:card`} className="juno-effect-card" data-from={cue.position}><JunoCard card={cue.move.card} /></div>}
     {!cue.move.card && !announcement && <div key={`${cue.move.id}:draw`} className="juno-effect-draw" data-from={cue.position}><JunoCard back /></div>}
     {symbol && <strong key={`${cue.move.id}:special`} className="juno-effect-special">{symbol}</strong>}
+    {cue.move.intoxicatedColor && <div className="juno-effect-intoxicated-color glass">{t('juno.intoxicated.colorChanged', { name: cue.name })}</div>}
     {announcement && <div key={`${cue.move.id}:juno`} className="juno-effect-announce" data-from={cue.position}>
       <img src={JUNO_ASSETS.logo} alt="" /><span>{t('juno.announcedBy', { name: cue.name })}</span>
     </div>}

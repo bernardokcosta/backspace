@@ -30,6 +30,16 @@ A documented missing earliest pre-squash prefix is accepted without recreating
 its rows; unknown/future hashes, duplicate timestamps, interior gaps and malformed
 generated ordering abort startup without a database rewrite.
 
+The sole historical hash alias recognizes the original `0042_past_millenium_guard`
+at timestamp `1792815772672`: applied SHA-256 `e8525948…` from Git `1e640289`
+remains valid only with canonical SHA-256 `e94a6a77…`. Historical commit
+`3083e433` removed its FK PRAGMA wrappers/comments after some instances had already
+applied it, without changing the resulting schema or timestamp. The runner
+recognizes this exact pair read-only; it never rewrites the original ledger,
+accepts an arbitrary historical hash, or replays 0042. Wrong timestamps, changed
+canonical files, duplicates and interior gaps remain startup failures. Snapshot,
+transaction rollback, native preservation and repeat-boot tests cover this path.
+
 The existing pre-migration snapshot is taken before changes. FK suspension is
 connection-local and occurs before `BEGIN IMMEDIATE`. All pending generated SQL,
 the known partial-0045 sticker repair and their real journal entries run in that

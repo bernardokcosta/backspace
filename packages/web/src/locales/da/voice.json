@@ -12,6 +12,14 @@
     "joinedOtherSession": "Stemme frakoblet — kom med fra en anden session"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Omtåget",
+      "instruction": "Omtåget i denne tur: 50% risiko for forkert kort eller jokerfarve.",
+      "affected": "{{name}} er omtåget.",
+      "miss": "{{name}} spillede forkert og trak {{amount}}. Kortene bliver på hånden.",
+      "colorChanged": "{{name}} valgte en anden farve i omtåget tilstand.",
+      "rules": "Et sjældent kort, der kan spilles på enhver farve eller figur uden at ændre farven. Næste spiller er omtåget i én tur: et almindeligt kort har 50% risiko for fejl, begge kort bliver på hånden, spilleren trækker to og giver turen videre. En joker har i stedet 50% risiko for at vælge en af de tre andre farver uden denne ekstra straf. Effekten slutter efter turen."
+    },
     "guide": {
       "subtitle": "Lær bordet, læs kortene, gør dit træk.",
       "contents": "Guidens indhold",

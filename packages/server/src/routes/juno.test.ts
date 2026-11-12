@@ -31,6 +31,35 @@ beforeEach(async () => {
 afterEach(async () => { await app.close(); });
 const create = () => app.inject({ method: 'POST', url, headers, payload: { type: 'create' } });
 describe('Juno authorized transport', () => {
+  it('negotiates Entorpecido separately and denies unsupported reads before returning private state', async () => {
+    const enhanced = url + '?memory=1&intoxicated=1';
+    let view = (await app.inject({ method: 'POST', url: enhanced, headers, payload: { type: 'create' } })).json<JunoSnapshot>();
+    expect(view.supportsIntoxicated).toBe(true);
+    for (const [type, who] of [['join', 'guest'], ['start', 'remote-row']] as const) {
+      view = (await app.inject({ method: 'POST', url: enhanced, headers: { authorization: who },
+        payload: { type, gameId: view.game!.id, revision: view.revision } })).json<JunoSnapshot>();
+    }
+    expect(view.game?.intoxicatedEnabled).toBe(true);
+    const legacy = await app.inject({ method: 'GET', url: url + '?memory=1', headers });
+    expect(legacy.statusCode).toBe(409); expect(legacy.json().code).toBe('juno_update_required');
+    expect(legacy.json().game).toBeUndefined();
+    const left = await app.inject({ method: 'POST', url: url + '?memory=1', headers: { authorization: 'guest' },
+      payload: { type: 'leave', gameId: view.game!.id, revision: view.revision } });
+    expect(left.statusCode).toBe(200); expect(left.json().game).toBeNull();
+  });
+
+  it('rejects malformed intoxication declarations and never enables it for a memory-only cohort', async () => {
+    for (const query of ['?intoxicated=1', '?memory=1&intoxicated=0', '?memory=1&intoxicated=1&intoxicated=1', '?memory=1&intoxicated=true']) {
+      expect((await app.inject({ method: 'GET', url: url + query, headers })).statusCode).toBe(400);
+      expect((await app.inject({ method: 'POST', url: url + query, headers, payload: { type: 'create' } })).statusCode).toBe(400);
+    }
+    let view = (await app.inject({ method: 'POST', url: url + '?memory=1&intoxicated=1', headers, payload: { type: 'create' } })).json<JunoSnapshot>();
+    view = (await app.inject({ method: 'POST', url: url + '?memory=1', headers: { authorization: 'old' },
+      payload: { type: 'join', gameId: view.game!.id, revision: view.revision } })).json<JunoSnapshot>();
+    view = (await app.inject({ method: 'POST', url: url + '?memory=1&intoxicated=1', headers,
+      payload: { type: 'start', gameId: view.game!.id, revision: view.revision } })).json<JunoSnapshot>();
+    expect(view.game?.memoryEnabled).toBe(true); expect(view.game?.intoxicatedEnabled).toBe(false);
+  });
   it('enables the enhanced deck, refuses unsupported views without leaking data and still allows leave', async () => {
     let view = (await app.inject({ method: 'POST', url: url + '?memory=1', headers, payload: { type: 'create' } })).json<JunoSnapshot>();
     const send = async (type: 'join' | 'start' | 'leave', who: string, memory = true) => app.inject({ method: 'POST', url: url + (memory ? '?memory=1' : ''),
@@ -131,7 +160,7 @@ describe('Juno authorized transport', () => {
     try {
       const payload = { type: 'report', gameId: snapshot.game!.id, revision: snapshot.revision, targetUserId: 'opponent', opportunityId: 'miss-1' };
       expect((await app.inject({ method: 'POST', url, headers, payload })).statusCode).toBe(200);
-      expect(command).toHaveBeenCalledWith('voice', { userId: 'remote-row', name: 'Alice' }, payload, false);
+      expect(command).toHaveBeenCalledWith('voice', { userId: 'remote-row', name: 'Alice' }, payload, false, false);
       state.room = 'other'; expect((await app.inject({ method: 'POST', url, headers, payload })).statusCode).toBe(403);
       expect(command).toHaveBeenCalledTimes(1);
     } finally { command.mockRestore(); }

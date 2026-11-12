@@ -12,6 +12,14 @@
     "joinedOtherSession": "Voice verbroken — deelgenomen vanaf een andere sessie"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Bedwelmd",
+      "instruction": "Deze beurt bedwelmd: 50% kans op een verkeerde kaart of jokerkleur.",
+      "affected": "{{name}} is bedwelmd.",
+      "miss": "{{name}} speelde verkeerd en pakte {{amount}}. De kaarten blijven in de hand.",
+      "colorChanged": "{{name}} koos bedwelmd een andere kleur.",
+      "rules": "Een zeldzame kaart die op elke kleur of elk symbool mag zonder de kleur te veranderen. De volgende speler is één beurt bedwelmd: een gewone kaart mislukt met 50% kans, beide kaarten blijven in de hand, de speler pakt er twee en past. Een joker kiest in plaats daarvan met 50% kans een van de drie andere kleuren, zonder die extra straf. Het effect eindigt na de beurt."
+    },
     "guide": {
       "subtitle": "Leer de tafel, lees de kaarten, doe je zet.",
       "contents": "Inhoud van de gids",

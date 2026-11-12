@@ -12,6 +12,14 @@
     "joinedOtherSession": "Voce disconnessa: accesso da un’altra sessione"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Stordito",
+      "instruction": "Stordito per questo turno: 50% di probabilità di sbagliare carta o colore del jolly.",
+      "affected": "{{name}} è sotto l'effetto dello stordimento.",
+      "miss": "{{name}} ha sbagliato e pescato {{amount}}. Le carte restano in mano.",
+      "colorChanged": "{{name}} ha scelto un altro colore sotto l'effetto dello stordimento.",
+      "rules": "Una carta rara giocabile su qualsiasi colore o simbolo senza cambiare il colore. Il giocatore successivo è stordito per un turno: una carta normale ha il 50% di probabilità di fallire, tenendo entrambe le carte, pescandone due e passando. Un jolly ha invece il 50% di probabilità di scegliere uno degli altri tre colori, senza questa penalità extra. L'effetto termina dopo il turno."
+    },
     "guide": {
       "subtitle": "Impara il tavolo, leggi le carte, prepara la tua prossima mossa.",
       "contents": "Indice della guida",

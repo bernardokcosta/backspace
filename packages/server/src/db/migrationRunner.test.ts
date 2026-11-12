@@ -5,6 +5,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, cpSync, rmSync } f
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { readMigrationState, runMigrations } from './migrationRunner.js';
+import { buildOldDatabase, seedNativeUser } from '../testing/standaloneUpgrade.js';
 
 const fixtures: Array<{ db: Database.Database; folder: string }> = [];
 afterEach(() => {
@@ -39,7 +40,71 @@ function ledger(db: Database.Database): unknown[] {
   return db.prepare('SELECT hash, created_at FROM __drizzle_migrations ORDER BY created_at').all();
 }
 
+const original0042 = 'e8525948a06912f55b819833f1148a9e24d5eef87ca28d2aa3e280f854194071';
+const time0042 = 1792815772672;
+function historical0042Fixture() {
+  const result = fixture();
+  cpSync(path.resolve('drizzle'), result.folder, { recursive: true });
+  // The published Linux image uses Git's LF bytes; a Windows checkout may have
+  // CRLF. Keep the production canonical-hash proof exact inside this fixture.
+  const file = path.join(result.folder, '0042_past_millenium_guard.sql');
+  writeFileSync(file, readFileSync(file, 'utf8').replace(/\r\n/g, '\n'));
+  buildOldDatabase(result.db);
+  seedNativeUser(result.db, 'native');
+  result.db.prepare('UPDATE __drizzle_migrations SET hash = ? WHERE created_at = ?').run(original0042, time0042);
+  return result;
+}
+
 describe('the single ordered migration transaction', () => {
+  it('recognizes the proven original 0042 hash and upgrades without rewriting its applied history', () => {
+    const { db, folder } = historical0042Fixture();
+    const before = ledger(db), beforeChanges = vi.fn();
+    expect(readMigrationState(db, folder).pending.map(m => m.folderMillis)).toHaveLength(2);
+    runMigrations(db, { migrationsFolder: folder, beforeChanges });
+    expect(ledger(db).slice(0, 49)).toEqual(before);
+    expect(db.prepare('SELECT id,password_hash FROM users').all()).toEqual([{ id: 'native', password_hash: 'synthetic-credential-native' }]);
+    expect(db.pragma('foreign_key_check')).toEqual([]);
+    expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
+    runMigrations(db, { migrationsFolder: folder, beforeChanges });
+    expect(beforeChanges).toHaveBeenCalledTimes(1);
+    expect(ledger(db).slice(0, 49)).toEqual(before);
+  });
+
+  it.each(['wrong time', 'unknown hash', 'duplicate', 'interior gap', 'changed canonical'] as const)(
+    'does not broaden original 0042 compatibility to %s', variant => {
+      const { db, folder } = historical0042Fixture();
+      if (variant === 'wrong time') db.prepare('UPDATE __drizzle_migrations SET created_at = created_at + 1 WHERE created_at = ?').run(time0042);
+      if (variant === 'unknown hash') db.prepare('UPDATE __drizzle_migrations SET hash = ? WHERE created_at = ?').run('unknown', time0042);
+      if (variant === 'duplicate') db.prepare('INSERT INTO __drizzle_migrations (hash,created_at) VALUES (?,?)').run(original0042, time0042);
+      if (variant === 'interior gap') db.prepare('DELETE FROM __drizzle_migrations WHERE created_at = ?').run(time0042);
+      if (variant === 'changed canonical') {
+        const file = path.join(folder, '0042_past_millenium_guard.sql');
+        writeFileSync(file, `${readFileSync(file, 'utf8')}\n-- Unexpected canonical edit`);
+      }
+      const before = ledger(db), beforeChanges = vi.fn();
+      expect(() => runMigrations(db, { migrationsFolder: folder, beforeChanges })).toThrow(/history/i);
+      expect(beforeChanges).not.toHaveBeenCalled(); expect(ledger(db)).toEqual(before);
+      expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
+    },
+  );
+
+  it.each(['snapshot', 'SQL'] as const)('preserves the original 0042 ledger and native data on %s failure', failure => {
+    const { db, folder } = historical0042Fixture();
+    if (failure === 'SQL') {
+      const file = path.join(folder, '0050_standalone_cleanup.sql');
+      writeFileSync(file, `${readFileSync(file, 'utf8')}\n--> statement-breakpoint\nINSERT INTO missing_table VALUES (1);`);
+    }
+    const before = ledger(db), objects = db.prepare('SELECT type,name,sql FROM sqlite_master ORDER BY type,name').all();
+    expect(() => runMigrations(db, { migrationsFolder: folder, beforeChanges: () => {
+      if (failure === 'snapshot') throw new Error('snapshot failed');
+    } })).toThrow();
+    expect(ledger(db)).toEqual(before);
+    expect(db.prepare('SELECT type,name,sql FROM sqlite_master ORDER BY type,name').all()).toEqual(objects);
+    expect(db.prepare('SELECT id,password_hash FROM users').all()).toEqual([{ id: 'native', password_hash: 'synthetic-credential-native' }]);
+    expect(db.pragma('foreign_key_check')).toEqual([]);
+    expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
+  });
+
   it('applies generated hashes/timestamps and repeat boot is a snapshot-free no-op', () => {
     const { db, folder } = fixture();
     const beforeChanges = vi.fn();
