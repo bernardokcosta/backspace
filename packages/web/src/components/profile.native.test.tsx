@@ -31,7 +31,7 @@ describe('native profiles', () => {
     render(<MemoryRouter>{surface === 'modal' ? <UserProfileModal /> : <UserProfilePopout user={other} anchor={anchor} onClose={vi.fn()} />}<Route /></MemoryRouter>);
     expect(screen.getByText(other.username)).toBeInTheDocument(); await waitFor(() => expect(mocks.mutuals).toHaveBeenCalledExactlyOnceWith(other.id));
     fireEvent.click(screen.getByText('Send Message')); await waitFor(() => expect(mocks.create).toHaveBeenCalledExactlyOnceWith({ userId: other.id }));
-    expect(screen.getByTestId('route')).toHaveTextContent('/channels/@me/pair');
+    await waitFor(() => expect(screen.getByTestId('route')).toHaveTextContent('/channels/@me/pair'));
   });
   it('ignores a late profile read after a different native profile is opened', async () => {
     let finish!: (value: User) => void; mocks.get.mockReturnValueOnce(new Promise<User>(resolve => { finish = resolve; }));
