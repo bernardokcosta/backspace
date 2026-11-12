@@ -45,10 +45,12 @@
       "sourceFile": "Carta neon “Entorpecido” cósmica.png",
       "sourceSha256": "3540e9f0b768b388f25e289fb1d46240c85c40d0e12cc29931c2bdc6111c62fd",
       "sourceDimensions": [1060, 1484],
+      "crop": { "left": 19, "top": 25, "width": 1021, "height": 1427 },
+      "roundedMaskRadius": 66,
       "dimensions": [720, 1056],
-      "fit": "contain; transparent padding; no crop or distortion",
-      "bytes": 209472,
-      "sha256": "6f9127dce4eb9ff0ced4e0f9aa21957d2bf4cd5f678d6ba8e945cd9d8633dbdc"
+      "fit": "fill; normalize cropped card frame to standard dimensions without padding",
+      "bytes": 196672,
+      "sha256": "fb7fbf2f52ed79f605a653e2d289bf74fc92f8a1d21bfd3582762e6c5c29cd62"
     },
     {
       "path": "cards/memory.webp",
