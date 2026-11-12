@@ -79,7 +79,6 @@ export function JunoMatch() {
   const effectPlayer = game.lastMove?.type === 'report' ? moveTarget : movePlayer;
   const movePosition = Object.entries(seats).find(([, person]) => person?.userId === effectPlayer?.userId)?.[0] ?? 'top';
   return <div className={`juno-match${game.supportsReports ? ' juno-reports' : ''}${myTurn ? ' juno-my-turn' : ''}${blind ? ' juno-memory-active' : ''}${intoxicated ? ' juno-intoxicated-active' : ''}`}>
-    {intoxicated && <div className="juno-intoxicated-haze" aria-hidden="true" />}
     <JunoEffects move={game.lastMove} position={movePosition} name={playerName(effectPlayer)} viewerId={selfId} />
     <div className="juno-arena">
       <img className="juno-orbit" src={JUNO_ASSETS.orbit} alt="" aria-hidden="true" />

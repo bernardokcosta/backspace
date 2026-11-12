@@ -22,10 +22,12 @@ describe('Juno cosmic interactive match', () => {
     expect(command).toHaveBeenCalledWith({ type: 'play', cardId: 'intoxicated', announce: false });
     expect(screen.queryByRole('button', { name: 'Green' })).not.toBeInTheDocument();
   });
-  it('distorts only the victim table, keeps real hand/actions readable, and clears on confirmed end', () => {
+  it('marks only the victim for card blur without a table overlay, and clears on confirmed end', () => {
     const game = junoGame('playing'); game.intoxication = { id: 'intoxication', targetUserId: 'a' };
     useJunoStore.setState({ snapshot: { revision: 2, game } }); const { container } = render(<JunoMatch />);
-    expect(container.querySelector('.juno-intoxicated-active .juno-intoxicated-haze')).toBeInTheDocument();
+    expect(container.querySelector('.juno-match.juno-intoxicated-active')).toBeInTheDocument();
+    expect(container.querySelector('.juno-intoxicated-haze')).toBeNull();
+    expect(container.querySelector('.juno-local-player .juno-seat-intoxicated .juno-avatar-frame')).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Your hand' })).toHaveAccessibleDescription(/50%/);
     expect(container.querySelectorAll('.juno-hand img')).toHaveLength(2);
     expect(screen.getByRole('button', { name: 'Draw pile' })).toBeEnabled();
