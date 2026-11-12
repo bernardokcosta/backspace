@@ -10,6 +10,7 @@ export const JUNO_SOUNDS = {
   skip: { sound: 'juno/bloquear', gain: .70, lane: 'move' },
   wild: { sound: 'juno/coringa', gain: .70, lane: 'move' },
   memory: { sound: 'juno_memory', gain: 1, lane: 'move' },
+  intoxicated: { sound: 'juno_intoxicated', gain: 1, lane: 'move' },
   turn: { sound: 'juno/seu_turno', gain: .65, lane: 'turn' },
   announce: { sound: 'juno/uno', gain: .70, lane: 'announcement' },
   report: { sound: 'juno/denuncia_martelo', gain: .70, lane: 'move' },
@@ -34,16 +35,16 @@ export function junoMoveSounds(previous: JunoView, game: JunoView, selfId: strin
   // Announce/report and a playable draw keep the current deadline. An unplayable
   // draw (actor is no longer current) and every memory miss advance/reset it.
   const resetsTurn = move.type === 'play' || move.type === 'start' || move.type === 'timeout' || move.type === 'pass' || move.type === 'leave'
-    || move.type === 'memory_miss' || move.type === 'draw' && move.userId !== game.currentPlayerId;
+    || move.type === 'memory_miss' || move.type === 'intoxicated_miss' || move.type === 'draw' && move.userId !== game.currentPlayerId;
   if (game.phase !== 'playing' || resetsTurn && game.remainingMs < JUNO_TURN_MS - 3_000) return [];
   const cues: JunoSoundCue[] = [];
   if (move.type === 'start') cues.push('shuffle');
   else if (move.type === 'play' && move.card) {
     const face = move.card.face;
-    cues.push(face === 'draw2' || face === 'draw4' || face === 'reverse' || face === 'skip' || face === 'wild' || face === 'memory' ? face : 'play');
+    cues.push(face === 'draw2' || face === 'draw4' || face === 'reverse' || face === 'skip' || face === 'wild' || face === 'memory' || face === 'intoxicated' ? face : 'play');
   } else if (move.type === 'report' && (move.amount ?? 0) > 0) cues.push('report');
   else if ((move.type === 'draw' || move.type === 'timeout') && (move.amount ?? 0) > 0) cues.push('draw');
-  else if (move.type === 'memory_miss') {
+  else if (move.type === 'memory_miss' || move.type === 'intoxicated_miss') {
     if (move.userId === selfId) cues.push('invalid');
     else if ((move.amount ?? 0) > 0) cues.push('draw');
   }

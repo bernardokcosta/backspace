@@ -12,6 +12,14 @@
     "joinedOtherSession": "Ses bağlantısı kesildi — başka bir oturumdan katıldın"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Sersemlemiş",
+      "instruction": "Bu tur sersemlemiş: yanlış kart veya joker rengi seçme olasılığı %50.",
+      "affected": "{{name}} sersemlemiş durumda.",
+      "miss": "{{name}} yanlış oynadı ve {{amount}} kart çekti. Kartlar elde kalır.",
+      "colorChanged": "{{name}} sersemlemişken başka bir renk seçti.",
+      "rules": "Rengi değiştirmeden her renk veya simgenin üstüne oynanabilen nadir bir kart. Sonraki oyuncu bir tur sersemler: normal kartta %50 hata olasılığı vardır; iki kart da elde kalır, iki kart çekilir ve tur geçer. Jokerde ise bu ek ceza yerine %50 olasılıkla diğer üç renkten biri seçilir. Etki turdan sonra biter."
+    },
     "guide": {
       "subtitle": "Masayı öğren, kartları oku, sıradaki hamleni yap.",
       "contents": "Kılavuz içeriği",

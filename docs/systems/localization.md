@@ -25,6 +25,13 @@ and `juno.faces.memory` in all 25 catalogs. Hidden slots never name color/face;
 retaining the old private view. The supplied card artwork/clip is not translated
 or regenerated; its provenance is recorded in the Juno asset manifest.
 
+Entorpecido uses `voice:juno.intoxicated` in all 25 catalogs: translated name,
+one-turn 50% instruction, affected-player/miss/changed-color messages and rules.
+Private wrong-card feedback uses the actor's existing game locale; other viewers
+never receive that card. Rules illustrate the new card in supported lobbies or
+frozen enabled rounds, not a mixed-client round that lacks it. Actual art/clip
+remain in the supplied real pt-BR media edition; no other dubbing is fabricated.
+
 Juno now has a game-local locale boundary (`JunoLocale`), sharing the existing
 catalog loader/resources but not the app's selected language. Device preference
 `language: auto` follows current/later Veyvox language; an explicit existing

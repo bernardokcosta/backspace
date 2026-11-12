@@ -5,6 +5,14 @@
     "cameraSwitchFailed": "Impossible de changer de caméra", "cameraUnavailable": "Caméra indisponible", "cameraPermissionRevoked": "L’autorisation de la caméra a été révoquée", "cameraDisconnected": "Caméra déconnectée", "joinedOtherSession": "Vocal déconnecté : tu as rejoint depuis une autre session"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Étourdi",
+      "instruction": "Étourdi pour ce tour : 50% de risque de mauvaise carte ou couleur de joker.",
+      "affected": "{{name}} subit l'étourdissement.",
+      "miss": "{{name}} s'est trompé et a pioché {{amount}}. Les cartes restent en main.",
+      "colorChanged": "{{name}} a choisi une autre couleur sous l'effet de l'étourdissement.",
+      "rules": "Une carte rare jouable sur toute couleur ou tout symbole sans changer la couleur. Le joueur suivant est étourdi pendant un tour : une carte normale a 50% de risque d'échouer, les deux cartes restent en main, il pioche deux cartes et passe. Un joker a plutôt 50% de risque de choisir l'une des trois autres couleurs, sans cette pénalité supplémentaire. L'effet prend fin après le tour."
+    },
     "guide": {
       "subtitle": "Découvre la table, apprends les cartes et prépare ton prochain coup.", "contents": "Sommaire du guide",
       "sections": { "start": "Pour commencer", "turn": "Ton tour", "special": "Cartes d’action", "juno": "Annoncer JUNO", "memory": "Cartes spéciales", "score": "Résultats et XP", "table": "Autour de la table" },

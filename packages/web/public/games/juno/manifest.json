@@ -19,6 +19,17 @@
     "durationSecondsApprox": 181.52,
     "unchanged": true
   },
+  "intoxicatedAudio": {
+    "path": "/sounds/juno_intoxicated.ogg",
+    "sourceFile": "hf_20261110_201913_1b92ae1a-be1d-434f-8621-d8c7da978304.wav",
+    "sourceSha256": "035083fbbe809a549d98c846afd097b5d3c576af0dbf169d0f25fa55bb1761a5",
+    "format": "Ogg Vorbis",
+    "durationSeconds": 2.294542,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bytes": 21508,
+    "sha256": "248234c8be7427335630d22233106c619c76f60f5c0bc8c31625b82b744810d0"
+  },
   "memoryAudio": {
     "path": "/sounds/juno_memory.ogg",
     "sourceFile": "hf_20261107_042622_ad7a3a7a-cf99-44a5-a4f0-10ae662cee54.wav",
@@ -29,6 +40,16 @@
     "sha256": "a4b06a1b82153c7f0f133435a6c7361671e307fac524028dc298bb69d598fc99"
   },
   "files": [
+    {
+      "path": "cards/intoxicated.webp",
+      "sourceFile": "Carta neon “Entorpecido” cósmica.png",
+      "sourceSha256": "3540e9f0b768b388f25e289fb1d46240c85c40d0e12cc29931c2bdc6111c62fd",
+      "sourceDimensions": [1060, 1484],
+      "dimensions": [720, 1056],
+      "fit": "contain; transparent padding; no crop or distortion",
+      "bytes": 209472,
+      "sha256": "6f9127dce4eb9ff0ced4e0f9aa21957d2bf4cd5f678d6ba8e945cd9d8633dbdc"
+    },
     {
       "path": "cards/memory.webp",
       "sourceFile": "Carta cósmica da memória nebulosa.png",

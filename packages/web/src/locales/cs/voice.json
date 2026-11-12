@@ -12,6 +12,14 @@
     "joinedOtherSession": "Hlas odpojen — připojení z jiné relace"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Omámený",
+      "instruction": "Omámení na tento tah: 50% šance na chybnou kartu nebo barvu žolíka.",
+      "affected": "{{name}} je omámený.",
+      "miss": "{{name}} zahrál chybně a lízl si {{amount}}. Karty zůstávají v ruce.",
+      "colorChanged": "{{name}} v omámení zvolil jinou barvu.",
+      "rules": "Vzácnou kartu lze zahrát na libovolnou barvu či symbol, aniž by změnila barvu. Další hráč je na jeden tah omámený: běžná karta má 50% šanci na chybu, obě karty zůstanou v ruce, hráč si lízne dvě a předá tah. Žolík má místo toho 50% šanci zvolit jednu ze tří jiných barev bez tohoto trestu navíc. Po tahu účinek končí."
+    },
     "guide": {
       "subtitle": "Poznej stůl, přečti karty, udělej tah.",
       "contents": "Obsah průvodce",

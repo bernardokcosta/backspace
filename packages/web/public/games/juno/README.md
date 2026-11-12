@@ -1,5 +1,14 @@
 # Juno artwork provenance
 
+The Entorpecido card PNG and original WAV were supplied and authorized for
+implementation in 1.17.13 on 2026-11-12. `cards/intoxicated.webp` fits the complete
+1060×1484 RGBA original into 720×1056 with transparent padding, without cropping,
+distortion or generated replacement artwork. `/sounds/juno_intoxicated.ogg` is
+the complete 2.294542s stereo 24kHz clip encoded as Vorbis, without content edits
+or volume normalization. Source/output hashes and sizes are in the manifest.
+Original Downloads files are untouched. No authorship/license claim is inferred;
+the clip's spoken content was not independently listened to or transcribed.
+
 Supplied by the project user on 2026-11-05 in `juno-ui.zip` and
 `Juno_Kit_Completo_108_Cartas.zip`. `manifest.json` records the source entry,
 byte size and SHA-256 of every imported file, plus the archive fingerprints.

@@ -4,7 +4,8 @@ import type { User } from './types.js';
 export const JUNO_COLORS = ['coral', 'amber', 'mint', 'sky'] as const;
 export type JunoColor = typeof JUNO_COLORS[number];
 export type JunoFace = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
-  | 'skip' | 'reverse' | 'draw2' | 'wild' | 'draw4' | 'memory';
+  | 'skip' | 'reverse' | 'draw2' | 'wild' | 'draw4' | 'memory' | 'intoxicated';
+export const JUNO_MAX_DECK_SIZE = 110;
 export interface JunoCard { id: string; color: JunoColor | null; face: JunoFace }
 export interface JunoPerson { userId: string; name: string; user?: User; nickname?: string | null; computer?: 1 | 2 | 3 }
 export type JunoPlace = 1 | 2 | 3 | 4;
@@ -41,7 +42,7 @@ export type JunoAction = { type: 'join' | 'leave' | 'start' | 'rematch' | 'draw'
   | { type: 'play'; cardId: string; color?: JunoColor; announce?: boolean };
 export type JunoCommand = { type: 'create' } | (JunoAction & { gameId: string; revision: number });
 export interface JunoMove {
-  type: 'start' | 'play' | 'draw' | 'pass' | 'timeout' | 'leave' | 'announce' | 'report' | 'memory_miss';
+  type: 'start' | 'play' | 'draw' | 'pass' | 'timeout' | 'leave' | 'announce' | 'report' | 'memory_miss' | 'intoxicated_miss';
   /** Stable across refreshes; presentation must not replay the same action. */
   id?: string;
   userId: string;
@@ -49,6 +50,9 @@ export interface JunoMove {
   card?: JunoCard;
   amount?: number;
   announced?: boolean;
+  /** Private feedback: serialized only to the player whose attempt failed. */
+  misplayedCard?: JunoCard;
+  intoxicatedColor?: boolean;
 }
 export interface JunoView {
   id: string;
@@ -73,10 +77,12 @@ export interface JunoView {
   practice?: boolean;
   memoryEnabled?: boolean;
   memoryCurse?: { id: string; targetUserId: string };
+  intoxicatedEnabled?: boolean;
+  intoxication?: { id: string; targetUserId: string };
   /** A cursed viewer receives opaque owned slots, never the concealed faces. */
   maskedHand?: { id: string }[];
 }
-export interface JunoSnapshot { revision: number; game: JunoView | null; supportsMemory?: boolean }
+export interface JunoSnapshot { revision: number; game: JunoView | null; supportsMemory?: boolean; supportsIntoxicated?: boolean }
 export const JUNO_TURN_MS = 45_000;
 export const JUNO_REPORT_MS = 10_000;
 export interface JunoReportOpportunity { id: string; targetUserId: string; remainingMs: number }
@@ -84,5 +90,5 @@ export interface JunoReportOpportunity { id: string; targetUserId: string; remai
 /** Presentation may highlight legal cards; the server rechecks every play. */
 export function canPlayJuno(card: JunoCard, hand: readonly JunoCard[], top: JunoCard, color: JunoColor): boolean {
   if (card.face === 'draw4') return !hand.some(other => other.color === color);
-  return card.face === 'memory' || card.face === 'wild' || card.color === color || card.face === top.face;
+  return card.face === 'memory' || card.face === 'intoxicated' || card.face === 'wild' || card.color === color || card.face === top.face;
 }

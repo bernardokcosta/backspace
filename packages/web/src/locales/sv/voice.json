@@ -12,6 +12,14 @@
     "joinedOtherSession": "Röst frånkopplad — gick med från en annan session"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Omtöcknad",
+      "instruction": "Omtöcknad denna tur: 50% risk för fel kort eller jokerfärg.",
+      "affected": "{{name}} är omtöcknad.",
+      "miss": "{{name}} spelade fel och drog {{amount}}. Korten stannar på handen.",
+      "colorChanged": "{{name}} valde en annan färg i omtöcknat tillstånd.",
+      "rules": "Ett sällsynt kort som kan spelas på alla färger eller symboler utan att ändra färgen. Nästa spelare är omtöcknad i en tur: ett vanligt kort har 50% risk att misslyckas, båda korten stannar på handen, spelaren drar två och passar. En joker har i stället 50% risk att välja en av de tre andra färgerna utan detta extra straff. Effekten upphör efter turen."
+    },
     "guide": {
       "subtitle": "Lär dig bordet, läs korten, gör ditt drag.",
       "contents": "Guidens innehåll",

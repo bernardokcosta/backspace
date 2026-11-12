@@ -10,6 +10,12 @@ let fixture: ReturnType<typeof createJunoTestDb>;
 beforeEach(() => { fixture = createJunoTestDb(); seedJunoTestDb(fixture.db); });
 afterEach(() => fixture.sqlite.close());
 describe('durable Juno progression', () => {
+  it('accepts the expanded rare-card deck without changing XP and still refuses impossible hand counts', () => {
+    const input = settlement(); input.standings = input.standings.slice(0, 2); input.standings[1]!.cardCount = 109;
+    expect(settleJunoRound(input, fixture.db).standings[1]).toMatchObject({ place: 2, xp: 80, cardCount: 109 });
+    const invalid = settlement('invalid'); invalid.standings[1]!.cardCount = 111;
+    expect(() => settleJunoRound(invalid, fixture.db)).toThrow('Invalid Juno award');
+  });
   it('never writes any progression for a computer practice settlement', () => {
     const input = settlement(); input.standings[1]!.computer = 1;
     expect(settleJunoRound(input, fixture.db)).toMatchObject({ status: 'unranked' });

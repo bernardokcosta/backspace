@@ -436,8 +436,8 @@ export class VeyvoxApiClient {
   };
 
   juno: {
-    get: (channelId: string) => Promise<JunoSnapshot>;
-    command: (channelId: string, command: JunoCommand) => Promise<JunoSnapshot>;
+    get: (channelId: string, supportsIntoxicated?: boolean) => Promise<JunoSnapshot>;
+    command: (channelId: string, command: JunoCommand, supportsIntoxicated?: boolean) => Promise<JunoSnapshot>;
     ranking: (spaceId: string, query?: { limit?: number; offset?: number }) => Promise<JunoRankingPage>;
   };
   soundboard: {
@@ -585,8 +585,20 @@ export class VeyvoxApiClient {
       }), signal));
     }
     this.juno = {
-      get: (channelId) => request<JunoSnapshot>('GET', `/channels/${encodeURIComponent(channelId)}/juno?memory=1`),
-      command: (channelId, command) => request<JunoSnapshot>('POST', `/channels/${encodeURIComponent(channelId)}/juno?memory=1`, command),
+      get: async (channelId, supportsIntoxicated = true) => {
+        const route = `/channels/${encodeURIComponent(channelId)}/juno?memory=1`;
+        const generation = sessionGeneration, token = getToken();
+        try { return await request<JunoSnapshot>('GET', route + (supportsIntoxicated ? '&intoxicated=1' : '')); }
+        catch (error) {
+          // Old hosts reject unknown query keys before reading the table. Only
+          // this read-only protocol probe may fall back, in the same session.
+          if (!supportsIntoxicated || !(error instanceof HttpError) || error.status !== 400 || error.code !== 'invalid_body'
+            || generation !== sessionGeneration || getToken() !== token) throw error;
+          return request<JunoSnapshot>('GET', route);
+        }
+      },
+      command: (channelId, command, supportsIntoxicated = false) => request<JunoSnapshot>('POST',
+        `/channels/${encodeURIComponent(channelId)}/juno?memory=1${supportsIntoxicated ? '&intoxicated=1' : ''}`, command),
       ranking: (spaceId, query = {}) => {
         const params = new URLSearchParams();
         if (query.limit !== undefined) params.set('limit', String(query.limit));

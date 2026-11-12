@@ -12,6 +12,14 @@
     "joinedOtherSession": "Ääni katkaistu — liitytty toisesta istunnosta"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Tokkurainen",
+      "instruction": "Tokkurassa tämän vuoron: 50% mahdollisuus väärään korttiin tai jokerin väriin.",
+      "affected": "{{name}} on tokkurassa.",
+      "miss": "{{name}} pelasi väärin ja nosti {{amount}}. Kortit jäävät käteen.",
+      "colorChanged": "{{name}} valitsi tokkurassa toisen värin.",
+      "rules": "Harvinaisen kortin voi pelata minkä tahansa värin tai symbolin päälle vaihtamatta väriä. Seuraava pelaaja on tokkurassa yhden vuoron: tavallinen kortti epäonnistuu 50% todennäköisyydellä, molemmat kortit jäävät käteen ja pelaaja nostaa kaksi sekä päättää vuoronsa. Jokeri valitsee sen sijaan 50% todennäköisyydellä jonkin kolmesta muusta väristä ilman lisärangaistusta. Vaikutus päättyy vuoron jälkeen."
+    },
     "guide": {
       "subtitle": "Opi pöytä, lue kortit, tee siirtosi.",
       "contents": "Oppaan sisältö",

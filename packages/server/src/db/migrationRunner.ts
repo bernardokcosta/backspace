@@ -11,6 +11,17 @@ export interface MigrationState {
   readonly pending: readonly MigrationMeta[];
 }
 
+// 0042 originally shipped at this timestamp with FK PRAGMA wrappers. Historical
+// commit 3083e433 removed only those wrappers/comments after some instances had
+// applied 1e640289. Recognize that exact pair without rewriting applied history
+// or accepting a changed canonical migration/any other legacy hash.
+function matchesAppliedMigration(migration: MigrationMeta, row: { hash: unknown; created_at: unknown }): boolean {
+  if (migration.folderMillis !== row.created_at) return false;
+  return migration.hash === row.hash || migration.folderMillis === 1792815772672
+    && migration.hash === 'e94a6a77feab613d8fd7589a9c6ebd90c10e59986268f0a272bb55a188a6831b'
+    && row.hash === 'e8525948a06912f55b819833f1148a9e24d5eef87ca28d2aa3e280f854194071';
+}
+
 /** The generated timestamp/hash pair, not row counts or synthetic ledger IDs,
  * identifies an applied migration. Supported pre-squash histories may omit an
  * earliest prefix, but cannot contain a gap within their recorded suffix. */
@@ -37,7 +48,7 @@ export function readMigrationState(db: Database.Database, folder: string): Migra
   }>;
   let lastIndex = -1;
   for (const row of recorded) {
-    const index = all.findIndex(m => m.folderMillis === row.created_at && m.hash === row.hash);
+    const index = all.findIndex(m => matchesAppliedMigration(m, row));
     if (index < 0 || (lastIndex >= 0 && index !== lastIndex + 1)) {
       throw new Error('Invalid migration history: unknown, duplicate, future or missing interior entry');
     }

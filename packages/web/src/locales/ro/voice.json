@@ -12,6 +12,14 @@
     "joinedOtherSession": "Vocea s-a deconectat — te-ai alăturat din altă sesiune"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Amețit",
+      "instruction": "Amețit în această tură: 50% șanse să greșești cartea sau culoarea jokerului.",
+      "affected": "{{name}} este sub efectul amețelii.",
+      "miss": "{{name}} a greșit și a tras {{amount}}. Cărțile rămân în mână.",
+      "colorChanged": "{{name}} a ales altă culoare sub efectul amețelii.",
+      "rules": "O carte rară, jucabilă peste orice culoare sau simbol fără să schimbe culoarea. Următorul jucător este amețit o tură: o carte obișnuită are 50% șanse să eșueze, ambele cărți rămân în mână, trage două și pasează. Un joker are în schimb 50% șanse să aleagă una dintre celelalte trei culori, fără această penalizare suplimentară. Efectul se termină după tură."
+    },
     "guide": {
       "subtitle": "Învață masa, citește cărțile, fă următoarea mutare.",
       "contents": "Cuprinsul ghidului",

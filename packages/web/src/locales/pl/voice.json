@@ -12,6 +12,14 @@
     "joinedOtherSession": "Rozłączono głos — dołączono z innej sesji"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Odurzenie",
+      "instruction": "Odurzenie w tej turze: 50% szans na złą kartę lub kolor jokera.",
+      "affected": "{{name}} jest pod wpływem odurzenia.",
+      "miss": "{{name}} pomylił zagranie i dobrał {{amount}}. Karty zostają w ręce.",
+      "colorChanged": "{{name}} pod wpływem odurzenia wybrał inny kolor.",
+      "rules": "Rzadka karta, którą można zagrać na dowolny kolor lub symbol bez zmiany koloru. Następny gracz jest odurzony przez jedną turę: zwykła karta ma 50% szans na niepowodzenie, obie karty zostają w ręce, gracz dobiera dwie i kończy turę. Joker ma zamiast tego 50% szans na wybranie jednego z trzech innych kolorów, bez tej dodatkowej kary. Efekt kończy się po turze."
+    },
     "guide": {
       "subtitle": "Poznaj stół, przeczytaj karty, wykonaj ruch.",
       "contents": "Spis treści przewodnika",

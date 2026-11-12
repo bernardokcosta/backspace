@@ -8,7 +8,7 @@ export function chooseJunoBotAction(hand: readonly JunoCard[], top: JunoCard, co
   if (!card) return { type: drawnCardId ? 'pass' : 'draw' };
   const colors = JUNO_COLORS.map(color => ({ color, count: hand.filter(other => other.id !== card.id && other.color === color).length }));
   colors.sort((a, b) => b.count - a.count);
-  return { type: 'play', cardId: card.id, announce: true, ...(card.color === null && card.face !== 'memory' ? { color: colors[0]!.color } : {}) };
+  return { type: 'play', cardId: card.id, announce: true, ...(card.color === null && card.face !== 'memory' && card.face !== 'intoxicated' ? { color: colors[0]!.color } : {}) };
 }
 
 /** No faces, active color or round are available to a cursed computer. */

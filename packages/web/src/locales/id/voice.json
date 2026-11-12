@@ -12,6 +12,14 @@
     "joinedOtherSession": "Voice terputus — bergabung dari sesi lain"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Teler",
+      "instruction": "Teler selama giliran ini: peluang 50% salah kartu atau warna joker.",
+      "affected": "{{name}} sedang teler.",
+      "miss": "{{name}} salah bermain dan mengambil {{amount}}. Kartu tetap di tangan.",
+      "colorChanged": "{{name}} memilih warna lain saat teler.",
+      "rules": "Satu kartu langka yang dapat dimainkan di atas warna atau simbol apa pun tanpa mengubah warna. Pemain berikutnya teler selama satu giliran: kartu biasa berpeluang 50% gagal, kedua kartu tetap di tangan, mengambil dua kartu lalu melewatkan giliran. Joker justru berpeluang 50% memilih salah satu dari tiga warna lain tanpa hukuman tambahan itu. Efek berakhir setelah giliran."
+    },
     "guide": {
       "subtitle": "Pelajari meja, baca kartu, lakukan langkahmu.",
       "contents": "Isi panduan",

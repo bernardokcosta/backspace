@@ -4,6 +4,21 @@ import { JunoEffects } from './JunoEffects';
 
 afterEach(() => vi.useRealTimers());
 describe('confirmed Juno feedback', () => {
+  it('shows confirmed wrong-card feedback only to its owner, never as a public discard, without replay', () => {
+    vi.useFakeTimers();
+    const { container, rerender } = render(<JunoEffects move={null} position="bottom" name="Ada" viewerId="a" />);
+    const move = { id: 'intoxicated-miss', type: 'intoxicated_miss' as const, userId: 'a', amount: 2,
+      misplayedCard: { id: 'private-other', face: '2' as const, color: 'sky' as const } };
+    rerender(<JunoEffects move={move} position="bottom" name="Ada" viewerId="a" />);
+    expect(container.querySelector('.juno-effect-intoxicated-miss')).toHaveTextContent(/Ada.*2/);
+    expect(container.querySelector('.juno-intoxicated-wrong-card img')).toHaveAttribute('src', '/games/juno/cards/sky-2.webp');
+    expect(container.querySelector('.juno-effect-card')).toBeNull();
+    rerender(<JunoEffects move={{ ...move, id: 'opponent-view' }} position="top" name="Ada" viewerId="b" />);
+    expect(container.querySelector('.juno-intoxicated-wrong-card')).toBeNull();
+    act(() => vi.advanceTimersByTime(1400));
+    rerender(<JunoEffects move={{ ...move, id: 'opponent-view' }} position="top" name="Ada" viewerId="b" />);
+    expect(container.querySelector('.juno-effect-intoxicated-miss')).toBeNull();
+  });
   it('shows a confirmed blind miss without revealing or flying the attempted card', () => {
     vi.useFakeTimers();
     const { container, rerender } = render(<JunoEffects move={null} position="bottom" name="Ada" />);

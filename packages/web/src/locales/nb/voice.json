@@ -12,6 +12,14 @@
     "joinedOtherSession": "Stemme frakoblet — ble med fra en annen sesjon"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Omtåket",
+      "instruction": "Omtåket denne turen: 50% fare for feil kort eller jokerfarge.",
+      "affected": "{{name}} er omtåket.",
+      "miss": "{{name}} spilte feil og trakk {{amount}}. Kortene blir på hånden.",
+      "colorChanged": "{{name}} valgte en annen farge i omtåket tilstand.",
+      "rules": "Et sjeldent kort som kan spilles på alle farger eller symboler uten å endre fargen. Neste spiller er omtåket i én tur: et vanlig kort har 50% fare for å mislykkes, begge kortene blir på hånden, spilleren trekker to og gir turen videre. En joker har i stedet 50% fare for å velge en av de tre andre fargene uten denne ekstra straffen. Effekten slutter etter turen."
+    },
     "guide": {
       "subtitle": "Lær bordet, les kortene, gjør trekket ditt.",
       "contents": "Guidens innhold",

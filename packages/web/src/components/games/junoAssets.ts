@@ -3,7 +3,8 @@ import type { JunoCard, JunoColor } from '@veyvox/shared/src/juno';
 const ROOT = '/games/juno';
 export const JUNO_MUSIC_URL = `${ROOT}/music/charting-the-dark.mp3`;
 /** Only editions with real, supplied media are selectable. UI language is separate. */
-export const JUNO_DUBBINGS = { 'pt-BR': { languageCode: 'pt', memoryCard: `${ROOT}/cards/memory.webp`, memorySound: 'juno_memory' } } as const;
+export const JUNO_DUBBINGS = { 'pt-BR': { languageCode: 'pt', memoryCard: `${ROOT}/cards/memory.webp`, memorySound: 'juno_memory',
+  intoxicatedCard: `${ROOT}/cards/intoxicated.webp`, intoxicatedSound: 'juno_intoxicated' } } as const;
 export type JunoDubbingLanguage = keyof typeof JUNO_DUBBINGS;
 /** Match the game's UI language if a real edition exists; otherwise use supplied pt-BR. */
 export function resolveJunoDubbing(selection: 'auto' | JunoDubbingLanguage, language: string): JunoDubbingLanguage {
@@ -25,6 +26,7 @@ export const JUNO_ASSETS = {
 export function junoCardUrl(card?: JunoCard, back = false, dubbing: JunoDubbingLanguage = 'pt-BR'): string {
   if (back || !card) return `${ROOT}/cards/back.webp`;
   if (card.face === 'memory') return JUNO_DUBBINGS[dubbing].memoryCard;
+  if (card.face === 'intoxicated') return JUNO_DUBBINGS[dubbing].intoxicatedCard;
   if (card.face === 'wild' || card.face === 'draw4') return `${ROOT}/cards/${card.face}.webp`;
   return `${ROOT}/cards/${card.color}-${card.face}.webp`;
 }

@@ -12,6 +12,14 @@
     "joinedOtherSession": "Voice disconnected — joined from another session"
   },
   "juno": {
+    "intoxicated": {
+      "title": "Intoxicated",
+      "instruction": "Intoxicated for this turn: 50% chance of a wrong card or wild color.",
+      "affected": "{{name}} is intoxicated.",
+      "miss": "{{name}} misplayed and drew {{amount}}. The cards stay in hand.",
+      "colorChanged": "{{name}} chose a different color while intoxicated.",
+      "rules": "One rare card, playable on any color or face without changing the color. The next player is intoxicated for one turn: a 50% ordinary-card miss keeps both cards, draws two and passes. A wild instead has a 50% chance to choose one of the other three colors, without that extra penalty. The effect ends after the turn."
+    },
     "guide": {
       "subtitle": "Learn the table, read the cards, make your next move.", "contents": "Guide contents",
       "sections": { "start": "Getting started", "turn": "Your turn", "special": "Action cards", "juno": "Call JUNO", "memory": "Special cards", "score": "Results and XP", "table": "Around the table" },
