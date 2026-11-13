@@ -20,7 +20,7 @@
     "@emoji-mart/react": "^1.1.1",
     "@livekit/components-react": "^2.9.25",
     "@sapphi-red/web-noise-suppressor": "^0.4.1",
-    "i18next": "26.7.1",
+    "i18next": "27.1.1",
     "idb": "^8.0.4",
     "livekit-client": "^2.23.0",
     "prism-react-renderer": "^2.4.1",
